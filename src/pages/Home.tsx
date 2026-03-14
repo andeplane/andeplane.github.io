@@ -16,13 +16,13 @@ export default function Home() {
       {/* Hero */}
       <section style={{ paddingBottom: '5rem', borderBottom: '1px solid var(--color-border)' }}>
         <div style={{ display: 'inline-block', padding: '0.3em 0.8em', borderRadius: '20px', background: 'var(--color-surface-2)', border: '1px solid var(--color-border)', fontSize: '0.8rem', color: 'var(--color-text-muted)', marginBottom: '1.5rem' }}>
-          Software Engineer &amp; Simulation Builder
+          Engineering Manager at Cognite
         </div>
         <h1 style={{ fontSize: 'clamp(2rem, 5vw, 3.5rem)', fontWeight: 800, lineHeight: 1.15, letterSpacing: '-0.03em', color: '#fff', margin: '0 0 1.25rem' }}>
           Hi, I'm Anders Hafreager.
         </h1>
         <p style={{ fontSize: '1.15rem', color: 'var(--color-text-muted)', maxWidth: '55ch', lineHeight: 1.7, margin: '0 0 2.5rem' }}>
-          I build simulations, games, and AI-powered tools — mostly in TypeScript and C++, often in the browser. I work at the intersection of physics, computer graphics, and developer experience.
+          Engineering Manager at <a href="https://www.cognite.com" target="_blank" rel="noopener noreferrer" style={{ color: 'var(--color-accent-light)' }}>Cognite</a>. I build simulations, games, and AI-powered tools — mostly in TypeScript and C++, often in the browser.
         </p>
         <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap' }}>
           <Link

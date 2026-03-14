@@ -16,7 +16,11 @@ export default function About() {
         }}
       >
         <p>
-          I'm Anders Hafreager, a software engineer based in Norway. I have a PhD in computational physics from the University of Oslo, where I built molecular dynamics simulators and studied the behaviour of fluids at the nanoscale. These days I apply that background to making complex simulations accessible in the browser.
+          I'm Anders Hafreager, an Engineering Manager at <a href="https://www.cognite.com" target="_blank" rel="noopener noreferrer">Cognite</a>, living in Nydalen, Oslo with my wonderful girlfriend Ingrid and my six-year-old son Ludwig.
+        </p>
+
+        <p>
+          I have a PhD in computational physics from the University of Oslo, where I built molecular dynamics simulators and studied the behaviour of fluids at the nanoscale. These days I apply that background to making complex simulations accessible in the browser — and to leading engineering teams building industrial software.
         </p>
 
         <p>
@@ -28,7 +32,7 @@ export default function About() {
         </p>
 
         <p>
-          When I'm not in front of a computer I'm probably hiking, playing chess, or thinking about the next project.
+          When I'm not in front of a computer I'm probably hiking with Ludwig, playing chess, or thinking about the next project.
         </p>
 
         <hr style={{ border: 'none', borderTop: '1px solid var(--color-border)', margin: '0.5rem 0' }} />
