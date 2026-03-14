@@ -34,11 +34,23 @@ export default function ProjectCard({ project }: Props) {
         }}
       >
         {project.screenshot && (
-          <div style={{ aspectRatio: '16/9', overflow: 'hidden', background: 'var(--color-surface-2)' }}>
+          <div style={{
+            aspectRatio: '16/9',
+            overflow: 'hidden',
+            background: 'var(--color-surface-2)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+          }}>
             <img
               src={project.screenshot}
               alt={`${project.title} preview`}
-              style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+              style={{
+                width: '100%',
+                height: '100%',
+                objectFit: project.portrait ? 'contain' : 'cover',
+                padding: project.portrait ? '0.5rem' : 0,
+              }}
               loading="lazy"
             />
           </div>

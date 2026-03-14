@@ -28,11 +28,23 @@ export default function ProjectDetail() {
       </Link>
 
       {project.screenshot && (
-        <div style={{ borderRadius: '12px', overflow: 'hidden', marginBottom: '2rem', border: '1px solid var(--color-border)' }}>
+        <div style={{
+          borderRadius: '12px',
+          overflow: 'hidden',
+          marginBottom: '2rem',
+          border: '1px solid var(--color-border)',
+          background: 'var(--color-surface-2)',
+          display: 'flex',
+          justifyContent: 'center',
+        }}>
           <img
             src={project.screenshot}
             alt={`${project.title} screenshot`}
-            style={{ width: '100%', display: 'block' }}
+            style={{
+              display: 'block',
+              maxWidth: project.portrait ? '320px' : '100%',
+              width: '100%',
+            }}
           />
         </div>
       )}

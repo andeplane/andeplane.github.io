@@ -7,6 +7,7 @@ const project: ProjectMeta = {
   tags: ['Qt', 'QML', 'C++', 'AR', 'iOS', 'OpenGL'],
   repoUrl: 'https://github.com/andeplane/FyrLysAR',
   screenshot: '/projects/fyrlysar/preview.png',
+  portrait: true,
   longDescription: `
 FyrLysAR ("lighthouse AR" in Norwegian) is an iOS augmented reality app that renders the actual positions of Norwegian lighthouses as 3D markers anchored to the real world through your camera.
 

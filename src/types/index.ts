@@ -7,6 +7,7 @@ export interface ProjectMeta {
   liveUrl?: string
   repoUrl?: string
   screenshot?: string
+  portrait?: boolean
 }
 
 export interface BlogPostMeta {
