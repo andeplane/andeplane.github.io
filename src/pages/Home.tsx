@@ -11,11 +11,28 @@ const INTERVAL = 5000
 
 function ProjectCarousel({ projects }: { projects: ProjectMeta[] }) {
   const [index, setIndex] = useState(0)
+  const [dir, setDir] = useState<'left' | 'right'>('right')
+  const [animKey, setAnimKey] = useState(0)
   const paused = useRef(false)
   const n = projects.length
 
-  const next = useCallback(() => setIndex((i) => (i + 1) % n), [n])
-  const prev = useCallback(() => setIndex((i) => (i - 1 + n) % n), [n])
+  const next = useCallback(() => {
+    setDir('right')
+    setAnimKey((k) => k + 1)
+    setIndex((i) => (i + 1) % n)
+  }, [n])
+
+  const prev = useCallback(() => {
+    setDir('left')
+    setAnimKey((k) => k + 1)
+    setIndex((i) => (i - 1 + n) % n)
+  }, [n])
+
+  const goTo = useCallback((i: number) => {
+    setDir(i > index ? 'right' : 'left')
+    setAnimKey((k) => k + 1)
+    setIndex(i)
+  }, [index])
 
   useEffect(() => {
     const id = setInterval(() => { if (!paused.current) next() }, INTERVAL)
@@ -29,7 +46,15 @@ function ProjectCarousel({ projects }: { projects: ProjectMeta[] }) {
       onMouseEnter={() => { paused.current = true }}
       onMouseLeave={() => { paused.current = false }}
     >
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '1.25rem' }}>
+      <div
+        key={animKey}
+        style={{
+          display: 'grid',
+          gridTemplateColumns: 'repeat(3, 1fr)',
+          gap: '1.25rem',
+          animation: `${dir === 'right' ? 'slide-in-from-right' : 'slide-in-from-left'} 0.35s ease both`,
+        }}
+      >
         {visible.map((p, k) => <ProjectCard key={`${p.slug}-${k}`} project={p} />)}
       </div>
 
@@ -54,7 +79,7 @@ function ProjectCarousel({ projects }: { projects: ProjectMeta[] }) {
           {projects.map((_, i) => (
             <button
               key={i}
-              onClick={() => setIndex(i)}
+              onClick={() => goTo(i)}
               style={{
                 width: i === index ? '20px' : '6px',
                 height: '6px',
