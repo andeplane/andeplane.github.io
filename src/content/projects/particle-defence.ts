@@ -7,6 +7,7 @@ const project: ProjectMeta = {
   tags: ['TypeScript', 'Phaser 3', 'Game', 'AI'],
   liveUrl: 'https://andeplane.github.io/particle-defence/',
   repoUrl: 'https://github.com/andeplane/particle-defence',
+  screenshot: '/projects/particle-defence/preview.png',
   longDescription: `
 A competitive tower defence game where instead of placing turrets, you spawn particles from your base that autonomously navigate a procedurally generated maze toward the enemy base. Supports 1-player vs AI and 2-player local modes.
 
