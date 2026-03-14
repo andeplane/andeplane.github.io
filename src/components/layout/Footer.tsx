@@ -16,7 +16,7 @@ export default function Footer() {
           <a href="https://github.com/andeplane" target="_blank" rel="noopener noreferrer" style={{ color: 'var(--color-text-muted)' }}>
             GitHub
           </a>
-          <a href="https://linkedin.com/in/andershafreager" target="_blank" rel="noopener noreferrer" style={{ color: 'var(--color-text-muted)' }}>
+          <a href="https://linkedin.com/in/andershaf/" target="_blank" rel="noopener noreferrer" style={{ color: 'var(--color-text-muted)' }}>
             LinkedIn
           </a>
         </div>

@@ -46,8 +46,8 @@ export default function About() {
               </a>
             </li>
             <li>
-              <a href="https://linkedin.com/in/andershafreager" target="_blank" rel="noopener noreferrer">
-                LinkedIn — andershafreager
+              <a href="https://linkedin.com/in/andershaf/" target="_blank" rel="noopener noreferrer">
+                LinkedIn — andershaf
               </a>
             </li>
           </ul>
