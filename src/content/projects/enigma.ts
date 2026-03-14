@@ -7,6 +7,7 @@ const project: ProjectMeta = {
   tags: ['Python', 'NumPy', 'Cryptography', 'Education'],
   liveUrl: 'https://andeplane.github.io/enigma.py/',
   repoUrl: 'https://github.com/andeplane/enigma.py',
+  screenshot: '/projects/enigma/preview.png',
   longDescription: `
 A historically faithful Enigma machine emulator implemented in Python, with two distinct internal approaches that illuminate the mathematics behind the cipher.
 

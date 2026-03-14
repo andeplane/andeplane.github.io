@@ -6,6 +6,7 @@ const project: ProjectMeta = {
   description: 'Browser-based Moon exploration with procedural terrain, LOD chunk streaming, and Three.js.',
   tags: ['TypeScript', 'Three.js', 'Procedural Generation', 'WebGL'],
   repoUrl: 'https://github.com/andeplane/MoonLanderTS',
+  screenshot: '/projects/lunarlander/preview.png',
   longDescription: `
 Lunar Explorer is a browser-based Moon flyover experience built with TypeScript and Three.js. Soar over procedurally generated lunar terrain — craters, ridges, and vast flat plains — rendered at stable 60fps through a chunk-based LOD system.
 

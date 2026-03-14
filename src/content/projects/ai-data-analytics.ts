@@ -6,6 +6,7 @@ const project: ProjectMeta = {
   description: 'Natural-language data analysis tool — upload a CSV and ask questions in plain English.',
   tags: ['React', 'TypeScript', 'Vite', 'AI', 'Claude API'],
   repoUrl: 'https://github.com/andeplane/ai-data-analytics',
+  screenshot: '/projects/ai-data-analytics/preview.png',
   longDescription: `
 A browser-based data analytics assistant that lets non-technical users explore tabular data through conversation.
 

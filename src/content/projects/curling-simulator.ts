@@ -7,6 +7,7 @@ const project: ProjectMeta = {
   tags: ['TypeScript', 'Three.js', 'Physics', 'Game'],
   liveUrl: 'https://andeplane.github.io/curling-simulator/',
   repoUrl: 'https://github.com/andeplane/curling-simulator',
+  screenshot: '/projects/curling-simulator/preview.png',
   longDescription: `
 A full-featured curling game that runs in the browser, built with Three.js and TypeScript. The physics model is calibrated to match real-world curling behaviour rather than being a simple approximation.
 

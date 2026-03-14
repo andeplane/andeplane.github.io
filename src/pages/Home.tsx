@@ -22,7 +22,7 @@ export default function Home() {
           Hi, I'm Anders Hafreager.
         </h1>
         <p style={{ fontSize: '1.15rem', color: 'var(--color-text-muted)', maxWidth: '55ch', lineHeight: 1.7, margin: '0 0 2.5rem' }}>
-          Engineering Manager at <a href="https://www.cognite.com" target="_blank" rel="noopener noreferrer" style={{ color: 'var(--color-accent-light)' }}>Cognite</a>, PhD in computational physics. I build simulations, games, and AI-powered tools — mostly in TypeScript and C++, often in the browser.
+          Engineering Manager at <a href="https://www.cognite.com" target="_blank" rel="noopener noreferrer" style={{ color: 'var(--color-accent-light)' }}>Cognite</a>, PhD in computational physics from the University of Oslo. I build simulations, games, and AI-powered tools — mostly in TypeScript, C++, and Python, often in the browser. I love graphics programming and getting things to run in the browser — especially pushing what's possible with WebAssembly and WebGPU.
         </p>
         <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap' }}>
           <Link
