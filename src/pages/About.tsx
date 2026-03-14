@@ -32,7 +32,7 @@ export default function About() {
         </p>
 
         <p>
-          When I'm not in front of a computer I'm probably hiking with Ludwig, playing chess, or thinking about the next project.
+          When I'm not in front of a computer I'm probably hiking with Ludwig, listening to music, or deep in a Factorio factory. I'm passionate about music, physics, and AI — and I love how they all connect to the things I build.
         </p>
 
         <hr style={{ border: 'none', borderTop: '1px solid var(--color-border)', margin: '0.5rem 0' }} />
