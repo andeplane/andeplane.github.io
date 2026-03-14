@@ -1,5 +1,5 @@
 node_modules
 dist
-projects
+/projects
 .DS_Store
 *.local
