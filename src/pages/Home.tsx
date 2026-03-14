@@ -9,53 +9,71 @@ import type { ProjectMeta } from '@/types'
 const VISIBLE = 3
 const INTERVAL = 5000
 
+const ANIM_MS = 400
+
 function ProjectCarousel({ projects }: { projects: ProjectMeta[] }) {
   const [index, setIndex] = useState(0)
-  const [dir, setDir] = useState<'left' | 'right'>('right')
-  const [animKey, setAnimKey] = useState(0)
+  const [nextIndex, setNextIndex] = useState(0)
+  const [dir, setDir] = useState<'right' | 'left'>('right')
+  const [animating, setAnimating] = useState(false)
   const paused = useRef(false)
   const n = projects.length
 
-  const next = useCallback(() => {
-    setDir('right')
-    setAnimKey((k) => k + 1)
-    setIndex((i) => (i + 1) % n)
-  }, [n])
+  const navigate = useCallback((target: number, direction: 'right' | 'left') => {
+    if (animating) return
+    setDir(direction)
+    setNextIndex(target)
+    setAnimating(true)
+    setTimeout(() => {
+      setIndex(target)
+      setAnimating(false)
+    }, ANIM_MS)
+  }, [animating])
 
-  const prev = useCallback(() => {
-    setDir('left')
-    setAnimKey((k) => k + 1)
-    setIndex((i) => (i - 1 + n) % n)
-  }, [n])
-
-  const goTo = useCallback((i: number) => {
-    setDir(i > index ? 'right' : 'left')
-    setAnimKey((k) => k + 1)
-    setIndex(i)
-  }, [index])
+  const next = useCallback(() => navigate((index + 1) % n, 'right'), [navigate, index, n])
+  const prev = useCallback(() => navigate((index - 1 + n) % n, 'left'), [navigate, index, n])
+  const goTo = useCallback((i: number) => navigate(i, i > index ? 'right' : 'left'), [navigate, index])
 
   useEffect(() => {
     const id = setInterval(() => { if (!paused.current) next() }, INTERVAL)
     return () => clearInterval(id)
   }, [next])
 
-  const visible = Array.from({ length: VISIBLE }, (_, k) => projects[(index + k) % n])
+  const easing = `cubic-bezier(0.4, 0, 0.2, 1) ${ANIM_MS}ms both`
+  const currentCards = Array.from({ length: VISIBLE }, (_, k) => projects[(index + k) % n])
+  const incomingCards = Array.from({ length: VISIBLE }, (_, k) => projects[(nextIndex + k) % n])
 
   return (
     <div
       onMouseEnter={() => { paused.current = true }}
       onMouseLeave={() => { paused.current = false }}
     >
-      <div
-        key={animKey}
-        style={{
+      <div style={{ position: 'relative', overflow: 'hidden' }}>
+        {/* Outgoing cards */}
+        <div style={{
           display: 'grid',
           gridTemplateColumns: 'repeat(3, 1fr)',
           gap: '1.25rem',
-          animation: `${dir === 'right' ? 'slide-in-from-right' : 'slide-in-from-left'} 0.35s ease both`,
-        }}
-      >
-        {visible.map((p, k) => <ProjectCard key={`${p.slug}-${k}`} project={p} />)}
+          animation: animating
+            ? `${dir === 'right' ? 'carousel-slide-out-left' : 'carousel-slide-out-right'} ${easing}`
+            : undefined,
+        }}>
+          {currentCards.map((p, k) => <ProjectCard key={`cur-${p.slug}-${k}`} project={p} />)}
+        </div>
+
+        {/* Incoming cards */}
+        {animating && (
+          <div style={{
+            position: 'absolute',
+            inset: 0,
+            display: 'grid',
+            gridTemplateColumns: 'repeat(3, 1fr)',
+            gap: '1.25rem',
+            animation: `${dir === 'right' ? 'carousel-slide-in-from-right' : 'carousel-slide-in-from-left'} ${easing}`,
+          }}>
+            {incomingCards.map((p, k) => <ProjectCard key={`in-${p.slug}-${k}`} project={p} />)}
+          </div>
+        )}
       </div>
 
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '1rem', marginTop: '1.5rem' }}>

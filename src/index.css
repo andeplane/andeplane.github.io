@@ -134,13 +134,21 @@ a:hover {
 }
 
 /* Carousel animations */
-@keyframes slide-in-from-right {
-  from { opacity: 0; transform: translateX(48px); }
-  to   { opacity: 1; transform: translateX(0); }
+@keyframes carousel-slide-out-left {
+  from { transform: translateX(0); }
+  to   { transform: translateX(-100%); }
 }
-@keyframes slide-in-from-left {
-  from { opacity: 0; transform: translateX(-48px); }
-  to   { opacity: 1; transform: translateX(0); }
+@keyframes carousel-slide-out-right {
+  from { transform: translateX(0); }
+  to   { transform: translateX(100%); }
+}
+@keyframes carousel-slide-in-from-right {
+  from { transform: translateX(100%); }
+  to   { transform: translateX(0); }
+}
+@keyframes carousel-slide-in-from-left {
+  from { transform: translateX(-100%); }
+  to   { transform: translateX(0); }
 }
 
 /* Scrollbar */
