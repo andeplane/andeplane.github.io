@@ -7,6 +7,7 @@ const project: ProjectMeta = {
   tags: ['TypeScript', 'WebGPU', 'Simulation', 'Physics', 'WGSL'],
   liveUrl: 'https://andeplane.github.io/webgpu-md',
   repoUrl: 'https://github.com/andeplane/webgpu-md',
+  screenshot: '/projects/webgpu-md/preview.png',
   longDescription: `
 A high-performance molecular dynamics engine that runs entirely in the browser using WebGPU compute shaders. No server, no native app — just open the page and simulate up to 2 million Lennard-Jones atoms at interactive framerates.
 

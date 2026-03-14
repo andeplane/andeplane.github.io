@@ -3,7 +3,7 @@ import type { ProjectMeta } from '@/types'
 const project: ProjectMeta = {
   slug: 'ai-data-analytics',
   title: 'AI Data Analytics',
-  description: 'Natural-language data analysis tool — upload a CSV and ask questions in plain English.',
+  description: 'Browser-only AI data analytics — upload a CSV, ask questions in plain English, everything runs in the browser.',
   tags: ['React', 'TypeScript', 'Vite', 'AI', 'Claude API'],
   repoUrl: 'https://github.com/andeplane/ai-data-analytics',
   screenshot: '/projects/ai-data-analytics/preview.png',

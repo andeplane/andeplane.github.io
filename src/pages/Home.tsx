@@ -8,7 +8,8 @@ export default function Home() {
   const projects = useProjects()
   const { posts } = useBlogPosts()
 
-  const featured = projects.slice(0, 3)
+  const featuredSlugs = ['lunarlander', 'atomify', 'ai-data-analytics']
+  const featured = featuredSlugs.map((slug) => projects.find((p) => p.slug === slug)).filter((p) => p !== undefined)
   const recentPosts = posts.slice(0, 3)
 
   return (
