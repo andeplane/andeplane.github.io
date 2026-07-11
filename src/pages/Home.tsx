@@ -6,10 +6,28 @@ import ProjectCard from '@/components/projects/ProjectCard'
 import BlogCard from '@/components/blog/BlogCard'
 import type { ProjectMeta } from '@/types'
 
-const VISIBLE = 3
 const INTERVAL = 5000
 
 const ANIM_MS = 400
+
+function useVisibleCount(): number {
+  const [visible, setVisible] = useState(3)
+
+  useEffect(() => {
+    const narrow = window.matchMedia('(max-width: 640px)')
+    const medium = window.matchMedia('(max-width: 960px)')
+    const update = () => setVisible(narrow.matches ? 1 : medium.matches ? 2 : 3)
+    update()
+    narrow.addEventListener('change', update)
+    medium.addEventListener('change', update)
+    return () => {
+      narrow.removeEventListener('change', update)
+      medium.removeEventListener('change', update)
+    }
+  }, [])
+
+  return visible
+}
 
 function ProjectCarousel({ projects }: { projects: ProjectMeta[] }) {
   const [index, setIndex] = useState(0)
@@ -17,6 +35,7 @@ function ProjectCarousel({ projects }: { projects: ProjectMeta[] }) {
   const [dir, setDir] = useState<'right' | 'left'>('right')
   const [animating, setAnimating] = useState(false)
   const paused = useRef(false)
+  const visible = useVisibleCount()
   const n = projects.length
 
   const navigate = useCallback((target: number, direction: 'right' | 'left') => {
@@ -40,8 +59,8 @@ function ProjectCarousel({ projects }: { projects: ProjectMeta[] }) {
   }, [next])
 
   const easing = `cubic-bezier(0.4, 0, 0.2, 1) ${ANIM_MS}ms both`
-  const currentCards = Array.from({ length: VISIBLE }, (_, k) => projects[(index + k) % n])
-  const incomingCards = Array.from({ length: VISIBLE }, (_, k) => projects[(nextIndex + k) % n])
+  const currentCards = Array.from({ length: Math.min(visible, n) }, (_, k) => projects[(index + k) % n])
+  const incomingCards = Array.from({ length: Math.min(visible, n) }, (_, k) => projects[(nextIndex + k) % n])
 
   return (
     <div
@@ -52,7 +71,7 @@ function ProjectCarousel({ projects }: { projects: ProjectMeta[] }) {
         {/* Outgoing cards */}
         <div style={{
           display: 'grid',
-          gridTemplateColumns: 'repeat(3, 1fr)',
+          gridTemplateColumns: `repeat(${Math.min(visible, n)}, 1fr)`,
           gap: '1.25rem',
           animation: animating
             ? `${dir === 'right' ? 'carousel-slide-out-left' : 'carousel-slide-out-right'} ${easing}`
@@ -67,7 +86,7 @@ function ProjectCarousel({ projects }: { projects: ProjectMeta[] }) {
             position: 'absolute',
             inset: 0,
             display: 'grid',
-            gridTemplateColumns: 'repeat(3, 1fr)',
+            gridTemplateColumns: `repeat(${Math.min(visible, n)}, 1fr)`,
             gap: '1.25rem',
             animation: `${dir === 'right' ? 'carousel-slide-in-from-right' : 'carousel-slide-in-from-left'} ${easing}`,
           }}>

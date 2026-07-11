@@ -9,7 +9,7 @@ const project: ProjectMeta = {
   repoUrl: 'https://github.com/andeplane/atomify',
   screenshot: '/projects/atomify/preview.gif',
   longDescription: `
-Atomify brings the gold-standard molecular dynamics engine [LAMMPS](https://lammps.sandia.gov/) directly into the browser — no installation, no backend, no GPU cluster required.
+Atomify brings the gold-standard molecular dynamics engine [LAMMPS](https://www.lammps.org/) directly into the browser — no installation, no backend, no GPU cluster required.
 
 The entire LAMMPS simulation engine is compiled to WebAssembly via Emscripten, running at near-native speed inside a Web Worker so the UI stays responsive. A React + TypeScript front-end wraps a JupyterLite notebook environment, letting users write LAMMPS input scripts, run simulations interactively, and visualise atoms in real time using [omovi](https://github.com/andeplane/omovi).
 
