@@ -70,14 +70,27 @@ export default function ProjectCard({ project }: Props) {
           </div>
         )}
 
+        {/* Title, description, and tags are clamped to fixed line counts so
+            every card is the same height regardless of content length. */}
         <div style={{ padding: '1.25rem', flex: 1, display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
-          <h3 style={{ margin: 0, fontSize: '1.05rem', fontWeight: 700, color: '#fff' }}>
+          <h3 style={{
+            margin: 0, fontSize: '1.05rem', fontWeight: 700, color: '#fff',
+            lineHeight: 1.35, minHeight: '2.7em', display: '-webkit-box',
+            WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden',
+          }}>
             {project.title}
           </h3>
-          <p style={{ margin: 0, fontSize: '0.875rem', color: 'var(--color-text-muted)', lineHeight: 1.6, flex: 1 }}>
+          <p style={{
+            margin: 0, fontSize: '0.875rem', color: 'var(--color-text-muted)',
+            lineHeight: 1.6, minHeight: '4.8em', display: '-webkit-box',
+            WebkitLineClamp: 3, WebkitBoxOrient: 'vertical', overflow: 'hidden',
+          }}>
             {project.description}
           </p>
-          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.375rem', marginTop: 'auto' }}>
+          <div style={{
+            display: 'flex', flexWrap: 'wrap', gap: '0.375rem', marginTop: 'auto',
+            height: '1.8rem', alignItems: 'flex-start', alignContent: 'flex-start', overflow: 'hidden',
+          }}>
             {project.tags.slice(0, 4).map((tag) => (
               <Tag key={tag} label={tag} />
             ))}

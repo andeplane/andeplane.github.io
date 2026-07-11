@@ -18,7 +18,10 @@ export default defineConfig({
   },
   server: {
     watch: {
-      ignored: ['**/projects/**'],
+      // Only the top-level projects/ checkouts — a bare '**/projects/**'
+      // would also ignore src/content/projects and src/components/projects,
+      // making the dev server serve stale modules for those files.
+      ignored: [new URL('./projects/**', import.meta.url).pathname],
     },
   },
 })

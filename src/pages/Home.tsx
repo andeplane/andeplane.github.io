@@ -79,73 +79,74 @@ function ProjectCarousel({ projects }: { projects: ProjectMeta[] }) {
     '--carousel-to': animating && shift > 0 ? `calc(${-shift} * ${step})` : '0px',
   } as CSSProperties
 
+  const edgeArrowStyle = (side: 'left' | 'right'): CSSProperties => ({
+    position: 'absolute',
+    [side]: '-18px',
+    top: '50%',
+    transform: 'translateY(-50%)',
+    zIndex: 2,
+    width: '40px', height: '40px', borderRadius: '50%',
+    background: 'var(--color-surface-2)', border: '1px solid var(--color-border)',
+    boxShadow: '0 2px 12px rgba(0,0,0,0.5)',
+    color: 'var(--color-text)', cursor: 'pointer', fontSize: '1.1rem',
+    display: 'flex', alignItems: 'center', justifyContent: 'center',
+    transition: 'border-color 0.15s',
+  })
+
   return (
     <div
       onMouseEnter={() => { paused.current = true }}
       onMouseLeave={() => { paused.current = false }}
     >
-      <div style={{ overflow: 'hidden' }}>
-        <div style={trackStyle}>
-          {cards.map((p, k) => (
-            <div key={`${p.slug}-${k}`} style={{ flex: `0 0 ${cardWidth}`, minWidth: 0, display: 'grid' }}>
-              <ProjectCard project={p} />
-            </div>
-          ))}
+      <div style={{ position: 'relative' }}>
+        <div style={{ overflow: 'hidden' }}>
+          <div style={trackStyle}>
+            {cards.map((p, k) => (
+              <div key={`${p.slug}-${k}`} style={{ flex: `0 0 ${cardWidth}`, minWidth: 0, display: 'grid' }}>
+                <ProjectCard project={p} />
+              </div>
+            ))}
+          </div>
         </div>
-      </div>
 
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '1rem', marginTop: '1.5rem' }}>
         <button
           onClick={prev}
-          style={{
-            width: '36px', height: '36px', borderRadius: '50%',
-            background: 'var(--color-surface-2)', border: '1px solid var(--color-border)',
-            color: 'var(--color-text)', cursor: 'pointer', fontSize: '1rem',
-            display: 'flex', alignItems: 'center', justifyContent: 'center',
-            transition: 'border-color 0.15s',
-          }}
+          style={edgeArrowStyle('left')}
           onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.borderColor = 'var(--color-accent)' }}
           onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.borderColor = 'var(--color-border)' }}
           aria-label="Previous"
         >
           ←
         </button>
-
-        <div style={{ display: 'flex', gap: '0.4rem' }}>
-          {projects.map((_, i) => (
-            <button
-              key={i}
-              onClick={() => goTo(i)}
-              style={{
-                width: i === index ? '20px' : '6px',
-                height: '6px',
-                borderRadius: '3px',
-                border: 'none',
-                cursor: 'pointer',
-                background: i === index ? 'var(--color-accent)' : 'var(--color-border)',
-                padding: 0,
-                transition: 'width 0.3s, background 0.3s',
-              }}
-              aria-label={`Go to project ${i + 1}`}
-            />
-          ))}
-        </div>
-
         <button
           onClick={next}
-          style={{
-            width: '36px', height: '36px', borderRadius: '50%',
-            background: 'var(--color-surface-2)', border: '1px solid var(--color-border)',
-            color: 'var(--color-text)', cursor: 'pointer', fontSize: '1rem',
-            display: 'flex', alignItems: 'center', justifyContent: 'center',
-            transition: 'border-color 0.15s',
-          }}
+          style={edgeArrowStyle('right')}
           onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.borderColor = 'var(--color-accent)' }}
           onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.borderColor = 'var(--color-border)' }}
           aria-label="Next"
         >
           →
         </button>
+      </div>
+
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.4rem', marginTop: '1.5rem' }}>
+        {projects.map((_, i) => (
+          <button
+            key={i}
+            onClick={() => goTo(i)}
+            style={{
+              width: i === index ? '20px' : '6px',
+              height: '6px',
+              borderRadius: '3px',
+              border: 'none',
+              cursor: 'pointer',
+              background: i === index ? 'var(--color-accent)' : 'var(--color-border)',
+              padding: 0,
+              transition: 'width 0.3s, background 0.3s',
+            }}
+            aria-label={`Go to project ${i + 1}`}
+          />
+        ))}
       </div>
     </div>
   )

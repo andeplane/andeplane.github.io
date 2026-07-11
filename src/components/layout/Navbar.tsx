@@ -23,7 +23,7 @@ export default function Navbar() {
         style={{
           maxWidth: '1200px',
           margin: '0 auto',
-          padding: '0 1.5rem',
+          padding: '0 clamp(0.75rem, 4vw, 1.5rem)',
           height: '60px',
           display: 'flex',
           alignItems: 'center',
@@ -44,9 +44,9 @@ export default function Navbar() {
                 to={to}
                 end={to === '/'}
                 style={({ isActive }) => ({
-                  padding: '0.375rem 0.875rem',
+                  padding: '0.375rem clamp(0.4rem, 2vw, 0.875rem)',
                   borderRadius: '6px',
-                  fontSize: '0.9rem',
+                  fontSize: 'clamp(0.8rem, 2.3vw, 0.9rem)',
                   fontWeight: isActive ? 600 : 400,
                   color: isActive ? '#fff' : 'var(--color-text-muted)',
                   background: isActive ? 'var(--color-surface-2)' : 'transparent',
