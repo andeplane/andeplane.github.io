@@ -133,22 +133,10 @@ a:hover {
   border: 1px solid var(--color-border);
 }
 
-/* Carousel animations */
-@keyframes carousel-slide-out-left {
-  from { transform: translateX(0); }
-  to   { transform: translateX(-100%); }
-}
-@keyframes carousel-slide-out-right {
-  from { transform: translateX(0); }
-  to   { transform: translateX(100%); }
-}
-@keyframes carousel-slide-in-from-right {
-  from { transform: translateX(100%); }
-  to   { transform: translateX(0); }
-}
-@keyframes carousel-slide-in-from-left {
-  from { transform: translateX(-100%); }
-  to   { transform: translateX(0); }
+/* Carousel track slide — distance set per-navigation via custom properties */
+@keyframes carousel-shift {
+  from { transform: translateX(var(--carousel-from, 0px)); }
+  to   { transform: translateX(var(--carousel-to, 0px)); }
 }
 
 /* Scrollbar */

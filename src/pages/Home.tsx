@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom'
 import { useState, useEffect, useRef, useCallback } from 'react'
+import type { CSSProperties } from 'react'
 import { useProjects } from '@/hooks/useProjects'
 import { useBlogPosts } from '@/hooks/useBlogPosts'
 import ProjectCard from '@/components/projects/ProjectCard'
@@ -31,68 +32,66 @@ function useVisibleCount(): number {
 
 function ProjectCarousel({ projects }: { projects: ProjectMeta[] }) {
   const [index, setIndex] = useState(0)
-  const [nextIndex, setNextIndex] = useState(0)
-  const [dir, setDir] = useState<'right' | 'left'>('right')
+  const [shift, setShift] = useState(0)
   const [animating, setAnimating] = useState(false)
   const paused = useRef(false)
   const visible = useVisibleCount()
   const n = projects.length
 
-  const navigate = useCallback((target: number, direction: 'right' | 'left') => {
-    if (animating) return
-    setDir(direction)
-    setNextIndex(target)
+  const navigate = useCallback((delta: number) => {
+    if (animating || delta === 0) return
+    setShift(delta)
     setAnimating(true)
     setTimeout(() => {
-      setIndex(target)
+      setIndex((i) => (((i + delta) % n) + n) % n)
       setAnimating(false)
     }, ANIM_MS)
-  }, [animating])
+  }, [animating, n])
 
-  const next = useCallback(() => navigate((index + 1) % n, 'right'), [navigate, index, n])
-  const prev = useCallback(() => navigate((index - 1 + n) % n, 'left'), [navigate, index, n])
-  const goTo = useCallback((i: number) => navigate(i, i > index ? 'right' : 'left'), [navigate, index])
+  const next = useCallback(() => navigate(1), [navigate])
+  const prev = useCallback(() => navigate(-1), [navigate])
+  const goTo = useCallback((i: number) => navigate(i - index), [navigate, index])
 
   useEffect(() => {
     const id = setInterval(() => { if (!paused.current) next() }, INTERVAL)
     return () => clearInterval(id)
   }, [next])
 
-  const easing = `cubic-bezier(0.4, 0, 0.2, 1) ${ANIM_MS}ms both`
-  const currentCards = Array.from({ length: Math.min(visible, n) }, (_, k) => projects[(index + k) % n])
-  const incomingCards = Array.from({ length: Math.min(visible, n) }, (_, k) => projects[(nextIndex + k) % n])
+  const count = Math.min(visible, n)
+  const gap = '1.25rem'
+  const cardWidth = `calc((100% - ${count - 1} * ${gap}) / ${count})`
+  const step = `calc(${cardWidth} + ${gap})`
+
+  // While animating, the track holds the visible cards plus the |shift|
+  // cards sliding in (appended when moving forward, prepended when moving
+  // back), and translates by exactly shift × one card width.
+  const windowStart = animating && shift < 0 ? index + shift : index
+  const cards = Array.from(
+    { length: animating ? count + Math.abs(shift) : count },
+    (_, k) => projects[(((windowStart + k) % n) + n) % n],
+  )
+
+  const trackStyle = {
+    display: 'flex',
+    gap,
+    animation: animating ? `carousel-shift cubic-bezier(0.4, 0, 0.2, 1) ${ANIM_MS}ms both` : undefined,
+    '--carousel-from': animating && shift < 0 ? `calc(${shift} * ${step})` : '0px',
+    '--carousel-to': animating && shift > 0 ? `calc(${-shift} * ${step})` : '0px',
+  } as CSSProperties
 
   return (
     <div
       onMouseEnter={() => { paused.current = true }}
       onMouseLeave={() => { paused.current = false }}
     >
-      <div style={{ position: 'relative', overflow: 'hidden' }}>
-        {/* Outgoing cards */}
-        <div style={{
-          display: 'grid',
-          gridTemplateColumns: `repeat(${Math.min(visible, n)}, 1fr)`,
-          gap: '1.25rem',
-          animation: animating
-            ? `${dir === 'right' ? 'carousel-slide-out-left' : 'carousel-slide-out-right'} ${easing}`
-            : undefined,
-        }}>
-          {currentCards.map((p, k) => <ProjectCard key={`cur-${p.slug}-${k}`} project={p} />)}
+      <div style={{ overflow: 'hidden' }}>
+        <div style={trackStyle}>
+          {cards.map((p, k) => (
+            <div key={`${p.slug}-${k}`} style={{ flex: `0 0 ${cardWidth}`, minWidth: 0, display: 'grid' }}>
+              <ProjectCard project={p} />
+            </div>
+          ))}
         </div>
-
-        {/* Incoming cards */}
-        {animating && (
-          <div style={{
-            position: 'absolute',
-            inset: 0,
-            display: 'grid',
-            gridTemplateColumns: `repeat(${Math.min(visible, n)}, 1fr)`,
-            gap: '1.25rem',
-            animation: `${dir === 'right' ? 'carousel-slide-in-from-right' : 'carousel-slide-in-from-left'} ${easing}`,
-          }}>
-            {incomingCards.map((p, k) => <ProjectCard key={`in-${p.slug}-${k}`} project={p} />)}
-          </div>
-        )}
       </div>
 
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '1rem', marginTop: '1.5rem' }}>
