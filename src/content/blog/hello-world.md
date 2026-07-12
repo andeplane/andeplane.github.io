@@ -26,12 +26,16 @@ I wanted something minimal that I'd actually enjoy maintaining. The choice fell 
 
 No CMS, no database, no build-time static rendering. Just a fast SPA deployed to GitHub Pages.
 
+## A note on the archive
+
+You'll notice posts dated before this one. When launching the site I imported writeups of earlier projects — Atomify, FyrLysAR, the WebGPU experiments — and backdated them to when the work actually happened, so the blog reads as the history it describes rather than a launch-day dump.
+
 ## What's coming
 
 I plan to write regularly about things I'm building and thinking about. Some topics in the queue:
 
-- How I compiled LAMMPS to WebAssembly and got it running at near-native speed in the browser
 - The physics model behind the curling simulator — velocity-dependent friction and why curl strengthens late in the shot
-- WebGPU neighbour lists: spatial hashing on the GPU for molecular dynamics
+- The gory details of compiling LAMMPS to WebAssembly: the CMake + Emscripten toolchain, dev containers, and embind memory leaks
+- Porting Lunar Explorer's procedural terrain to Apple Vision Pro
 
 Thanks for stopping by.

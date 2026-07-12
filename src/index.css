@@ -133,6 +133,27 @@ a:hover {
   border: 1px solid var(--color-border);
 }
 
+/* KaTeX display math: allow horizontal scroll on narrow screens */
+.prose .katex-display {
+  overflow-x: auto;
+  overflow-y: hidden;
+  padding: 0.25em 0;
+}
+
+.prose .katex {
+  font-size: 1.05em;
+}
+
+/* Figure captions via title-less emphasis right after an image */
+.prose img + em,
+.prose p > img ~ em {
+  display: block;
+  text-align: center;
+  color: var(--color-text-muted);
+  font-size: 0.875rem;
+  margin-top: 0.5em;
+}
+
 /* Carousel track slide — distance set per-navigation via custom properties */
 @keyframes carousel-shift {
   from { transform: translateX(var(--carousel-from, 0px)); }

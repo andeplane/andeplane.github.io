@@ -1,0 +1,37 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 760 470" font-family="Inter, -apple-system, system-ui, sans-serif">
+<defs><marker id="arr0" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0.5 0.8 L 9.5 5 L 0.5 9.2 L 3 5 z" fill="#e8a020"/></marker></defs>
+<rect width="760" height="470" fill="#111111"/>
+<text x="24" y="30" font-family="Inter, -apple-system, system-ui, sans-serif" font-size="15" fill="#e8e8e8" text-anchor="start" font-weight="600">From camera-space direction to screen pixel</text>
+<text x="24" y="50" font-family="Inter, -apple-system, system-ui, sans-serif" font-size="12.5" fill="#9a9a9a" text-anchor="start" font-weight="400">A pinhole camera: the image plane sits at the focal distance; similar triangles do the rest</text>
+<line x1="120" y1="300" x2="700" y2="300" stroke="#3a3a3a" stroke-width="1.25" stroke-dasharray="5 5" stroke-linecap="butt"/>
+<text x="560" y="320" font-family="Inter, -apple-system, system-ui, sans-serif" font-size="12" fill="#6a6a6a" text-anchor="end" font-weight="400"><tspan style="font-style:italic">optical axis  (−z</tspan><tspan baseline-shift="sub" font-size="72%">d</tspan>)</text>
+<line x1="270" y1="130" x2="270" y2="420" stroke="#33415e" stroke-width="2.5" stroke-linecap="butt"/>
+<text x="270" y="118" font-family="Inter, -apple-system, system-ui, sans-serif" font-size="12.5" fill="#7f9be0" text-anchor="middle" font-weight="400">image plane</text>
+<text x="270" y="438" font-family="Inter, -apple-system, system-ui, sans-serif" font-size="12.5" fill="#7f9be0" text-anchor="middle" font-weight="400"><tspan style="font-style:italic">z</tspan><tspan baseline-shift="sub" font-size="72%">d</tspan><tspan style="font-style:italic"> = −f</tspan></text>
+<line x1="120" y1="408" x2="270" y2="408" stroke="#9a9a9a" stroke-width="1.25" stroke-linecap="butt"/>
+<line x1="120" y1="402" x2="120" y2="414" stroke="#9a9a9a" stroke-width="1.25" stroke-linecap="butt"/>
+<line x1="270" y1="402" x2="270" y2="414" stroke="#9a9a9a" stroke-width="1.25" stroke-linecap="butt"/>
+<text x="195" y="396" font-family="Inter, -apple-system, system-ui, sans-serif" font-size="13" fill="#9a9a9a" text-anchor="middle" font-weight="400"><tspan style="font-style:italic">f</tspan></text>
+<line x1="120" y1="300" x2="640" y2="130" stroke="#e8a020" stroke-width="2.25" stroke-linecap="round" marker-end="url(#arr0)"/>
+<polygon points="631,126 649,126 645,96 635,96" stroke="#e8a020" stroke-width="1.5" fill="#2a2a2a"/>
+<circle cx="640" cy="90" r="5" stroke="none" stroke-width="1.5" fill="#e8a020"/>
+<line x1="648.78" y1="94.79" x2="657.55" y2="99.59" stroke="#e8a020" stroke-width="1.25" opacity="0.7" stroke-linecap="butt"/>
+<line x1="650" y1="90" x2="660" y2="90" stroke="#e8a020" stroke-width="1.25" opacity="0.7" stroke-linecap="butt"/>
+<line x1="648.78" y1="85.21" x2="657.55" y2="80.41" stroke="#e8a020" stroke-width="1.25" opacity="0.7" stroke-linecap="butt"/>
+<text x="620" y="78" font-family="Inter, -apple-system, system-ui, sans-serif" font-size="13" fill="#e8a020" text-anchor="end" font-weight="600">lighthouse</text>
+<text x="620" y="95" font-family="Inter, -apple-system, system-ui, sans-serif" font-size="12.5" fill="#9a9a9a" text-anchor="end" font-weight="400"><tspan style="font-style:italic;font-weight:700">d</tspan><tspan baseline-shift="sub" font-size="72%">cam</tspan> = R (<tspan style="font-style:italic">p</tspan><tspan baseline-shift="sub" font-size="72%">ENU</tspan> − <tspan style="font-style:italic">o</tspan><tspan baseline-shift="sub" font-size="72%">ENU</tspan>)</text>
+<circle cx="270" cy="250.96" r="5" stroke="#2fbd8a" stroke-width="2.25" fill="#111111"/>
+<text x="286" y="272.96" font-family="Inter, -apple-system, system-ui, sans-serif" font-size="12.5" fill="#2fbd8a" text-anchor="start" font-weight="600">screen point</text>
+<text x="286" y="289.96" font-family="Inter, -apple-system, system-ui, sans-serif" font-size="12.5" fill="#9a9a9a" text-anchor="start" font-weight="400"><tspan style="font-style:italic">y</tspan><tspan baseline-shift="sub" font-size="72%">s</tspan><tspan style="font-style:italic"> = f · d</tspan><tspan baseline-shift="sub" font-size="72%">y</tspan><tspan style="font-style:italic"> / d</tspan><tspan baseline-shift="sub" font-size="72%">z</tspan></text>
+<polygon points="120,300 270,300 270,250.96" stroke="none" stroke-width="1.5" fill="#199e70" opacity="0.12"/>
+<polygon points="120,300 640,300 640,130" stroke="none" stroke-width="1.5" fill="#199e70" opacity="0.06"/>
+<line x1="640" y1="300" x2="640" y2="130" stroke="#9a9a9a" stroke-width="1" stroke-dasharray="3 4" stroke-linecap="butt"/>
+<text x="632" y="219" font-family="Inter, -apple-system, system-ui, sans-serif" font-size="12.5" fill="#9a9a9a" text-anchor="end" font-weight="400"><tspan style="font-style:italic">d</tspan><tspan baseline-shift="sub" font-size="72%">y</tspan></text>
+<text x="490" y="338" font-family="Inter, -apple-system, system-ui, sans-serif" font-size="12.5" fill="#9a9a9a" text-anchor="middle" font-weight="400"><tspan style="font-style:italic">d</tspan><tspan baseline-shift="sub" font-size="72%">z</tspan>  (depth along the view axis)</text>
+<circle cx="120" cy="300" r="6" stroke="none" stroke-width="1.5" fill="#e8e8e8"/>
+<text x="108" y="305" font-family="Inter, -apple-system, system-ui, sans-serif" font-size="13" fill="#e8e8e8" text-anchor="end" font-weight="600">camera</text>
+<text x="108" y="322" font-family="Inter, -apple-system, system-ui, sans-serif" font-size="11.5" fill="#9a9a9a" text-anchor="end" font-weight="400">(device origin)</text>
+<line x1="120" y1="300" x2="631.33" y2="158.43" stroke="#232323" stroke-width="1" stroke-linecap="butt"/>
+<line x1="120" y1="300" x2="631.33" y2="441.57" stroke="#232323" stroke-width="1" stroke-linecap="butt"/>
+<text x="288" y="192" font-family="Inter, -apple-system, system-ui, sans-serif" font-size="11.5" fill="#6a6a6a" text-anchor="start" font-weight="400">field of view</text>
+</svg>

@@ -1,0 +1,32 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 760 500" font-family="Inter, -apple-system, system-ui, sans-serif">
+<defs><marker id="arr0" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M 0.5 0.8 L 9.5 5 L 0.5 9.2 L 3 5 z" fill="#9085e9"/></marker>
+<marker id="arr1" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0.5 0.8 L 9.5 5 L 0.5 9.2 L 3 5 z" fill="#e66767"/></marker>
+<marker id="arr2" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M 0.5 0.8 L 9.5 5 L 0.5 9.2 L 3 5 z" fill="#2fbd8a"/></marker></defs>
+<rect width="760" height="500" fill="#111111"/>
+<text x="24" y="30" font-family="Inter, -apple-system, system-ui, sans-serif" font-size="15" fill="#e8e8e8" text-anchor="start" font-weight="600">One keypress, seven permutations and a reflection</text>
+<text x="24" y="50" font-family="Inter, -apple-system, system-ui, sans-serif" font-size="12.5" fill="#9a9a9a" text-anchor="start" font-weight="400">The signal crosses every rotor twice — and the reflector guarantees it can never return to its own letter</text>
+<rect x="56" y="120" width="78" height="250" rx="8" stroke="#4a4a4a" stroke-width="1.5" fill="#161616"/>
+<text x="95" y="96" font-family="Inter, -apple-system, system-ui, sans-serif" font-size="16" fill="#e8e8e8" text-anchor="middle" font-weight="700">U</text>
+<text x="95" y="112" font-family="Inter, -apple-system, system-ui, sans-serif" font-size="11" fill="#9a9a9a" text-anchor="middle" font-weight="400">reflector</text>
+<rect x="178" y="120" width="78" height="250" rx="8" stroke="#4a4a4a" stroke-width="1.5" fill="#161616"/>
+<text x="217" y="96" font-family="Inter, -apple-system, system-ui, sans-serif" font-size="16" fill="#e8e8e8" text-anchor="middle" font-weight="700">L</text>
+<text x="217" y="112" font-family="Inter, -apple-system, system-ui, sans-serif" font-size="11" fill="#9a9a9a" text-anchor="middle" font-weight="400">slow rotor</text>
+<rect x="300" y="120" width="78" height="250" rx="8" stroke="#4a4a4a" stroke-width="1.5" fill="#161616"/>
+<text x="339" y="96" font-family="Inter, -apple-system, system-ui, sans-serif" font-size="16" fill="#e8e8e8" text-anchor="middle" font-weight="700">M</text>
+<text x="339" y="112" font-family="Inter, -apple-system, system-ui, sans-serif" font-size="11" fill="#9a9a9a" text-anchor="middle" font-weight="400">middle rotor</text>
+<rect x="422" y="120" width="78" height="250" rx="8" stroke="#4a4a4a" stroke-width="1.5" fill="#161616"/>
+<text x="461" y="96" font-family="Inter, -apple-system, system-ui, sans-serif" font-size="16" fill="#e8e8e8" text-anchor="middle" font-weight="700">R</text>
+<text x="461" y="112" font-family="Inter, -apple-system, system-ui, sans-serif" font-size="11" fill="#9a9a9a" text-anchor="middle" font-weight="400">fast rotor</text>
+<rect x="544" y="120" width="78" height="250" rx="8" stroke="#4a4a4a" stroke-width="1.5" fill="#161616"/>
+<text x="583" y="96" font-family="Inter, -apple-system, system-ui, sans-serif" font-size="16" fill="#e8e8e8" text-anchor="middle" font-weight="700">S</text>
+<text x="583" y="112" font-family="Inter, -apple-system, system-ui, sans-serif" font-size="11" fill="#9a9a9a" text-anchor="middle" font-weight="400">plugboard</text>
+<text x="700" y="316" font-family="'JetBrains Mono', 'Fira Code', monospace" font-size="13.5" fill="#2fbd8a" text-anchor="middle" font-weight="600">key  A</text>
+<text x="700" y="204" font-family="'JetBrains Mono', 'Fira Code', monospace" font-size="13.5" fill="#e66767" text-anchor="middle" font-weight="600">lamp K</text>
+<path d="M440.63 397.57 L442.35 396.07 L444.25 394.7 L446.32 393.49 L448.53 392.45 L450.88 391.58 L453.32 390.89 L455.83 390.4 L458.4 390.1 L461 390 L463.6 390.1 L466.17 390.4 L468.68 390.89 L471.12 391.58 L473.47 392.45 L475.68 393.49 L477.75 394.7 L479.65 396.07 L481.37 397.57" stroke="#9085e9" stroke-width="1.75" fill="none" stroke-linejoin="round" stroke-linecap="round" marker-end="url(#arr0)"/>
+<text x="461" y="432" font-family="Inter, -apple-system, system-ui, sans-serif" font-size="11.5" fill="#9085e9" text-anchor="middle" font-weight="400">steps on every keypress</text>
+<path d="M688 294 L622 294 L558 306 L544 306 L500 306 L436 282 L422 282 L378 282 L314 312 L300 312 L256 312 L192 294 L178 294 L134 294 L70 320 L70 320" stroke="#2fbd8a" stroke-width="2.25" fill="none" stroke-linejoin="round" stroke-linecap="round"/>
+<path d="M70 320 L70 194" stroke="#e8a020" stroke-width="2.25" fill="none" stroke-dasharray="4 3" stroke-linejoin="round" stroke-linecap="round"/>
+<path d="M70 194 L134 194 L178 194 L242 216 L256 216 L300 216 L364 190 L378 190 L422 190 L486 206 L500 206 L544 206 L608 186 L622 186 L688 186" stroke="#e66767" stroke-width="2.25" fill="none" stroke-linejoin="round" stroke-linecap="round" marker-end="url(#arr1)"/>
+<line x1="640" y1="294" x2="630" y2="294" stroke="#2fbd8a" stroke-width="2.25" stroke-linecap="round" marker-end="url(#arr2)"/>
+<text x="380" y="474" font-family="Inter, -apple-system, system-ui, sans-serif" font-size="14.5" fill="#e8e8e8" text-anchor="middle" font-weight="600"><tspan style="font-style:italic">E  =  S</tspan><tspan baseline-shift="super" font-size="72%">−1</tspan><tspan style="font-style:italic"> R</tspan><tspan baseline-shift="super" font-size="72%">−1</tspan><tspan style="font-style:italic"> M</tspan><tspan baseline-shift="super" font-size="72%">−1</tspan><tspan style="font-style:italic"> L</tspan><tspan baseline-shift="super" font-size="72%">−1</tspan><tspan style="font-style:italic"> U L M R S</tspan></text>
+</svg>

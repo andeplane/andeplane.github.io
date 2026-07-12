@@ -1,0 +1,39 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 760 520" font-family="Inter, -apple-system, system-ui, sans-serif">
+<defs><marker id="arr0" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0.5 0.8 L 9.5 5 L 0.5 9.2 L 3 5 z" fill="#2fbd8a"/></marker>
+<marker id="arr1" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="6.5" markerHeight="6.5" orient="auto-start-reverse"><path d="M 0.5 0.8 L 9.5 5 L 0.5 9.2 L 3 5 z" fill="#9085e9"/></marker>
+<marker id="arr2" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M 0.5 0.8 L 9.5 5 L 0.5 9.2 L 3 5 z" fill="#8fd0b5"/></marker>
+<marker id="arr3" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M 0.5 0.8 L 9.5 5 L 0.5 9.2 L 3 5 z" fill="#8fd0b5"/></marker>
+<marker id="arr4" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0.5 0.8 L 9.5 5 L 0.5 9.2 L 3 5 z" fill="#e66767"/></marker>
+<marker id="arr5" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0.5 0.8 L 9.5 5 L 0.5 9.2 L 3 5 z" fill="#e66767"/></marker></defs>
+<rect width="760" height="520" fill="#111111"/>
+<text x="24" y="30" font-family="Inter, -apple-system, system-ui, sans-serif" font-size="15" fill="#e8e8e8" text-anchor="start" font-weight="600">Why equal grip means zero curl</text>
+<text x="24" y="50" font-family="Inter, -apple-system, system-ui, sans-serif" font-size="12.5" fill="#9a9a9a" text-anchor="start" font-weight="400">Rotation tilts the slip direction at the front and back of the running band in opposite ways</text>
+<circle cx="300" cy="300" r="120" stroke="#4a4a4a" stroke-width="2" fill="#242424"/>
+<circle cx="300" cy="300" r="106" stroke="#333333" stroke-width="1" fill="none"/>
+<circle cx="300" cy="300" r="64" stroke="#565656" stroke-width="9" fill="none" opacity="0.9"/>
+<text x="166" y="266" font-family="Inter, -apple-system, system-ui, sans-serif" font-size="12" fill="#9a9a9a" text-anchor="end" font-weight="400">running band</text>
+<line x1="170" y1="262" x2="232" y2="278" stroke="#9a9a9a" stroke-width="1" stroke-linecap="butt"/>
+<line x1="300" y1="170" x2="300" y2="90" stroke="#2fbd8a" stroke-width="3" stroke-linecap="round" marker-end="url(#arr0)"/>
+<text x="286" y="124" font-family="Inter, -apple-system, system-ui, sans-serif" font-size="14" fill="#2fbd8a" text-anchor="end" font-weight="600"><tspan style="font-style:italic;font-weight:700">v</tspan>  stone velocity</text>
+<path d="M287.05 282.21 L288.52 281.24 L290.05 280.38 L291.65 279.65 L293.31 279.04 L295 278.58 L296.73 278.24 L298.48 278.05 L300.24 278 L301.99 278.09 L303.74 278.32 L305.46 278.69 L307.15 279.19 L308.79 279.83 L310.37 280.6 L311.89 281.49 L313.33 282.5 L314.68 283.62 L315.95 284.84 L317.11 286.17 L318.16 287.58 L319.09 289.07 L319.9 290.63 L320.59 292.25 L321.14 293.92 L321.56 295.63 L321.84 297.37 L321.98 299.12 L321.98 300.88 L321.84 302.63 L321.56 304.37 L321.14 306.08 L320.59 307.75 L319.9 309.37 L319.09 310.93" stroke="#9085e9" stroke-width="2.25" fill="none" stroke-linejoin="round" stroke-linecap="round" marker-end="url(#arr1)"/>
+<text x="300" y="450" font-family="Inter, -apple-system, system-ui, sans-serif" font-size="13" fill="#9085e9" text-anchor="middle" font-weight="400"><tspan style="font-style:italic;font-weight:700">ω</tspan>  clockwise handle</text>
+<circle cx="300" cy="236" r="6" stroke="#e8a020" stroke-width="2.25" fill="#111111"/>
+<circle cx="300" cy="364" r="6" stroke="#e8a020" stroke-width="2.25" fill="#111111"/>
+<line x1="300" y1="236" x2="321" y2="184" stroke="#8fd0b5" stroke-width="1.75" stroke-dasharray="4 3" stroke-linecap="round" marker-end="url(#arr2)"/>
+<text x="329" y="186" font-family="Inter, -apple-system, system-ui, sans-serif" font-size="11.5" fill="#8fd0b5" text-anchor="start" font-weight="400">slip</text>
+<line x1="300" y1="364" x2="279" y2="312" stroke="#8fd0b5" stroke-width="1.75" stroke-dasharray="4 3" stroke-linecap="round" marker-end="url(#arr3)"/>
+<text x="269" y="314" font-family="Inter, -apple-system, system-ui, sans-serif" font-size="11.5" fill="#8fd0b5" text-anchor="end" font-weight="400">slip</text>
+<line x1="300" y1="236" x2="282.77" y2="278.65" stroke="#e66767" stroke-width="2.5" stroke-linecap="round" marker-end="url(#arr4)"/>
+<text x="274.77" y="270.65" font-family="Inter, -apple-system, system-ui, sans-serif" font-size="12.5" fill="#e66767" text-anchor="end" font-weight="400"><tspan style="font-style:italic;font-weight:700">F</tspan><tspan baseline-shift="sub" font-size="72%">front</tspan></text>
+<line x1="300" y1="364" x2="325.46" y2="427.05" stroke="#e66767" stroke-width="2.5" stroke-linecap="round" marker-end="url(#arr5)"/>
+<text x="335.46" y="431.05" font-family="Inter, -apple-system, system-ui, sans-serif" font-size="12.5" fill="#e66767" text-anchor="start" font-weight="400"><tspan style="font-style:italic;font-weight:700">F</tspan><tspan baseline-shift="sub" font-size="72%">back</tspan></text>
+<text x="508" y="200" font-family="Inter, -apple-system, system-ui, sans-serif" font-size="13" fill="#e8e8e8" text-anchor="start" font-weight="600">front of the band:</text>
+<text x="508" y="220" font-family="Inter, -apple-system, system-ui, sans-serif" font-size="12.5" fill="#9a9a9a" text-anchor="start" font-weight="400">rotation adds +x to the slip →</text>
+<text x="508" y="237" font-family="Inter, -apple-system, system-ui, sans-serif" font-size="12.5" fill="#9a9a9a" text-anchor="start" font-weight="400">friction points a little to the left</text>
+<text x="508" y="282" font-family="Inter, -apple-system, system-ui, sans-serif" font-size="13" fill="#e8e8e8" text-anchor="start" font-weight="600">back of the band:</text>
+<text x="508" y="302" font-family="Inter, -apple-system, system-ui, sans-serif" font-size="12.5" fill="#9a9a9a" text-anchor="start" font-weight="400">rotation subtracts −x →</text>
+<text x="508" y="319" font-family="Inter, -apple-system, system-ui, sans-serif" font-size="12.5" fill="#9a9a9a" text-anchor="start" font-weight="400">friction points a little to the right</text>
+<text x="508" y="364" font-family="Inter, -apple-system, system-ui, sans-serif" font-size="12.5" fill="#9a9a9a" text-anchor="start" font-weight="400">equal grip → the sideways parts</text>
+<text x="508" y="381" font-family="Inter, -apple-system, system-ui, sans-serif" font-size="12.5" fill="#9a9a9a" text-anchor="start" font-weight="400">cancel exactly. Curl needs a</text>
+<text x="508" y="398" font-family="Inter, -apple-system, system-ui, sans-serif" font-size="12.5" fill="#e8e8e8" text-anchor="start" font-weight="600">front–back asymmetry.</text>
+</svg>

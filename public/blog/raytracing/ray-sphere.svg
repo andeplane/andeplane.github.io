@@ -1,0 +1,31 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 760 470" font-family="Inter, -apple-system, system-ui, sans-serif">
+<defs><marker id="arr0" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0.5 0.8 L 9.5 5 L 0.5 9.2 L 3 5 z" fill="#3987e5"/></marker>
+<marker id="arr1" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0.5 0.8 L 9.5 5 L 0.5 9.2 L 3 5 z" fill="#9085e9"/></marker></defs>
+<rect width="760" height="470" fill="#111111"/>
+<text x="24" y="30" font-family="Inter, -apple-system, system-ui, sans-serif" font-size="15" fill="#e8e8e8" text-anchor="start" font-weight="600">Ray–sphere intersection, geometrically</text>
+<text x="24" y="50" font-family="Inter, -apple-system, system-ui, sans-serif" font-size="12.5" fill="#9a9a9a" text-anchor="start" font-weight="400">Project the centre onto the ray, then Pythagoras twice — the algebra in the post says the same thing</text>
+<circle cx="500" cy="235" r="108" stroke="#4a5568" stroke-width="2" fill="#1a1d24"/>
+<circle cx="500" cy="235" r="4.5" stroke="none" stroke-width="1.5" fill="#e8e8e8"/>
+<text x="510" y="253" font-family="Inter, -apple-system, system-ui, sans-serif" font-size="14" fill="#e8e8e8" text-anchor="start" font-weight="400"><tspan style="font-style:italic;font-weight:600">C</tspan></text>
+<line x1="500" y1="235" x2="531.3" y2="131.64" stroke="#4a5568" stroke-width="1.5" stroke-dasharray="4 4" stroke-linecap="butt"/>
+<text x="525.65" y="195.32" font-family="Inter, -apple-system, system-ui, sans-serif" font-size="13.5" fill="#8fa3c8" text-anchor="start" font-weight="400"><tspan style="font-style:italic">R</tspan></text>
+<line x1="70" y1="375" x2="618.37" y2="85.7" stroke="#3987e5" stroke-width="2.5" stroke-linecap="round" marker-end="url(#arr0)"/>
+<circle cx="70" cy="375" r="5.5" stroke="none" stroke-width="1.5" fill="#e8e8e8"/>
+<text x="66" y="399" font-family="Inter, -apple-system, system-ui, sans-serif" font-size="13.5" fill="#e8e8e8" text-anchor="start" font-weight="400"><tspan style="font-style:italic;font-weight:600">O</tspan>  ray origin</text>
+<text x="163.29" y="307.67" font-family="Inter, -apple-system, system-ui, sans-serif" font-size="13" fill="#3987e5" text-anchor="start" font-weight="400"><tspan style="font-style:italic;font-weight:700">D</tspan>  (unit length)</text>
+<line x1="70" y1="375" x2="500" y2="235" stroke="#9085e9" stroke-width="1.75" stroke-dasharray="5 4" stroke-linecap="round" marker-end="url(#arr1)"/>
+<text x="288.4" y="325.8" font-family="Inter, -apple-system, system-ui, sans-serif" font-size="13" fill="#9085e9" text-anchor="start" font-weight="400"><tspan style="font-style:italic;font-weight:700">L</tspan> = <tspan style="font-style:italic">C</tspan> − <tspan style="font-style:italic">O</tspan></text>
+<line x1="500" y1="235" x2="464.16" y2="167.06" stroke="#9a9a9a" stroke-width="1.5" stroke-dasharray="3 4" stroke-linecap="butt"/>
+<text x="492.08" y="195.03" font-family="Inter, -apple-system, system-ui, sans-serif" font-size="13.5" fill="#9a9a9a" text-anchor="start" font-weight="400"><tspan style="font-style:italic">d</tspan></text>
+<path d="M456.2 171.26 L460.4 179.22 L468.36 175.02" stroke="#9a9a9a" stroke-width="1.25" fill="none" stroke-linejoin="round" stroke-linecap="round"/>
+<circle cx="397.01" cy="202.48" r="5.5" stroke="#e8a020" stroke-width="2.25" fill="#111111"/>
+<text x="385.01" y="190.48" font-family="Inter, -apple-system, system-ui, sans-serif" font-size="13.5" fill="#e8a020" text-anchor="end" font-weight="600">t₁</text>
+<circle cx="531.3" cy="131.64" r="5.5" stroke="#e8a020" stroke-width="2.25" fill="#111111"/>
+<text x="519.3" y="119.64" font-family="Inter, -apple-system, system-ui, sans-serif" font-size="13.5" fill="#e8a020" text-anchor="end" font-weight="600">t₂</text>
+<text x="478.16" y="173.06" font-family="Inter, -apple-system, system-ui, sans-serif" font-size="12.5" fill="#9a9a9a" text-anchor="start" font-weight="400"><tspan style="font-style:italic">t</tspan><tspan baseline-shift="sub" font-size="72%">ca</tspan></text>
+<text x="64" y="120" font-family="Inter, -apple-system, system-ui, sans-serif" font-size="13.5" fill="#e8e8e8" text-anchor="start" font-weight="400"><tspan style="font-style:italic">t</tspan><tspan baseline-shift="sub" font-size="72%">ca</tspan> = <tspan style="font-style:italic;font-weight:700">L</tspan> · <tspan style="font-style:italic;font-weight:700">D</tspan></text>
+<text x="64" y="144" font-family="Inter, -apple-system, system-ui, sans-serif" font-size="13.5" fill="#e8e8e8" text-anchor="start" font-weight="400"><tspan style="font-style:italic">d</tspan><tspan baseline-shift="super" font-size="72%">2</tspan> = <tspan style="font-style:italic;font-weight:700">L</tspan> · <tspan style="font-style:italic;font-weight:700">L</tspan> − <tspan style="font-style:italic">t</tspan><tspan baseline-shift="sub" font-size="72%">ca</tspan><tspan baseline-shift="super" font-size="72%">2</tspan></text>
+<text x="64" y="168" font-family="Inter, -apple-system, system-ui, sans-serif" font-size="13.5" fill="#e8e8e8" text-anchor="start" font-weight="400"><tspan style="font-style:italic">t</tspan><tspan baseline-shift="sub" font-size="72%">hc</tspan> = √(<tspan style="font-style:italic">R</tspan><tspan baseline-shift="super" font-size="72%">2</tspan> − <tspan style="font-style:italic">d</tspan><tspan baseline-shift="super" font-size="72%">2</tspan>)</text>
+<text x="64" y="192" font-family="Inter, -apple-system, system-ui, sans-serif" font-size="13.5" fill="#e8a020" text-anchor="start" font-weight="400"><tspan style="font-style:italic">t</tspan><tspan baseline-shift="sub" font-size="72%">1,2</tspan> = <tspan style="font-style:italic">t</tspan><tspan baseline-shift="sub" font-size="72%">ca</tspan> ∓ <tspan style="font-style:italic">t</tspan><tspan baseline-shift="sub" font-size="72%">hc</tspan></text>
+<text x="64" y="220" font-family="Inter, -apple-system, system-ui, sans-serif" font-size="12.5" fill="#9a9a9a" text-anchor="start" font-weight="400"><tspan style="font-style:italic">d</tspan> &gt; <tspan style="font-style:italic">R</tspan>  →  miss</text>
+</svg>
