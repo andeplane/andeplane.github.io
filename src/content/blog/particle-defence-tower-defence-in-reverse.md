@@ -1,41 +1,51 @@
 ---
 title: "Particle Defence: tower defence, but the particles fight back"
 date: "2026-04-12"
-description: "What happens when two tower-defence players attack each other with autonomous particles? A* pathfinding, maze warfare, and an AI opponent with a threat heuristic."
-tags: ["Game", "AI", "Pathfinding", "TypeScript", "Phaser"]
+description: "What happens when two tower-defence players attack each other with swarms of bouncing particles? A physics-particle game where you shape a chaotic flow with walls instead of routing smart units."
+tags: ["Game", "Physics", "TypeScript", "Phaser", "AI"]
 ---
 
-I love tower defence games — always have. And I've spent a career loving particles (ask my [molecular dynamics simulations](#/blog/webgpu-md-two-million-atoms-in-a-browser-tab)). With Joachim, those two loves finally collided: [Particle Defence](https://andeplane.github.io/particle-defence/) is tower defence *inverted*. You don't place turrets to stop a scripted wave — you **are** the wave. Two bases on opposite sides of a procedurally generated maze, each spawning autonomous particles that navigate toward the enemy base, in 2-player local or against an AI.
+I love tower defence games — always have. And I've spent a career loving particles (ask my [molecular dynamics simulations](#/blog/webgpu-md-two-million-atoms-in-a-browser-tab)). With Joachim, those two loves finally collided: [Particle Defence](https://andeplane.github.io/particle-defence/) is tower defence *inverted*. You don't place turrets to stop a scripted wave — you **are** the wave. Two bases on opposite sides of a procedurally generated maze, each spawning particles that stream toward the enemy base, in 2-player local or against an AI.
 
-The design twist that makes it a real game: **walls are weapons**. You build obstacles to reroute *enemy* particles into long detours while keeping corridors clean for your own. Every wall placement is simultaneously defence and route-sabotage.
+The design twist that makes it a real game: **walls are weapons**. You build obstacles to deflect the enemy swarm into dead ends while keeping open lanes for your own. Every wall is simultaneously defence and sabotage.
 
-## Every particle is a tiny navigator
+## The particles are actually particles
 
-Each spawned particle runs **A\*** over the maze grid: expand the node minimising
+Here's the thing I want to be precise about, because it's the whole soul of the game. The units do **not** pathfind. There's no A\*, no Dijkstra, no flow field — nothing computes a route. Each particle is a little ballistic body:
 
-$$
-f(n) = \underbrace{g(n)}_{\text{cost so far}} + \underbrace{h(n)}_{\text{estimate to goal}}, \qquad h(n) = |\Delta \mathrm{col}| + |\Delta \mathrm{row}|
-$$
+- it **launches** from your base at a random angle within ±72° of "toward the enemy," at a fixed speed;
+- every frame it gets a tiny **random drift**, biased 65% of the time toward the enemy side — this exists purely to stop particles getting stuck, not to navigate;
+- when it hits a wall it **reflects** specularly, like light off a mirror (the velocity component normal to the wall flips), plus a small random kick;
+- top and bottom edges **wrap** around.
 
-![Every particle plans its own route](/blog/particle-defence/astar-maze.svg)
+![No pathfinding: launch, drift, bounce](/blog/particle-defence/particle-motion.svg)
 
-*An actual A\* run on a maze layout — the shaded cells are what the search expanded before finding the route. The Manhattan heuristic never overestimates on a 4-connected grid, so the path found is provably shortest.*
+*A faithful trace of the real model — same launch spread, drift, and specular bounces the game runs. Most particles are still ricocheting around; occasionally one threads the gaps to the enemy base.*
 
-The heuristic being *admissible* (never overestimating) is what guarantees optimal paths; being *tight* is what keeps the search cheap — notice how the expansion cloud hugs the corridor instead of flooding the map. That efficiency matters at gameplay scale: dozens of particles re-plan whenever the maze changes, mid-game, sixty times a second in the worst moments. When a wall goes up, affected particles recompute from their current cell — you can watch a stream of particles bend around your fresh obstacle like water finding a new channel, which is quietly the most satisfying visual in the game.
+That's it. It's closer to a gas of particles in a box — or a billiard-ball simulation — than to a strategy game's unit AI. Which means the maze doesn't get *solved*; it gets *shaped*. You aren't outsmarting a router by building a longer path — there is no router. You're changing the geometry that a chaotic swarm bounces around inside, tilting the odds of how many particles reach the far wall per second. That emergent, statistical feel is exactly why building it scratched the physics itch and not the algorithms itch.
 
-Kill an enemy particle, earn gold. Spend it on the **upgrade tree** — faster particles, shields, homing behaviour — or bank toward the specials: area blasts, and a nuclear strike that erases a chunk of the maze (both players' walls; use with feelings).
+## Where the depth actually lives
+
+With movement this simple, the game gets its richness from everything the particles *do* along the way:
+
+- **Combat on contact.** When opposing particles collide they fight, and the damage model has real texture: a speed-difference bonus (fast particles hit harder), anti-tank HP scaling so swarms of cheap units can bring down a few fat ones, and a defense stat that blunts it.
+- **Territory.** Particles claim the grid cells they pass through. Captured cells slow enemy particles and give your own a defense bonus, so the map slowly stains with ownership and the middle becomes contested ground.
+- **Destructible walls.** The walls you build aren't permanent — enemy particles chip away at them on each bounce, so a defensive line decays under pressure and has to be maintained.
+- **Economy.** Kills pay gold; gold buys the eight upgrade types (health, attack, radius, spawn rate, speed, defense, max particles, and an interest rate on banked gold) plus researched **towers** — Laser (damage) and Slow (area control) — and the **nuke**, which wipes every enemy particle and tower on a five-minute cooldown.
+
+Seven procedurally generated map types (percolation fields, recursive-backtracker mazes, hourglass chokepoints, lanes, islands, rooms, fortresses) change the bounce geometry enough that strategies don't transfer between them.
 
 ## The AI opponent
 
-The AI controller was the most fun system to build. It plays the same game you do — no cheating information — driven by a **threat-score heuristic** over map regions: if its particles keep dying in the same area, that region's score rises, and the AI responds by rerouting (building walls to shift its particles' A\* solutions elsewhere), or, past a threshold, deciding the region is a fortified kill-zone and saving for a nuke. Difficulty tuning is honest, too: harder AIs don't get more gold, they just spend it with less latency and better timing.
+The AI plays the same game you do, with the same information — but note what it *can't* do: reroute its units, because nothing routes them. So its intelligence is entirely **economic and tempo-based**. It scores the eight upgrades against the current game state (weighted by a difficulty profile) and buys the best one, researches and places towers, and decides when to fire the nuke — triggering when it's losing badly, when the enemy particle count floods past a few hundred, or out of desperation. Harder AIs don't cheat on gold; they just evaluate and react faster.
 
-It's a nice little case study in emergent difficulty — the AI has no scripted strategies, but "notice where you're bleeding, then either go around or blow it up" reads as intent when you're playing against it.
+It reads as intent without any scripted strategy — but the intent is "manage my economy and pick my moment," never "find a clever path," because paths aren't a thing here.
 
 ## Engineering notes
 
-Built on **Phaser 3** for rendering and arcade physics. Two decisions paid for themselves many times over:
+Built on **Phaser 3** for rendering and the game loop. Two things I'd call out:
 
-- **Every game constant lives in one `config.ts`** — spawn rates, upgrade costs, particle speeds, AI reaction times. Balancing a 2-player game is endless knob-turning; making every knob one file means a rebalance is a diff, not an archaeology dig.
-- **The post-game stats screen** shows nine dual-series timeline graphs — gold, spawns, kills, walls, for both players — as canvas line charts with a glow pass. It started as a debugging tool for AI tuning and got promoted to a feature: the post-mortem argument about *when exactly the game turned* is half the fun of a 2-player match.
+- **Balance is simulation-tested.** There's a whole headless harness — tournament runner, ablation runner, a balance calculator — that plays AI-vs-AI matches across profiles and maps to catch dominant strategies before a human ever does. Balancing a 2-player game by hand is guesswork; balancing it by running thousands of matches is engineering.
+- **The post-game screen** shows ten dual-series timeline graphs — army size, military power, kills per minute, base HP, gold banked and produced, upgrade levels, population-cap pressure, damage per second — for both players at once. The post-mortem about *when exactly the game turned* is half the fun of a local match.
 
-Tower defence taught me to love mazes; physics taught me to love particles. Turns out the natural way to combine them is to let the particles do the pathfinding and let your friend build the maze against you.
+Tower defence taught me to love mazes; physics taught me to love particles. Particle Defence is what happened when I stopped trying to make the particles smart and just let them bounce — and let you, and your friend, bend the swarm with walls.
