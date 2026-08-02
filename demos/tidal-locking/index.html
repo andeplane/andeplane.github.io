@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Tidal Locking — an emergent simulation</title>
+    <meta
+      name="description"
+      content="A soft-body moon, Newtonian gravity, and a little internal friction. Nothing in the code says lock."
+    />
+    <link rel="stylesheet" href="/src/style.css" />
+  </head>
+  <body>
+    <canvas id="view"></canvas>
+
+    <div id="loading"><span>fetching the moon…</span></div>
+
+    <header id="titlecard">
+      <h1>Tidal Locking</h1>
+      <p>
+        A moon of springs and mass, falling around a planet. Nothing here computes a tidal
+        force, and nothing tells it to lock.
+      </p>
+      <button id="explain" type="button">How does it work?</button>
+    </header>
+
+    <aside id="readouts"></aside>
+    <section id="charts"></section>
+    <aside id="controls"></aside>
+
+    <script type="module" src="/src/main.ts"></script>
+  </body>
+</html>

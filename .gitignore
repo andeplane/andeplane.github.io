@@ -1,5 +1,10 @@
 node_modules
 dist
 /projects
+
+# Demo bundles, produced by scripts/build-demos.mjs
+/public/demos
+demos/*/dist
+demos/*/node_modules
 .DS_Store
 *.local
