@@ -1,0 +1,570 @@
+/*
+ * The page is a viewport onto space with instruments floating over it. Panels are
+ * translucent and blurred rather than opaque, so the scene stays continuous behind
+ * them and nothing feels bolted on.
+ */
+
+:root {
+  --ink: #dbe3f2;
+  --ink-dim: #97a3ba;
+  --ink-faint: #6b7689;
+  --surface: rgba(9, 13, 24, 0.62);
+  --surface-solid: #0b0f1a;
+  --edge: rgba(150, 175, 225, 0.14);
+  --accent: #7fb2ff;
+  --good: #4fd6a4;
+  --font: ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Inter, sans-serif;
+  --mono: ui-monospace, SFMono-Regular, 'SF Mono', Menlo, monospace;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  height: 100%;
+  background: #05070d;
+  color: var(--ink);
+  font-family: var(--font);
+  overflow: hidden;
+  -webkit-font-smoothing: antialiased;
+}
+
+#view {
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+#loading {
+  position: fixed;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  background: #05070d;
+  color: var(--ink-dim);
+  font-size: 0.85rem;
+  letter-spacing: 0.08em;
+  text-transform: lowercase;
+  z-index: 50;
+}
+
+/* --- Title --------------------------------------------------------------- */
+#titlecard {
+  position: fixed;
+  top: 1.6rem;
+  left: 1.9rem;
+  max-width: 27rem;
+  pointer-events: none;
+}
+
+#titlecard h1 {
+  margin: 0;
+  font-size: clamp(1.6rem, 3.4vw, 2.5rem);
+  font-weight: 300;
+  letter-spacing: -0.02em;
+  line-height: 1;
+}
+
+#titlecard p {
+  margin: 0.6rem 0 0;
+  max-width: 24rem;
+  font-size: 0.82rem;
+  line-height: 1.55;
+  color: var(--ink-dim);
+  text-wrap: balance;
+}
+
+/* --- Shared panel look --------------------------------------------------- */
+#readouts,
+#controls,
+#charts {
+  position: fixed;
+  background: var(--surface);
+  backdrop-filter: blur(18px) saturate(1.25);
+  -webkit-backdrop-filter: blur(18px) saturate(1.25);
+  border: 1px solid var(--edge);
+  border-radius: 12px;
+}
+
+/* --- Readouts ------------------------------------------------------------ */
+#readouts {
+  top: 1.6rem;
+  right: 1.9rem;
+  width: 15.5rem;
+  padding: 0.75rem 0.9rem;
+  display: grid;
+  gap: 0.28rem;
+}
+
+.readout {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 0.75rem;
+  font-size: 0.72rem;
+}
+
+.readout > span {
+  color: var(--ink-faint);
+  white-space: nowrap;
+}
+
+.readout > strong {
+  font-family: var(--mono);
+  font-weight: 500;
+  font-variant-numeric: tabular-nums;
+  color: var(--ink);
+  text-align: right;
+}
+
+.readout > strong[data-tone='good'] {
+  color: var(--good);
+}
+
+/* --- Charts -------------------------------------------------------------- */
+#charts {
+  right: 1.9rem;
+  bottom: 1.6rem;
+  width: 21rem;
+  padding: 0.55rem;
+  display: grid;
+  gap: 0.35rem;
+}
+
+.chart {
+  margin: 0;
+  padding: 0.45rem 0.5rem 0.2rem;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.022);
+}
+
+.chart figcaption {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 0.15rem 0.6rem;
+  margin-bottom: 0.1rem;
+}
+
+.chart h3 {
+  margin: 0;
+  font-size: 0.68rem;
+  font-weight: 500;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--ink-dim);
+}
+
+.chart canvas {
+  width: 100%;
+  height: 74px;
+  display: block;
+}
+
+.legend {
+  margin: 0;
+  display: flex;
+  align-items: baseline;
+  gap: 0.5rem;
+  font-size: 0.66rem;
+}
+
+.legend dt {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.28rem;
+  color: var(--ink-faint);
+  white-space: nowrap;
+}
+
+.legend dt i {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  display: inline-block;
+}
+
+.legend dd {
+  margin: 0 0.35rem 0 0;
+  font-family: var(--mono);
+  font-variant-numeric: tabular-nums;
+  color: var(--ink);
+}
+
+/* --- Controls ------------------------------------------------------------ */
+#controls {
+  left: 1.9rem;
+  bottom: 1.6rem;
+  width: 17.5rem;
+  /* Leave the panel a little shorter than the viewport so the fade at its foot is
+     visible whenever there is more below -- a list clipped flush at the edge reads as
+     the end of the list, and the controls under the fold simply never get found. */
+  max-height: min(calc(100vh - 9rem), 42rem);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding: 0.85rem 0.95rem 1.1rem;
+  display: grid;
+  gap: 0.8rem;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(150, 175, 225, 0.3) transparent;
+  -webkit-mask-image: linear-gradient(to bottom, #000 calc(100% - 2.2rem), transparent);
+  mask-image: linear-gradient(to bottom, #000 calc(100% - 2.2rem), transparent);
+}
+
+/* Once scrolled to the bottom there is nothing more to hint at, so drop the fade. */
+#controls.at-end {
+  -webkit-mask-image: none;
+  mask-image: none;
+}
+
+.segmented {
+  display: flex;
+  gap: 0.3rem;
+}
+
+.segmented button {
+  padding: 0.34rem 0.5rem;
+  font-size: 0.72rem;
+  background: rgba(150, 175, 225, 0.07);
+  border-color: rgba(150, 175, 225, 0.16);
+  color: var(--ink-dim);
+}
+
+.segmented button[aria-pressed='true'] {
+  background: rgba(127, 178, 255, 0.24);
+  border-color: rgba(127, 178, 255, 0.55);
+  color: var(--ink);
+}
+
+.group {
+  display: grid;
+  gap: 0.5rem;
+}
+
+.group h2 {
+  margin: 0;
+  font-size: 0.63rem;
+  font-weight: 500;
+  letter-spacing: 0.11em;
+  text-transform: uppercase;
+  color: var(--ink-faint);
+}
+
+.row {
+  display: flex;
+  gap: 0.4rem;
+}
+
+button {
+  flex: 1;
+  padding: 0.42rem 0.7rem;
+  font: inherit;
+  font-size: 0.74rem;
+  color: var(--ink);
+  background: rgba(127, 178, 255, 0.1);
+  border: 1px solid rgba(127, 178, 255, 0.22);
+  border-radius: 7px;
+  cursor: pointer;
+  transition: background 0.15s ease, border-color 0.15s ease;
+}
+
+button:hover {
+  background: rgba(127, 178, 255, 0.18);
+  border-color: rgba(127, 178, 255, 0.4);
+}
+
+button:active {
+  transform: translateY(0.5px);
+}
+
+.control {
+  display: grid;
+  gap: 0.22rem;
+}
+
+.control-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  font-size: 0.72rem;
+  color: var(--ink-dim);
+}
+
+.control-head output {
+  font-family: var(--mono);
+  font-variant-numeric: tabular-nums;
+  color: var(--ink);
+}
+
+.control small {
+  font-size: 0.62rem;
+  line-height: 1.35;
+  color: var(--ink-faint);
+  text-wrap: pretty;
+}
+
+input[type='range'] {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 100%;
+  height: 3px;
+  border-radius: 2px;
+  background: rgba(150, 175, 225, 0.22);
+  outline: none;
+}
+
+input[type='range']::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 13px;
+  height: 13px;
+  border-radius: 50%;
+  background: var(--accent);
+  cursor: grab;
+  border: none;
+  box-shadow: 0 0 0 3px rgba(127, 178, 255, 0.16);
+}
+
+input[type='range']::-moz-range-thumb {
+  width: 13px;
+  height: 13px;
+  border: none;
+  border-radius: 50%;
+  background: var(--accent);
+  cursor: grab;
+}
+
+.toggle {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  font-size: 0.72rem;
+  color: var(--ink-dim);
+  cursor: pointer;
+}
+
+.toggle input {
+  accent-color: var(--accent);
+  width: 13px;
+  height: 13px;
+  cursor: pointer;
+}
+
+/* --- Small screens ------------------------------------------------------- */
+@media (max-width: 1080px) {
+  #titlecard {
+    top: 1rem;
+    left: 1rem;
+    max-width: 60vw;
+  }
+  #readouts {
+    top: 1rem;
+    right: 1rem;
+    width: 12.5rem;
+  }
+  #charts {
+    right: 1rem;
+    bottom: 1rem;
+    width: 17rem;
+  }
+  #controls {
+    left: 1rem;
+    bottom: 1rem;
+    width: 14.5rem;
+    max-height: 44vh;
+  }
+}
+
+@media (max-width: 760px) {
+  #titlecard p,
+  #charts {
+    display: none;
+  }
+  #controls {
+    width: calc(100vw - 2rem);
+    max-height: 38vh;
+  }
+  #readouts {
+    width: calc(100vw - 2rem);
+  }
+}
+
+/* --- "How does it work?" ------------------------------------------------- */
+#explain {
+  margin-top: 0.85rem;
+  flex: 0 0 auto;
+  padding: 0.4rem 0.85rem;
+  font-size: 0.76rem;
+  pointer-events: auto;
+  border-radius: 999px;
+}
+
+#titlecard {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+#explainer {
+  width: min(46rem, calc(100vw - 2rem));
+  max-height: min(88vh, 62rem);
+  margin: auto;
+  padding: 0;
+  border: 1px solid var(--edge);
+  border-radius: 14px;
+  background: rgba(9, 13, 24, 0.93);
+  backdrop-filter: blur(24px) saturate(1.2);
+  -webkit-backdrop-filter: blur(24px) saturate(1.2);
+  color: var(--ink);
+  overflow: hidden;
+}
+
+#explainer::backdrop {
+  background: rgba(3, 5, 10, 0.72);
+  backdrop-filter: blur(3px);
+}
+
+#explainer article {
+  max-height: min(88vh, 62rem);
+  overflow-y: auto;
+  /* A measure of roughly 70 characters, which is where prose stops being a wall. */
+  padding: 2.6rem 3rem 3rem;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(150, 175, 225, 0.3) transparent;
+}
+
+.explainer-close {
+  position: absolute;
+  top: 0.7rem;
+  right: 0.9rem;
+  z-index: 2;
+  flex: 0 0 auto;
+  width: 2rem;
+  height: 2rem;
+  padding: 0;
+  font-size: 1.15rem;
+  line-height: 1;
+  border-radius: 50%;
+}
+
+#explainer h1 {
+  margin: 0;
+  font-size: 1.55rem;
+  font-weight: 400;
+  line-height: 1.25;
+  letter-spacing: -0.015em;
+  text-wrap: balance;
+}
+
+#explainer .byline {
+  margin: 0.5rem 0 0;
+  font-size: 0.8rem;
+  font-style: italic;
+  color: var(--ink-faint);
+}
+
+#explainer section {
+  margin-top: 2rem;
+}
+
+#explainer h2 {
+  margin: 0 0 0.7rem;
+  font-size: 0.98rem;
+  font-weight: 500;
+  letter-spacing: 0.005em;
+  color: var(--accent);
+}
+
+#explainer h3 {
+  margin: 1.5rem 0 0.55rem;
+  font-size: 0.86rem;
+  font-weight: 500;
+  color: var(--ink);
+}
+
+#explainer p,
+#explainer li {
+  margin: 0 0 0.95rem;
+  font-size: 0.855rem;
+  line-height: 1.72;
+  color: var(--ink-dim);
+  text-wrap: pretty;
+}
+
+#explainer .abstract {
+  padding-left: 1rem;
+  border-left: 2px solid rgba(127, 178, 255, 0.35);
+  font-size: 0.83rem;
+  color: var(--ink);
+}
+
+#explainer ul {
+  margin: 0;
+  padding-left: 1.15rem;
+}
+
+#explainer li::marker {
+  color: var(--ink-faint);
+}
+
+#explainer strong {
+  color: var(--ink);
+  font-weight: 550;
+}
+
+#explainer em {
+  color: var(--ink);
+}
+
+#explainer table {
+  width: 100%;
+  margin: 0 0 1rem;
+  border-collapse: collapse;
+  font-size: 0.78rem;
+  font-variant-numeric: tabular-nums;
+}
+
+#explainer th {
+  padding: 0.45rem 0.6rem 0.45rem 0;
+  border-bottom: 1px solid var(--edge);
+  font-weight: 500;
+  text-align: left;
+  color: var(--ink-faint);
+}
+
+#explainer td {
+  padding: 0.4rem 0.6rem 0.4rem 0;
+  border-bottom: 1px solid rgba(150, 175, 225, 0.07);
+  color: var(--ink-dim);
+}
+
+#explainer tbody tr:last-child td {
+  border-bottom: none;
+}
+
+/* KaTeX defaults are sized for a white page; ease them into a dark one. */
+#explainer .katex {
+  font-size: 1.02em;
+  color: var(--ink);
+}
+
+#explainer .katex-display {
+  margin: 1.3rem 0;
+  padding: 0.15rem 0;
+  overflow-x: auto;
+  overflow-y: hidden;
+}
+
+@media (max-width: 760px) {
+  #explainer article {
+    padding: 2.2rem 1.3rem 2rem;
+  }
+  #explainer h1 {
+    font-size: 1.25rem;
+  }
+}

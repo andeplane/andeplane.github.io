@@ -1,0 +1,26 @@
+{
+  "name": "moon-tidal-lock",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Emergent tidal locking: a soft-body moon, Newtonian gravity, and a little friction",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc --noEmit && vite build",
+    "preview": "vite preview",
+    "typecheck": "tsc --noEmit",
+    "tune": "tsx tools/tune.ts"
+  },
+  "dependencies": {
+    "katex": "^0.18.1",
+    "three": "^0.185.1"
+  },
+  "devDependencies": {
+    "@types/katex": "^0.16.8",
+    "@types/node": "^26.1.2",
+    "@types/three": "^0.185.3",
+    "tsx": "^4.23.1",
+    "typescript": "^5.9.3",
+    "vite": "^8.2.0"
+  }
+}
