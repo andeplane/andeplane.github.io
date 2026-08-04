@@ -1,3 +1,8 @@
 node_modules/
 dist/
 .shot-*.png
+
+# Third-party source PDFs (~68 MB), licensed for private scientific use only.
+# This repository is public, so they are re-fetched rather than committed:
+#   node research/fetch-sources.mjs
+research/sources/

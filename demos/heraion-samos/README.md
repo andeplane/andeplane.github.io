@@ -15,7 +15,7 @@ npm run build    # → dist/
 A **parametric** model, not a survey and not a mesh. Every dimension lives in
 `src/params.js` with a provenance tag; the geometry is generated from those
 numbers at load time. Change a number, reload, and the building changes. That is
-the point: when the measured publications arrive (see `../sources/MANIFEST.md`
+the point: when the measured publications arrive (see `research/MANIFEST.md`
 §5a), you edit params rather than remodel.
 
 ```
@@ -124,12 +124,21 @@ Everything above column height, and everything inside the walls:
 The provenance dots in the UI mark this per layer. Green is attested, amber
 derived, red ours.
 
+## Research and sources
+
+Everything this was built from lives in [`research/`](research/) — the archive
+manifest with its verified facts and rights position, the DAI project pages, and
+four drafted (unsent) letters to the people who may hold better source files.
+
+The source PDFs are not committed;  reproduces
+them and checks them against recorded hashes. See .
+
 ## Known gaps
 
 - **No measured plan of this building was available.** Neither DAI plan set in
   the archive covers it — Samos 21.1 stops at the Hekatompedoi, Samos 29 is the
   Roman peripteros. The three publications that would close this are listed in
-  `../sources/MANIFEST.md` §5a; one of them is a free download.
+  `research/MANIFEST.md` §5a; one of them is a free download.
 - **Corner capitals are wrong.** Real Ionic corners take an angle volute canted
   at 45°; here corners are treated as flank-facing. Conspicuous up close.
 - **The cella figure is the least secure number in the model** — it absorbs any
@@ -147,7 +156,7 @@ derived, red ours.
   east to terminate in antae flanking the porch. The model instead leaves the
   east end open with free-standing columns. This is now an *evidenced* error
   rather than an open question, and it is the highest-value next change.
-  See `../sources/MANIFEST.md` §5b.
+  See `research/MANIFEST.md` §5b.
 
 ## Next
 
