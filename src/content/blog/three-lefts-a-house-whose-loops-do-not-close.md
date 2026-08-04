@@ -85,11 +85,13 @@ Sound obeys the same graph. Audio travels the portal edges rather than any space
 
 And it pays off in the shrine. From all three barred windows the lantern reads at the same distance and the same bearing — five metres, ninety degrees right, through one barred doorway. You can prove three windows look into one room with your ears, from inside a room you cannot leave.
 
-## Two bugs worth keeping
+## Keeping it smooth
 
-Triangle winding has to be derived from the shading normal, not from the call site. The surface generator mixes handednesses — a floor and a ceiling traced with the same sweep have opposite geometric orientation — and getting it wrong is invisible in the data and total on screen. Every affected face is silently backface-culled, and the room renders as *nothing at all*: no error, no warning, geometry submitted, screen black.
+Fourteen full renders of shaded geometry per frame is a lot to ask of a browser, and the cost lands almost entirely on fill rate rather than on geometry — 115 draw calls and 23,000 triangles is nothing, but a half-float target with 4× MSAA on a high-DPI display is a few hundred megabytes of framebuffer traffic every frame.
 
-And the adaptive quality controller, which measures the frame and gives up resolution before samples before recursion depth, was initially written against a fixed 60 fps target. Under vsync a perfectly healthy frame delta simply *is* the refresh interval — 16.7 ms on a 60 Hz panel — so "faster than 13.7 ms means we have headroom" can never be true, and the controller becomes a one-way ratchet that lowers quality and never gives it back. It now learns the display's period as the fastest frame it has seen, which the menu establishes for free before any level loads.
+So the renderer measures itself and adapts, giving up resolution first, then multisampling, then recursion depth last — depth last because rooms flattening to darkness two doorways away changes what the house *is*, and anything that reads as a glitch costs more than it saves. It targets the display's own refresh period rather than a fixed 60 fps, which matters on a 120 Hz panel and matters even more on a slow one.
+
+That smoothness is not garnish. Any stutter, seam or shimmer reads as "bug", and a player who suspects a bug stops suspecting the geometry — which is the entire experience. A janky non-Euclidean game is just broken. A silky one is unsettling.
 
 ---
 
