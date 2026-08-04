@@ -300,6 +300,21 @@ export class Flock {
 
 		} )();
 
+		// An emissive floor so fish read as coloured, not as silhouettes.
+		//
+		// Sunlight arrives from above and fish are seen mostly side-on, so pure
+		// diffuse shading leaves a yellow tang looking like a dark brown flake.
+		// Real fish are also strongly counter-lit by light scattered up off the
+		// sand. A fraction of albedo as emissive is the cheap stand-in, and it
+		// is what makes a school read as colour rather than as debris.
+		material.emissiveNode = Fn( () => {
+
+			const belly = smoothstep( float( 0.0 ), float( - 0.35 ), normalize( positionLocal ).y );
+			const base = mix( uColorA, uColorB, clamp( iTint, 0, 1 ) );
+			return mix( base, uBelly, belly.mul( 0.75 ) ).mul( 0.42 );
+
+		} )();
+
 		const mesh = new THREE.InstancedMesh( geometry, material, this.count );
 		mesh.frustumCulled = false;
 		mesh.castShadow = false;

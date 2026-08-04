@@ -85,7 +85,7 @@ export function createTerrainMaterial( { caustics = null } = {} ) {
 			.mul( sandiness.oneMinus() )
 			.mul( depthWarmth )
 			.mul( dryness.oneMinus() );
-		base = mix( base, algaeColor, algaeMask.mul( 0.38 ) );
+		base = mix( base, algaeColor, algaeMask.mul( 0.26 ) );
 
 		const coralPatch = mx_fractal_noise_float( p.mul( 0.23 ).sub( 61 ), 3, 2, 0.5, 1 ).mul( 0.5 ).add( 0.5 );
 		const coralMask = smoothstep( float( 0.62 ), float( 0.86 ), coralPatch )
@@ -119,7 +119,7 @@ export function createTerrainMaterial( { caustics = null } = {} ) {
 			const amount = causticSample( caustics, positionWorld, normalWorld, sky );
 			// Slightly blue-shifted white — caustic light has already been
 			// filtered by a few metres of water on its way down.
-			return vec3( 0.72, 0.95, 1.0 ).mul( amount ).mul( 1.05 );
+			return vec3( 0.72, 0.95, 1.0 ).mul( amount ).mul( 0.7 );
 
 		} )();
 

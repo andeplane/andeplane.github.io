@@ -40,7 +40,13 @@ export const waterParams = {
 	// curve turns a reef into blue-grey lumps. Halving the coefficients while
 	// keeping the RATIO intact preserves the blue cast and the sense of depth
 	// but lets the reef keep its colour out to ~12 m.
-	sigma: uniform( new THREE.Vector3( 0.20, 0.042, 0.011 ) ),
+	// Reduced again after looking at actual frames. Even at half-physical, an
+	// orange coral 8 m away kept only 20% of its red and arrived pale mint —
+	// the reef was "colourful" in the material and grey by the time it reached
+	// the eye. The blue-dominant ratio is what sells water; the magnitude is a
+	// dial, and it has to be turned down far enough for albedo to survive the
+	// 5-15 m at which most of the reef is actually seen.
+	sigma: uniform( new THREE.Vector3( 0.105, 0.030, 0.009 ) ),
 	// Colour of the light scattered back toward the eye — the blue you see
 	// looking into open water.
 	tint: uniform( new THREE.Color( 0x2f7fd0 ) ),
@@ -99,7 +105,7 @@ export function createWaterFogNode() {
 			.mul( sunColor )
 			.mul( sunAtten )
 			.mul( forward )
-			.mul( 1.05 )
+			.mul( 0.80 )
 			// Ambient floor so a cave is dark, not black.
 			.mul( waterParams.skyExposure.mul( 0.88 ).add( 0.12 ) );
 

@@ -59,12 +59,17 @@ export const skyRadiance = /*@__PURE__*/ Fn( ( [ dir, sunDir, sunCol ] ) => {
 
 	const up = clamp( dir.y, - 1, 1 );
 
-	const ZENITH = vec3( 0.055, 0.20, 0.52 );
-	const HORIZON = vec3( 0.62, 0.76, 0.88 );
+	// A real tropical sky is deep blue overhead and only pales in the last few
+	// degrees above the horizon. The previous values were far too bright and
+	// too desaturated at the horizon, and the exponent spread that pale band
+	// across most of the visible sky — so from the surface the whole upper half
+	// of the frame washed out to near-white.
+	const ZENITH = vec3( 0.035, 0.145, 0.46 );
+	const HORIZON = vec3( 0.42, 0.58, 0.76 );
 	const GROUND = vec3( 0.045, 0.065, 0.085 );
 
-	// Rayleigh-ish gradient: bright, desaturated near the horizon.
-	const t = pow( clamp( up, 0, 1 ), float( 0.42 ) );
+	// A much larger exponent keeps the pale horizon band narrow.
+	const t = pow( clamp( up, 0, 1 ), float( 0.28 ) );
 	const col = mix( HORIZON, ZENITH, t ).toVar();
 
 	// Below the horizon (only visible in reflections) fade to a dark sea.
@@ -72,29 +77,29 @@ export const skyRadiance = /*@__PURE__*/ Fn( ( [ dir, sunDir, sunCol ] ) => {
 
 	const cosSun = dot( dir, sunDir );
 
-	// Sun disc. The edge is deliberately soft and the peak deliberately lower
-	// than a physical sun: a hard-edged blob at 90x clips to flat white, and
-	// the post chain's chromatic aberration then splits that razor edge into a
-	// rainbow rim. Seen through a moving water surface the sun is a soft glow
-	// anyway, so softness is both cheaper and more correct.
-	const disc = smoothstep( float( 0.9950 ), float( 0.9992 ), cosSun );
-	// The disc is pushed toward neutral white on purpose. `sunCol` is warm
-	// (0xfff1d6), so at disc brightness red saturates before green before blue.
-	// The edge of the clipped region therefore shows a band where red has
-	// clipped but blue has not — a warm-to-cyan rim traced around the whole
-	// Snell window, which reads as a rendering fault. Making the brightest part
-	// of the image achromatic makes all three channels clip together, so the
-	// boundary is a clean luminance edge. The warmth stays in the halo below,
-	// which never clips.
-	col.addAssign( mix( sunCol, vec3( 1 ), float( 0.9 ) ).mul( disc ).mul( 30 ) );
+	// SMALL and bright, not large and blown.
+	//
+	// The disc used to span several degrees at 30x. That does not read as the
+	// sun — it reads as a hole burned through the sky, and above water it
+	// swallowed the horizon and washed the whole upper half of the frame to
+	// white. A real sun is about half a degree across: tight angular size with
+	// a high peak is what makes it look like a sun rather than an overexposure.
+	//
+	// It is also pushed toward neutral white. `sunCol` is warm (0xfff1d6), so at
+	// disc brightness red saturates before green before blue, and the edge of
+	// the clipped region shows a band where red has clipped but blue has not.
+	// Making the brightest part of the image achromatic makes all three channels
+	// clip together. The warmth lives in the halo below, which never clips.
+	const disc = smoothstep( float( 0.99965 ), float( 0.99992 ), cosSun );
+	col.addAssign( mix( sunCol, vec3( 1 ), float( 0.9 ) ).mul( disc ).mul( 60 ) );
 
-	// Forward-scattered halo, strengthened to carry the brightness the disc
-	// gave up.
-	col.addAssign( sunCol.mul( pow( max( cosSun, 0 ), float( 16 ) ) ).mul( 1.6 ) );
+	// Tight forward-scattered halo, then a much weaker wide one.
+	col.addAssign( sunCol.mul( pow( max( cosSun, 0 ), float( 90 ) ) ).mul( 2.2 ) );
+	col.addAssign( sunCol.mul( pow( max( cosSun, 0 ), float( 14 ) ) ).mul( 0.22 ) );
 
-	// Broad aureole, strongest near the horizon.
+	// Broad aureole, strongest near the horizon — kept subtle.
 	const aureole = pow( max( cosSun, 0 ), float( 3.5 ) ).mul( smoothstep( float( 0.55 ), float( 0 ), up ) );
-	col.addAssign( sunCol.mul( aureole ).mul( 0.28 ) );
+	col.addAssign( sunCol.mul( aureole ).mul( 0.10 ) );
 
 	return col;
 

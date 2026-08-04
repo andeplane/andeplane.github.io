@@ -1,5 +1,5 @@
 import * as THREE from 'three/webgpu';
-import { mergeGeometries } from 'three/addons/utils/BufferGeometryUtils.js';
+import { mergeGeometries, mergeVertices } from 'three/addons/utils/BufferGeometryUtils.js';
 
 /**
  * Procedural reef flora.
@@ -158,11 +158,11 @@ export function buildSeagrass() {
 /** Recursive branching — staghorn coral, and (retuned) the sea fan skeleton. */
 function branch( parts, origin, dir, length, radius, depth, opts ) {
 
-	if ( depth <= 0 || radius < 0.012 ) return;
+	if ( depth <= 0 || radius < 0.022 ) return;
 
 	const end = origin.clone().addScaledVector( dir, length );
 
-	const g = new THREE.CylinderGeometry( radius * 0.65, radius, length, 5, 1 );
+	const g = new THREE.CylinderGeometry( radius * 0.72, radius, length, 6, 1 );
 	// CylinderGeometry runs along +Y; orient it along `dir`.
 	g.translate( 0, length / 2, 0 );
 	const q = new THREE.Quaternion().setFromUnitVectors( new THREE.Vector3( 0, 1, 0 ), dir );
@@ -199,8 +199,11 @@ export function buildStaghorn() {
 			parts,
 			new THREE.Vector3( Math.cos( a ) * 0.1, 0, Math.sin( a ) * 0.1 ),
 			new THREE.Vector3( Math.cos( a ) * 0.25, 1, Math.sin( a ) * 0.25 ).normalize(),
-			0.42, 0.058, 4,
-			{ children: 2, spread: 0.85, upBias: 0.7 },
+			// Thicker and one level shallower. At radius 0.058 over four levels
+			// the tips came out as bare wire twigs scattered across the seabed;
+			// real staghorn is chunky, and chunky also reads at distance.
+			0.40, 0.105, 3,
+			{ children: 2, spread: 0.8, upBias: 0.7 },
 		);
 
 	}
@@ -243,41 +246,90 @@ export function buildBrainCoral() {
 
 	}
 
-	g.computeVertexNormals();
-	return addBend( g, 1, 0.02 );
+	return addBend( smoothed( g ), 1, 0.02 );
 
 }
 
 export function buildBarrelSponge() {
 
-	const label = 'sponge';
-	const parts = [];
-	const outer = new THREE.CylinderGeometry( 0.30, 0.20, 0.72, 12, 3, true );
-	outer.translate( 0, 0.36, 0 );
-	const inner = new THREE.CylinderGeometry( 0.21, 0.13, 0.68, 12, 1, true );
-	inner.translate( 0, 0.40, 0 );
-	inner.scale( 1, 1, 1 );
-	// Flip the inner wall so the cavity reads as a cavity.
-	const idx = inner.getIndex();
-	if ( idx ) { const a = idx.array; for ( let i = 0; i < a.length; i += 3 ) { const t = a[ i ]; a[ i ] = a[ i + 2 ]; a[ i + 2 ] = t; } }
-	inner.computeVertexNormals();
-	const rim = new THREE.TorusGeometry( 0.255, 0.035, 6, 14 );
-	rim.rotateX( Math.PI / 2 );
-	rim.translate( 0, 0.72, 0 );
-	parts.push( outer, inner, rim );
+	// A squat, lumpy barrel — NOT a tube.
+	//
+	// The previous version was a tall thin cylinder with a hole down the middle
+	// and smooth walls, which read unmistakably as a drainage pipe or a plant
+	// pot scattered across the seabed. Real barrel sponges are wider than they
+	// are tall, with a thick irregular wall and a shallow cavity. Squashing the
+	// proportions and displacing the wall with noise is what turns the silhouette
+	// from plumbing into an organism.
+	const RADIUS = 0.40, HEIGHT = 0.42, SEG = 18;
 
-	const g = merge( parts, label );
-	// Bulge it irregularly so a field of sponges does not look stamped.
-	const pos = g.getAttribute( 'position' );
-	for ( let i = 0; i < pos.count; i ++ ) {
+	const positions = [], indices = [];
+	const rings = 6;
 
-		const x = pos.getX( i ), y = pos.getY( i ), z = pos.getZ( i );
-		const k = 1 + Math.sin( x * 7 + y * 3 ) * 0.05 + Math.cos( z * 6 - y * 4 ) * 0.05;
-		pos.setXYZ( i, x * k, y, z * k );
+	// Outer wall, inner wall, and a rim joining them — built as one lathe so
+	// the rim is continuous rather than a separate torus sitting on top.
+	const profile = [];
+	for ( let i = 0; i <= rings; i ++ ) {
+
+		const t = i / rings;
+		// Outer: swells at mid height, tucks in at the base.
+		profile.push( { r: RADIUS * ( 0.72 + Math.sin( t * Math.PI * 0.85 ) * 0.34 ), y: t * HEIGHT, out: true } );
 
 	}
 
+	for ( let i = rings; i >= 0; i -- ) {
+
+		const t = i / rings;
+		// Inner cavity, shallower than the body is tall so it never tunnels
+		// through — a see-through sponge is what made it look like a pipe.
+		const depth = HEIGHT * 0.62;
+		profile.push( { r: RADIUS * 0.52 * ( 0.35 + t * 0.65 ), y: HEIGHT - ( 1 - t ) * depth, out: false } );
+
+	}
+
+	for ( let p = 0; p < profile.length; p ++ ) {
+
+		const { r, y } = profile[ p ];
+		for ( let sIdx = 0; sIdx < SEG; sIdx ++ ) {
+
+			const a = ( sIdx / SEG ) * Math.PI * 2;
+			// Irregular wall thickness, varying with both angle and height.
+			const lump = 1
+				+ Math.sin( a * 3 + y * 6 ) * 0.10
+				+ Math.sin( a * 7 - y * 4 ) * 0.05;
+			positions.push( Math.cos( a ) * r * lump, y, Math.sin( a ) * r * lump );
+
+		}
+
+	}
+
+	for ( let p = 0; p < profile.length - 1; p ++ ) {
+
+		for ( let sIdx = 0; sIdx < SEG; sIdx ++ ) {
+
+			const s1 = ( sIdx + 1 ) % SEG;
+			const a = p * SEG + sIdx, b = p * SEG + s1;
+			const c = ( p + 1 ) * SEG + sIdx, d = ( p + 1 ) * SEG + s1;
+			indices.push( a, c, b, b, c, d );
+
+		}
+
+	}
+
+	// Cap the cavity floor so you cannot see through it.
+	const floorIndex = positions.length / 3;
+	positions.push( 0, HEIGHT - HEIGHT * 0.62, 0 );
+	const lastRing = ( profile.length - 1 ) * SEG;
+	for ( let sIdx = 0; sIdx < SEG; sIdx ++ ) {
+
+		indices.push( floorIndex, lastRing + sIdx, lastRing + ( ( sIdx + 1 ) % SEG ) );
+
+	}
+
+	const g = new THREE.BufferGeometry();
+	g.setAttribute( 'position', new THREE.Float32BufferAttribute( positions, 3 ) );
+	g.setIndex( indices );
 	g.computeVertexNormals();
+
 	return addBend( g, 1, 0.05 );
 
 }
@@ -421,6 +473,25 @@ export const FLORA_BUILDERS = {
 /* -------------------------------------------------------------------------- */
 
 /**
+ * Weld an unindexed primitive and re-derive normals so it shades SMOOTHLY.
+ *
+ * This is the single biggest visual bug fixed in this pass. three's
+ * `IcosahedronGeometry` (and the other polyhedra) return *non-indexed*
+ * geometry: every triangle owns its three vertices. `computeVertexNormals()`
+ * on that gives each triangle a single flat normal, so the mesh renders as a
+ * faceted gem no matter how many subdivisions it has — adding triangles just
+ * makes smaller facets. Welding first means neighbouring faces share vertices,
+ * normals get averaged, and a rock reads as a rock.
+ */
+function smoothed( geometry ) {
+
+	const welded = mergeVertices( geometry, 1e-4 );
+	welded.computeVertexNormals();
+	return welded;
+
+}
+
+/**
  * A weathered boulder.
  *
  * The marching-cubes terrain gives large forms but its 0.6 m voxels cannot
@@ -429,7 +500,7 @@ export const FLORA_BUILDERS = {
  * ground a sense of scale and make the sand look like sand rather than a
  * gradient.
  */
-export function buildBoulder( { radius = 0.7, detail = 1 } = {} ) {
+export function buildBoulder( { radius = 0.7, detail = 3 } = {} ) {
 
 	const g = new THREE.IcosahedronGeometry( radius, detail );
 	const pos = g.getAttribute( 'position' );
@@ -439,19 +510,21 @@ export function buildBoulder( { radius = 0.7, detail = 1 } = {} ) {
 
 		v.fromBufferAttribute( pos, i );
 		const n = v.clone().normalize();
-		// Two scales of lumpiness: broad facets plus a finer erosion grain.
+		// Three octaves rather than two: without a fine term the surface is
+		// smooth between the big lumps and reads as a beanbag.
 		const broad = Math.sin( n.x * 3.1 + n.y * 2.3 ) * Math.cos( n.z * 2.7 - n.x * 1.9 );
-		const fine = Math.sin( n.x * 11 + n.z * 9 ) * Math.cos( n.y * 13 );
-		v.multiplyScalar( 1 + broad * 0.20 + fine * 0.06 );
-		// Flatten slightly and sink the base, so it sits *in* the sand.
-		v.y *= 0.68;
+		const mid = Math.sin( n.x * 7.3 - n.z * 5.1 ) * Math.cos( n.y * 6.2 );
+		const fine = Math.sin( n.x * 17 + n.z * 14 ) * Math.cos( n.y * 19 );
+		v.multiplyScalar( 1 + broad * 0.19 + mid * 0.075 + fine * 0.028 );
+		// Flatten and sink the base, so it sits *in* the sand.
+		v.y *= 0.66;
 		pos.setXYZ( i, v.x, v.y, v.z );
 
 	}
 
-	g.computeVertexNormals();
-	g.translate( 0, radius * 0.30, 0 );
-	return addBend( g, 1, 0.0 );
+	const out = smoothed( g );
+	out.translate( 0, radius * 0.28, 0 );
+	return addBend( out, 1, 0.0 );
 
 }
 
@@ -492,7 +565,7 @@ export function buildCoralHead() {
 	const parts = [];
 
 	// Base mound.
-	const base = new THREE.IcosahedronGeometry( 0.85, 2 );
+	const base = new THREE.IcosahedronGeometry( 0.85, 3 );
 	const pos = base.getAttribute( 'position' );
 	const v = new THREE.Vector3();
 	for ( let i = 0; i < pos.count; i ++ ) {
@@ -507,9 +580,9 @@ export function buildCoralHead() {
 
 	}
 
-	base.computeVertexNormals();
-	base.translate( 0, 0.35, 0 );
-	parts.push( base );
+	const smoothBase = smoothed( base );
+	smoothBase.translate( 0, 0.35, 0 );
+	parts.push( smoothBase );
 
 	// Knobs and plates growing off the mound.
 	const knobs = 10 + Math.floor( Math.random() * 8 );

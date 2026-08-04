@@ -23,6 +23,11 @@ import { causticSample } from '../render/caustics.js';
 /**
  * Placement rules per species (see world/scatter.js).
  *
+ * Densities are deliberately restrained. An earlier pass packed the seabed so
+ * tightly that props overlapped everywhere and the reef read as a scatter of
+ * plastic toys rather than a landscape — the fix for "not enough life" is
+ * bigger, better-shaped, better-coloured props, not simply more of them.
+ *
  * Order matters only for readability. The first block is seabed *structure* —
  * rock and reef mass. The marching-cubes terrain is smooth at 0.6 m voxels, so
  * without these the ground has no readable scale; boulders and coral heads are
@@ -30,73 +35,73 @@ import { causticSample } from '../render/caustics.js';
  */
 export const FLORA_RULES = [
 	{
-		id: 'coralhead', density: 0.62, depth: [ - 24, - 4 ], minFlatness: 0.45,
-		minSky: 0.35, maxSky: 1, scale: [ 0.9, 3.0 ], clearance: 5.0,
-		hsv: [ 0.0217, 0.782, 0.847 ], hueRange: 0.34, saturate: 1.35, stiffness: 0.04,
+		id: 'coralhead', density: 0.85, depth: [ - 24, - 4 ], minFlatness: 0.45,
+		minSky: 0.35, maxSky: 1, scale: [ 0.5, 1.45 ], clearance: 4.0,
+		hsv: [ 0.0536, 0.676, 0.812 ], hueRange: 0.4, saturate: 1.45, stiffness: 0.04,
 	},
 	{
-		id: 'boulder', density: 0.30, depth: [ - 30, 3 ], minFlatness: 0.30,
-		minSky: 0.0, maxSky: 1, scale: [ 0.45, 2.2 ], clearance: 6.0,
+		id: 'boulder', density: 0.2, depth: [ - 30, 3 ], minFlatness: 0.30,
+		minSky: 0.0, maxSky: 1, scale: [ 0.4, 1.5 ], clearance: 8.0,
 		hsv: [ 0.6333, 0.083, 0.471 ], hueRange: 0.05, stiffness: 0.0, alignToSlope: true,
 	},
 	{
-		id: 'outcrop', density: 0.14, depth: [ - 30, 2 ], minFlatness: 0.25,
-		minSky: 0.0, maxSky: 1, scale: [ 0.7, 2.0 ], clearance: 14.0,
+		id: 'outcrop', density: 0.1, depth: [ - 30, 2 ], minFlatness: 0.25,
+		minSky: 0.0, maxSky: 1, scale: [ 0.7, 2.0 ], clearance: 18.0,
 		hsv: [ 0.5952, 0.127, 0.431 ], hueRange: 0.05, stiffness: 0.0, alignToSlope: true,
 	},
 	{
-		id: 'rubble', density: 0.9, depth: [ - 30, - 2 ], minFlatness: 0.72,
-		minSky: 0.0, maxSky: 1, scale: [ 0.6, 1.7 ], clearance: 1.6,
+		id: 'rubble', density: 0.3, depth: [ - 30, - 2 ], minFlatness: 0.72,
+		minSky: 0.0, maxSky: 1, scale: [ 0.6, 1.7 ], clearance: 2.6,
 		hsv: [ 0.1167, 0.185, 0.847 ], hueRange: 0.06, stiffness: 0.0, alignToSlope: true,
 	},
 	{
-		id: 'kelp', density: 0.9, depth: [ - 26, - 9 ], minFlatness: 0.55,
-		minSky: 0.35, maxSky: 1, scale: [ 0.42, 0.85 ], clearance: 2.2,
-		hsv: [ 0.2995, 0.607, 0.478 ], hueRange: 0.1, stiffness: 0.85,
+		id: 'kelp', density: 0.30, depth: [ - 26, - 9 ], minFlatness: 0.55,
+		minSky: 0.35, maxSky: 1, scale: [ 0.34, 0.62 ], clearance: 3.0,
+		hsv: [ 0.2810, 0.574, 0.478 ], hueRange: 0.08, stiffness: 0.85,
 	},
 	{
-		id: 'seagrass', density: 2.2, depth: [ - 24, - 4 ], minFlatness: 0.80,
-		minSky: 0.45, maxSky: 1, scale: [ 0.5, 1.0 ], clearance: 0.85,
-		hsv: [ 0.2850, 0.625, 0.627 ], hueRange: 0.1, stiffness: 1.0,
+		id: 'seagrass', density: 1.3, depth: [ - 24, - 4 ], minFlatness: 0.80,
+		minSky: 0.45, maxSky: 1, scale: [ 0.5, 1.0 ], clearance: 1.1,
+		hsv: [ 0.2704, 0.612, 0.627 ], hueRange: 0.08, stiffness: 1.0,
 	},
 	{
-		id: 'staghorn', density: 1.5, depth: [ - 22, - 4 ], minFlatness: 0.35,
-		minSky: 0.4, maxSky: 1, scale: [ 0.9, 2.0 ], clearance: 1.2,
-		hsv: [ 0.0542, 0.741, 0.878 ], hueRange: 0.3, saturate: 1.35, stiffness: 0.12,
+		id: 'staghorn', density: 0.85, depth: [ - 22, - 4 ], minFlatness: 0.35,
+		minSky: 0.4, maxSky: 1, scale: [ 0.9, 2.0 ], clearance: 2.0,
+		hsv: [ 0.0691, 0.622, 0.851 ], hueRange: 0.26, saturate: 1.45, stiffness: 0.12,
 	},
 	{
-		id: 'seafan', density: 1.3, depth: [ - 28, - 8 ], minFlatness: 0.0,
-		minSky: 0.25, maxSky: 1, scale: [ 1.0, 2.1 ], clearance: 1.4,
-		hsv: [ 0.9551, 0.929, 0.878 ], hueRange: 0.22, saturate: 1.4, stiffness: 0.7, alignToSlope: true,
+		id: 'seafan', density: 0.85, depth: [ - 28, - 8 ], minFlatness: 0.0,
+		minSky: 0.25, maxSky: 1, scale: [ 1.0, 2.1 ], clearance: 2.2,
+		hsv: [ 0.9578, 0.802, 0.831 ], hueRange: 0.2, saturate: 1.45, stiffness: 0.7, alignToSlope: true,
 	},
 	{
-		id: 'brain', density: 0.9, depth: [ - 24, - 5 ], minFlatness: 0.6,
-		minSky: 0.4, maxSky: 1, scale: [ 0.6, 1.5 ], clearance: 1.4,
-		hsv: [ 0.1300, 0.784, 0.910 ], hueRange: 0.14, saturate: 1.3, stiffness: 0.05,
+		id: 'brain', density: 0.55, depth: [ - 24, - 5 ], minFlatness: 0.6,
+		minSky: 0.4, maxSky: 1, scale: [ 0.6, 1.5 ], clearance: 2.2,
+		hsv: [ 0.1278, 0.556, 0.847 ], hueRange: 0.14, saturate: 1.45, stiffness: 0.05,
 	},
 	{
-		id: 'sponge', density: 0.9, depth: [ - 28, - 8 ], minFlatness: 0.55,
-		minSky: 0.15, maxSky: 1, scale: [ 0.6, 1.6 ], clearance: 1.5,
-		hsv: [ 0.8667, 0.833, 0.753 ], hueRange: 0.28, saturate: 1.4, stiffness: 0.1,
+		id: 'sponge', density: 0.3, depth: [ - 28, - 8 ], minFlatness: 0.55,
+		minSky: 0.15, maxSky: 1, scale: [ 0.6, 1.6 ], clearance: 3.0,
+		hsv: [ 0.0391, 0.703, 0.831 ], hueRange: 0.24, saturate: 1.45, stiffness: 0.1,
 	},
 	{
-		id: 'anemone', density: 1.1, depth: [ - 24, - 4 ], minFlatness: 0.5,
-		minSky: 0.3, maxSky: 1, scale: [ 0.7, 1.5 ], clearance: 0.9,
-		hsv: [ 0.0311, 0.737, 0.941 ], hueRange: 0.3, saturate: 1.4, stiffness: 1.0,
+		id: 'anemone', density: 0.65, depth: [ - 24, - 4 ], minFlatness: 0.5,
+		minSky: 0.3, maxSky: 1, scale: [ 0.7, 1.5 ], clearance: 1.4,
+		hsv: [ 0.0597, 0.598, 0.878 ], hueRange: 0.3, saturate: 1.45, stiffness: 1.0,
 	},
 	{
-		id: 'urchin', density: 0.5, depth: [ - 28, - 4 ], minFlatness: 0.45,
-		minSky: 0.0, maxSky: 1, scale: [ 0.6, 1.3 ], clearance: 0.7,
-		hsv: [ 0.7387, 0.698, 0.416 ], hueRange: 0.12, saturate: 1.2, stiffness: 0.0,
+		id: 'urchin', density: 0.22, depth: [ - 28, - 4 ], minFlatness: 0.45,
+		minSky: 0.0, maxSky: 1, scale: [ 0.6, 1.3 ], clearance: 1.2,
+		hsv: [ 0.7976, 0.438, 0.251 ], hueRange: 0.1, saturate: 1.45, stiffness: 0.0,
 	},
 	{
-		id: 'starfish', density: 0.35, depth: [ - 28, - 4 ], minFlatness: 0.75,
-		minSky: 0.1, maxSky: 1, scale: [ 0.7, 1.4 ], clearance: 1.1,
-		hsv: [ 0.0441, 0.850, 0.941 ], hueRange: 0.22, saturate: 1.35, stiffness: 0.0, alignToSlope: true,
+		id: 'starfish', density: 0.22, depth: [ - 28, - 4 ], minFlatness: 0.75,
+		minSky: 0.1, maxSky: 1, scale: [ 0.7, 1.4 ], clearance: 1.6,
+		hsv: [ 0.0523, 0.768, 0.878 ], hueRange: 0.24, saturate: 1.45, stiffness: 0.0, alignToSlope: true,
 	},
 	{
-		id: 'shell', density: 0.6, depth: [ - 28, - 3 ], minFlatness: 0.8,
-		minSky: 0.0, maxSky: 1, scale: [ 0.7, 1.6 ], clearance: 0.6,
+		id: 'shell', density: 0.3, depth: [ - 28, - 3 ], minFlatness: 0.8,
+		minSky: 0.0, maxSky: 1, scale: [ 0.7, 1.6 ], clearance: 1.0,
 		hsv: [ 0.1083, 0.167, 0.941 ], hueRange: 0.1, stiffness: 0.0, alignToSlope: true,
 	},
 ];
@@ -180,8 +185,8 @@ function createFloraMaterial( rule, caustics ) {
 		// and value jitter so a bed does not read as flat vector art.
 		const t = clamp( iTint, 0, 1 );
 		const hue = fract( uHue.add( t.sub( 0.5 ).mul( uHueRange ) ).add( 1 ) );
-		const sat = clamp( uSat.mul( t.mul( 0.30 ).add( 0.85 ) ), 0, 1 );
-		const val = clamp( uVal.mul( t.mul( 0.34 ).add( 0.80 ) ), 0, 1 );
+		const sat = clamp( uSat.mul( t.mul( 0.22 ).add( 0.95 ) ), 0, 1 );
+		const val = clamp( uVal.mul( t.mul( 0.26 ).add( 0.94 ) ), 0, 1 );
 
 		const base = hsv2rgb( hue, sat, val ).toVar();
 
@@ -206,7 +211,10 @@ function createFloraMaterial( rule, caustics ) {
 		material.emissiveNode = Fn( () => {
 
 			const amount = causticSample( caustics, positionWorld, normalWorld, iSky );
-			return vec3( 0.7, 0.94, 1.0 ).mul( amount ).mul( 0.9 );
+			// Kept low. Caustics land on every up-facing surface, and a coral
+			// head is mostly up-facing — at full strength they bleach the very
+			// props that are supposed to carry the reef's colour.
+			return vec3( 0.7, 0.94, 1.0 ).mul( amount ).mul( 0.4 );
 
 		} )();
 

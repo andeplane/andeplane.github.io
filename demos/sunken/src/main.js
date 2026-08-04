@@ -102,7 +102,11 @@ async function boot() {
 	// Near-white from above rather than saturated blue: the water already tints
 	// everything on the way to the eye, and tinting the *light* as well double-
 	// counts it and leaves corals with no colour left to lose.
-	const ambient = new THREE.HemisphereLight( 0xd8ecff, 0x12283f, 1.05 );
+	// Lower intensity than before: a bright near-white ambient adds the same
+	// value to every surface, which compresses the difference between a crimson
+	// coral and a grey rock. Most of the light should come from the directional
+	// sun, which gives shape as well as brightness.
+	const ambient = new THREE.HemisphereLight( 0xcfe6f7, 0x14283c, 0.62 );
 	scene.add( ambient );
 
 	// Per-channel extinction applies to every material in the scene.

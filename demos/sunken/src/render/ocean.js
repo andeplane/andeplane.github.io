@@ -260,20 +260,25 @@ export function createOcean() {
 			const skyCol = sky( normalize( vec3( R.x, max( R.y, 0.005 ), R.z ) ) );
 
 			// Sharp sun glint on the water.
-			const glint = pow( max( dot( R, sunDirection ), 0 ), float( 900 ) ).mul( 26 );
+			const glint = pow( max( dot( R, sunDirection ), 0 ), float( 1400 ) ).mul( 18 );
 
 			// Transmitted colour: the deep water below.
-			const deep = vec3( 0.012, 0.075, 0.10 );
+			const deep = vec3( 0.015, 0.10, 0.16 );
 
 			// Foam on the crests, broken up by noise so it is not a contour band.
 			const crest = smoothstep( float( 0.20 ), float( 0.55 ), vWorld.y );
 			const foamNoise = mx_fractal_noise_float(
 				vec3( vWorld.x.mul( 0.9 ), vWorld.z.mul( 0.9 ), uTime.mul( 0.6 ) ), 3, 2, 0.5, 1
 			).mul( 0.5 ).add( 0.5 );
-			const foam = clamp( crest.mul( foamNoise.mul( 1.5 ) ), 0, 1 );
+			// Fade foam out with distance. The wave HEIGHT still varies far away
+			// even after the normal is flattened for aliasing, so without this
+			// every distant crest keeps its foam and the horizon turns into a
+			// continuous milky band.
+			const foam = clamp( crest.mul( foamNoise.mul( 0.85 ) ), 0, 1 )
+				.mul( smoothstep( float( 320 ), float( 40 ), camDist ) );
 
 			const c = mix( deep, skyCol, fresnel ).add( sunColor.mul( glint ) ).toVar();
-			c.assign( mix( c, vec3( 0.90, 0.96, 1.0 ), foam.mul( 0.8 ) ) );
+			c.assign( mix( c, vec3( 0.90, 0.96, 1.0 ), foam.mul( 0.62 ) ) );
 
 			result.assign( c );
 			// Nearly opaque at grazing angles, more transparent looking straight
