@@ -5,6 +5,7 @@ import {
 } from 'three/tsl';
 
 import { submergedFraction } from './frame.js';
+import { underwaterBackdropColor } from './waterFog.js';
 
 /**
  * Sky and sun.
@@ -17,11 +18,11 @@ import { submergedFraction } from './frame.js';
  */
 
 export const SUN = {
-	elevation: 34,     // degrees above the horizon — late golden hour
+	elevation: 52,     // degrees — high tropical sun; underwater needs steep light
 	azimuth: 152,      // degrees
 	direction: new THREE.Vector3(),
 	color: new THREE.Color( 0xfff1d6 ),
-	intensity: 3.0,
+	intensity: 3.6,
 };
 
 export function updateSunDirection() {
@@ -135,13 +136,13 @@ export function createSkyDome( deepColor = new THREE.Color( 0x0a2f3d ) ) {
 		fog: false,
 	} );
 
-	const deep = uniform( deepColor );
-
 	material.colorNode = Fn( () => {
 
 		const dir = normalize( positionWorld.sub( cameraPosition ) );
 		const submerged = submergedFraction( cameraPosition.y, positionWorld.y );
-		return vec4( mix( sky( dir ), vec3( deep ), submerged ), 1 );
+		// Underwater the dome shows exactly what the fog converges to, so the
+		// stream edge (terrain fading to inscatter) meets an identical backdrop.
+		return vec4( mix( sky( dir ), underwaterBackdropColor( dir ), submerged ), 1 );
 
 	} )();
 

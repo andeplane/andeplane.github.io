@@ -3,7 +3,7 @@
  * so every worker generates a bit-identical world).
  */
 
-import { initField } from './field.js';
+import { initField, ensureRegionsAround } from './field.js';
 import { meshChunk } from './mesher.js';
 
 initField();
@@ -15,6 +15,10 @@ self.onmessage = ( e ) => {
 	let result = null;
 	try {
 
+		// Caves are generated per region on demand; make sure the ones that
+		// could reach this chunk exist before sampling the field.
+		ensureRegionsAround( spec.ox + spec.dims * spec.voxel * 0.5,
+			spec.oz + spec.dims * spec.voxel * 0.5 );
 		result = meshChunk( spec );
 
 	} catch ( err ) {

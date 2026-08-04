@@ -61,6 +61,14 @@ export const waterParams = {
 	// and audio read the same value so the whole game changes state together.
 	submersion: uniform( 0 ),
 
+	// Underwater view distance ceiling, metres. Set from the streaming radius:
+	// the world is generated in chunks around the player, and this fade must
+	// complete BEFORE the last loaded ring, or you watch chunks pop into
+	// existence and see the raw edge of the loaded world — the "visible
+	// boundary" complaint. Physically it is also right: real water has a
+	// visibility limit; an edge of geometry does not.
+	maxView: uniform( 95 ),
+
 	// How much sky the camera can see, 0..1, sampled from the same
 	// `skyVisibilityAt` the mesher bakes.
 	//
@@ -70,6 +78,31 @@ export const waterParams = {
 	// hazy green rather than dark. One CPU sample per frame fixes it.
 	skyExposure: uniform( 1 ),
 };
+
+/**
+ * The colour open water converges to along a view ray — the same expression
+ * the fog node uses for in-scattered light, evaluated at the CAMERA's depth.
+ *
+ * Exported because the underwater sky-dome backdrop must use this exact
+ * formula. Terrain at the visibility ceiling fades to the fog's inscatter; if
+ * the dome behind it is any other colour, the seam between "fogged terrain"
+ * and "no terrain" is a visible band at the stream edge — which is precisely
+ * the artefact the ceiling exists to hide. One formula, two consumers, no seam
+ * (the same discipline as field()/waves()).
+ */
+export function underwaterBackdropColor( viewDir ) {
+
+	const camDepth = clamp( cameraPosition.y.negate(), 0, 40 );
+	const sunAtten = exp( camDepth.mul( waterParams.depthFalloff ).negate() );
+	const forward = pow( max( dot( viewDir, sunDirection.negate() ), 0 ), float( 3.0 ) ).mul( 0.35 ).add( 1 );
+
+	return vec3( waterParams.tint )
+		.mul( sunColor )
+		.mul( sunAtten )
+		.mul( forward )
+		.mul( 0.80 );
+
+}
 
 export function createWaterFogNode() {
 
@@ -110,6 +143,12 @@ export function createWaterFogNode() {
 			.mul( waterParams.skyExposure.mul( 0.88 ).add( 0.12 ) );
 
 		let colour = output.rgb.mul( transmittance ).add( inscatter.mul( transmittance.oneMinus() ) ).toVar();
+
+		// Hard visibility ceiling (see maxView above). Fade to the same
+		// in-scatter colour the water converges to anyway, so it reads as
+		// water getting thicker, not as a curtain.
+		const ceiling = smoothstep( waterParams.maxView.mul( 0.55 ), waterParams.maxView, dWater );
+		colour.assign( mix( colour, inscatter, ceiling ) );
 
 		// ---- above-water aerial perspective ------------------------------
 		const dAir = rayLength.mul( submerged.oneMinus() );

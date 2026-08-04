@@ -22,18 +22,25 @@ import { createNoise2D, createNoise3D } from 'simplex-noise';
 import { stream } from '../core/rng.js';
 
 export const WORLD = {
-	half: 150,          // world spans [-150, 150] on X and Z
+	// The world is INFINITE in X and Z. Terrain is streamed in chunks around
+	// the player (world/streaming.js); nothing here is clamped to a boundary.
+	// Only the vertical extent is fixed, which is correct for an ocean world:
+	// there is a seabed and there is a sky, and neither moves.
 	yMin: - 34,
 	yMax: 28,
 	seaLevel: 0,
+
+	// Caves are authored per REGION rather than as one global list, so they can
+	// be generated on demand at any coordinate. A region is large enough that a
+	// cave system comfortably fits inside it plus a margin, which is what lets
+	// `field()` get away with consulting only the 3x3 neighbourhood.
+	region: 192,
 
 	islandX: 74,
 	islandZ: 48,
 	islandInner: 17,    // fully island inside this radius
 	islandOuter: 66,    // fully seabed outside this radius
 
-	// Beyond this radius from the origin the player gets pushed back (PRD §4.2).
-	edgeRadius: 138,
 };
 
 /**
@@ -257,9 +264,15 @@ export function heightAt( x, z ) {
  * swim through. Systems are authored as splines whose mouths are placed, by
  * construction, on the rock surface facing open water.
  */
-function buildCaveSystems() {
+function buildCaveSystems( regionX, regionZ ) {
 
-	const rnd = stream( 'caves' );
+	// Seeded by region coordinates, so every thread and every visit generates
+	// exactly the same caves for a given patch of world.
+	const rnd = stream( `caves:${regionX},${regionZ}` );
+
+	const R = WORLD.region;
+	const originX = regionX * R;
+	const originZ = regionZ * R;
 	const prims = [];
 	const systems = [];
 
@@ -286,12 +299,18 @@ function buildCaveSystems() {
 		const maxDistance = opts.maxDistance ?? Infinity;
 
 		let best = null, bestScore = - Infinity;
-		for ( let i = 0; i < 1200; i ++ ) {
+		for ( let i = 0; i < 900; i ++ ) {
 
-			const a = rnd() * Math.PI * 2;
-			const rad = 45 + rnd() * 85;
-			const x = Math.cos( a ) * rad, z = Math.sin( a ) * rad;
-			if ( Math.hypot( x, z ) > WORLD.edgeRadius - 15 ) continue;
+			// Uniform within the region CORE (a 24 m margin off every border).
+			// `claimed` is per-region — regions know nothing about each other's
+			// mouths — so separation across a border cannot be negotiated. It
+			// is instead guaranteed geometrically: mouths from neighbouring
+			// regions are at least twice this margin apart, which exceeds the
+			// stacking-check radius. Without the margin, two regions routinely
+			// pick the same steep wall each side of their shared border.
+			const MARGIN = 24;
+			const x = originX + MARGIN + rnd() * ( R - 2 * MARGIN );
+			const z = originZ + MARGIN + rnd() * ( R - 2 * MARGIN );
 
 			// Keep mouths out of the island's landmass.
 			if ( Math.hypot( x - WORLD.islandX, z - WORLD.islandZ ) < WORLD.islandInner + 20 ) continue;
@@ -352,7 +371,11 @@ function buildCaveSystems() {
 			for ( let d = 8; d <= 70; d += 2 ) {
 
 				const x = from.x + dx * d, z = from.z + dz * d;
-				if ( Math.hypot( x, z ) > WORLD.edgeRadius - 12 ) break;
+				// Stay inside the region plus a margin. `field()` only consults
+				// the 3x3 region neighbourhood, so a system that wandered
+				// further than one region would be invisible to voxels it
+				// should have carved.
+				if ( Math.abs( x - originX - R / 2 ) > R * 0.9 || Math.abs( z - originZ - R / 2 ) > R * 0.9 ) break;
 				if ( Math.hypot( x - WORLD.islandX, z - WORLD.islandZ ) < WORLD.islandInner + 12 ) break;
 
 				const h = heightAt( x, z );
@@ -381,7 +404,7 @@ function buildCaveSystems() {
 		if ( mouth === null ) continue;
 
 		const nodes = [ mouth ];
-		const system = { id: `cave_${s}`, mouths: [ mouth ], chambers: [], skylights: [], nodes };
+		const system = { id: `cave_${regionX},${regionZ}_${s}`, mouths: [ mouth ], chambers: [], skylights: [], nodes };
 
 		// Head inward (toward the world centre) and downward, wandering.
 		let dirX = - mouth.x, dirZ = - mouth.z;
@@ -418,7 +441,7 @@ function buildCaveSystems() {
 			const burial = Math.max( r0, r1 ) + 3.2;
 			next.y = Math.min( next.y, heightAt( next.x, next.z ) - burial );
 			next.y = Math.max( next.y, WORLD.yMin + 5 );
-			if ( Math.hypot( next.x, next.z ) > WORLD.edgeRadius - 12 ) break;
+			if ( Math.abs( next.x - originX - R / 2 ) > R * 0.9 || Math.abs( next.z - originZ - R / 2 ) > R * 0.9 ) break;
 			prims.push( {
 				kind: 0, ax: p.x, ay: p.y, az: p.z, bx: next.x, by: next.y, bz: next.z,
 				r0, r1,
@@ -435,7 +458,20 @@ function buildCaveSystems() {
 			rx: 8 + rnd() * 5, ry: 5 + rnd() * 3, rz: 8 + rnd() * 5,
 			scale: 6,
 		};
-		chamber.cy = Math.min( chamber.cy, heightAt( chamber.cx, chamber.cz ) - chamber.ry - 4 );
+		// The chamber must fit between the seabed roof and the world floor: the
+		// ellipsoid may neither poke through the surface (bright chamber, holes
+		// in the seabed) nor dip below yMin (carves through the bottom of the
+		// meshed volume into the void). If the vertical budget at this spot is
+		// too small for the rolled radius, SHRINK the chamber — clamping its
+		// centre against both bounds at full size just made it violate
+		// whichever bound was clamped second.
+		{
+			const roof = heightAt( chamber.cx, chamber.cz ) - 4;
+			const floor = WORLD.yMin + 2;
+			const budget = ( roof - floor ) / 2;
+			chamber.ry = Math.min( chamber.ry, Math.max( 2.5, budget ) );
+			chamber.cy = Math.min( Math.max( chamber.cy, floor + chamber.ry ), roof - chamber.ry );
+		}
 		prims.push( chamber );
 		system.chambers.push( chamber );
 
@@ -462,10 +498,28 @@ function buildCaveSystems() {
 		// claustrophobic dead end the PRD forbids. So if the search fails we
 		// *bore* an exit: march outward from the chamber until we are past the
 		// rock surface, and drive a tunnel there. That cannot fail.
-		let second = findMouth( { minSeparation: 26, near: p, maxDistance: 100 } );
+		let second = findMouth( { minSeparation: 26, near: p, maxDistance: 120 } );
 		if ( second === null ) second = boreExit( p, rnd );
 
-		if ( second !== null ) {
+		if ( second === null ) {
+
+			// Last resort, cannot fail: bore straight up from the chamber to
+			// open water. The chamber is under rock by construction, so a
+			// vertical shaft always reaches the seabed surface — it becomes a
+			// wide swimmable skylight, and the system has its second opening.
+			const surfY = heightAt( chamber.cx, chamber.cz );
+			prims.push( {
+				kind: 0,
+				ax: chamber.cx, ay: chamber.cy, az: chamber.cz,
+				bx: chamber.cx + ( rnd() - 0.5 ) * 3, by: surfY + 2.5, bz: chamber.cz + ( rnd() - 0.5 ) * 3,
+				r0: 2.4, r1: 2.0,
+			} );
+			const shaft = { x: chamber.cx, y: surfY, z: chamber.cz };
+			system.skylights.push( shaft );
+			system.mouths.push( shaft );
+			nodes.push( shaft );
+
+		} else {
 
 			const mid = {
 				x: ( p.x + second.x ) / 2 + ( rnd() - 0.5 ) * 10,
@@ -486,8 +540,13 @@ function buildCaveSystems() {
 	}
 
 	// Sea caves at the island waterline — they link the above- and below-water
-	// worlds (PRD §4.3).
-	for ( let i = 0; i < 2; i ++ ) {
+	// worlds (PRD §4.3). Only the region CONTAINING the island generates them:
+	// without this guard every region generated its own pair at the same fixed
+	// island coordinates, stacking 18 identical caves on one shoreline.
+	const islandHere = WORLD.islandX >= originX && WORLD.islandX < originX + R
+		&& WORLD.islandZ >= originZ && WORLD.islandZ < originZ + R;
+
+	for ( let i = 0; islandHere && i < 2; i ++ ) {
 
 		const a = rnd() * Math.PI * 2;
 		const rad = WORLD.islandInner + 14 + rnd() * 18;
@@ -505,12 +564,10 @@ function buildCaveSystems() {
 			rx: 7, ry: 4.5, rz: 7, scale: 5,
 		} );
 
-		systems.push( { id: `seacave_${i}`, mouths: [ mouth ], chambers: [], skylights: [], nodes: [ mouth, end ], seaCave: true } );
+		systems.push( { id: `seacave_${regionX},${regionZ}_${i}`, mouths: [ mouth ], chambers: [], skylights: [], nodes: [ mouth, end ], seaCave: true } );
 
 	}
 
-	// Broadphase.
-	const grid = new PrimitiveGrid( 12 );
 	for ( const p of prims ) {
 
 		p.bounds = p.kind === 0 ? capsuleBounds( p ) : {
@@ -518,11 +575,10 @@ function buildCaveSystems() {
 			minY: p.cy - p.ry - 2, maxY: p.cy + p.ry + 2,
 			minZ: p.cz - p.rz - 2, maxZ: p.cz + p.rz + 2,
 		};
-		grid.insert( p );
 
 	}
 
-	return { prims, grid, systems };
+	return { prims, systems };
 
 }
 
@@ -534,18 +590,74 @@ export function initField() {
 
 	if ( N !== null ) return N;
 
-	N = { noise: buildNoise() };
-	const caves = buildCaveSystems();
-	N.prims = caves.prims;
-	N.grid = caves.grid;
-	N.systems = caves.systems;
+	N = {
+		noise: buildNoise(),
+		grid: new PrimitiveGrid( 12 ),
+		regions: new Map(),      // region key -> { systems }
+	};
+
+	// The origin region, so anything that queries before streaming starts has
+	// something to work with.
+	ensureRegionsAround( 0, 0 );
 	return N;
 
 }
 
+const regionKey = ( rx, rz ) => rx * 100003 + rz;
+
+/**
+ * Generate one region's caves and fold them into the shared broadphase grid.
+ * Idempotent and deterministic: the same region always produces the same caves,
+ * on every thread.
+ */
+function ensureRegion( rx, rz ) {
+
+	const key = regionKey( rx, rz );
+	if ( N.regions.has( key ) ) return N.regions.get( key );
+
+	// Reserve the slot *before* building, so a re-entrant call cannot recurse:
+	// buildCaveSystems() calls heightAt(), which is safe, but future changes
+	// might not be.
+	const entry = { systems: [] };
+	N.regions.set( key, entry );
+
+	const built = buildCaveSystems( rx, rz );
+	for ( const prim of built.prims ) N.grid.insert( prim );
+	entry.systems = built.systems;
+
+	return entry;
+
+}
+
+/**
+ * Ensure every region whose caves could reach (x, z) exists.
+ *
+ * Cave systems are clamped to their own region plus a margin, so the 3x3
+ * neighbourhood is sufficient. Call this before meshing a chunk or before
+ * colliding at a new location — NOT inside `field()`, which runs millions of
+ * times per chunk and must stay free of map lookups.
+ */
+export function ensureRegionsAround( x, z ) {
+
+	const R = WORLD.region;
+	const rx = Math.floor( x / R );
+	const rz = Math.floor( z / R );
+
+	for ( let dx = - 1; dx <= 1; dx ++ ) {
+
+		for ( let dz = - 1; dz <= 1; dz ++ ) ensureRegion( rx + dx, rz + dz );
+
+	}
+
+}
+
+/** Cave systems known so far. Grows as the world streams in. */
 export function caveSystems() {
 
-	return initField().systems;
+	initField();
+	const out = [];
+	for ( const entry of N.regions.values() ) out.push( ...entry.systems );
+	return out;
 
 }
 

@@ -233,7 +233,6 @@ export function createBoats( scene ) {
 			const r = minR + rnd() * ( maxR - minR );
 			const x = WORLD.islandX + Math.cos( a ) * r;
 			const z = WORLD.islandZ + Math.sin( a ) * r;
-			if ( Math.hypot( x, z ) > WORLD.edgeRadius - 20 ) continue;
 			if ( heightAt( x, z ) < - 6 ) return new THREE.Vector3( x, 0, z );
 
 		}

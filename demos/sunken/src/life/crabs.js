@@ -28,7 +28,12 @@ const STATE = { IDLE: 0, WANDER: 1, SCUTTLE: 2 };
 
 export class Crabs {
 
-	constructor( scene, { count = 120, caustics = null } = {} ) {
+	constructor( scene, { count = 120, caustics = null, origin = { x: 0, z: 0 }, spawnRadius = 110 } = {} ) {
+
+		// Crabs live in a disc around a moving origin rather than a fixed world
+		// boundary, so they still make sense in an infinite world.
+		this.origin = { x: origin.x, z: origin.z };
+		this.spawnRadius = spawnRadius;
 
 		this.count = count;
 		this.agents = [];
@@ -40,8 +45,8 @@ export class Crabs {
 		for ( let attempt = 0; attempt < count * 40 && placed < count; attempt ++ ) {
 
 			const a = rnd() * Math.PI * 2;
-			const r = Math.sqrt( rnd() ) * ( WORLD.edgeRadius - 12 );
-			const x = Math.cos( a ) * r, z = Math.sin( a ) * r;
+			const r = Math.sqrt( rnd() ) * this.spawnRadius;
+			const x = this.origin.x + Math.cos( a ) * r, z = this.origin.z + Math.sin( a ) * r;
 
 			const h = heightAt( x, z );
 			if ( h < - 28 || h > - 1.5 ) continue;
@@ -255,7 +260,7 @@ export class Crabs {
 				const nx = a.x + Math.cos( a.heading ) * a.speed * dt;
 				const nz = a.z + Math.sin( a.heading ) * a.speed * dt;
 
-				if ( Math.hypot( nx, nz ) < WORLD.edgeRadius - 8 ) {
+				if ( Math.hypot( nx - this.origin.x, nz - this.origin.z ) < this.spawnRadius ) {
 
 					// Re-ground against the field so they crawl over rocks
 					// instead of walking through them.

@@ -11,8 +11,8 @@ import { Screens } from './ui/screens.js';
 import { HUD } from './ui/hud.js';
 import { Player } from './game/player.js';
 
-import { initField, field, heightAt, caveSystems, surfaceBelow, skyVisibilityAt, WORLD } from './world/field.js';
-import { Terrain } from './world/chunks.js';
+import { initField, ensureRegionsAround, field, heightAt, caveSystems, surfaceBelow, skyVisibilityAt, WORLD } from './world/field.js';
+import { StreamingTerrain } from './world/streaming.js';
 import { FieldCollider } from './world/collider.js';
 import { createTerrainMaterial } from './render/terrainMaterial.js';
 import { createSkyDome, createSunLight, SUN } from './render/sky.js';
@@ -76,10 +76,10 @@ async function boot() {
 	// ---- world ------------------------------------------------------------
 	Screens.setProgress( 0.06, 'seeding the reef' );
 	initField();
-	const systems = caveSystems();
+	// Cave systems are generated per region as the world streams; query later.
 
 	// ---- sky, sun, water volume ------------------------------------------
-	scene.add( createSkyDome( new THREE.Color( 0x0a3766 ) ) );
+	scene.add( createSkyDome() );
 
 	const sun = createSunLight( quality.shadowMapSize );
 	scene.add( sun );
@@ -106,7 +106,7 @@ async function boot() {
 	// value to every surface, which compresses the difference between a crimson
 	// coral and a grey rock. Most of the light should come from the directional
 	// sun, which gives shape as well as brightness.
-	const ambient = new THREE.HemisphereLight( 0xcfe6f7, 0x14283c, 0.62 );
+	const ambient = new THREE.HemisphereLight( 0xcfe6f7, 0x14283c, 0.78 );
 	scene.add( ambient );
 
 	// Per-channel extinction applies to every material in the scene.
@@ -122,34 +122,52 @@ async function boot() {
 	} );
 
 	const terrainMaterial = createTerrainMaterial( { caustics } );
-	const terrain = new Terrain( scene, terrainMaterial, quality.terrainVoxel );
+
+	// ---- streaming world ---------------------------------------------------
+	// Choose the spawn first: chunks stream in around the player, so we need to
+	// know where they are before anything can be meshed.
+	placeSpawn( player, params );
+
+	const flora = new Flora( scene, {
+		budget: quality.floraTarget,
+		caustics,
+		residentChunks: 120,
+	} );
+
+	// The underwater visibility ceiling must sit inside the streamed area, so
+	// the loaded world's edge is never visible (chunk size 24 m x radius).
+	waterParams.maxView.value = ( quality.streamRadius - 1.5 ) * 24;
+
+	const terrain = new StreamingTerrain( scene, terrainMaterial, {
+		voxel: quality.terrainVoxel,
+		radius: quality.streamRadius,
+		onLoad: ( cx, cz, size ) => flora.loadChunk( cx, cz, size ),
+		onUnload: ( cx, cz ) => flora.unloadChunk( cx, cz ),
+	} );
+
+	Screens.setProgress( 0.35, 'carving the reef' );
 
 	const t0 = performance.now();
-	const stats = await terrain.build( ( done, total ) => {
-
-		Screens.setProgress( 0.06 + 0.72 * ( done / total ), `carving the reef  ${done}/${total}` );
-
-	} );
+	terrain.update( player.position.x, player.position.z, { force: true } );
+	await terrain.settle();
 	const buildMs = performance.now() - t0;
 
-	console.log( `[world] ${stats.meshed} chunks meshed, ${stats.empty} empty, ` +
-		`${( stats.triangles / 1000 ).toFixed( 0 )}k tris, ${( stats.vertices / 1000 ).toFixed( 0 )}k verts, ` +
-		`${buildMs.toFixed( 0 )} ms` );
-	console.log( `[world] ${systems.length} cave systems`, systems.map( s => s.id ).join( ', ' ) );
-
-	// ---- life -------------------------------------------------------------
-	Screens.setProgress( 0.80, 'planting the reef' );
-	const flora = new Flora( scene, { budget: quality.floraTarget, caustics } );
-	const floraCount = flora.build();
-	console.log( `[flora] ${floraCount} instances across ${flora.meshes.length} species` );
+	const systems = caveSystems();
+	console.log( `[world] ${terrain.stats.loaded} chunks, ` +
+		`${( terrain.stats.triangles / 1000 ).toFixed( 0 )}k tris, ${buildMs.toFixed( 0 )} ms` );
+	console.log( `[world] ${systems.length} cave systems so far` );
+	console.log( `[flora] ${flora.total} instances across ${flora.meshes.length} species` );
 
 	// ---- fauna -------------------------------------------------------------
-	Screens.setProgress( 0.84, 'releasing the fish' );
-	const flocks = createFishSchools( scene, quality.fishTotal );
+	Screens.setProgress( 0.80, 'releasing the fish' );
+	const spawnOrigin = { x: player.position.x, z: player.position.z };
+	const flocks = createFishSchools( scene, quality.fishTotal, spawnOrigin );
 	flocks.push( createGulls( scene, quality.gulls ) );
 	const fishTotal = flocks.reduce( ( n, f ) => n + f.count, 0 );
-	const crabs = new Crabs( scene, { count: quality.crabs, caustics } );
+
+	const crabs = new Crabs( scene, { count: quality.crabs, caustics, origin: spawnOrigin, spawnRadius: 100 } );
 	const boats = createBoats( scene );
+	console.log( `[fauna] ${fishTotal} fish across ${flocks.length} flocks, ${crabs.count} crabs` );
 
 	// Ambient particles. Vents are seeded on the seabed near cave mouths, where
 	// gas actually escapes the rock.
@@ -167,9 +185,8 @@ async function boot() {
 	}
 
 	const bubbles = vents.length > 0 ? createBubbles( scene, vents ) : null;
-	console.log( `[fauna] ${fishTotal} fish across ${flocks.length} flocks, ${crabs.count} crabs` );
 
-	// ---- volumetric light shafts -----------------------------------------
+	// ---- volumetric light shafts + bioluminescence -------------------------
 	const volumetrics = quality.volumetric
 		? new Volumetrics( { steps: quality.volumetricSteps, caustics } )
 		: null;
@@ -193,7 +210,7 @@ async function boot() {
 	const interactions = new Interactions( camera, hud );
 	on( 'input:interact', () => interactions.trigger() );
 
-	const chest = placeChest( scene, systems );
+	const chest = placeChest( scene, caveSystems() );
 
 	if ( chest !== null ) {
 
@@ -220,7 +237,6 @@ async function boot() {
 
 	// ---- spawn ------------------------------------------------------------
 	// PRD §3.1: float at the surface with the island ahead.
-	placeSpawn( player, params, systems );
 
 	// ---- render pipeline ---------------------------------------------------
 	// The volumetric shafts are a separate quarter-res pass restricted to the
@@ -299,6 +315,11 @@ async function boot() {
 		player.update( dt );
 		torch.update( dt );
 
+		// Stream the world around the player. Both calls early-out unless the
+		// player has crossed into a new chunk / region.
+		ensureRegionsAround( player.position.x, player.position.z );
+		terrain.update( player.position.x, player.position.z );
+
 		for ( const flock of flocks ) flock.update( renderer, dt, player.position );
 		crabs.update( dt, player.position );
 		if ( chest !== null ) chest.update( dt );
@@ -353,18 +374,52 @@ async function boot() {
 		hud.setStats(
 			`${clock.fps.toFixed( 0 )} fps  ${clock.msSmoothed.toFixed( 1 )} ms   [${quality.name}]\n` +
 			`x ${player.position.x.toFixed( 1 )}  y ${player.position.y.toFixed( 1 )}  z ${player.position.z.toFixed( 1 )}\n` +
-			`terrain ${stats.meshed} chunks  ${( stats.triangles / 1000 ).toFixed( 0 )}k tris\n` +
-			`flora ${floraCount}  fish ${fishTotal}  crabs ${crabs.count}`
+			`chunks ${terrain.stats.loaded} (+${terrain.stats.queued} queued)  ${( terrain.stats.triangles / 1000 ).toFixed( 0 )}k tris\n` +
+			`flora ${flora.total}  fish ${fishTotal}  crabs ${crabs.count}`
 		);
 
 		adaptive.update( clock.rawDelta * 1000 );
 
 		renderPipeline.render();
 
+		// Deferred frame capture (see __game.capture). Must run in the same
+		// task as render(): a WebGPU canvas is cleared after present, so
+		// drawImage from outside the frame yields blank pixels — and Chrome's
+		// own Page.captureScreenshot is unreliable under sustained GPU load.
+		if ( captureRequest !== null ) {
+
+			const { resolve, width } = captureRequest;
+			captureRequest = null;
+
+			try {
+
+				const src = renderer.domElement;
+				const w = width, h = Math.round( src.height * ( width / src.width ) );
+				const c = document.createElement( 'canvas' );
+				c.width = w; c.height = h;
+				c.getContext( '2d' ).drawImage( src, 0, 0, w, h );
+				resolve( c.toDataURL( 'image/jpeg', 0.85 ) );
+
+			} catch ( err ) {
+
+				resolve( 'ERR ' + err.message );
+
+			}
+
+		}
+
 	} );
 
+	let captureRequest = null;
+
 	window.__game = {
-		renderer, scene, camera, player, clock, quality, hud, input, terrain, systems, stats, caustics, torch, sun, flora, volumetrics, biolum, renderPipeline, flocks, crabs, chest, interactions, boats, snow, bubbles, post, audio, adaptive,
+		/** Resolve a JPEG data URL of the next rendered frame. */
+		capture( width = 1280 ) {
+
+			return new Promise( ( resolve ) => { captureRequest = { resolve, width }; } );
+
+		},
+		renderer, scene, camera, player, clock, quality, hud, input, terrain, flora, caustics, torch, sun, volumetrics, biolum, renderPipeline, flocks, crabs, chest, interactions, boats, snow, bubbles, post, audio, adaptive,
 		// World queries, so debugging and automated screenshots can find valid
 		// viewpoints instead of guessing coordinates.
 		field, heightAt, surfaceBelow, WORLD,
@@ -429,10 +484,12 @@ function placeChest( scene, systems ) {
 
 }
 
-function placeSpawn( player, params, systems ) {
+function placeSpawn( player, params ) {
 
 	// ?spawn=cave drops you at a cave mouth — used while building phase 2.
 	const where = params.get( 'spawn' );
+
+	const systems = caveSystems();
 
 	if ( where === 'cave' && systems.length > 0 ) {
 
@@ -475,7 +532,6 @@ function placeSpawn( player, params, systems ) {
 
 			const x = WORLD.islandX + Math.cos( ang ) * rad;
 			const z = WORLD.islandZ + Math.sin( ang ) * rad;
-			if ( Math.hypot( x, z ) > WORLD.edgeRadius - 25 ) continue;
 
 			const h = heightAt( x, z );
 			if ( h > - 13 || h < - 26 ) continue;   // want the −13…−26 m band below us

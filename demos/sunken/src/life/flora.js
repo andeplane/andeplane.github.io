@@ -6,7 +6,7 @@ import {
 } from 'three/tsl';
 
 import { FLORA_BUILDERS } from '../geometry/flora.js';
-import { scatterSpecies } from '../world/scatter.js';
+import { scatterInBox } from '../world/scatter.js';
 import { uTime } from '../render/frame.js';
 import { causticSample } from '../render/caustics.js';
 
@@ -224,103 +224,181 @@ function createFloraMaterial( rule, caustics ) {
 
 }
 
+/**
+ * Streaming flora.
+ *
+ * One InstancedMesh per species, sized once, with a free list of instance
+ * slots. A chunk that loads claims slots and writes matrices into them; a chunk
+ * that unloads returns them and the matrices are zeroed.
+ *
+ * The alternative — an InstancedMesh per chunk per species — would mean
+ * fourteen species times a hundred-odd resident chunks, so well over a thousand
+ * draw calls for the plants alone. Pooling keeps it at fourteen however far you
+ * swim.
+ */
 export class Flora {
 
-	constructor( scene, { budget = 40000, caustics = null } = {} ) {
+	constructor( scene, { budget = 40000, caustics = null, residentChunks = 120 } = {} ) {
 
 		this.scene = scene;
 		this.group = new THREE.Group();
 		this.group.name = 'flora';
 		scene.add( this.group );
 
-		this.meshes = [];
-		this.total = 0;
-		this.budget = budget;
 		this.caustics = caustics;
+		this.species = new Map();
+		this.chunkAllocations = new Map();
+		this.total = 0;
+		this.meshes = [];
 
-	}
+		const totalDensity = FLORA_RULES.reduce( ( sum, r ) => sum + r.density, 0 );
 
-	build( onProgress ) {
+		for ( const rule of FLORA_RULES ) {
 
-		const totalDensity = FLORA_RULES.reduce( ( s, r ) => s + r.density, 0 );
-
-		const up = new THREE.Vector3( 0, 1, 0 );
-		const normal = new THREE.Vector3();
-		const quat = new THREE.Quaternion();
-		const slopeQuat = new THREE.Quaternion();
-		const yawQuat = new THREE.Quaternion();
-		const scaleV = new THREE.Vector3();
-		const posV = new THREE.Vector3();
-		const matrix = new THREE.Matrix4();
-
-		FLORA_RULES.forEach( ( rule, ruleIndex ) => {
-
-			const count = Math.round( this.budget * ( rule.density / totalDensity ) );
-			const placements = scatterSpecies( rule, count );
-			if ( placements.length === 0 ) return;
+			// Capacity is the steady-state count plus headroom: chunk yields
+			// vary a lot with terrain, and running out of slots means props
+			// silently stop appearing.
+			const capacity = Math.max( 64, Math.ceil( budget * ( rule.density / totalDensity ) * 1.7 ) );
 
 			const geometry = FLORA_BUILDERS[ rule.id ]();
 			const material = createFloraMaterial( rule, this.caustics );
 
-			const mesh = new THREE.InstancedMesh( geometry, material, placements.length );
-			mesh.castShadow = false;      // thousands of tiny shadow casters is not worth it
+			const mesh = new THREE.InstancedMesh( geometry, material, capacity );
+			mesh.castShadow = false;
 			mesh.receiveShadow = true;
-			mesh.frustumCulled = false;   // instances span the world; per-mesh culling is useless
+			mesh.frustumCulled = false;
 			mesh.name = `flora:${rule.id}`;
+			mesh.count = capacity;
+			mesh.instanceMatrix.setUsage( THREE.DynamicDrawUsage );
 
-			const phases = new Float32Array( placements.length );
-			const tints = new Float32Array( placements.length );
-			const skies = new Float32Array( placements.length );
+			const phases = new Float32Array( capacity );
+			const tints = new Float32Array( capacity );
+			const skies = new Float32Array( capacity );
 
-			for ( let i = 0; i < placements.length; i ++ ) {
+			const attrPhase = new THREE.InstancedBufferAttribute( phases, 1 );
+			const attrTint = new THREE.InstancedBufferAttribute( tints, 1 );
+			const attrSky = new THREE.InstancedBufferAttribute( skies, 1 );
+			for ( const a of [ attrPhase, attrTint, attrSky ] ) a.setUsage( THREE.DynamicDrawUsage );
 
-				const p = placements[ i ];
+			geometry.setAttribute( 'iPhase', attrPhase );
+			geometry.setAttribute( 'iTint', attrTint );
+			geometry.setAttribute( 'iSky', attrSky );
 
-				// Plants that hug the substrate follow the slope; upright ones
-				// stay upright regardless, because kelp growing sideways out of
-				// a wall reads as a bug even when it is technically correct.
-				if ( rule.alignToSlope ) {
-
-					normal.set( p.nx, p.ny, p.nz ).normalize();
-					slopeQuat.setFromUnitVectors( up, normal );
-
-				} else {
-
-					normal.set( p.nx, p.ny, p.nz ).normalize();
-					slopeQuat.setFromUnitVectors( up, normal );
-					// Blend most of the way back to vertical.
-					slopeQuat.slerp( new THREE.Quaternion(), 0.75 );
-
-				}
-
-				yawQuat.setFromAxisAngle( up, p.rotation );
-				quat.copy( slopeQuat ).multiply( yawQuat );
-
-				posV.set( p.x, p.y, p.z );
-				scaleV.setScalar( p.scale );
-				matrix.compose( posV, quat, scaleV );
-				mesh.setMatrixAt( i, matrix );
-
-				phases[ i ] = p.phase;
-				tints[ i ] = p.tint;
-				skies[ i ] = p.sky;
-
-			}
-
+			// Everything starts collapsed to nothing, so unused slots draw
+			// degenerate triangles rather than a pile of props at the origin.
+			const zero = new THREE.Matrix4().makeScale( 0, 0, 0 );
+			for ( let i = 0; i < capacity; i ++ ) mesh.setMatrixAt( i, zero );
 			mesh.instanceMatrix.needsUpdate = true;
-			geometry.setAttribute( 'iPhase', new THREE.InstancedBufferAttribute( phases, 1 ) );
-			geometry.setAttribute( 'iTint', new THREE.InstancedBufferAttribute( tints, 1 ) );
-			geometry.setAttribute( 'iSky', new THREE.InstancedBufferAttribute( skies, 1 ) );
+
+			const free = new Array( capacity );
+			for ( let i = 0; i < capacity; i ++ ) free[ i ] = capacity - 1 - i;
 
 			this.group.add( mesh );
 			this.meshes.push( mesh );
-			this.total += placements.length;
+			this.species.set( rule.id, {
+				rule, mesh, free, capacity,
+				perChunk: ( budget * ( rule.density / totalDensity ) ) / residentChunks,
+				attrPhase, attrTint, attrSky,
+			} );
 
-			onProgress?.( ruleIndex + 1, FLORA_RULES.length, rule.id, placements.length );
+		}
 
-		} );
+		this._matrix = new THREE.Matrix4();
+		this._quat = new THREE.Quaternion();
+		this._slope = new THREE.Quaternion();
+		this._yaw = new THREE.Quaternion();
+		this._scale = new THREE.Vector3();
+		this._pos = new THREE.Vector3();
+		this._normal = new THREE.Vector3();
+		this._up = new THREE.Vector3( 0, 1, 0 );
+		this._zero = new THREE.Matrix4().makeScale( 0, 0, 0 );
 
-		return this.total;
+	}
+
+	/** Populate a chunk footprint. Called when terrain finishes meshing. */
+	loadChunk( cx, cz, size ) {
+
+		const key = `${cx},${cz}`;
+		if ( this.chunkAllocations.has( key ) ) return;
+
+		const box = { minX: cx * size, minZ: cz * size, size };
+		const allocation = [];
+
+		for ( const entry of this.species.values() ) {
+
+			// Poisson-ish variation around the expected per-chunk count, so
+			// beds are patchy rather than uniformly sprinkled.
+			const want = Math.max( 0, Math.round( entry.perChunk * ( 0.55 + Math.random() * 0.9 ) ) );
+			if ( want === 0 ) continue;
+
+			const placements = scatterInBox( entry.rule, box, want, key );
+
+			for ( const p of placements ) {
+
+				const slot = entry.free.pop();
+				if ( slot === undefined ) break;   // pool exhausted; skip quietly
+
+				this._write( entry, slot, p );
+				allocation.push( { id: entry.rule.id, slot } );
+				this.total ++;
+
+			}
+
+			entry.mesh.instanceMatrix.needsUpdate = true;
+			entry.attrPhase.needsUpdate = true;
+			entry.attrTint.needsUpdate = true;
+			entry.attrSky.needsUpdate = true;
+
+		}
+
+		this.chunkAllocations.set( key, allocation );
+
+	}
+
+	/** Return a chunk's slots to their pools. */
+	unloadChunk( cx, cz ) {
+
+		const key = `${cx},${cz}`;
+		const allocation = this.chunkAllocations.get( key );
+		if ( allocation === undefined ) return;
+
+		for ( const { id, slot } of allocation ) {
+
+			const entry = this.species.get( id );
+			entry.mesh.setMatrixAt( slot, this._zero );
+			entry.free.push( slot );
+			entry.mesh.instanceMatrix.needsUpdate = true;
+			this.total --;
+
+		}
+
+		this.chunkAllocations.delete( key );
+
+	}
+
+	_write( entry, slot, p ) {
+
+		const rule = entry.rule;
+
+		this._normal.set( p.nx, p.ny, p.nz ).normalize();
+		this._slope.setFromUnitVectors( this._up, this._normal );
+
+		// Plants that hug the substrate follow the slope; upright ones stay
+		// upright, because kelp growing sideways out of a wall reads as a bug
+		// even when it is technically correct.
+		if ( ! rule.alignToSlope ) this._slope.slerp( new THREE.Quaternion(), 0.75 );
+
+		this._yaw.setFromAxisAngle( this._up, p.rotation );
+		this._quat.copy( this._slope ).multiply( this._yaw );
+
+		this._pos.set( p.x, p.y, p.z );
+		this._scale.setScalar( p.scale );
+		this._matrix.compose( this._pos, this._quat, this._scale );
+		entry.mesh.setMatrixAt( slot, this._matrix );
+
+		entry.attrPhase.array[ slot ] = p.phase;
+		entry.attrTint.array[ slot ] = p.tint;
+		entry.attrSky.array[ slot ] = p.sky;
 
 	}
 

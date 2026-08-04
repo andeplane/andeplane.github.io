@@ -244,7 +244,11 @@ export function createOcean() {
 		// A hairline smoothstep rather than a hard step: exactly at eye level the
 		// two branches meet, and a binary test leaves a 1-pixel seam along the
 		// horizon.
-		const below = smoothstep( float( -0.05 ), float( 0.05 ), vWorld.y.sub( cameraPosition.y ) );
+		// Wider than a hairline: at exactly eye level the above-branch shows the
+		// horizon sky at grazing Fresnel (near-mirror, bright) while the below
+		// branch shows dark water, and a tight blend leaves a glowing white
+		// stripe across the middle of the screen whenever you swim level.
+		const below = smoothstep( float( -0.45 ), float( 0.25 ), vWorld.y.sub( cameraPosition.y ) );
 
 		const result = vec3( 0 ).toVar();
 		const alpha = float( 1 ).toVar();

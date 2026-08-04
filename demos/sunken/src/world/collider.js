@@ -41,25 +41,35 @@ export class FieldCollider {
 
 		}
 
-		// PRD §4.2: no invisible walls — a current pushes you back instead.
-		const r = Math.hypot( position.x, position.z );
-		if ( r > WORLD.edgeRadius ) {
+		this.grounded = false;
+		this.lastNormal = { x: 0, y: 1, z: 0 };
 
-			const over = r - WORLD.edgeRadius;
-			const push = Math.min( 1, over / 18 ) * 9;
-			velocity.x -= ( position.x / r ) * push * 0.016;
-			velocity.z -= ( position.z / r ) * push * 0.016;
+	}
 
-			// A hard backstop far out, in case the current is outrun.
-			if ( over > 26 ) {
+	/**
+	 * @param {Vector3} position  mutated in place
+	 * @param {Vector3} velocity  mutated in place
+	 * @param {number}  radius
+	 */
+	resolve( position, velocity, radius ) {
 
-				const k = ( WORLD.edgeRadius + 26 ) / r;
-				position.x *= k;
-				position.z *= k;
+		// Keep the diver inside the world box.
+		if ( position.y < WORLD.yMin + 1 ) {
 
-			}
+			position.y = WORLD.yMin + 1;
+			if ( velocity.y < 0 ) velocity.y = 0;
 
 		}
+
+		if ( position.y > WORLD.yMax + 40 ) {
+
+			position.y = WORLD.yMax + 40;
+			if ( velocity.y > 0 ) velocity.y = 0;
+
+		}
+
+		// No horizontal bounds at all: the world streams forever in X and Z.
+		// Only the vertical extent is clamped, above.
 
 		this.grounded = false;
 

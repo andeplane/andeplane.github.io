@@ -97,15 +97,12 @@ export function scatterSpecies( rule, count, seedName = rule.id ) {
 
 	};
 
-	const R = WORLD.edgeRadius - 6;
 	const attempts = count * 14;
 
 	for ( let i = 0; i < attempts && out.length < count; i ++ ) {
 
-		// Uniform in the disc.
-		const a = rnd() * Math.PI * 2;
-		const r = Math.sqrt( rnd() ) * R;
-		const x = Math.cos( a ) * r, z = Math.sin( a ) * r;
+		const x = ( rnd() - 0.5 ) * 2 * 140;
+		const z = ( rnd() - 0.5 ) * 2 * 140;
 
 		if ( tooClose( x, z ) ) continue;
 
@@ -154,5 +151,85 @@ export function scatterAll( rules, totalBudget ) {
 	}
 
 	return result;
+
+}
+
+
+/**
+ * Scatter one species inside an axis-aligned XZ box.
+ *
+ * This is the streaming entry point: each terrain chunk asks for its own
+ * props, seeded by chunk coordinates so a chunk that is unloaded and revisited
+ * comes back identical. Neighbour rejection is local to the box, which means
+ * spacing is not enforced *across* chunk borders — at these densities the
+ * occasional close pair on a seam is invisible, and the alternative (a global
+ * occupancy structure that must survive unloading) is not worth its complexity.
+ */
+export function scatterInBox( rule, { minX, minZ, size }, count, seedKey ) {
+
+	const rnd = stream( `scatter:${rule.id}:${seedKey}` );
+	const out = [];
+
+	const cell = Math.max( 1, rule.clearance );
+	const occupied = new Map();
+	const key = ( ix, iz ) => ix * 100003 + iz;
+
+	const tooClose = ( x, z ) => {
+
+		const ix = Math.floor( x / cell ), iz = Math.floor( z / cell );
+		for ( let dx = - 1; dx <= 1; dx ++ ) {
+
+			for ( let dz = - 1; dz <= 1; dz ++ ) {
+
+				const bucket = occupied.get( key( ix + dx, iz + dz ) );
+				if ( bucket === undefined ) continue;
+				for ( let i = 0; i < bucket.length; i += 2 ) {
+
+					const ddx = bucket[ i ] - x, ddz = bucket[ i + 1 ] - z;
+					if ( ddx * ddx + ddz * ddz < rule.clearance * rule.clearance ) return true;
+
+				}
+
+			}
+
+		}
+
+		return false;
+
+	};
+
+	const attempts = Math.max( 8, count * 10 );
+
+	for ( let i = 0; i < attempts && out.length < count; i ++ ) {
+
+		const x = minX + rnd() * size;
+		const z = minZ + rnd() * size;
+
+		if ( tooClose( x, z ) ) continue;
+
+		const p = probe( x, z );
+		if ( p === null ) continue;
+		if ( p.y < rule.depth[ 0 ] || p.y > rule.depth[ 1 ] ) continue;
+		if ( p.flatness < rule.minFlatness ) continue;
+		if ( p.sky < rule.minSky || p.sky > rule.maxSky ) continue;
+
+		const k = key( Math.floor( x / cell ), Math.floor( z / cell ) );
+		let b = occupied.get( k );
+		if ( b === undefined ) occupied.set( k, b = [] );
+		b.push( x, z );
+
+		out.push( {
+			x: p.x, y: p.y, z: p.z,
+			nx: p.nx, ny: p.ny, nz: p.nz,
+			scale: rule.scale[ 0 ] + rnd() * ( rule.scale[ 1 ] - rule.scale[ 0 ] ),
+			rotation: rnd() * Math.PI * 2,
+			phase: rnd() * Math.PI * 2,
+			tint: rnd(),
+			sky: p.sky,
+		} );
+
+	}
+
+	return out;
 
 }

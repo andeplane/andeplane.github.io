@@ -67,13 +67,13 @@ const SPECIES = [
 ];
 
 /** Find an open-water point over reef at a usable depth. */
-function findHome( rnd, depthBand ) {
+function findHome( rnd, depthBand, origin = { x: 0, z: 0 } ) {
 
 	for ( let attempt = 0; attempt < 400; attempt ++ ) {
 
 		const a = rnd() * Math.PI * 2;
-		const r = 25 + rnd() * ( WORLD.edgeRadius - 45 );
-		const x = Math.cos( a ) * r, z = Math.sin( a ) * r;
+		const r = 25 + rnd() * 85;
+		const x = origin.x + Math.cos( a ) * r, z = origin.z + Math.sin( a ) * r;
 
 		const h = heightAt( x, z );
 		if ( h < depthBand[ 0 ] - 4 || h > depthBand[ 1 ] ) continue;
@@ -86,11 +86,11 @@ function findHome( rnd, depthBand ) {
 
 	}
 
-	return new THREE.Vector3( 0, - 12, 0 );
+	return new THREE.Vector3( origin.x, - 12, origin.z );
 
 }
 
-export function createFishSchools( scene, budget = 3000 ) {
+export function createFishSchools( scene, budget = 3000, origin = { x: 0, z: 0 } ) {
 
 	const rnd = stream( 'schools' );
 	const flocks = [];
@@ -111,7 +111,7 @@ export function createFishSchools( scene, budget = 3000 ) {
 				name: `${sp.id}${s}`,
 				count,
 				geometry,
-				home: findHome( rnd, sp.depth ),
+				home: findHome( rnd, sp.depth, origin ),
 				extent: sp.extent.clone(),
 				speed: sp.speed * ( 0.9 + rnd() * 0.2 ),
 				separation: sp.separation,
