@@ -1,0 +1,208 @@
+:root {
+	--ink: #cfe9f2;
+	--dim: #6f93a3;
+	--accent: #7fe3d0;
+	--gold: #ffcf6b;
+	font-synthesis: none;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+html, body {
+	width: 100%; height: 100%;
+	overflow: hidden;
+	background: #02080d;
+	color: var(--ink);
+	font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+	-webkit-font-smoothing: antialiased;
+}
+
+#app, #app canvas { display: block; width: 100%; height: 100%; }
+
+/* ---------- full-screen screens ---------- */
+
+.screen {
+	position: fixed; inset: 0;
+	display: grid; place-items: center;
+	background:
+		radial-gradient(ellipse at 50% 30%, #0a3a52 0%, #041c2b 45%, #01070c 100%);
+	z-index: 100;
+	transition: opacity .8s ease;
+}
+.screen.hidden { opacity: 0; pointer-events: none; }
+.screen.gone { display: none; }
+
+.loading-inner { text-align: center; max-width: 34rem; padding: 2rem; }
+
+.title {
+	font-size: clamp(2.5rem, 9vw, 5rem);
+	font-weight: 200;
+	letter-spacing: .42em;
+	text-indent: .42em;
+	color: #eaf7fb;
+	text-shadow: 0 0 40px rgba(90, 200, 230, .55), 0 0 90px rgba(40, 130, 180, .35);
+}
+.subtitle {
+	margin-top: .4rem;
+	font-size: .82rem;
+	letter-spacing: .3em;
+	text-indent: .3em;
+	text-transform: uppercase;
+	color: var(--dim);
+}
+
+.bar {
+	margin: 2.4rem auto 0;
+	width: min(24rem, 70vw); height: 2px;
+	background: rgba(120, 190, 215, .16);
+	overflow: hidden;
+}
+#loading-bar {
+	width: 0%; height: 100%;
+	background: linear-gradient(90deg, transparent, var(--accent));
+	transition: width .35s ease;
+}
+#loading-status {
+	margin-top: .9rem;
+	font-size: .7rem; letter-spacing: .18em; text-transform: uppercase;
+	color: var(--dim);
+	min-height: 1em;
+}
+
+.msg { margin-top: 1.6rem; line-height: 1.8; color: var(--dim); font-size: .95rem; }
+.detail { margin-top: 1rem; font-size: .72rem; color: #4b6b79; font-family: ui-monospace, monospace; }
+
+.controls {
+	margin-top: 2.4rem;
+	display: grid; gap: .65rem;
+	font-size: .8rem; color: var(--dim); letter-spacing: .06em;
+}
+kbd {
+	display: inline-block;
+	min-width: 1.7rem; padding: .2rem .42rem; margin: 0 .12rem;
+	border: 1px solid rgba(140, 200, 220, .3);
+	border-radius: 4px;
+	background: rgba(120, 190, 215, .07);
+	font: inherit; font-size: .74rem;
+	color: var(--ink);
+}
+
+#start { cursor: pointer; }
+
+/* ---------- HUD ---------- */
+
+#hud {
+	position: fixed; inset: 0;
+	pointer-events: none;
+	z-index: 50;
+	opacity: 1; transition: opacity .6s ease;
+}
+#hud.hidden { opacity: 0; }
+
+#depth {
+	position: absolute; left: 2.2rem; bottom: 2rem;
+	font-variant-numeric: tabular-nums;
+	text-shadow: 0 2px 14px rgba(0, 20, 30, .9);
+}
+#depth-value { font-size: 2.6rem; font-weight: 200; letter-spacing: .02em; }
+#depth .unit { font-size: 1rem; color: var(--dim); margin-left: .22rem; }
+.depth-label { font-size: .58rem; letter-spacing: .34em; color: var(--dim); margin-top: -.2rem; }
+
+#compass {
+	position: absolute; top: 1.6rem; left: 50%; transform: translateX(-50%);
+	width: min(30rem, 60vw); height: 1.9rem;
+	overflow: hidden;
+	-webkit-mask-image: linear-gradient(90deg, transparent, #000 18%, #000 82%, transparent);
+	        mask-image: linear-gradient(90deg, transparent, #000 18%, #000 82%, transparent);
+}
+#compass-strip {
+	position: absolute; top: 0; left: 0; height: 100%;
+	white-space: nowrap;
+	font-size: .68rem; letter-spacing: .2em; color: var(--dim);
+	will-change: transform;
+}
+#compass-strip .tick { display: inline-block; text-align: center; }
+#compass-strip .card { color: var(--ink); }
+#compass-strip .mark { color: var(--gold); }
+#compass-needle {
+	position: absolute; top: 0; left: 50%; width: 1px; height: 100%;
+	background: linear-gradient(180deg, var(--accent), transparent);
+}
+
+#prompt {
+	position: absolute; left: 50%; top: 58%;
+	transform: translateX(-50%);
+	padding: .5rem 1rem;
+	font-size: .84rem; letter-spacing: .1em;
+	background: rgba(2, 18, 26, .55);
+	border: 1px solid rgba(140, 220, 210, .28);
+	border-radius: 999px;
+	backdrop-filter: blur(6px);
+	transition: opacity .18s ease, transform .18s ease;
+	white-space: nowrap;
+}
+#prompt.hidden { opacity: 0; transform: translateX(-50%) translateY(6px); }
+#prompt kbd { border-color: rgba(140, 220, 210, .5); }
+
+#toasts {
+	position: absolute; right: 2.2rem; bottom: 2.4rem;
+	display: flex; flex-direction: column; align-items: flex-end; gap: .6rem;
+}
+.toast {
+	padding: .8rem 1.15rem;
+	background: rgba(3, 22, 32, .7);
+	border: 1px solid rgba(140, 220, 210, .25);
+	border-left: 2px solid var(--gold);
+	border-radius: 6px;
+	backdrop-filter: blur(8px);
+	text-align: right;
+	animation: toastIn .5s cubic-bezier(.2, .9, .3, 1) both;
+	max-width: 22rem;
+}
+.toast.out { animation: toastOut .6s ease both; }
+.toast .k { font-size: .56rem; letter-spacing: .3em; color: var(--gold); text-transform: uppercase; }
+.toast .n { font-size: 1.02rem; margin-top: .2rem; }
+.toast .f { font-size: .76rem; color: var(--dim); margin-top: .25rem; font-style: italic; }
+@keyframes toastIn { from { opacity: 0; transform: translateX(30px); } to { opacity: 1; transform: none; } }
+@keyframes toastOut { to { opacity: 0; transform: translateX(30px); } }
+
+#log {
+	position: absolute; inset: 0;
+	background: rgba(1, 12, 19, .82);
+	backdrop-filter: blur(14px);
+	padding: 4rem clamp(2rem, 8vw, 8rem);
+	overflow-y: auto;
+	transition: opacity .25s ease;
+}
+#log.hidden { opacity: 0; pointer-events: none; }
+#log h2 { font-weight: 200; letter-spacing: .3em; font-size: 1.1rem; text-transform: uppercase; color: var(--dim); margin-bottom: 2rem; }
+#log-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(15rem, 1fr)); gap: 1rem; }
+.log-item {
+	padding: .9rem 1.1rem;
+	border: 1px solid rgba(120, 190, 215, .14);
+	border-radius: 6px;
+	background: rgba(120, 190, 215, .04);
+}
+.log-item.found { border-color: rgba(255, 207, 107, .35); background: rgba(255, 207, 107, .06); }
+.log-item .n { font-size: .92rem; }
+.log-item.found .n { color: var(--gold); }
+.log-item .f { font-size: .74rem; color: var(--dim); margin-top: .3rem; font-style: italic; }
+.log-item .q { color: #3c5866; letter-spacing: .3em; }
+#log .hint { margin-top: 2.5rem; font-size: .68rem; letter-spacing: .2em; color: #3c5866; text-transform: uppercase; }
+
+#stats {
+	position: absolute; right: .6rem; top: .5rem;
+	font: 10px/1.5 ui-monospace, monospace;
+	color: rgba(140, 200, 220, .45);
+	text-align: right; white-space: pre;
+}
+
+/* subtle screen tint that deepens with depth; set via JS */
+#vignette-tint {
+	position: absolute; inset: 0;
+	background: radial-gradient(ellipse at center, transparent 35%, rgba(0, 20, 35, .75) 130%);
+	opacity: 1;
+	mix-blend-mode: multiply;
+}
+
+.hidden { }
