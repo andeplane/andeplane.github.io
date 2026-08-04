@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+<title>Sunken — an underwater exploration</title>
+<link rel="stylesheet" href="/src/ui/style.css">
+</head>
+<body>
+
+<div id="app"></div>
+
+<!-- Loading -->
+<div id="loading" class="screen">
+  <div class="loading-inner">
+    <div class="title">SUNKEN</div>
+    <div class="subtitle">an underwater exploration</div>
+    <div class="bar"><div id="loading-bar"></div></div>
+    <div id="loading-status">preparing…</div>
+  </div>
+</div>
+
+<!-- WebGPU unavailable -->
+<div id="unsupported" class="screen hidden">
+  <div class="loading-inner">
+    <div class="title">SUNKEN</div>
+    <div class="subtitle">needs WebGPU</div>
+    <p class="msg">
+      This game renders with WebGPU. Your browser doesn't expose it.<br>
+      Try a recent <b>Chrome</b>, <b>Edge</b>, or <b>Safari 26+</b>.
+    </p>
+    <p id="unsupported-detail" class="detail"></p>
+  </div>
+</div>
+
+<!-- Click to dive -->
+<div id="start" class="screen hidden">
+  <div class="loading-inner">
+    <div class="title">SUNKEN</div>
+    <div class="subtitle">click to dive</div>
+    <div class="controls">
+      <div><kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd> swim</div>
+      <div><kbd>Space</kbd> up &nbsp; <kbd>C</kbd> down</div>
+      <div><kbd>Shift</kbd> sprint &nbsp; <kbd>F</kbd> torch</div>
+      <div><kbd>E</kbd> interact &nbsp; <kbd>Tab</kbd> dive log</div>
+      <div><kbd>Esc</kbd> release mouse</div>
+    </div>
+  </div>
+</div>
+
+<!-- HUD -->
+<div id="hud" class="hidden">
+  <div id="compass"><div id="compass-strip"></div><div id="compass-needle"></div></div>
+  <div id="depth"><span id="depth-value">0.0</span><span class="unit">m</span><div class="depth-label">DEPTH</div></div>
+  <div id="prompt" class="hidden"></div>
+  <div id="toasts"></div>
+  <div id="log" class="hidden"><h2>Dive Log</h2><div id="log-grid"></div><div class="hint">Tab to close</div></div>
+  <div id="stats"></div>
+  <div id="vignette-tint"></div>
+</div>
+
+<script type="module" src="/src/main.js"></script>
+</body>
+</html>
