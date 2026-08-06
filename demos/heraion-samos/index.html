@@ -1,0 +1,238 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Dipteros II — Heraion of Samos</title>
+    <style>
+      :root {
+        --bg: #14161a;
+        --panel: rgba(20, 22, 26, 0.88);
+        --line: rgba(255, 255, 255, 0.11);
+        --fg: #e9e6df;
+        --dim: #9a978f;
+      }
+      * { box-sizing: border-box; }
+      html, body { height: 100%; margin: 0; }
+      body {
+        font: 13px/1.5 ui-sans-serif, -apple-system, "Segoe UI", Roboto, sans-serif;
+        background: var(--bg);
+        color: var(--fg);
+        overflow: hidden;
+      }
+      #view { position: fixed; inset: 0; width: 100%; height: 100%; display: block; }
+
+      #panel {
+        position: fixed;
+        top: 14px;
+        left: 14px;
+        width: 290px;
+        max-height: calc(100% - 28px);
+        overflow-y: auto;
+        background: var(--panel);
+        backdrop-filter: blur(14px);
+        border: 1px solid var(--line);
+        border-radius: 12px;
+        padding: 14px 15px 15px;
+      }
+      #panel.collapsed > *:not(header) { display: none; }
+      header {
+        display: flex;
+        align-items: baseline;
+        gap: 8px;
+        margin-bottom: 12px;
+      }
+      h1 {
+        font-size: 14px;
+        margin: 0;
+        letter-spacing: 0.01em;
+        font-weight: 600;
+      }
+      .sub { color: var(--dim); font-size: 11px; margin: 2px 0 0; }
+      #panel-toggle {
+        margin-left: auto;
+        background: none;
+        border: 1px solid var(--line);
+        color: var(--dim);
+        border-radius: 6px;
+        cursor: pointer;
+        font-size: 11px;
+        padding: 2px 7px;
+      }
+      h2 {
+        font-size: 10px;
+        text-transform: uppercase;
+        letter-spacing: 0.09em;
+        color: var(--dim);
+        margin: 16px 0 7px;
+        font-weight: 600;
+      }
+      .views { display: flex; flex-wrap: wrap; gap: 5px; }
+      .views button {
+        flex: 1 1 auto;
+        background: rgba(255, 255, 255, 0.05);
+        border: 1px solid var(--line);
+        color: var(--fg);
+        border-radius: 7px;
+        padding: 5px 9px;
+        font-size: 11.5px;
+        cursor: pointer;
+      }
+      .views button:hover { background: rgba(255, 255, 255, 0.1); }
+      .views button.on { background: #d8cfae; color: #14161a; border-color: #d8cfae; }
+
+      .row {
+        display: flex;
+        align-items: center;
+        gap: 7px;
+        padding: 2.5px 0;
+        cursor: pointer;
+      }
+      .row input { accent-color: #d8cfae; margin: 0; }
+      .row .lbl { flex: 1; }
+      .row .num { color: var(--dim); font-variant-numeric: tabular-nums; font-size: 11px; }
+      .dot { width: 7px; height: 7px; border-radius: 50%; flex: none; }
+
+      #counts div {
+        display: flex;
+        justify-content: space-between;
+        gap: 10px;
+        padding: 2px 0;
+      }
+      #counts span { color: var(--dim); }
+      #counts b { font-weight: 600; font-variant-numeric: tabular-nums; }
+
+      #warn {
+        margin-top: 9px;
+        padding: 6px 8px;
+        border-radius: 7px;
+        font-size: 11.5px;
+      }
+      #warn.ok { background: rgba(127, 176, 105, 0.15); color: #a9d18e; }
+      #warn.bad { background: rgba(212, 103, 79, 0.15); color: #e8a08c; }
+
+      #labels {
+        position: fixed;
+        inset: 0;
+        pointer-events: none;
+        overflow: hidden;
+      }
+      .mlabel {
+        position: absolute;
+        top: 0;
+        left: 0;
+        white-space: nowrap;
+        font-size: 10.5px;
+        line-height: 1;
+        color: #23262b;
+        background: rgba(255, 255, 255, 0.82);
+        border: 1px solid rgba(0, 0, 0, 0.14);
+        border-radius: 4px;
+        padding: 3px 6px 3px 3px;
+        display: flex;
+        align-items: center;
+        gap: 4px;
+      }
+      .mlabel b {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-width: 14px;
+        height: 14px;
+        padding: 0 3px;
+        border-radius: 3px;
+        background: #3d4148;
+        color: #fff;
+        font-size: 9.5px;
+        font-weight: 700;
+      }
+      .note {
+        color: var(--dim);
+        font-size: 10.5px;
+        margin: 7px 0 0;
+        line-height: 1.45;
+      }
+      .lg {
+        display: grid;
+        grid-template-columns: 9px auto;
+        gap: 2px 7px;
+        margin-bottom: 7px;
+        font-size: 11px;
+      }
+      .lg .dot { margin-top: 5px; }
+      .lg b { font-weight: 600; }
+      .lg span:last-child { grid-column: 2; color: var(--dim); }
+
+      footer {
+        margin-top: 14px;
+        padding-top: 11px;
+        border-top: 1px solid var(--line);
+        color: var(--dim);
+        font-size: 10.5px;
+      }
+      #hint {
+        position: fixed;
+        bottom: 14px;
+        right: 16px;
+        color: rgba(255, 255, 255, 0.5);
+        font-size: 11px;
+      }
+      @media (max-width: 640px) {
+        #panel { width: calc(100% - 28px); }
+      }
+    </style>
+  </head>
+  <body>
+    <canvas id="view"></canvas>
+    <div id="labels"></div>
+
+    <div id="panel">
+      <header>
+        <div>
+          <h1>Dipteros II</h1>
+          <p class="sub">Polykratean Temple of Hera · begun c. 530 BC · unfinished</p>
+        </div>
+        <button id="panel-toggle">–</button>
+      </header>
+
+      <h2>View</h2>
+      <div class="views">
+        <button data-view="visitor">Visitor</button>
+        <button data-view="east">East front</button>
+        <button data-view="flank">Flank</button>
+        <button data-view="aerial">Aerial</button>
+        <button data-view="plan">Plan</button>
+        <button data-view="sanctuary">Sanctuary</button>
+        <button data-view="site">Site map</button>
+        <button data-view="detail">Column</button>
+      </div>
+
+      <h2>Dimensions</h2>
+      <div id="counts"></div>
+      <div id="warn"></div>
+
+      <h2>Temple</h2>
+      <div id="layers"></div>
+
+      <h2>Sanctuary</h2>
+      <div id="sanctuary-layers"></div>
+      <label class="row">
+        <input type="checkbox" id="labels-toggle" checked />
+        <span class="dot" style="background: transparent"></span>
+        <span class="lbl">Labels</span>
+      </label>
+      <p id="sanctuary-note" class="note"></p>
+
+      <h2>Evidence</h2>
+      <div id="legend"></div>
+
+      <footer>
+        Geometry is a reconstruction, not a survey. No measured plan of this
+        building was available; see <code>sources/MANIFEST.md</code> §5a.
+      </footer>
+    </div>
+
+    <div id="hint">drag to orbit · scroll to zoom</div>
+    <script type="module" src="/src/main.js"></script>
+  </body>
+</html>
