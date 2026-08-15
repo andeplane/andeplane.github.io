@@ -7,7 +7,9 @@
 
 import { storageGet, storageSet } from '../storage.ts';
 
-const SEEN_KEY = 'ising-welcomed';
+// Versioned: v1 was stamped on show by a bug, swallowing the onboarding for early
+// visitors; bumping the key gives everyone one honest showing.
+const SEEN_KEY = 'ising-welcomed-v2';
 
 export function shouldWelcome(): boolean {
   return storageGet(SEEN_KEY) === null;
@@ -41,11 +43,18 @@ export function showWelcome(tc: number): Promise<void> {
           <span><strong>Draw on it</strong> — drag on the lattice to paint spins, and
           watch physics erode your art.</span>
         </li>
+        <li>
+          <i>📈</i>
+          <span><strong>Measure the curve</strong> — press <strong>▶ Measure the
+          curve</strong> (under Experiments) and the lab anneals through every
+          temperature by itself, tracing magnetization, susceptibility, and heat
+          capacity from your own run.</span>
+        </li>
       </ol>
       <p class="welcome-note">
-        The charts on the right are measured live from <em>your</em> run — park the
-        slider at a few temperatures and your dots will land on a curve computed by
-        hand in 1944.
+        Every chart is measured live from <em>your</em> lattice — and for the square
+        lattice, your dots land on a curve Onsager computed by hand in 1944. The full
+        story is under “How does it work?”, top left.
       </p>
       <button type="button" class="welcome-go">Let’s go</button>
     `;

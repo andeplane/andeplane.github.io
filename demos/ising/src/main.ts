@@ -183,7 +183,9 @@ async function start(): Promise<void> {
     stats.clear(sim.geometry.key, sim.L);
     refreshScatters();
   });
-  chartsHead.append(chartsTitle, clearButton);
+  const sweepStatus = document.createElement('span');
+  sweepStatus.className = 'sweep-status';
+  chartsHead.append(chartsTitle, sweepStatus, clearButton);
   chartsRoot.append(chartsHead);
 
   const mChart = new Chart({
@@ -202,14 +204,14 @@ async function start(): Promise<void> {
     format: (v) => v.toFixed(2),
     color: SERIES_COLORS.amber,
     xDomain: [T_MIN, T_MAX],
-    include: [0, 1],
+    range: { min: 0, max: 1.05 },
   });
   const scatterChi = new ScatterChart({
     title: 'susceptibility χ(T)',
     format: (v) => formatCompact(v),
     color: SERIES_COLORS.violet,
     xDomain: [T_MIN, T_MAX],
-    include: [0],
+    range: { min: 0 },
   });
   const scatterE = new ScatterChart({
     title: '⟨E⟩(T)',
@@ -223,7 +225,7 @@ async function start(): Promise<void> {
     format: (v) => formatCompact(v),
     color: SERIES_COLORS.green,
     xDomain: [T_MIN, T_MAX],
-    include: [0],
+    range: { min: 0 },
   });
   const loopChart = new LoopChart('hysteresis m(h)', SERIES_COLORS.amber, H_SWEEP_AMPLITUDE + 0.05);
   loopChart.element.hidden = true;
@@ -257,7 +259,9 @@ async function start(): Promise<void> {
   // --- Controls panel -----------------------------------------------------
   const controls = document.getElementById('controls')!;
 
-  const latticeGroup = section(controls, 'Lattice');
+  // Only the two headline groups start open — the rest are one click away, so the
+  // panel reads as a short menu rather than a wall of widgets.
+  const latticeGroup = section(controls, 'Lattice', true);
   segmented(
     latticeGroup,
     'Geometry',
@@ -298,7 +302,7 @@ async function start(): Promise<void> {
     },
   );
 
-  const fieldGroup = section(controls, 'External field');
+  const fieldGroup = section(controls, 'External field', false);
   const hSlider = slider(fieldGroup, 'Field h', {
     min: -1,
     max: 1,
@@ -341,7 +345,7 @@ async function start(): Promise<void> {
     disturb();
   }
 
-  const dynamicsGroup = section(controls, 'Dynamics');
+  const dynamicsGroup = section(controls, 'Dynamics', false);
   segmented<Algorithm>(
     dynamicsGroup,
     'Update rule',
@@ -376,11 +380,13 @@ async function start(): Promise<void> {
   runRow.className = 'row';
   dynamicsGroup.append(runRow);
   const pauseButton = button(runRow, 'Pause', () => togglePause());
-  button(runRow, 'Step', () => {
+  pauseButton.title = 'Freeze or resume time (Space)';
+  const stepButton = button(runRow, 'Step', () => {
     paused = true;
     pauseButton.textContent = 'Run';
     stepOnce = true;
   });
+  stepButton.title = 'Advance a single sweep while paused (S)';
   function togglePause(): void {
     paused = !paused;
     actionGen++;
@@ -389,16 +395,19 @@ async function start(): Promise<void> {
   const resetRow = document.createElement('div');
   resetRow.className = 'row';
   dynamicsGroup.append(resetRow);
-  button(resetRow, 'Randomize', () => resetLattice('random'));
-  button(resetRow, 'All ↑', () => resetLattice('up'));
-  button(resetRow, 'All ↓', () => resetLattice('down'));
+  button(resetRow, 'Randomize', () => resetLattice('random')).title =
+    'Restart from pure noise — the T = ∞ configuration (R)';
+  button(resetRow, 'All ↑', () => resetLattice('up')).title =
+    'Restart from the uniform up ground state';
+  button(resetRow, 'All ↓', () => resetLattice('down')).title =
+    'Restart from the uniform down ground state';
 
   function resetLattice(mode: 'random' | 'up' | 'down'): void {
     sim.reset(mode);
     disturb();
   }
 
-  const brushGroup = section(controls, 'Mouse & brush');
+  const brushGroup = section(controls, 'Mouse & brush', false);
   segmented<PointerMode>(
     brushGroup,
     'Drag action',
@@ -437,7 +446,90 @@ async function start(): Promise<void> {
     },
   });
 
-  const experimentsGroup = section(controls, 'Experiments');
+  const experimentsGroup = section(controls, 'Experiments', true);
+
+  // --- Automated temperature sweep: the answer to "how do I measure χ(T)?" -----
+  // The honest way to measure the equilibrium curves is to anneal upward from an
+  // ordered cold start, dwelling at each temperature until the statistics bin holds
+  // enough equilibrated samples. Doing that by hand takes patience and protocol
+  // knowledge; this does it automatically. Any user intervention cancels it.
+  const SWEEP_SAMPLES_PER_STEP = 30;
+  const SWEEP_MAX_DWELL_SWEEPS = 3000;
+  let sweep: {
+    steps: number[];
+    index: number;
+    collected: number;
+    gen: number;
+    startSweep: number;
+  } | null = null;
+
+  const measureButton = button(experimentsGroup, '▶ Measure the curve', () => toggleMeasureSweep());
+  measureButton.title =
+    'Anneal from cold to hot automatically, dwelling at each temperature to equilibrate and fill every chart';
+
+  function sweepSteps(): number[] {
+    const tc = Tc();
+    const top = Math.min(T_MAX, 2.2 * tc);
+    const steps: number[] = [];
+    for (let t = Math.max(T_MIN, 0.3 * tc); t < top; t += Math.abs(t - tc) < 0.45 ? 0.06 : 0.2) {
+      steps.push(Number(t.toFixed(3)));
+    }
+    steps.push(Number(top.toFixed(3)));
+    return steps;
+  }
+
+  function toggleMeasureSweep(): void {
+    if (sweep) {
+      stopSweep('Measurement sweep stopped.');
+      return;
+    }
+    setAutoSweepOffQuiet();
+    if (paused) togglePause();
+    sim.h = 0;
+    hSlider.set(0);
+    resetLattice('up');
+    const steps = sweepSteps();
+    setT(steps[0]);
+    sweep = { steps, index: 0, collected: 0, gen: actionGen, startSweep: sim.sweepCount };
+    updateSweepUi();
+    toast(
+      'Annealing from cold to hot: the lab dwells at each temperature, equilibrates, and measures. About a minute — touch anything to stop early.',
+    );
+  }
+
+  function stopSweep(message: string | null): void {
+    sweep = null;
+    updateSweepUi();
+    refreshScatters();
+    if (message) toast(message);
+  }
+
+  function tickSweep(): void {
+    if (!sweep) return;
+    if (actionGen !== sweep.gen) {
+      // The user intervened; their hands beat the protocol.
+      stopSweep('Measurement sweep stopped.');
+      return;
+    }
+    const dwell = sim.sweepCount - sweep.startSweep;
+    if (sweep.collected < SWEEP_SAMPLES_PER_STEP && dwell < SWEEP_MAX_DWELL_SWEEPS) return;
+    sweep.index++;
+    if (sweep.index >= sweep.steps.length) {
+      stopSweep('Sweep complete — your measurements against the exact curve.');
+      return;
+    }
+    setT(sweep.steps[sweep.index], true);
+    sweep.gen = actionGen;
+    sweep.collected = 0;
+    sweep.startSweep = sim.sweepCount;
+    updateSweepUi();
+  }
+
+  function updateSweepUi(): void {
+    measureButton.textContent = sweep ? '■ Stop the sweep' : '▶ Measure the curve';
+    sweepStatus.textContent = sweep ? `measuring ${sweep.index + 1}/${sweep.steps.length}` : '';
+  }
+
   button(experimentsGroup, 'Find the critical point', () => {
     setAutoSweepOffQuiet();
     setT(Math.min(T_MAX - 0.1, Tc() * 1.85));
@@ -481,7 +573,7 @@ async function start(): Promise<void> {
     if (autoSweep) setAutoSweep(false);
   }
 
-  const displayGroup = section(controls, 'Display');
+  const displayGroup = section(controls, 'Display', false);
   segmented<ColormapKey>(
     displayGroup,
     'Colors',
@@ -665,6 +757,7 @@ async function start(): Promise<void> {
     }
 
     const accepted = stats.accumulate(sample);
+    if (accepted && sweep) sweep.collected++;
     const now = performance.now();
     if (accepted && now - lastScatterRefresh > 350) {
       lastScatterRefresh = now;
@@ -783,6 +876,7 @@ async function start(): Promise<void> {
     mChart.draw();
     eChart.draw();
     if (!loopChart.element.hidden) loopChart.draw();
+    tickSweep();
     trackCritical(now);
     syncUrl(now);
 
