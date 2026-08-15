@@ -53,11 +53,12 @@ export class BuildInput {
     const keys = new Map<string, Tool>()
     keys.set('1', 'wall')
     availableTowers.forEach((id, i) => keys.set(String(i + 2), id))
-    keys.set(String(availableTowers.length + 2), 'erase')
+    // Erase always lives on E — with 8 towers the numbers run out at 9.
+    keys.set('e', 'erase')
     this.hotkeys = keys
 
     window.addEventListener('keydown', (e) => {
-      const tool = keys.get(e.key)
+      const tool = keys.get(e.key.toLowerCase())
       if (tool) this.select(tool)
     })
     canvas.addEventListener('contextmenu', (e) => e.preventDefault())

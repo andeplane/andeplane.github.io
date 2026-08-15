@@ -135,7 +135,7 @@ async function start(): Promise<void> {
       })),
       {
         key: 'erase',
-        hotkey: String(availableTowers.length + 2),
+        hotkey: 'E',
         label: 'Erase',
         desc: 'Drag to remove your own walls (half refund). The undo verb.',
         color: '#f0abfc',

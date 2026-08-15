@@ -103,7 +103,7 @@ export const LEVELS: readonly LevelConfig[] = [
     description: 'Braided streams split and recombine — and the enemy splits with them.',
     lives: 10,
     startingGold: 175,
-    nominalFlux: 10,
+    nominalFlux: 7.8,
     terrain: [
       { kind: 'disc', x: 0.28, y: 0.24, r: 13 },
       { kind: 'disc', x: 0.28, y: 0.76, r: 13 },
@@ -125,7 +125,7 @@ export const LEVELS: readonly LevelConfig[] = [
     description: 'A broken ring of rock breeds swarms. Let the water conduct your answer.',
     lives: 10,
     startingGold: 190,
-    nominalFlux: 10,
+    nominalFlux: 13,
     terrain: [
       { kind: 'disc', x: 0.5, y: 0.18, r: 10 },
       { kind: 'disc', x: 0.36, y: 0.36, r: 9 },
@@ -147,7 +147,7 @@ export const LEVELS: readonly LevelConfig[] = [
     description: 'Almost nothing to see out there. That is the problem.',
     lives: 8,
     startingGold: 190,
-    nominalFlux: 12,
+    nominalFlux: 13.9,
     terrain: [
       { kind: 'disc', x: 0.34, y: 0.55, r: 9 },
       { kind: 'disc', x: 0.58, y: 0.28, r: 8 },
@@ -167,7 +167,7 @@ export const LEVELS: readonly LevelConfig[] = [
     description: 'Four gates, four chambers. Every one is a killing floor — theirs or yours.',
     lives: 8,
     startingGold: 200,
-    nominalFlux: 5,
+    nominalFlux: 3,
     terrain: [
       { kind: 'bar', x0: 0.2, y0: 0, x1: 0.2, y1: 0.62, w: 7 },
       { kind: 'bar', x0: 0.4, y0: 1, x1: 0.4, y1: 0.38, w: 7 },
@@ -189,7 +189,7 @@ export const LEVELS: readonly LevelConfig[] = [
     description: 'Everything you have met, all at once, through one narrows. Tame the flow.',
     lives: 12,
     startingGold: 220,
-    nominalFlux: 8,
+    nominalFlux: 9.7,
     terrain: [
       { kind: 'disc', x: 0.34, y: 1.06, r: 92 },
       { kind: 'disc', x: 0.34, y: -0.06, r: 92 },

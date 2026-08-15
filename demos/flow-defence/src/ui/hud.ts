@@ -91,7 +91,7 @@ const HUD_CSS = /* css */ `
 .fd-over .fd-oversub { margin-top: 8px; opacity: 0.75; }
 .fd-tools { position: absolute; left: 18px; bottom: 14px; display: flex; gap: 14px; }
 .fd-hint {
-  position: absolute; left: 50%; bottom: 48px; transform: translateX(-50%);
+  position: absolute; left: 50%; bottom: 118px; transform: translateX(-50%);
   max-width: 46rem; text-align: center; padding: 10px 22px; border-radius: 8px;
   background: rgba(8, 18, 34, 0.72); border: 1px solid rgba(130, 200, 255, 0.35);
   color: #dcefff; font-size: 13px; box-shadow: 0 0 22px rgba(60, 150, 255, 0.18);
