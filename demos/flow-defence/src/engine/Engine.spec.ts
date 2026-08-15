@@ -113,4 +113,22 @@ describe('Engine waves', () => {
     for (let t = 0; t < CONFIG.match.buildTicks + 1; t++) engine.tick(null)
     expect(engine.phase).toBe('wave')
   })
+
+  it('splitter deaths burst into children through the normal spawn path', () => {
+    const { engine } = makeEngine()
+    engine.start()
+    const spawnedBefore = engine.spawnedTotal
+    // A splitter (typeIndex 3) died mid-map; a standard spore death is inert.
+    engine.processDeaths([
+      { x: 200, y: 100, type: 3, byTower: 1 },
+      { x: 100, y: 80, type: 0, byTower: 0 },
+    ])
+    const spawns = engine.drainSpawns()
+    expect(spawns.length).toBe(3) // splitter bursts into 3 children
+    expect(engine.spawnedTotal).toBe(spawnedBefore + 3) // alive estimate stays exact
+    for (const s of spawns) {
+      expect(Math.hypot(s.x - 200, s.y - 100)).toBeLessThan(6) // flung outward nearby
+      expect(s.type).toBe(0) // children are standard spores
+    }
+  })
 })
