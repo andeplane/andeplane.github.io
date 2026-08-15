@@ -40,10 +40,10 @@ export const CONFIG = {
   },
   erosion: {
     /** Integrity lost per tick per unit of shear speed above the threshold. */
-    kShear: 0.02,
-    shearThreshold: 0.06,
+    kShear: 0.012,
+    shearThreshold: 0.065,
     /** Integrity lost per tick per unit of pressure head above the threshold, scaled by porosity. */
-    kPipe: 0.6,
+    kPipe: 0.45,
     pipeThreshold: 0.008,
     /** Minimum porosity of an intact wall — the seed leak that makes piping possible. */
     porosityEps: 0.02,
@@ -52,7 +52,7 @@ export const CONFIG = {
     /** Brush radius (cells) for wall painting. */
     brushRadius: 1.6,
     /** Gold per wall cell. */
-    wallCostPerCell: 0.35,
+    wallCostPerCell: 0.12,
   },
   towers: {
     neutralizer: {
@@ -82,7 +82,7 @@ export const CONFIG = {
     /** Attacker's finite biomass reservoir for the match. */
     attackerReservoir: 140000,
     /** Defender starting gold. */
-    startingGold: 120,
+    startingGold: 160,
     /** Gold per unit of biomass neutralized by towers. */
     bountyPerBiomass: 0.012,
     /** Passive gold per second. */
