@@ -76,11 +76,6 @@ fn cellIdx(p : vec2<f32>) -> i32 {
   return y * SIM_W + x;
 }
 
-fn speedAt(p : vec2<f32>) -> f32 {
-  let uv = (p + vec2<f32>(0.5)) / vec2<f32>(f32(SIM_W), f32(SIM_H));
-  return length(textureSampleLevel(macroTex, linearSampler, uv, 0.0).xy);
-}
-
 // Spores squeeze through badly eroded walls (solidity < 0.6) — breached dams
 // leak the swarm, matching the water they ride.
 fn blocked(p : vec2<f32>) -> bool {
@@ -90,6 +85,18 @@ fn blocked(p : vec2<f32>) -> bool {
   if (t == CELL_BEDROCK) { return true; }
   if (t == CELL_WALL && solidity[idx] >= 0.6) { return true; }
   return false;
+}
+
+// Line-of-sight speed probe: spores can only smell current they could REACH.
+// A probe whose path crosses an impassable cell (bedrock / solid wall — the
+// same rule as blocked()) reports dead water, so spores sealed behind an
+// intact wall drown instead of camping against it holding their breath.
+fn speedAt(from : vec2<f32>, p : vec2<f32>) -> f32 {
+  if (blocked(p) || blocked((from + p) * 0.5) || blocked(mix(from, p, 0.25)) || blocked(mix(from, p, 0.75))) {
+    return 0.0;
+  }
+  let uv = (p + vec2<f32>(0.5)) / vec2<f32>(f32(SIM_W), f32(SIM_H));
+  return length(textureSampleLevel(macroTex, linearSampler, uv, 0.0).xy);
 }
 
 fn stamp(p : vec2<f32>, amount : f32, radius : i32) {
@@ -131,8 +138,8 @@ fn main(@builtin(global_invocation_id) gid : vec3<u32>) {
   var suffocating = length(mac.xy) < STAGNANT_U;
   if (length(mac.xy) < SEEK_U) {
     let g = vec2<f32>(
-      speedAt(e.pos + vec2<f32>(SEEK_R, 0.0)) - speedAt(e.pos - vec2<f32>(SEEK_R, 0.0)),
-      speedAt(e.pos + vec2<f32>(0.0, SEEK_R)) - speedAt(e.pos - vec2<f32>(0.0, SEEK_R)),
+      speedAt(e.pos, e.pos + vec2<f32>(SEEK_R, 0.0)) - speedAt(e.pos, e.pos - vec2<f32>(SEEK_R, 0.0)),
+      speedAt(e.pos, e.pos + vec2<f32>(0.0, SEEK_R)) - speedAt(e.pos, e.pos - vec2<f32>(0.0, SEEK_R)),
     );
     if (length(g) > SEEK_EPS) {
       seek = normalize(g) * SEEK;

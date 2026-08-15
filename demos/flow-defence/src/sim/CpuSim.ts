@@ -140,7 +140,12 @@ export class CpuSim {
       let seekY = 0
       let suffocating = speed < e.stagnantU
       if (speed < e.seekU) {
+        // Line-of-sight probe (shader twin of speedAt): a path a spore cannot
+        // pass reports dead water — no smelling current through intact walls.
         const sp = (dx: number, dy: number) => {
+          for (const f of [0.25, 0.5, 0.75, 1]) {
+            if (this.blocked(s.x + dx * f, s.y + dy * f)) return 0
+          }
           const [px, py] = this.sampleVelocity(s.x + dx, s.y + dy)
           return Math.hypot(px, py)
         }
