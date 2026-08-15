@@ -14,10 +14,13 @@ export interface ErosionInputs {
   head: number
 }
 
-/** Porosity of a damaged wall: intact walls keep a seed leak (piping needs a path). */
+/**
+ * Porosity of a damaged wall: intact walls keep a seed leak (piping needs a
+ * path); construction armor (integrity > 1) stays sealed at the seed value.
+ */
 export function porosity(integrity: number): number {
   const { porosityEps } = CONFIG.erosion
-  return porosityEps + (1 - porosityEps) * (1 - integrity)
+  return porosityEps + (1 - porosityEps) * (1 - Math.min(integrity, 1))
 }
 
 /** Integrity lost this tick. */

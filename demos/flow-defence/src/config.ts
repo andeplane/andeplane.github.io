@@ -33,10 +33,24 @@ export const CONFIG = {
     surgeRho: 0.045,
     /** Extra velocity factor a full surge adds. */
     surgeU: 0.6,
+    /**
+     * Back-pressure choke: inlet velocity scales by 1 − choke·(downstream ρ
+     * excess). A pump loses flow against head — so walling off an arm makes
+     * it choke and stall instead of pressurizing your wall to death.
+     */
+    choke: 50,
   },
   biomass: {
     /** Inlet concentration (Dirichlet source) at release rate 1. */
     injectPerTick: 0.85,
+    /**
+     * Natural death rate per tick (half-life ≈ 29 s). Two jobs: tames the
+     * mass amplification of non-conservative gather-advection (which
+     * otherwise inflates the release ~2× and breaks the reservoir/leak-budget
+     * calibration), and makes spent clouds dissipate so a won match actually
+     * ends instead of bleeding out in garbage time.
+     */
+    decayPerTick: 0.0004,
   },
   erosion: {
     /** Integrity lost per tick per unit of shear speed above the threshold. */
@@ -55,8 +69,14 @@ export const CONFIG = {
     /** Constant self-healing per tick; erosion competes against it, so calm
      *  walls regenerate while heavily scoured walls still die. */
     cureRate: 0.0035,
-    /** Solidity a freshly painted wall starts at. */
-    freshSolidity: 1.0,
+    /**
+     * Construction armor: fresh walls carry integrity above 1 purely to absorb
+     * the placement pressure transient (water slamming into a new obstacle
+     * spikes local head for ~1–2 s and would otherwise trigger the porosity
+     * death spiral before the flow reorganizes). Values > 1 behave as fully
+     * solid; cracks/porosity only begin below 1.
+     */
+    freshSolidity: 1.75,
   },
   build: {
     /** Brush radius (cells) for wall painting. */
@@ -94,11 +114,11 @@ export const CONFIG = {
     /** Defender starting gold. */
     startingGold: 160,
     /** Gold per unit of biomass neutralized by towers. */
-    bountyPerBiomass: 0.012,
+    bountyPerBiomass: 0.006,
     /** Passive gold per second. */
     goldTrickle: 1.2,
-    /** Commanded release is metered as conc × u × rows; reservoir debits this. */
-    winDrainEpsilon: 400,
+    /** In-flight biomass below this counts as "threat over" for the defender win. */
+    winDrainEpsilon: 2500,
   },
   /**
    * Levels: difficulty = attacker resources × AI profile. requiredKill ≈

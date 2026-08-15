@@ -2,6 +2,7 @@
 // indexing are line-for-line the same; all lattice constants are interpolated
 // from sim/core/constants.ts so the two implementations cannot drift.
 
+import { CONFIG } from '../../../config'
 import { CELL, EX, EY, OPP, W } from '../../core/constants'
 
 const ilist = (a: readonly number[]) => a.join(', ')
@@ -22,6 +23,7 @@ var<private> EYF = array<f32, 9>(${flist(EY)});
 var<private> WQ  = array<f32, 9>(${flist(W)});
 var<private> OPPA = array<i32, 9>(${ilist(OPP)});
 
+const INLET_CHOKE : f32 = ${CONFIG.inlet.choke};
 const CELL_OPEN : u32 = ${CELL.OPEN}u;
 const CELL_BEDROCK : u32 = ${CELL.BEDROCK}u;
 const CELL_WALL : u32 = ${CELL.WALL}u;
@@ -81,7 +83,12 @@ fn main(@builtin(global_invocation_id) gid : vec3<u32>) {
   if (t == CELL_INLET) {
     let prof = inletProfile[y];
     let r = prof.x;
-    let u = prof.y;
+    // Back-pressure choke: a pump loses flow against downstream head.
+    let nIdx = idxOf(min(x + 1, SIM_W - 1), y);
+    var rhoN = 0.0;
+    for (var i = 0; i < 9; i++) { rhoN += fA[i * N + nIdx]; }
+    let chokeFactor = clamp(1.0 - INLET_CHOKE * max(rhoN - r, 0.0), 0.0, 1.0);
+    let u = prof.y * chokeFactor;
     let usq = u * u;
     for (var i = 0; i < 9; i++) { fB[i * N + idx] = feq(i, r, u, 0.0, usq); }
     textureStore(macroTex, vec2<i32>(x, y), vec4<f32>(u, 0.0, r, 0.0));

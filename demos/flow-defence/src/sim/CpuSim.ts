@@ -89,16 +89,12 @@ export class CpuSim {
           shear = Math.max(shear, Math.hypot(this.ref.ux[nIdx], this.ref.uy[nIdx]))
           maxRho = Math.max(maxRho, this.ref.rho[nIdx])
         }
-        const stress = erosionStress({
-          integrity: sol[idx],
-          shear,
-          head: Math.max(maxRho - 1, 0),
-        })
-        // Self-healing competes with erosion, but not under piping pressure
-        // (see erosion.wgsl.ts).
         const head = Math.max(maxRho - 1, 0)
+        const stress = erosionStress({ integrity: sol[idx], shear, head })
+        // Self-healing competes with erosion, but not under piping pressure,
+        // and never rebuilds construction armor above 1 (see erosion.wgsl.ts).
         const cure = head > CONFIG.erosion.pipeThreshold ? 0 : CONFIG.erosion.cureRate
-        const next = Math.min(sol[idx] + cure, 1) - stress
+        const next = Math.max(sol[idx], Math.min(sol[idx] + cure, 1)) - stress
         if (next <= 0) {
           ct[idx] = CELL.OPEN
           sol[idx] = 0
@@ -125,7 +121,7 @@ export class CpuSim {
 
         const sx = x - this.ref.ux[idx] * adv
         const sy = y - this.ref.uy[idx] * adv
-        let b = this.sampleBiomass(sx, sy)
+        let b = this.sampleBiomass(sx, sy) * (1 - CONFIG.biomass.decayPerTick)
         if (t === CELL.WALL) b *= 1 - sol[idx]
 
         const rate = this.towerField[idx]

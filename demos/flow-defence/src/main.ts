@@ -11,6 +11,7 @@ import { buildForceField, buildTowerField } from './engine/towers'
 import { Overlay } from './render/overlay'
 import { Renderer } from './render/Renderer'
 import { GpuSim } from './sim/gpu/GpuSim'
+import { Hints } from './ui/hints'
 import { Hud } from './ui/hud'
 import { BuildInput } from './ui/input'
 import { Menu } from './ui/menu'
@@ -80,6 +81,10 @@ async function start(): Promise<void> {
   sim.setInletStates(match.inletStates)
   const input = new BuildInput(canvas, sim, match)
   const overlay = new Overlay(document.getElementById('overlay') as HTMLCanvasElement, map)
+  const hints = level ? new Hints(levelNum!) : null
+  window.addEventListener('keydown', (e) => {
+    if (e.code === 'Space') match.start()
+  })
   let towersVersion = -1
 
   const fixed = new FixedStep()
@@ -103,7 +108,7 @@ async function start(): Promise<void> {
     } else {
       fixed.advance(dt, () => {
         const states = match.tick(sim.latest)
-        attacker.tick(sim.latest, match)
+        if (match.phase === 'running') attacker.tick(sim.latest, match)
         if (match.tickCount % 10 === 0) sim.setInletStates(states)
         sim.tick()
       })
@@ -116,6 +121,7 @@ async function start(): Promise<void> {
     if (hud) {
       hud.update(match)
       hud.setTool(input.tool)
+      hud.setHint(hints?.current({ match, input }) ?? null)
     }
     overlay.draw(match.towers, input.pending)
     scene.render()

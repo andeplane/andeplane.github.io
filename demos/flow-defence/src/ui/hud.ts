@@ -44,6 +44,21 @@ const HUD_CSS = /* css */ `
   color: #eaf6ff; text-shadow: 0 0 24px rgba(120, 210, 255, 0.8);
 }
 .fd-tools { position: absolute; left: 18px; bottom: 14px; display: flex; gap: 14px; }
+.fd-hint {
+  position: absolute; left: 50%; bottom: 48px; transform: translateX(-50%);
+  max-width: 46rem; text-align: center; padding: 10px 22px; border-radius: 8px;
+  background: rgba(8, 18, 34, 0.72); border: 1px solid rgba(130, 200, 255, 0.35);
+  color: #dcefff; font-size: 13px; box-shadow: 0 0 22px rgba(60, 150, 255, 0.18);
+}
+.fd-hint:empty { display: none; }
+.fd-warn {
+  position: absolute; left: 50%; top: 64px; transform: translateX(-50%);
+  letter-spacing: 0.3em; font-size: 15px; color: #ffb168; text-transform: uppercase;
+  text-shadow: 0 0 18px rgba(255, 120, 40, 0.9); display: none;
+  animation: fd-pulse 0.9s infinite;
+}
+.fd-warn.show { display: block; }
+@keyframes fd-pulse { 50% { opacity: 0.45; } }
 .fd-tool { opacity: 0.5; }
 .fd-tool.active { opacity: 1; color: #eaf6ff; text-shadow: 0 0 10px rgba(120, 210, 255, 0.9); }
 .fd-tool b { font-weight: 600; margin-right: 4px; opacity: 0.8; }
@@ -73,6 +88,8 @@ export class Hud {
         <div class="fd-label">Leak budget</div>
         <div class="fd-bar leak"><i></i></div>
         <div class="fd-value fd-leak" style="font-size:11px"></div>
+        <div class="fd-label">Kills</div>
+        <div class="fd-value fd-kills" style="font-size:13px">0</div>
       </div>
       <div class="fd-panel right">
         <div class="fd-label">Attacker · Reservoir</div>
@@ -86,6 +103,8 @@ export class Hud {
         <span class="fd-tool" data-tool="neutralizer"><b>2</b>Neutralizer ${CONFIG.towers.neutralizer.cost}g</span>
         <span class="fd-tool" data-tool="impeller"><b>3</b>Impeller ${CONFIG.towers.impeller.cost}g</span>
       </div>
+      <div class="fd-hint"></div>
+      <div class="fd-warn">Surge incoming</div>
       <div class="fd-over"><div>
         <h1></h1>
         <div class="fd-overbtns">
@@ -101,6 +120,9 @@ export class Hud {
     this.resBar = root.querySelector('.fd-bar.reservoir > i')!
     this.resVal = root.querySelector('.fd-res')!
     this.tankBar = root.querySelector('.fd-bar.tank > i')!
+    this.killsEl = root.querySelector('.fd-kills')!
+    this.hintEl = root.querySelector('.fd-hint')!
+    this.warnEl = root.querySelector('.fd-warn')!
     this.overEl = root.querySelector('.fd-over')!
     this.overTitle = root.querySelector('.fd-over h1')!
     this.toolEls = [...root.querySelectorAll<HTMLElement>('.fd-tool')]
@@ -113,6 +135,9 @@ export class Hud {
   }
 
   private readonly toolEls: HTMLElement[]
+  private killsEl!: HTMLElement
+  private hintEl!: HTMLElement
+  private warnEl!: HTMLElement
 
   setTool(tool: string): void {
     for (const el of this.toolEls) el.classList.toggle('active', el.dataset.tool === tool)
@@ -127,6 +152,15 @@ export class Hud {
     this.resBar.style.width = `${Math.max(0, resFrac * 100)}%`
     this.resVal.textContent = `${Math.max(0, Math.round(engine.reservoir))}`
     this.tankBar.style.width = `${Math.max(0, (engine.tank / engine.level.tankCap) * 100)}%`
+    this.killsEl.textContent = Math.round(engine.killsTotal).toString()
+    const surging = engine.inletStates.some((s) => s.surge > 0)
+    const imminent = engine.tank / engine.level.tankCap > 0.85
+    this.warnEl.textContent = surging ? 'SURGE!' : 'Surge incoming'
+    this.warnEl.classList.toggle('show', engine.phase === 'running' && (surging || imminent))
+  }
+
+  setHint(text: string | null): void {
+    this.hintEl.textContent = text ?? ''
   }
 
   flashGold(): void {

@@ -13,7 +13,7 @@ export interface EngineCallbacks {
   onBuildRejected(reason: string): void
 }
 
-export type MatchPhase = 'running' | 'over'
+export type MatchPhase = 'build' | 'running' | 'over'
 
 export interface LevelConfig {
   name: string
@@ -39,9 +39,20 @@ export class Engine {
   /** Current commanded inlet states (the attacker AI writes these). */
   inletStates: InletState[]
 
-  phase: MatchPhase = 'running'
+  phase: MatchPhase = 'build'
   winner: 'attacker' | 'defender' | null = null
   tickCount = 0
+  /** Ticks left in the build phase before the invasion auto-starts. */
+  buildTicksLeft = 45 * 60
+  /** Total biomass killed by towers (feedback stat). */
+  killsTotal = 0
+  /** Total wall cells ever built (tutorial hooks). */
+  wallCellsBuilt = 0
+
+  /** Leave the build phase and face the flood. */
+  start(): void {
+    if (this.phase === 'build') this.phase = 'running'
+  }
 
   private lastOutlet = 0
   private lastNeutralized = 0
@@ -78,6 +89,15 @@ export class Engine {
   /** One fixed 60 Hz tick. Returns the inlet states to command the sim with. */
   tick(obs: ObservableSnapshot | null): InletState[] {
     if (this.phase === 'over') return this.inletStates
+    if (this.phase === 'build') {
+      // Calm water, no invasion, no economy motion — think and build.
+      for (const s of this.inletStates) {
+        s.biomass = 0
+        s.surge = 0
+      }
+      if (--this.buildTicksLeft <= 0) this.start()
+      return this.inletStates
+    }
     this.tickCount++
 
     // --- Ingest observables (diffs of monotone accumulators) -----------------
@@ -90,6 +110,7 @@ export class Engine {
       this.lastNeutralized = obs.neutralized
       this.lastBreach = obs.breachCount
       this.leakBudget -= leaked
+      this.killsTotal += killed
       this.gold += killed * CONFIG.match.bountyPerBiomass
       if (breaches > 0) this.callbacks.onBreach(breaches)
 
@@ -167,6 +188,7 @@ export class Engine {
     }
     const approved = cells.slice(0, affordable)
     this.gold -= approved.length * CONFIG.build.wallCostPerCell
+    this.wallCellsBuilt += approved.length
     return approved
   }
 

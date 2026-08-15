@@ -7,7 +7,10 @@
 // optional Smagorinsky LES, Walsh–Burwinkle–Saar partial bounce-back for
 // porous walls (solidity 0 = open, 1 = solid).
 
+import { CONFIG } from '../../config'
 import { CELL, EX, EY, OPP, Q, W, type SimParams, defaultParams } from './constants'
+
+const CHOKE = CONFIG.inlet.choke
 
 export interface LbmRefOptions {
   width: number
@@ -126,7 +129,12 @@ export class LbmRef {
 
         if (type === CELL.INLET) {
           const r = this.inletRho[y]
-          const u = this.inletU[y]
+          // Back-pressure choke (see lbm.wgsl.ts): pump loses flow against head.
+          const nIdx = this.idx(Math.min(x + 1, w - 1), y)
+          let rhoN = 0
+          for (let i = 0; i < Q; i++) rhoN += this.f[i * n + nIdx]
+          const chokeFactor = Math.min(Math.max(1 - CHOKE * Math.max(rhoN - r, 0), 0), 1)
+          const u = this.inletU[y] * chokeFactor
           const usq = u * u
           for (let i = 0; i < Q; i++) {
             const eu = EX[i] * u

@@ -10,6 +10,7 @@
 //   [3] neutralized-by-towers biomass, monotone
 //   [8+s] sum of rho over inlet rows of segment s this tick (cleared each tick)
 
+import { CONFIG } from '../../../config'
 import { CELL } from '../../core/constants'
 
 export const MASS_SCALE = 1024
@@ -76,8 +77,9 @@ fn main(
       let src = uv - mac.xy * params.advScale / vec2<f32>(f32(SIM_W), f32(SIM_H));
       b = textureSampleLevel(bioIn, linearSampler, src, 0.0).r;
 
-      // Partially solid (eroding walls) squeeze biomass out.
-      b *= 1.0 - mac.w;
+      // Partially solid (eroding walls) squeeze biomass out; natural death
+      // keeps the field calibrated and lets spent clouds dissipate.
+      b *= (1.0 - mac.w) * (1.0 - ${CONFIG.biomass.decayPerTick});
 
       // Tower damage: exponential decay reaction.
       let rate = towerField[idx];

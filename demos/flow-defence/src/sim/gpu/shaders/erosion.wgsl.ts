@@ -56,13 +56,14 @@ fn main(@builtin(global_invocation_id) gid : vec3<u32>) {
 
   let head = max(maxRho - 1.0, 0.0);
   let integ = solidity[idx];
-  let poro = POROSITY_EPS + (1.0 - POROSITY_EPS) * (1.0 - integ);
+  // Porosity only opens below integrity 1 (construction armor stays sealed).
+  let poro = POROSITY_EPS + (1.0 - POROSITY_EPS) * (1.0 - min(integ, 1.0));
   let stress = K_SHEAR * max(shear - SHEAR_THRESH, 0.0)
              + K_PIPE * max(head - PIPE_THRESH, 0.0) * poro;
   // Self-healing competes with erosion — but a wall can't heal while pressure
-  // is forcing water through it (piping conditions).
+  // is forcing water through it, and healing never rebuilds armor above 1.
   let cure = select(CURE_RATE, 0.0, head > PIPE_THRESH);
-  let next = min(integ + cure, 1.0) - stress;
+  let next = max(integ, min(integ + cure, 1.0)) - stress;
   if (next <= 0.0) {
     cellType[idx] = CELL_OPEN;
     solidity[idx] = 0.0;
