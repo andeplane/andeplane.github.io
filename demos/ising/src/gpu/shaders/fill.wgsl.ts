@@ -7,6 +7,10 @@ struct FillUniforms {
   seed: u32,
   n: u32,
   L: u32,
+  // Drawn from the same pass-counter stream as updates and paints, so a (cell,
+  // counter, seed) tuple is never reused — a hardcoded 0 here collided with the
+  // first update pass, correlating each cell's first flip with its initial value.
+  counter: u32,
 }
 
 @group(0) @binding(0) var<storage, read_write> spins: array<u32>;
@@ -24,7 +28,7 @@ fn main(@builtin(global_invocation_id) gid: vec3u) {
   switch fill_u.mode {
     case 0u: { v = 0u; }
     case 1u: { v = 1u; }
-    default: { v = select(0u, 1u, rand01(i % fill_u.L, i / fill_u.L, 0u, fill_u.seed) < 0.5); }
+    default: { v = select(0u, 1u, rand01(i % fill_u.L, i / fill_u.L, fill_u.counter, fill_u.seed) < 0.5); }
   }
   spins[i] = v;
 }

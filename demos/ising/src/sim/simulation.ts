@@ -112,7 +112,7 @@ export class Simulation {
     });
     this.fillUniforms = device.createBuffer({
       label: 'fill uniforms',
-      size: 16,
+      size: 32,
       usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST,
     });
     this.reduceUniforms = device.createBuffer({
@@ -255,7 +255,13 @@ export class Simulation {
     this.seed = randomSeed();
     this.dirtySinceMeasure = true;
     const modeCode = mode === 'down' ? 0 : mode === 'up' ? 1 : 2;
-    this.device.queue.writeBuffer(this.fillUniforms, 0, new Uint32Array([modeCode, this.seed, this.N, this.L]));
+    const counter = this.passCounter;
+    this.passCounter = (this.passCounter + 1) >>> 0;
+    this.device.queue.writeBuffer(
+      this.fillUniforms,
+      0,
+      new Uint32Array([modeCode, this.seed, this.N, this.L, counter]),
+    );
     const encoder = this.device.createCommandEncoder({ label: 'fill' });
     const pass = encoder.beginComputePass();
     pass.setPipeline(this.fillPipeline);
