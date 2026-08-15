@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
-import { CONFIG } from '../config'
 import type { DomainMap } from '../engine/map'
+import { TOWER_DEFS } from '../engine/towerDefs'
 import { CpuSim } from './CpuSim'
 import { CELL } from './core/constants'
 
@@ -53,7 +53,8 @@ describe('CpuSim', () => {
     sim.setInletStates([{ openness: 1, biomass: 0, surge: 0 }])
     for (let t = 0; t < 600; t++) sim.tick(true)
     // Splat a strong kill disc across the mid-channel (like one neutralizer).
-    const { radius, rate } = CONFIG.towers.neutralizer
+    const { radius } = TOWER_DEFS.neutralizer
+    const rate = TOWER_DEFS.neutralizer.damageRate ?? 0
     const cx = 48
     const cy = 24
     for (let y = 0; y < sim.map.height; y++) {

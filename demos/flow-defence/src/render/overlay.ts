@@ -1,13 +1,18 @@
-// Tower/UI overlay: canvas2d above the fluid — thin luminous strokes only.
-// Also draws the crisp layer of the combat feedback: spore core dots,
-// neutralizer beams to their targets, and the jet ring with its charge arc.
+// Tower/UI overlay: canvas2d above the fluid — generated sprites with thin
+// luminous accents. Also draws the crisp layer of the combat feedback: spore
+// core dots (typed: size/color per spore), neutralizer beams, zap effects
+// (arc lightning, mortar blasts, harpoon tracers, sonar ripples), and the
+// jet ring with its charge arc. Phantoms render only inside sonar coverage.
 
-import { CONFIG } from '../config'
 import type { DomainMap } from '../engine/map'
+import { SPORES_BY_INDEX } from '../engine/sporeDefs'
+import { TOWER_DEFS } from '../engine/towerDefs'
 import type { Tower } from '../engine/towers'
+import type { ZapEvent } from '../engine/zap'
 import type { EnemyView } from '../sim/types'
 import type { PendingPlacement } from '../ui/input'
 import { domainRect } from '../ui/viewport'
+import { drawFx, drawSonarRipple, spawnFx, type FxInstance } from './zapFx'
 
 export interface JetOverlay {
   x: number
@@ -24,17 +29,47 @@ interface Popup {
   born: number
 }
 
+const SPRITE_BASE = `${import.meta.env.BASE_URL}sprites/`
+
 export class Overlay {
   private readonly ctx: CanvasRenderingContext2D
   /** Last seen enemies by slot — a vanished slot becomes a kill/escape popup. */
   private readonly lastSeen = new Map<number, EnemyView>()
   private readonly popups: Popup[] = []
+  private readonly sprites = new Map<string, HTMLImageElement>()
+  private fx: FxInstance[] = []
+  private frame = 0
 
   constructor(
     private readonly canvas: HTMLCanvasElement,
     private readonly map: DomainMap,
   ) {
     this.ctx = canvas.getContext('2d')!
+  }
+
+  /** Queue zap effects (called by main.ts when zap towers fire). */
+  addZaps(events: readonly ZapEvent[]): void {
+    this.fx.push(...spawnFx(events))
+  }
+
+  private sprite(name: string): HTMLImageElement {
+    let img = this.sprites.get(name)
+    if (!img) {
+      img = new Image()
+      img.src = `${SPRITE_BASE}${name}.png`
+      this.sprites.set(name, img)
+    }
+    return img
+  }
+
+  /** Phantoms are only visible (and targetable) inside sonar coverage. */
+  private visible(e: EnemyView, towers: readonly Tower[]): boolean {
+    const def = SPORES_BY_INDEX[Math.round(e.type)]
+    if (!def?.invisible) return true
+    return towers.some((t) => {
+      const d = TOWER_DEFS[t.type]
+      return d.sonar && (t.x - e.x) ** 2 + (t.y - e.y) ** 2 <= d.radius * d.radius
+    })
   }
 
   /** Diff enemy slots between frames: gone near the outlet = a lost life,
@@ -46,10 +81,11 @@ export class Overlay {
       if (seen.has(slot)) continue
       this.lastSeen.delete(slot)
       const escaped = last.x >= this.map.width - 26
+      const bounty = SPORES_BY_INDEX[Math.round(last.type)]?.bounty ?? 3
       this.popups.push({
         x: last.x,
         y: last.y,
-        text: escaped ? '−1 life' : `+${CONFIG.enemies.bounty}g`,
+        text: escaped ? '−1 life' : `+${bounty}g`,
         color: escaped ? '#fb7185' : '#fbbf24',
         born: now,
       })
@@ -58,6 +94,7 @@ export class Overlay {
   }
 
   draw(towers: Tower[], pending: PendingPlacement | null, enemies: EnemyView[], jet: JetOverlay | null): void {
+    this.frame++
     const dpr = Math.min(window.devicePixelRatio || 1, 2)
     const cw = this.canvas.clientWidth
     const ch = this.canvas.clientHeight
@@ -75,14 +112,17 @@ export class Overlay {
       rect.x + ((x + 0.5) / this.map.width) * rect.w,
       rect.y + (1 - (y + 0.5) / this.map.height) * rect.h,
     ]
+    const sx = (x: number) => toScreen(x, 0)[0]
+    const sy = (y: number) => toScreen(0, y)[1]
 
-    this.drawBeams(ctx, towers, enemies, toScreen, cellPx)
+    const shown = enemies.filter((e) => this.visible(e, towers))
+    this.drawBeams(ctx, towers, shown, toScreen)
     for (const t of towers) this.drawTower(ctx, t, toScreen, cellPx, 1)
-    if (pending) {
-      this.drawTower(ctx, { id: 0, ...pending }, toScreen, cellPx, 0.55)
-    }
-    this.drawEnemies(ctx, enemies, toScreen, cellPx)
-    this.notePopups(enemies)
+    if (pending) this.drawTower(ctx, { id: 0, ...pending }, toScreen, cellPx, 0.55)
+    // Zap effects live between towers and spores — lightning over rings.
+    this.fx = this.fx.filter((f) => drawFx(ctx, f, sx, sy, cellPx))
+    this.drawEnemies(ctx, shown, toScreen, cellPx)
+    this.notePopups(shown)
     this.drawPopups(ctx, toScreen)
     if (jet) this.drawJet(ctx, jet, toScreen, cellPx)
   }
@@ -118,11 +158,13 @@ export class Overlay {
     cellPx: number,
   ): void {
     ctx.save()
-    ctx.fillStyle = '#ffe4f1'
-    ctx.shadowColor = '#fb7185'
-    ctx.shadowBlur = 8
-    const r = Math.max(1.6, cellPx * 0.9)
     for (const e of enemies) {
+      const def = SPORES_BY_INDEX[Math.round(e.type)]
+      const r = Math.max(1.6, cellPx * 0.9) * (def?.sizeMul ?? 1)
+      // Barnacles read deep red and heavy; phantoms (in sonar) ghost grey.
+      ctx.fillStyle = def?.invisible ? '#cbd5e1' : def?.sizeMul && def.sizeMul > 1.4 ? '#fecdd3' : '#ffe4f1'
+      ctx.shadowColor = def?.invisible ? '#94a3b8' : '#fb7185'
+      ctx.shadowBlur = 8
       const [sx, sy] = toScreen(e.x, e.y)
       ctx.beginPath()
       ctx.arc(sx, sy, r, 0, Math.PI * 2)
@@ -131,22 +173,22 @@ export class Overlay {
     ctx.restore()
   }
 
-  /** Neutralizer → target beams: the kill is visible, not inferred. */
+  /** Damage-field tower → target beams: the kill is visible, not inferred. */
   private drawBeams(
     ctx: CanvasRenderingContext2D,
     towers: Tower[],
     enemies: EnemyView[],
     toScreen: (x: number, y: number) => [number, number],
-    cellPx: number,
   ): void {
-    const radius = CONFIG.towers.neutralizer.radius
     ctx.save()
-    ctx.strokeStyle = '#5eead4'
-    ctx.shadowColor = '#5eead4'
-    ctx.shadowBlur = 6
     ctx.lineWidth = 1
     for (const t of towers) {
-      if (t.type !== 'neutralizer') continue
+      const def = TOWER_DEFS[t.type]
+      if (!def.damageRate) continue
+      const radius = def.radius
+      ctx.strokeStyle = def.color
+      ctx.shadowColor = def.color
+      ctx.shadowBlur = 6
       // Beam the two nearest spores inside the ring.
       const inRange = enemies
         .map((e) => ({ e, d2: (e.x - t.x) ** 2 + (e.y - t.y) ** 2 }))
@@ -164,7 +206,6 @@ export class Overlay {
       }
     }
     ctx.restore()
-    void cellPx
   }
 
   private drawJet(
@@ -175,7 +216,7 @@ export class Overlay {
   ): void {
     if (!jet.held && jet.charge >= 1) return
     const [sx, sy] = toScreen(jet.x, jet.y)
-    const r = CONFIG.jet.radius * cellPx
+    const r = 18 * cellPx
     ctx.save()
     if (jet.held && jet.charge > 0) {
       ctx.strokeStyle = '#7dd3fc'
@@ -203,56 +244,36 @@ export class Overlay {
     alpha: number,
   ): void {
     const [sx, sy] = toScreen(t.x, t.y)
-    const cfg = CONFIG.towers[t.type]
-    const rangePx = cfg.radius * cellPx
-    const color = t.type === 'neutralizer' ? '#5eead4' : t.type === 'vortex' ? '#c4b5fd' : '#93c5fd'
-
+    const def = TOWER_DEFS[t.type]
     ctx.save()
-    ctx.globalAlpha = alpha
 
-    // Range ring, barely-there.
-    ctx.strokeStyle = color
-    ctx.globalAlpha = alpha * 0.16
-    ctx.lineWidth = 1
-    ctx.beginPath()
-    ctx.arc(sx, sy, rangePx, 0, Math.PI * 2)
-    ctx.stroke()
-
-    // Core glyph.
-    ctx.globalAlpha = alpha
-    ctx.shadowColor = color
-    ctx.shadowBlur = 10
-    ctx.lineWidth = 1.6
-    ctx.beginPath()
-    ctx.arc(sx, sy, Math.max(4, cellPx * 1.8), 0, Math.PI * 2)
-    ctx.stroke()
-
-    if (t.type === 'neutralizer') {
+    // Range ring, barely-there (skip unlimited-range towers).
+    if (def.radius < 200) {
+      ctx.strokeStyle = def.color
+      ctx.globalAlpha = alpha * 0.16
+      ctx.lineWidth = 1
       ctx.beginPath()
-      ctx.arc(sx, sy, Math.max(2, cellPx * 0.8), 0, Math.PI * 2)
+      ctx.arc(sx, sy, def.radius * cellPx, 0, Math.PI * 2)
       ctx.stroke()
-    } else if (t.type === 'vortex') {
-      // Spiral glyph, spinning slowly.
-      const spin = performance.now() / 900
-      ctx.beginPath()
-      for (let a = 0; a < Math.PI * 3; a += 0.2) {
-        const rr = Math.max(1.5, cellPx * 0.5) + (a / (Math.PI * 3)) * Math.max(3, cellPx * 1.5)
-        const px = sx + Math.cos(a + spin) * rr
-        const py = sy + Math.sin(a + spin) * rr
-        if (a === 0) ctx.moveTo(px, py)
-        else ctx.lineTo(px, py)
-      }
-      ctx.stroke()
-    } else {
-      // Impeller: thrust chevron (screen y is flipped vs domain y).
-      const a = -t.angle
-      const len = Math.max(8, cellPx * 3.2)
+    }
+    if (def.sonar) drawSonarRipple(ctx, sx, sy, def.radius * cellPx, this.frame, def.color)
+
+    // The generated sprite, glowing; aimable towers rotate with their thrust.
+    const img = this.sprite(def.sprite)
+    const size = Math.max(18, cellPx * 9)
+    ctx.globalAlpha = alpha
+    ctx.shadowColor = def.color
+    ctx.shadowBlur = 12
+    if (img.complete && img.naturalWidth > 0) {
       ctx.translate(sx, sy)
-      ctx.rotate(a)
+      if (def.aimable) ctx.rotate(-t.angle)
+      ctx.drawImage(img, -size / 2, -size / 2, size, size)
+    } else {
+      // Sprite still loading: a ring placeholder.
+      ctx.strokeStyle = def.color
+      ctx.lineWidth = 1.6
       ctx.beginPath()
-      ctx.moveTo(len * 0.2, -len * 0.35)
-      ctx.lineTo(len * 0.75, 0)
-      ctx.lineTo(len * 0.2, len * 0.35)
+      ctx.arc(sx, sy, Math.max(4, cellPx * 1.8), 0, Math.PI * 2)
       ctx.stroke()
     }
     ctx.restore()

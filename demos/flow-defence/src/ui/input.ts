@@ -1,15 +1,17 @@
-// Defender input: tool selection (1 wall, 2 neutralizer, 3 impeller),
-// drag-to-paint walls, click/drag-to-aim tower placement, and the jet —
-// hold the RIGHT mouse button to blast water outward from the cursor.
+// Defender input: tool selection (dynamic — the level's unlocked towers get
+// hotkeys 2..n after 1=wall, with erase last), drag-to-paint walls,
+// click/drag-to-aim tower placement, and the jet — hold the RIGHT mouse
+// button to blast water outward from the cursor.
 
 import { CONFIG } from '../config'
 import type { Engine } from '../engine/Engine'
+import { TOWER_DEFS, type TowerId } from '../engine/towerDefs'
 import type { TowerType } from '../engine/towers'
 import type { GpuSim } from '../sim/gpu/GpuSim'
 import { CELL } from '../sim/core/constants'
 import { cellFromPointer } from './viewport'
 
-export type Tool = 'wall' | 'neutralizer' | 'impeller' | 'vortex' | 'erase'
+export type Tool = 'wall' | 'erase' | TowerId
 
 export interface PendingPlacement {
   type: TowerType
@@ -28,10 +30,14 @@ export interface JetState {
 
 export class BuildInput {
   tool: Tool = 'wall'
+  /** Hotkey -> tool, in palette order (1 wall, 2.. towers, last erase). */
+  readonly hotkeys: ReadonlyMap<string, Tool>
   /** Live tower placement being aimed (for the overlay preview). */
   pending: PendingPlacement | null = null
   /** The jet verb: main.ts feeds this to the sim each frame. */
   readonly jet: JetState = { x: 0, y: 0, held: false }
+  /** Palette sync: called whenever the tool changes (hotkey or click). */
+  onToolChange: ((tool: Tool) => void) | null = null
 
   private painting = false
   private last: { x: number; y: number } | null = null
@@ -42,18 +48,27 @@ export class BuildInput {
     private readonly canvas: HTMLCanvasElement,
     private readonly sim: GpuSim,
     private readonly engine: Engine,
+    availableTowers: readonly TowerId[],
   ) {
+    const keys = new Map<string, Tool>()
+    keys.set('1', 'wall')
+    availableTowers.forEach((id, i) => keys.set(String(i + 2), id))
+    keys.set(String(availableTowers.length + 2), 'erase')
+    this.hotkeys = keys
+
     window.addEventListener('keydown', (e) => {
-      if (e.key === '1') this.tool = 'wall'
-      else if (e.key === '2') this.tool = 'neutralizer'
-      else if (e.key === '3') this.tool = 'impeller'
-      else if (e.key === '4') this.tool = 'vortex'
-      else if (e.key === '5') this.tool = 'erase'
+      const tool = keys.get(e.key)
+      if (tool) this.select(tool)
     })
     canvas.addEventListener('contextmenu', (e) => e.preventDefault())
     canvas.addEventListener('pointerdown', (e) => this.down(e))
     window.addEventListener('pointermove', (e) => this.move(e))
     window.addEventListener('pointerup', (e) => this.up(e))
+  }
+
+  select(tool: Tool): void {
+    this.tool = tool
+    this.onToolChange?.(tool)
   }
 
   private cellAt(e: PointerEvent): { x: number; y: number } | null {
@@ -87,7 +102,7 @@ export class BuildInput {
       this.jet.y = cell.y
     }
     if (this.painting && cell) this.paint(cell)
-    if (this.pending && cell) {
+    if (this.pending && cell && TOWER_DEFS[this.pending.type]?.aimable) {
       const dx = cell.x - this.pending.x
       const dy = cell.y - this.pending.y
       if (dx * dx + dy * dy > 9) this.pending.angle = Math.atan2(dy, dx)

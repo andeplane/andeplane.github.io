@@ -5,9 +5,13 @@
 
 import { CONFIG } from '../config'
 import type { Rng } from '../core/rng'
-import type { ObservableSnapshot, SpawnRequest } from '../sim/types'
-import type { DomainMap, InletState, TerrainShape } from './map'
+import type { DeathEvent, ObservableSnapshot, SpawnRequest } from '../sim/types'
+import type { LevelConfig } from './levelDefs'
+import type { DomainMap, InletState } from './map'
+import { SPORE_DEFS, SPORES_BY_INDEX } from './sporeDefs'
 import { canPlace, towerCost, type Tower, type TowerType } from './towers'
+
+export type { LevelConfig, WaveConfig } from './levelDefs'
 
 export interface EngineCallbacks {
   onGameOver(winner: 'attacker' | 'defender'): void
@@ -18,29 +22,6 @@ export interface EngineCallbacks {
 }
 
 export type MatchPhase = 'build' | 'wave' | 'over'
-
-export interface WaveConfig {
-  count: number
-  hp: number
-  /** Ticks between spawns. */
-  interval: number
-  /** Inlet arms (segment indices) this wave rides. */
-  arms: readonly number[]
-  /** Surge waves slam the water hammer while spores ride the faster current. */
-  surge?: boolean
-}
-
-export interface LevelConfig {
-  name: string
-  description: string
-  lives: number
-  startingGold: number
-  /** Arena bedrock (fractional coords); omitted = the default pillars. */
-  terrain?: readonly TerrainShape[]
-  /** This arena's natural open-flow intake (thirst threshold scales off it). */
-  nominalFlux?: number
-  waves: readonly WaveConfig[]
-}
 
 export class Engine {
   readonly level: LevelConfig
@@ -84,6 +65,9 @@ export class Engine {
   private nextSpawnIn = 0
   private ticksSinceSpawnDone = 0
   private lastKills = 0
+  private lastKillsByType: number[] = SPORES_BY_INDEX.map(() => 0)
+  /** Death events already processed (splitter bursts are exactly-once). */
+  deathsSeen = 0
   private lastSuffocated = 0
   private lastEscapes = 0
   private escapesAtWaveStart = 0
@@ -191,7 +175,12 @@ export class Engine {
       this.suffocatedTotal += suffocated
       this.escapesTotal += escapes
       // Only tower kills pay — drowned spores are defense, not income.
-      this.gold += kills * CONFIG.enemies.bounty
+      // Bounty is per spore type (a Barnacle pays more than a Darter).
+      for (let t = 0; t < this.lastKillsByType.length; t++) {
+        const typed = (obs.killsByType[t] ?? 0) - this.lastKillsByType[t]
+        this.lastKillsByType[t] = obs.killsByType[t] ?? 0
+        if (typed > 0) this.gold += typed * (SPORES_BY_INDEX[t]?.bounty ?? CONFIG.enemies.bounty)
+      }
       this.lives -= escapes
       if (breaches > 0) this.callbacks.onBreach(breaches)
       if (this.lives <= 0) {
@@ -201,7 +190,10 @@ export class Engine {
       }
     }
 
-    this.gold += CONFIG.match.goldTrickle / 60
+    // Water royalties: the base pays for delivered water. Full river = full
+    // trickle; a strangled river pays nothing — the carrot to thirst's stick.
+    const delivery = this.intakeFlux < 0 ? 1 : Math.min(1, this.intakeFlux / (this.nominalFlux * 0.5))
+    this.gold += (CONFIG.match.goldTrickle / 60) * delivery
 
     // --- Thirst: the base must keep drinking (anti-blockade rule) ------------
     // Counts for the whole match once the first wave is called — the pre-match
@@ -236,11 +228,13 @@ export class Engine {
     if (this.spawnRemaining > 0) {
       if (--this.nextSpawnIn <= 0) {
         const seg = this.map.inletSegments[this.rng.pick(wave.arms)]
+        const def = SPORE_DEFS[this.rng.pick(wave.types ?? (['standard'] as const))]
         this.pendingSpawns.push({
           x: CONFIG.enemies.spawnX,
           y: this.rng.range(seg.y0 + 2, seg.y1 - 1),
-          hp: wave.hp,
+          hp: wave.hp * def.hpMul,
           seed: this.rng.next(),
+          type: def.typeIndex,
         })
         this.spawnedTotal++
         this.spawnRemaining--
@@ -268,6 +262,32 @@ export class Engine {
     }
 
     return this.inletStates
+  }
+
+  /**
+   * Death events from the GPU ring (readback-lagged ~0.25 s): splitters
+   * burst into live children flung outward from where they popped. Children
+   * enter through the normal spawn path so the alive estimate stays exact.
+   */
+  processDeaths(events: readonly DeathEvent[]): void {
+    if (this.phase === 'over') return
+    for (const ev of events) {
+      const def = SPORES_BY_INDEX[Math.round(ev.type)]
+      if (!def?.split) continue
+      const wave = this.level.waves[Math.min(this.waveIndex, this.level.waves.length - 1)]
+      for (let c = 0; c < def.split.count; c++) {
+        const angle = this.rng.next() * Math.PI * 2
+        const fling = 2 + this.rng.next() * 3
+        this.pendingSpawns.push({
+          x: Math.max(2, ev.x + Math.cos(angle) * fling),
+          y: ev.y + Math.sin(angle) * fling,
+          hp: wave.hp * SPORE_DEFS[def.split.child].hpMul * def.split.hpMul,
+          seed: this.rng.next(),
+          type: SPORE_DEFS[def.split.child].typeIndex,
+        })
+        this.spawnedTotal++
+      }
+    }
   }
 
   private beginWave(): void {

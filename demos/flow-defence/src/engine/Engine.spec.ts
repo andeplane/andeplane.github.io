@@ -37,6 +37,8 @@ const obs = (tick: number, kills: number, escapes: number, outletFlux = tick * 1
   escapes,
   outletFlux,
   outletInflux: 0,
+  killsByType: [kills, 0, 0, 0, 0],
+  deathCount: 0,
 })
 
 describe('Engine waves', () => {

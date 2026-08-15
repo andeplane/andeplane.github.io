@@ -1,6 +1,6 @@
 // Every tunable in one place. Balancing happens here, not in scattered literals.
 
-import type { TerrainShape } from './engine/map'
+import { LEVELS } from './engine/levelDefs'
 
 export const CONFIG = {
   sim: {
@@ -62,10 +62,7 @@ export const CONFIG = {
   enemies: {
     /** Enemy buffer capacity (slots are allocated monotonically per match). */
     max: 1024,
-    /** Fraction of local fluid velocity a spore rides (1 = passive drifter). */
-    carry: 1.0,
-    /** Constant downstream swim bias (lattice units) — no spore stalls forever. */
-    swim: 0.018,
+    // Per-type movement personalities (carry/swim/steer) live in sporeDefs.
     /**
      * Spores need current to breathe: below this flow speed they suffocate.
      * This is what makes SEALING an arm a real (and paying) defense — spores
@@ -94,8 +91,6 @@ export const CONFIG = {
     seekBreath: 0.25,
     /** Random wander speed (lattice units) — swarms read as alive, not beads. */
     wander: 0.02,
-    /** Per-tick velocity smoothing toward the flow (0..1). */
-    steer: 0.3,
     /** HP lost per tick = neutralizer field rate × this. */
     towerDamage: 0.4,
     /** Glow stamped into the bio field per tick (blob brightness). */
@@ -172,28 +167,9 @@ export const CONFIG = {
      *  defenses must claim territory. */
     towerSpacing: 20,
   },
-  towers: {
-    neutralizer: {
-      cost: 40,
-      radius: 16,
-      /** Damage field rate at the centre (falls off to the rim). */
-      rate: 0.09,
-    },
-    impeller: {
-      cost: 30,
-      radius: 11,
-      /** Body force magnitude (lattice units) at the centre. */
-      force: 0.0045,
-    },
-    /** Spins the water into a whirlpool (tangential + slight inward pull):
-     *  spores caught in it circle instead of passing — park one on a kill
-     *  ring and the ring gets many times the exposure. */
-    vortex: {
-      cost: 35,
-      radius: 13,
-      force: 0.005,
-    },
-  },
+  // Tower stats live in engine/towerDefs.ts (the tower registry); spore
+  // personalities live in engine/sporeDefs.ts. This file keeps only the
+  // world/physics/economy tunables.
   match: {
     /** Passive gold per second. */
     goldTrickle: 1,
@@ -228,82 +204,6 @@ export const CONFIG = {
     clearBonusPerWave: 10,
   },
   /**
-   * Levels are an arena (terrain, fractional coords, bedrock) + a wave table.
-   * interval = ticks between spawns; arms = inlet segments (0 bottom, 1
-   * middle, 2 top) the wave rides; surge waves slam the water hammer (faster
-   * current, walls strain) while spores ride it.
-   */
-  levels: [
-    {
-      name: 'First Spores',
-      description: 'Open water, three pillars. Learn the tools.',
-      lives: 15,
-      startingGold: 165,
-      nominalFlux: 13.8,
-      terrain: [
-        { kind: 'disc', x: 0.32, y: 0.34, r: 13 },
-        { kind: 'disc', x: 0.46, y: 0.68, r: 16 },
-        { kind: 'disc', x: 0.62, y: 0.3, r: 11 },
-      ] as readonly TerrainShape[],
-      waves: [
-        { count: 8, hp: 1, interval: 32, arms: [1] },
-        { count: 12, hp: 1, interval: 26, arms: [1, 2] },
-        { count: 16, hp: 1.6, interval: 22, arms: [0, 1, 2] },
-        { count: 16, hp: 1.8, interval: 20, arms: [0, 1, 2], surge: true },
-        { count: 20, hp: 2, interval: 16, arms: [0, 1, 2], surge: true },
-      ],
-    },
-    {
-      name: 'Crosscurrents',
-      description: 'A serpentine canyon — the river snakes, and so must they.',
-      lives: 12,
-      startingGold: 150,
-      nominalFlux: 4.2,
-      // Alternating baffles force the whole flow into an S: three long jets
-      // and three hairpin corners — every corner is a kill-zone opportunity.
-      terrain: [
-        { kind: 'bar', x0: 0.24, y0: 1, x1: 0.24, y1: 0.44, w: 8 },
-        { kind: 'bar', x0: 0.47, y0: 0, x1: 0.47, y1: 0.56, w: 8 },
-        { kind: 'bar', x0: 0.7, y0: 1, x1: 0.7, y1: 0.44, w: 8 },
-        { kind: 'disc', x: 0.86, y: 0.6, r: 9 },
-      ] as readonly TerrainShape[],
-      waves: [
-        { count: 10, hp: 1.2, interval: 26, arms: [0, 2] },
-        { count: 14, hp: 1.6, interval: 22, arms: [0, 1, 2] },
-        { count: 16, hp: 2.2, interval: 18, arms: [1], surge: true },
-        { count: 20, hp: 2.6, interval: 16, arms: [0, 1, 2] },
-        { count: 22, hp: 3.2, interval: 14, arms: [0, 2], surge: true },
-        { count: 28, hp: 3.6, interval: 12, arms: [0, 1, 2], surge: true },
-      ],
-    },
-    {
-      name: 'Water Hammer',
-      description: 'The narrows: everything funnels through one throat.',
-      lives: 10,
-      startingGold: 150,
-      nominalFlux: 8.2,
-      // Two huge lenses squeeze the whole river through a central throat —
-      // surges through the narrows hammer like a burst pipe. Downstream
-      // pillars split the exit jet into braided streams.
-      terrain: [
-        { kind: 'disc', x: 0.4, y: 1.08, r: 108 },
-        { kind: 'disc', x: 0.4, y: -0.08, r: 108 },
-        { kind: 'disc', x: 0.64, y: 0.5, r: 12 },
-        { kind: 'disc', x: 0.8, y: 0.3, r: 10 },
-        { kind: 'disc', x: 0.8, y: 0.7, r: 10 },
-      ] as readonly TerrainShape[],
-      waves: [
-        { count: 12, hp: 1.6, interval: 22, arms: [0, 1, 2] },
-        { count: 16, hp: 2.2, interval: 18, arms: [0, 1, 2], surge: true },
-        { count: 20, hp: 2.8, interval: 15, arms: [1], surge: true },
-        { count: 24, hp: 3.2, interval: 13, arms: [0, 1, 2] },
-        { count: 26, hp: 3.8, interval: 12, arms: [0, 2], surge: true },
-        { count: 30, hp: 4.2, interval: 10, arms: [0, 1, 2], surge: true },
-        { count: 36, hp: 4.8, interval: 9, arms: [0, 1, 2], surge: true },
-      ],
-    },
-  ],
-  /**
    * Carrier-dye tint per inlet segment. Deliberately quiet, single-family
    * water tones: dye shows the CURRENT, and must never compete with the
    * spores (hot pink), which are the only saturated threat color on screen.
@@ -315,4 +215,6 @@ export const CONFIG = {
     [0.28, 0.44, 0.58],
     [0.3, 0.48, 0.6],
   ] as ReadonlyArray<readonly [number, number, number]>,
+  /** The campaign — see engine/levelDefs.ts (pure data, one entry per arena). */
+  levels: LEVELS,
 } as const

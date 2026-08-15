@@ -3,6 +3,9 @@
 // state, zero teardown bugs).
 
 import { CONFIG } from '../config'
+import { SPORES_BY_INDEX } from '../engine/sporeDefs'
+import { TOWER_IDS, TOWER_DEFS } from '../engine/towerDefs'
+import { isUnlocked, loadProgress, starGlyphs } from './progress'
 
 const MENU_CSS = /* css */ `
 .fd-menu {
@@ -30,6 +33,15 @@ const MENU_CSS = /* css */ `
 }
 .fd-level b { color: #eaf6ff; letter-spacing: 0.08em; }
 .fd-level small { display: block; opacity: 0.65; }
+.fd-level { position: relative; }
+.fd-level .fd-stars {
+  position: absolute; right: 14px; top: 12px; color: #fcd34d; letter-spacing: 0.2em;
+  text-shadow: 0 0 10px rgba(252, 211, 77, 0.7); font-size: 13px;
+}
+.fd-level.locked { opacity: 0.45; cursor: not-allowed; }
+.fd-level.locked:hover { border-color: rgba(130, 200, 255, 0.25); box-shadow: none; }
+.fd-level .fd-lock { position: absolute; right: 14px; top: 12px; opacity: 0.8; }
+.fd-levels { max-height: 52vh; overflow-y: auto; padding-right: 6px; }
 .fd-btn { text-align: center; }
 .fd-menu-row { display: flex; gap: 12px; justify-content: center; }
 .fd-howto { text-align: left; max-height: 62vh; overflow-y: auto; padding-right: 8px; }
@@ -49,7 +61,15 @@ const MENU_CSS = /* css */ `
 `
 
 function howToPlayHtml(): string {
-  const { towers, match, build, enemies } = CONFIG
+  const { match, build } = CONFIG
+  const towerList = TOWER_IDS.map((id) => {
+    const d = TOWER_DEFS[id]
+    return `<p><img src="${import.meta.env.BASE_URL}sprites/${d.sprite}.png" alt="" style="width:22px;height:22px;vertical-align:-6px;margin-right:6px"><b>${d.name}</b> (${d.cost}g${d.unlockLevel > 1 ? ` · unlocks at level ${d.unlockLevel}` : ''}) — ${d.desc}</p>`
+  }).join('')
+  const sporeList = SPORES_BY_INDEX.map(
+    (d) =>
+      `<p><img src="${import.meta.env.BASE_URL}sprites/spore-${d.id}.png" alt="" style="width:22px;height:22px;vertical-align:-6px;margin-right:6px"><b>${d.name}</b> (${d.bounty}g bounty${d.unlockLevel > 1 ? ` · appears at level ${d.unlockLevel}` : ''}) — ${d.desc}</p>`,
+  ).join('')
   return /* html */ `
   <div class="fd-howto">
     <h2>The idea</h2>
@@ -68,28 +88,25 @@ function howToPlayHtml(): string {
     Reroute the river as violently as you like; never stop it.</p>
 
     <h2>Your tools</h2>
+    <p>The build palette (bottom) holds everything; number keys select, hover a card for
+    details. New towers unlock as you clear levels.</p>
     <p><span class="k">1</span><b>Wall</b> (${build.wallCostPerCell}g/cell) — drag to draw. Walls redirect the
     current: narrow channels flow fast, dead ends silt. Walls are physical — fast water scours
     them and pressure pipes through dams. They glow through their cracks before failing, and
-    repainting a damaged wall repairs it.</p>
-    <p><span class="k">2</span><b>Neutralizer</b> (${towers.neutralizer.cost}g) — click to place. Beams and kills
-    spores inside its ring; every kill pays <b>${enemies.bounty}g</b> — your main income. Put it
-    where your walls force the river to run.</p>
-    <p><span class="k">3</span><b>Impeller</b> (${towers.impeller.cost}g) — click and drag to aim. A pump that
-    pushes the water itself: steer spores into kill zones, slow a channel, starve a route.</p>
-    <p><span class="k">4</span><b>Vortex</b> (${towers.vortex.cost}g) — click to place. Spins the water into a
-    whirlpool: spores caught in it circle instead of passing. Park one on a Neutralizer ring and
-    the ring gets many times the exposure.</p>
+    repainting a damaged wall repairs it. The <b>Erase</b> tool (last palette slot) removes your
+    walls for a half refund.</p>
+    ${towerList}
     <p>Towers need breathing room — they refuse to stand within ${CONFIG.build.towerSpacing} cells
     of another tower. Claim territory, don't stack.</p>
-    <p><span class="k">5</span><b>Erase</b> — drag to remove your own walls (half refund). Built
-    yourself into a corner or choked the intake? Undo it.</p>
     <p><b>Water intake</b> (bar, top right) is the rate of water reaching your base — a rolling
     average, so it responds over ~30 s. Keep it above the red mark; below it the base thirsts.</p>
     <p><span class="k">R-hold</span><b>Jet</b> — hold the RIGHT mouse button to blast water outward
     from your cursor. Shove spores off their line, into rings, away from the outlet. It drains a
     charge (the arc at your cursor) and recharges when released. This is your hands in the water —
     use it every wave.</p>
+
+    <h2>The bestiary</h2>
+    ${sporeList}
 
     <h2>Waves</h2>
     <p>Between waves you build in calm water; press <span class="k">SPACE</span> to call the next
@@ -108,9 +125,10 @@ function howToPlayHtml(): string {
     and a wall glowing <b style="color:#fb7185">hot pink</b> is rotten: spores pass through it.</p>
 
     <h2>Economy</h2>
-    <p>Income: starting gold + a trickle (${match.goldTrickle}g/s) + ${enemies.bounty}g per <b>tower</b>
-    kill + a wave-clear bonus. Drowned spores pay nothing. If your gold flashes, you can't afford
-    what you just tried.</p>
+    <p>Income: starting gold + <b>water royalties</b> (up to ${match.goldTrickle}g/s, scaled by how
+    much water actually reaches your base — an open river pays, a strangled one doesn't) + a
+    per-type bounty for every <b>tower</b> kill (see the bestiary) + a wave-clear bonus. Drowned
+    spores pay nothing. If your gold flashes, you can't afford what you just tried.</p>
   </div>`
 }
 
@@ -163,14 +181,24 @@ export class Menu {
   }
 
   private showMain(): void {
+    // Progression: a level opens once the previous holds at least one star.
+    const progress = loadProgress()
     const levels = CONFIG.levels
-      .map(
-        (lv, i) => `
-      <button class="fd-level" data-level="${i + 1}">
-        <b>Level ${i + 1} — ${lv.name}</b>
-        <small>${lv.description}</small>
-      </button>`,
-      )
+      .map((lv, i) => {
+        const num = i + 1
+        const unlocked = isUnlocked(num, progress)
+        const stars = progress.stars[num] ?? 0
+        const badge = unlocked
+          ? stars > 0
+            ? `<span class="fd-stars">${starGlyphs(stars)}</span>`
+            : ''
+          : `<span class="fd-lock">🔒</span>`
+        return `
+      <button class="fd-level ${unlocked ? '' : 'locked'}" data-level="${num}" ${unlocked ? '' : 'disabled'}>
+        <b>Level ${num} — ${lv.name}</b>${badge}
+        <small>${unlocked ? lv.description : `Clear Level ${num - 1} to unlock.`}</small>
+      </button>`
+      })
       .join('')
     this.inner.innerHTML = `
       <h1>Flow Defence</h1>

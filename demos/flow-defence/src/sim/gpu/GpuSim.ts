@@ -17,8 +17,9 @@ import { CONFIG } from '../../config'
 import { Q, W } from '../core/constants'
 import { inletProfile, type DomainMap, type InletState } from '../../engine/map'
 import { CELL } from '../core/constants'
-import type { EnemyView, ObservableSnapshot, SpawnRequest } from '../types'
-import { ENEMY_STRIDE, enemiesShaderSource } from './shaders/enemies.wgsl'
+import type { DeathEvent, EnemyView, ObservableSnapshot, SpawnRequest } from '../types'
+import type { TowerFields } from '../../engine/towers'
+import { DEATH_RING, ENEMY_STRIDE, enemiesShaderSource } from './shaders/enemies.wgsl'
 import { erosionShaderSource } from './shaders/erosion.wgsl'
 import { FLUX_SCALE, glowShaderSource } from './shaders/glow.wgsl'
 import { lbmShaderSource } from './shaders/lbm.wgsl'
@@ -159,6 +160,14 @@ export class GpuSim {
 
     this.towerFieldBuf = new StorageBuffer(engine, n * 4)
     this.towerFieldBuf.update(new Float32Array(n))
+    this.dragFieldBuf = new StorageBuffer(engine, n * 4)
+    this.dragFieldBuf.update(new Float32Array(n))
+    this.sonarFieldBuf = new StorageBuffer(engine, n * 4)
+    this.sonarFieldBuf.update(new Float32Array(n))
+    this.zapFieldBuf = new StorageBuffer(engine, n * 4)
+    this.zapFieldBuf.update(new Float32Array(n))
+    this.deathEventsBuf = new StorageBuffer(engine, DEATH_RING * 4 * 4)
+    this.deathEventsBuf.update(new Float32Array(DEATH_RING * 4))
 
     this.enemyBuf = new StorageBuffer(engine, CONFIG.enemies.max * ENEMY_STRIDE * 4)
     this.enemyBuf.update(new Float32Array(CONFIG.enemies.max * ENEMY_STRIDE))
@@ -192,6 +201,10 @@ export class GpuSim {
           counters: { group: 0, binding: 6 },
           glow: { group: 0, binding: 7 },
           params: { group: 0, binding: 8 },
+          dragField: { group: 0, binding: 9 },
+          sonarField: { group: 0, binding: 10 },
+          zapField: { group: 0, binding: 11 },
+          deathEvents: { group: 0, binding: 12 },
         },
       },
     )
@@ -204,6 +217,10 @@ export class GpuSim {
     this.enemyPass.setStorageBuffer('counters', this.countersBuf)
     this.enemyPass.setStorageBuffer('glow', this.glowStampBuf)
     this.enemyPass.setUniformBuffer('params', this.enemyParams)
+    this.enemyPass.setStorageBuffer('dragField', this.dragFieldBuf)
+    this.enemyPass.setStorageBuffer('sonarField', this.sonarFieldBuf)
+    this.enemyPass.setStorageBuffer('zapField', this.zapFieldBuf)
+    this.enemyPass.setStorageBuffer('deathEvents', this.deathEventsBuf)
 
     this.glowParams = new UniformBuffer(engine)
     for (const name of ['advScale', 'pad0', 'pad1', 'pad2']) this.glowParams.addUniform(name, 1)
@@ -241,6 +258,10 @@ export class GpuSim {
   private readonly glowPasses: [ComputeShader, ComputeShader]
   private readonly glowParams: UniformBuffer
   private readonly towerFieldBuf: StorageBuffer
+  private readonly dragFieldBuf: StorageBuffer
+  private readonly sonarFieldBuf: StorageBuffer
+  private readonly zapFieldBuf: StorageBuffer
+  private readonly deathEventsBuf: StorageBuffer
   private readonly enemyBuf: StorageBuffer
   private readonly enemyPass: ComputeShader
   private readonly enemyParams: UniformBuffer
@@ -339,6 +360,8 @@ export class GpuSim {
           escapes: u[2],
           outletFlux: u[3] / FLUX_SCALE,
           outletInflux: u[4] / FLUX_SCALE,
+          killsByType: [u[8], u[9], u[10], u[11], u[12]],
+          deathCount: u[6],
         }
       })
       .finally(() => {
@@ -380,6 +403,7 @@ export class GpuSim {
         vx: data[i + 2],
         vy: data[i + 3],
         hp: data[i + 4],
+        type: data[i + 7],
       })
     }
     return out
@@ -390,7 +414,7 @@ export class GpuSim {
     for (const s of spawns) {
       const slot = this.nextSlot % CONFIG.enemies.max
       this.nextSlot++
-      const data = new Float32Array([s.x, s.y, 0, 0, s.hp, 1, s.seed, 0])
+      const data = new Float32Array([s.x, s.y, 0, 0, s.hp, 1, s.seed, s.type])
       this.enemyBuf.update(data, slot * ENEMY_STRIDE * 4)
     }
   }
@@ -437,9 +461,32 @@ export class GpuSim {
     this.inletProfileBuffer.update(inletProfile(this.map, states))
   }
 
-  /** Defender towers, splatted CPU-side into damage + force fields. */
-  setTowerFields(damage: Float32Array, force: Float32Array): void {
-    this.towerFieldBuf.update(damage)
-    this.cellForceBuf.update(force)
+  /** Defender towers, splatted CPU-side into per-cell fields (towers.ts). */
+  setTowerFields(fields: TowerFields): void {
+    this.towerFieldBuf.update(fields.damage)
+    this.cellForceBuf.update(fields.force)
+    this.dragFieldBuf.update(fields.drag)
+    this.sonarFieldBuf.update(fields.sonar)
+  }
+
+  /** Transient zap damage (arc/mortar/sniper hits) — hot for exactly the
+   *  ticks between uploads; upload zeros to cool it. */
+  setZapField(field: Float32Array): void {
+    this.zapFieldBuf.update(field)
+  }
+
+  /** Death events newer than `seen` (a monotone count from the snapshot),
+   *  read from the GPU ring. Resolves ~1 readback after the deaths. */
+  async readDeathEvents(seen: number, upto: number): Promise<DeathEvent[]> {
+    const fresh = Math.min(upto - seen, DEATH_RING)
+    if (fresh <= 0) return []
+    const view = await this.deathEventsBuf.read()
+    const data = new Float32Array(view.buffer, view.byteOffset, DEATH_RING * 4)
+    const events: DeathEvent[] = []
+    for (let k = upto - fresh; k < upto; k++) {
+      const s = (k % DEATH_RING) * 4
+      events.push({ x: data[s], y: data[s + 1], type: data[s + 2], byTower: data[s + 3] })
+    }
+    return events
   }
 }

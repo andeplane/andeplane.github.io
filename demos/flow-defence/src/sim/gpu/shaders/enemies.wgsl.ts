@@ -9,25 +9,42 @@
 //   [2] spores escaped to the outlet (monotone)
 //   [5] spores suffocated in stagnant water (monotone, pays NOTHING —
 //       otherwise sealed basins become risk-free bounty farms)
+//   [6] death events written (monotone) — ring index for deathEvents
+//   [8+t] tower kills of spore type t (monotone, per-type bounty)
+//
+// Per-type spore personalities (carry/swim/steer/glow/invisibility) are baked
+// into the shader from sporeDefs at source-build time — adding a spore type
+// never changes this kernel's code.
 
 import { CONFIG } from '../../../config'
+import { SPORES_BY_INDEX } from '../../../engine/sporeDefs'
 import { CELL } from '../../core/constants'
 
 export const GLOW_SCALE = 1024
-/** Floats per enemy struct (pos.xy, vel.xy, hp, state, seed, pad). */
+/** Floats per enemy struct (pos.xy, vel.xy, hp, state, seed, type). */
 export const ENEMY_STRIDE = 8
+/** Slots in the death-event ring buffer (vec4: x, y, type, byTower). */
+export const DEATH_RING = 256
 
 export function enemiesShaderSource(width: number, height: number): string {
   const e = CONFIG.enemies
+  const types = SPORES_BY_INDEX
+  const table = (pick: (d: (typeof types)[number]) => number) =>
+    `array<f32, ${types.length}>(${types.map((d) => Number(pick(d)).toFixed(4)).join(', ')})`
   return /* wgsl */ `
 const SIM_W : i32 = ${width};
 const SIM_H : i32 = ${height};
 const MAX_ENEMIES : u32 = ${e.max}u;
 const ADV : f32 = ${CONFIG.sim.substeps}.0;   // lattice steps per tick
-const CARRY : f32 = ${e.carry};
-const SWIM : f32 = ${e.swim};
 const WANDER : f32 = ${e.wander};
-const STEER : f32 = ${e.steer};
+const N_TYPES : u32 = ${types.length}u;
+// Per-type personalities from sporeDefs (indexed by e.typ). Dynamic indexing
+// of module-scope const arrays trips some validators — use var<private>.
+var<private> TYPE_CARRY : array<f32, ${types.length}> = ${table((d) => d.carry)};
+var<private> TYPE_SWIM : array<f32, ${types.length}> = ${table((d) => d.swim)};
+var<private> TYPE_STEER : array<f32, ${types.length}> = ${table((d) => d.steer)};
+var<private> TYPE_GLOW : array<f32, ${types.length}> = ${table((d) => d.glowMul)};
+var<private> TYPE_INVIS : array<f32, ${types.length}> = ${table((d) => (d.invisible ? 1 : 0))};
 const DMG : f32 = ${e.towerDamage};
 const STAGNANT_U : f32 = ${e.stagnantU};
 const SUFFOCATE : f32 = ${e.suffocate};
@@ -50,7 +67,7 @@ struct Enemy {
   hp : f32,
   state : f32,       // 0 = empty/dead, 1 = alive
   seed : f32,
-  pad : f32,
+  typ : f32,         // spore typeIndex (sporeDefs)
 };
 
 struct EnemyParams {
@@ -69,6 +86,10 @@ struct EnemyParams {
 @group(0) @binding(6) var<storage, read_write> counters : array<atomic<u32>>;
 @group(0) @binding(7) var<storage, read_write> glow : array<atomic<u32>>;
 @group(0) @binding(8) var<uniform> params : EnemyParams;
+@group(0) @binding(9) var<storage, read> dragField : array<f32>;
+@group(0) @binding(10) var<storage, read> sonarField : array<f32>;
+@group(0) @binding(11) var<storage, read> zapField : array<f32>;
+@group(0) @binding(12) var<storage, read_write> deathEvents : array<vec4<f32>>;
 
 fn cellIdx(p : vec2<f32>) -> i32 {
   let x = clamp(i32(p.x), 0, SIM_W - 1);
@@ -147,8 +168,11 @@ fn main(@builtin(global_invocation_id) gid : vec3<u32>) {
     }
   }
 
-  let goal = (mac.xy * CARRY + vec2<f32>(SWIM, 0.0) + wander + seek) * ADV;
-  e.vel = mix(e.vel, goal, STEER);
+  let ty = clamp(u32(e.typ), 0u, N_TYPES - 1u);
+  let goal = (mac.xy * TYPE_CARRY[ty] + vec2<f32>(TYPE_SWIM[ty], 0.0) + wander + seek) * ADV;
+  e.vel = mix(e.vel, goal, TYPE_STEER[ty]);
+  // Congealed water (frost towers): everything crawls.
+  e.vel *= 1.0 - dragField[cellIdx(e.pos)];
 
   // Move, blocked by solids (axis-separated slide along walls).
   let cand = e.pos + e.vel;
@@ -166,21 +190,27 @@ fn main(@builtin(global_invocation_id) gid : vec3<u32>) {
 
   let idx = cellIdx(e.pos);
 
-  // Neutralizer damage, plus suffocation in stagnant water (spores need
-  // current to breathe — sealed-off arms and dead eddies are lethal).
-  let towerDmg = towerField[idx];
+  // Tower damage (continuous fields + transient zaps), plus suffocation in
+  // stagnant water. Phantoms are untouchable outside sonar coverage.
+  var towerDmg = towerField[idx] + zapField[idx];
+  if (TYPE_INVIS[ty] > 0.5 && sonarField[idx] < 0.5) { towerDmg = 0.0; }
   e.hp -= towerDmg * DMG;
   if (suffocating) { e.hp -= SUFFOCATE; }
   if (e.hp <= 0.0) {
     e.state = 0.0;
-    if (towerDmg > 0.0) {
+    let byTower = towerDmg > 0.0;
+    if (byTower) {
       atomicAdd(&counters[1], 1u);
+      atomicAdd(&counters[8u + ty], 1u);
       stamp(e.pos, KILL_FLASH, 3);   // the kill flash — bloom pops on it
     } else {
       // Drowned quietly: no bounty, a dimmer flash.
       atomicAdd(&counters[5], 1u);
       stamp(e.pos, KILL_FLASH * 0.35, 2);
     }
+    // Death-event ring: splitter bursts and popups are driven off this.
+    let slot = atomicAdd(&counters[6], 1u) % ${DEATH_RING}u;
+    deathEvents[slot] = vec4<f32>(e.pos, f32(ty), select(0.0, 1.0, byTower));
     enemies[i] = e;
     return;
   }
@@ -193,7 +223,8 @@ fn main(@builtin(global_invocation_id) gid : vec3<u32>) {
     return;
   }
 
-  stamp(e.pos, GLOW_STAMP, 2);
+  // Phantoms leave no glow — only their wake betrays them (and sonar).
+  if (TYPE_GLOW[ty] > 0.0) { stamp(e.pos, GLOW_STAMP * TYPE_GLOW[ty], 2); }
   enemies[i] = e;
 }
 `

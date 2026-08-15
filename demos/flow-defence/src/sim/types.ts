@@ -19,6 +19,20 @@ export interface ObservableSnapshot {
    *  engine diffs NET discharge (out − in) into the base's water intake;
    *  strangling it causes thirst. */
   outletInflux: number
+  /** Tower kills per spore typeIndex (monotone) — per-type bounty. */
+  killsByType: readonly number[]
+  /** Death events ever written (monotone) — indexes the death-event ring. */
+  deathCount: number
+}
+
+/** One entry of the GPU death-event ring (splitter bursts, popups). */
+export interface DeathEvent {
+  x: number
+  y: number
+  /** Spore typeIndex. */
+  type: number
+  /** 1 = killed by a tower (bounty), 0 = drowned. */
+  byTower: number
 }
 
 /** A CPU-side view of one live enemy (from the position readback, extrapolated). */
@@ -31,6 +45,8 @@ export interface EnemyView {
   vx: number
   vy: number
   hp: number
+  /** Spore typeIndex (sporeDefs) — drives overlay size/color/visibility. */
+  type: number
 }
 
 /** A spawn command from the engine to the sim. */
@@ -39,4 +55,6 @@ export interface SpawnRequest {
   y: number
   hp: number
   seed: number
+  /** Spore typeIndex (sporeDefs); 0 = standard. */
+  type: number
 }

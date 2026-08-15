@@ -129,7 +129,6 @@ export class Hud {
   private readonly overEl: HTMLElement
   private readonly overTitle: HTMLElement
   private readonly overSub: HTMLElement
-  private readonly toolEls: HTMLElement[]
 
   constructor(container: HTMLElement, private readonly levelNum: number) {
     const style = document.createElement('style')
@@ -144,7 +143,7 @@ export class Hud {
         <div class="fd-value fd-gold">0</div>
         <div class="fd-label">Lives</div>
         <div class="fd-value fd-lives">0</div>
-        <div class="fd-label">Kills · ${CONFIG.enemies.bounty}g each</div>
+        <div class="fd-label">Kills · bounty per type</div>
         <div class="fd-value fd-kills" style="font-size:13px">0</div>
       </div>
       <div class="fd-panel right">
@@ -156,12 +155,7 @@ export class Hud {
         <div class="fd-intakecap">the base drinks from this river — keep it above the mark</div>
       </div>
       <div class="fd-tools">
-        <span class="fd-tool" data-tool="wall"><b>1</b>Wall</span>
-        <span class="fd-tool" data-tool="neutralizer"><b>2</b>Neutralizer ${CONFIG.towers.neutralizer.cost}g</span>
-        <span class="fd-tool" data-tool="impeller"><b>3</b>Impeller ${CONFIG.towers.impeller.cost}g</span>
-        <span class="fd-tool" data-tool="vortex"><b>4</b>Vortex ${CONFIG.towers.vortex.cost}g</span>
-        <span class="fd-tool" data-tool="erase"><b>5</b>Erase</span>
-        <span class="fd-tool fd-jet"><b>R-hold</b>Jet</span>
+        <span class="fd-tool fd-jet active"><b>R-hold</b>Jet</span>
       </div>
       <div class="fd-hint"></div>
       <div class="fd-dmg"></div>
@@ -200,7 +194,6 @@ export class Hud {
     this.overEl = root.querySelector('.fd-over')!
     this.overTitle = root.querySelector('.fd-over h1')!
     this.overSub = root.querySelector('.fd-oversub')!
-    this.toolEls = [...root.querySelectorAll<HTMLElement>('.fd-tool[data-tool]')]
     root.querySelector('[data-over="again"]')?.addEventListener('click', () => {
       location.href = `${location.pathname}?level=${this.levelNum}`
     })
@@ -209,8 +202,8 @@ export class Hud {
     })
   }
 
-  setTool(tool: string): void {
-    for (const el of this.toolEls) el.classList.toggle('active', el.dataset.tool === tool)
+  setTool(_tool: string): void {
+    // Tool highlighting moved to the build palette (ui/palette.ts).
   }
 
   private lastLives = -1
@@ -284,13 +277,19 @@ export class Hud {
     this.goldEl.classList.add('flash')
   }
 
-  showGameOver(winner: 'attacker' | 'defender', engine: Engine): void {
+  showGameOver(winner: 'attacker' | 'defender', engine: Engine, stars = 0, unlockNext = false): void {
     this.overTitle.textContent = winner === 'defender' ? 'The flow is tamed' : 'The base is drowned'
     if (winner === 'defender') {
-      this.overSub.textContent =
+      const starLine = `<div style="font-size:26px; letter-spacing:0.3em; color:#fcd34d; text-shadow:0 0 18px rgba(252,211,77,0.8); margin-bottom:6px">${'★'.repeat(stars)}${'☆'.repeat(3 - stars)}</div>`
+      this.overSub.innerHTML =
+        starLine +
         `All ${engine.waveTotal} enemy waves survived · ${engine.killsTotal} spores destroyed · ` +
-        `${engine.lives} ${engine.lives === 1 ? 'life' : 'lives'} to spare.`
-    } else if (engine.thirstTicks > 0) {
+        `${engine.lives} ${engine.lives === 1 ? 'life' : 'lives'} to spare.` +
+        (unlockNext ? `<br><span style="color:#8fd0ff">Next level unlocked.</span>` : '')
+      this.overEl.classList.add('show')
+      return
+    }
+    if (engine.thirstTicks > 0) {
       this.overSub.textContent = `The base died of thirst on wave ${Math.min(engine.waveIndex + 1, engine.waveTotal)} — the river was strangled.`
     } else {
       this.overSub.textContent =

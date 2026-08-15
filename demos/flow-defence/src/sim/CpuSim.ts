@@ -5,6 +5,7 @@
 
 import { CONFIG } from '../config'
 import { inletProfile, type DomainMap, type InletState } from '../engine/map'
+import { SPORES_BY_INDEX } from '../engine/sporeDefs'
 import { CELL } from './core/constants'
 import { erosionStress } from './core/erosionRule'
 import { LbmRef } from './core/lbmRef'
@@ -17,6 +18,8 @@ export interface CpuEnemy {
   hp: number
   seed: number
   alive: boolean
+  /** Spore typeIndex (sporeDefs) — movement personality. */
+  type: number
 }
 
 export class CpuSim {
@@ -56,8 +59,8 @@ export class CpuSim {
     }
   }
 
-  spawn(x: number, y: number, hp: number, seed: number): void {
-    this.enemies.push({ x, y, vx: 0, vy: 0, hp, seed, alive: true })
+  spawn(x: number, y: number, hp: number, seed: number, type = 0): void {
+    this.enemies.push({ x, y, vx: 0, vy: 0, hp, seed, alive: true, type })
   }
 
   aliveCount(): number {
@@ -161,11 +164,12 @@ export class CpuSim {
           }
         }
       }
+      const def = SPORES_BY_INDEX[s.type] ?? SPORES_BY_INDEX[0]
       const wanderAngle = s.seed * 6.2832 + Math.sin(this.tickCount * 0.045 + s.seed * 37.0) * 2.4
-      const tx = (ux * e.carry + e.swim + Math.cos(wanderAngle) * e.wander + seekX) * adv
-      const ty = (uy * e.carry + Math.sin(wanderAngle) * e.wander + seekY) * adv
-      s.vx += (tx - s.vx) * e.steer
-      s.vy += (ty - s.vy) * e.steer
+      const tx = (ux * def.carry + def.swim + Math.cos(wanderAngle) * e.wander + seekX) * adv
+      const ty = (uy * def.carry + Math.sin(wanderAngle) * e.wander + seekY) * adv
+      s.vx += (tx - s.vx) * def.steer
+      s.vy += (ty - s.vy) * def.steer
       const cx = s.x + s.vx
       const cy = s.y + s.vy
       if (!this.blocked(cx, cy)) {

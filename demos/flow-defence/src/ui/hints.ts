@@ -66,7 +66,7 @@ const tutorial: Hint[] = [
   },
   {
     text: () =>
-      'Between waves: build. Another Neutralizer deepens the gauntlet; walls re-route the river itself. Repaint a wall to repair it; press 5 and drag to ERASE walls (half refund). Watch WATER INTAKE (top right) — the base drinks from this river.',
+      'Between waves: build. Another Neutralizer deepens the gauntlet; walls re-route the river itself. Repaint a wall to repair it; the ERASE tool (last palette slot) removes walls for a half refund. Watch WATER INTAKE (top right) — the base drinks from this river.',
     done: ({ match }) => match.waveIndex >= 2 || match.phase === 'over',
   },
   {
