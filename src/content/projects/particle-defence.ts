@@ -13,7 +13,7 @@ A competitive tower defence game where instead of placing turrets, you spawn par
 
 ## Gameplay
 
-Each player controls a base on opposite sides of the map. Particles spawn at intervals and pathfind through the maze using A* — place obstacles to redirect enemy particles while leaving clean corridors for your own. Earn gold by killing enemy particles, spend it on upgrades.
+Each player controls a base on opposite sides of the map. Particles spawn at intervals and drift toward the enemy base — biased random motion with wall bounce — so maze walls physically herd them. Place obstacles to redirect enemy particles while leaving clean corridors for your own. Earn gold by killing enemy particles, spend it on upgrades.
 
 **Upgrade tree** — particles can be upgraded with higher speed, shields, or homing behaviour. Special abilities include area-of-effect blasts and a nuclear strike that clears a large section of the maze.
 
