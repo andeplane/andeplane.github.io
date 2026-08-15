@@ -9,15 +9,15 @@
  */
 
 import { GEOMETRIES, type Geometry, type GeometryKey } from '../physics/lattice.ts';
-import { buildUpdateShader } from '../gpu/shaders/update.wgsl.ts';
-import { buildReduceShader } from '../gpu/shaders/reduce.wgsl.ts';
-import { FILL_WGSL } from '../gpu/shaders/fill.wgsl.ts';
-import { PAINT_WGSL } from '../gpu/shaders/paint.wgsl.ts';
+import { buildUpdateShader, UPDATE_WORKGROUP } from '../gpu/shaders/update.wgsl.ts';
+import { buildReduceShader, REDUCE_WORKGROUP } from '../gpu/shaders/reduce.wgsl.ts';
+import { FILL_WGSL, FILL_WORKGROUP } from '../gpu/shaders/fill.wgsl.ts';
+import { PAINT_WGSL, PAINT_WORKGROUP } from '../gpu/shaders/paint.wgsl.ts';
 
 const SLOT = 256;
 const MAX_PASS_SLOTS = 256;
 const MAX_PAINT_SLOTS = 64;
-const REDUCE_WORKGROUPS = 256;
+const MAX_REDUCE_WORKGROUPS = 256;
 
 export interface PaintStamp {
   ax: number;
@@ -266,7 +266,7 @@ export class Simulation {
     const pass = encoder.beginComputePass();
     pass.setPipeline(this.fillPipeline);
     pass.setBindGroup(0, this.fillBind);
-    pass.dispatchWorkgroups(Math.ceil(this.N / 256));
+    pass.dispatchWorkgroups(Math.ceil(this.N / FILL_WORKGROUP));
     pass.end();
     this.device.queue.submit([encoder.finish()]);
   }
@@ -301,8 +301,8 @@ export class Simulation {
     this.device.queue.writeBuffer(this.passUniforms, 0, this.passData, 0, totalPasses * SLOT);
 
     const stride = this.L / colors;
-    const wx = Math.ceil(stride / 64);
-    const wy = Math.ceil(this.L / 4);
+    const wx = Math.ceil(stride / UPDATE_WORKGROUP.x);
+    const wy = Math.ceil(this.L / UPDATE_WORKGROUP.y);
     const pass = encoder.beginComputePass({ label: 'sweeps' });
     pass.setPipeline(this.updatePipeline);
     for (let p = 0; p < totalPasses; p++) {
@@ -344,7 +344,11 @@ export class Simulation {
       v.setInt32(base + 36, j0, true);
       v.setUint32(base + 40, this.seed, true);
       v.setUint32(base + 44, this.passCounter, true);
-      dispatches.push({ slot: k, wx: Math.ceil(bw / 16), wy: Math.ceil(bh / 16) });
+      dispatches.push({
+        slot: k,
+        wx: Math.ceil(bw / PAINT_WORKGROUP),
+        wy: Math.ceil(bh / PAINT_WORKGROUP),
+      });
     }
     this.device.queue.writeBuffer(this.paintUniforms, 0, this.paintData, 0, this.paintQueue.length * SLOT);
     this.paintQueue.length = 0;
@@ -369,7 +373,7 @@ export class Simulation {
     const pass = encoder.beginComputePass({ label: 'reduce' });
     pass.setPipeline(this.reducePipeline);
     pass.setBindGroup(0, this.reduceBind);
-    pass.dispatchWorkgroups(Math.min(REDUCE_WORKGROUPS, Math.ceil(this.N / 256)));
+    pass.dispatchWorkgroups(Math.min(MAX_REDUCE_WORKGROUPS, Math.ceil(this.N / REDUCE_WORKGROUP)));
     pass.end();
     encoder.copyBufferToBuffer(this.results, 0, staging, 0, 8);
     encoder.copyBufferToBuffer(this.flips, 0, staging, 8, 4);

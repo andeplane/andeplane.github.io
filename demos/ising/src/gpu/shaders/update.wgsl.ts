@@ -1,6 +1,9 @@
 import { RNG_WGSL } from './rng.wgsl.ts';
 import type { Geometry } from '../../physics/lattice.ts';
 
+/** Single source of truth for the kernel's workgroup shape and the dispatch math. */
+export const UPDATE_WORKGROUP = { x: 64, y: 4 } as const;
+
 /**
  * One Metropolis/Glauber color pass. The dispatch covers exactly the cells of one
  * color (x is computed from the invocation id), never the full grid with a mask —
@@ -33,7 +36,7 @@ fn spin_at(x: u32, y: u32) -> i32 {
 
 var<workgroup> wg_flips: atomic<u32>;
 
-@compute @workgroup_size(64, 4)
+@compute @workgroup_size(${UPDATE_WORKGROUP.x}, ${UPDATE_WORKGROUP.y})
 fn main(@builtin(global_invocation_id) gid: vec3u, @builtin(local_invocation_index) lidx: u32) {
   let L = pass_u.L;
   let y = gid.y;

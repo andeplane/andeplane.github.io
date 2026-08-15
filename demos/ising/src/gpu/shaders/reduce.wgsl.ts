@@ -1,6 +1,12 @@
 import type { Geometry } from '../../physics/lattice.ts';
 
 /**
+ * Single source of truth for the kernel's workgroup size, its shared-memory array,
+ * the tree-reduction start, and the CPU-side dispatch math.
+ */
+export const REDUCE_WORKGROUP = 256;
+
+/**
  * Sums spin and forward-bond products over the whole lattice.
  *
  * Accumulation is integer end to end: spins and bond products are ±1, and f32
@@ -28,16 +34,16 @@ fn spin_at(x: u32, y: u32) -> i32 {
   return 2 * i32(spins[y * red_u.L + x]) - 1;
 }
 
-var<workgroup> shared_sums: array<vec2i, 256>;
+var<workgroup> shared_sums: array<vec2i, ${REDUCE_WORKGROUP}>;
 
-@compute @workgroup_size(256)
+@compute @workgroup_size(${REDUCE_WORKGROUP})
 fn main(
   @builtin(global_invocation_id) gid: vec3u,
   @builtin(local_invocation_index) lidx: u32,
   @builtin(num_workgroups) nwg: vec3u,
 ) {
   let L = red_u.L;
-  let total_threads = nwg.x * 256u;
+  let total_threads = nwg.x * ${REDUCE_WORKGROUP}u;
   var local = vec2i(0, 0);
 
   // Grid-stride loop over cells.
@@ -52,7 +58,7 @@ fn main(
   shared_sums[lidx] = local;
   workgroupBarrier();
 
-  var step = 128u;
+  var step = ${REDUCE_WORKGROUP / 2}u;
   while (step > 0u) {
     if (lidx < step) {
       shared_sums[lidx] += shared_sums[lidx + step];

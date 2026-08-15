@@ -1,5 +1,8 @@
 import { RNG_WGSL } from './rng.wgsl.ts';
 
+/** Single source of truth for the kernel's (square) workgroup edge and dispatch math. */
+export const PAINT_WORKGROUP = 16;
+
 /**
  * Brush stamp: sets spins inside a capsule (segment a→b with a radius, so fast mouse
  * moves leave no gaps). The capsule lives in world space so the brush stays circular
@@ -47,7 +50,7 @@ fn dist_to_segment(p: vec2f, a: vec2f, b: vec2f) -> f32 {
   return distance(p, a + t * ab);
 }
 
-@compute @workgroup_size(16, 16)
+@compute @workgroup_size(${PAINT_WORKGROUP}, ${PAINT_WORKGROUP})
 fn main(@builtin(global_invocation_id) gid: vec3u) {
   let i = paint_u.i0 + i32(gid.x);
   let j = paint_u.j0 + i32(gid.y);

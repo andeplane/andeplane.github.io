@@ -1,5 +1,8 @@
 import { RNG_WGSL } from './rng.wgsl.ts';
 
+/** Single source of truth for the kernel's workgroup size and dispatch math. */
+export const FILL_WORKGROUP = 256;
+
 /** Reset the lattice: all down, all up, or independent coin flips. */
 export const FILL_WGSL = /* wgsl */ `
 struct FillUniforms {
@@ -18,7 +21,7 @@ struct FillUniforms {
 
 ${RNG_WGSL}
 
-@compute @workgroup_size(256)
+@compute @workgroup_size(${FILL_WORKGROUP})
 fn main(@builtin(global_invocation_id) gid: vec3u) {
   let i = gid.x;
   if (i >= fill_u.n) {
