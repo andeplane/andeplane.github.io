@@ -46,6 +46,8 @@ var dyeTex : texture_2d<f32>;
 var dyeTexSampler : sampler;
 var macroTex : texture_2d<f32>;
 var macroTexSampler : sampler;
+var bioTex : texture_2d<f32>;
+var bioTexSampler : sampler;
 
 const SIM_TEXEL = vec2<f32>(${1 / simW}, ${1 / simH});
 const DYE_TEXEL = vec2<f32>(${1 / dyeW}, ${1 / dyeH});
@@ -83,6 +85,11 @@ fn main(input : FragmentInputs) -> FragmentOutputs {
   let halfVec = normalize(lightDir + vec3<f32>(0.0, 0.0, 1.0));
   let spec = pow(max(dot(nrm, halfVec), 0.0), 42.0) * smoothstep(0.02, 0.35, l);
   col += spec * vec3<f32>(0.9, 1.0, 1.0) * 1.9;
+
+  // Biomass: the enemy as bioluminescence — hot coral glow the towers must kill.
+  let bio = textureSample(bioTex, bioTexSampler, uv).r;
+  let bioGlow = pow(clamp(bio, 0.0, 1.6), 1.25);
+  col += bioGlow * vec3<f32>(1.9, 0.28, 0.44) * (1.0 - solid);
 
   // Pressure telegraph: only over-density beyond the steady-state head glows
   // (steady inlet rho ≈ 1.03; surges push well past it).

@@ -29,6 +29,14 @@ export const CONFIG = {
     u: 0.09,
     /** Nominal inlet density (small head; surges push it up temporarily). */
     rho: 1.006,
+    /** Extra density a full surge adds (the water-hammer spike). */
+    surgeRho: 0.045,
+    /** Extra velocity factor a full surge adds. */
+    surgeU: 0.6,
+  },
+  biomass: {
+    /** Inlet concentration (Dirichlet source) at release rate 1. */
+    injectPerTick: 0.85,
   },
   erosion: {
     /** Integrity lost per tick per unit of shear speed above the threshold. */
@@ -43,6 +51,22 @@ export const CONFIG = {
   build: {
     /** Brush radius (cells) for wall painting. */
     brushRadius: 1.6,
+    /** Gold per wall cell. */
+    wallCostPerCell: 0.35,
+  },
+  match: {
+    /** Defender leak budget: total biomass the outlet can absorb before loss. */
+    leakBudget: 25000,
+    /** Attacker's finite biomass reservoir for the match. */
+    attackerReservoir: 140000,
+    /** Defender starting gold. */
+    startingGold: 120,
+    /** Gold per unit of biomass neutralized by towers. */
+    bountyPerBiomass: 0.012,
+    /** Passive gold per second. */
+    goldTrickle: 1.2,
+    /** Commanded release is metered as conc × u × rows; reservoir debits this. */
+    winDrainEpsilon: 400,
   },
   /** Dye hue per inlet segment (linear-ish RGB, HDR headroom applied in shader). */
   segmentColors: [

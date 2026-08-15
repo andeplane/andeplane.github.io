@@ -78,23 +78,44 @@ export function buildMap(width: number, height: number): DomainMap {
   return { width, height, cellType, solidity, inletSegments, outletY0, outletY1 }
 }
 
-/** Build the per-row inlet profile (rho, ux interleaved) for the current segment openness (0..1 each). */
-export function inletProfile(map: DomainMap, openness: number[]): Float32Array {
-  const profile = new Float32Array(map.height * 2)
-  for (let y = 0; y < map.height; y++) {
-    profile[y * 2] = 1
-    profile[y * 2 + 1] = 0
-  }
+export interface InletState {
+  /** Carrier openness 0..1 (drives velocity and pressure head). */
+  openness: number
+  /** Biomass release rate 0..1 (attacker spending reservoir down this arm). */
+  biomass: number
+  /** Extra pressure head 0..1 (surge: banked tank released as a spike). */
+  surge: number
+}
+
+/**
+ * Per-row inlet profile, vec4 per row: (rho, ux, biomassRate, unused).
+ * Single source for the LBM inlet BC, dye injection, and biomass injection.
+ */
+export function inletProfile(map: DomainMap, states: InletState[]): Float32Array {
+  const profile = new Float32Array(map.height * 4)
+  for (let y = 0; y < map.height; y++) profile[y * 4] = 1
   for (const seg of map.inletSegments) {
-    const o = Math.max(0, Math.min(1, openness[seg.index] ?? 0))
+    const s = states[seg.index] ?? { openness: 0, biomass: 0, surge: 0 }
+    const o = Math.max(0, Math.min(1, s.openness))
+    const surge = Math.max(0, Math.min(1, s.surge))
     for (let y = seg.y0; y <= seg.y1; y++) {
       // Soft parabolic profile across the segment mouth: prettier and more stable
       // than a top-hat jet.
       const t = (y - seg.y0) / Math.max(1, seg.y1 - seg.y0)
       const shape = 4 * t * (1 - t)
-      profile[y * 2] = 1 + (CONFIG.inlet.rho - 1) * o
-      profile[y * 2 + 1] = CONFIG.inlet.u * o * (0.35 + 0.65 * shape)
+      profile[y * 4] = 1 + (CONFIG.inlet.rho - 1) * o + CONFIG.inlet.surgeRho * surge
+      profile[y * 4 + 1] = CONFIG.inlet.u * (o + CONFIG.inlet.surgeU * surge) * (0.35 + 0.65 * shape)
+      profile[y * 4 + 2] = Math.max(0, Math.min(1, s.biomass))
     }
   }
   return profile
+}
+
+/** Row → inlet segment index (0xffffffff where no segment). */
+export function rowSegmentTable(map: DomainMap): Uint32Array {
+  const table = new Uint32Array(map.height).fill(0xffffffff)
+  for (const seg of map.inletSegments) {
+    for (let y = seg.y0; y <= seg.y1; y++) table[y] = seg.index
+  }
+  return table
 }

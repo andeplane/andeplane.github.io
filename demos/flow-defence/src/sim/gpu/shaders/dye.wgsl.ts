@@ -36,7 +36,7 @@ struct DyeParams {
 @group(0) @binding(2) var macroTex : texture_2d<f32>;
 @group(0) @binding(3) var linearSampler : sampler;
 @group(0) @binding(4) var<uniform> params : DyeParams;
-@group(0) @binding(5) var<storage, read> inletProfile : array<vec2<f32>>;
+@group(0) @binding(5) var<storage, read> inletProfile : array<vec4<f32>>;
 
 @compute @workgroup_size(8, 8, 1)
 fn main(@builtin(global_invocation_id) gid : vec3<u32>) {

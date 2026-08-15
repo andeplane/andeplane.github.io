@@ -7,14 +7,17 @@ import {
   Constants,
   RawTexture,
   StorageBuffer,
+  TextureSampler,
   UniformBuffer,
   type Scene,
   type WebGPUEngine,
 } from '@babylonjs/core'
 import { CONFIG } from '../../config'
 import { Q, W } from '../core/constants'
-import { inletProfile, type DomainMap } from '../../engine/map'
+import { inletProfile, rowSegmentTable, type DomainMap, type InletState } from '../../engine/map'
 import { CELL } from '../core/constants'
+import type { ObservableSnapshot } from '../types'
+import { MASS_SCALE, biomassShaderSource } from './shaders/biomass.wgsl'
 import { erosionShaderSource } from './shaders/erosion.wgsl'
 import { lbmShaderSource } from './shaders/lbm.wgsl'
 
@@ -68,7 +71,7 @@ export class GpuSim {
     this.solidityBuf.update(map.solidity)
     this.cellForceBuf = new StorageBuffer(engine, n * 2 * 4)
     this.cellForceBuf.update(new Float32Array(n * 2))
-    this.inletProfileBuffer = new StorageBuffer(engine, map.height * 2 * 4)
+    this.inletProfileBuffer = new StorageBuffer(engine, map.height * 4 * 4)
     this.inletProfileBuffer.update(inletProfile(map, []))
 
     this.macroTex = new RawTexture(
@@ -97,8 +100,8 @@ export class GpuSim {
     this.params.updateFloat('uClamp', CONFIG.sim.uClamp)
     this.params.update()
 
-    this.countersBuf = new StorageBuffer(engine, 4 * 4)
-    this.countersBuf.update(new Uint32Array(4))
+    this.countersBuf = new StorageBuffer(engine, 16 * 4)
+    this.countersBuf.update(new Uint32Array(16))
 
     const source = lbmShaderSource(map.width, map.height)
     this.steps = [0, 1].map((p) => {
@@ -131,10 +134,93 @@ export class GpuSim {
     this.erosion.setStorageBuffer('solidity', this.solidityBuf)
     this.erosion.setTexture('macroTex', this.macroTex, false)
     this.erosion.setStorageBuffer('counters', this.countersBuf)
+
+    // --- Biomass -------------------------------------------------------------
+    const makeBioTex = (): RawTexture => {
+      const t = new RawTexture(
+        null,
+        map.width,
+        map.height,
+        Constants.TEXTUREFORMAT_RGBA,
+        scene,
+        false,
+        false,
+        Constants.TEXTURE_BILINEAR_SAMPLINGMODE,
+        Constants.TEXTURETYPE_HALF_FLOAT,
+        Constants.TEXTURE_CREATIONFLAG_STORAGE,
+      )
+      t.wrapU = Constants.TEXTURE_CLAMP_ADDRESSMODE
+      t.wrapV = Constants.TEXTURE_CLAMP_ADDRESSMODE
+      return t
+    }
+    this.bioTex = [makeBioTex(), makeBioTex()]
+
+    this.towerFieldBuf = new StorageBuffer(engine, n * 4)
+    this.towerFieldBuf.update(new Float32Array(n))
+    const segTableBuf = new StorageBuffer(engine, map.height * 4)
+    segTableBuf.update(rowSegmentTable(map))
+    this.segmentRows = map.inletSegments.map((s) => s.y1 - s.y0 + 1)
+
+    this.bioParams = new UniformBuffer(engine)
+    for (const name of ['advScale', 'injectRate', 'pad0', 'pad1']) this.bioParams.addUniform(name, 1)
+    this.bioParams.updateFloat('advScale', CONFIG.sim.substeps)
+    this.bioParams.updateFloat('injectRate', CONFIG.biomass.injectPerTick)
+    this.bioParams.update()
+
+    const bioSampler = new TextureSampler()
+    bioSampler.setParameters(
+      Constants.TEXTURE_CLAMP_ADDRESSMODE,
+      Constants.TEXTURE_CLAMP_ADDRESSMODE,
+      Constants.TEXTURE_CLAMP_ADDRESSMODE,
+    )
+    bioSampler.samplingMode = Constants.TEXTURE_BILINEAR_SAMPLINGMODE
+
+    const bioSource = biomassShaderSource(map.width, map.height)
+    const BIO_BINDINGS = {
+      bioIn: { group: 0, binding: 0 },
+      bioOut: { group: 0, binding: 1 },
+      macroTex: { group: 0, binding: 2 },
+      linearSampler: { group: 0, binding: 3 },
+      params: { group: 0, binding: 4 },
+      inletProfile: { group: 0, binding: 5 },
+      cellType: { group: 0, binding: 6 },
+      towerField: { group: 0, binding: 7 },
+      counters: { group: 0, binding: 8 },
+      rowSegmentTable: { group: 0, binding: 9 },
+    } as const
+    this.bioPasses = [0, 1].map((p) => {
+      const cs = new ComputeShader(`bio${p}`, engine, { computeSource: bioSource }, { bindingsMapping: BIO_BINDINGS })
+      cs.setTexture('bioIn', this.bioTex[p], false)
+      cs.setStorageTexture('bioOut', this.bioTex[1 - p])
+      cs.setTexture('macroTex', this.macroTex, false)
+      cs.setTextureSampler('linearSampler', bioSampler)
+      cs.setUniformBuffer('params', this.bioParams)
+      cs.setStorageBuffer('inletProfile', this.inletProfileBuffer)
+      cs.setStorageBuffer('cellType', this.cellTypeBuf)
+      cs.setStorageBuffer('towerField', this.towerFieldBuf)
+      cs.setStorageBuffer('counters', this.countersBuf)
+      cs.setStorageBuffer('rowSegmentTable', segTableBuf)
+      return cs
+    }) as [ComputeShader, ComputeShader]
   }
 
   private readonly erosion: ComputeShader
   private readonly countersBuf: StorageBuffer
+  private readonly bioTex: [RawTexture, RawTexture]
+  private readonly bioPasses: [ComputeShader, ComputeShader]
+  private readonly bioParams: UniformBuffer
+  private readonly towerFieldBuf: StorageBuffer
+  private readonly segmentRows: number[]
+  private bioParity = 0
+  private readbackInFlight = false
+
+  /** Latest observables snapshot (stale by 0–3 ticks; null until the first readback). */
+  latest: ObservableSnapshot | null = null
+
+  /** The biomass texture holding the most recent tick's output (for rendering). */
+  get biomassTex(): RawTexture {
+    return this.bioTex[this.bioParity]
+  }
 
   isReady(): boolean {
     return this.steps[0].isReady() && this.steps[1].isReady()
@@ -168,8 +254,11 @@ export class GpuSim {
 
   private tickCount = 0
 
-  /** One fixed 60 Hz tick = CONFIG.sim.substeps lattice steps + one erosion pass. */
-  tick(): void {
+  /**
+   * One fixed 60 Hz tick = substeps lattice steps + erosion + biomass + readback.
+   * carrierOnly (warmup pre-roll): just the flow — no biomass, no observables.
+   */
+  tick(carrierOnly = false): void {
     if (!this.isReady()) return
     this.tickCount++
     for (let k = 0; k < CONFIG.sim.substeps; k++) {
@@ -177,6 +266,42 @@ export class GpuSim {
       this.parity ^= 1
     }
     if (this.erosion.isReady()) this.erosion.dispatch(this.groupsX, this.groupsY, 1)
+    if (carrierOnly) return
+    const bio = this.bioPasses[this.bioParity]
+    if (bio.isReady()) {
+      // Clear the instantaneous counter slots (2: total, 8..15: segment rho).
+      this.countersBuf.update(new Uint32Array(1), 2 * 4)
+      this.countersBuf.update(new Uint32Array(8), 8 * 4)
+      bio.dispatch(this.groupsX, this.groupsY, 1)
+      this.bioParity ^= 1
+    }
+    if (this.readbackEvery > 0 && this.tickCount % this.readbackEvery === 0) this.requestObservables()
+  }
+
+  /** Observables cadence in ticks (0 disables readback; ?readback=N overrides). */
+  readbackEvery = typeof location !== 'undefined' ? Number(new URLSearchParams(location.search).get('readback') ?? 30) : 30
+
+  /** Fire-and-forget counters readback; keeps `latest` fresh within a few ticks. */
+  private requestObservables(): void {
+    if (this.readbackInFlight) return
+    this.readbackInFlight = true
+    const tick = this.tickCount
+    void this.countersBuf
+      .read()
+      .then((view) => {
+        const u = new Uint32Array(view.buffer, view.byteOffset, 16)
+        this.latest = {
+          tick,
+          breachCount: u[0],
+          outletBiomass: u[1] / MASS_SCALE,
+          neutralized: u[3] / MASS_SCALE,
+          totalBiomass: u[2] / MASS_SCALE,
+          segmentRho: this.segmentRows.map((rows, s) => u[8 + s] / MASS_SCALE / rows),
+        }
+      })
+      .finally(() => {
+        this.readbackInFlight = false
+      })
   }
 
   /**
@@ -195,8 +320,8 @@ export class GpuSim {
     }
   }
 
-  /** Attacker seat control: per-segment openness 0..1. */
-  setInletOpenness(openness: number[]): void {
-    this.inletProfileBuffer.update(inletProfile(this.map, openness))
+  /** Attacker seat control: per-segment carrier openness, biomass release, surge. */
+  setInletStates(states: InletState[]): void {
+    this.inletProfileBuffer.update(inletProfile(this.map, states))
   }
 }

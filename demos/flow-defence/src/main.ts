@@ -3,8 +3,10 @@ import { Scene, WebGPUEngine } from '@babylonjs/core'
 import { CONFIG } from './config'
 import { FixedStep } from './core/fixedstep'
 import { buildMap } from './engine/map'
+import { Engine } from './engine/Engine'
 import { Renderer } from './render/Renderer'
 import { GpuSim } from './sim/gpu/GpuSim'
+import { Hud } from './ui/hud'
 import { BuildInput } from './ui/input'
 
 // Surface console errors in the DOM so headless screenshots show them too.
@@ -43,12 +45,21 @@ async function start(): Promise<void> {
   const sim = new GpuSim(engine, scene, map)
   const renderer = new Renderer(engine, scene, sim, canvas)
 
-  // M1: all inlet segments fully open (the attacker seat takes over later).
-  sim.setInletOpenness([1, 1, 1])
-  new BuildInput(canvas, sim)
+  const hud = new Hud(document.getElementById('stage')!)
+  const match = new Engine(map, {
+    onGameOver: (winner) => hud.showGameOver(winner),
+    onBreach: () => {},
+    onBuildRejected: () => hud.flashGold(),
+  })
+  // Steady biomass drip until the attacker AI takes the seat (M7).
+  for (const s of match.inletStates) s.biomass = 0.55
+  sim.setInletStates(match.inletStates)
+  new BuildInput(canvas, sim, match)
 
   const fixed = new FixedStep()
   let frames = 0
+  let lastFrames = 0
+  let lastProbe = 0
   // Pre-roll the carrier flow so the match doesn't open on dead water
   // (also makes headless screenshots meaningful regardless of timer source).
   // ?warmup=N overrides for headless verification of the developed state.
@@ -59,16 +70,23 @@ async function start(): Promise<void> {
     const dt = engine.getDeltaTime()
     if (warmupTicks > 0 && sim.isReady()) {
       const burst = Math.min(30, warmupTicks)
-      for (let i = 0; i < burst; i++) sim.tick()
+      for (let i = 0; i < burst; i++) sim.tick(true)
       warmupTicks -= burst
     } else {
-      fixed.advance(dt, () => sim.tick())
+      fixed.advance(dt, () => {
+        const states = match.tick(sim.latest)
+        if (match.tickCount % 10 === 0) sim.setInletStates(states)
+        sim.tick()
+      })
     }
     renderer.frame(Math.max(dt, 1000 / 120))
+    hud.update(match)
     scene.render()
     frames++
-    if (probeEnabled && frames % 600 === 0) {
-      void sim.debugProbe().then((p) => console.warn(`probe(${sim.readiness()}): ${p}`))
+    if (probeEnabled && performance.now() - lastProbe > 5000) {
+      lastProbe = performance.now()
+      console.warn(`fps~${((frames - lastFrames) / 5).toFixed(1)} ticks=${sim.readiness()} obs: ${JSON.stringify(sim.latest)}`)
+      lastFrames = frames
     }
   })
 

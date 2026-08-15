@@ -2,6 +2,7 @@
 // (M5 adds economy/validation on top; this is the raw build verb.)
 
 import { CONFIG } from '../config'
+import type { Engine } from '../engine/Engine'
 import type { GpuSim } from '../sim/gpu/GpuSim'
 import { cellFromPointer } from './viewport'
 
@@ -12,6 +13,7 @@ export class BuildInput {
   constructor(
     private readonly canvas: HTMLCanvasElement,
     private readonly sim: GpuSim,
+    private readonly engine: Engine,
   ) {
     canvas.addEventListener('pointerdown', (e) => {
       this.painting = true
@@ -49,7 +51,9 @@ export class BuildInput {
       this.stamp(from.x + ((cell.x - from.x) * s) / steps, from.y + ((cell.y - from.y) * s) / steps, cells)
     }
     this.last = cell
-    this.sim.paintWall([...cells])
+    // Only pay for cells that are actually buildable (open water).
+    const buildable = [...cells].filter((idx) => this.sim.map.cellType[idx] === 0)
+    this.sim.paintWall(this.engine.tryBuildWalls(buildable))
   }
 
   private stamp(cx: number, cy: number, out: Set<number>): void {

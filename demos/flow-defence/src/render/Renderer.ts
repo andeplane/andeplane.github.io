@@ -49,7 +49,7 @@ export class Renderer {
   constructor(
     engine: WebGPUEngine,
     scene: Scene,
-    sim: GpuSim,
+    private readonly sim: GpuSim,
     private readonly canvas: HTMLCanvasElement,
   ) {
     const { width, height } = sim.map
@@ -130,6 +130,7 @@ export class Renderer {
     )
     this.material.setTexture('macroTex', sim.macroTex)
     this.material.setTexture('dyeTex', this.dyeTex[0])
+    this.material.setTexture('bioTex', sim.biomassTex)
     this.material.backFaceCulling = false
     quad.material = this.material
 
@@ -164,6 +165,7 @@ export class Renderer {
     this.dyeParams.update()
     pass.dispatch(Math.ceil(this.dyeW / 8), Math.ceil(this.dyeH / 8), 1)
     this.material.setTexture('dyeTex', this.dyeTex[1 - this.dyeParity])
+    this.material.setTexture('bioTex', this.sim.biomassTex)
     this.dyeParity ^= 1
   }
 

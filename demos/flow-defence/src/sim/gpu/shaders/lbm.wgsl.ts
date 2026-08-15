@@ -44,7 +44,7 @@ struct SimParams {
 @group(0) @binding(2) var<storage, read> cellType : array<u32>;
 @group(0) @binding(3) var<storage, read> solidity : array<f32>;
 @group(0) @binding(4) var<storage, read> cellForce : array<vec2<f32>>;
-@group(0) @binding(5) var<storage, read> inletProfile : array<vec2<f32>>; // per row: (rho, ux)
+@group(0) @binding(5) var<storage, read> inletProfile : array<vec4<f32>>; // per row: (rho, ux, biomassRate, -)
 @group(0) @binding(6) var<uniform> params : SimParams;
 // Macro output for rendering/dye/erosion: (ux, uy, rho, solidity).
 @group(0) @binding(7) var macroTex : texture_storage_2d<rgba16float, write>;
