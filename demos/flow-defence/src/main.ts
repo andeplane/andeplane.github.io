@@ -5,6 +5,7 @@ import { FixedStep } from './core/fixedstep'
 import { buildMap } from './engine/map'
 import { Renderer } from './render/Renderer'
 import { GpuSim } from './sim/gpu/GpuSim'
+import { BuildInput } from './ui/input'
 
 // Surface console errors in the DOM so headless screenshots show them too.
 function hookErrorOverlay(): void {
@@ -44,6 +45,7 @@ async function start(): Promise<void> {
 
   // M1: all inlet segments fully open (the attacker seat takes over later).
   sim.setInletOpenness([1, 1, 1])
+  new BuildInput(canvas, sim)
 
   const fixed = new FixedStep()
   let frames = 0

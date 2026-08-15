@@ -14,6 +14,8 @@ import {
 import { CONFIG } from '../../config'
 import { Q, W } from '../core/constants'
 import { inletProfile, type DomainMap } from '../../engine/map'
+import { CELL } from '../core/constants'
+import { erosionShaderSource } from './shaders/erosion.wgsl'
 import { lbmShaderSource } from './shaders/lbm.wgsl'
 
 const LBM_BINDINGS = {
@@ -95,6 +97,9 @@ export class GpuSim {
     this.params.updateFloat('uClamp', CONFIG.sim.uClamp)
     this.params.update()
 
+    this.countersBuf = new StorageBuffer(engine, 4 * 4)
+    this.countersBuf.update(new Uint32Array(4))
+
     const source = lbmShaderSource(map.width, map.height)
     this.steps = [0, 1].map((p) => {
       const cs = new ComputeShader(`lbm${p}`, engine, { computeSource: source }, { bindingsMapping: LBM_BINDINGS })
@@ -108,7 +113,28 @@ export class GpuSim {
       cs.setStorageTexture('macroTex', this.macroTex)
       return cs
     }) as [ComputeShader, ComputeShader]
+
+    this.erosion = new ComputeShader(
+      'erosion',
+      engine,
+      { computeSource: erosionShaderSource(map.width, map.height) },
+      {
+        bindingsMapping: {
+          cellType: { group: 0, binding: 0 },
+          solidity: { group: 0, binding: 1 },
+          macroTex: { group: 0, binding: 2 },
+          counters: { group: 0, binding: 3 },
+        },
+      },
+    )
+    this.erosion.setStorageBuffer('cellType', this.cellTypeBuf)
+    this.erosion.setStorageBuffer('solidity', this.solidityBuf)
+    this.erosion.setTexture('macroTex', this.macroTex, false)
+    this.erosion.setStorageBuffer('counters', this.countersBuf)
   }
+
+  private readonly erosion: ComputeShader
+  private readonly countersBuf: StorageBuffer
 
   isReady(): boolean {
     return this.steps[0].isReady() && this.steps[1].isReady()
@@ -142,13 +168,30 @@ export class GpuSim {
 
   private tickCount = 0
 
-  /** One fixed 60 Hz tick = CONFIG.sim.substeps lattice steps. */
+  /** One fixed 60 Hz tick = CONFIG.sim.substeps lattice steps + one erosion pass. */
   tick(): void {
     if (!this.isReady()) return
     this.tickCount++
     for (let k = 0; k < CONFIG.sim.substeps; k++) {
       this.steps[this.parity].dispatch(this.groupsX, this.groupsY, 1)
       this.parity ^= 1
+    }
+    if (this.erosion.isReady()) this.erosion.dispatch(this.groupsX, this.groupsY, 1)
+  }
+
+  /**
+   * Paint player walls. Per-cell partial buffer writes — a full upload from the
+   * CPU mirror would resurrect walls the GPU erosion pass has already breached.
+   */
+  paintWall(cells: number[]): void {
+    const one = new Float32Array([1])
+    const wall = new Uint32Array([CELL.WALL])
+    for (const idx of cells) {
+      if (this.map.cellType[idx] !== CELL.OPEN && this.map.cellType[idx] !== CELL.WALL) continue
+      this.map.cellType[idx] = CELL.WALL
+      this.map.solidity[idx] = 1
+      this.cellTypeBuf.update(wall, idx * 4)
+      this.solidityBuf.update(one, idx * 4)
     }
   }
 

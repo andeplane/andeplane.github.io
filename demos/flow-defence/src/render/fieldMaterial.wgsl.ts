@@ -87,7 +87,7 @@ fn main(input : FragmentInputs) -> FragmentOutputs {
   // Pressure telegraph: only over-density beyond the steady-state head glows
   // (steady inlet rho ≈ 1.03; surges push well past it).
   let over = max(mac.z - 1.02, 0.0);
-  col += over * 14.0 * vec3<f32>(1.0, 0.42, 0.13) * (1.0 - solid);
+  col += over * 9.0 * vec3<f32>(1.0, 0.42, 0.13) * (1.0 - solid);
 
   // Solids: carved rock with per-cell grain and a cool rim light on the water side.
   let cell = floor(uv / SIM_TEXEL);
@@ -104,6 +104,14 @@ fn main(input : FragmentInputs) -> FragmentOutputs {
   let waterRim = rim * (1.0 - solid) * (0.25 + speed * 3.0);
   col = mix(col, rock, solid);
   col += waterRim * vec3<f32>(0.16, 0.55, 0.75);
+
+  // Failing walls glow through their cracks — the pre-breach warning is
+  // lighting, not UI. Uses the cell-exact solidity (textureLoad) so bilinear
+  // edge blending doesn't paint embers on every solid boundary.
+  let exact = textureLoad(macroTex, vec2<i32>(cell), 0).w;
+  let damage = (1.0 - exact) * step(0.02, exact);
+  let crack = pow(damage, 1.5) * (0.35 + 0.65 * hash2(cell * 1.7));
+  col += crack * exact * 5.0 * vec3<f32>(1.0, 0.42, 0.12);
 
   fragmentOutputs.color = vec4<f32>(col, 1.0);
 ${debugView}

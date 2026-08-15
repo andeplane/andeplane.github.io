@@ -30,6 +30,20 @@ export const CONFIG = {
     /** Nominal inlet density (small head; surges push it up temporarily). */
     rho: 1.006,
   },
+  erosion: {
+    /** Integrity lost per tick per unit of shear speed above the threshold. */
+    kShear: 0.02,
+    shearThreshold: 0.06,
+    /** Integrity lost per tick per unit of pressure head above the threshold, scaled by porosity. */
+    kPipe: 0.6,
+    pipeThreshold: 0.008,
+    /** Minimum porosity of an intact wall — the seed leak that makes piping possible. */
+    porosityEps: 0.02,
+  },
+  build: {
+    /** Brush radius (cells) for wall painting. */
+    brushRadius: 1.6,
+  },
   /** Dye hue per inlet segment (linear-ish RGB, HDR headroom applied in shader). */
   segmentColors: [
     [0.15, 0.75, 1.0],
