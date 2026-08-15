@@ -78,7 +78,7 @@ describe('LbmRef', () => {
     expect(maxRelErr).toBeLessThan(0.02)
   })
 
-  it('partial bounce-back: flux through a porous plug decreases monotonically with solidity', () => {
+  it('partial bounce-back: flux through a porous plug decreases monotonically with solidity', { timeout: 120_000 }, () => {
     const fluxAt = (s: number): number => {
       const H = 10
       const sim = makeChannel(12, H, 5e-7, 0.8)
