@@ -9,6 +9,7 @@ import type { DeathEvent, ObservableSnapshot, SpawnRequest } from '../sim/types'
 import type { LevelConfig } from './levelDefs'
 import type { DomainMap, InletState } from './map'
 import { SPORE_DEFS, SPORES_BY_INDEX } from './sporeDefs'
+import { TOWER_DEFS } from './towerDefs'
 import { canPlace, towerCost, type Tower, type TowerType } from './towers'
 
 export type { LevelConfig, WaveConfig } from './levelDefs'
@@ -308,6 +309,13 @@ export class Engine {
 
   tryBuildTower(type: TowerType, x: number, y: number, angle: number): Tower | null {
     if (this.phase === 'over') return null
+    // Unlock gating lives here, not just in the palette — bots and future
+    // UIs can't build towers this level hasn't earned.
+    const levelNum = CONFIG.levels.indexOf(this.level as (typeof CONFIG.levels)[number]) + 1
+    if (levelNum > 0 && TOWER_DEFS[type].unlockLevel > levelNum) {
+      this.callbacks.onBuildRejected('locked')
+      return null
+    }
     if (!canPlace(this.map, x, y, this.towers)) {
       this.callbacks.onBuildRejected('blocked')
       return null
