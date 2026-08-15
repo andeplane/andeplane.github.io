@@ -136,10 +136,10 @@ export const CONFIG = {
      * dams crack when the water hammers them.
      */
     kPipe: 1.6,
-    /** Below the choke-18 stall head (~0.056) so sealed arms and dams still
-     *  rot and need repainting — but slowly enough that ATTENTIVE repair
-     *  keeps a seal alive. Flood escalation (head ~0.08) bursts anything. */
-    pipeThreshold: 0.04,
+    /** Just below the choke-18 stall head (~0.056): calm seals rot slowly
+     *  (repaintable), SURGE heads (~0.07) rot them 3x — brace and repair —
+     *  and flood escalation (head ~0.08+) still bursts any blockade. */
+    pipeThreshold: 0.05,
     /** Minimum porosity of an intact wall — the seed leak that makes piping possible. */
     porosityEps: 0.02,
     /** Constant self-healing per tick; erosion competes against it, so calm
