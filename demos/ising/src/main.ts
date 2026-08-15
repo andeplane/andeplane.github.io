@@ -713,6 +713,7 @@ async function start(): Promise<void> {
         tag: {
           T: sim.T,
           h: sim.h,
+          driven: autoSweep,
           geometry: sim.geometry.key,
           L: sim.L,
           sweep: sim.sweepCount,
@@ -750,7 +751,7 @@ async function start(): Promise<void> {
       Math.abs(rel) < 0.05 ? 'good' : 'plain',
     );
 
-    const paintPaused = Math.abs(sim.h) > 0.005;
+    const paintPaused = autoSweep || Math.abs(sim.h) > 0.005;
     for (const s of scatters) {
       s.setCursor(sim.T);
       s.setPaused(paintPaused ? 'h ≠ 0 — equilibrium measurement paused' : null);

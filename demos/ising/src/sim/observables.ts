@@ -13,6 +13,8 @@ import type { GeometryKey } from '../physics/lattice.ts';
 export interface SampleTag {
   T: number;
   h: number;
+  /** True while the field auto-sweep is driving h — never equilibrium data. */
+  driven: boolean;
   geometry: GeometryKey;
   L: number;
   /** Simulation time of the measurement, in sweeps. */

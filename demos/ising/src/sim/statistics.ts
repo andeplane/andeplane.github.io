@@ -64,6 +64,10 @@ export class Statistics {
     if (tag.epoch !== this.epoch) return false; // stale: from before the last disturbance
     if (tag.sweep < this.discardUntilSweep) return false; // still equilibrating
     if (Math.abs(tag.h) > 0.005) return false; // field on: not the h = 0 equilibrium
+    // The |h| filter alone would re-admit driven configurations for a few frames at
+    // every zero-crossing of the field auto-sweep; those are remanent-branch states,
+    // not equilibrium.
+    if (tag.driven) return false;
 
     const key = `${tag.geometry}:${tag.L}`;
     let geoBins = this.bins.get(key);
