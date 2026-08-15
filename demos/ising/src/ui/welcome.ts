@@ -12,7 +12,6 @@ export function shouldWelcome(): boolean {
 }
 
 export function showWelcome(tc: number): Promise<void> {
-  localStorage.setItem(SEEN_KEY, '1');
   return new Promise((resolve) => {
     const dialog = document.createElement('dialog');
     dialog.id = 'welcome';
@@ -48,7 +47,11 @@ export function showWelcome(tc: number): Promise<void> {
       </p>
       <button type="button" class="welcome-go">Let’s go</button>
     `;
+    // The flag is only stamped on an explicit dismissal. Stamping it on show would
+    // let any unattended appearance (e.g. an auto-reload) permanently swallow the
+    // onboarding for a user who never actually read it.
     const close = () => {
+      localStorage.setItem(SEEN_KEY, '1');
       dialog.close();
       dialog.remove();
       resolve();
@@ -58,6 +61,7 @@ export function showWelcome(tc: number): Promise<void> {
       if (event.target === dialog) close();
     });
     dialog.addEventListener('cancel', () => {
+      localStorage.setItem(SEEN_KEY, '1');
       dialog.remove();
       resolve();
     });
