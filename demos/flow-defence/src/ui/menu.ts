@@ -61,6 +61,11 @@ function howToPlayHtml(): string {
     <b>Only the pink glow is the enemy.</b></p>
     <p>Because spores ride the water, <b>every wall you draw re-routes the attack itself</b>.
     That's the whole game: sculpt the river, then kill what it carries.</p>
+    <p>One law you cannot break: <b>the base drinks from this river</b>. The water-intake bar
+    (top right) must keep flowing — dam the whole map and the base <b style="color:#f87171">thirsts</b>
+    and bleeds lives, while the river <b>escalates its pressure until the blockade bursts</b>.
+    Narrow canals are fine (they just erode under the fast water); total blockage is death.
+    Reroute the river as violently as you like; never stop it.</p>
 
     <h2>Your tools</h2>
     <p><span class="k">1</span><b>Wall</b> (${build.wallCostPerCell}g/cell) — drag to draw. Walls redirect the
@@ -72,6 +77,15 @@ function howToPlayHtml(): string {
     where your walls force the river to run.</p>
     <p><span class="k">3</span><b>Impeller</b> (${towers.impeller.cost}g) — click and drag to aim. A pump that
     pushes the water itself: steer spores into kill zones, slow a channel, starve a route.</p>
+    <p><span class="k">4</span><b>Vortex</b> (${towers.vortex.cost}g) — click to place. Spins the water into a
+    whirlpool: spores caught in it circle instead of passing. Park one on a Neutralizer ring and
+    the ring gets many times the exposure.</p>
+    <p>Towers need breathing room — they refuse to stand within ${CONFIG.build.towerSpacing} cells
+    of another tower. Claim territory, don't stack.</p>
+    <p><span class="k">5</span><b>Erase</b> — drag to remove your own walls (half refund). Built
+    yourself into a corner or choked the intake? Undo it.</p>
+    <p><b>Water intake</b> (bar, top right) is the rate of water reaching your base — a rolling
+    average, so it responds over ~30 s. Keep it above the red mark; below it the base thirsts.</p>
     <p><span class="k">R-hold</span><b>Jet</b> — hold the RIGHT mouse button to blast water outward
     from your cursor. Shove spores off their line, into rings, away from the outlet. It drains a
     charge (the arc at your cursor) and recharges when released. This is your hands in the water —
@@ -87,6 +101,10 @@ function howToPlayHtml(): string {
     water between the jets last far longer than walls dropped mid-current — and force every spore
     into one channel. Park neutralizers on that channel and let the bounty fund the next layer.
     A wall parallel to a fast jet dies; a wall that makes the jet turn survives.</p>
+    <p>Spores need current to breathe: anything trapped in <b>still water</b> — behind a seal, in
+    a dead pocket, inside a dammed basin — <b>suffocates</b>, and still pays bounty. That's why
+    sealing works. The <b style="color:#fb923c">orange glow</b> is pressure: water banking up
+    behind a blockage. Dams hold it for a while, then fail by piping — repaint to shore them up.</p>
 
     <h2>Economy</h2>
     <p>Income: starting gold + a trickle (${match.goldTrickle}g/s) + ${enemies.bounty}g per kill +

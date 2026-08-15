@@ -47,17 +47,18 @@ async function start(): Promise<void> {
   const scene = new Scene(engine)
   scene.clearColor.set(0.008, 0.012, 0.024, 1)
 
-  const map = buildMap(CONFIG.sim.width, CONFIG.sim.height)
-  const sim = new GpuSim(engine, scene, map)
-  const renderer = new Renderer(engine, scene, sim, canvas)
-
-  const stage = document.getElementById('stage')!
   // ?level=N starts a match; no level = title screen over the living water.
   const levelParam = query.get('level')
   const levelNum = levelParam
     ? Math.min(Math.max(1, Number(levelParam)), CONFIG.levels.length)
     : null
   const level = levelNum !== null ? CONFIG.levels[levelNum - 1] : null
+
+  const map = buildMap(CONFIG.sim.width, CONFIG.sim.height, level?.terrain)
+  const sim = new GpuSim(engine, scene, map)
+  const renderer = new Renderer(engine, scene, sim, canvas)
+
+  const stage = document.getElementById('stage')!
   const menu = new Menu(stage, levelNum)
 
   const hud = level ? new Hud(stage, levelNum!) : null
@@ -65,7 +66,7 @@ async function start(): Promise<void> {
   const match = new Engine(
     map,
     {
-      onGameOver: (winner) => hud?.showGameOver(winner),
+      onGameOver: (winner) => hud?.showGameOver(winner, match),
       onBreach: () => {},
       onBuildRejected: () => hud?.flashGold(),
       onWaveStart: (wave, surge) => hud?.announce(surge ? `Wave ${wave} — surge` : `Wave ${wave}`),
@@ -135,7 +136,7 @@ async function start(): Promise<void> {
       console.warn(
         `fps~${((frames - lastFrames) / 5).toFixed(1)} ticks=${sim.readiness()} ` +
           `wave=${match.waveIndex + 1}/${match.waveTotal} phase=${match.phase} lives=${match.lives} ` +
-          `alive=${match.aliveEstimate} obs: ${JSON.stringify(sim.latest)}`,
+          `alive=${match.aliveEstimate} intake=${match.intakeFlux.toFixed(2)} obs: ${JSON.stringify(sim.latest)}`,
       )
       lastFrames = frames
     }

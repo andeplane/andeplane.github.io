@@ -61,8 +61,10 @@ fn main(@builtin(global_invocation_id) gid : vec3<u32>) {
   let stress = K_SHEAR * max(shear - SHEAR_THRESH, 0.0)
              + K_PIPE * max(head - PIPE_THRESH, 0.0) * poro;
   // Self-healing competes with erosion — but a wall can't heal while pressure
-  // is forcing water through it, and healing never rebuilds armor above 1.
-  let cure = select(CURE_RATE, 0.0, head > PIPE_THRESH);
+  // is forcing water through it OR fast water is scouring it (otherwise cure
+  // outruns the maximum possible shear stress and narrow canals become free).
+  // Healing never rebuilds armor above 1.
+  let cure = select(CURE_RATE, 0.0, head > PIPE_THRESH || shear > SHEAR_THRESH);
   let next = max(integ, min(integ + cure, 1.0)) - stress;
   if (next <= 0.0) {
     cellType[idx] = CELL_OPEN;

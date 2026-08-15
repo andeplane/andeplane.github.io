@@ -11,10 +11,18 @@ export interface ObservableSnapshot {
   kills: number
   /** Spores that reached the outlet since match start (monotone) — drains lives. */
   escapes: number
+  /** Accumulated outbound outlet water flux since match start (monotone). */
+  outletFlux: number
+  /** Accumulated backflow at the outlet since match start (monotone). The
+   *  engine diffs NET discharge (out − in) into the base's water intake;
+   *  strangling it causes thirst. */
+  outletInflux: number
 }
 
 /** A CPU-side view of one live enemy (from the position readback, extrapolated). */
 export interface EnemyView {
+  /** Buffer slot — stable identity across readbacks (drives death popups). */
+  slot: number
   x: number
   y: number
   /** Displacement per tick (for extrapolation between readbacks). */

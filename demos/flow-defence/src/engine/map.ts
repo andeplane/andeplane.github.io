@@ -23,7 +23,23 @@ export interface DomainMap {
   outletY1: number
 }
 
-export function buildMap(width: number, height: number): DomainMap {
+/** Level terrain: bedrock shapes stamped into the arena (fractional coords). */
+export type TerrainShape =
+  | { kind: 'disc'; x: number; y: number; r: number }
+  | { kind: 'bar'; x0: number; y0: number; x1: number; y1: number; w: number }
+
+/** The default arena (also the title screen): three vortex-shedding pillars. */
+export const DEFAULT_TERRAIN: readonly TerrainShape[] = [
+  { kind: 'disc', x: 0.32, y: 0.34, r: 13 },
+  { kind: 'disc', x: 0.46, y: 0.68, r: 16 },
+  { kind: 'disc', x: 0.62, y: 0.3, r: 11 },
+]
+
+export function buildMap(
+  width: number,
+  height: number,
+  terrain: readonly TerrainShape[] = DEFAULT_TERRAIN,
+): DomainMap {
   const cellType = new Uint32Array(width * height)
   const solidity = new Float32Array(width * height)
   const idx = (x: number, y: number) => y * width + x
@@ -57,20 +73,31 @@ export function buildMap(width: number, height: number): DomainMap {
   const outletY1 = height - margin - 1
   for (let y = outletY0; y <= outletY1; y++) cellType[idx(width - 1, y)] = CELL.OUTLET
 
-  // Map features: a few bedrock pillars mid-domain. At game Reynolds numbers
-  // they shed Kármán vortex streets — the flow reads as alive even pre-build.
-  const pillars: Array<[number, number, number]> = [
-    [Math.floor(width * 0.32), Math.floor(height * 0.34), 13],
-    [Math.floor(width * 0.46), Math.floor(height * 0.68), 16],
-    [Math.floor(width * 0.62), Math.floor(height * 0.3), 11],
-  ]
-  for (const [cx, cy, r] of pillars) {
-    for (let y = cy - r; y <= cy + r; y++) {
-      for (let x = cx - r; x <= cx + r; x++) {
-        if (x < 1 || x >= width - 1 || y < 1 || y >= height - 1) continue
+  // Level terrain: bedrock shapes mid-domain. At game Reynolds numbers they
+  // shed vortices and carve jets — each level's arena is a different flow.
+  const stampDisc = (cx: number, cy: number, r: number): void => {
+    for (let y = Math.floor(cy - r); y <= Math.ceil(cy + r); y++) {
+      for (let x = Math.floor(cx - r); x <= Math.ceil(cx + r); x++) {
+        // Never stamp over the inlet/outlet columns or the frame.
+        if (x < 2 || x >= width - 2 || y < 1 || y >= height - 1) continue
         const dx = x - cx
         const dy = y - cy
         if (dx * dx + dy * dy <= r * r) cellType[idx(x, y)] = CELL.BEDROCK
+      }
+    }
+  }
+  for (const s of terrain) {
+    if (s.kind === 'disc') {
+      stampDisc(s.x * width, s.y * height, s.r)
+    } else {
+      // Capsule: discs of radius w/2 along the segment.
+      const x0 = s.x0 * width
+      const y0 = s.y0 * height
+      const dx = s.x1 * width - x0
+      const dy = s.y1 * height - y0
+      const steps = Math.max(1, Math.ceil(Math.hypot(dx, dy)))
+      for (let i = 0; i <= steps; i++) {
+        stampDisc(x0 + (dx * i) / steps, y0 + (dy * i) / steps, s.w / 2)
       }
     }
   }
@@ -85,6 +112,9 @@ export interface InletState {
   biomass: number
   /** Extra pressure head 0..1 (surge: banked tank released as a spike). */
   surge: number
+  /** Flood escalation 0..1: the river's answer to being strangled — ramps
+   *  inlet pressure past the piping threshold so blockades burst. */
+  flood?: number
 }
 
 /**
@@ -98,12 +128,14 @@ export function inletProfile(map: DomainMap, states: InletState[]): Float32Array
     const s = states[seg.index] ?? { openness: 0, biomass: 0, surge: 0 }
     const o = Math.max(0, Math.min(1, s.openness))
     const surge = Math.max(0, Math.min(1, s.surge))
+    const flood = Math.max(0, Math.min(1, s.flood ?? 0))
     for (let y = seg.y0; y <= seg.y1; y++) {
       // Soft parabolic profile across the segment mouth: prettier and more stable
       // than a top-hat jet.
       const t = (y - seg.y0) / Math.max(1, seg.y1 - seg.y0)
       const shape = 4 * t * (1 - t)
-      profile[y * 4] = 1 + (CONFIG.inlet.rho - 1) * o + CONFIG.inlet.surgeRho * surge
+      profile[y * 4] =
+        1 + (CONFIG.inlet.rho - 1) * o + CONFIG.inlet.surgeRho * surge + CONFIG.inlet.floodRho * flood
       profile[y * 4 + 1] = CONFIG.inlet.u * (o + CONFIG.inlet.surgeU * surge) * (0.35 + 0.65 * shape)
       profile[y * 4 + 2] = Math.max(0, Math.min(1, s.biomass))
     }

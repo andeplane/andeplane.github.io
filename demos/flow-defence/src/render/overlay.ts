@@ -16,14 +16,45 @@ export interface JetOverlay {
   charge: number
 }
 
+interface Popup {
+  x: number
+  y: number
+  text: string
+  color: string
+  born: number
+}
+
 export class Overlay {
   private readonly ctx: CanvasRenderingContext2D
+  /** Last seen enemies by slot — a vanished slot becomes a kill/escape popup. */
+  private readonly lastSeen = new Map<number, EnemyView>()
+  private readonly popups: Popup[] = []
 
   constructor(
     private readonly canvas: HTMLCanvasElement,
     private readonly map: DomainMap,
   ) {
     this.ctx = canvas.getContext('2d')!
+  }
+
+  /** Diff enemy slots between frames: gone near the outlet = a lost life,
+   *  gone anywhere else = a paid kill. Makes every event self-explanatory. */
+  private notePopups(enemies: EnemyView[]): void {
+    const now = performance.now()
+    const seen = new Set(enemies.map((e) => e.slot))
+    for (const [slot, last] of this.lastSeen) {
+      if (seen.has(slot)) continue
+      this.lastSeen.delete(slot)
+      const escaped = last.x >= this.map.width - 26
+      this.popups.push({
+        x: last.x,
+        y: last.y,
+        text: escaped ? '−1 life' : `+${CONFIG.enemies.bounty}g`,
+        color: escaped ? '#fb7185' : '#fbbf24',
+        born: now,
+      })
+    }
+    for (const e of enemies) this.lastSeen.set(e.slot, e)
   }
 
   draw(towers: Tower[], pending: PendingPlacement | null, enemies: EnemyView[], jet: JetOverlay | null): void {
@@ -51,7 +82,32 @@ export class Overlay {
       this.drawTower(ctx, { id: 0, ...pending }, toScreen, cellPx, 0.55)
     }
     this.drawEnemies(ctx, enemies, toScreen, cellPx)
+    this.notePopups(enemies)
+    this.drawPopups(ctx, toScreen)
     if (jet) this.drawJet(ctx, jet, toScreen, cellPx)
+  }
+
+  private drawPopups(ctx: CanvasRenderingContext2D, toScreen: (x: number, y: number) => [number, number]): void {
+    const now = performance.now()
+    const LIFE = 1100
+    for (let i = this.popups.length - 1; i >= 0; i--) {
+      const p = this.popups[i]
+      const age = (now - p.born) / LIFE
+      if (age >= 1) {
+        this.popups.splice(i, 1)
+        continue
+      }
+      const [sx, sy] = toScreen(p.x, p.y)
+      ctx.save()
+      ctx.globalAlpha = 1 - age * age
+      ctx.fillStyle = p.color
+      ctx.shadowColor = p.color
+      ctx.shadowBlur = 8
+      ctx.font = '600 13px "SF Mono", ui-monospace, Menlo, monospace'
+      ctx.textAlign = 'center'
+      ctx.fillText(p.text, sx, sy - 10 - age * 22)
+      ctx.restore()
+    }
   }
 
   /** Crisp spore cores over the field glow — the enemy always reads as a THING. */
@@ -149,7 +205,7 @@ export class Overlay {
     const [sx, sy] = toScreen(t.x, t.y)
     const cfg = CONFIG.towers[t.type]
     const rangePx = cfg.radius * cellPx
-    const color = t.type === 'neutralizer' ? '#5eead4' : '#93c5fd'
+    const color = t.type === 'neutralizer' ? '#5eead4' : t.type === 'vortex' ? '#c4b5fd' : '#93c5fd'
 
     ctx.save()
     ctx.globalAlpha = alpha
@@ -174,6 +230,18 @@ export class Overlay {
     if (t.type === 'neutralizer') {
       ctx.beginPath()
       ctx.arc(sx, sy, Math.max(2, cellPx * 0.8), 0, Math.PI * 2)
+      ctx.stroke()
+    } else if (t.type === 'vortex') {
+      // Spiral glyph, spinning slowly.
+      const spin = performance.now() / 900
+      ctx.beginPath()
+      for (let a = 0; a < Math.PI * 3; a += 0.2) {
+        const rr = Math.max(1.5, cellPx * 0.5) + (a / (Math.PI * 3)) * Math.max(3, cellPx * 1.5)
+        const px = sx + Math.cos(a + spin) * rr
+        const py = sy + Math.sin(a + spin) * rr
+        if (a === 0) ctx.moveTo(px, py)
+        else ctx.lineTo(px, py)
+      }
       ctx.stroke()
     } else {
       // Impeller: thrust chevron (screen y is flipped vs domain y).

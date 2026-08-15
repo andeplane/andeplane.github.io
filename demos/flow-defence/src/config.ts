@@ -1,5 +1,7 @@
 // Every tunable in one place. Balancing happens here, not in scattered literals.
 
+import type { TerrainShape } from './engine/map'
+
 export const CONFIG = {
   sim: {
     width: 512,
@@ -36,6 +38,12 @@ export const CONFIG = {
     surgeRho: 0.022,
     /** Extra velocity factor a full surge adds. */
     surgeU: 0.4,
+    /**
+     * Flood escalation: extra density at full flood — the river's answer to
+     * being strangled. Deliberately far ABOVE the piping threshold: while the
+     * base is starved, this ramps in and bursts any blockade, however thick.
+     */
+    floodRho: 0.08,
     /**
      * Back-pressure choke: inlet velocity scales by 1 − choke·(downstream ρ
      * excess). A pump loses flow against head — so walling off an arm makes
@@ -100,8 +108,10 @@ export const CONFIG = {
     cap: 8,
   },
   erosion: {
-    /** Integrity lost per tick per unit of shear speed above the threshold. */
-    kShear: 0.01,
+    /** Integrity lost per tick per unit of shear speed above the threshold.
+     *  Above the threshold, self-healing also stops — walls lining fast water
+     *  decay and need repainting; narrow canals are not free. */
+    kShear: 0.015,
     shearThreshold: 0.08,
     /**
      * Piping: pressure head above this erodes (scaled by porosity) AND blocks
@@ -132,6 +142,11 @@ export const CONFIG = {
     wallCostPerCell: 0.12,
     /** Gold per cell to repaint (repair) a standing wall back to full armor. */
     wallRepairCostPerCell: 0.06,
+    /** Refund per wall cell erased (the undo verb — half the build price). */
+    wallRefundPerCell: 0.06,
+    /** Minimum distance (cells) between towers — no degenerate stacking;
+     *  defenses must claim territory. */
+    towerSpacing: 20,
   },
   towers: {
     neutralizer: {
@@ -146,10 +161,36 @@ export const CONFIG = {
       /** Body force magnitude (lattice units) at the centre. */
       force: 0.0045,
     },
+    /** Spins the water into a whirlpool (tangential + slight inward pull):
+     *  spores caught in it circle instead of passing — park one on a kill
+     *  ring and the ring gets many times the exposure. */
+    vortex: {
+      cost: 35,
+      radius: 13,
+      force: 0.005,
+    },
   },
   match: {
     /** Passive gold per second. */
     goldTrickle: 1,
+    /**
+     * The base drinks from the river: nominal outlet water flux (sum of ux
+     * over outlet cells per tick, empirically measured on the open default
+     * arena). Intake below thirstFraction × nominal during a wave means the
+     * defender has strangled the flow — the base THIRSTS and bleeds lives.
+     * This is the anti-blockade rule: reroute the river, never stop it.
+     */
+    nominalFlux: 9,
+    /** Deliberately low: thirst punishes BLOCKADES (net discharge ≈ 0), never
+     *  narrow canals — a canal's cost is erosion and pressure, not thirst.
+     *  (Measured: minimal 15-row canal ≈ 0.6–1.0; blockade flushes ≈ 0–0.3.) */
+    thirstFraction: 0.05,
+    /** Ticks for flood escalation to ramp from 0 to full while starved. */
+    floodRampTicks: 1800,
+    /** Ticks of starvation tolerated before lives start draining. */
+    thirstGraceTicks: 5 * 60,
+    /** While thirsting past grace: one life lost per this many ticks. */
+    thirstLifeTicks: 3 * 60,
     /** Ticks of the initial build phase before wave 1 auto-starts. */
     buildTicks: 45 * 60,
     /** Ticks between waves (Space skips). */
@@ -162,16 +203,23 @@ export const CONFIG = {
     clearBonusPerWave: 10,
   },
   /**
-   * Levels are wave tables. interval = ticks between spawns; arms = inlet
-   * segments (0 bottom, 1 middle, 2 top) the wave rides; surge waves slam the
-   * water hammer (faster current, walls strain) while spores ride it.
+   * Levels are an arena (terrain, fractional coords, bedrock) + a wave table.
+   * interval = ticks between spawns; arms = inlet segments (0 bottom, 1
+   * middle, 2 top) the wave rides; surge waves slam the water hammer (faster
+   * current, walls strain) while spores ride it.
    */
   levels: [
     {
       name: 'First Spores',
-      description: 'Learn the tools. One lazy stream at a time.',
+      description: 'Open water, three pillars. Learn the tools.',
       lives: 15,
       startingGold: 165,
+      nominalFlux: 9,
+      terrain: [
+        { kind: 'disc', x: 0.32, y: 0.34, r: 13 },
+        { kind: 'disc', x: 0.46, y: 0.68, r: 16 },
+        { kind: 'disc', x: 0.62, y: 0.3, r: 11 },
+      ] as readonly TerrainShape[],
       waves: [
         { count: 8, hp: 1, interval: 32, arms: [1] },
         { count: 12, hp: 1, interval: 26, arms: [1, 2] },
@@ -182,9 +230,18 @@ export const CONFIG = {
     },
     {
       name: 'Crosscurrents',
-      description: 'Every arm at once, and the water fights back.',
+      description: 'A serpentine canyon — the river snakes, and so must they.',
       lives: 12,
       startingGold: 150,
+      nominalFlux: 4.5,
+      // Alternating baffles force the whole flow into an S: three long jets
+      // and three hairpin corners — every corner is a kill-zone opportunity.
+      terrain: [
+        { kind: 'bar', x0: 0.24, y0: 1, x1: 0.24, y1: 0.44, w: 8 },
+        { kind: 'bar', x0: 0.47, y0: 0, x1: 0.47, y1: 0.56, w: 8 },
+        { kind: 'bar', x0: 0.7, y0: 1, x1: 0.7, y1: 0.44, w: 8 },
+        { kind: 'disc', x: 0.86, y: 0.6, r: 9 },
+      ] as readonly TerrainShape[],
       waves: [
         { count: 10, hp: 1.2, interval: 26, arms: [0, 2] },
         { count: 14, hp: 1.6, interval: 22, arms: [0, 1, 2] },
@@ -196,9 +253,20 @@ export const CONFIG = {
     },
     {
       name: 'Water Hammer',
-      description: 'Banked pressure, brutal surges, thick swarms.',
+      description: 'The narrows: everything funnels through one throat.',
       lives: 10,
       startingGold: 150,
+      nominalFlux: 7,
+      // Two huge lenses squeeze the whole river through a central throat —
+      // surges through the narrows hammer like a burst pipe. Downstream
+      // pillars split the exit jet into braided streams.
+      terrain: [
+        { kind: 'disc', x: 0.4, y: 1.08, r: 108 },
+        { kind: 'disc', x: 0.4, y: -0.08, r: 108 },
+        { kind: 'disc', x: 0.64, y: 0.5, r: 12 },
+        { kind: 'disc', x: 0.8, y: 0.3, r: 10 },
+        { kind: 'disc', x: 0.8, y: 0.7, r: 10 },
+      ] as readonly TerrainShape[],
       waves: [
         { count: 12, hp: 1.6, interval: 22, arms: [0, 1, 2] },
         { count: 16, hp: 2.2, interval: 18, arms: [0, 1, 2], surge: true },

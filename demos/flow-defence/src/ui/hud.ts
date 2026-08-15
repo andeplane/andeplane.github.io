@@ -20,6 +20,33 @@ const HUD_CSS = /* css */ `
 .fd-wave { font-size: 19px; }
 .fd-status { font-size: 11px; opacity: 0.9; margin-top: 2px; }
 .fd-gold.flash { animation: fd-flash 0.4s; }
+.fd-lives.hit { animation: fd-hit 0.7s; }
+@keyframes fd-hit {
+  0% { color: #ff2d55; text-shadow: 0 0 24px rgba(255, 45, 85, 1); transform: scale(1.5); }
+  100% { color: #fda4af; transform: scale(1); }
+}
+.fd-lives { display: inline-block; transform-origin: left center; }
+.fd-bar {
+  height: 3px; border-radius: 2px; margin: 4px 0 2px;
+  background: rgba(130, 200, 255, 0.15); overflow: hidden;
+}
+.fd-bar > i { display: block; height: 100%; border-radius: 2px; transition: width 0.3s ease; }
+.fd-bar.intake { position: relative; overflow: visible; }
+.fd-bar.intake > i { background: linear-gradient(90deg, #38bdf8, #7dd3fc); box-shadow: 0 0 8px #38bdf8; }
+.fd-bar.intake.dry > i { background: linear-gradient(90deg, #fb923c, #f87171); box-shadow: 0 0 8px #fb7185; }
+.fd-bar.intake > s {
+  position: absolute; top: -2px; bottom: -2px; width: 2px;
+  background: #f87171; box-shadow: 0 0 6px rgba(248, 113, 113, 0.9);
+}
+.fd-intakecap { font-size: 9px; opacity: 0; letter-spacing: 0.06em; transition: opacity 0.4s; }
+.fd-intakecap.low { opacity: 0.85; color: #fdba74; }
+.fd-thirst {
+  position: absolute; left: 50%; top: 92px; transform: translateX(-50%);
+  letter-spacing: 0.24em; font-size: 13px; color: #f87171; text-transform: uppercase;
+  text-shadow: 0 0 18px rgba(248, 113, 113, 0.9); display: none;
+  animation: fd-pulse 0.7s infinite;
+}
+.fd-thirst.show { display: block; }
 @keyframes fd-flash { 50% { color: #ff8f6b; } }
 .fd-announce {
   position: absolute; left: 50%; top: 30%; transform: translateX(-50%);
@@ -77,6 +104,10 @@ export class Hud {
   private readonly killsEl: HTMLElement
   private readonly waveEl: HTMLElement
   private readonly statusEl: HTMLElement
+  private readonly intakeBar: HTMLElement
+  private readonly intakeWrap: HTMLElement
+  private readonly intakeCap: HTMLElement
+  private readonly thirstEl: HTMLElement
   private readonly jetEl: HTMLElement
   private readonly announceEl: HTMLElement
   private readonly hintEl: HTMLElement
@@ -99,22 +130,28 @@ export class Hud {
         <div class="fd-value fd-gold">0</div>
         <div class="fd-label">Lives</div>
         <div class="fd-value fd-lives">0</div>
-        <div class="fd-label">Kills</div>
+        <div class="fd-label">Kills · ${CONFIG.enemies.bounty}g each</div>
         <div class="fd-value fd-kills" style="font-size:13px">0</div>
       </div>
       <div class="fd-panel right">
         <div class="fd-label">Wave</div>
         <div class="fd-value fd-wave">–</div>
         <div class="fd-status"></div>
+        <div class="fd-label" style="margin-top:8px">Water intake</div>
+        <div class="fd-bar intake"><i></i><s></s></div>
+        <div class="fd-intakecap">the base drinks from this river — keep it above the mark</div>
       </div>
       <div class="fd-tools">
         <span class="fd-tool" data-tool="wall"><b>1</b>Wall</span>
         <span class="fd-tool" data-tool="neutralizer"><b>2</b>Neutralizer ${CONFIG.towers.neutralizer.cost}g</span>
         <span class="fd-tool" data-tool="impeller"><b>3</b>Impeller ${CONFIG.towers.impeller.cost}g</span>
+        <span class="fd-tool" data-tool="vortex"><b>4</b>Vortex ${CONFIG.towers.vortex.cost}g</span>
+        <span class="fd-tool" data-tool="erase"><b>5</b>Erase</span>
         <span class="fd-tool fd-jet"><b>R-hold</b>Jet</span>
       </div>
       <div class="fd-hint"></div>
       <div class="fd-warn">Surge wave</div>
+      <div class="fd-thirst">The base thirsts — let the river flow</div>
       <div class="fd-announce"></div>
       <div class="fd-over"><div>
         <h1></h1>
@@ -131,6 +168,13 @@ export class Hud {
     this.killsEl = root.querySelector('.fd-kills')!
     this.waveEl = root.querySelector('.fd-wave')!
     this.statusEl = root.querySelector('.fd-status')!
+    this.intakeBar = root.querySelector('.fd-bar.intake > i')!
+    this.intakeWrap = root.querySelector('.fd-bar.intake')!
+    this.intakeCap = root.querySelector('.fd-intakecap')!
+    // Thirst-line marker (sqrt display scale expands the low end of the bar).
+    const mark = root.querySelector<HTMLElement>('.fd-bar.intake > s')!
+    mark.style.left = `${Math.round(Math.sqrt(CONFIG.match.thirstFraction) * 100)}%`
+    this.thirstEl = root.querySelector('.fd-thirst')!
     this.jetEl = root.querySelector('.fd-jet')!
     this.announceEl = root.querySelector('.fd-announce')!
     this.hintEl = root.querySelector('.fd-hint')!
@@ -151,9 +195,18 @@ export class Hud {
     for (const el of this.toolEls) el.classList.toggle('active', el.dataset.tool === tool)
   }
 
+  private lastLives = -1
+
   update(engine: Engine): void {
     this.goldEl.textContent = Math.floor(engine.gold).toString()
     this.livesEl.textContent = engine.lives.toString()
+    // A lost life must be unmissable: flash + scale punch on every drop.
+    if (this.lastLives >= 0 && engine.lives < this.lastLives) {
+      this.livesEl.classList.remove('hit')
+      void this.livesEl.offsetWidth
+      this.livesEl.classList.add('hit')
+    }
+    this.lastLives = engine.lives
     this.killsEl.textContent = engine.killsTotal.toString()
     const waveNum = Math.min(engine.waveIndex + 1, engine.waveTotal)
     this.waveEl.textContent = `${waveNum} / ${engine.waveTotal}`
@@ -170,6 +223,21 @@ export class Hud {
     }
     this.jetEl.style.opacity = (0.35 + 0.65 * engine.jetCharge).toFixed(2)
     this.warnEl.classList.toggle('show', engine.phase === 'wave' && engine.surging)
+    const intake = engine.intakeFlux < 0 ? 1 : Math.min(1, engine.intakeFlux / engine.nominalFlux)
+    this.intakeBar.style.width = `${Math.round(Math.sqrt(intake) * 100)}%`
+    this.intakeWrap.classList.toggle('dry', engine.thirsting)
+    this.intakeCap.classList.toggle(
+      'low',
+      engine.intakeFlux >= 0 && intake < CONFIG.match.thirstFraction * 3,
+    )
+    this.thirstEl.textContent =
+      engine.floodPressure > 0.15
+        ? 'The base thirsts — the flood rises'
+        : 'The base thirsts — let the river flow'
+    this.thirstEl.classList.toggle(
+      'show',
+      engine.phase !== 'over' && (engine.thirsting || engine.floodPressure > 0.15),
+    )
   }
 
   setHint(text: string | null): void {
@@ -190,10 +258,19 @@ export class Hud {
     this.goldEl.classList.add('flash')
   }
 
-  showGameOver(winner: 'attacker' | 'defender'): void {
+  showGameOver(winner: 'attacker' | 'defender', engine: Engine): void {
     this.overTitle.textContent = winner === 'defender' ? 'The flow is tamed' : 'The base is drowned'
-    this.overSub.textContent =
-      winner === 'defender' ? 'Every wave broken against your walls.' : 'Too many spores slipped the current.'
+    if (winner === 'defender') {
+      this.overSub.textContent =
+        `All ${engine.waveTotal} enemy waves survived · ${engine.killsTotal} spores destroyed · ` +
+        `${engine.lives} ${engine.lives === 1 ? 'life' : 'lives'} to spare.`
+    } else if (engine.thirstTicks > 0) {
+      this.overSub.textContent = `The base died of thirst on wave ${Math.min(engine.waveIndex + 1, engine.waveTotal)} — the river was strangled.`
+    } else {
+      this.overSub.textContent =
+        `Overrun on wave ${Math.min(engine.waveIndex + 1, engine.waveTotal)} of ${engine.waveTotal} · ` +
+        `${engine.killsTotal} spores destroyed.`
+    }
     this.overEl.classList.add('show')
   }
 }

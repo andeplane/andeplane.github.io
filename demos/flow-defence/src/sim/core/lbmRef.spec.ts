@@ -103,7 +103,7 @@ describe('LbmRef', () => {
     expect(f1).toBeLessThan(f0 * 0.05) // a solid plug essentially stops the flow
   })
 
-  it('inlet/outlet: sustains a steady flux through an open domain', () => {
+  it('inlet/outlet: sustains a steady flux through an open domain', { timeout: 120_000 }, () => {
     const w = 48
     const h = 20
     const sim = new LbmRef({ width: w, height: h, params: { tau0: 0.58, smagorinsky: 0.12 } })

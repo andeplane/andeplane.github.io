@@ -97,9 +97,12 @@ export class CpuSim {
         }
         const head = Math.max(maxRho - 1, 0)
         const stress = erosionStress({ integrity: sol[idx], shear, head })
-        // Self-healing competes with erosion, but not under piping pressure,
-        // and never rebuilds construction armor above 1 (see erosion.wgsl.ts).
-        const cure = head > CONFIG.erosion.pipeThreshold ? 0 : CONFIG.erosion.cureRate
+        // Self-healing competes with erosion, but not under piping pressure or
+        // shear scouring, and never rebuilds armor above 1 (see erosion.wgsl.ts).
+        const cure =
+          head > CONFIG.erosion.pipeThreshold || shear > CONFIG.erosion.shearThreshold
+            ? 0
+            : CONFIG.erosion.cureRate
         const next = Math.max(sol[idx], Math.min(sol[idx] + cure, 1)) - stress
         if (next <= 0) {
           ct[idx] = CELL.OPEN

@@ -9,7 +9,7 @@ import type { GpuSim } from '../sim/gpu/GpuSim'
 import { CELL } from '../sim/core/constants'
 import { cellFromPointer } from './viewport'
 
-export type Tool = 'wall' | 'neutralizer' | 'impeller'
+export type Tool = 'wall' | 'neutralizer' | 'impeller' | 'vortex' | 'erase'
 
 export interface PendingPlacement {
   type: TowerType
@@ -47,6 +47,8 @@ export class BuildInput {
       if (e.key === '1') this.tool = 'wall'
       else if (e.key === '2') this.tool = 'neutralizer'
       else if (e.key === '3') this.tool = 'impeller'
+      else if (e.key === '4') this.tool = 'vortex'
+      else if (e.key === '5') this.tool = 'erase'
     })
     canvas.addEventListener('contextmenu', (e) => e.preventDefault())
     canvas.addEventListener('pointerdown', (e) => this.down(e))
@@ -68,7 +70,7 @@ export class BuildInput {
       this.jet.y = cell.y
       return
     }
-    if (this.tool === 'wall') {
+    if (this.tool === 'wall' || this.tool === 'erase') {
       this.painting = true
       this.last = null
       this.stroke.clear()
@@ -116,14 +118,19 @@ export class BuildInput {
       this.stamp(from.x + ((cell.x - from.x) * s) / steps, from.y + ((cell.y - from.y) * s) / steps, cells)
     }
     this.last = cell
-    // New wall on open water at full price; repainting a standing wall repairs
-    // it (fresh armor) at half price. Each cell bills at most once per stroke.
+    // Each cell acts at most once per stroke. Wall tool: new wall on open
+    // water at full price, repainting a standing wall repairs it (fresh armor)
+    // at half price. Erase tool: remove walls for a partial refund.
     const fresh = [...cells].filter((idx) => !this.stroke.has(idx))
     for (const idx of fresh) this.stroke.add(idx)
+    const walls = fresh.filter((idx) => this.sim.map.cellType[idx] === CELL.WALL)
+    if (this.tool === 'erase') {
+      this.sim.eraseWall(this.engine.eraseWalls(walls))
+      return
+    }
     const buildable = fresh.filter((idx) => this.sim.map.cellType[idx] === CELL.OPEN)
-    const repairable = fresh.filter((idx) => this.sim.map.cellType[idx] === CELL.WALL)
     this.sim.paintWall(this.engine.tryBuildWalls(buildable))
-    this.sim.paintWall(this.engine.tryRepairWalls(repairable))
+    this.sim.paintWall(this.engine.tryRepairWalls(walls))
   }
 
   private stamp(cx: number, cy: number, out: Set<number>): void {

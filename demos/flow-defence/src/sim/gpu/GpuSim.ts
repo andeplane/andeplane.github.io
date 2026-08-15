@@ -20,7 +20,7 @@ import { CELL } from '../core/constants'
 import type { EnemyView, ObservableSnapshot, SpawnRequest } from '../types'
 import { ENEMY_STRIDE, enemiesShaderSource } from './shaders/enemies.wgsl'
 import { erosionShaderSource } from './shaders/erosion.wgsl'
-import { glowShaderSource } from './shaders/glow.wgsl'
+import { FLUX_SCALE, glowShaderSource } from './shaders/glow.wgsl'
 import { lbmShaderSource } from './shaders/lbm.wgsl'
 
 const LBM_BINDINGS = {
@@ -219,6 +219,7 @@ export class GpuSim {
       params: { group: 0, binding: 4 },
       cellType: { group: 0, binding: 5 },
       glow: { group: 0, binding: 6 },
+      counters: { group: 0, binding: 7 },
     } as const
     this.glowPasses = [0, 1].map((p) => {
       const cs = new ComputeShader(`glow${p}`, engine, { computeSource: glowSource }, { bindingsMapping: GLOW_BINDINGS })
@@ -229,6 +230,7 @@ export class GpuSim {
       cs.setUniformBuffer('params', this.glowParams)
       cs.setStorageBuffer('cellType', this.cellTypeBuf)
       cs.setStorageBuffer('glow', this.glowStampBuf)
+      cs.setStorageBuffer('counters', this.countersBuf)
       return cs
     }) as [ComputeShader, ComputeShader]
   }
@@ -334,6 +336,8 @@ export class GpuSim {
           breachCount: u[0],
           kills: u[1],
           escapes: u[2],
+          outletFlux: u[3] / FLUX_SCALE,
+          outletInflux: u[4] / FLUX_SCALE,
         }
       })
       .finally(() => {
@@ -369,6 +373,7 @@ export class GpuSim {
     for (let i = 0; i < data.length; i += ENEMY_STRIDE) {
       if (data[i + 5] !== 1) continue
       out.push({
+        slot: i / ENEMY_STRIDE,
         x: data[i] + data[i + 2] * ahead,
         y: data[i + 1] + data[i + 3] * ahead,
         vx: data[i + 2],
@@ -410,6 +415,19 @@ export class GpuSim {
       this.map.solidity[idx] = CONFIG.erosion.freshSolidity
       this.cellTypeBuf.update(wall, idx * 4)
       this.solidityBuf.update(fresh, idx * 4)
+    }
+  }
+
+  /** Erase player walls (the undo verb). Bedrock is untouchable. */
+  eraseWall(cells: number[]): void {
+    const zero = new Float32Array([0])
+    const open = new Uint32Array([CELL.OPEN])
+    for (const idx of cells) {
+      if (this.map.cellType[idx] !== CELL.WALL) continue
+      this.map.cellType[idx] = CELL.OPEN
+      this.map.solidity[idx] = 0
+      this.cellTypeBuf.update(open, idx * 4)
+      this.solidityBuf.update(zero, idx * 4)
     }
   }
 

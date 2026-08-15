@@ -5,7 +5,7 @@ import { CONFIG } from '../config'
 import { CELL } from '../sim/core/constants'
 import type { DomainMap } from './map'
 
-export type TowerType = 'neutralizer' | 'impeller'
+export type TowerType = 'neutralizer' | 'impeller' | 'vortex'
 
 export interface Tower {
   id: number
@@ -20,10 +20,13 @@ export function towerCost(type: TowerType): number {
   return CONFIG.towers[type].cost
 }
 
-/** Can a tower stand here? Open water only, fully inside the domain. */
-export function canPlace(map: DomainMap, x: number, y: number): boolean {
+/** Can a tower stand here? Open water, inside the domain, and clear of other
+ *  towers by `build.towerSpacing` — defenses claim territory, no stacking. */
+export function canPlace(map: DomainMap, x: number, y: number, towers: readonly Tower[]): boolean {
   if (x < 2 || x >= map.width - 2 || y < 2 || y >= map.height - 2) return false
-  return map.cellType[y * map.width + x] === CELL.OPEN
+  if (map.cellType[y * map.width + x] !== CELL.OPEN) return false
+  const s = CONFIG.build.towerSpacing
+  return towers.every((t) => (t.x - x) ** 2 + (t.y - y) ** 2 >= s * s)
 }
 
 /** Splat neutralizer decay rates into a per-cell field. */
@@ -39,18 +42,34 @@ export function buildTowerField(map: DomainMap, towers: Tower[]): Float32Array {
   return field
 }
 
-/** Splat impeller body forces (vec2 per cell, interleaved). */
+/** Splat body forces (vec2 per cell, interleaved): impeller thrust + vortex swirl. */
 export function buildForceField(map: DomainMap, towers: Tower[]): Float32Array {
   const field = new Float32Array(map.width * map.height * 2)
-  const { radius, force } = CONFIG.towers.impeller
+  const imp = CONFIG.towers.impeller
+  const vor = CONFIG.towers.vortex
   for (const t of towers) {
-    if (t.type !== 'impeller') continue
-    const fx = Math.cos(t.angle) * force
-    const fy = Math.sin(t.angle) * force
-    stampDisc(map, t, radius, (idx, falloff) => {
-      field[idx * 2] += fx * falloff
-      field[idx * 2 + 1] += fy * falloff
-    })
+    if (t.type === 'impeller') {
+      const fx = Math.cos(t.angle) * imp.force
+      const fy = Math.sin(t.angle) * imp.force
+      stampDisc(map, t, imp.radius, (idx, falloff) => {
+        field[idx * 2] += fx * falloff
+        field[idx * 2 + 1] += fy * falloff
+      })
+    } else if (t.type === 'vortex') {
+      // Tangential swirl + slight inward pull: a whirlpool that TRAPS —
+      // spores circle it instead of passing through.
+      stampDisc(map, t, vor.radius, (idx, falloff) => {
+        const x = idx % map.width
+        const y = Math.floor(idx / map.width)
+        const dx = x - t.x
+        const dy = y - t.y
+        const d = Math.max(1, Math.hypot(dx, dy))
+        const tx = -dy / d
+        const ty = dx / d
+        field[idx * 2] += (tx - 0.35 * (dx / d)) * vor.force * falloff
+        field[idx * 2 + 1] += (ty - 0.35 * (dy / d)) * vor.force * falloff
+      })
+    }
   }
   return field
 }
