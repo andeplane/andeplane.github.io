@@ -50,7 +50,14 @@ export function createExplainer(): { open(): Promise<void> } {
   return {
     async open() {
       building ??= build();
-      dialog = await building;
+      try {
+        dialog = await building;
+      } catch {
+        // A failed lazy import (offline, chunk 404) must not be cached forever —
+        // clear it so the next click retries the load.
+        building = null;
+        return;
+      }
       if (!dialog.open) dialog.showModal();
       // showModal moves focus to the first focusable child, and the browser scrolls it
       // into view -- which lands the reader in the middle of the paper. Reset on the
