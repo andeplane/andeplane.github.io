@@ -3,7 +3,12 @@ import { Scene, WebGPUEngine } from '@babylonjs/core'
 import { CONFIG } from './config'
 import { FixedStep } from './core/fixedstep'
 import { buildMap } from './engine/map'
+import { AttackerAI } from './ai/AttackerAI'
+import { PROFILES } from './ai/profiles'
+import { SeededRng } from './core/rng'
 import { Engine } from './engine/Engine'
+import { buildForceField, buildTowerField } from './engine/towers'
+import { Overlay } from './render/overlay'
 import { Renderer } from './render/Renderer'
 import { GpuSim } from './sim/gpu/GpuSim'
 import { Hud } from './ui/hud'
@@ -38,6 +43,7 @@ async function start(): Promise<void> {
   const engine = new WebGPUEngine(canvas, { antialias: true })
   await engine.initAsync()
 
+  const query = new URLSearchParams(location.search)
   const scene = new Scene(engine)
   scene.clearColor.set(0.008, 0.012, 0.024, 1)
 
@@ -51,10 +57,15 @@ async function start(): Promise<void> {
     onBreach: () => {},
     onBuildRejected: () => hud.flashGold(),
   })
-  // Steady biomass drip until the attacker AI takes the seat (M7).
-  for (const s of match.inletStates) s.biomass = 0.55
+  // The attacker seat: AI profile from ?ai= (steady | burster | prober).
+  const rng = new SeededRng(Number(query.get('seed') ?? 1))
+  const profile = PROFILES[query.get('ai') ?? 'burster'] ?? PROFILES.burster
+  const attacker = new AttackerAI(profile, map, rng.stream('attacker'))
+  for (const s of match.inletStates) s.biomass = profile.dripLevel
   sim.setInletStates(match.inletStates)
-  new BuildInput(canvas, sim, match)
+  const input = new BuildInput(canvas, sim, match)
+  const overlay = new Overlay(document.getElementById('overlay') as HTMLCanvasElement, map)
+  let towersVersion = -1
 
   const fixed = new FixedStep()
   let frames = 0
@@ -63,7 +74,6 @@ async function start(): Promise<void> {
   // Pre-roll the carrier flow so the match doesn't open on dead water
   // (also makes headless screenshots meaningful regardless of timer source).
   // ?warmup=N overrides for headless verification of the developed state.
-  const query = new URLSearchParams(location.search)
   let warmupTicks = Number(query.get('warmup') ?? 1200)
   const probeEnabled = query.has('probe')
   engine.runRenderLoop(() => {
@@ -75,12 +85,19 @@ async function start(): Promise<void> {
     } else {
       fixed.advance(dt, () => {
         const states = match.tick(sim.latest)
+        attacker.tick(sim.latest, match)
         if (match.tickCount % 10 === 0) sim.setInletStates(states)
         sim.tick()
       })
     }
+    if (match.towersVersion !== towersVersion) {
+      towersVersion = match.towersVersion
+      sim.setTowerFields(buildTowerField(map, match.towers), buildForceField(map, match.towers))
+    }
     renderer.frame(Math.max(dt, 1000 / 120))
     hud.update(match)
+    hud.setTool(input.tool)
+    overlay.draw(match.towers, input.pending)
     scene.render()
     frames++
     if (probeEnabled && performance.now() - lastProbe > 5000) {

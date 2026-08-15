@@ -1,5 +1,4 @@
 // Match HUD: thin luminous DOM overlay — nothing opaque over the fluid.
-
 import { CONFIG } from '../config'
 import type { Engine } from '../engine/Engine'
 
@@ -25,6 +24,7 @@ const HUD_CSS = /* css */ `
 }
 .fd-bar.leak > i { background: linear-gradient(90deg, #2dd4bf, #38bdf8); box-shadow: 0 0 8px #38bdf8; }
 .fd-bar.reservoir > i { background: linear-gradient(90deg, #f472b6, #fb7185); box-shadow: 0 0 8px #fb7185; }
+.fd-bar.tank > i { background: linear-gradient(90deg, #fbbf24, #fb923c); box-shadow: 0 0 8px #fb923c; }
 .fd-gold.flash { animation: fd-flash 0.4s; }
 @keyframes fd-flash { 50% { color: #ff8f6b; } }
 .fd-over {
@@ -36,6 +36,10 @@ const HUD_CSS = /* css */ `
   font-size: 34px; font-weight: 300; letter-spacing: 0.3em; text-transform: uppercase;
   color: #eaf6ff; text-shadow: 0 0 24px rgba(120, 210, 255, 0.8);
 }
+.fd-tools { position: absolute; left: 18px; bottom: 14px; display: flex; gap: 14px; }
+.fd-tool { opacity: 0.5; }
+.fd-tool.active { opacity: 1; color: #eaf6ff; text-shadow: 0 0 10px rgba(120, 210, 255, 0.9); }
+.fd-tool b { font-weight: 600; margin-right: 4px; opacity: 0.8; }
 `
 
 export class Hud {
@@ -44,6 +48,7 @@ export class Hud {
   private readonly leakVal: HTMLElement
   private readonly resBar: HTMLElement
   private readonly resVal: HTMLElement
+  private tankBar!: HTMLElement
   private readonly overEl: HTMLElement
   private readonly overTitle: HTMLElement
 
@@ -66,6 +71,13 @@ export class Hud {
         <div class="fd-label">Attacker · Reservoir</div>
         <div class="fd-bar reservoir"><i></i></div>
         <div class="fd-value fd-res" style="font-size:11px"></div>
+        <div class="fd-label">Pressure tank</div>
+        <div class="fd-bar tank"><i></i></div>
+      </div>
+      <div class="fd-tools">
+        <span class="fd-tool" data-tool="wall"><b>1</b>Wall</span>
+        <span class="fd-tool" data-tool="neutralizer"><b>2</b>Neutralizer ${CONFIG.towers.neutralizer.cost}g</span>
+        <span class="fd-tool" data-tool="impeller"><b>3</b>Impeller ${CONFIG.towers.impeller.cost}g</span>
       </div>
       <div class="fd-over"><h1></h1></div>
     `
@@ -75,8 +87,16 @@ export class Hud {
     this.leakVal = root.querySelector('.fd-leak')!
     this.resBar = root.querySelector('.fd-bar.reservoir > i')!
     this.resVal = root.querySelector('.fd-res')!
+    this.tankBar = root.querySelector('.fd-bar.tank > i')!
     this.overEl = root.querySelector('.fd-over')!
     this.overTitle = root.querySelector('.fd-over h1')!
+    this.toolEls = [...root.querySelectorAll<HTMLElement>('.fd-tool')]
+  }
+
+  private readonly toolEls: HTMLElement[]
+
+  setTool(tool: string): void {
+    for (const el of this.toolEls) el.classList.toggle('active', el.dataset.tool === tool)
   }
 
   update(engine: Engine): void {
@@ -87,6 +107,7 @@ export class Hud {
     const resFrac = engine.reservoir / CONFIG.match.attackerReservoir
     this.resBar.style.width = `${Math.max(0, resFrac * 100)}%`
     this.resVal.textContent = `${Math.max(0, Math.round(engine.reservoir))}`
+    this.tankBar.style.width = `${Math.max(0, (engine.tank / CONFIG.attacker.tankCap) * 100)}%`
   }
 
   flashGold(): void {

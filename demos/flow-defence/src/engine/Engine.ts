@@ -5,6 +5,7 @@
 import { CONFIG } from '../config'
 import type { ObservableSnapshot } from '../sim/types'
 import type { DomainMap, InletState } from './map'
+import { canPlace, towerCost, type Tower, type TowerType } from './towers'
 
 export interface EngineCallbacks {
   onGameOver(winner: 'attacker' | 'defender'): void
@@ -19,8 +20,9 @@ export class Engine {
   gold: number = CONFIG.match.startingGold
   leakBudget: number = CONFIG.match.leakBudget
 
-  // Attacker seat.
+  // Attacker seat: reservoir → (pump) → tank → (valve/surge) → the domain.
   reservoir: number = CONFIG.match.attackerReservoir
+  tank = 0
   /** Current commanded inlet states (the attacker AI writes these). */
   inletStates: InletState[]
 
@@ -35,7 +37,10 @@ export class Engine {
   /** Rows × mean u per segment, for metering commanded release. */
   private readonly segmentFlux: number[]
 
+  private readonly mapRef: DomainMap
+
   constructor(map: DomainMap, private readonly callbacks: EngineCallbacks) {
+    this.mapRef = map
     this.inletStates = map.inletSegments.map(() => ({ openness: 1, biomass: 0, surge: 0 }))
     this.segmentFlux = map.inletSegments.map((s) => {
       // Mean of the parabolic mouth shape (0.35 + 0.65·4t(1−t)) ≈ 0.78.
@@ -65,7 +70,11 @@ export class Engine {
       if (this.leakBudget <= 0) {
         this.leakBudget = 0
         this.end('attacker')
-      } else if (this.reservoir <= 0 && obs.totalBiomass < CONFIG.match.winDrainEpsilon) {
+      } else if (
+        this.reservoir <= 0 &&
+        this.tank <= 0 &&
+        obs.totalBiomass < CONFIG.match.winDrainEpsilon
+      ) {
         this.end('defender')
       }
     }
@@ -73,21 +82,52 @@ export class Engine {
     // --- Economies -----------------------------------------------------------
     this.gold += CONFIG.match.goldTrickle / 60
 
-    // Meter the attacker's commanded release: conc × u × rows, per segment.
-    let released = 0
+    // Pump reservoir → tank.
+    const pumped = Math.min(CONFIG.attacker.pumpRate, this.reservoir, CONFIG.attacker.tankCap - this.tank)
+    this.reservoir -= pumped
+    this.tank += pumped
+
+    // Meter the attacker's commanded release from the tank: conc × u × rows,
+    // per segment; surges push more flux. If the tank can't cover the command,
+    // the valve starves proportionally.
+    let demanded = 0
     for (const [s, state] of this.inletStates.entries()) {
-      released += state.biomass * CONFIG.biomass.injectPerTick * this.segmentFlux[s]
+      const uFactor = state.openness + CONFIG.inlet.surgeU * state.surge
+      demanded += state.biomass * CONFIG.biomass.injectPerTick * this.segmentFlux[s] * uFactor
     }
-    if (released > 0) {
-      this.reservoir -= released
-      if (this.reservoir <= 0) {
-        this.reservoir = 0
-        // Valve runs dry: stop releasing (carrier keeps flowing).
-        for (const state of this.inletStates) state.biomass = 0
+    if (demanded > 0) {
+      const supply = Math.min(demanded, this.tank)
+      this.tank -= supply
+      const starve = supply / demanded
+      if (starve < 1) {
+        for (const state of this.inletStates) state.biomass *= starve
       }
     }
 
     return this.inletStates
+  }
+
+  /** Placed towers; fields are re-splatted when towersVersion changes. */
+  readonly towers: Tower[] = []
+  towersVersion = 0
+  private nextTowerId = 1
+
+  tryBuildTower(type: TowerType, x: number, y: number, angle: number): Tower | null {
+    if (this.phase === 'over') return null
+    if (!canPlace(this.mapRef, x, y)) {
+      this.callbacks.onBuildRejected('blocked')
+      return null
+    }
+    const cost = towerCost(type)
+    if (this.gold < cost) {
+      this.callbacks.onBuildRejected('not enough gold')
+      return null
+    }
+    this.gold -= cost
+    const tower: Tower = { id: this.nextTowerId++, type, x, y, angle }
+    this.towers.push(tower)
+    this.towersVersion++
+    return tower
   }
 
   /** Defender build attempt; returns the affordable prefix of cells (may be empty). */

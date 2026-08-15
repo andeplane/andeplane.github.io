@@ -1,12 +1,26 @@
-// Wall painting: pointer drag stamps a disc brush of wall cells.
-// (M5 adds economy/validation on top; this is the raw build verb.)
+// Defender input: tool selection (1 wall, 2 neutralizer, 3 impeller),
+// drag-to-paint walls, click/drag-to-aim tower placement.
 
 import { CONFIG } from '../config'
 import type { Engine } from '../engine/Engine'
+import type { TowerType } from '../engine/towers'
 import type { GpuSim } from '../sim/gpu/GpuSim'
 import { cellFromPointer } from './viewport'
 
+export type Tool = 'wall' | 'neutralizer' | 'impeller'
+
+export interface PendingPlacement {
+  type: TowerType
+  x: number
+  y: number
+  angle: number
+}
+
 export class BuildInput {
+  tool: Tool = 'wall'
+  /** Live tower placement being aimed (for the overlay preview). */
+  pending: PendingPlacement | null = null
+
   private painting = false
   private last: { x: number; y: number } | null = null
 
@@ -15,33 +29,54 @@ export class BuildInput {
     private readonly sim: GpuSim,
     private readonly engine: Engine,
   ) {
-    canvas.addEventListener('pointerdown', (e) => {
-      this.painting = true
-      this.last = null
-      this.paint(e)
+    window.addEventListener('keydown', (e) => {
+      if (e.key === '1') this.tool = 'wall'
+      else if (e.key === '2') this.tool = 'neutralizer'
+      else if (e.key === '3') this.tool = 'impeller'
     })
-    window.addEventListener('pointermove', (e) => {
-      if (this.painting) this.paint(e)
-    })
-    window.addEventListener('pointerup', () => {
-      this.painting = false
-      this.last = null
-    })
+    canvas.addEventListener('pointerdown', (e) => this.down(e))
+    window.addEventListener('pointermove', (e) => this.move(e))
+    window.addEventListener('pointerup', () => this.up())
   }
 
-  private paint(e: PointerEvent): void {
+  private cellAt(e: PointerEvent): { x: number; y: number } | null {
     const rect = this.canvas.getBoundingClientRect()
-    const cell = cellFromPointer(
-      e.clientX - rect.left,
-      e.clientY - rect.top,
-      rect.width,
-      rect.height,
-      this.sim.map,
-    )
-    if (!cell) {
+    return cellFromPointer(e.clientX - rect.left, e.clientY - rect.top, rect.width, rect.height, this.sim.map)
+  }
+
+  private down(e: PointerEvent): void {
+    const cell = this.cellAt(e)
+    if (!cell) return
+    if (this.tool === 'wall') {
+      this.painting = true
       this.last = null
-      return
+      this.paint(cell)
+    } else {
+      this.pending = { type: this.tool, x: cell.x, y: cell.y, angle: 0 }
     }
+  }
+
+  private move(e: PointerEvent): void {
+    const cell = this.cellAt(e)
+    if (this.painting && cell) this.paint(cell)
+    if (this.pending && cell) {
+      const dx = cell.x - this.pending.x
+      const dy = cell.y - this.pending.y
+      if (dx * dx + dy * dy > 9) this.pending.angle = Math.atan2(dy, dx)
+    }
+  }
+
+  private up(): void {
+    this.painting = false
+    this.last = null
+    if (this.pending) {
+      const { type, x, y, angle } = this.pending
+      this.engine.tryBuildTower(type, x, y, angle)
+      this.pending = null
+    }
+  }
+
+  private paint(cell: { x: number; y: number }): void {
     // Interpolate the stroke: stamp every ~1 cell along the segment from the
     // previous pointer sample, or fast drags leave dotted (leaky!) walls.
     const from = this.last ?? cell

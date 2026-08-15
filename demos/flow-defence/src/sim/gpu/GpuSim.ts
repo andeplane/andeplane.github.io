@@ -324,4 +324,10 @@ export class GpuSim {
   setInletStates(states: InletState[]): void {
     this.inletProfileBuffer.update(inletProfile(this.map, states))
   }
+
+  /** Defender towers, splatted CPU-side into decay + force fields. */
+  setTowerFields(decay: Float32Array, force: Float32Array): void {
+    this.towerFieldBuf.update(decay)
+    this.cellForceBuf.update(force)
+  }
 }

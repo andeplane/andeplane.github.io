@@ -54,6 +54,28 @@ export const CONFIG = {
     /** Gold per wall cell. */
     wallCostPerCell: 0.35,
   },
+  towers: {
+    neutralizer: {
+      cost: 45,
+      radius: 14,
+      /** Biomass decay rate per tick at the centre (falls off to the rim). */
+      rate: 0.09,
+    },
+    impeller: {
+      cost: 30,
+      radius: 11,
+      /** Body force magnitude (lattice units) at the centre. */
+      force: 0.0045,
+    },
+  },
+  attacker: {
+    /** Reservoir → tank pump rate (biomass units per tick). */
+    pumpRate: 9,
+    /** Pressurized tank capacity (banked ammunition for surges). */
+    tankCap: 5000,
+    /** Ticks a surge lasts once triggered. */
+    surgeTicks: 360,
+  },
   match: {
     /** Defender leak budget: total biomass the outlet can absorb before loss. */
     leakBudget: 25000,
