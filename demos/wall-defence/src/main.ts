@@ -26,10 +26,17 @@ const canvas = document.getElementById('view') as HTMLCanvasElement
 const ctx = canvas.getContext('2d')!
 const uiRoot = document.getElementById('ui')!
 
-const rotateNudge = document.createElement('div')
-rotateNudge.className = 'rotate-nudge'
-rotateNudge.textContent = 'rotate for the best view ⟳'
-uiRoot.appendChild(rotateNudge)
+// Portrait phones can't play a 3:2 board at readable size — block with a
+// rotate prompt while a run is live (menus are fine in portrait).
+const portraitQuery = window.matchMedia('(orientation: portrait) and (max-width: 700px)')
+const rotateBlock = document.createElement('div')
+rotateBlock.className = 'rotate-block'
+rotateBlock.innerHTML = `<div class="rotate-block-inner">⟳<br>Rotate your phone<br><span>Wall Defence plays sideways — the run is paused</span></div>`
+uiRoot.appendChild(rotateBlock)
+
+function portraitBlocked(): boolean {
+  return portraitQuery.matches
+}
 
 let state: GameState = createState(1)
 let mode: 'menu' | 'playing' | 'ended' = 'menu'
@@ -89,7 +96,25 @@ function resize(): void {
 window.addEventListener('resize', resize)
 resize()
 
+// Best-effort immersion on touch devices (Android: fullscreen + landscape
+// lock; iOS supports neither for pages — the rotate prompt covers it).
+function tryFullscreenLandscape(): void {
+  if (!input.isTouch) return
+  const el = document.documentElement as HTMLElement & {
+    requestFullscreen?: () => Promise<void>
+  }
+  el.requestFullscreen?.()
+    .then(() => {
+      const orientation = screen.orientation as ScreenOrientation & {
+        lock?: (o: string) => Promise<void>
+      }
+      return orientation.lock?.('landscape')
+    })
+    .catch(() => undefined)
+}
+
 function startRun(daily: boolean): void {
+  tryFullscreenLandscape()
   isDaily = daily
   const seed = daily ? dailySeed() : (Math.random() * 0xffffffff) >>> 0
   state = createState(seed)
@@ -151,8 +176,11 @@ function frame(now: number): void {
   const dt = Math.min(0.1, (now - lastTime) / 1000)
   lastTime = now
 
+  const rotateBlocking = mode === 'playing' && portraitBlocked()
+  rotateBlock.classList.toggle('visible', rotateBlocking)
+
   if (mode === 'playing') {
-    const paused = screens.isOpen || radial.isOpen || guide.isOpen
+    const paused = screens.isOpen || radial.isOpen || guide.isOpen || rotateBlocking
     if (!paused) {
       acc += dt
       let steps = 0

@@ -283,8 +283,13 @@ Visual verification: Playwright + real Chrome screenshots after real frames
 - **Desktop**: hover shows a full ghost line; click commits; Space/right-click
   toggles orientation; cooldown ring on the cursor.
 - **Touch**: first tap places an adjustable ghost (drag to move; on-screen
-  toggle flips orientation); tap the ✓ (or the ghost again) commits. No blind
-  commits into a cooldown.
+  toggle flips orientation); tap the ✓ — or tap within one cell of the ghost —
+  commits. A stationary press-release is always a tap, never a drag. No blind
+  commits into a cooldown. Tower taps get a ~1.5-cell fat-finger radius, all
+  touch targets ≥ 44 px, and the HUD never intercepts board taps.
+- **Portrait phones** are blocked with a rotate prompt during a run (sim
+  paused, menus unaffected); run start best-effort requests fullscreen +
+  landscape lock where the platform supports it.
 - **Tower placement (paused under overlay)**: tap claimed territory → nearest
   valid cell highlighted with a magnified cursor, drag to adjust, radial
   confirms. Portrait shows a "rotate for best experience" nudge; grid never

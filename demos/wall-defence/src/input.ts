@@ -28,6 +28,8 @@ export class Input {
   private confirmFab: HTMLButtonElement
   private fabWrap: HTMLDivElement
   private dragging = false
+  private dragMoved = false
+  private downCell = -1
 
   constructor(
     canvas: HTMLCanvasElement,
@@ -100,8 +102,24 @@ export class Input {
     return !solid && s.tick >= s.cutCooldownUntil
   }
 
+  // Touch gets a fat-finger radius; mouse stays exact.
   private towerAt(s: GameState, cell: number): Tower | undefined {
-    return s.towers.find((t) => t.cell === cell)
+    const exact = s.towers.find((t) => t.cell === cell)
+    if (exact || !this.isTouch) return exact
+    const cx = cell % GRID_W
+    const cy = Math.floor(cell / GRID_W)
+    let best: Tower | undefined
+    let bestD = 2 * 2 + 1 // within ~1.5 cells
+    for (const t of this.state().towers) {
+      const dx = (t.cell % GRID_W) - cx
+      const dy = Math.floor(t.cell / GRID_W) - cy
+      const d = dx * dx + dy * dy
+      if (d < bestD) {
+        bestD = d
+        best = t
+      }
+    }
+    return best
   }
 
   private onMove(e: PointerEvent): void {
@@ -119,9 +137,14 @@ export class Input {
       }
     } else if (this.dragging && this.ghost) {
       const [cx, cy] = cell
-      this.ghost.cx = cx
-      this.ghost.cy = cy
-      this.ghost.valid = this.ghostValid(cx, cy)
+      // Only a pointer that actually leaves its start cell is a drag; a
+      // stationary press-release stays a tap (so it can commit the ghost).
+      if (cy * GRID_W + cx !== this.downCell) this.dragMoved = true
+      if (this.dragMoved) {
+        this.ghost.cx = cx
+        this.ghost.cy = cy
+        this.ghost.valid = this.ghostValid(cx, cy)
+      }
     }
   }
 
@@ -135,13 +158,16 @@ export class Input {
       const cell = this.cellAt(e)
       if (cell && Math.abs(cell[0] - this.ghost.cx) <= 2 && Math.abs(cell[1] - this.ghost.cy) <= 2) {
         this.dragging = true
+        this.dragMoved = false
+        this.downCell = cell[1] * GRID_W + cell[0]
       }
     }
   }
 
   private onUp(e: PointerEvent): void {
-    const wasDragging = this.dragging
+    const wasDragging = this.dragging && this.dragMoved
     this.dragging = false
+    this.dragMoved = false
     if (!this.cb.isInteractive()) return
     if (this.cb.radial.isOpen) {
       this.cb.radial.close()
@@ -168,7 +194,12 @@ export class Input {
     // Open (or draining) space → the cut flow.
     if (this.isTouch) {
       if (wasDragging) return
-      if (this.ghost && cx === this.ghost.cx && cy === this.ghost.cy) {
+      // Fat-finger tolerance: a tap within 1 cell of the ghost commits it.
+      if (
+        this.ghost &&
+        Math.abs(cx - this.ghost.cx) <= 1 &&
+        Math.abs(cy - this.ghost.cy) <= 1
+      ) {
         this.commitGhost()
       } else {
         this.ghost = { cx, cy, orient: this.orient, valid: this.ghostValid(cx, cy), committed: true }

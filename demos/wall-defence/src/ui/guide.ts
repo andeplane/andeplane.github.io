@@ -153,7 +153,7 @@ export class Guide {
             <p class="dim">Income scales with claimed %. Captures pay a burst — <b>first-time cells only</b>, ×2 for claims over 5 % of the board, ×3 over 10 %. Portals glow amber ${'5 s'} before each wave; sealing the border just moves spawns inland. Later waves are faster and tougher.</p>
             <h3>Controls</h3>
             <p class="dim"><b>Desktop:</b> hover to aim, click to cut, <b>Space</b> or right-click flips direction.<br>
-            <b>Touch:</b> tap to place a ghost, drag to adjust, ↕ flips, ✓ commits.</p>
+            <b>Touch:</b> tap to place an aiming line, drag it to adjust, ↕ flips it; tap it again (or ✓) to commit. Phones play sideways — landscape only.</p>
           </section>
           <section>
             <h3>Enemies</h3>

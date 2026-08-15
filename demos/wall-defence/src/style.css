@@ -48,6 +48,13 @@ body {
   pointer-events: auto;
 }
 
+/* The HUD is display-only — it must never eat taps meant for the board.
+   (Needs the #ui prefix to out-specify the #ui > * rule above.) */
+#ui > .hud,
+#ui > .hud * {
+  pointer-events: none;
+}
+
 /* ---------- HUD ---------- */
 .hud {
   position: absolute;
@@ -569,21 +576,64 @@ body {
   color: #eafff5;
 }
 
-.rotate-nudge {
+.rotate-block {
   position: absolute;
-  top: 40%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  color: var(--ink-dim);
-  font-size: 13px;
-  letter-spacing: 0.08em;
-  text-align: center;
-  pointer-events: none;
+  inset: 0;
   display: none;
+  align-items: center;
+  justify-content: center;
+  background: rgba(4, 6, 10, 0.88);
+  backdrop-filter: blur(3px);
+  text-align: center;
+  z-index: 5;
 }
 
-@media (orientation: portrait) and (max-width: 600px) {
-  .rotate-nudge {
-    display: block;
+.rotate-block.visible {
+  display: flex;
+}
+
+.rotate-block-inner {
+  font-size: 20px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  line-height: 1.7;
+  color: var(--ink);
+}
+
+.rotate-block-inner span {
+  font-size: 13px;
+  font-weight: 400;
+  color: var(--ink-dim);
+}
+
+/* ---------- Touch ergonomics ---------- */
+@media (pointer: coarse) {
+  .radial {
+    padding: 10px;
+    gap: 8px;
+  }
+
+  .radial .btn {
+    padding: 12px 16px;
+    font-size: 14px;
+    min-height: 44px;
+  }
+
+  /* Keep the help button clear of the HUD's wave countdown. */
+  .help-btn {
+    top: auto;
+    right: auto;
+    bottom: 12px;
+    left: 12px;
+    width: 44px;
+    height: 44px;
+  }
+
+  .card {
+    padding: 18px 14px;
+  }
+
+  .btn {
+    min-height: 44px;
   }
 }
