@@ -13,6 +13,7 @@ import { LoopChart } from './ui/loop.ts';
 import { createTempDock } from './ui/tempdock.ts';
 import { toast } from './ui/toast.ts';
 import { createExplainer } from './ui/explainer.ts';
+import { shouldWelcome, showWelcome, spotlightDock } from './ui/welcome.ts';
 import { runSelfTest } from './selftest.ts';
 
 const T_MIN = 0.4;
@@ -80,6 +81,20 @@ async function start(): Promise<void> {
     titlecard.classList.add('dimmed');
   }
 
+  // --- Onboarding ---------------------------------------------------------
+  let dismissDockHint: (() => void) | null = null;
+  function openGuide(): void {
+    void showWelcome(Tc()).then(() => {
+      dismissDockHint ??= spotlightDock();
+    });
+  }
+  if (shouldWelcome()) openGuide();
+  document.getElementById('help')!.addEventListener('click', openGuide);
+  function noteDockUsed(): void {
+    dismissDockHint?.();
+    dismissDockHint = null;
+  }
+
   // --- Temperature dock ---------------------------------------------------
   const dock = createTempDock(document.getElementById('tempdock')!, {
     min: T_MIN,
@@ -91,6 +106,7 @@ async function start(): Promise<void> {
       disturb();
       clearQuench();
       dimTitle();
+      noteDockUsed();
       urlDirty = true;
     },
     onQuench: () => quench(),
@@ -100,6 +116,7 @@ async function start(): Promise<void> {
     sim.T = Math.min(T_MAX, Math.max(T_MIN, T));
     dock.set(sim.T, animate);
     disturb();
+    noteDockUsed();
     urlDirty = true;
   }
 
