@@ -31,6 +31,11 @@ const STEER : f32 = ${e.steer};
 const DMG : f32 = ${e.towerDamage};
 const STAGNANT_U : f32 = ${e.stagnantU};
 const SUFFOCATE : f32 = ${e.suffocate};
+const SEEK_U : f32 = ${e.seekU};
+const SEEK_R : f32 = ${e.seekRadius}.0;
+const SEEK : f32 = ${e.seek};
+const SEEK_EPS : f32 = ${e.seekGradEps};
+const SEEK_BREATH : f32 = ${e.seekBreath};
 const GLOW_STAMP : f32 = ${e.glowStamp};
 const KILL_FLASH : f32 = ${e.killFlash};
 const GLOW_SCALE : f32 = ${GLOW_SCALE}.0;
@@ -69,6 +74,11 @@ fn cellIdx(p : vec2<f32>) -> i32 {
   let x = clamp(i32(p.x), 0, SIM_W - 1);
   let y = clamp(i32(p.y), 0, SIM_H - 1);
   return y * SIM_W + x;
+}
+
+fn speedAt(p : vec2<f32>) -> f32 {
+  let uv = (p + vec2<f32>(0.5)) / vec2<f32>(f32(SIM_W), f32(SIM_H));
+  return length(textureSampleLevel(macroTex, linearSampler, uv, 0.0).xy);
 }
 
 // Spores squeeze through badly eroded walls (solidity < 0.6) — breached dams
@@ -114,7 +124,23 @@ fn main(@builtin(global_invocation_id) gid : vec3<u32>) {
   let wanderAngle = e.seed * 6.2832 + sin(params.time * 0.045 + e.seed * 37.0) * 2.4;
   let wander = vec2<f32>(cos(wanderAngle), sin(wanderAngle)) * WANDER;
 
-  let goal = (mac.xy * CARRY + vec2<f32>(SWIM, 0.0) + wander) * ADV;
+  // Becalmed spores HUNT for current: sniff the speed field around them and
+  // crawl up the gradient, holding their breath while water is in reach.
+  // Suffocation only kills where there is genuinely nowhere to go.
+  var seek = vec2<f32>(0.0);
+  var suffocating = length(mac.xy) < STAGNANT_U;
+  if (length(mac.xy) < SEEK_U) {
+    let g = vec2<f32>(
+      speedAt(e.pos + vec2<f32>(SEEK_R, 0.0)) - speedAt(e.pos - vec2<f32>(SEEK_R, 0.0)),
+      speedAt(e.pos + vec2<f32>(0.0, SEEK_R)) - speedAt(e.pos - vec2<f32>(0.0, SEEK_R)),
+    );
+    if (length(g) > SEEK_EPS) {
+      seek = normalize(g) * SEEK;
+      if (suffocating) { suffocating = false; e.hp -= SUFFOCATE * SEEK_BREATH; }
+    }
+  }
+
+  let goal = (mac.xy * CARRY + vec2<f32>(SWIM, 0.0) + wander + seek) * ADV;
   e.vel = mix(e.vel, goal, STEER);
 
   // Move, blocked by solids (axis-separated slide along walls).
@@ -137,7 +163,7 @@ fn main(@builtin(global_invocation_id) gid : vec3<u32>) {
   // current to breathe — sealed-off arms and dead eddies are lethal).
   let towerDmg = towerField[idx];
   e.hp -= towerDmg * DMG;
-  if (length(mac.xy) < STAGNANT_U) { e.hp -= SUFFOCATE; }
+  if (suffocating) { e.hp -= SUFFOCATE; }
   if (e.hp <= 0.0) {
     e.state = 0.0;
     if (towerDmg > 0.0) {

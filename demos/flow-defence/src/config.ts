@@ -75,6 +75,23 @@ export const CONFIG = {
     stagnantU: 0.01,
     /** HP lost per tick while suffocating (hp 1 dies in ~1.4 s). */
     suffocate: 0.012,
+    /**
+     * Becalmed spores HUNT for current: below seekU flow speed they sample
+     * the surrounding speed field and crawl up the gradient, and while a
+     * gradient is in reach they hold their breath (suffocation slowed by
+     * seekBreath). Spores only die quietly where there is genuinely nowhere
+     * to go — a sealed pocket. A dam with a canal LEAKS the swarm through
+     * the canal; a rotting blockade funnels them to its cracks.
+     */
+    seekU: 0.03,
+    /** Probe distance (cells) for the speed-gradient sniff. */
+    seekRadius: 12,
+    /** Crawl speed up the gradient (lattice units, like swim). */
+    seek: 0.04,
+    /** Min speed difference across probes that counts as "current in reach". */
+    seekGradEps: 0.004,
+    /** Suffocation multiplier while actively seeking (holding breath). */
+    seekBreath: 0.25,
     /** Random wander speed (lattice units) — swarms read as alive, not beads. */
     wander: 0.02,
     /** Per-tick velocity smoothing toward the flow (0..1). */
@@ -115,7 +132,7 @@ export const CONFIG = {
     /** Integrity lost per tick per unit of shear speed above the threshold.
      *  Above the threshold, self-healing also stops — walls lining fast water
      *  decay and need repainting; narrow canals are not free. */
-    kShear: 0.015,
+    kShear: 0.022,
     shearThreshold: 0.08,
     /**
      * Piping: pressure head above this erodes (scaled by porosity) AND blocks

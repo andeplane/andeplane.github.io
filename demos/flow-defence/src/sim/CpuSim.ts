@@ -133,9 +133,32 @@ export class CpuSim {
     for (const s of this.enemies) {
       if (!s.alive) continue
       const [ux, uy] = this.sampleVelocity(s.x, s.y)
+      const speed = Math.hypot(ux, uy)
+      // Becalmed spores hunt for current (shader twin of the seek block):
+      // crawl up the speed gradient, holding breath while water is in reach.
+      let seekX = 0
+      let seekY = 0
+      let suffocating = speed < e.stagnantU
+      if (speed < e.seekU) {
+        const sp = (dx: number, dy: number) => {
+          const [px, py] = this.sampleVelocity(s.x + dx, s.y + dy)
+          return Math.hypot(px, py)
+        }
+        const gx = sp(e.seekRadius, 0) - sp(-e.seekRadius, 0)
+        const gy = sp(0, e.seekRadius) - sp(0, -e.seekRadius)
+        const gl = Math.hypot(gx, gy)
+        if (gl > e.seekGradEps) {
+          seekX = (gx / gl) * e.seek
+          seekY = (gy / gl) * e.seek
+          if (suffocating) {
+            suffocating = false
+            s.hp -= e.suffocate * e.seekBreath
+          }
+        }
+      }
       const wanderAngle = s.seed * 6.2832 + Math.sin(this.tickCount * 0.045 + s.seed * 37.0) * 2.4
-      const tx = (ux * e.carry + e.swim + Math.cos(wanderAngle) * e.wander) * adv
-      const ty = (uy * e.carry + Math.sin(wanderAngle) * e.wander) * adv
+      const tx = (ux * e.carry + e.swim + Math.cos(wanderAngle) * e.wander + seekX) * adv
+      const ty = (uy * e.carry + Math.sin(wanderAngle) * e.wander + seekY) * adv
       s.vx += (tx - s.vx) * e.steer
       s.vy += (ty - s.vy) * e.steer
       const cx = s.x + s.vx
@@ -159,7 +182,7 @@ export class CpuSim {
         Math.min(Math.max(Math.floor(s.x), 0), width - 1)
       const towerDmg = this.towerField[idx]
       s.hp -= towerDmg * e.towerDamage
-      if (Math.hypot(ux, uy) < e.stagnantU) s.hp -= e.suffocate
+      if (suffocating) s.hp -= e.suffocate
       if (s.hp <= 0) {
         s.alive = false
         if (towerDmg > 0) this.towerKillsTotal++
