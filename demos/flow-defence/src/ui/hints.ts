@@ -52,7 +52,7 @@ const tutorial: Hint[] = [
   },
   {
     text: () =>
-      'Sealed. Anything spawning behind a seal SUFFOCATES in still water — and still pays bounty. Now press 2 and click ON the middle stream: the Neutralizer kills what crosses its ring.',
+      'Sealed. Anything spawning behind a seal SUFFOCATES in still water (no bounty — drowned spores pay nothing). Now press 2 and click ON the middle stream: the Neutralizer kills what crosses its ring.',
     done: ({ match }) => match.towers.some((t) => t.type === 'neutralizer') || match.waveIndex >= 1,
   },
   {

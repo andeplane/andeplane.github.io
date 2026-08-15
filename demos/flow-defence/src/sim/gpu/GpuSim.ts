@@ -335,6 +335,7 @@ export class GpuSim {
           tick,
           breachCount: u[0],
           kills: u[1],
+          suffocated: u[5],
           escapes: u[2],
           outletFlux: u[3] / FLUX_SCALE,
           outletInflux: u[4] / FLUX_SCALE,

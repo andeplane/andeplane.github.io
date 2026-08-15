@@ -9,6 +9,8 @@ export interface ObservableSnapshot {
   breachCount: number
   /** Spores killed by towers since match start (monotone) — feeds bounty. */
   kills: number
+  /** Spores suffocated in stagnant water (monotone) — defense, no bounty. */
+  suffocated: number
   /** Spores that reached the outlet since match start (monotone) — drains lives. */
   escapes: number
   /** Accumulated outbound outlet water flux since match start (monotone). */

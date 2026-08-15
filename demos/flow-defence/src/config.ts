@@ -46,10 +46,14 @@ export const CONFIG = {
     floodRho: 0.08,
     /**
      * Back-pressure choke: inlet velocity scales by 1 − choke·(downstream ρ
-     * excess). A pump loses flow against head — so walling off an arm makes
-     * it choke and stall instead of pressurizing your wall to death.
+     * excess). A pump loses flow against head. Stall head ≈ 1/choke — this is
+     * THE conservation knob: a stiff pump (small choke) keeps pushing through
+     * constrictions, so a hair-thin canal carries fire-hose velocity and gets
+     * shredded by shear, basins drift instead of stagnating, and dams get
+     * pressure-cooked. (Was 50 — that soft pump "gave up" against any wall
+     * and made blockades/hair-canals cheap to hold.)
      */
-    choke: 50,
+    choke: 18,
   },
   /**
    * Enemies are discrete spores riding the current — GPU particles advected
@@ -179,8 +183,9 @@ export const CONFIG = {
      * arena). Intake below thirstFraction × nominal during a wave means the
      * defender has strangled the flow — the base THIRSTS and bleeds lives.
      * This is the anti-blockade rule: reroute the river, never stop it.
+     * Re-measure (scratchpad flux-measure.mjs) whenever inlet.choke moves.
      */
-    nominalFlux: 9,
+    nominalFlux: 13.8,
     /** Deliberately low: thirst punishes BLOCKADES (net discharge ≈ 0), never
      *  narrow canals — a canal's cost is erosion and pressure, not thirst.
      *  (Measured: minimal 15-row canal ≈ 0.6–1.0; blockade flushes ≈ 0–0.3.) */
@@ -214,7 +219,7 @@ export const CONFIG = {
       description: 'Open water, three pillars. Learn the tools.',
       lives: 15,
       startingGold: 165,
-      nominalFlux: 9,
+      nominalFlux: 13.8,
       terrain: [
         { kind: 'disc', x: 0.32, y: 0.34, r: 13 },
         { kind: 'disc', x: 0.46, y: 0.68, r: 16 },
@@ -233,7 +238,7 @@ export const CONFIG = {
       description: 'A serpentine canyon — the river snakes, and so must they.',
       lives: 12,
       startingGold: 150,
-      nominalFlux: 4.5,
+      nominalFlux: 4.2,
       // Alternating baffles force the whole flow into an S: three long jets
       // and three hairpin corners — every corner is a kill-zone opportunity.
       terrain: [
@@ -256,7 +261,7 @@ export const CONFIG = {
       description: 'The narrows: everything funnels through one throat.',
       lives: 10,
       startingGold: 150,
-      nominalFlux: 7,
+      nominalFlux: 8.2,
       // Two huge lenses squeeze the whole river through a central throat —
       // surges through the narrows hammer like a burst pipe. Downstream
       // pillars split the exit jet into braided streams.

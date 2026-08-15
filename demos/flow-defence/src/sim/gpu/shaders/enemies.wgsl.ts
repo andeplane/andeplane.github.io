@@ -5,8 +5,10 @@
 //
 // Counters layout (atomic<u32>):
 //   [0] breach count (written by erosion pass)
-//   [1] spores killed by towers (monotone)
+//   [1] spores killed by towers (monotone, pays bounty)
 //   [2] spores escaped to the outlet (monotone)
+//   [5] spores suffocated in stagnant water (monotone, pays NOTHING —
+//       otherwise sealed basins become risk-free bounty farms)
 
 import { CONFIG } from '../../../config'
 import { CELL } from '../../core/constants'
@@ -133,12 +135,19 @@ fn main(@builtin(global_invocation_id) gid : vec3<u32>) {
 
   // Neutralizer damage, plus suffocation in stagnant water (spores need
   // current to breathe — sealed-off arms and dead eddies are lethal).
-  e.hp -= towerField[idx] * DMG;
+  let towerDmg = towerField[idx];
+  e.hp -= towerDmg * DMG;
   if (length(mac.xy) < STAGNANT_U) { e.hp -= SUFFOCATE; }
   if (e.hp <= 0.0) {
     e.state = 0.0;
-    atomicAdd(&counters[1], 1u);
-    stamp(e.pos, KILL_FLASH, 3);   // the kill flash — bloom pops on it
+    if (towerDmg > 0.0) {
+      atomicAdd(&counters[1], 1u);
+      stamp(e.pos, KILL_FLASH, 3);   // the kill flash — bloom pops on it
+    } else {
+      // Drowned quietly: no bounty, a dimmer flash.
+      atomicAdd(&counters[5], 1u);
+      stamp(e.pos, KILL_FLASH * 0.35, 2);
+    }
     enemies[i] = e;
     return;
   }

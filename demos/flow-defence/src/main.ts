@@ -62,6 +62,7 @@ async function start(): Promise<void> {
   const menu = new Menu(stage, levelNum)
 
   const hud = level ? new Hud(stage, levelNum!) : null
+  let surgeSeen = false
   const rng = new SeededRng(Number(query.get('seed') ?? 1))
   const match = new Engine(
     map,
@@ -69,8 +70,16 @@ async function start(): Promise<void> {
       onGameOver: (winner) => hud?.showGameOver(winner, match),
       onBreach: () => {},
       onBuildRejected: () => hud?.flashGold(),
-      onWaveStart: (wave, surge) => hud?.announce(surge ? `Wave ${wave} — surge` : `Wave ${wave}`),
-      onWaveCleared: (wave, bonus) => hud?.announce(`Wave ${wave} cleared  +${bonus}g`),
+      onWaveStart: (wave, surge) => {
+        if (surge && !surgeSeen) {
+          surgeSeen = true
+          hud?.announce(`Wave ${wave} — SURGE: faster current, walls strain`)
+        } else {
+          hud?.announce(surge ? `Wave ${wave} — surge` : `Wave ${wave}`)
+        }
+      },
+      onWaveCleared: (wave, bonus, escaped) =>
+        hud?.announce(`Wave ${wave} cleared  +${bonus}g${escaped > 0 ? `  ·  ${escaped} slipped through` : ''}`),
     },
     rng.stream('spawn'),
     level ?? undefined,

@@ -14,7 +14,7 @@ export interface EngineCallbacks {
   onBreach(newBreaches: number): void
   onBuildRejected(reason: string): void
   onWaveStart(wave: number, surge: boolean): void
-  onWaveCleared(wave: number, bonus: number): void
+  onWaveCleared(wave: number, bonus: number, escaped: number): void
 }
 
 export type MatchPhase = 'build' | 'wave' | 'over'
@@ -47,7 +47,10 @@ export class Engine {
 
   gold: number
   lives: number
-  killsTotal = 0
+  /** Spores destroyed by towers (the only kills that pay bounty). */
+  towerKills = 0
+  /** Spores drowned in stagnant water (defense, not income). */
+  suffocatedTotal = 0
   escapesTotal = 0
   /** Current commanded inlet states (openness always 1; surge per wave). */
   inletStates: InletState[]
@@ -81,7 +84,9 @@ export class Engine {
   private nextSpawnIn = 0
   private ticksSinceSpawnDone = 0
   private lastKills = 0
+  private lastSuffocated = 0
   private lastEscapes = 0
+  private escapesAtWaveStart = 0
   private lastBreach = 0
   private lastObsTick = -1
   /** Rolling (tick, out, in) accumulator samples spanning ~intakeWindow ticks.
@@ -108,6 +113,11 @@ export class Engine {
   /** Waves in this level. */
   get waveTotal(): number {
     return this.level.waves.length
+  }
+
+  /** All destroyed spores (towers + drowned) — the feedback stat. */
+  get killsTotal(): number {
+    return this.towerKills + this.suffocatedTotal
   }
 
   /** Best CPU-side estimate of spores currently alive (readback-lagged). */
@@ -155,9 +165,11 @@ export class Engine {
     if (obs && obs.tick !== this.lastObsTick) {
       this.lastObsTick = obs.tick
       const kills = obs.kills - this.lastKills
+      const suffocated = obs.suffocated - this.lastSuffocated
       const escapes = obs.escapes - this.lastEscapes
       const breaches = obs.breachCount - this.lastBreach
       this.lastKills = obs.kills
+      this.lastSuffocated = obs.suffocated
       this.lastEscapes = obs.escapes
       this.lastBreach = obs.breachCount
       // Net VOLUME over the rolling window: sloshing (out then back in)
@@ -175,8 +187,10 @@ export class Engine {
       if (span >= Engine.intakeWindow / 2) {
         this.intakeFlux = Math.max(0, (obs.outletFlux - oldest.out - (obs.outletInflux - oldest.inn)) / span)
       }
-      this.killsTotal += kills
+      this.towerKills += kills
+      this.suffocatedTotal += suffocated
       this.escapesTotal += escapes
+      // Only tower kills pay — drowned spores are defense, not income.
       this.gold += kills * CONFIG.enemies.bounty
       this.lives -= escapes
       if (breaches > 0) this.callbacks.onBreach(breaches)
@@ -242,7 +256,7 @@ export class Engine {
     if (cleared) {
       const bonus = CONFIG.match.clearBonusBase + CONFIG.match.clearBonusPerWave * (this.waveIndex + 1)
       this.gold += bonus
-      this.callbacks.onWaveCleared(this.waveIndex + 1, bonus)
+      this.callbacks.onWaveCleared(this.waveIndex + 1, bonus, this.escapesTotal - this.escapesAtWaveStart)
       for (const s of this.inletStates) s.surge = 0
       this.waveIndex++
       if (this.waveIndex >= this.level.waves.length) {
@@ -259,6 +273,7 @@ export class Engine {
   private beginWave(): void {
     const wave = this.level.waves[this.waveIndex]
     this.phase = 'wave'
+    this.escapesAtWaveStart = this.escapesTotal
     this.spawnRemaining = wave.count
     this.nextSpawnIn = 1
     this.ticksSinceSpawnDone = 0

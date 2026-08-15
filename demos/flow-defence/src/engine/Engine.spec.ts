@@ -33,6 +33,7 @@ const obs = (tick: number, kills: number, escapes: number, outletFlux = tick * 1
   tick,
   breachCount: 0,
   kills,
+  suffocated: 0,
   escapes,
   outletFlux,
   outletInflux: 0,

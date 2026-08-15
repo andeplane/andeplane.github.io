@@ -26,6 +26,18 @@ const HUD_CSS = /* css */ `
   100% { color: #fda4af; transform: scale(1); }
 }
 .fd-lives { display: inline-block; transform-origin: left center; }
+.fd-dmg {
+  position: absolute; inset: 0; pointer-events: none; opacity: 0;
+  box-shadow: inset 0 0 120px 30px rgba(255, 45, 85, 0.55);
+}
+.fd-dmg.hit { animation: fd-dmg 0.8s ease-out; }
+@keyframes fd-dmg { 0% { opacity: 1; } 100% { opacity: 0; } }
+.fd-escaped {
+  position: absolute; left: 50%; top: 42%; transform: translateX(-50%);
+  letter-spacing: 0.3em; font-size: 17px; color: #ff5c77; text-transform: uppercase;
+  text-shadow: 0 0 20px rgba(255, 45, 85, 1); opacity: 0; pointer-events: none;
+}
+.fd-escaped.hit { animation: fd-dmg 1.1s ease-out; }
 .fd-bar {
   height: 3px; border-radius: 2px; margin: 4px 0 2px;
   background: rgba(130, 200, 255, 0.15); overflow: hidden;
@@ -108,6 +120,8 @@ export class Hud {
   private readonly intakeWrap: HTMLElement
   private readonly intakeCap: HTMLElement
   private readonly thirstEl: HTMLElement
+  private readonly dmgEl: HTMLElement
+  private readonly escapedEl: HTMLElement
   private readonly jetEl: HTMLElement
   private readonly announceEl: HTMLElement
   private readonly hintEl: HTMLElement
@@ -150,6 +164,8 @@ export class Hud {
         <span class="fd-tool fd-jet"><b>R-hold</b>Jet</span>
       </div>
       <div class="fd-hint"></div>
+      <div class="fd-dmg"></div>
+      <div class="fd-escaped">Spore escaped</div>
       <div class="fd-warn">Surge wave</div>
       <div class="fd-thirst">The base thirsts — let the river flow</div>
       <div class="fd-announce"></div>
@@ -175,6 +191,8 @@ export class Hud {
     const mark = root.querySelector<HTMLElement>('.fd-bar.intake > s')!
     mark.style.left = `${Math.round(Math.sqrt(CONFIG.match.thirstFraction) * 100)}%`
     this.thirstEl = root.querySelector('.fd-thirst')!
+    this.dmgEl = root.querySelector('.fd-dmg')!
+    this.escapedEl = root.querySelector('.fd-escaped')!
     this.jetEl = root.querySelector('.fd-jet')!
     this.announceEl = root.querySelector('.fd-announce')!
     this.hintEl = root.querySelector('.fd-hint')!
@@ -200,11 +218,19 @@ export class Hud {
   update(engine: Engine): void {
     this.goldEl.textContent = Math.floor(engine.gold).toString()
     this.livesEl.textContent = engine.lives.toString()
-    // A lost life must be unmissable: flash + scale punch on every drop.
+    // A lost life must be unmissable: counter punch, red screen-edge flash,
+    // and (for escapes) a center callout naming the cause.
     if (this.lastLives >= 0 && engine.lives < this.lastLives) {
-      this.livesEl.classList.remove('hit')
-      void this.livesEl.offsetWidth
-      this.livesEl.classList.add('hit')
+      for (const el of [this.livesEl, this.dmgEl]) {
+        el.classList.remove('hit')
+        void el.offsetWidth
+        el.classList.add('hit')
+      }
+      if (!engine.thirsting) {
+        this.escapedEl.classList.remove('hit')
+        void this.escapedEl.offsetWidth
+        this.escapedEl.classList.add('hit')
+      }
     }
     this.lastLives = engine.lives
     this.killsEl.textContent = engine.killsTotal.toString()

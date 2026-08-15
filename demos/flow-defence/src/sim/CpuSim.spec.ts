@@ -44,7 +44,7 @@ describe('CpuSim', () => {
     }
     // Passive drifters with a swim bias: everyone reaches the outlet.
     expect(sim.escapesTotal).toBe(5)
-    expect(sim.killsTotal).toBe(0)
+    expect(sim.towerKillsTotal + sim.suffocatedTotal).toBe(0)
     expect(ticks).toBeGreaterThan(60) // travel takes real time — no teleporting
   })
 
@@ -68,7 +68,7 @@ describe('CpuSim', () => {
       sim.tick()
       ticks++
     }
-    expect(sim.killsTotal).toBe(5)
+    expect(sim.towerKillsTotal).toBe(5)
     expect(sim.escapesTotal).toBe(0)
   })
 

@@ -102,13 +102,15 @@ function howToPlayHtml(): string {
     into one channel. Park neutralizers on that channel and let the bounty fund the next layer.
     A wall parallel to a fast jet dies; a wall that makes the jet turn survives.</p>
     <p>Spores need current to breathe: anything trapped in <b>still water</b> — behind a seal, in
-    a dead pocket, inside a dammed basin — <b>suffocates</b>, and still pays bounty. That's why
-    sealing works. The <b style="color:#fb923c">orange glow</b> is pressure: water banking up
-    behind a blockage. Dams hold it for a while, then fail by piping — repaint to shore them up.</p>
+    a dead pocket — <b>suffocates</b>. Drowned spores pay <b>no bounty</b>: sealing is defense,
+    not income; only tower kills fund you. The <b style="color:#fb923c">orange glow</b> is
+    pressure: water banking up behind a blockage. Dams hold for a while, then fail by piping —
+    and a wall glowing <b style="color:#fb7185">hot pink</b> is rotten: spores pass through it.</p>
 
     <h2>Economy</h2>
-    <p>Income: starting gold + a trickle (${match.goldTrickle}g/s) + ${enemies.bounty}g per kill +
-    a wave-clear bonus. If your gold flashes, you can't afford what you just tried.</p>
+    <p>Income: starting gold + a trickle (${match.goldTrickle}g/s) + ${enemies.bounty}g per <b>tower</b>
+    kill + a wave-clear bonus. Drowned spores pay nothing. If your gold flashes, you can't afford
+    what you just tried.</p>
   </div>`
 }
 

@@ -125,6 +125,10 @@ fn main(input : FragmentInputs) -> FragmentOutputs {
   let damage = (1.0 - exact) * step(0.02, exact);
   let crack = pow(damage, 1.5) * (0.35 + 0.65 * hash2(cell * 1.7));
   col += crack * exact * 5.0 * vec3<f32>(1.0, 0.42, 0.12);
+  // ROTTEN band: below 60% integrity a wall is spore-permeable — that state
+  // must scream, not whisper. Hot pink-red, unmistakably "this wall is open".
+  let rotten = step(0.02, exact) * (1.0 - step(0.6, exact));
+  col += rotten * (0.5 + 0.5 * hash2(cell * 3.1)) * vec3<f32>(2.2, 0.25, 0.5);
 
   fragmentOutputs.color = vec4<f32>(col, 1.0);
 ${debugView}

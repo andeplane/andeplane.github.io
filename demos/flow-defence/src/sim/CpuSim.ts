@@ -26,7 +26,8 @@ export class CpuSim {
   readonly enemies: CpuEnemy[] = []
 
   // Monotone accumulators, same semantics as the GPU counters.
-  killsTotal = 0
+  towerKillsTotal = 0
+  suffocatedTotal = 0
   escapesTotal = 0
   breachCount = 0
   tickCount = 0
@@ -156,11 +157,13 @@ export class CpuSim {
       const idx =
         Math.min(Math.max(Math.floor(s.y), 0), height - 1) * width +
         Math.min(Math.max(Math.floor(s.x), 0), width - 1)
-      s.hp -= this.towerField[idx] * e.towerDamage
+      const towerDmg = this.towerField[idx]
+      s.hp -= towerDmg * e.towerDamage
       if (Math.hypot(ux, uy) < e.stagnantU) s.hp -= e.suffocate
       if (s.hp <= 0) {
         s.alive = false
-        this.killsTotal++
+        if (towerDmg > 0) this.towerKillsTotal++
+        else this.suffocatedTotal++
         continue
       }
       if (this.ref.cellType[idx] === CELL.OUTLET || s.x >= width - 2) {
