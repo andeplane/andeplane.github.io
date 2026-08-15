@@ -73,7 +73,12 @@ async function start(): Promise<void> {
   let urlDirty = false;
   let screenshotWanted = false;
 
+  // Bumped by every user-visible intervention (any disturbance, or pausing); delayed
+  // preset actions capture the value and abort if the world moved on under them.
+  let actionGen = 0;
+
   function disturb(): void {
+    actionGen++;
     epoch = stats.disturb(sim.sweepCount, sim.T, Tc());
   }
 
@@ -378,6 +383,7 @@ async function start(): Promise<void> {
   });
   function togglePause(): void {
     paused = !paused;
+    actionGen++;
     pauseButton.textContent = paused ? 'Run' : 'Pause';
   }
   const resetRow = document.createElement('div');
@@ -461,7 +467,11 @@ async function start(): Promise<void> {
     // Checkerboard dynamics coarsens fast; slow the clock so the mosaic is watchable.
     setSpeedCap(3);
     toast('Melting first… then an instant deep quench. Watch domains nucleate and coarsen — slowed down so you can see it.');
+    // Captured after the setup calls above; if the user touches anything in the next
+    // two seconds, the delayed quench aborts instead of clobbering their state.
+    const gen = actionGen;
     setTimeout(() => {
+      if (gen !== actionGen) return;
       setT(0.45 * Tc(), true);
       flashCold();
     }, 2000);
