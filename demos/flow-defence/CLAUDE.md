@@ -106,11 +106,18 @@ npm run build    # tsc + vite build
 - Physics: `npx vitest run` (mass conservation, Poiseuille ≤2%, porous-plug
   monotonicity, spores-reach-outlet, neutralizer-kills, dam-breach timing,
   Engine wave/lives/win logic).
-- Gameplay balance: self-play bots (scratchpad `bot-play.mjs` = seals +
-  middle-jet ring gauntlet + throttled repair, must WIN level 1;
-  `bot-idle.mjs` must LOSE). Never edit demos/ files while a bot runs — HMR
-  reloads the page mid-match. Bots repaint seals at most every ~25 s: repair
-  costs gold per sweep and repainting every poll bankrupts the economy.
+- Gameplay balance: self-play bots in the scratchpad. Exploit bots must
+  LOSE (`bot-farm.mjs` hair-canal drown farm, `bot-blockade.mjs` total dam,
+  `bot-idle.mjs`); strategy bots must WIN (`bot-play.mjs` seals+rings,
+  `bot-canal.mjs` dam-with-guarded-gap, `bot-campaign.mjs <level>` which
+  plays ANY level through the `?bot=1` `window.fd` API with a per-level
+  plan). Run bots against a FROZEN build: `npm run build && npx vite
+  preview --port 4173`, then `FD_URL=http://localhost:4173 node bot-*.mjs`
+  — dev-server HMR reloads pages mid-match, a frozen preview can't.
+  Bots repaint seals at most every ~18-25 s: repair costs gold per sweep
+  and repainting every poll bankrupts the economy. Design note: sealing
+  both outer arms makes the middle jet FAN into top/bottom bypass branches
+  — intended fluid behavior; defenses must cover the flanks.
 - Visuals: dev server + a playwright script (scratchpad `smoke-waves.mjs`,
   `jet-check.mjs`). Useful query params:
   `?warmup=N` (pre-roll ticks) · `?probe` (fps + wave/lives + observables) ·
