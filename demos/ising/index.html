@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Ising Lab — a phase transition you can hold</title>
+    <meta
+      name="description"
+      content="Millions of magnetic spins on your GPU, one temperature slider, and a real phase transition at T = 2.269. Quench it, paint on it, measure Onsager's exact curve."
+    />
+    <link rel="stylesheet" href="/src/style.css" />
+  </head>
+  <body>
+    <canvas id="view"></canvas>
+
+    <div id="loading"><span>warming up the lattice…</span></div>
+
+    <div id="unsupported" hidden>
+      <div>
+        <h1>WebGPU required</h1>
+        <p>
+          This lab runs millions of Metropolis updates per frame on your GPU, and needs a
+          browser with WebGPU. Recent Chrome, Edge, or Safari should work; in Firefox,
+          enable it in <code>about:config</code>.
+        </p>
+      </div>
+    </div>
+
+    <header id="titlecard">
+      <h1>Ising Lab</h1>
+      <p>
+        Millions of magnetic spins, each flipping by one simple rule. Drag the
+        temperature through T<sub>c</sub> and watch a genuine phase transition happen
+        under your cursor.
+      </p>
+      <button id="explain" type="button">How does it work?</button>
+    </header>
+
+    <aside id="readouts"></aside>
+    <section id="charts"></section>
+    <aside id="controls"></aside>
+
+    <div id="tempdock"></div>
+    <div id="coldflash"></div>
+    <div id="toast" hidden></div>
+
+    <div id="mobilebar" hidden>
+      <button id="mb-controls" type="button" aria-label="Controls">⚙</button>
+      <button id="mb-charts" type="button" aria-label="Measurements">📈</button>
+    </div>
+    <button id="shot" type="button" title="Save a screenshot">📷</button>
+
+    <script type="module" src="/src/main.ts"></script>
+  </body>
+</html>
