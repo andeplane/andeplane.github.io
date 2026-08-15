@@ -15,6 +15,7 @@ import { toast } from './ui/toast.ts';
 import { createExplainer } from './ui/explainer.ts';
 import { shouldWelcome, showWelcome, spotlightDock } from './ui/welcome.ts';
 import { runSelfTest } from './selftest.ts';
+import { storageGet, storageSet } from './storage.ts';
 
 const T_MIN = 0.4;
 const T_MAX = 5.0;
@@ -167,7 +168,7 @@ async function start(): Promise<void> {
   const setCollapsed = (c: boolean) => {
     chartsRoot.classList.toggle('collapsed', c);
     chartsTitle.textContent = c ? 'Measurements ▸' : 'Measurements ▾';
-    localStorage.setItem(collapsedKey, c ? '1' : '');
+    storageSet(collapsedKey, c ? '1' : '');
   };
   chartsTitle.addEventListener('click', () => setCollapsed(!chartsRoot.classList.contains('collapsed')));
   const clearButton = document.createElement('button');
@@ -224,7 +225,7 @@ async function start(): Promise<void> {
 
   const scatters = [scatterM, scatterChi, scatterE, scatterCv];
   chartsRoot.append(mChart.element, eChart.element, ...scatters.map((s) => s.element), loopChart.element);
-  setCollapsed(localStorage.getItem(collapsedKey) === '1');
+  setCollapsed(storageGet(collapsedKey) === '1');
 
   function applyGeometryToCharts(): void {
     const g = sim.geometry.key;
@@ -520,7 +521,7 @@ async function start(): Promise<void> {
 
   // --- Critical point badge ------------------------------------------------
   const foundKey = () => `ising-critical-${sim.geometry.key}`;
-  const isFound = () => localStorage.getItem(foundKey()) === '1';
+  const isFound = () => storageGet(foundKey()) === '1';
   dock.setFound(isFound());
   let criticalSince: number | null = null;
 
@@ -532,7 +533,7 @@ async function start(): Promise<void> {
     }
     criticalSince ??= now;
     if (now - criticalSince > 3000) {
-      localStorage.setItem(foundKey(), '1');
+      storageSet(foundKey(), '1');
       dock.setFound(true);
       const badge = document.createElement('div');
       badge.id = 'critbadge';

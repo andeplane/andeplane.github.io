@@ -5,10 +5,12 @@
  * multi-step tour — the lab should teach itself once the reader finds the slider.
  */
 
+import { storageGet, storageSet } from '../storage.ts';
+
 const SEEN_KEY = 'ising-welcomed';
 
 export function shouldWelcome(): boolean {
-  return localStorage.getItem(SEEN_KEY) === null;
+  return storageGet(SEEN_KEY) === null;
 }
 
 export function showWelcome(tc: number): Promise<void> {
@@ -51,7 +53,7 @@ export function showWelcome(tc: number): Promise<void> {
     // let any unattended appearance (e.g. an auto-reload) permanently swallow the
     // onboarding for a user who never actually read it.
     const close = () => {
-      localStorage.setItem(SEEN_KEY, '1');
+      storageSet(SEEN_KEY, '1');
       dialog.close();
       dialog.remove();
       resolve();
@@ -61,7 +63,7 @@ export function showWelcome(tc: number): Promise<void> {
       if (event.target === dialog) close();
     });
     dialog.addEventListener('cancel', () => {
-      localStorage.setItem(SEEN_KEY, '1');
+      storageSet(SEEN_KEY, '1');
       dialog.remove();
       resolve();
     });
