@@ -12,6 +12,7 @@ import { dailySeed, recordDailyRun, utcDateString, loadDaily } from './daily'
 import { Input } from './input'
 import { Hud } from './ui/hud'
 import { Hints } from './ui/hints'
+import { Guide } from './ui/guide'
 import { Picker } from './ui/picker'
 import { Radial } from './ui/radial'
 import { Screens } from './ui/screens'
@@ -47,6 +48,15 @@ const hints = new Hints(uiRoot)
 const picker = new Picker(uiRoot)
 const radial = new Radial(uiRoot)
 const screens = new Screens(uiRoot)
+const guide = new Guide(uiRoot)
+
+const helpBtn = document.createElement('button')
+helpBtn.className = 'help-btn'
+helpBtn.textContent = '?'
+helpBtn.title = 'How to play'
+helpBtn.style.display = 'none'
+helpBtn.addEventListener('click', () => (guide.isOpen ? guide.close() : guide.open()))
+uiRoot.appendChild(helpBtn)
 
 const input = new Input(
   canvas,
@@ -56,7 +66,8 @@ const input = new Input(
   {
     emit: (e) => pendingEvents.push(e),
     radial,
-    isInteractive: () => mode === 'playing' && !screens.isOpen && state.currentOffer.length === 0,
+    isInteractive: () =>
+      mode === 'playing' && !screens.isOpen && !guide.isOpen && state.currentOffer.length === 0,
     onFirstCut: () => {
       idleHintAt = Infinity
     },
@@ -85,8 +96,10 @@ function startRun(daily: boolean): void {
   mode = 'playing'
   input.reset()
   radial.close()
+  guide.close()
   hints.reset()
   hud.setVisible(true)
+  helpBtn.style.display = ''
   idleHintAt = performance.now() + 3000
   lastTime = performance.now()
 }
@@ -95,7 +108,11 @@ function showMenu(): void {
   mode = 'menu'
   hud.setVisible(false)
   radial.close()
-  screens.showMenu((c) => startRun(c.mode === 'daily'))
+  helpBtn.style.display = 'none'
+  screens.showMenu(
+    (c) => startRun(c.mode === 'daily'),
+    () => guide.open(),
+  )
 }
 
 function endRun(): void {
@@ -128,7 +145,7 @@ function frame(now: number): void {
   lastTime = now
 
   if (mode === 'playing') {
-    const paused = screens.isOpen || radial.isOpen
+    const paused = screens.isOpen || radial.isOpen || guide.isOpen
     if (!paused) {
       acc += dt
       let steps = 0
@@ -148,15 +165,11 @@ function frame(now: number): void {
       if (acc > FIXED_DT * MAX_STEPS) acc = 0
     }
 
-    // Picker sync (sim frozen internally while an offer is up).
+    // Picker sync (sim frozen internally while an offer is up). The event is
+    // applied by the normal step on the next frame; a queued second offer
+    // re-renders then, with a live callback.
     picker.sync(state.currentOffer, (choice) => {
       pendingEvents.push({ kind: 'PickUpgrade', choice })
-      // Apply immediately so the modal closes without waiting a frame.
-      const events = pendingEvents
-      pendingEvents = []
-      step(state, events)
-      juice.consume(state, state.fx, now)
-      picker.sync(state.currentOffer, () => undefined)
     })
 
     // Wave flash + hints.
@@ -184,7 +197,7 @@ function frame(now: number): void {
 
   const alpha = Math.max(0, Math.min(1, acc / FIXED_DT))
   const ghost =
-    mode === 'playing' && !screens.isOpen && state.currentOffer.length === 0
+    mode === 'playing' && !screens.isOpen && !guide.isOpen && state.currentOffer.length === 0
       ? input.currentGhost()
       : null
   draw(ctx, state, view, juice, prev, alpha, ghost, now)

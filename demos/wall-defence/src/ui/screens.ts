@@ -33,7 +33,7 @@ export class Screens {
     }
   }
 
-  showMenu(onStart: (c: StartChoice) => void): void {
+  showMenu(onStart: (c: StartChoice) => void, onHowTo: () => void): void {
     this.close()
     const date = utcDateString()
     const rec = loadDaily(date)
@@ -53,6 +53,7 @@ export class Screens {
         <div class="menu-buttons">
           <button class="btn primary" data-mode="daily">Daily board #${boardNumber()}${played ? ` · try ${rec.attempts + 1}` : ''}</button>
           <button class="btn" data-mode="free">Free play</button>
+          <button class="btn" data-act="howto">How to play</button>
         </div>
         <div class="daily-meta">
           ${played ? `today's best: wave ${rec.bestWave}/${WAVE_COUNT} · ${rec.bestPct}%` : 'first try today'}
@@ -65,6 +66,7 @@ export class Screens {
         onStart({ mode: b.dataset.mode as 'daily' | 'free' })
       })
     })
+    el.querySelector('[data-act="howto"]')!.addEventListener('click', () => onHowTo())
     this.parent.appendChild(el)
     this.el = el
   }

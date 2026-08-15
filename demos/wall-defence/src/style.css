@@ -354,6 +354,135 @@ body {
   color: var(--danger);
 }
 
+/* ---------- Guide ---------- */
+.panel.guide {
+  max-width: min(940px, 94vw);
+  text-align: left;
+}
+
+.panel.guide h2 {
+  text-align: center;
+}
+
+.guide-cols {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 8px 26px;
+  margin: 6px 0 16px;
+}
+
+.guide h3 {
+  font-size: 13px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--claim);
+  margin: 14px 0 8px;
+}
+
+.guide h3:first-child {
+  margin-top: 0;
+}
+
+.guide .dim {
+  color: var(--ink-dim);
+}
+
+.guide p,
+.guide .guide-steps li {
+  font-size: 12.5px;
+  line-height: 1.55;
+  margin-bottom: 6px;
+}
+
+.guide-steps {
+  padding-left: 18px;
+}
+
+.guide-note {
+  font-size: 12px;
+  line-height: 1.55;
+  margin-top: 6px;
+}
+
+.ref-row {
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+  font-size: 12.5px;
+  line-height: 1.45;
+  margin-bottom: 8px;
+}
+
+.glyph {
+  flex: 0 0 auto;
+  width: 16px;
+  height: 16px;
+  margin-top: 2px;
+}
+
+.glyph-bouncer {
+  border-radius: 50%;
+  background: #e9e4da;
+}
+
+.glyph-breaker {
+  background: #ff3d5a;
+  transform: rotate(45deg) scale(0.8);
+}
+
+.glyph-chaser {
+  width: 0;
+  height: 0;
+  border-top: 8px solid transparent;
+  border-bottom: 8px solid transparent;
+  border-left: 15px solid #ff8c1a;
+  background: none;
+}
+
+.glyph-splitter {
+  border-radius: 50%;
+  background: #c86bff;
+  box-shadow: inset 0 0 0 3px #c86bff, inset 0 0 0 5px #ffffff88;
+}
+
+.glyph-turret {
+  background: #8fd8ff;
+  clip-path: polygon(50% 0, 93% 25%, 93% 75%, 50% 100%, 7% 75%, 7% 25%);
+}
+
+.glyph-slow {
+  border-radius: 50%;
+  border: 2px solid #7dc4ff;
+  box-shadow: inset 0 0 0 3px transparent, inset 0 0 0 4px #7dc4ff66;
+  background: none;
+}
+
+.glyph-upgrade {
+  background: var(--cut);
+  transform: rotate(45deg) scale(0.65);
+}
+
+.help-btn {
+  position: absolute;
+  top: 8px;
+  right: 12px;
+  width: 34px;
+  height: 34px;
+  font: inherit;
+  font-weight: 700;
+  font-size: 16px;
+  color: var(--ink-dim);
+  background: var(--panel);
+  border: 1px solid var(--panel-edge);
+  border-radius: 50%;
+  cursor: pointer;
+}
+
+.help-btn:hover {
+  color: var(--ink);
+  border-color: var(--claim);
+}
+
 /* ---------- Hints ---------- */
 .hint {
   position: absolute;

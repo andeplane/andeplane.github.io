@@ -12,7 +12,7 @@ export const UPGRADE_INFO: { name: string; desc: string }[] = [
   { name: 'Fast hands', desc: 'Walls grow 40% faster.' },
   { name: 'Fresh paint', desc: 'New walls are breaker-proof for 15 s.' },
   { name: 'Garrison', desc: 'Claims of 4%+ of the board spawn a free turret.' },
-  { name: 'Overclaim dividend', desc: '+2¢/s for every % above the current quota.' },
+  { name: 'Overclaim dividend', desc: '+1¢/s per % above the current quota (max +12).' },
 ]
 
 // Fill currentOffer from the queue if empty. Deterministic.
