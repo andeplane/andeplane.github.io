@@ -9,6 +9,8 @@ import { createState, PLAYING, type GameState } from './sim/state'
 import { computeView, draw, type PrevPos, type View } from './render/draw'
 import { Juice } from './render/juice'
 import { dailySeed, recordDailyRun, utcDateString, loadDaily } from './daily'
+import { TowerType } from './sim/constants'
+import { placeCost } from './sim/towers'
 import { Input } from './input'
 import { Hud } from './ui/hud'
 import { Hints } from './ui/hints'
@@ -40,6 +42,7 @@ let lastTime = performance.now()
 let lastWave = 0
 let firstClaimSeen = false
 let firstTelegraphSeen = false
+let placedTowerOnce = false
 let idleHintAt = 0
 
 const juice = new Juice()
@@ -64,7 +67,10 @@ const input = new Input(
   () => view,
   () => state,
   {
-    emit: (e) => pendingEvents.push(e),
+    emit: (e) => {
+      if (e.kind === 'PlaceTower') placedTowerOnce = true
+      pendingEvents.push(e)
+    },
     radial,
     isInteractive: () =>
       mode === 'playing' && !screens.isOpen && !guide.isOpen && state.currentOffer.length === 0,
@@ -93,6 +99,7 @@ function startRun(daily: boolean): void {
   lastWave = 0
   firstClaimSeen = false
   firstTelegraphSeen = false
+  placedTowerOnce = false
   mode = 'playing'
   input.reset()
   radial.close()
@@ -189,11 +196,20 @@ function frame(now: number): void {
       firstTelegraphSeen = true
       hints.fire('quota', 'Keep the bar past ◆ before the wave lands', now)
     }
+    // Persistent nudge: land + money but never built a tower yourself.
+    const turretPrice = placeCost(state, TowerType.Turret)
+    hints.sticky(
+      'build',
+      `${input.isTouch ? 'Tap' : 'Click'} your green territory to build a turret (${turretPrice}¢) — balls only die to towers`,
+      !placedTowerOnce && state.claimedCells > 0 && state.money >= turretPrice,
+    )
     hud.update(state)
   }
 
+  const covered =
+    screens.isOpen || radial.isOpen || guide.isOpen || state.currentOffer.length > 0
   juice.update(dt)
-  hints.update(now)
+  hints.update(now, covered)
 
   const alpha = Math.max(0, Math.min(1, acc / FIXED_DT))
   const ghost =

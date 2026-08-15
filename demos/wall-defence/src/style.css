@@ -526,6 +526,17 @@ body {
   }
 }
 
+.hint-sticky {
+  border-left-color: var(--amber);
+  animation: hintin 0.25s ease-out, hintpulse 1.6s ease-in-out infinite;
+}
+
+@keyframes hintpulse {
+  50% {
+    box-shadow: 0 0 14px rgba(255, 176, 32, 0.35);
+  }
+}
+
 /* ---------- Touch controls ---------- */
 .touch-controls {
   position: absolute;

@@ -230,9 +230,14 @@ export function draw(
     const x = view.ox + (cellX(t.cell) + 0.5) * cs
     const y = view.oy + (cellY(t.cell) + 0.5) * cs
     const powered = s.grid[t.cell] === CLAIMED
-    const r = cs * 0.38
+    const r = cs * 0.44
+    // Base plate so towers pop against the territory pattern.
+    ctx.fillStyle = 'rgba(0, 0, 0, 0.35)'
+    ctx.fillRect(x - cs * 0.46, y - cs * 0.46, cs * 0.92, cs * 0.92)
     if (t.type === TowerType.Turret) {
       ctx.fillStyle = powered ? theme.turret : theme.towerDead
+      ctx.strokeStyle = powered ? theme.wallCore : '#333a44'
+      ctx.lineWidth = 1.5
       ctx.beginPath()
       for (let i = 0; i < 6; i++) {
         const a = (i / 6) * Math.PI * 2 + Math.PI / 6
@@ -243,6 +248,7 @@ export function draw(
       }
       ctx.closePath()
       ctx.fill()
+      ctx.stroke()
       ctx.fillStyle = powered ? theme.wallCore : '#333a44'
       ctx.beginPath()
       ctx.arc(x, y, r * 0.35, 0, Math.PI * 2)
