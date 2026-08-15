@@ -25,8 +25,7 @@ const PALETTE_CSS = /* css */ `
 .fd-pal-item.poor { opacity: 0.45; }
 .fd-pal-item.poor:hover { opacity: 0.7; }
 .fd-pal-icon { width: 34px; height: 34px; object-fit: contain; display: block; margin: 0 auto;
-  mix-blend-mode: screen; border-radius: 5px;
-  filter: drop-shadow(0 0 4px var(--fd-pal-glow, rgba(125,216,255,0.4))); }
+  mix-blend-mode: screen; border-radius: 5px; }
 .fd-pal-glyph { width: 34px; height: 34px; display: grid; place-items: center; margin: 0 auto;
   font-size: 20px; color: var(--fd-pal-accent, #8fd0ff); }
 .fd-pal-key {

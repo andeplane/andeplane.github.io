@@ -259,11 +259,11 @@ export class Overlay {
     if (def.sonar) drawSonarRipple(ctx, sx, sy, def.radius * cellPx, this.frame, def.color)
 
     // The generated sprite, glowing; aimable towers rotate with their thrust.
+    // No canvas shadow here: the sprites are opaque glow-on-black, so a
+    // shadow would be cast from their square bounds. The art glows itself.
     const img = this.sprite(def.sprite)
-    const size = Math.max(22, cellPx * 11)
+    const size = Math.max(26, cellPx * 14)
     ctx.globalAlpha = alpha
-    ctx.shadowColor = def.color
-    ctx.shadowBlur = 12
     if (img.complete && img.naturalWidth > 0) {
       // Sprites are glow-on-black; 'screen' makes the black vanish into the
       // water so only the luminous device remains.
@@ -275,6 +275,8 @@ export class Overlay {
     } else {
       // Sprite still loading: a ring placeholder.
       ctx.strokeStyle = def.color
+      ctx.shadowColor = def.color
+      ctx.shadowBlur = 10
       ctx.lineWidth = 1.6
       ctx.beginPath()
       ctx.arc(sx, sy, Math.max(4, cellPx * 1.8), 0, Math.PI * 2)

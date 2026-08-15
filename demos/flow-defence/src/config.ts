@@ -80,7 +80,10 @@ export const CONFIG = {
      * to go — a sealed pocket. A dam with a canal LEAKS the swarm through
      * the canal; a rotting blockade funnels them to its cracks.
      */
-    seekU: 0.03,
+    /** Keep BELOW ordinary slow-zone speeds (~0.02-0.05): seek must rescue
+     *  spores from truly dead water (exploit basins), not evacuate them out
+     *  of the slow pockets where kill rings live — that halved ring kills. */
+    seekU: 0.015,
     /** Probe distance (cells) for the speed-gradient sniff. */
     seekRadius: 12,
     /** Crawl speed up the gradient (lattice units, like swim). */
