@@ -33,6 +33,7 @@ export interface BotProfile {
   towerEvery: number // ticks between tower decisions
   slowRatio: number // build 1 slow field per this many towers (0 = never)
   upgradesTowers: boolean
+  rationalTowers: boolean // applies the cheaper-of-upgrade-vs-place rule (expert habit)
   quotaMargin: number // stop cutting when pct >= next quota + margin (Infinity = never stop)
   pickOrder: number[] // upgrade preference (ids); fall back to offer[0]
 }
@@ -44,6 +45,7 @@ const EXPERT_PICKS = [1, 4, 5, 6, 2, 0, 3, 7]
 export const PROFILES: Record<string, BotProfile> = {
   novice: {
     name: 'novice',
+    rationalTowers: false,
     reactEvery: 120,
     cutSamples: 8,
     minSafetyCells: 0.8,
@@ -60,6 +62,7 @@ export const PROFILES: Record<string, BotProfile> = {
   },
   average: {
     name: 'average',
+    rationalTowers: false,
     reactEvery: 60,
     cutSamples: 24,
     minSafetyCells: 1.6,
@@ -76,6 +79,7 @@ export const PROFILES: Record<string, BotProfile> = {
   },
   expert: {
     name: 'expert',
+    rationalTowers: true,
     reactEvery: 30,
     cutSamples: 48,
     minSafetyCells: 2.4,
@@ -92,6 +96,7 @@ export const PROFILES: Record<string, BotProfile> = {
   },
   sliver: {
     name: 'sliver',
+    rationalTowers: true,
     reactEvery: 30,
     cutSamples: 48,
     minSafetyCells: 2.4,
@@ -108,6 +113,7 @@ export const PROFILES: Record<string, BotProfile> = {
   },
   turtle: {
     name: 'turtle',
+    rationalTowers: true,
     reactEvery: 30,
     cutSamples: 48,
     minSafetyCells: 2.4,
@@ -124,6 +130,7 @@ export const PROFILES: Record<string, BotProfile> = {
   },
   notower: {
     name: 'notower',
+    rationalTowers: true,
     reactEvery: 30,
     cutSamples: 48,
     minSafetyCells: 2.4,
@@ -376,15 +383,21 @@ export class Bot {
     const wantSlow =
       this.p.slowRatio > 0 && s.towers.length > 0 && s.towers.length % this.p.slowRatio === 0
     const type = wantSlow ? TowerType.Slow : TowerType.Turret
-    const cost = placeCost(s, type)
-    if (s.money >= cost) {
+    const newCost = placeCost(s, type)
+    const up = this.p.upgradesTowers
+      ? s.towers.find((t) => t.tier < 2 && s.money >= towerCost(t.type, t.tier + 1))
+      : undefined
+    // Rational (expert habit): with escalating placement prices, upgrade an
+    // existing tower whenever that's cheaper than a new one. Non-rational
+    // profiles place-first and eat the escalation premium.
+    if (this.p.rationalTowers && up && towerCost(up.type, up.tier + 1) <= newCost) {
+      return { kind: 'UpgradeTower', id: up.id }
+    }
+    if (s.money >= newCost) {
       const cell = this.pickTowerCell(s)
       if (cell >= 0) return { kind: 'PlaceTower', cell, tower: type }
     }
-    if (this.p.upgradesTowers && s.money >= 120) {
-      const up = s.towers.find((t) => t.tier < 2 && s.money >= towerCost(t.type, t.tier + 1))
-      if (up) return { kind: 'UpgradeTower', id: up.id }
-    }
+    if (up) return { kind: 'UpgradeTower', id: up.id }
     return null
   }
 

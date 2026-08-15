@@ -21,9 +21,11 @@ export function towerCost(type: TowerType, tier: number): number {
 }
 
 // Each tower you own makes the next one pricier — a soft cap on turret
-// forests (integer-exact: base × (8 + owned) / 8).
+// forests (integer-exact: base × (6 + owned) / 6). Steep on purpose:
+// upgrading existing towers should beat carpeting the map, both for balance
+// and for the player's attention budget.
 export function placeCost(s: GameState, type: TowerType): number {
-  return Math.floor((towerCost(type, 0) * (8 + s.towers.length)) / 8)
+  return Math.floor((towerCost(type, 0) * (6 + s.towers.length)) / 6)
 }
 
 export function placeTower(s: GameState, cell: number, type: TowerType): boolean {

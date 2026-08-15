@@ -61,13 +61,14 @@ export const DRAIN_TICKS = 240 // 4 s breach grace window
 // Economy (money unit: ¢)
 export const START_MONEY = 30
 export const INCOME_BASE = 2 // per second
-export const INCOME_PCT_DIVISOR = 10 // +1¢/s per 10% claimed
+export const INCOME_PCT_DIVISOR = 12 // +1¢/s per 12% claimed
 export const BURST_DIVISOR = 4 // burst = floor(area * mult / 4)
 // Capture burst multiplier tiers, compared as exact rationals:
 // area*100 >= pct*CELLS  →  ×2 at 5 %, ×3 at 10 %
 export const BURST_TIER2_PCT = 5
 export const BURST_TIER3_PCT = 10
 export const OVERCLAIM_CENTS_PER_PCT = 1
+export const OVERCLAIM_CAP = 6 // ¢/s ceiling on the greed dividend
 
 // Towers
 export const TowerType = {
@@ -76,9 +77,9 @@ export const TowerType = {
 } as const
 export type TowerType = (typeof TowerType)[keyof typeof TowerType]
 // [tier1, tier2, tier3]
-export const TURRET_COST = [25, 55, 110]
-export const TURRET_DMG = [1, 2, 2]
-export const TURRET_PERIOD = [48, 48, 30] // ticks between shots
+export const TURRET_COST = [25, 50, 100]
+export const TURRET_DMG = [1, 2, 3]
+export const TURRET_PERIOD = [48, 42, 30] // ticks between shots
 export const TURRET_RANGE = [6 * Q, 6 * Q, 8 * Q]
 export const SLOW_COST = [35, 60, 95]
 export const SLOW_MULT = [154, 115, 115] // Q8 speed multiplier (0.60, 0.45)
@@ -103,8 +104,8 @@ export const WAVE_COMP: ReadonlyArray<readonly [number, number, number, number]>
   [3, 4, 1, 0],
   [4, 5, 3, 0],
   [4, 5, 3, 2],
-  [4, 5, 4, 2],
   [4, 5, 4, 3],
+  [5, 5, 4, 3],
   [5, 7, 5, 3],
   [6, 8, 5, 4],
 ]

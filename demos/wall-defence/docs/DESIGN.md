@@ -19,7 +19,7 @@ Vite + TypeScript app, 2D Canvas, no three.js.
 One verb — *seal a region* — feeds four systems:
 
 1. **Score**: `claimedPct` (CLAIMED + DRAINING cells) is the only progress metric.
-2. **Economy**: income each second `= 2 + floor(claimedPct / 10)`, plus a burst
+2. **Economy**: income each second `= 2 + floor(claimedPct / 12)`, plus a burst
    on every capture `= floor(fresh × mult / 4)` where `fresh` counts only cells
    claimed for the **first time** this run (`everClaimed` bitmap — re-sealing
    farmed territory restores income and quota but is never a money printer)
@@ -31,7 +31,8 @@ One verb — *seal a region* — feeds four systems:
 4. **Enemy space**: balls live only in open space; claims compress them.
 
 Money must always want spending, and tower forests must not sterilize the
-board: placing a tower costs `base × (8 + towersOwned) / 8` (escalating), and
+board or the player's attention: placing a tower costs
+`base × (6 + towersOwned) / 6` (steeply escalating — tall beats wide), and
 tower tiers are the other standing sink (§2 Towers).
 
 ## 2. Game definition
@@ -142,8 +143,8 @@ throughput is tuned so re-sealing cannot outpace re-opening without kills, and
 
 | Tower | T1 | T2 | T3 |
 |---|---|---|---|
-| Turret | 20¢ — 1 dmg / 0.8 s, range 6 | 40¢ — 2 dmg | 80¢ — 2 dmg / 0.5 s, range 8 |
-| Slow field | 30¢ — aura r4, ×0.6 speed | 45¢ — ×0.45 | 70¢ — r6, ×0.45 |
+| Turret | 25¢ — 1 dmg / 0.8 s, range 6 | 50¢ — 2 dmg / 0.7 s | 100¢ — 3 dmg / 0.5 s, range 8 |
+| Slow field | 35¢ — aura r4, ×0.6 speed | 60¢ — ×0.45 | 95¢ — r6, ×0.45 |
 
 Hitscan (no projectiles, no line-of-sight). Slow is a per-tick displacement
 modifier — canonical velocity is never mutated (preserves 45° invariant).
@@ -159,7 +160,7 @@ Tap/click a tower → upgrade/sell popup. Tiers are the standing money sink.
 6. **Fresh paint** — newly claimed regions are breaker-proof for 15 s.
 7. **Garrison** — sealing a region ≥ 4 % of the board spawns a free T1 turret in it.
 8. **Overclaim dividend** — +1¢/s per % above the current quota, capped at
-   +12¢/s (a greed reward, not a money printer).
+   +6¢/s (a greed reward, not a money printer).
 
 Offers: the daily seed fixes a **permutation** of the 8 upgrades (substream
 `(seed, "offers")`); each pick deals the next 3 *unowned* upgrades in
@@ -348,5 +349,15 @@ strategies the original tuning missed:
   by escalating placement cost plus wave-scaled ball HP/speed and breaker
   gnaw speed.
 
-Resulting ladder (30 seeds): novice 13 % win / median wave 8, average 60 % /
-10, expert 60–65 % / 10; sliver 17 %, turtle 7 %, no-tower 0 % (median 7).
+Resulting ladder (30 seeds): novice 3 % win / median wave 7, average 53 % /
+10, expert 77 % / 10; sliver 17 %, turtle 10 %, no-tower 0 % (median 7).
+
+Rev 4 (playtest feedback: "I struggle spending all money, so many turrets,
+impossible to pay attention to everything"): the fix targets decision *load*,
+not just totals — income divisor 10→12 and Overclaim cap 12→6 turn the faucet
+down, while steeper placement escalation (`/6`) plus stronger/cheaper tiers
+(T2 50¢ 2 dmg/0.7 s, T3 100¢ 3 dmg/0.5 s) make upgrading existing towers the
+natural spend. Expert tower counts fell from ~30 to ~20 per run with all
+criteria green; the "average" profile also stopped auto-applying the
+cheaper-of-upgrade-vs-place rule (that's an expert habit, flagged per
+profile as `rationalTowers`).

@@ -3,7 +3,7 @@
 // cuts → gnaw → towers → death sweep → drains → claims recompute → income.
 // A non-empty currentOffer freezes the tick counter (pause lives in the sim).
 
-import { CELLS, INCOME_BASE, INCOME_PCT_DIVISOR, OVERCLAIM_CENTS_PER_PCT, QUOTA_PCT, TICK_HZ, Upgrade } from './constants'
+import { CELLS, INCOME_BASE, INCOME_PCT_DIVISOR, OVERCLAIM_CAP, OVERCLAIM_CENTS_PER_PCT, QUOTA_PCT, TICK_HZ, Upgrade } from './constants'
 import type { SimEvent } from './events'
 import { gnawStep, moveBalls, sweepDead } from './balls'
 import { expireDrains, openTouchedDrains, recomputeClaims } from './claims'
@@ -83,7 +83,7 @@ export function step(s: GameState, events: SimEvent[]): void {
     if ((s.upgrades & (1 << Upgrade.OverclaimDividend)) !== 0) {
       const quotaPct = s.wave >= 1 ? QUOTA_PCT[Math.min(s.wave, QUOTA_PCT.length) - 1] : 0
       // Capped: a greed reward, not a money printer.
-      if (pct > quotaPct) income += OVERCLAIM_CENTS_PER_PCT * Math.min(pct - quotaPct, 12)
+      if (pct > quotaPct) income += Math.min(OVERCLAIM_CENTS_PER_PCT * (pct - quotaPct), OVERCLAIM_CAP)
     }
     s.money += income
   }
