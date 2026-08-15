@@ -24,6 +24,7 @@ var<private> WQ  = array<f32, 9>(${flist(W)});
 var<private> OPPA = array<i32, 9>(${ilist(OPP)});
 
 const INLET_CHOKE : f32 = ${CONFIG.inlet.choke};
+const JET_R2 : f32 = ${CONFIG.jet.radius * CONFIG.jet.radius}.0;
 const CELL_OPEN : u32 = ${CELL.OPEN}u;
 const CELL_BEDROCK : u32 = ${CELL.BEDROCK}u;
 const CELL_WALL : u32 = ${CELL.WALL}u;
@@ -36,9 +37,9 @@ struct SimParams {
   uClamp : f32,
   gx : f32,
   gy : f32,
-  pad0 : f32,
-  pad1 : f32,
-  pad2 : f32,
+  jetX : f32,
+  jetY : f32,
+  jetPow : f32,
 };
 
 @group(0) @binding(0) var<storage, read> fA : array<f32>;
@@ -146,7 +147,15 @@ fn main(@builtin(global_invocation_id) gid : vec3<u32>) {
     mx += EXF[i] * fIn[i];
     my += EYF[i] * fIn[i];
   }
-  let force = vec2<f32>(params.gx, params.gy) + cellForce[idx];
+  var force = vec2<f32>(params.gx, params.gy) + cellForce[idx];
+  // The player's jet: radial outward blast centered on the cursor.
+  if (params.jetPow > 0.0) {
+    let jd = vec2<f32>(f32(x) - params.jetX, f32(y) - params.jetY);
+    let d2 = jd.x * jd.x + jd.y * jd.y;
+    if (d2 < JET_R2 && d2 > 1.0) {
+      force += normalize(jd) * (params.jetPow * (1.0 - d2 / JET_R2));
+    }
+  }
   var vx = (mx + 0.5 * force.x) / r;
   var vy = (my + 0.5 * force.y) / r;
 

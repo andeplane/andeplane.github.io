@@ -1,5 +1,7 @@
-// CPU sim: LbmRef + erosion + biomass, mirroring the GPU tick exactly.
-// Pure TypeScript (no DOM/Babylon) — powers vitest and the headless runner.
+// CPU sim: LbmRef + erosion + enemy spores, mirroring the GPU tick exactly
+// (enemies.wgsl.ts is the shader twin of tickEnemies below — same steering,
+// blocking, damage, and escape rules, minus the cosmetic glow stamps).
+// Pure TypeScript (no DOM/Babylon) — powers vitest and headless checks.
 
 import { CONFIG } from '../config'
 import { inletProfile, type DomainMap, type InletState } from '../engine/map'
@@ -7,18 +9,25 @@ import { CELL } from './core/constants'
 import { erosionStress } from './core/erosionRule'
 import { LbmRef } from './core/lbmRef'
 
+export interface CpuEnemy {
+  x: number
+  y: number
+  vx: number
+  vy: number
+  hp: number
+  seed: number
+  alive: boolean
+}
+
 export class CpuSim {
   readonly ref: LbmRef
   readonly map: DomainMap
-  biomass: Float32Array
-  private biomassNext: Float32Array
-  /** Per-row biomass release rate (from the inlet profile). */
-  private bioRate: Float32Array
   readonly towerField: Float32Array
+  readonly enemies: CpuEnemy[] = []
 
   // Monotone accumulators, same semantics as the GPU counters.
-  absorbedTotal = 0
-  killedTotal = 0
+  killsTotal = 0
+  escapesTotal = 0
   breachCount = 0
   tickCount = 0
 
@@ -35,11 +44,7 @@ export class CpuSim {
     })
     this.ref.cellType.set(map.cellType)
     this.ref.solidity.set(map.solidity)
-    const n = map.width * map.height
-    this.biomass = new Float32Array(n)
-    this.biomassNext = new Float32Array(n)
-    this.bioRate = new Float32Array(map.height)
-    this.towerField = new Float32Array(n)
+    this.towerField = new Float32Array(map.width * map.height)
   }
 
   setInletStates(states: InletState[]): void {
@@ -47,21 +52,22 @@ export class CpuSim {
     for (let y = 0; y < this.map.height; y++) {
       this.ref.inletRho[y] = profile[y * 4]
       this.ref.inletU[y] = profile[y * 4 + 1]
-      this.bioRate[y] = profile[y * 4 + 2]
     }
   }
 
-  totalBiomass(): number {
-    let t = 0
-    for (let i = 0; i < this.biomass.length; i++) t += this.biomass[i]
-    return t
+  spawn(x: number, y: number, hp: number, seed: number): void {
+    this.enemies.push({ x, y, vx: 0, vy: 0, hp, seed, alive: true })
+  }
+
+  aliveCount(): number {
+    return this.enemies.filter((e) => e.alive).length
   }
 
   tick(carrierOnly = false): void {
     this.tickCount++
     for (let k = 0; k < CONFIG.sim.substeps; k++) this.ref.step()
     this.erode()
-    if (!carrierOnly) this.advectBiomass()
+    if (!carrierOnly) this.tickEnemies()
   }
 
   private erode(): void {
@@ -106,45 +112,62 @@ export class CpuSim {
     }
   }
 
-  private advectBiomass(): void {
+  private blocked(x: number, y: number): boolean {
     const { width, height } = this.map
-    const adv = CONFIG.sim.substeps
-    const ct = this.ref.cellType
-    const sol = this.ref.solidity
-    const next = this.biomassNext
-    next.fill(0)
-    for (let y = 0; y < height; y++) {
-      for (let x = 0; x < width; x++) {
-        const idx = y * width + x
-        const t = ct[idx]
-        if (t === CELL.BEDROCK || (t === CELL.WALL && sol[idx] >= 1)) continue
-
-        const sx = x - this.ref.ux[idx] * adv
-        const sy = y - this.ref.uy[idx] * adv
-        let b = this.sampleBiomass(sx, sy) * (1 - CONFIG.biomass.decayPerTick)
-        if (t === CELL.WALL) b *= 1 - sol[idx]
-
-        const rate = this.towerField[idx]
-        if (rate > 0) {
-          const after = b * Math.exp(-rate)
-          this.killedTotal += b - after
-          b = after
-        }
-        // Dirichlet source (see biomass.wgsl.ts): fixed concentration at the valve.
-        if (t === CELL.INLET) b = this.bioRate[y] * CONFIG.biomass.injectPerTick
-        if (t === CELL.OUTLET) {
-          this.absorbedTotal += b
-          b = 0
-        }
-        next[idx] = b
-      }
-    }
-    const tmp = this.biomass
-    this.biomass = next
-    this.biomassNext = tmp
+    if (x < 1 || x >= width || y < 1 || y >= height - 1) return true
+    const idx = Math.min(Math.max(Math.floor(y), 0), height - 1) * width + Math.min(Math.max(Math.floor(x), 0), width - 1)
+    const t = this.ref.cellType[idx]
+    if (t === CELL.BEDROCK) return true
+    if (t === CELL.WALL && this.ref.solidity[idx] >= 0.6) return true
+    return false
   }
 
-  private sampleBiomass(x: number, y: number): number {
+  private tickEnemies(): void {
+    const { width, height } = this.map
+    const e = CONFIG.enemies
+    const adv = CONFIG.sim.substeps
+    for (const s of this.enemies) {
+      if (!s.alive) continue
+      const [ux, uy] = this.sampleVelocity(s.x, s.y)
+      const wanderAngle = s.seed * 6.2832 + Math.sin(this.tickCount * 0.045 + s.seed * 37.0) * 2.4
+      const tx = (ux * e.carry + e.swim + Math.cos(wanderAngle) * e.wander) * adv
+      const ty = (uy * e.carry + Math.sin(wanderAngle) * e.wander) * adv
+      s.vx += (tx - s.vx) * e.steer
+      s.vy += (ty - s.vy) * e.steer
+      const cx = s.x + s.vx
+      const cy = s.y + s.vy
+      if (!this.blocked(cx, cy)) {
+        s.x = cx
+        s.y = cy
+      } else if (!this.blocked(cx, s.y)) {
+        s.x = cx
+        s.vy = 0
+      } else if (!this.blocked(s.x, cy)) {
+        s.y = cy
+        s.vx = 0
+      } else {
+        s.vx *= 0.2
+        s.vy *= 0.2
+      }
+
+      const idx =
+        Math.min(Math.max(Math.floor(s.y), 0), height - 1) * width +
+        Math.min(Math.max(Math.floor(s.x), 0), width - 1)
+      s.hp -= this.towerField[idx] * e.towerDamage
+      if (Math.hypot(ux, uy) < e.stagnantU) s.hp -= e.suffocate
+      if (s.hp <= 0) {
+        s.alive = false
+        this.killsTotal++
+        continue
+      }
+      if (this.ref.cellType[idx] === CELL.OUTLET || s.x >= width - 2) {
+        s.alive = false
+        this.escapesTotal++
+      }
+    }
+  }
+
+  private sampleVelocity(x: number, y: number): [number, number] {
     const { width, height } = this.map
     const cx = Math.min(Math.max(x, 0), width - 1)
     const cy = Math.min(Math.max(y, 0), height - 1)
@@ -154,12 +177,11 @@ export class CpuSim {
     const y1 = Math.min(y0 + 1, height - 1)
     const fx = cx - x0
     const fy = cy - y0
-    const b = this.biomass
-    return (
-      b[y0 * width + x0] * (1 - fx) * (1 - fy) +
-      b[y0 * width + x1] * fx * (1 - fy) +
-      b[y1 * width + x0] * (1 - fx) * fy +
-      b[y1 * width + x1] * fx * fy
-    )
+    const lerp = (f: Float32Array): number =>
+      f[y0 * width + x0] * (1 - fx) * (1 - fy) +
+      f[y0 * width + x1] * fx * (1 - fy) +
+      f[y1 * width + x0] * (1 - fx) * fy +
+      f[y1 * width + x1] * fx * fy
+    return [lerp(this.ref.ux), lerp(this.ref.uy)]
   }
 }

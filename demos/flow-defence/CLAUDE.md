@@ -3,6 +3,14 @@
 Tower defence where the map is a fluid. Design doc: andeplane/andeplane.github.io#8.
 Stack: TypeScript + Vite + Babylon.js (`WebGPUEngine`, plain-WGSL `ComputeShader`s).
 
+Core loop (2026-08 redesign): enemies are discrete **spores** — GPU particles
+advected by the real velocity field (`enemies.wgsl.ts`) — arriving in announced
+**waves** (`config.ts#levels`). Escape costs a **life**; kills pay flat bounty.
+Player verbs: walls (re-route the river; repaint = repair), neutralizer rings,
+impellers, and the **jet** (hold right mouse = radial water blast, stamina in
+`Engine.jetCharge`). Surge waves slam the water hammer. The old biomass field
+is now the cosmetic glow/trail field (`glow.wgsl.ts`), rendered via `bioTex`.
+
 ```
 npm run dev      # vite dev server (needs a WebGPU browser)
 npm run test     # vitest — CPU reference physics + engine tests
@@ -20,10 +28,11 @@ npm run build    # tsc + vite build
    import no DOM and no Babylon — that's what makes vitest/headless possible.
    `sim/gpu/` and `render/` are the browser boundary.
 3. **GPU→CPU quantities are monotone accumulators** (`counters` buffer:
-   breaches, outlet-absorbed, neutralized). The engine consumes diffs between
-   snapshots, so readback staleness can never lose or double-count mass.
-   Instantaneous slots (in-flight total, per-segment rho) are cleared by CPU
-   writes each tick.
+   [0] breaches, [1] spore kills, [2] spore escapes). The engine consumes
+   diffs between snapshots, so readback staleness can never lose or
+   double-count. Alive count = spawned − kills − escapes (all CPU-known).
+   Enemy positions read back every 10 ticks (32 KB) purely for overlay
+   beams/dots, extrapolated by each spore's stored per-tick velocity.
 4. **Walls are painted with per-cell partial buffer writes** (`paintWall`).
    A full upload from the CPU mirror would resurrect cells the GPU erosion
    pass has already breached. The CPU mirror is *optimistic*, the GPU is truth.
@@ -40,13 +49,15 @@ npm run build    # tsc + vite build
 - **The outlet must anchor pressure** (feq at ρ=1, extrapolated u). A
   zero-gradient copy outlet never sets the domain's pressure level; the inlet
   then pressurizes the whole domain without bound. Cost a debugging session.
-- **Biomass injection is a Dirichlet source** (inlet cells hold a fixed
-  concentration). Accumulating (`+=`) explodes: the clamped boundary makes
-  inlet cells retain their own content forever, and gather-advection then
-  duplicates the giant reservoir downstream. Cost another session.
+- Spores suffocate below `enemies.stagnantU` flow speed — this is what makes
+  sealing an arm a real (and bounty-paying) defense instead of creating
+  trapped zombies that stall the wave forever.
 - Erosion = shear above threshold + pressure head above threshold × porosity
   (porosity grows as integrity falls → breaches cascade). Tuning lives in
   `config.ts#erosion`; the same rule runs in `erosionRule.ts` and WGSL.
+  `inlet.surgeRho` is deliberately BELOW `erosion.pipeThreshold`: a surge
+  alone must strain seals (shear), not auto-dissolve them — full dams build
+  bigger heads and still fail by piping.
 
 ## WebGPU / Babylon traps hit so far
 
@@ -58,7 +69,8 @@ npm run build    # tsc + vite build
    wait real seconds, read `console` + screenshot.
 2. **WGSL: don't dynamically index module-scope `const` arrays** (lattice
    vectors etc.) — some validators reject it silently through Babylon. Use
-   `var<private>`.
+   `var<private>`. Also: `target` is a WGSL reserved keyword — a variable
+   named `target` fails shader compilation (silently, pass just never runs).
 3. Babylon compute: bind textures' samplers by name `<texName>Sampler` in
    materials; in `ComputeShader`s pass a `TextureSampler` explicitly.
    Ping-pong = two ComputeShader instances with fixed bindings.
@@ -73,10 +85,16 @@ npm run build    # tsc + vite build
 ## Verifying changes
 
 - Physics: `npx vitest run` (mass conservation, Poiseuille ≤2%, porous-plug
-  monotonicity, biomass boundedness, dam-breach timing).
-- Visuals/gameplay: dev server + a playwright script (see scratchpad
-  `drive.mjs` / `match-test.mjs` patterns). Useful query params:
-  `?warmup=N` (pre-roll ticks) · `?probe` (fps + observables overlay+console) ·
-  `?field=speed|pressure|dye` (debug views) · `?ai=steady|burster|prober` ·
+  monotonicity, spores-reach-outlet, neutralizer-kills, dam-breach timing,
+  Engine wave/lives/win logic).
+- Gameplay balance: self-play bots (scratchpad `bot-play.mjs` = seals +
+  middle-jet ring gauntlet + throttled repair, must WIN level 1;
+  `bot-idle.mjs` must LOSE). Never edit demos/ files while a bot runs — HMR
+  reloads the page mid-match. Bots repaint seals at most every ~25 s: repair
+  costs gold per sweep and repainting every poll bankrupts the economy.
+- Visuals: dev server + a playwright script (scratchpad `smoke-waves.mjs`,
+  `jet-check.mjs`). Useful query params:
+  `?warmup=N` (pre-roll ticks) · `?probe` (fps + wave/lives + observables) ·
+  `?field=speed|pressure|dye` (debug views) ·
   `?seed=N` · `?readback=N` (0 disables) · `?tau=`, `?smag=` (solver overrides).
 - The `#errlog` overlay surfaces console errors in screenshots.

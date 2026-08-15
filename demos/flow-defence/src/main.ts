@@ -3,8 +3,6 @@ import { Scene, WebGPUEngine } from '@babylonjs/core'
 import { CONFIG } from './config'
 import { FixedStep } from './core/fixedstep'
 import { buildMap } from './engine/map'
-import { AttackerAI } from './ai/AttackerAI'
-import { PROFILES } from './ai/profiles'
 import { SeededRng } from './core/rng'
 import { Engine } from './engine/Engine'
 import { buildForceField, buildTowerField } from './engine/towers'
@@ -63,21 +61,19 @@ async function start(): Promise<void> {
   const menu = new Menu(stage, levelNum)
 
   const hud = level ? new Hud(stage, levelNum!) : null
+  const rng = new SeededRng(Number(query.get('seed') ?? 1))
   const match = new Engine(
     map,
     {
       onGameOver: (winner) => hud?.showGameOver(winner),
       onBreach: () => {},
       onBuildRejected: () => hud?.flashGold(),
+      onWaveStart: (wave, surge) => hud?.announce(surge ? `Wave ${wave} — surge` : `Wave ${wave}`),
+      onWaveCleared: (wave, bonus) => hud?.announce(`Wave ${wave} cleared  +${bonus}g`),
     },
+    rng.stream('spawn'),
     level ?? undefined,
   )
-  const rng = new SeededRng(Number(query.get('seed') ?? 1))
-  const profile = PROFILES[query.get('ai') ?? level?.ai ?? 'steady'] ?? PROFILES.steady
-  const attacker = new AttackerAI(profile, map, rng.stream('attacker'))
-  if (level) {
-    for (const s of match.inletStates) s.biomass = profile.dripLevel
-  }
   sim.setInletStates(match.inletStates)
   const input = new BuildInput(canvas, sim, match)
   const overlay = new Overlay(document.getElementById('overlay') as HTMLCanvasElement, map)
@@ -107,8 +103,9 @@ async function start(): Promise<void> {
       fixed.advance(dt, () => sim.tick(true))
     } else {
       fixed.advance(dt, () => {
-        const states = match.tick(sim.latest)
-        if (match.phase === 'running') attacker.tick(sim.latest, match)
+        const states = match.tick(sim.latest, input.jet.held)
+        const spawns = match.drainSpawns()
+        if (spawns.length > 0) sim.spawnEnemies(spawns)
         if (match.tickCount % 10 === 0) sim.setInletStates(states)
         sim.tick()
       })
@@ -117,18 +114,29 @@ async function start(): Promise<void> {
       towersVersion = match.towersVersion
       sim.setTowerFields(buildTowerField(map, match.towers), buildForceField(map, match.towers))
     }
+    const jetOn = level !== null && input.jet.held && match.jetCharge > 0 && match.phase !== 'over'
+    sim.setJet(input.jet.x, input.jet.y, jetOn ? CONFIG.jet.force : 0)
     renderer.frame(Math.max(dt, 1000 / 120))
     if (hud) {
       hud.update(match)
       hud.setTool(input.tool)
       hud.setHint(hints?.current({ match, input }) ?? null)
     }
-    overlay.draw(match.towers, input.pending)
+    overlay.draw(
+      match.towers,
+      input.pending,
+      level ? sim.liveEnemies() : [],
+      level ? { x: input.jet.x, y: input.jet.y, held: input.jet.held, charge: match.jetCharge } : null,
+    )
     scene.render()
     frames++
     if (probeEnabled && performance.now() - lastProbe > 5000) {
       lastProbe = performance.now()
-      console.warn(`fps~${((frames - lastFrames) / 5).toFixed(1)} ticks=${sim.readiness()} obs: ${JSON.stringify(sim.latest)}`)
+      console.warn(
+        `fps~${((frames - lastFrames) / 5).toFixed(1)} ticks=${sim.readiness()} ` +
+          `wave=${match.waveIndex + 1}/${match.waveTotal} phase=${match.phase} lives=${match.lives} ` +
+          `alive=${match.aliveEstimate} obs: ${JSON.stringify(sim.latest)}`,
+      )
       lastFrames = frames
     }
   })

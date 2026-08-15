@@ -49,46 +49,48 @@ const MENU_CSS = /* css */ `
 `
 
 function howToPlayHtml(): string {
-  const { towers, match, build } = CONFIG
+  const { towers, match, build, enemies } = CONFIG
   return /* html */ `
   <div class="fd-howto">
     <h2>The idea</h2>
-    <p>The map is a real fluid. The attacker owns the inlets on the left and releases
-    <b style="color:#fb7185">biomass</b> — the glowing pink tide — into the current. Anything that
-    reaches your outlet on the right drains your <b>leak budget</b>. You lose at zero.</p>
+    <p>The map is a real fluid, and the enemies — <b style="color:#fb7185">spores</b>, the glowing
+    pink motes — <b>ride the current</b>. They come in announced <b>waves</b> from the inlets on
+    the left. Every spore that reaches your outlet on the right costs a <b>life</b>. Survive all
+    the waves with a life left and the flow is tamed.</p>
     <p>The soft blue-white streaks are just water — dye showing you where the current runs.
     <b>Only the pink glow is the enemy.</b></p>
-    <p>The attacker's <b>reservoir</b> is finite. Outlast it — when it's spent and the water runs
-    clear, you win. Every match is two integrals racing.</p>
+    <p>Because spores ride the water, <b>every wall you draw re-routes the attack itself</b>.
+    That's the whole game: sculpt the river, then kill what it carries.</p>
 
     <h2>Your tools</h2>
     <p><span class="k">1</span><b>Wall</b> (${build.wallCostPerCell}g/cell) — drag to draw. Walls redirect the
-    current itself: narrow channels flow fast, dead ends silt. Walls are physical — fast water
-    scours them and pressure pipes through dams. They glow through their cracks before failing,
-    and slowly self-heal whenever erosion isn't outpacing them.</p>
-    <p><span class="k">2</span><b>Neutralizer</b> (${towers.neutralizer.cost}g) — click to place. Kills biomass
-    passing through its ring, and pays <b>bounty</b> (${match.bountyPerBiomass}g per unit killed) —
-    your main income. Put it where the flow concentrates.</p>
+    current: narrow channels flow fast, dead ends silt. Walls are physical — fast water scours
+    them and pressure pipes through dams. They glow through their cracks before failing, and
+    repainting a damaged wall repairs it.</p>
+    <p><span class="k">2</span><b>Neutralizer</b> (${towers.neutralizer.cost}g) — click to place. Beams and kills
+    spores inside its ring; every kill pays <b>${enemies.bounty}g</b> — your main income. Put it
+    where your walls force the river to run.</p>
     <p><span class="k">3</span><b>Impeller</b> (${towers.impeller.cost}g) — click and drag to aim. A pump that
-    pushes the water itself: steer biomass into kill zones, slow a channel, starve a route.</p>
+    pushes the water itself: steer spores into kill zones, slow a channel, starve a route.</p>
+    <p><span class="k">R-hold</span><b>Jet</b> — hold the RIGHT mouse button to blast water outward
+    from your cursor. Shove spores off their line, into rings, away from the outlet. It drains a
+    charge (the arc at your cursor) and recharges when released. This is your hands in the water —
+    use it every wave.</p>
 
-    <h2>Reading the water</h2>
-    <p><b style="color:#fb923c">Warm orange glow</b> = pressure above ambient. The attacker banks a
-    pressure tank (orange bar, top right) and dumps it as a <b>surge</b> — when the inlet glows and
-    the tank empties, brace. Surges also erode your walls faster.</p>
-    <p>You can dam the entire flow. It will hold, pressurize the whole upstream — and then fail
-    like a real dam, by piping. Sometimes buying those seconds is worth the flood.</p>
+    <h2>Waves</h2>
+    <p>Between waves you build in calm water; press <span class="k">SPACE</span> to call the next
+    wave early. <b style="color:#ffb168">SURGE</b> waves slam the water hammer: the current runs
+    hard, spores ride faster, and your walls strain. Brace before them, repair after.</p>
 
     <h2>Strategy</h2>
-    <p>Don't fight the whole front. <b>Wall off inlet arms close to the source</b> — walls sitting
-    in calm water between the jets last far longer than walls dropped mid-current — and force
-    everything into one channel. Then park neutralizers on that channel and let the bounty fund
-    the next layer. What destroys walls is <b>fast water scraping along them</b> and pressure
-    piping through dams: a wall parallel to a jet dies, a wall that makes the jet turn survives.</p>
+    <p>Don't fight the whole front. <b>Seal inlet arms close to the source</b> — walls in calm
+    water between the jets last far longer than walls dropped mid-current — and force every spore
+    into one channel. Park neutralizers on that channel and let the bounty fund the next layer.
+    A wall parallel to a fast jet dies; a wall that makes the jet turn survives.</p>
 
     <h2>Economy</h2>
-    <p>Income: starting gold + a small trickle (${match.goldTrickle}g/s) + bounty for kills. Killing
-    the flow funds the next wall. If your gold flashes red, you can't afford what you just tried.</p>
+    <p>Income: starting gold + a trickle (${match.goldTrickle}g/s) + ${enemies.bounty}g per kill +
+    a wave-clear bonus. If your gold flashes, you can't afford what you just tried.</p>
   </div>`
 }
 

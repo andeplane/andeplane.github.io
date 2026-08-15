@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest'
+import { CONFIG } from '../config'
 import type { DomainMap } from '../engine/map'
 import { CpuSim } from './CpuSim'
 import { CELL } from './core/constants'
@@ -31,29 +32,44 @@ function miniMap(width = 96, height = 48): DomainMap {
 }
 
 describe('CpuSim', () => {
-  it('transports biomass inlet→outlet with bounded in-flight mass', { timeout: 120_000 }, () => {
+  it('spores ride the current to the outlet', { timeout: 120_000 }, () => {
     const sim = new CpuSim(miniMap())
-    sim.setInletStates([{ openness: 1, biomass: 0.7, surge: 0 }])
-    // Develop the carrier first, then release biomass.
+    sim.setInletStates([{ openness: 1, biomass: 0, surge: 0 }])
     for (let t = 0; t < 600; t++) sim.tick(true)
-    const totals: number[] = []
-    for (let t = 0; t < 1500; t++) {
+    for (let i = 0; i < 5; i++) sim.spawn(4, 14 + i * 4, 1, i / 5)
+    let ticks = 0
+    while (sim.aliveCount() > 0 && ticks < 4000) {
       sim.tick()
-      if (t % 250 === 249) totals.push(sim.totalBiomass())
+      ticks++
     }
+    // Passive drifters with a swim bias: everyone reaches the outlet.
+    expect(sim.escapesTotal).toBe(5)
+    expect(sim.killsTotal).toBe(0)
+    expect(ticks).toBeGreaterThan(60) // travel takes real time — no teleporting
+  })
 
-    for (const v of [...sim.biomass, sim.absorbedTotal]) {
-      expect(Number.isFinite(v)).toBe(true)
+  it('a neutralizer field in the channel kills spores before they escape', { timeout: 120_000 }, () => {
+    const sim = new CpuSim(miniMap())
+    sim.setInletStates([{ openness: 1, biomass: 0, surge: 0 }])
+    for (let t = 0; t < 600; t++) sim.tick(true)
+    // Splat a strong kill disc across the mid-channel (like one neutralizer).
+    const { radius, rate } = CONFIG.towers.neutralizer
+    const cx = 48
+    const cy = 24
+    for (let y = 0; y < sim.map.height; y++) {
+      for (let x = 0; x < sim.map.width; x++) {
+        const d = Math.hypot(x - cx, y - cy)
+        if (d <= radius + 8) sim.towerField[y * sim.map.width + x] = rate
+      }
     }
-    // The score integral runs once the plume crosses.
-    expect(sim.absorbedTotal).toBeGreaterThan(0)
-    // Dirichlet source: in-flight mass saturates instead of exploding
-    // (regression guard for the accumulate-at-inlet blowup).
-    const last = totals[totals.length - 1]
-    const prev = totals[totals.length - 2]
-    expect(last).toBeLessThan(prev * 1.25)
-    // And it is bounded by source concentration × domain area.
-    expect(last).toBeLessThan(0.85 * sim.map.width * sim.map.height)
+    for (let i = 0; i < 5; i++) sim.spawn(4, 18 + i * 3, 1, i / 5)
+    let ticks = 0
+    while (sim.aliveCount() > 0 && ticks < 4000) {
+      sim.tick()
+      ticks++
+    }
+    expect(sim.killsTotal).toBe(5)
+    expect(sim.escapesTotal).toBe(0)
   })
 
   it('walls under flow erode and eventually breach', { timeout: 120_000 }, () => {

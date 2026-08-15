@@ -29,10 +29,13 @@ export const CONFIG = {
     u: 0.09,
     /** Nominal inlet density (small head; surges push it up temporarily). */
     rho: 1.006,
-    /** Extra density a full surge adds (the water-hammer spike). */
-    surgeRho: 0.045,
+    /** Extra density a full surge adds (the water-hammer spike). Kept just
+     *  BELOW the piping threshold so a surge alone doesn't dissolve arm seals
+     *  (shear still bites, and full dams build far bigger heads and still
+     *  fail); the spike reads as pressure glow + faster current. */
+    surgeRho: 0.022,
     /** Extra velocity factor a full surge adds. */
-    surgeU: 0.6,
+    surgeU: 0.4,
     /**
      * Back-pressure choke: inlet velocity scales by 1 − choke·(downstream ρ
      * excess). A pump loses flow against head — so walling off an arm makes
@@ -40,17 +43,61 @@ export const CONFIG = {
      */
     choke: 50,
   },
-  biomass: {
-    /** Inlet concentration (Dirichlet source) at release rate 1. */
-    injectPerTick: 0.85,
+  /**
+   * Enemies are discrete spores riding the current — GPU particles advected
+   * by the real velocity field, so every wall visibly re-routes the attack.
+   */
+  enemies: {
+    /** Enemy buffer capacity (slots are allocated monotonically per match). */
+    max: 1024,
+    /** Fraction of local fluid velocity a spore rides (1 = passive drifter). */
+    carry: 1.0,
+    /** Constant downstream swim bias (lattice units) — no spore stalls forever. */
+    swim: 0.018,
     /**
-     * Natural death rate per tick (half-life ≈ 29 s). Two jobs: tames the
-     * mass amplification of non-conservative gather-advection (which
-     * otherwise inflates the release ~2× and breaks the reservoir/leak-budget
-     * calibration), and makes spent clouds dissipate so a won match actually
-     * ends instead of bleeding out in garbage time.
+     * Spores need current to breathe: below this flow speed they suffocate.
+     * This is what makes SEALING an arm a real (and paying) defense — spores
+     * spawned behind your seal die in still water instead of zombie-stalling
+     * the wave, and dead eddies are lethal pockets.
      */
-    decayPerTick: 0.0004,
+    stagnantU: 0.01,
+    /** HP lost per tick while suffocating (hp 1 dies in ~1.4 s). */
+    suffocate: 0.012,
+    /** Random wander speed (lattice units) — swarms read as alive, not beads. */
+    wander: 0.02,
+    /** Per-tick velocity smoothing toward the flow (0..1). */
+    steer: 0.3,
+    /** HP lost per tick = neutralizer field rate × this. */
+    towerDamage: 0.4,
+    /** Glow stamped into the bio field per tick (blob brightness). */
+    glowStamp: 0.9,
+    /** Extra glow splashed on death — the kill flash bloom pops on. */
+    killFlash: 6,
+    /** Gold per kill. */
+    bounty: 3,
+    /** x column spores spawn at (just downstream of the inlet). */
+    spawnX: 4,
+  },
+  /**
+   * The player's direct verb: hold right mouse to blast water radially
+   * outward from the cursor — physically shove spores off their line.
+   */
+  jet: {
+    /** Effect radius in sim cells. */
+    radius: 18,
+    /** Body force magnitude at full charge (lattice units). */
+    force: 0.008,
+    /** Seconds of continuous use from full charge. */
+    drainSeconds: 2.5,
+    /** Seconds to recharge from empty. */
+    rechargeSeconds: 5,
+  },
+  /** The enemy glow field: advected + faded each tick; spores stamp into it. */
+  glow: {
+    /** Per-tick retention — short comet tails behind each spore. */
+    fade: 0.9,
+    /** Brightness ceiling (keeps kill flashes from washing the tone map). */
+    cap: 8,
   },
   erosion: {
     /** Integrity lost per tick per unit of shear speed above the threshold. */
@@ -60,7 +107,7 @@ export const CONFIG = {
      * Piping: pressure head above this erodes (scaled by porosity) AND blocks
      * self-healing. Set above stagnation heads from deflecting a jet (~0.02)
      * but below dam heads under surge (~0.05): routing walls are durable,
-     * dams crack when the attacker hammers them.
+     * dams crack when the water hammers them.
      */
     kPipe: 1.6,
     pipeThreshold: 0.03,
@@ -68,7 +115,7 @@ export const CONFIG = {
     porosityEps: 0.02,
     /** Constant self-healing per tick; erosion competes against it, so calm
      *  walls regenerate while heavily scoured walls still die. */
-    cureRate: 0.0035,
+    cureRate: 0.005,
     /**
      * Construction armor: fresh walls carry integrity above 1 purely to absorb
      * the placement pressure transient (water slamming into a new obstacle
@@ -83,12 +130,14 @@ export const CONFIG = {
     brushRadius: 1.6,
     /** Gold per wall cell. */
     wallCostPerCell: 0.12,
+    /** Gold per cell to repaint (repair) a standing wall back to full armor. */
+    wallRepairCostPerCell: 0.06,
   },
   towers: {
     neutralizer: {
-      cost: 45,
-      radius: 14,
-      /** Biomass decay rate per tick at the centre (falls off to the rim). */
+      cost: 40,
+      radius: 16,
+      /** Damage field rate at the centre (falls off to the rim). */
       rate: 0.09,
     },
     impeller: {
@@ -98,69 +147,73 @@ export const CONFIG = {
       force: 0.0045,
     },
   },
-  attacker: {
-    /** Reservoir → tank pump rate (biomass units per tick). */
-    pumpRate: 9,
-    /** Pressurized tank capacity (banked ammunition for surges). */
-    tankCap: 5000,
-    /** Ticks a surge lasts once triggered. */
-    surgeTicks: 360,
-  },
   match: {
-    /** Defender leak budget: total biomass the outlet can absorb before loss. */
-    leakBudget: 25000,
-    /** Attacker's finite biomass reservoir for the match. */
-    attackerReservoir: 140000,
-    /** Defender starting gold. */
-    startingGold: 160,
-    /** Gold per unit of biomass neutralized by towers. */
-    bountyPerBiomass: 0.006,
     /** Passive gold per second. */
-    goldTrickle: 1.2,
-    /** In-flight biomass below this counts as "threat over" for the defender win. */
-    winDrainEpsilon: 2500,
+    goldTrickle: 1,
+    /** Ticks of the initial build phase before wave 1 auto-starts. */
+    buildTicks: 45 * 60,
+    /** Ticks between waves (Space skips). */
+    interWaveTicks: 12 * 60,
+    /** A wave force-completes this many ticks after its last spawn (backstop —
+     *  suffocation resolves trapped spores long before this). */
+    waveTimeoutTicks: 45 * 60,
+    /** Wave-clear bonus: base + perWave × wave number. */
+    clearBonusBase: 20,
+    clearBonusPerWave: 10,
   },
   /**
-   * Levels: difficulty = attacker resources × AI profile. requiredKill ≈
-   * 1 − leakBudget/reservoir is the fraction of released biomass the defender
-   * must stop; it should climb gently across levels.
+   * Levels are wave tables. interval = ticks between spawns; arms = inlet
+   * segments (0 bottom, 1 middle, 2 top) the wave rides; surge waves slam the
+   * water hammer (faster current, walls strain) while spores ride it.
    */
   levels: [
     {
-      name: 'First Trickle',
-      description: 'A lazy, steady seep. Learn the tools.',
-      ai: 'steady',
-      reservoir: 60000,
-      leakBudget: 32000, // stop ~47%
-      pumpRate: 6,
-      tankCap: 3500,
-      startingGold: 180,
+      name: 'First Spores',
+      description: 'Learn the tools. One lazy stream at a time.',
+      lives: 15,
+      startingGold: 165,
+      waves: [
+        { count: 8, hp: 1, interval: 32, arms: [1] },
+        { count: 12, hp: 1, interval: 26, arms: [1, 2] },
+        { count: 16, hp: 1.6, interval: 22, arms: [0, 1, 2] },
+        { count: 16, hp: 1.8, interval: 20, arms: [0, 1, 2], surge: true },
+        { count: 20, hp: 2, interval: 16, arms: [0, 1, 2], surge: true },
+      ],
     },
     {
-      name: 'Probing Tides',
-      description: 'The flow tests every arm, and commits.',
-      ai: 'prober',
-      reservoir: 110000,
-      leakBudget: 30000, // stop ~73%
-      pumpRate: 9,
-      tankCap: 5000,
-      startingGold: 160,
+      name: 'Crosscurrents',
+      description: 'Every arm at once, and the water fights back.',
+      lives: 12,
+      startingGold: 150,
+      waves: [
+        { count: 10, hp: 1.2, interval: 26, arms: [0, 2] },
+        { count: 14, hp: 1.6, interval: 22, arms: [0, 1, 2] },
+        { count: 16, hp: 2.2, interval: 18, arms: [1], surge: true },
+        { count: 20, hp: 2.6, interval: 16, arms: [0, 1, 2] },
+        { count: 22, hp: 3.2, interval: 14, arms: [0, 2], surge: true },
+        { count: 28, hp: 3.6, interval: 12, arms: [0, 1, 2], surge: true },
+      ],
     },
     {
       name: 'Water Hammer',
-      description: 'Banked pressure, brutal surges.',
-      ai: 'burster',
-      reservoir: 170000,
-      leakBudget: 27000, // stop ~84%
-      pumpRate: 12,
-      tankCap: 6500,
-      startingGold: 160,
+      description: 'Banked pressure, brutal surges, thick swarms.',
+      lives: 10,
+      startingGold: 150,
+      waves: [
+        { count: 12, hp: 1.6, interval: 22, arms: [0, 1, 2] },
+        { count: 16, hp: 2.2, interval: 18, arms: [0, 1, 2], surge: true },
+        { count: 20, hp: 2.8, interval: 15, arms: [1], surge: true },
+        { count: 24, hp: 3.2, interval: 13, arms: [0, 1, 2] },
+        { count: 26, hp: 3.8, interval: 12, arms: [0, 2], surge: true },
+        { count: 30, hp: 4.2, interval: 10, arms: [0, 1, 2], surge: true },
+        { count: 36, hp: 4.8, interval: 9, arms: [0, 1, 2], surge: true },
+      ],
     },
   ],
   /**
    * Carrier-dye tint per inlet segment. Deliberately quiet, single-family
-   * water tones: dye shows the CURRENT, and must never compete with biomass
-   * (hot pink), which is the only saturated threat color on screen.
+   * water tones: dye shows the CURRENT, and must never compete with the
+   * spores (hot pink), which are the only saturated threat color on screen.
    */
   segmentColors: [
     [0.3, 0.46, 0.58],

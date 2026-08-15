@@ -1,10 +1,12 @@
 // Defender input: tool selection (1 wall, 2 neutralizer, 3 impeller),
-// drag-to-paint walls, click/drag-to-aim tower placement.
+// drag-to-paint walls, click/drag-to-aim tower placement, and the jet —
+// hold the RIGHT mouse button to blast water outward from the cursor.
 
 import { CONFIG } from '../config'
 import type { Engine } from '../engine/Engine'
 import type { TowerType } from '../engine/towers'
 import type { GpuSim } from '../sim/gpu/GpuSim'
+import { CELL } from '../sim/core/constants'
 import { cellFromPointer } from './viewport'
 
 export type Tool = 'wall' | 'neutralizer' | 'impeller'
@@ -16,13 +18,25 @@ export interface PendingPlacement {
   angle: number
 }
 
+export interface JetState {
+  /** Cursor position in sim cells (last known). */
+  x: number
+  y: number
+  /** Right mouse button currently held inside the domain. */
+  held: boolean
+}
+
 export class BuildInput {
   tool: Tool = 'wall'
   /** Live tower placement being aimed (for the overlay preview). */
   pending: PendingPlacement | null = null
+  /** The jet verb: main.ts feeds this to the sim each frame. */
+  readonly jet: JetState = { x: 0, y: 0, held: false }
 
   private painting = false
   private last: { x: number; y: number } | null = null
+  /** Cells touched by the current stroke — never billed twice within one drag. */
+  private readonly stroke = new Set<number>()
 
   constructor(
     private readonly canvas: HTMLCanvasElement,
@@ -34,9 +48,10 @@ export class BuildInput {
       else if (e.key === '2') this.tool = 'neutralizer'
       else if (e.key === '3') this.tool = 'impeller'
     })
+    canvas.addEventListener('contextmenu', (e) => e.preventDefault())
     canvas.addEventListener('pointerdown', (e) => this.down(e))
     window.addEventListener('pointermove', (e) => this.move(e))
-    window.addEventListener('pointerup', () => this.up())
+    window.addEventListener('pointerup', (e) => this.up(e))
   }
 
   private cellAt(e: PointerEvent): { x: number; y: number } | null {
@@ -47,9 +62,16 @@ export class BuildInput {
   private down(e: PointerEvent): void {
     const cell = this.cellAt(e)
     if (!cell) return
+    if (e.button === 2) {
+      this.jet.held = true
+      this.jet.x = cell.x
+      this.jet.y = cell.y
+      return
+    }
     if (this.tool === 'wall') {
       this.painting = true
       this.last = null
+      this.stroke.clear()
       this.paint(cell)
     } else {
       this.pending = { type: this.tool, x: cell.x, y: cell.y, angle: 0 }
@@ -58,6 +80,10 @@ export class BuildInput {
 
   private move(e: PointerEvent): void {
     const cell = this.cellAt(e)
+    if (cell) {
+      this.jet.x = cell.x
+      this.jet.y = cell.y
+    }
     if (this.painting && cell) this.paint(cell)
     if (this.pending && cell) {
       const dx = cell.x - this.pending.x
@@ -66,7 +92,11 @@ export class BuildInput {
     }
   }
 
-  private up(): void {
+  private up(e: PointerEvent): void {
+    if (e.button === 2) {
+      this.jet.held = false
+      return
+    }
     this.painting = false
     this.last = null
     if (this.pending) {
@@ -86,9 +116,14 @@ export class BuildInput {
       this.stamp(from.x + ((cell.x - from.x) * s) / steps, from.y + ((cell.y - from.y) * s) / steps, cells)
     }
     this.last = cell
-    // Only pay for cells that are actually buildable (open water).
-    const buildable = [...cells].filter((idx) => this.sim.map.cellType[idx] === 0)
+    // New wall on open water at full price; repainting a standing wall repairs
+    // it (fresh armor) at half price. Each cell bills at most once per stroke.
+    const fresh = [...cells].filter((idx) => !this.stroke.has(idx))
+    for (const idx of fresh) this.stroke.add(idx)
+    const buildable = fresh.filter((idx) => this.sim.map.cellType[idx] === CELL.OPEN)
+    const repairable = fresh.filter((idx) => this.sim.map.cellType[idx] === CELL.WALL)
     this.sim.paintWall(this.engine.tryBuildWalls(buildable))
+    this.sim.paintWall(this.engine.tryRepairWalls(repairable))
   }
 
   private stamp(cx: number, cy: number, out: Set<number>): void {

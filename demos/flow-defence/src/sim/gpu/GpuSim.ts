@@ -1,5 +1,6 @@
 // GPU LBM sim: owns the distribution buffers, cell-state buffers, and the
-// fused collide-and-stream compute pass. Ping-pong is handled with two
+// fused collide-and-stream compute pass, plus the enemy-spore particle pass
+// and the glow field they stamp into. Ping-pong is handled with two
 // ComputeShader instances (A→B, B→A) so bindings never change after setup.
 
 import {
@@ -14,11 +15,12 @@ import {
 } from '@babylonjs/core'
 import { CONFIG } from '../../config'
 import { Q, W } from '../core/constants'
-import { inletProfile, rowSegmentTable, type DomainMap, type InletState } from '../../engine/map'
+import { inletProfile, type DomainMap, type InletState } from '../../engine/map'
 import { CELL } from '../core/constants'
-import type { ObservableSnapshot } from '../types'
-import { MASS_SCALE, biomassShaderSource } from './shaders/biomass.wgsl'
+import type { EnemyView, ObservableSnapshot, SpawnRequest } from '../types'
+import { ENEMY_STRIDE, enemiesShaderSource } from './shaders/enemies.wgsl'
 import { erosionShaderSource } from './shaders/erosion.wgsl'
+import { glowShaderSource } from './shaders/glow.wgsl'
 import { lbmShaderSource } from './shaders/lbm.wgsl'
 
 const LBM_BINDINGS = {
@@ -90,7 +92,7 @@ export class GpuSim {
     this.macroTex.wrapV = Constants.TEXTURE_CLAMP_ADDRESSMODE
 
     this.params = new UniformBuffer(engine)
-    for (const name of ['tau0', 'smag', 'uClamp', 'gx', 'gy', 'pad0', 'pad1', 'pad2']) {
+    for (const name of ['tau0', 'smag', 'uClamp', 'gx', 'gy', 'jetX', 'jetY', 'jetPow']) {
       this.params.addUniform(name, 1)
     }
     // Debug overrides: ?tau=0.7&smag=0 for numerical bisection in the browser.
@@ -135,8 +137,8 @@ export class GpuSim {
     this.erosion.setTexture('macroTex', this.macroTex, false)
     this.erosion.setStorageBuffer('counters', this.countersBuf)
 
-    // --- Biomass -------------------------------------------------------------
-    const makeBioTex = (): RawTexture => {
+    // --- Enemies + glow ------------------------------------------------------
+    const makeGlowTex = (): RawTexture => {
       const t = new RawTexture(
         null,
         map.width,
@@ -153,73 +155,107 @@ export class GpuSim {
       t.wrapV = Constants.TEXTURE_CLAMP_ADDRESSMODE
       return t
     }
-    this.bioTex = [makeBioTex(), makeBioTex()]
+    this.glowTexPair = [makeGlowTex(), makeGlowTex()]
 
     this.towerFieldBuf = new StorageBuffer(engine, n * 4)
     this.towerFieldBuf.update(new Float32Array(n))
-    const segTableBuf = new StorageBuffer(engine, map.height * 4)
-    segTableBuf.update(rowSegmentTable(map))
-    this.segmentRows = map.inletSegments.map((s) => s.y1 - s.y0 + 1)
 
-    this.bioParams = new UniformBuffer(engine)
-    for (const name of ['advScale', 'injectRate', 'pad0', 'pad1']) this.bioParams.addUniform(name, 1)
-    this.bioParams.updateFloat('advScale', CONFIG.sim.substeps)
-    this.bioParams.updateFloat('injectRate', CONFIG.biomass.injectPerTick)
-    this.bioParams.update()
+    this.enemyBuf = new StorageBuffer(engine, CONFIG.enemies.max * ENEMY_STRIDE * 4)
+    this.enemyBuf.update(new Float32Array(CONFIG.enemies.max * ENEMY_STRIDE))
+    this.glowStampBuf = new StorageBuffer(engine, n * 4)
+    this.glowStampBuf.update(new Uint32Array(n))
 
-    const bioSampler = new TextureSampler()
-    bioSampler.setParameters(
+    this.enemyParams = new UniformBuffer(engine)
+    for (const name of ['time', 'pad0', 'pad1', 'pad2']) this.enemyParams.addUniform(name, 1)
+    this.enemyParams.update()
+
+    const sampler = new TextureSampler()
+    sampler.setParameters(
       Constants.TEXTURE_CLAMP_ADDRESSMODE,
       Constants.TEXTURE_CLAMP_ADDRESSMODE,
       Constants.TEXTURE_CLAMP_ADDRESSMODE,
     )
-    bioSampler.samplingMode = Constants.TEXTURE_BILINEAR_SAMPLINGMODE
+    sampler.samplingMode = Constants.TEXTURE_BILINEAR_SAMPLINGMODE
 
-    const bioSource = biomassShaderSource(map.width, map.height)
-    const BIO_BINDINGS = {
+    this.enemyPass = new ComputeShader(
+      'enemies',
+      engine,
+      { computeSource: enemiesShaderSource(map.width, map.height) },
+      {
+        bindingsMapping: {
+          enemies: { group: 0, binding: 0 },
+          macroTex: { group: 0, binding: 1 },
+          linearSampler: { group: 0, binding: 2 },
+          cellType: { group: 0, binding: 3 },
+          solidity: { group: 0, binding: 4 },
+          towerField: { group: 0, binding: 5 },
+          counters: { group: 0, binding: 6 },
+          glow: { group: 0, binding: 7 },
+          params: { group: 0, binding: 8 },
+        },
+      },
+    )
+    this.enemyPass.setStorageBuffer('enemies', this.enemyBuf)
+    this.enemyPass.setTexture('macroTex', this.macroTex, false)
+    this.enemyPass.setTextureSampler('linearSampler', sampler)
+    this.enemyPass.setStorageBuffer('cellType', this.cellTypeBuf)
+    this.enemyPass.setStorageBuffer('solidity', this.solidityBuf)
+    this.enemyPass.setStorageBuffer('towerField', this.towerFieldBuf)
+    this.enemyPass.setStorageBuffer('counters', this.countersBuf)
+    this.enemyPass.setStorageBuffer('glow', this.glowStampBuf)
+    this.enemyPass.setUniformBuffer('params', this.enemyParams)
+
+    this.glowParams = new UniformBuffer(engine)
+    for (const name of ['advScale', 'pad0', 'pad1', 'pad2']) this.glowParams.addUniform(name, 1)
+    this.glowParams.updateFloat('advScale', CONFIG.sim.substeps)
+    this.glowParams.update()
+
+    const glowSource = glowShaderSource(map.width, map.height)
+    const GLOW_BINDINGS = {
       bioIn: { group: 0, binding: 0 },
       bioOut: { group: 0, binding: 1 },
       macroTex: { group: 0, binding: 2 },
       linearSampler: { group: 0, binding: 3 },
       params: { group: 0, binding: 4 },
-      inletProfile: { group: 0, binding: 5 },
-      cellType: { group: 0, binding: 6 },
-      towerField: { group: 0, binding: 7 },
-      counters: { group: 0, binding: 8 },
-      rowSegmentTable: { group: 0, binding: 9 },
+      cellType: { group: 0, binding: 5 },
+      glow: { group: 0, binding: 6 },
     } as const
-    this.bioPasses = [0, 1].map((p) => {
-      const cs = new ComputeShader(`bio${p}`, engine, { computeSource: bioSource }, { bindingsMapping: BIO_BINDINGS })
-      cs.setTexture('bioIn', this.bioTex[p], false)
-      cs.setStorageTexture('bioOut', this.bioTex[1 - p])
+    this.glowPasses = [0, 1].map((p) => {
+      const cs = new ComputeShader(`glow${p}`, engine, { computeSource: glowSource }, { bindingsMapping: GLOW_BINDINGS })
+      cs.setTexture('bioIn', this.glowTexPair[p], false)
+      cs.setStorageTexture('bioOut', this.glowTexPair[1 - p])
       cs.setTexture('macroTex', this.macroTex, false)
-      cs.setTextureSampler('linearSampler', bioSampler)
-      cs.setUniformBuffer('params', this.bioParams)
-      cs.setStorageBuffer('inletProfile', this.inletProfileBuffer)
+      cs.setTextureSampler('linearSampler', sampler)
+      cs.setUniformBuffer('params', this.glowParams)
       cs.setStorageBuffer('cellType', this.cellTypeBuf)
-      cs.setStorageBuffer('towerField', this.towerFieldBuf)
-      cs.setStorageBuffer('counters', this.countersBuf)
-      cs.setStorageBuffer('rowSegmentTable', segTableBuf)
+      cs.setStorageBuffer('glow', this.glowStampBuf)
       return cs
     }) as [ComputeShader, ComputeShader]
   }
 
   private readonly erosion: ComputeShader
   private readonly countersBuf: StorageBuffer
-  private readonly bioTex: [RawTexture, RawTexture]
-  private readonly bioPasses: [ComputeShader, ComputeShader]
-  private readonly bioParams: UniformBuffer
+  private readonly glowTexPair: [RawTexture, RawTexture]
+  private readonly glowPasses: [ComputeShader, ComputeShader]
+  private readonly glowParams: UniformBuffer
   private readonly towerFieldBuf: StorageBuffer
-  private readonly segmentRows: number[]
-  private bioParity = 0
+  private readonly enemyBuf: StorageBuffer
+  private readonly enemyPass: ComputeShader
+  private readonly enemyParams: UniformBuffer
+  private readonly glowStampBuf: StorageBuffer
+  private glowParity = 0
   private readbackInFlight = false
+  private enemyReadbackInFlight = false
+  private nextSlot = 0
+  private lastEnemyData: Float32Array | null = null
+  private lastEnemyTick = 0
 
   /** Latest observables snapshot (stale by 0–3 ticks; null until the first readback). */
   latest: ObservableSnapshot | null = null
 
-  /** The biomass texture holding the most recent tick's output (for rendering). */
+  /** The glow texture holding the most recent tick's output (for rendering). */
   get biomassTex(): RawTexture {
-    return this.bioTex[this.bioParity]
+    return this.glowTexPair[this.glowParity]
   }
 
   isReady(): boolean {
@@ -255,8 +291,8 @@ export class GpuSim {
   private tickCount = 0
 
   /**
-   * One fixed 60 Hz tick = substeps lattice steps + erosion + biomass + readback.
-   * carrierOnly (warmup pre-roll): just the flow — no biomass, no observables.
+   * One fixed 60 Hz tick = substeps lattice steps + erosion + enemies + glow
+   * + readback. carrierOnly (warmup/menu): just the flow — no enemies.
    */
   tick(carrierOnly = false): void {
     if (!this.isReady()) return
@@ -267,19 +303,22 @@ export class GpuSim {
     }
     if (this.erosion.isReady()) this.erosion.dispatch(this.groupsX, this.groupsY, 1)
     if (carrierOnly) return
-    const bio = this.bioPasses[this.bioParity]
-    if (bio.isReady()) {
-      // Clear the instantaneous counter slots (2: total, 8..15: segment rho).
-      this.countersBuf.update(new Uint32Array(1), 2 * 4)
-      this.countersBuf.update(new Uint32Array(8), 8 * 4)
-      bio.dispatch(this.groupsX, this.groupsY, 1)
-      this.bioParity ^= 1
+    if (this.enemyPass.isReady()) {
+      this.enemyParams.updateFloat('time', this.tickCount)
+      this.enemyParams.update()
+      this.enemyPass.dispatch(Math.ceil(CONFIG.enemies.max / 64), 1, 1)
+    }
+    const glow = this.glowPasses[this.glowParity]
+    if (glow.isReady()) {
+      glow.dispatch(this.groupsX, this.groupsY, 1)
+      this.glowParity ^= 1
     }
     if (this.readbackEvery > 0 && this.tickCount % this.readbackEvery === 0) this.requestObservables()
+    if (this.tickCount % 10 === 0) this.requestEnemyPositions()
   }
 
   /** Observables cadence in ticks (0 disables readback; ?readback=N overrides). */
-  readbackEvery = typeof location !== 'undefined' ? Number(new URLSearchParams(location.search).get('readback') ?? 30) : 30
+  readbackEvery = typeof location !== 'undefined' ? Number(new URLSearchParams(location.search).get('readback') ?? 15) : 15
 
   /** Fire-and-forget counters readback; keeps `latest` fresh within a few ticks. */
   private requestObservables(): void {
@@ -293,10 +332,8 @@ export class GpuSim {
         this.latest = {
           tick,
           breachCount: u[0],
-          outletBiomass: u[1] / MASS_SCALE,
-          neutralized: u[3] / MASS_SCALE,
-          totalBiomass: u[2] / MASS_SCALE,
-          segmentRho: this.segmentRows.map((rows, s) => u[8 + s] / MASS_SCALE / rows),
+          kills: u[1],
+          escapes: u[2],
         }
       })
       .finally(() => {
@@ -304,14 +341,67 @@ export class GpuSim {
       })
   }
 
+  /** Fire-and-forget enemy-position readback (32 KB; feeds beams/overlay). */
+  private requestEnemyPositions(): void {
+    if (this.enemyReadbackInFlight) return
+    this.enemyReadbackInFlight = true
+    const tick = this.tickCount
+    void this.enemyBuf
+      .read()
+      .then((view) => {
+        this.lastEnemyData = new Float32Array(view.buffer.slice(view.byteOffset, view.byteOffset + view.byteLength))
+        this.lastEnemyTick = tick
+      })
+      .finally(() => {
+        this.enemyReadbackInFlight = false
+      })
+  }
+
+  /**
+   * Live enemies, extrapolated from the last position readback by their own
+   * per-tick velocity — smooth enough for beams and core dots at 6 Hz reads.
+   */
+  liveEnemies(): EnemyView[] {
+    const data = this.lastEnemyData
+    if (!data) return []
+    const ahead = this.tickCount - this.lastEnemyTick
+    const out: EnemyView[] = []
+    for (let i = 0; i < data.length; i += ENEMY_STRIDE) {
+      if (data[i + 5] !== 1) continue
+      out.push({
+        x: data[i] + data[i + 2] * ahead,
+        y: data[i + 1] + data[i + 3] * ahead,
+        vx: data[i + 2],
+        vy: data[i + 3],
+        hp: data[i + 4],
+      })
+    }
+    return out
+  }
+
+  /** Inject new spores. Slots are monotonic — a match never exceeds capacity. */
+  spawnEnemies(spawns: SpawnRequest[]): void {
+    for (const s of spawns) {
+      const slot = this.nextSlot % CONFIG.enemies.max
+      this.nextSlot++
+      const data = new Float32Array([s.x, s.y, 0, 0, s.hp, 1, s.seed, 0])
+      this.enemyBuf.update(data, slot * ENEMY_STRIDE * 4)
+    }
+  }
+
+  /** The player's jet: cursor position (cells) + strength; 0 turns it off. */
+  setJet(x: number, y: number, power: number): void {
+    this.params.updateFloat('jetX', x)
+    this.params.updateFloat('jetY', y)
+    this.params.updateFloat('jetPow', power)
+    this.params.update()
+  }
+
   /**
    * Paint player walls. Per-cell partial buffer writes — a full upload from the
    * CPU mirror would resurrect walls the GPU erosion pass has already breached.
    */
   paintWall(cells: number[]): void {
-    // Soft placement: fresh walls start porous and cure to full solidity in
-    // the erosion pass — slamming solid cells into moving fluid fires
-    // dramatic (and ugly) water-hammer pressure waves.
     const fresh = new Float32Array([CONFIG.erosion.freshSolidity])
     const wall = new Uint32Array([CELL.WALL])
     for (const idx of cells) {
@@ -323,14 +413,14 @@ export class GpuSim {
     }
   }
 
-  /** Attacker seat control: per-segment carrier openness, biomass release, surge. */
+  /** Carrier control: per-segment openness and surge (waves slam the hammer). */
   setInletStates(states: InletState[]): void {
     this.inletProfileBuffer.update(inletProfile(this.map, states))
   }
 
-  /** Defender towers, splatted CPU-side into decay + force fields. */
-  setTowerFields(decay: Float32Array, force: Float32Array): void {
-    this.towerFieldBuf.update(decay)
+  /** Defender towers, splatted CPU-side into damage + force fields. */
+  setTowerFields(damage: Float32Array, force: Float32Array): void {
+    this.towerFieldBuf.update(damage)
     this.cellForceBuf.update(force)
   }
 }

@@ -1,4 +1,7 @@
 // Match HUD: thin luminous DOM overlay — nothing opaque over the fluid.
+// Left: gold / lives / kills. Right: wave counter + status. Center: hints,
+// wave announcements, surge warning, game-over overlay.
+
 import { CONFIG } from '../config'
 import type { Engine } from '../engine/Engine'
 
@@ -13,20 +16,23 @@ const HUD_CSS = /* css */ `
 .fd-panel.right { right: 18px; text-align: right; }
 .fd-label { letter-spacing: 0.14em; font-size: 10px; opacity: 0.75; text-transform: uppercase; }
 .fd-value { font-size: 15px; color: #eaf6ff; }
-.fd-bar {
-  height: 3px; border-radius: 2px; margin: 4px 0 10px;
-  background: rgba(130, 200, 255, 0.15);
-  overflow: hidden;
-}
-.fd-bar > i {
-  display: block; height: 100%; border-radius: 2px;
-  transition: width 0.3s ease;
-}
-.fd-bar.leak > i { background: linear-gradient(90deg, #2dd4bf, #38bdf8); box-shadow: 0 0 8px #38bdf8; }
-.fd-bar.reservoir > i { background: linear-gradient(90deg, #f472b6, #fb7185); box-shadow: 0 0 8px #fb7185; }
-.fd-bar.tank > i { background: linear-gradient(90deg, #fbbf24, #fb923c); box-shadow: 0 0 8px #fb923c; }
+.fd-lives { font-size: 19px; color: #fda4af; text-shadow: 0 0 10px rgba(251, 113, 133, 0.7); }
+.fd-wave { font-size: 19px; }
+.fd-status { font-size: 11px; opacity: 0.9; margin-top: 2px; }
 .fd-gold.flash { animation: fd-flash 0.4s; }
 @keyframes fd-flash { 50% { color: #ff8f6b; } }
+.fd-announce {
+  position: absolute; left: 50%; top: 30%; transform: translateX(-50%);
+  font-size: 22px; letter-spacing: 0.34em; text-transform: uppercase; color: #eaf6ff;
+  text-shadow: 0 0 24px rgba(120, 210, 255, 0.9); opacity: 0; pointer-events: none;
+}
+.fd-announce.show { animation: fd-announce 2.4s ease-out; }
+@keyframes fd-announce {
+  0% { opacity: 0; transform: translateX(-50%) scale(1.15); }
+  12% { opacity: 1; transform: translateX(-50%) scale(1); }
+  75% { opacity: 1; }
+  100% { opacity: 0; }
+}
 .fd-over {
   position: absolute; inset: 0; display: none; place-items: center; text-align: center;
   background: radial-gradient(ellipse at center, rgba(4, 8, 16, 0.25), rgba(4, 8, 16, 0.78));
@@ -43,6 +49,7 @@ const HUD_CSS = /* css */ `
   font-size: 34px; font-weight: 300; letter-spacing: 0.3em; text-transform: uppercase;
   color: #eaf6ff; text-shadow: 0 0 24px rgba(120, 210, 255, 0.8);
 }
+.fd-over .fd-oversub { margin-top: 8px; opacity: 0.75; }
 .fd-tools { position: absolute; left: 18px; bottom: 14px; display: flex; gap: 14px; }
 .fd-hint {
   position: absolute; left: 50%; bottom: 48px; transform: translateX(-50%);
@@ -66,13 +73,18 @@ const HUD_CSS = /* css */ `
 
 export class Hud {
   private readonly goldEl: HTMLElement
-  private readonly leakBar: HTMLElement
-  private readonly leakVal: HTMLElement
-  private readonly resBar: HTMLElement
-  private readonly resVal: HTMLElement
-  private tankBar!: HTMLElement
+  private readonly livesEl: HTMLElement
+  private readonly killsEl: HTMLElement
+  private readonly waveEl: HTMLElement
+  private readonly statusEl: HTMLElement
+  private readonly jetEl: HTMLElement
+  private readonly announceEl: HTMLElement
+  private readonly hintEl: HTMLElement
+  private readonly warnEl: HTMLElement
   private readonly overEl: HTMLElement
   private readonly overTitle: HTMLElement
+  private readonly overSub: HTMLElement
+  private readonly toolEls: HTMLElement[]
 
   constructor(container: HTMLElement, private readonly levelNum: number) {
     const style = document.createElement('style')
@@ -83,30 +95,30 @@ export class Hud {
     root.className = 'fd-hud'
     root.innerHTML = `
       <div class="fd-panel left">
-        <div class="fd-label">Defender · Gold</div>
+        <div class="fd-label">Gold</div>
         <div class="fd-value fd-gold">0</div>
-        <div class="fd-label">Leak budget</div>
-        <div class="fd-bar leak"><i></i></div>
-        <div class="fd-value fd-leak" style="font-size:11px"></div>
+        <div class="fd-label">Lives</div>
+        <div class="fd-value fd-lives">0</div>
         <div class="fd-label">Kills</div>
         <div class="fd-value fd-kills" style="font-size:13px">0</div>
       </div>
       <div class="fd-panel right">
-        <div class="fd-label">Attacker · Reservoir</div>
-        <div class="fd-bar reservoir"><i></i></div>
-        <div class="fd-value fd-res" style="font-size:11px"></div>
-        <div class="fd-label">Pressure tank</div>
-        <div class="fd-bar tank"><i></i></div>
+        <div class="fd-label">Wave</div>
+        <div class="fd-value fd-wave">–</div>
+        <div class="fd-status"></div>
       </div>
       <div class="fd-tools">
         <span class="fd-tool" data-tool="wall"><b>1</b>Wall</span>
         <span class="fd-tool" data-tool="neutralizer"><b>2</b>Neutralizer ${CONFIG.towers.neutralizer.cost}g</span>
         <span class="fd-tool" data-tool="impeller"><b>3</b>Impeller ${CONFIG.towers.impeller.cost}g</span>
+        <span class="fd-tool fd-jet"><b>R-hold</b>Jet</span>
       </div>
       <div class="fd-hint"></div>
-      <div class="fd-warn">Surge incoming</div>
+      <div class="fd-warn">Surge wave</div>
+      <div class="fd-announce"></div>
       <div class="fd-over"><div>
         <h1></h1>
+        <div class="fd-oversub"></div>
         <div class="fd-overbtns">
           <button data-over="again">Play again</button>
           <button data-over="menu">Menu</button>
@@ -115,17 +127,18 @@ export class Hud {
     `
     container.appendChild(root)
     this.goldEl = root.querySelector('.fd-gold')!
-    this.leakBar = root.querySelector('.fd-bar.leak > i')!
-    this.leakVal = root.querySelector('.fd-leak')!
-    this.resBar = root.querySelector('.fd-bar.reservoir > i')!
-    this.resVal = root.querySelector('.fd-res')!
-    this.tankBar = root.querySelector('.fd-bar.tank > i')!
+    this.livesEl = root.querySelector('.fd-lives')!
     this.killsEl = root.querySelector('.fd-kills')!
+    this.waveEl = root.querySelector('.fd-wave')!
+    this.statusEl = root.querySelector('.fd-status')!
+    this.jetEl = root.querySelector('.fd-jet')!
+    this.announceEl = root.querySelector('.fd-announce')!
     this.hintEl = root.querySelector('.fd-hint')!
     this.warnEl = root.querySelector('.fd-warn')!
     this.overEl = root.querySelector('.fd-over')!
     this.overTitle = root.querySelector('.fd-over h1')!
-    this.toolEls = [...root.querySelectorAll<HTMLElement>('.fd-tool')]
+    this.overSub = root.querySelector('.fd-oversub')!
+    this.toolEls = [...root.querySelectorAll<HTMLElement>('.fd-tool[data-tool]')]
     root.querySelector('[data-over="again"]')?.addEventListener('click', () => {
       location.href = `${location.pathname}?level=${this.levelNum}`
     })
@@ -134,43 +147,53 @@ export class Hud {
     })
   }
 
-  private readonly toolEls: HTMLElement[]
-  private killsEl!: HTMLElement
-  private hintEl!: HTMLElement
-  private warnEl!: HTMLElement
-
   setTool(tool: string): void {
     for (const el of this.toolEls) el.classList.toggle('active', el.dataset.tool === tool)
   }
 
   update(engine: Engine): void {
     this.goldEl.textContent = Math.floor(engine.gold).toString()
-    const leakFrac = engine.leakBudget / engine.level.leakBudget
-    this.leakBar.style.width = `${Math.max(0, leakFrac * 100)}%`
-    this.leakVal.textContent = `${Math.max(0, Math.round(engine.leakBudget))}`
-    const resFrac = engine.reservoir / engine.level.reservoir
-    this.resBar.style.width = `${Math.max(0, resFrac * 100)}%`
-    this.resVal.textContent = `${Math.max(0, Math.round(engine.reservoir))}`
-    this.tankBar.style.width = `${Math.max(0, (engine.tank / engine.level.tankCap) * 100)}%`
-    this.killsEl.textContent = Math.round(engine.killsTotal).toString()
-    const surging = engine.inletStates.some((s) => s.surge > 0)
-    const imminent = engine.tank / engine.level.tankCap > 0.85
-    this.warnEl.textContent = surging ? 'SURGE!' : 'Surge incoming'
-    this.warnEl.classList.toggle('show', engine.phase === 'running' && (surging || imminent))
+    this.livesEl.textContent = engine.lives.toString()
+    this.killsEl.textContent = engine.killsTotal.toString()
+    const waveNum = Math.min(engine.waveIndex + 1, engine.waveTotal)
+    this.waveEl.textContent = `${waveNum} / ${engine.waveTotal}`
+    if (engine.phase === 'build') {
+      const s = Math.ceil(engine.buildTicksLeft / 60)
+      this.statusEl.textContent = `next wave in ${s}s — SPACE to call it`
+    } else if (engine.phase === 'wave') {
+      const parts: string[] = []
+      if (engine.spawnRemaining > 0) parts.push(`${engine.spawnRemaining} to spawn`)
+      parts.push(`${engine.aliveEstimate} in the water`)
+      this.statusEl.textContent = parts.join(' · ')
+    } else {
+      this.statusEl.textContent = ''
+    }
+    this.jetEl.style.opacity = (0.35 + 0.65 * engine.jetCharge).toFixed(2)
+    this.warnEl.classList.toggle('show', engine.phase === 'wave' && engine.surging)
   }
 
   setHint(text: string | null): void {
     this.hintEl.textContent = text ?? ''
   }
 
+  /** Big transient center text (wave start / wave cleared). */
+  announce(text: string): void {
+    this.announceEl.textContent = text
+    this.announceEl.classList.remove('show')
+    void this.announceEl.offsetWidth
+    this.announceEl.classList.add('show')
+  }
+
   flashGold(): void {
     this.goldEl.classList.remove('flash')
-    void (this.goldEl as HTMLElement).offsetWidth
+    void this.goldEl.offsetWidth
     this.goldEl.classList.add('flash')
   }
 
   showGameOver(winner: 'attacker' | 'defender'): void {
     this.overTitle.textContent = winner === 'defender' ? 'The flow is tamed' : 'The base is drowned'
+    this.overSub.textContent =
+      winner === 'defender' ? 'Every wave broken against your walls.' : 'Too many spores slipped the current.'
     this.overEl.classList.add('show')
   }
 }
