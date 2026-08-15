@@ -121,6 +121,23 @@ export class Guide {
     el.innerHTML = `
       <div class="panel guide">
         <h2>How to play</h2>
+        <p class="guide-intro">
+          <b>Wall Defence is JezzBall crossed with tower defence.</b> In JezzBall
+          (the old Windows game), balls bounce around an open arena and you
+          split the space with growing walls — but if a ball hits a wall while
+          it's still growing, the wall shatters. When a wall completes, any
+          piece of the arena with <b>no balls inside</b> gets sealed off and
+          painted: that's now <b>your territory</b>.
+        </p>
+        <p class="guide-intro">
+          The twist: this arena fights back. New balls arrive in timed waves,
+          some of them <b>chew through your walls</b> to un-paint what you took,
+          and the only way to kill any of them is with turrets — which can only
+          be built <b>on your territory</b>, and only work while it stays sealed.
+          So you're playing both sides of one map: carve out land with walls,
+          arm it with towers, and hold enough of the board when each wave lands.
+          One five-minute run, ten waves, same daily board for everyone.
+        </p>
         <div class="guide-cols">
           <section>
             <h3>The loop</h3>

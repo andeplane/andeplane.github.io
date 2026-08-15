@@ -364,6 +364,24 @@ body {
   text-align: center;
 }
 
+.guide-intro {
+  font-size: 13.5px;
+  line-height: 1.65;
+  color: var(--ink);
+  max-width: 660px;
+  margin: 0 auto 10px;
+}
+
+.guide-intro:first-of-type {
+  margin-top: 14px;
+}
+
+.guide-intro + .guide-cols {
+  margin-top: 18px;
+  border-top: 1px solid var(--panel-edge);
+  padding-top: 16px;
+}
+
 .guide-cols {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
