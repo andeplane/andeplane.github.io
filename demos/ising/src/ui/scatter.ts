@@ -14,6 +14,11 @@ export interface ScatterSpec {
   xDomain: [number, number];
   /** Force the y-axis to include these values. */
   include?: number[];
+  /**
+   * Clamp the y-axis: min stops non-negative quantities (χ, C_v) from wasting half
+   * the plot below zero; min+max together pin the axis (|M| is always [0, 1]).
+   */
+  range?: { min?: number; max?: number };
 }
 
 export interface ScatterDatum {
@@ -81,7 +86,7 @@ export class ScatterChart {
     this.points = points;
     this.dirty = true;
     const total = points.reduce((s, p) => s + p.n, 0);
-    this.count.textContent = total > 0 ? `${points.length} bins` : '';
+    this.count.textContent = total > 0 ? `${points.length} T bins` : '';
   }
 
   setCursor(T: number | null): void {
@@ -132,7 +137,11 @@ export class ScatterChart {
     const [x0, x1] = this.spec.xDomain;
 
     this.updateRange();
-    const { lo, hi } = niceRange(this.lo, this.hi);
+    const r = this.spec.range;
+    const pinned = r?.min !== undefined && r?.max !== undefined;
+    let { lo, hi } = pinned ? { lo: r!.min!, hi: r!.max! } : niceRange(this.lo, this.hi);
+    if (!pinned && r?.min !== undefined) lo = Math.max(lo, r.min);
+    if (!pinned && r?.max !== undefined) hi = Math.min(hi, r.max);
     const spanY = Math.max(hi - lo, 1e-12);
     const px = (T: number) => padL + ((T - x0) / (x1 - x0)) * plotW;
     const py = (v: number) => padT + plotH - ((v - lo) / spanY) * plotH;
@@ -252,6 +261,8 @@ export class ScatterChart {
     hi += pad;
     this.lo = Number.isFinite(this.lo) ? Math.min(lo, this.lo * 0.9 + lo * 0.1) : lo;
     this.hi = Number.isFinite(this.hi) ? Math.max(hi, this.hi * 0.9 + hi * 0.1) : hi;
+    if (this.spec.range?.min !== undefined) this.lo = Math.max(this.lo, this.spec.range.min);
+    if (this.spec.range?.max !== undefined) this.hi = Math.min(this.hi, this.spec.range.max);
   }
 }
 
