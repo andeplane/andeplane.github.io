@@ -11,6 +11,9 @@ const INTERVAL = 5000
 
 const ANIM_MS = 400
 
+// The carousel slides whole columns; each column stacks this many cards.
+const ROWS = 2
+
 function useVisibleCount(): number {
   const [visible, setVisible] = useState(3)
 
@@ -57,18 +60,24 @@ function ProjectCarousel({ projects }: { projects: ProjectMeta[] }) {
     return () => clearInterval(id)
   }, [next])
 
-  const count = Math.min(visible, n)
+  // Never show more slots than there are projects, or a project would appear twice.
+  const rows = Math.min(ROWS, n)
+  const count = Math.max(1, Math.min(visible, Math.floor(n / rows)))
   const gap = '1.25rem'
   const cardWidth = `calc((100% - ${count - 1} * ${gap}) / ${count})`
   const step = `calc(${cardWidth} + ${gap})`
 
-  // While animating, the track holds the visible cards plus the |shift|
-  // cards sliding in (appended when moving forward, prepended when moving
-  // back), and translates by exactly shift × one card width.
+  // While animating, the track holds the visible columns plus the |shift|
+  // columns sliding in (appended when moving forward, prepended when moving
+  // back), and translates by exactly shift × one column width.
   const windowStart = animating && shift < 0 ? index + shift : index
-  const cards = Array.from(
+  const at = (i: number) => projects[(((i % n) + n) % n)]
+  // Projects run left-to-right along the top row and continue on the second
+  // row, so column k holds project k and the one `count` positions later.
+  // Advancing by one keeps every slot filled even when n is odd.
+  const columns = Array.from(
     { length: animating ? count + Math.abs(shift) : count },
-    (_, k) => projects[(((windowStart + k) % n) + n) % n],
+    (_, k) => Array.from({ length: rows }, (_, r) => at(windowStart + k + r * count)),
   )
 
   const trackStyle = {
@@ -101,9 +110,18 @@ function ProjectCarousel({ projects }: { projects: ProjectMeta[] }) {
       <div style={{ position: 'relative' }}>
         <div style={{ overflow: 'hidden' }}>
           <div style={trackStyle}>
-            {cards.map((p, k) => (
-              <div key={`${p.slug}-${k}`} style={{ flex: `0 0 ${cardWidth}`, minWidth: 0, display: 'grid' }}>
-                <ProjectCard project={p} />
+            {columns.map((column, k) => (
+              <div
+                key={`${column[0].slug}-${k}`}
+                style={{
+                  flex: `0 0 ${cardWidth}`,
+                  minWidth: 0,
+                  display: 'grid',
+                  gridTemplateRows: `repeat(${rows}, 1fr)`,
+                  gap,
+                }}
+              >
+                {column.map((p, r) => <ProjectCard key={`${p.slug}-${r}`} project={p} />)}
               </div>
             ))}
           </div>
