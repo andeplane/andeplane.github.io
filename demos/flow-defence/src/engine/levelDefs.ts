@@ -113,7 +113,7 @@ export const LEVELS: readonly LevelConfig[] = [
     ],
     waves: [
       { count: 12, hp: 1.6, interval: 22, arms: [0, 1, 2] },
-      { count: 8, hp: 2, interval: 30, arms: [1], types: ['splitter'] },
+      { count: 6, hp: 2, interval: 34, arms: [1], types: ['splitter'] },
       { count: 16, hp: 2.2, interval: 18, arms: [0, 2], types: ['standard', 'splitter'] },
       { count: 14, hp: 2.6, interval: 16, arms: [0, 1, 2], types: ['splitter', 'swimmer'], surge: true },
       { count: 18, hp: 2.8, interval: 14, arms: [0, 1, 2], types: ['standard', 'splitter'] },
