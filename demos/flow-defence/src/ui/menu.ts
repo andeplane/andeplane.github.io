@@ -65,7 +65,7 @@ function howToPlayHtml(): string {
     <p><span class="k">1</span><b>Wall</b> (${build.wallCostPerCell}g/cell) — drag to draw. Walls redirect the
     current itself: narrow channels flow fast, dead ends silt. Walls are physical — fast water
     scours them and pressure pipes through dams. They glow through their cracks before failing,
-    and quietly self-heal when the flow leaves them alone.</p>
+    and slowly self-heal whenever erosion isn't outpacing them.</p>
     <p><span class="k">2</span><b>Neutralizer</b> (${towers.neutralizer.cost}g) — click to place. Kills biomass
     passing through its ring, and pays <b>bounty</b> (${match.bountyPerBiomass}g per unit killed) —
     your main income. Put it where the flow concentrates.</p>
@@ -78,6 +78,13 @@ function howToPlayHtml(): string {
     the tank empties, brace. Surges also erode your walls faster.</p>
     <p>You can dam the entire flow. It will hold, pressurize the whole upstream — and then fail
     like a real dam, by piping. Sometimes buying those seconds is worth the flood.</p>
+
+    <h2>Strategy</h2>
+    <p>Don't fight the whole front. <b>Wall off inlet arms close to the source</b> — walls sitting
+    in calm water between the jets last far longer than walls dropped mid-current — and force
+    everything into one channel. Then park neutralizers on that channel and let the bounty fund
+    the next layer. What destroys walls is <b>fast water scraping along them</b> and pressure
+    piping through dams: a wall parallel to a jet dies, a wall that makes the jet turn survives.</p>
 
     <h2>Economy</h2>
     <p>Income: starting gold + a small trickle (${match.goldTrickle}g/s) + bounty for kills. Killing

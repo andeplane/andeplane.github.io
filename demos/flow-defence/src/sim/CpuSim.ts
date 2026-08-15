@@ -94,11 +94,11 @@ export class CpuSim {
           shear,
           head: Math.max(maxRho - 1, 0),
         })
-        // Curing (see erosion.wgsl.ts): fresh/lightly-loaded walls harden.
-        const next =
-          stress < CONFIG.erosion.cureStressMax
-            ? Math.min(sol[idx] + CONFIG.erosion.cureRate, 1)
-            : sol[idx] - stress
+        // Self-healing competes with erosion, but not under piping pressure
+        // (see erosion.wgsl.ts).
+        const head = Math.max(maxRho - 1, 0)
+        const cure = head > CONFIG.erosion.pipeThreshold ? 0 : CONFIG.erosion.cureRate
+        const next = Math.min(sol[idx] + cure, 1) - stress
         if (next <= 0) {
           ct[idx] = CELL.OPEN
           sol[idx] = 0

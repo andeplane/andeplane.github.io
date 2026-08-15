@@ -74,8 +74,11 @@ fn main(input : FragmentInputs) -> FragmentOutputs {
   col += speed * vec3<f32>(0.10, 0.30, 0.52) * 1.35;
 
   // Carrier dye: quiet streaklines that show the current without reading as a
-  // threat (biomass owns all the saturated color).
-  col += pow(max(dye, vec3<f32>(0.0)), vec3<f32>(1.3)) * 0.85;
+  // threat. Suppressed inside dense biomass so enemy regions are pure pink —
+  // no confusing silver shimmer within the tide.
+  let bioEarly = textureSample(bioTex, bioTexSampler, uv).r;
+  let dyeMask = 1.0 / (1.0 + bioEarly * 6.0);
+  col += pow(max(dye, vec3<f32>(0.0)), vec3<f32>(1.3)) * 0.85 * dyeMask;
 
   // Liquid shading: dye density as heightfield → gradient normal → specular.
   let l = dyeLum(uv);
@@ -85,7 +88,7 @@ fn main(input : FragmentInputs) -> FragmentOutputs {
   let lightDir = normalize(vec3<f32>(-0.45, 0.65, 0.62));
   let halfVec = normalize(lightDir + vec3<f32>(0.0, 0.0, 1.0));
   let spec = pow(max(dot(nrm, halfVec), 0.0), 42.0) * smoothstep(0.02, 0.35, l);
-  col += spec * vec3<f32>(0.9, 1.0, 1.0) * 1.9;
+  col += spec * vec3<f32>(0.9, 1.0, 1.0) * 1.9 * dyeMask;
 
   // Biomass: the enemy as bioluminescence — hot coral glow the towers must kill.
   let bio = textureSample(bioTex, bioTexSampler, uv).r;
@@ -94,8 +97,10 @@ fn main(input : FragmentInputs) -> FragmentOutputs {
 
   // Pressure telegraph: only over-density beyond the steady-state head glows
   // (steady inlet rho ≈ 1.03; surges push well past it).
-  let over = max(mac.z - 1.03, 0.0);
-  col += over * 7.0 * vec3<f32>(1.0, 0.42, 0.13) * (1.0 - solid);
+  // Capped so sustained surges glow steadily but wall-placement water-hammer
+  // transients can't blind the screen.
+  let over = min(max(mac.z - 1.025, 0.0), 0.03);
+  col += over * 8.0 * vec3<f32>(1.0, 0.42, 0.13) * (1.0 - solid);
 
   // Solids: carved rock with per-cell grain and a cool rim light on the water side.
   let cell = floor(uv / SIM_TEXEL);

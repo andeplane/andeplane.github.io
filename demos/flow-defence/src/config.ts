@@ -40,20 +40,23 @@ export const CONFIG = {
   },
   erosion: {
     /** Integrity lost per tick per unit of shear speed above the threshold. */
-    kShear: 0.012,
-    shearThreshold: 0.065,
-    /** Integrity lost per tick per unit of pressure head above the threshold, scaled by porosity. */
-    kPipe: 0.45,
-    pipeThreshold: 0.008,
+    kShear: 0.01,
+    shearThreshold: 0.08,
+    /**
+     * Piping: pressure head above this erodes (scaled by porosity) AND blocks
+     * self-healing. Set above stagnation heads from deflecting a jet (~0.02)
+     * but below dam heads under surge (~0.05): routing walls are durable,
+     * dams crack when the attacker hammers them.
+     */
+    kPipe: 1.6,
+    pipeThreshold: 0.03,
     /** Minimum porosity of an intact wall — the seed leak that makes piping possible. */
     porosityEps: 0.02,
-    /** Integrity regained per tick when stress is below cureStressMax (fresh
-     *  walls harden; lightly-loaded walls slowly self-heal). */
-    cureRate: 0.006,
-    cureStressMax: 0.0008,
-    /** Solidity a freshly painted wall starts at (soft placement: avoids the
-     *  water-hammer shock of slamming a fully solid cell into moving fluid). */
-    freshSolidity: 0.6,
+    /** Constant self-healing per tick; erosion competes against it, so calm
+     *  walls regenerate while heavily scoured walls still die. */
+    cureRate: 0.0035,
+    /** Solidity a freshly painted wall starts at. */
+    freshSolidity: 1.0,
   },
   build: {
     /** Brush radius (cells) for wall painting. */

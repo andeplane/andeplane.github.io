@@ -21,12 +21,16 @@ export interface AIProfile {
 export const PROFILES: Record<string, AIProfile> = {
   steady: {
     name: 'steady',
-    epochSeconds: 5,
-    dripLevel: 0.55,
-    surgeThreshold: null,
-    surgeBiomass: 0,
-    focus: 0.15,
-    explore: 0.1,
+    epochSeconds: 6,
+    dripLevel: 0.5,
+    // A rare, mild surge: teaches the mechanic gently — and means even a lazy
+    // attacker can eventually crack a total dam (the no-block rule needs it).
+    surgeThreshold: 0.97,
+    surgeBiomass: 0.6,
+    // High focus: one readable main river (that occasionally migrates), not a
+    // featureless flood across every arm.
+    focus: 0.75,
+    explore: 0.2,
   },
   burster: {
     name: 'burster',
