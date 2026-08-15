@@ -5,18 +5,20 @@ material lives in `IDEAS.md`; this file is only for things we intend to ship.
 
 ## Gameplay / content
 
-- [ ] **Level packs.** Group levels into packs (menu shows packs → levels);
-      each pack introduces a new tower or mechanic, unlocked when the pack
-      opens. Levels are already pure data (`config.ts#levels`), so this is
-      menu structure + an `unlocks` field per pack.
-- [ ] **Per-pack tower unlocks.** The tool row / build UI only offers towers
-      the current pack has introduced, so early levels stay simple.
+- [x] **Campaign progression.** 8 levels, per-level tower unlocks
+      (`towerDefs.unlockLevel`) + new spore types (`sporeDefs`), star
+      ratings (lives kept), previous-level gating, NEW TOWER / NEW SPORE
+      intro toasts. Shipped 2026-08-16.
+- [ ] **Level packs.** If the campaign outgrows one list: group levels into
+      packs in the menu. (Per-level unlocks already exist.)
 - [ ] **Level editor.** Levels are terrain shapes + wave tables + numbers —
       an in-browser editor that emits that JSON (paint bedrock, place inlets,
       author waves, playtest in place, share via URL).
-- [ ] **Bot-verify levels 2 and 3.** The self-play matrix (win bots must win,
-      degenerate bots must lose) currently gates level 1; run and tune the
-      same matrix on the serpentine and narrows arenas.
+- [ ] **Bot-verify all 8 levels.** bot-campaign.mjs plays any level via the
+      ?bot=1 API; every level's plan must WIN and the exploit bots must
+      still LOSE. In progress — the release gate for the campaign build.
+- [ ] **Tower upgrades** (tiers bought in place) — next big system after
+      the campaign lands; the registry already isolates all tower data.
 
 ## Platform
 

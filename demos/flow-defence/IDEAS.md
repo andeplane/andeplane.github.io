@@ -1,5 +1,13 @@
 # IDEAS — uncommitted idea dump
 
+> **Shipped 2026-08-16:** water royalties; Warcraft-style build palette with
+> generated sprites; slow (Congealer), splash (Depth Charge), chain-lightning
+> (Arc Coil), detection (Sonar), and sniper (Harpoon) towers; splitter,
+> fast-swimmer, heavy-sinker, and invisible (Phantom) spores; per-type
+> bounties; unique generated sprites + per-tower firing effects; 8-level
+> campaign with unlock toasts, stars, and gating. Still ideas below: the
+> rest.
+
 Nothing in here is scheduled. It's raw material, much of it borrowed from the
 TD canon (Bloons TD, Kingdom Rush, Defense Grid, Creeper World, Warcraft 3 TD
 maps) and bent around our one unique asset: **the map is a real fluid**. Every
