@@ -59,6 +59,7 @@ export class Chart {
   private dirty = true;
   private width = 0;
   private height = 0;
+  private dpr = 0;
 
   constructor(spec: ChartSpec) {
     this.spec = spec;
@@ -111,6 +112,11 @@ export class Chart {
     this.dirty = true;
   }
 
+  /** Force a redraw, e.g. after a devicePixelRatio change. */
+  invalidate(): void {
+    this.dirty = true;
+  }
+
   /** Update the DOM readouts. Kept out of the canvas: text there is slow and uglier. */
   updateReadouts(sample: Record<string, number>): void {
     for (const s of this.spec.series) {
@@ -131,9 +137,12 @@ export class Chart {
     // no new data arrives — clearing the flag here would leave them blank forever.
     if (w === 0 || h === 0) return;
     this.dirty = false;
-    if (w !== this.width || h !== this.height) {
+    // The backing store is keyed on dpr too: a monitor move with unchanged CSS size
+    // must still reallocate, or the transform draws scaled/clipped.
+    if (w !== this.width || h !== this.height || dpr !== this.dpr) {
       this.width = w;
       this.height = h;
+      this.dpr = dpr;
       this.canvas.width = Math.round(w * dpr);
       this.canvas.height = Math.round(h * dpr);
     }

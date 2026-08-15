@@ -682,10 +682,23 @@ async function start(): Promise<void> {
 
   readouts.set('spins', spinCountLabel(sim.L));
 
+  let lastDpr = window.devicePixelRatio;
+
   function frame(now: number): void {
     const dt = now - lastFrame;
     lastFrame = now;
     emaDt = emaDt * 0.9 + Math.min(dt, 100) * 0.1;
+
+    // A monitor move changes devicePixelRatio without any content-box resize, so the
+    // ResizeObserver never fires; catch it here and rescale everything.
+    if (window.devicePixelRatio !== lastDpr) {
+      lastDpr = window.devicePixelRatio;
+      view.resize();
+      mChart.invalidate();
+      eChart.invalidate();
+      loopChart.invalidate();
+      for (const s of scatters) s.invalidate();
+    }
 
     if (!paused) {
       if (emaDt > 21 && sweepsPerFrame > 1) {

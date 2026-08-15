@@ -21,6 +21,7 @@ export class LoopChart {
   private dirty = true;
   private width = 0;
   private height = 0;
+  private dpr = 0;
 
   constructor(title: string, color: string, hMax: number) {
     this.color = color;
@@ -53,6 +54,11 @@ export class LoopChart {
     this.dirty = true;
   }
 
+  /** Force a redraw, e.g. after a devicePixelRatio change. */
+  invalidate(): void {
+    this.dirty = true;
+  }
+
   draw(): void {
     if (!this.dirty) return;
     const dpr = Math.min(window.devicePixelRatio || 1, 2);
@@ -61,9 +67,10 @@ export class LoopChart {
     // Hidden canvases stay dirty so they render on first reveal (see charts.ts).
     if (w === 0 || h === 0) return;
     this.dirty = false;
-    if (w !== this.width || h !== this.height) {
+    if (w !== this.width || h !== this.height || dpr !== this.dpr) {
       this.width = w;
       this.height = h;
+      this.dpr = dpr;
       this.canvas.width = Math.round(w * dpr);
       this.canvas.height = Math.round(h * dpr);
     }

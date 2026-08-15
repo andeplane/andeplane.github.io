@@ -41,6 +41,7 @@ export class ScatterChart {
   private hi = Number.NEGATIVE_INFINITY;
   private width = 0;
   private height = 0;
+  private dpr = 0;
 
   constructor(spec: ScatterSpec) {
     this.spec = spec;
@@ -90,6 +91,11 @@ export class ScatterChart {
     }
   }
 
+  /** Force a redraw, e.g. after a devicePixelRatio change. */
+  invalidate(): void {
+    this.dirty = true;
+  }
+
   /** Grey out with a one-line explanation, e.g. while h ≠ 0. */
   setPaused(reason: string | null): void {
     this.note.hidden = reason === null;
@@ -106,9 +112,10 @@ export class ScatterChart {
     // Hidden canvases stay dirty so they render on first reveal (see charts.ts).
     if (w === 0 || h === 0) return;
     this.dirty = false;
-    if (w !== this.width || h !== this.height) {
+    if (w !== this.width || h !== this.height || dpr !== this.dpr) {
       this.width = w;
       this.height = h;
+      this.dpr = dpr;
       this.canvas.width = Math.round(w * dpr);
       this.canvas.height = Math.round(h * dpr);
     }
