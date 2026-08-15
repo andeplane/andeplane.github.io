@@ -167,6 +167,7 @@ export class Hud {
         <h1></h1>
         <div class="fd-oversub"></div>
         <div class="fd-overbtns">
+          <button data-over="next" style="display:none">Next level</button>
           <button data-over="again">Play again</button>
           <button data-over="menu">Menu</button>
         </div>
@@ -196,6 +197,9 @@ export class Hud {
     this.overSub = root.querySelector('.fd-oversub')!
     root.querySelector('[data-over="again"]')?.addEventListener('click', () => {
       location.href = `${location.pathname}?level=${this.levelNum}`
+    })
+    root.querySelector('[data-over="next"]')?.addEventListener('click', () => {
+      location.href = `${location.pathname}?level=${this.levelNum + 1}`
     })
     root.querySelector('[data-over="menu"]')?.addEventListener('click', () => {
       location.href = location.pathname
@@ -286,6 +290,10 @@ export class Hud {
         `All ${engine.waveTotal} enemy waves survived · ${engine.killsTotal} spores destroyed · ` +
         `${engine.lives} ${engine.lives === 1 ? 'life' : 'lives'} to spare.` +
         (unlockNext ? `<br><span style="color:#8fd0ff">Next level unlocked.</span>` : '')
+      if (unlockNext) {
+        const next = this.overEl.querySelector<HTMLElement>('[data-over="next"]')
+        if (next) next.style.display = ''
+      }
       this.overEl.classList.add('show')
       return
     }
