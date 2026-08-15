@@ -36,7 +36,10 @@ export class Overlay {
   /** Last seen enemies by slot — a vanished slot becomes a kill/escape popup. */
   private readonly lastSeen = new Map<number, EnemyView>()
   private readonly popups: Popup[] = []
-  private readonly sprites = new Map<string, HTMLImageElement>()
+  /** Sprites keyed to luminance-alpha at load: the art is glow-on-black,
+   *  and the overlay is its own transparent canvas, so 'screen' blending
+   *  can't reach the fluid below — we knock the black out instead. */
+  private readonly sprites = new Map<string, HTMLCanvasElement | null>()
   private fx: FxInstance[] = []
   private frame = 0
 
@@ -52,14 +55,26 @@ export class Overlay {
     this.fx.push(...spawnFx(events))
   }
 
-  private sprite(name: string): HTMLImageElement {
-    let img = this.sprites.get(name)
-    if (!img) {
-      img = new Image()
-      img.src = `${SPRITE_BASE}${name}.png`
-      this.sprites.set(name, img)
+  private sprite(name: string): HTMLCanvasElement | null {
+    if (this.sprites.has(name)) return this.sprites.get(name)!
+    this.sprites.set(name, null)
+    const img = new Image()
+    img.src = `${SPRITE_BASE}${name}.png`
+    img.onload = () => {
+      const c = document.createElement('canvas')
+      c.width = img.naturalWidth
+      c.height = img.naturalHeight
+      const cx = c.getContext('2d')!
+      cx.drawImage(img, 0, 0)
+      const data = cx.getImageData(0, 0, c.width, c.height)
+      const px = data.data
+      for (let i = 0; i < px.length; i += 4) {
+        px[i + 3] = Math.min(255, Math.max(px[i], px[i + 1], px[i + 2]) * 1.6)
+      }
+      cx.putImageData(data, 0, 0)
+      this.sprites.set(name, c)
     }
-    return img
+    return null
   }
 
   /** Phantoms are only visible (and targetable) inside sonar coverage. */
@@ -259,19 +274,13 @@ export class Overlay {
     if (def.sonar) drawSonarRipple(ctx, sx, sy, def.radius * cellPx, this.frame, def.color)
 
     // The generated sprite, glowing; aimable towers rotate with their thrust.
-    // No canvas shadow here: the sprites are opaque glow-on-black, so a
-    // shadow would be cast from their square bounds. The art glows itself.
     const img = this.sprite(def.sprite)
     const size = Math.max(26, cellPx * 14)
     ctx.globalAlpha = alpha
-    if (img.complete && img.naturalWidth > 0) {
-      // Sprites are glow-on-black; 'screen' makes the black vanish into the
-      // water so only the luminous device remains.
-      ctx.globalCompositeOperation = 'screen'
+    if (img) {
       ctx.translate(sx, sy)
       if (def.aimable) ctx.rotate(-t.angle)
       ctx.drawImage(img, -size / 2, -size / 2, size, size)
-      ctx.globalCompositeOperation = 'source-over'
     } else {
       // Sprite still loading: a ring placeholder.
       ctx.strokeStyle = def.color
