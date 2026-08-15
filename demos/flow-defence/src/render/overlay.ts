@@ -260,7 +260,7 @@ export class Overlay {
 
     // The generated sprite, glowing; aimable towers rotate with their thrust.
     const img = this.sprite(def.sprite)
-    const size = Math.max(18, cellPx * 9)
+    const size = Math.max(22, cellPx * 11)
     ctx.globalAlpha = alpha
     ctx.shadowColor = def.color
     ctx.shadowBlur = 12
