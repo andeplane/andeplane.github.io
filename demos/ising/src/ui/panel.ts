@@ -1,13 +1,21 @@
 /** Small builders for the control panel and the live readouts. */
 
-export function section(parent: HTMLElement, title: string): HTMLElement {
+/**
+ * A collapsible control group. Most groups start collapsed so the panel reads as a
+ * short menu instead of a wall of widgets; the header toggles its body.
+ */
+export function section(parent: HTMLElement, title: string, open = true): HTMLElement {
   const box = document.createElement('div');
   box.className = 'group';
+  if (!open) box.classList.add('collapsed');
   const h = document.createElement('h2');
   h.textContent = title;
-  box.append(h);
+  h.addEventListener('click', () => box.classList.toggle('collapsed'));
+  const body = document.createElement('div');
+  body.className = 'group-body';
+  box.append(h, body);
   parent.append(box);
-  return box;
+  return body;
 }
 
 export interface SliderOptions {
