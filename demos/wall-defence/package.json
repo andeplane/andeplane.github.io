@@ -1,0 +1,19 @@
+{
+  "name": "wall-defence",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc --noEmit && vite build",
+    "preview": "vite preview",
+    "check": "tsc --noEmit && tsx tools/determinism.ts && tsx tools/selfplay.ts"
+  },
+  "devDependencies": {
+    "@types/node": "^26.2.0",
+    "tsx": "^4.19.2",
+    "typescript": "^7.0.2",
+    "vite": "^8.2.0"
+  },
+  "description": "JezzBall × tower defence roguelite with a daily board"
+}
