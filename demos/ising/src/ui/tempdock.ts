@@ -122,11 +122,15 @@ export function createTempDock(root: HTMLElement, options: TempDockOptions): Tem
     const step = event.shiftKey ? 0.1 : 0.01;
     if (event.key === 'ArrowRight' || event.key === 'ArrowUp') {
       apply(T + step);
-      event.preventDefault();
     } else if (event.key === 'ArrowLeft' || event.key === 'ArrowDown') {
       apply(T - step);
-      event.preventDefault();
+    } else {
+      return;
     }
+    event.preventDefault();
+    // Without this the event bubbles to the window-level shortcut handler, whose
+    // input/textarea filter doesn't match this div — and T steps twice per keypress.
+    event.stopPropagation();
   });
 
   render();
