@@ -82,7 +82,7 @@ export class AttackerAI {
     if (
       p.surgeThreshold !== null &&
       this.surgeTicksLeft === 0 &&
-      engine.tank >= p.surgeThreshold * CONFIG.attacker.tankCap
+      engine.tank >= p.surgeThreshold * engine.level.tankCap
     ) {
       this.surgeArm = best
       this.surgeTicksLeft = CONFIG.attacker.surgeTicks

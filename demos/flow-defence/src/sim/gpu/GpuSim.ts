@@ -309,14 +309,17 @@ export class GpuSim {
    * CPU mirror would resurrect walls the GPU erosion pass has already breached.
    */
   paintWall(cells: number[]): void {
-    const one = new Float32Array([1])
+    // Soft placement: fresh walls start porous and cure to full solidity in
+    // the erosion pass — slamming solid cells into moving fluid fires
+    // dramatic (and ugly) water-hammer pressure waves.
+    const fresh = new Float32Array([CONFIG.erosion.freshSolidity])
     const wall = new Uint32Array([CELL.WALL])
     for (const idx of cells) {
       if (this.map.cellType[idx] !== CELL.OPEN && this.map.cellType[idx] !== CELL.WALL) continue
       this.map.cellType[idx] = CELL.WALL
-      this.map.solidity[idx] = 1
+      this.map.solidity[idx] = CONFIG.erosion.freshSolidity
       this.cellTypeBuf.update(wall, idx * 4)
-      this.solidityBuf.update(one, idx * 4)
+      this.solidityBuf.update(fresh, idx * 4)
     }
   }
 

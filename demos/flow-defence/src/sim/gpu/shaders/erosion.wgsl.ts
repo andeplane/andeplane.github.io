@@ -5,7 +5,8 @@ import { CELL } from '../../core/constants'
 import { CONFIG } from '../../../config'
 
 export function erosionShaderSource(width: number, height: number): string {
-  const { kShear, shearThreshold, kPipe, pipeThreshold, porosityEps } = CONFIG.erosion
+  const { kShear, shearThreshold, kPipe, pipeThreshold, porosityEps, cureRate, cureStressMax } =
+    CONFIG.erosion
   return /* wgsl */ `
 const SIM_W : i32 = ${width};
 const SIM_H : i32 = ${height};
@@ -20,6 +21,8 @@ const SHEAR_THRESH : f32 = ${shearThreshold};
 const K_PIPE : f32 = ${kPipe};
 const PIPE_THRESH : f32 = ${pipeThreshold};
 const POROSITY_EPS : f32 = ${porosityEps};
+const CURE_RATE : f32 = ${cureRate};
+const CURE_STRESS_MAX : f32 = ${cureStressMax};
 
 @group(0) @binding(0) var<storage, read_write> cellType : array<u32>;
 @group(0) @binding(1) var<storage, read_write> solidity : array<f32>;
@@ -58,7 +61,9 @@ fn main(@builtin(global_invocation_id) gid : vec3<u32>) {
   let poro = POROSITY_EPS + (1.0 - POROSITY_EPS) * (1.0 - integ);
   let stress = K_SHEAR * max(shear - SHEAR_THRESH, 0.0)
              + K_PIPE * max(head - PIPE_THRESH, 0.0) * poro;
-  let next = integ - stress;
+  // Curing: fresh/lightly-loaded walls harden toward full solidity.
+  var next = integ - stress;
+  if (stress < CURE_STRESS_MAX) { next = min(integ + CURE_RATE, 1.0); }
   if (next <= 0.0) {
     cellType[idx] = CELL_OPEN;
     solidity[idx] = 0.0;

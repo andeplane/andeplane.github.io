@@ -13,6 +13,7 @@ import { Renderer } from './render/Renderer'
 import { GpuSim } from './sim/gpu/GpuSim'
 import { Hud } from './ui/hud'
 import { BuildInput } from './ui/input'
+import { Menu } from './ui/menu'
 
 // Surface console errors in the DOM so headless screenshots show them too.
 function hookErrorOverlay(): void {
@@ -51,17 +52,31 @@ async function start(): Promise<void> {
   const sim = new GpuSim(engine, scene, map)
   const renderer = new Renderer(engine, scene, sim, canvas)
 
-  const hud = new Hud(document.getElementById('stage')!)
-  const match = new Engine(map, {
-    onGameOver: (winner) => hud.showGameOver(winner),
-    onBreach: () => {},
-    onBuildRejected: () => hud.flashGold(),
-  })
-  // The attacker seat: AI profile from ?ai= (steady | burster | prober).
+  const stage = document.getElementById('stage')!
+  // ?level=N starts a match; no level = title screen over the living water.
+  const levelParam = query.get('level')
+  const levelNum = levelParam
+    ? Math.min(Math.max(1, Number(levelParam)), CONFIG.levels.length)
+    : null
+  const level = levelNum !== null ? CONFIG.levels[levelNum - 1] : null
+  const menu = new Menu(stage, levelNum)
+
+  const hud = level ? new Hud(stage, levelNum!) : null
+  const match = new Engine(
+    map,
+    {
+      onGameOver: (winner) => hud?.showGameOver(winner),
+      onBreach: () => {},
+      onBuildRejected: () => hud?.flashGold(),
+    },
+    level ?? undefined,
+  )
   const rng = new SeededRng(Number(query.get('seed') ?? 1))
-  const profile = PROFILES[query.get('ai') ?? 'burster'] ?? PROFILES.burster
+  const profile = PROFILES[query.get('ai') ?? level?.ai ?? 'steady'] ?? PROFILES.steady
   const attacker = new AttackerAI(profile, map, rng.stream('attacker'))
-  for (const s of match.inletStates) s.biomass = profile.dripLevel
+  if (level) {
+    for (const s of match.inletStates) s.biomass = profile.dripLevel
+  }
   sim.setInletStates(match.inletStates)
   const input = new BuildInput(canvas, sim, match)
   const overlay = new Overlay(document.getElementById('overlay') as HTMLCanvasElement, map)
@@ -82,6 +97,9 @@ async function start(): Promise<void> {
       const burst = Math.min(30, warmupTicks)
       for (let i = 0; i < burst; i++) sim.tick(true)
       warmupTicks -= burst
+    } else if (!level || menu.isOpen) {
+      // Title screen / pause: the water keeps living, the match doesn't.
+      fixed.advance(dt, () => sim.tick(true))
     } else {
       fixed.advance(dt, () => {
         const states = match.tick(sim.latest)
@@ -95,8 +113,10 @@ async function start(): Promise<void> {
       sim.setTowerFields(buildTowerField(map, match.towers), buildForceField(map, match.towers))
     }
     renderer.frame(Math.max(dt, 1000 / 120))
-    hud.update(match)
-    hud.setTool(input.tool)
+    if (hud) {
+      hud.update(match)
+      hud.setTool(input.tool)
+    }
     overlay.draw(match.towers, input.pending)
     scene.render()
     frames++

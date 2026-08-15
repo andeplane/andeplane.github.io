@@ -47,6 +47,13 @@ export const CONFIG = {
     pipeThreshold: 0.008,
     /** Minimum porosity of an intact wall — the seed leak that makes piping possible. */
     porosityEps: 0.02,
+    /** Integrity regained per tick when stress is below cureStressMax (fresh
+     *  walls harden; lightly-loaded walls slowly self-heal). */
+    cureRate: 0.006,
+    cureStressMax: 0.0008,
+    /** Solidity a freshly painted wall starts at (soft placement: avoids the
+     *  water-hammer shock of slamming a fully solid cell into moving fluid). */
+    freshSolidity: 0.6,
   },
   build: {
     /** Brush radius (cells) for wall painting. */
@@ -90,6 +97,43 @@ export const CONFIG = {
     /** Commanded release is metered as conc × u × rows; reservoir debits this. */
     winDrainEpsilon: 400,
   },
+  /**
+   * Levels: difficulty = attacker resources × AI profile. requiredKill ≈
+   * 1 − leakBudget/reservoir is the fraction of released biomass the defender
+   * must stop; it should climb gently across levels.
+   */
+  levels: [
+    {
+      name: 'First Trickle',
+      description: 'A lazy, steady seep. Learn the tools.',
+      ai: 'steady',
+      reservoir: 60000,
+      leakBudget: 32000, // stop ~47%
+      pumpRate: 6,
+      tankCap: 3500,
+      startingGold: 180,
+    },
+    {
+      name: 'Probing Tides',
+      description: 'The flow tests every arm, and commits.',
+      ai: 'prober',
+      reservoir: 110000,
+      leakBudget: 30000, // stop ~73%
+      pumpRate: 9,
+      tankCap: 5000,
+      startingGold: 160,
+    },
+    {
+      name: 'Water Hammer',
+      description: 'Banked pressure, brutal surges.',
+      ai: 'burster',
+      reservoir: 170000,
+      leakBudget: 27000, // stop ~84%
+      pumpRate: 12,
+      tankCap: 6500,
+      startingGold: 160,
+    },
+  ],
   /** Dye hue per inlet segment (linear-ish RGB, HDR headroom applied in shader). */
   segmentColors: [
     [0.15, 0.75, 1.0],

@@ -15,13 +15,26 @@ export interface EngineCallbacks {
 
 export type MatchPhase = 'running' | 'over'
 
+export interface LevelConfig {
+  name: string
+  description: string
+  ai: string
+  reservoir: number
+  leakBudget: number
+  pumpRate: number
+  tankCap: number
+  startingGold: number
+}
+
 export class Engine {
+  readonly level: LevelConfig
+
   // Defender seat.
-  gold: number = CONFIG.match.startingGold
-  leakBudget: number = CONFIG.match.leakBudget
+  gold: number
+  leakBudget: number
 
   // Attacker seat: reservoir → (pump) → tank → (valve/surge) → the domain.
-  reservoir: number = CONFIG.match.attackerReservoir
+  reservoir: number
   tank = 0
   /** Current commanded inlet states (the attacker AI writes these). */
   inletStates: InletState[]
@@ -39,7 +52,21 @@ export class Engine {
 
   private readonly mapRef: DomainMap
 
-  constructor(map: DomainMap, private readonly callbacks: EngineCallbacks) {
+  constructor(map: DomainMap, private readonly callbacks: EngineCallbacks, level?: Partial<LevelConfig>) {
+    this.level = {
+      name: 'Sandbox',
+      description: '',
+      ai: 'steady',
+      reservoir: CONFIG.match.attackerReservoir,
+      leakBudget: CONFIG.match.leakBudget,
+      pumpRate: CONFIG.attacker.pumpRate,
+      tankCap: CONFIG.attacker.tankCap,
+      startingGold: CONFIG.match.startingGold,
+      ...level,
+    }
+    this.gold = this.level.startingGold
+    this.leakBudget = this.level.leakBudget
+    this.reservoir = this.level.reservoir
     this.mapRef = map
     this.inletStates = map.inletSegments.map(() => ({ openness: 1, biomass: 0, surge: 0 }))
     this.segmentFlux = map.inletSegments.map((s) => {
@@ -83,7 +110,7 @@ export class Engine {
     this.gold += CONFIG.match.goldTrickle / 60
 
     // Pump reservoir → tank.
-    const pumped = Math.min(CONFIG.attacker.pumpRate, this.reservoir, CONFIG.attacker.tankCap - this.tank)
+    const pumped = Math.min(this.level.pumpRate, this.reservoir, this.level.tankCap - this.tank)
     this.reservoir -= pumped
     this.tank += pumped
 

@@ -28,10 +28,17 @@ const HUD_CSS = /* css */ `
 .fd-gold.flash { animation: fd-flash 0.4s; }
 @keyframes fd-flash { 50% { color: #ff8f6b; } }
 .fd-over {
-  position: absolute; inset: 0; display: none; place-items: center;
+  position: absolute; inset: 0; display: none; place-items: center; text-align: center;
   background: radial-gradient(ellipse at center, rgba(4, 8, 16, 0.25), rgba(4, 8, 16, 0.78));
 }
-.fd-over.show { display: grid; }
+.fd-over.show { display: grid; pointer-events: auto; }
+.fd-over .fd-overbtns { display: flex; gap: 14px; justify-content: center; margin-top: 22px; }
+.fd-over button {
+  cursor: pointer; border: 1px solid rgba(130, 200, 255, 0.3); border-radius: 6px;
+  padding: 9px 22px; background: rgba(10, 22, 40, 0.6); color: #b8d4e8;
+  font: 12px "SF Mono", ui-monospace, Menlo, monospace; letter-spacing: 0.12em;
+}
+.fd-over button:hover { border-color: rgba(130, 210, 255, 0.8); color: #eaf6ff; }
 .fd-over h1 {
   font-size: 34px; font-weight: 300; letter-spacing: 0.3em; text-transform: uppercase;
   color: #eaf6ff; text-shadow: 0 0 24px rgba(120, 210, 255, 0.8);
@@ -52,7 +59,7 @@ export class Hud {
   private readonly overEl: HTMLElement
   private readonly overTitle: HTMLElement
 
-  constructor(container: HTMLElement) {
+  constructor(container: HTMLElement, private readonly levelNum: number) {
     const style = document.createElement('style')
     style.textContent = HUD_CSS
     document.head.appendChild(style)
@@ -79,7 +86,13 @@ export class Hud {
         <span class="fd-tool" data-tool="neutralizer"><b>2</b>Neutralizer ${CONFIG.towers.neutralizer.cost}g</span>
         <span class="fd-tool" data-tool="impeller"><b>3</b>Impeller ${CONFIG.towers.impeller.cost}g</span>
       </div>
-      <div class="fd-over"><h1></h1></div>
+      <div class="fd-over"><div>
+        <h1></h1>
+        <div class="fd-overbtns">
+          <button data-over="again">Play again</button>
+          <button data-over="menu">Menu</button>
+        </div>
+      </div></div>
     `
     container.appendChild(root)
     this.goldEl = root.querySelector('.fd-gold')!
@@ -91,6 +104,12 @@ export class Hud {
     this.overEl = root.querySelector('.fd-over')!
     this.overTitle = root.querySelector('.fd-over h1')!
     this.toolEls = [...root.querySelectorAll<HTMLElement>('.fd-tool')]
+    root.querySelector('[data-over="again"]')?.addEventListener('click', () => {
+      location.href = `${location.pathname}?level=${this.levelNum}`
+    })
+    root.querySelector('[data-over="menu"]')?.addEventListener('click', () => {
+      location.href = location.pathname
+    })
   }
 
   private readonly toolEls: HTMLElement[]
@@ -101,13 +120,13 @@ export class Hud {
 
   update(engine: Engine): void {
     this.goldEl.textContent = Math.floor(engine.gold).toString()
-    const leakFrac = engine.leakBudget / CONFIG.match.leakBudget
+    const leakFrac = engine.leakBudget / engine.level.leakBudget
     this.leakBar.style.width = `${Math.max(0, leakFrac * 100)}%`
     this.leakVal.textContent = `${Math.max(0, Math.round(engine.leakBudget))}`
-    const resFrac = engine.reservoir / CONFIG.match.attackerReservoir
+    const resFrac = engine.reservoir / engine.level.reservoir
     this.resBar.style.width = `${Math.max(0, resFrac * 100)}%`
     this.resVal.textContent = `${Math.max(0, Math.round(engine.reservoir))}`
-    this.tankBar.style.width = `${Math.max(0, (engine.tank / CONFIG.attacker.tankCap) * 100)}%`
+    this.tankBar.style.width = `${Math.max(0, (engine.tank / engine.level.tankCap) * 100)}%`
   }
 
   flashGold(): void {

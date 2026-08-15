@@ -93,8 +93,8 @@ fn main(input : FragmentInputs) -> FragmentOutputs {
 
   // Pressure telegraph: only over-density beyond the steady-state head glows
   // (steady inlet rho ≈ 1.03; surges push well past it).
-  let over = max(mac.z - 1.02, 0.0);
-  col += over * 9.0 * vec3<f32>(1.0, 0.42, 0.13) * (1.0 - solid);
+  let over = max(mac.z - 1.03, 0.0);
+  col += over * 7.0 * vec3<f32>(1.0, 0.42, 0.13) * (1.0 - solid);
 
   // Solids: carved rock with per-cell grain and a cool rim light on the water side.
   let cell = floor(uv / SIM_TEXEL);
