@@ -134,12 +134,16 @@ export const CONFIG = {
       startingGold: 160,
     },
   ],
-  /** Dye hue per inlet segment (linear-ish RGB, HDR headroom applied in shader). */
+  /**
+   * Carrier-dye tint per inlet segment. Deliberately quiet, single-family
+   * water tones: dye shows the CURRENT, and must never compete with biomass
+   * (hot pink), which is the only saturated threat color on screen.
+   */
   segmentColors: [
-    [0.15, 0.75, 1.0],
-    [0.5, 0.35, 1.0],
-    [0.1, 1.0, 0.65],
-    [1.0, 0.55, 0.2],
-    [1.0, 0.3, 0.5],
+    [0.3, 0.46, 0.58],
+    [0.26, 0.42, 0.6],
+    [0.32, 0.5, 0.56],
+    [0.28, 0.44, 0.58],
+    [0.3, 0.48, 0.6],
   ] as ReadonlyArray<readonly [number, number, number]>,
 } as const

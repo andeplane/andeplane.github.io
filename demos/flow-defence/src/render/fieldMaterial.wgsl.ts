@@ -73,8 +73,9 @@ fn main(input : FragmentInputs) -> FragmentOutputs {
   var col = mix(vec3<f32>(0.010, 0.016, 0.034), vec3<f32>(0.022, 0.042, 0.078), uv.y);
   col += speed * vec3<f32>(0.10, 0.30, 0.52) * 1.35;
 
-  // Dye with a contrast curve (deepens filament definition) and HDR headroom.
-  col += pow(max(dye, vec3<f32>(0.0)), vec3<f32>(1.3)) * 1.25;
+  // Carrier dye: quiet streaklines that show the current without reading as a
+  // threat (biomass owns all the saturated color).
+  col += pow(max(dye, vec3<f32>(0.0)), vec3<f32>(1.3)) * 0.85;
 
   // Liquid shading: dye density as heightfield → gradient normal → specular.
   let l = dyeLum(uv);

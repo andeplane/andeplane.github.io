@@ -56,6 +56,8 @@ function howToPlayHtml(): string {
     <p>The map is a real fluid. The attacker owns the inlets on the left and releases
     <b style="color:#fb7185">biomass</b> — the glowing pink tide — into the current. Anything that
     reaches your outlet on the right drains your <b>leak budget</b>. You lose at zero.</p>
+    <p>The soft blue-white streaks are just water — dye showing you where the current runs.
+    <b>Only the pink glow is the enemy.</b></p>
     <p>The attacker's <b>reservoir</b> is finite. Outlast it — when it's spent and the water runs
     clear, you win. Every match is two integrals racing.</p>
 
