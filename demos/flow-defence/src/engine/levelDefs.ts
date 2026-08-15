@@ -49,9 +49,9 @@ export const LEVELS: readonly LevelConfig[] = [
     waves: [
       { count: 8, hp: 1, interval: 32, arms: [1] },
       { count: 12, hp: 1, interval: 26, arms: [1, 2] },
-      { count: 16, hp: 1.6, interval: 22, arms: [0, 1, 2] },
-      { count: 16, hp: 1.8, interval: 20, arms: [0, 1, 2], surge: true },
-      { count: 20, hp: 2, interval: 16, arms: [0, 1, 2], surge: true },
+      { count: 14, hp: 1.4, interval: 24, arms: [0, 1, 2] },
+      { count: 14, hp: 1.6, interval: 22, arms: [0, 1, 2], surge: true },
+      { count: 18, hp: 1.8, interval: 18, arms: [0, 1, 2], surge: true },
     ],
   },
   {

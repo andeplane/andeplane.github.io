@@ -66,7 +66,7 @@ const tutorial: Hint[] = [
   },
   {
     text: () =>
-      'Between waves: build. Another Neutralizer deepens the gauntlet; walls re-route the river itself. Repaint a wall to repair it; the ERASE tool (last palette slot) removes walls for a half refund. Watch WATER INTAKE (top right) — the base drinks from this river.',
+      'Between waves: build. The strongest shape is a FUNNEL — walls that force the whole river through one guarded gap, so every spore meets your rings and every kill pays. Repaint walls to repair; ERASE (last palette slot) refunds half. Watch WATER INTAKE (top right).',
     done: ({ match }) => match.waveIndex >= 2 || match.phase === 'over',
   },
   {
