@@ -130,7 +130,7 @@ export const TOWER_DEFS: Record<TowerId, TowerDef> = {
     desc: 'Water conducts: hits one spore, chains to the next four.',
     color: '#e9d5ff',
     sprite: 'arc',
-    zap: { kind: 'chain', cooldown: 95, damage: 1.3, range: 22, chain: 4, chainRange: 15 },
+    zap: { kind: 'chain', cooldown: 80, damage: 1.6, range: 24, chain: 4, chainRange: 16 },
     unlockLevel: 5,
   },
   sonar: {
