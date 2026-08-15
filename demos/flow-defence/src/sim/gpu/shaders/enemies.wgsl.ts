@@ -82,14 +82,15 @@ struct EnemyParams {
 @group(0) @binding(2) var linearSampler : sampler;
 @group(0) @binding(3) var<storage, read> cellType : array<u32>;
 @group(0) @binding(4) var<storage, read> solidity : array<f32>;
-@group(0) @binding(5) var<storage, read> towerField : array<f32>;
+// towerFields packs (damage, drag, sonar, spare) per cell into ONE buffer:
+// WebGPU's default per-stage storage-buffer limit is 8 and this pass uses
+// every slot. Do not add a 9th storage buffer here — pack instead.
+@group(0) @binding(5) var<storage, read> towerFields : array<vec4<f32>>;
 @group(0) @binding(6) var<storage, read_write> counters : array<atomic<u32>>;
 @group(0) @binding(7) var<storage, read_write> glow : array<atomic<u32>>;
 @group(0) @binding(8) var<uniform> params : EnemyParams;
-@group(0) @binding(9) var<storage, read> dragField : array<f32>;
-@group(0) @binding(10) var<storage, read> sonarField : array<f32>;
-@group(0) @binding(11) var<storage, read> zapField : array<f32>;
-@group(0) @binding(12) var<storage, read_write> deathEvents : array<vec4<f32>>;
+@group(0) @binding(9) var<storage, read> zapField : array<f32>;
+@group(0) @binding(10) var<storage, read_write> deathEvents : array<vec4<f32>>;
 
 fn cellIdx(p : vec2<f32>) -> i32 {
   let x = clamp(i32(p.x), 0, SIM_W - 1);
@@ -112,8 +113,8 @@ fn blocked(p : vec2<f32>) -> bool {
 // A probe whose path crosses an impassable cell (bedrock / solid wall — the
 // same rule as blocked()) reports dead water, so spores sealed behind an
 // intact wall drown instead of camping against it holding their breath.
-fn speedAt(from : vec2<f32>, p : vec2<f32>) -> f32 {
-  if (blocked(p) || blocked((from + p) * 0.5) || blocked(mix(from, p, 0.25)) || blocked(mix(from, p, 0.75))) {
+fn speedAt(origin : vec2<f32>, p : vec2<f32>) -> f32 {
+  if (blocked(p) || blocked((origin + p) * 0.5) || blocked(mix(origin, p, 0.25)) || blocked(mix(origin, p, 0.75))) {
     return 0.0;
   }
   let uv = (p + vec2<f32>(0.5)) / vec2<f32>(f32(SIM_W), f32(SIM_H));
@@ -172,7 +173,7 @@ fn main(@builtin(global_invocation_id) gid : vec3<u32>) {
   let goal = (mac.xy * TYPE_CARRY[ty] + vec2<f32>(TYPE_SWIM[ty], 0.0) + wander + seek) * ADV;
   e.vel = mix(e.vel, goal, TYPE_STEER[ty]);
   // Congealed water (frost towers): everything crawls.
-  e.vel *= 1.0 - dragField[cellIdx(e.pos)];
+  e.vel *= 1.0 - towerFields[cellIdx(e.pos)].y;
 
   // Move, blocked by solids (axis-separated slide along walls).
   let cand = e.pos + e.vel;
@@ -192,8 +193,8 @@ fn main(@builtin(global_invocation_id) gid : vec3<u32>) {
 
   // Tower damage (continuous fields + transient zaps), plus suffocation in
   // stagnant water. Phantoms are untouchable outside sonar coverage.
-  var towerDmg = towerField[idx] + zapField[idx];
-  if (TYPE_INVIS[ty] > 0.5 && sonarField[idx] < 0.5) { towerDmg = 0.0; }
+  var towerDmg = towerFields[idx].x + zapField[idx];
+  if (TYPE_INVIS[ty] > 0.5 && towerFields[idx].z < 0.5) { towerDmg = 0.0; }
   e.hp -= towerDmg * DMG;
   if (suffocating) { e.hp -= SUFFOCATE; }
   if (e.hp <= 0.0) {

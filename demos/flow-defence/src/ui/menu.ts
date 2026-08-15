@@ -47,6 +47,7 @@ const MENU_CSS = /* css */ `
 .fd-howto { text-align: left; max-height: 62vh; overflow-y: auto; padding-right: 8px; }
 .fd-howto h2 { font-size: 13px; letter-spacing: 0.2em; color: #8fd0ff; text-transform: uppercase; margin: 18px 0 6px; }
 .fd-howto p { margin: 6px 0; opacity: 0.9; }
+.fd-howto img { mix-blend-mode: screen; border-radius: 4px; }
 .fd-howto .k {
   display: inline-block; border: 1px solid rgba(130,200,255,0.4); border-radius: 3px;
   padding: 0 6px; margin-right: 6px; color: #eaf6ff;

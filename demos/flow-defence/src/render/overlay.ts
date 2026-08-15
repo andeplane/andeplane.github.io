@@ -265,9 +265,13 @@ export class Overlay {
     ctx.shadowColor = def.color
     ctx.shadowBlur = 12
     if (img.complete && img.naturalWidth > 0) {
+      // Sprites are glow-on-black; 'screen' makes the black vanish into the
+      // water so only the luminous device remains.
+      ctx.globalCompositeOperation = 'screen'
       ctx.translate(sx, sy)
       if (def.aimable) ctx.rotate(-t.angle)
       ctx.drawImage(img, -size / 2, -size / 2, size, size)
+      ctx.globalCompositeOperation = 'source-over'
     } else {
       // Sprite still loading: a ring placeholder.
       ctx.strokeStyle = def.color

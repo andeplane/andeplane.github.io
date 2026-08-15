@@ -158,12 +158,10 @@ export class GpuSim {
     }
     this.glowTexPair = [makeGlowTex(), makeGlowTex()]
 
-    this.towerFieldBuf = new StorageBuffer(engine, n * 4)
-    this.towerFieldBuf.update(new Float32Array(n))
-    this.dragFieldBuf = new StorageBuffer(engine, n * 4)
-    this.dragFieldBuf.update(new Float32Array(n))
-    this.sonarFieldBuf = new StorageBuffer(engine, n * 4)
-    this.sonarFieldBuf.update(new Float32Array(n))
+    // (damage, drag, sonar, spare) packed per cell: the enemy pass sits at
+    // WebGPU's default 8-storage-buffer limit — pack, never add a 9th.
+    this.towerFieldsBuf = new StorageBuffer(engine, n * 4 * 4)
+    this.towerFieldsBuf.update(new Float32Array(n * 4))
     this.zapFieldBuf = new StorageBuffer(engine, n * 4)
     this.zapFieldBuf.update(new Float32Array(n))
     this.deathEventsBuf = new StorageBuffer(engine, DEATH_RING * 4 * 4)
@@ -197,14 +195,12 @@ export class GpuSim {
           linearSampler: { group: 0, binding: 2 },
           cellType: { group: 0, binding: 3 },
           solidity: { group: 0, binding: 4 },
-          towerField: { group: 0, binding: 5 },
+          towerFields: { group: 0, binding: 5 },
           counters: { group: 0, binding: 6 },
           glow: { group: 0, binding: 7 },
           params: { group: 0, binding: 8 },
-          dragField: { group: 0, binding: 9 },
-          sonarField: { group: 0, binding: 10 },
-          zapField: { group: 0, binding: 11 },
-          deathEvents: { group: 0, binding: 12 },
+          zapField: { group: 0, binding: 9 },
+          deathEvents: { group: 0, binding: 10 },
         },
       },
     )
@@ -213,12 +209,10 @@ export class GpuSim {
     this.enemyPass.setTextureSampler('linearSampler', sampler)
     this.enemyPass.setStorageBuffer('cellType', this.cellTypeBuf)
     this.enemyPass.setStorageBuffer('solidity', this.solidityBuf)
-    this.enemyPass.setStorageBuffer('towerField', this.towerFieldBuf)
+    this.enemyPass.setStorageBuffer('towerFields', this.towerFieldsBuf)
     this.enemyPass.setStorageBuffer('counters', this.countersBuf)
     this.enemyPass.setStorageBuffer('glow', this.glowStampBuf)
     this.enemyPass.setUniformBuffer('params', this.enemyParams)
-    this.enemyPass.setStorageBuffer('dragField', this.dragFieldBuf)
-    this.enemyPass.setStorageBuffer('sonarField', this.sonarFieldBuf)
     this.enemyPass.setStorageBuffer('zapField', this.zapFieldBuf)
     this.enemyPass.setStorageBuffer('deathEvents', this.deathEventsBuf)
 
@@ -257,9 +251,7 @@ export class GpuSim {
   private readonly glowTexPair: [RawTexture, RawTexture]
   private readonly glowPasses: [ComputeShader, ComputeShader]
   private readonly glowParams: UniformBuffer
-  private readonly towerFieldBuf: StorageBuffer
-  private readonly dragFieldBuf: StorageBuffer
-  private readonly sonarFieldBuf: StorageBuffer
+  private readonly towerFieldsBuf: StorageBuffer
   private readonly zapFieldBuf: StorageBuffer
   private readonly deathEventsBuf: StorageBuffer
   private readonly enemyBuf: StorageBuffer
@@ -461,12 +453,19 @@ export class GpuSim {
     this.inletProfileBuffer.update(inletProfile(this.map, states))
   }
 
-  /** Defender towers, splatted CPU-side into per-cell fields (towers.ts). */
+  /** Defender towers, splatted CPU-side into per-cell fields (towers.ts).
+   *  damage/drag/sonar interleave into one vec4 buffer (see the 8-buffer
+   *  limit note at the enemy pass bindings). */
   setTowerFields(fields: TowerFields): void {
-    this.towerFieldBuf.update(fields.damage)
+    const n = this.map.width * this.map.height
+    const packed = new Float32Array(n * 4)
+    for (let i = 0; i < n; i++) {
+      packed[i * 4] = fields.damage[i]
+      packed[i * 4 + 1] = fields.drag[i]
+      packed[i * 4 + 2] = fields.sonar[i]
+    }
+    this.towerFieldsBuf.update(packed)
     this.cellForceBuf.update(fields.force)
-    this.dragFieldBuf.update(fields.drag)
-    this.sonarFieldBuf.update(fields.sonar)
   }
 
   /** Transient zap damage (arc/mortar/sniper hits) — hot for exactly the

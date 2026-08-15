@@ -81,8 +81,15 @@ npm run build    # tsc + vite build
    wait real seconds, read `console` + screenshot.
 2. **WGSL: don't dynamically index module-scope `const` arrays** (lattice
    vectors etc.) — some validators reject it silently through Babylon. Use
-   `var<private>`. Also: `target` is a WGSL reserved keyword — a variable
-   named `target` fails shader compilation (silently, pass just never runs).
+   `var<private>`. Also: `target` AND `from` are WGSL reserved keywords —
+   using either as an identifier fails shader compilation (silently, the
+   pass just never runs; vitest can't catch it — only a browser run can).
+2b. **WebGPU default limit: 8 storage buffers per compute stage.** The enemy
+   pass uses all 8 (enemies, cellType, solidity, towerFields, counters,
+   glow, zapField, deathEvents). Never add a 9th — pack into an existing
+   vec4 buffer (towerFields carries damage/drag/sonar). Exceeding the limit
+   surfaces as console WARNINGS ("uncaptured error ... GPUValidationError"),
+   not errors — verification scripts must watch console.warn too.
 3. Babylon compute: bind textures' samplers by name `<texName>Sampler` in
    materials; in `ComputeShader`s pass a `TextureSampler` explicitly.
    Ping-pong = two ComputeShader instances with fixed bindings.

@@ -15,7 +15,7 @@ const TOAST_CSS = /* css */ `
 }
 .fd-toast.show { opacity: 1; transform: translate(-50%, 0); }
 .fd-toast img {
-  width: 56px; height: 56px; object-fit: contain;
+  width: 56px; height: 56px; object-fit: contain; mix-blend-mode: screen; border-radius: 6px;
   filter: drop-shadow(0 0 8px var(--fd-toast-glow, rgba(80,180,255,0.5)));
 }
 .fd-toast .fd-toast-kicker {
