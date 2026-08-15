@@ -20,10 +20,16 @@ export function towerCost(type: TowerType, tier: number): number {
   return type === TowerType.Turret ? TURRET_COST[tier] : SLOW_COST[tier]
 }
 
+// Each tower you own makes the next one pricier — a soft cap on turret
+// forests (integer-exact: base × (8 + owned) / 8).
+export function placeCost(s: GameState, type: TowerType): number {
+  return Math.floor((towerCost(type, 0) * (8 + s.towers.length)) / 8)
+}
+
 export function placeTower(s: GameState, cell: number, type: TowerType): boolean {
   if (s.grid[cell] !== CLAIMED) return false
   if (s.towers.some((t) => t.cell === cell)) return false
-  const cost = towerCost(type, 0)
+  const cost = placeCost(s, type)
   if (s.money < cost) return false
   s.money -= cost
   s.towers.push({ id: s.nextId++, type, tier: 0, cell, nextFireAt: s.tick, spent: cost })

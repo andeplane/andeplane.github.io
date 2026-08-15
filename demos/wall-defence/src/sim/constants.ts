@@ -14,7 +14,7 @@ export const BOARD_H = GRID_H * Q
 // Balls
 export const BALL_HALF = 96 // AABB half-extent, 0.375 cells
 export const MAX_BALLS = 60
-export const MAX_CHASERS = 3
+export const MAX_CHASERS = 5
 
 export const BallType = {
   Bouncer: 0,
@@ -29,7 +29,7 @@ export type BallType = (typeof BallType)[keyof typeof BallType]
 export const BALL_SPEED: Record<BallType, number> = {
   [BallType.Bouncer]: 17, // ~4 cells/s per axis
   [BallType.Breaker]: 14, // steering speed (total, not per axis)
-  [BallType.Chaser]: 22,
+  [BallType.Chaser]: 26,
   [BallType.Splitter]: 15,
   [BallType.Fragment]: 26,
 }
@@ -67,7 +67,7 @@ export const BURST_DIVISOR = 4 // burst = floor(area * mult / 4)
 // area*100 >= pct*CELLS  →  ×2 at 5 %, ×3 at 10 %
 export const BURST_TIER2_PCT = 5
 export const BURST_TIER3_PCT = 10
-export const OVERCLAIM_CENTS_PER_PCT = 2
+export const OVERCLAIM_CENTS_PER_PCT = 1
 
 // Towers
 export const TowerType = {
@@ -89,11 +89,11 @@ export const SELL_REFUND_DEN = 3
 // Waves (10 waves; times in ticks)
 export const WAVE_COUNT = 10
 export const FIRST_WAVE_TICK = 5 * TICK_HZ
-export const WAVE_INTERVAL = 30 * TICK_HZ
+export const WAVE_INTERVAL = 27 * TICK_HZ
 export const TELEGRAPH_TICKS = 5 * TICK_HZ
 export const WIN_TAIL_TICKS = 30 * TICK_HZ // survive this long after wave 10
 export const SPAWN_STAGGER = 15 // ticks between balls of one wave
-export const QUOTA_PCT = [12, 18, 25, 32, 40, 48, 54, 60, 63, 65]
+export const QUOTA_PCT = [12, 18, 25, 32, 40, 48, 55, 62, 66, 68]
 
 // Wave composition base counts [bouncer, breaker, chaser, splitter] per wave.
 export const WAVE_COMP: ReadonlyArray<readonly [number, number, number, number]> = [
@@ -101,12 +101,12 @@ export const WAVE_COMP: ReadonlyArray<readonly [number, number, number, number]>
   [2, 2, 0, 0],
   [3, 2, 1, 0],
   [3, 4, 1, 0],
-  [4, 5, 2, 0],
-  [4, 5, 2, 2],
-  [4, 5, 2, 2],
-  [4, 5, 3, 3],
-  [5, 6, 3, 3],
-  [6, 7, 3, 4],
+  [4, 5, 3, 0],
+  [4, 5, 3, 2],
+  [4, 5, 4, 2],
+  [4, 5, 4, 3],
+  [5, 7, 5, 3],
+  [6, 8, 5, 4],
 ]
 
 // Upgrades

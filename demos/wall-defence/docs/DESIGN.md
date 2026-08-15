@@ -19,15 +19,20 @@ Vite + TypeScript app, 2D Canvas, no three.js.
 One verb — *seal a region* — feeds four systems:
 
 1. **Score**: `claimedPct` (CLAIMED + DRAINING cells) is the only progress metric.
-2. **Economy**: income each second `= 2 + floor(claimedPct / 5)`, plus a burst on
-   every capture `= area × mult` where mult is 1 / 2 / 3 for captures ≥ 0 / 5 / 10 %
-   of the board (superlinear burst kills sliver-spam; big claims get fanfare).
+2. **Economy**: income each second `= 2 + floor(claimedPct / 10)`, plus a burst
+   on every capture `= floor(fresh × mult / 4)` where `fresh` counts only cells
+   claimed for the **first time** this run (`everClaimed` bitmap — re-sealing
+   farmed territory restores income and quota but is never a money printer)
+   and mult is 1 / 2 / 3 for captures ≥ 0 / 5 / 10 % of the board (superlinear
+   burst kills sliver-spam; big claims get fanfare).
 3. **Build surface**: towers only on CLAIMED cells; a breached (draining) or
    unclaimed region's towers power down (grayed, inert, non-solid — balls never
    damage towers; losing the region is punishment enough).
 4. **Enemy space**: balls live only in open space; claims compress them.
 
-Money must always want spending: the sink is tower tiers (§2 Towers).
+Money must always want spending, and tower forests must not sterilize the
+board: placing a tower costs `base × (8 + towersOwned) / 8` (escalating), and
+tower tiers are the other standing sink (§2 Towers).
 
 ## 2. Game definition
 
@@ -67,12 +72,16 @@ Money must always want spending: the sink is tower tiers (§2 Towers).
 ### Claims, breaches, drains (recompute from scratch)
 
 On *any* change that can affect region membership — a cut completes, a breaker
-eats a wall cell, a drain expires, **or a ball is removed or spawned** (killing
-the last ball in a pocket claims it that tick, burst included) — recompute
+eats a wall cell, a drain expires, or a ball is removed or spawned — recompute
 connected components over all non-WALL cells (4-way):
 
 - A component containing **no ball** → all its cells become/stay `CLAIMED`
-  (this is both new claims and the rescue of a re-sealed draining region).
+  (this is both new claims and the rescue of a re-sealed draining region) —
+  but **only on a tick in which a cut completed**. Claims come from the verb,
+  never from ball deaths alone: killing out a pocket leaves it open until one
+  cheap cut takes it. (Rev 3: the earlier claim-on-death rule let turrets
+  clear the board and auto-claim everything — the snowball that broke all
+  balance.)
 - A component containing a ball → its OPEN cells stay OPEN; its CLAIMED cells
   become `DRAINING` with a **4 s** timer (loud: klaxon, edge glow, paint
   visibly draining from the hole); already-DRAINING cells keep their timers.
@@ -90,10 +99,15 @@ region identity is tracked across ticks. O(grid) = 1536 cells, trivially cheap.
 ### Run structure — 10 waves, ~5 minutes
 
 Continuous sim; waves spawn on a fixed schedule (wave 1 at 0:05, then every
-30 s). Telegraph: portal cells on the perimeter glow 5 s before spawn; balls
-enter through them. No composition text — the glow is the telegraph.
+27 s — win check at ~4:38). Telegraph: portal cells on the perimeter glow 5 s
+before spawn; balls enter through them. No composition text — the glow is the
+telegraph. If the border is sealed, spawns relocate to the nearest open cell
+(pressure follows the shrinking enemy space); a 100 %-sealed board gets a 3×3
+punch. Late waves spawn tougher, faster balls (+1 HP per 3 waves, +3 Q8/tick
+per 4 waves) and breakers gnaw faster (−4 ticks/wave, floor 42) so tower DPS
+growth never sterilizes the board.
 
-- **Quota**: `Q = [12, 18, 25, 32, 39, 46, 52, 58, 64, 70] %`. At the spawn
+- **Quota**: `Q = [12, 18, 25, 32, 40, 48, 55, 62, 66, 68] %`. At the spawn
   tick of wave `w+1`, if `claimedPct < Q(w)` → run over. Quota check counts
   DRAINING as claimed, so a breach seconds before a spawn is survivable if you
   plug it.
@@ -116,7 +130,7 @@ enter through them. No composition text — the glow is the telegraph.
 |---|---|---|---|
 | Bouncer | 3 | classic 45° ball | wave 1 |
 | Breaker | 5 | steers (quantized headings) to the nearest reachable WALL cell adjacent to open space, gnaws it (1.5 s) → topology recompute; perimeter immune by construction; does not attack growing cuts (that's the chaser's job) | wave 2 |
-| Chaser | 4 | steers toward the active growing head; behaves as a bouncer when no cut is active; ≤ 3 alive at once | wave 3 |
+| Chaser | 4 | steers toward the active growing head; behaves as a bouncer when no cut is active; ≤ 5 alive at once (accumulating chasers are the pressure that only killing them relieves) | wave 3 |
 | Splitter | 6 | bouncer; on death splits into 2 fast 1-HP fragments | wave 6 |
 
 Targeting/steering ties break by lowest entity id. Balls have HP so turrets can
@@ -144,7 +158,8 @@ Tap/click a tower → upgrade/sell popup. Tiers are the standing money sink.
 5. **Fast hands** — +40 % wall growth speed.
 6. **Fresh paint** — newly claimed regions are breaker-proof for 15 s.
 7. **Garrison** — sealing a region ≥ 4 % of the board spawns a free T1 turret in it.
-8. **Overclaim dividend** — +2¢/s per % above the current quota (the greed dial).
+8. **Overclaim dividend** — +1¢/s per % above the current quota, capped at
+   +12¢/s (a greed reward, not a money printer).
 
 Offers: the daily seed fixes a **permutation** of the 8 upgrades (substream
 `(seed, "offers")`); each pick deals the next 3 *unowned* upgrades in
@@ -244,14 +259,20 @@ demos/wall-defence/
 
 ### Verification loop (project memory rules)
 
-`npm run check` inside the demo = `tsc --noEmit` + `tools/determinism.ts` +
-`tools/selfplay.ts` with three assertions:
+`npm run check` inside the demo = `tsc --noEmit` + `tools/determinism.ts`
+(identical per-tick hash streams across two replays) + `tools/selfplay.ts`
+(fast gate: expert wins sometimes; a no-tower bot never wins, median wave ≤ 7).
 
-1. Determinism: identical per-tick hash streams across two replays.
-2. A tower-using bot reaches wave ≥ 3 median across seeds.
-3. **A no-tower bot loses by wave ≤ 6** — the structural guarantee that the TD
-   layer is mandatory, re-checked on every balance change (self-play memory
-   rule). Balance claims are only made from bot stats.
+The full balance contract lives in **`npm run balance`** (`tools/balance.ts`):
+six bot profiles — novice / average / expert skill tiers (reaction time,
+sampling breadth, deliberate error rate) plus sliver-spam, turtle, and
+no-tower strategy archetypes — over 20+ seeds, with instrumented metrics
+(shatters, breach cells, drain rescues, towers, end-money) and eleven
+criteria: the skill ladder is monotone; expert ≥ 40 % win, average 5–60 %,
+novice ≤ 15 % but median wave ≥ 3; no-tower never wins (median ≤ 7, max ≤ 8);
+sliver-spam and turtling never beat balanced play; walls stay contested
+(shatters and breaches happen to experts); plugging rescues happen. Balance
+claims are only made from these stats (self-play memory rule).
 
 Visual verification: Playwright + real Chrome screenshots after real frames
 (never `--virtual-time-budget`).
@@ -310,3 +331,22 @@ Visual verification: Playwright + real Chrome screenshots after real frames
   12×8 share card; daily rules (UTC, retries `try N`, streak) written down.
 - **Superlinear capture burst** (×1/×2/×3 tiers) counters early sliver-spam;
   chaser moved to wave 3; chaser-caused shatters halve the cooldown.
+
+## 9. Balance outcomes (rev 3 — from the profile × seed simulation suite)
+
+Running six bot profiles over 20–30 seeds exposed and fixed four dominant
+strategies the original tuning missed:
+
+- **Auto-claim snowball**: turrets killing the last balls claimed the whole
+  board → all quotas crossed and all upgrades owned by t=60 s. Fixed by the
+  verb-only claim rule (§2).
+- **Breach-reclaim money printer**: every breach → re-seal cycle re-paid the
+  capture burst. Fixed by first-time-only bursts (`everClaimed`).
+- **Overclaim printer**: +2¢/s per % above quota dwarfed all other income.
+  Now +1¢/s capped at +12.
+- **Turret forests** (80–120 towers) sterilized every wave mid-flight. Fixed
+  by escalating placement cost plus wave-scaled ball HP/speed and breaker
+  gnaw speed.
+
+Resulting ladder (30 seeds): novice 13 % win / median wave 8, average 60 % /
+10, expert 60–65 % / 10; sliver 17 %, turtle 7 %, no-tower 0 % (median 7).

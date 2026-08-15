@@ -2,6 +2,7 @@
 // folds fields in a fixed schema order — never via JSON.
 
 import {
+  BALL_SPEED,
   BallType,
   CELLS,
   GRID_W,
@@ -30,6 +31,7 @@ export interface Ball {
   vx: number // Q8 per tick
   vy: number
   hp: number
+  speed: number // Q8/tick magnitude; waves spawn faster balls late-run
   // Breaker bookkeeping
   gnawCell: number // -1 when not gnawing
   gnawLeft: number
@@ -86,6 +88,7 @@ export interface GameState {
   grid: Uint8Array
   drainUntil: Int32Array // per cell; 0 = none
   wallCreatedAt: Int32Array // per cell; -1 for non-wall
+  everClaimed: Uint8Array // capture bursts pay only for first-time cells
   balls: Ball[]
   cuts: Cut[]
   towers: Tower[]
@@ -123,6 +126,7 @@ export function makeBall(s: GameState, type: BallType, x: number, y: number, vx:
     vx,
     vy,
     hp: 0,
+    speed: BALL_SPEED[type],
     gnawCell: -1,
     gnawLeft: 0,
     replanAt: 0,
@@ -136,6 +140,7 @@ export function createState(seed: number): GameState {
   const grid = new Uint8Array(CELLS)
   const drainUntil = new Int32Array(CELLS)
   const wallCreatedAt = new Int32Array(CELLS).fill(-1)
+  const everClaimed = new Uint8Array(CELLS)
 
   // Daily permutation of the upgrade pool (Fisher–Yates from a named stream).
   const permStream = substream(seed, 'offers', 0)
@@ -155,6 +160,7 @@ export function createState(seed: number): GameState {
     grid,
     drainUntil,
     wallCreatedAt,
+    everClaimed,
     balls: [],
     cuts: [],
     towers: [],
@@ -189,6 +195,7 @@ export function createState(seed: number): GameState {
     const sy = place.int(2) === 0 ? -1 : 1
     const b = makeBall(s, BallType.Bouncer, x, y, sx * TUTORIAL_BALL_SPEED, sy * TUTORIAL_BALL_SPEED)
     b.hp = 3
+    b.speed = TUTORIAL_BALL_SPEED
     s.balls.push(b)
   }
   return s
@@ -203,6 +210,7 @@ export function hashState(s: GameState): number {
   for (let i = 0; i < CELLS; i++) h = fnv1aInt(h, s.grid[i])
   for (let i = 0; i < CELLS; i++) h = fnv1aInt(h, s.drainUntil[i])
   for (let i = 0; i < CELLS; i++) h = fnv1aInt(h, s.wallCreatedAt[i])
+  for (let i = 0; i < CELLS; i++) h = fnv1aInt(h, s.everClaimed[i])
   h = fnv1aInt(h, s.balls.length)
   for (const b of s.balls) {
     h = fnv1aInt(h, b.id)
@@ -212,6 +220,7 @@ export function hashState(s: GameState): number {
     h = fnv1aInt(h, b.vx)
     h = fnv1aInt(h, b.vy)
     h = fnv1aInt(h, b.hp)
+    h = fnv1aInt(h, b.speed)
     h = fnv1aInt(h, b.gnawCell)
     h = fnv1aInt(h, b.gnawLeft)
     h = fnv1aInt(h, b.replanAt)

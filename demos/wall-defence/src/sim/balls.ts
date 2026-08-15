@@ -255,7 +255,9 @@ export function moveBalls(s: GameState, drainTouched: number[]): void {
           const myCell = cellOf(b.y) * GRID_W + cellOf(b.x)
           if (myCell === plan[1]) {
             b.gnawCell = plan[2]
-            b.gnawLeft = GNAW_TICKS
+            // Breakers chew faster in later waves — the pressure that only
+            // killing them (towers) can relieve.
+            b.gnawLeft = Math.max(42, GNAW_TICKS - (s.wave - 1) * 4)
             b.pathCell = -1
             continue
           }
@@ -265,7 +267,7 @@ export function moveBalls(s: GameState, drainTouched: number[]): void {
         }
       }
       if (b.pathCell >= 0) {
-        steerToward(b, cellX(b.pathCell) * Q + Q / 2, cellY(b.pathCell) * Q + Q / 2, BALL_SPEED[BallType.Breaker])
+        steerToward(b, cellX(b.pathCell) * Q + Q / 2, cellY(b.pathCell) * Q + Q / 2, b.speed)
       }
       const m = slowMultAt(s, b.x, b.y)
       moveX(s, b, mulQ(b.vx, m))
@@ -273,7 +275,7 @@ export function moveBalls(s: GameState, drainTouched: number[]): void {
     } else if (b.type === BallType.Chaser) {
       const target = nearestHead(s, b)
       if (target) {
-        steerToward(b, target[0], target[1], BALL_SPEED[BallType.Chaser])
+        steerToward(b, target[0], target[1], b.speed)
         const m = slowMultAt(s, b.x, b.y)
         // Steerers slide: collisions zero out progress but don't bounce
         // (heading is re-aimed next tick anyway).

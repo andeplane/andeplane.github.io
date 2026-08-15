@@ -5,13 +5,13 @@
 import { step } from '../src/sim/sim'
 import { createState, PLAYING } from '../src/sim/state'
 import type { LoggedEvent } from '../src/sim/events'
-import { Bot } from './bot'
+import { Bot, PROFILES } from './bot'
 
 const seed = Number(process.argv[2] ?? 1)
 const maxTicks = Number(process.argv[3] ?? 25000)
 
 const s = createState(seed)
-const bot = new Bot(seed, { useTowers: true })
+const bot = new Bot(seed, PROFILES.expert)
 const log: LoggedEvent[] = []
 let guard = 0
 while (s.status === PLAYING && s.tick < maxTicks && guard < maxTicks * 2) {

@@ -53,7 +53,8 @@ export function step(s: GameState, events: SimEvent[]): void {
   moveBalls(s, drainTouched)
 
   // 5. Cuts advance (shatters, completions, sparking edge).
-  let topologyChanged = advanceCuts(s)
+  const cutCompleted = advanceCuts(s)
+  let topologyChanged = cutCompleted
 
   // 6. Breakers gnaw.
   if (gnawStep(s)) topologyChanged = true
@@ -68,9 +69,10 @@ export function step(s: GameState, events: SimEvent[]): void {
   if (openTouchedDrains(s, drainTouched)) topologyChanged = true
   if (expireDrains(s)) topologyChanged = true
 
-  // 10. Region recompute on any relevant change.
+  // 10. Region recompute on any relevant change; only a completed cut may
+  // convert open space into territory.
   if (topologyChanged || ballsChanged) {
-    recomputeClaims(s)
+    recomputeClaims(s, cutCompleted)
     maybeOffer(s)
   }
 
@@ -80,7 +82,8 @@ export function step(s: GameState, events: SimEvent[]): void {
     let income = INCOME_BASE + Math.floor(pct / INCOME_PCT_DIVISOR)
     if ((s.upgrades & (1 << Upgrade.OverclaimDividend)) !== 0) {
       const quotaPct = s.wave >= 1 ? QUOTA_PCT[Math.min(s.wave, QUOTA_PCT.length) - 1] : 0
-      if (pct > quotaPct) income += OVERCLAIM_CENTS_PER_PCT * (pct - quotaPct)
+      // Capped: a greed reward, not a money printer.
+      if (pct > quotaPct) income += OVERCLAIM_CENTS_PER_PCT * Math.min(pct - quotaPct, 12)
     }
     s.money += income
   }

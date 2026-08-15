@@ -199,11 +199,15 @@ export function updateWaves(s: GameState): boolean {
       const chasers = s.balls.filter((b) => b.type === BallType.Chaser).length
       if (chasers >= MAX_CHASERS) type = BallType.Bouncer
     }
-    const speed = BALL_SPEED[type]
+    // Late waves spawn tougher, faster balls so tower DPS growth never
+    // sterilizes the board: +1 HP per 3 waves, +3 Q8/tick per 4 waves.
+    const waveNo = Math.max(1, s.wave)
+    const speed = BALL_SPEED[type] + Math.floor((waveNo - 1) / 4) * 3
     const stream = substream(s.seed, 'spawnvel', sp.at)
     const [vx, vy] = spawnVelocity(portal, speed, stream.int(2) === 1)
     const b = makeBall(s, type, cellX(portal) * Q + Q / 2, cellY(portal) * Q + Q / 2, vx, vy)
-    b.hp = BALL_HP[type]
+    b.hp = BALL_HP[type] + Math.floor((waveNo - 1) / 3)
+    b.speed = speed
     s.balls.push(b)
     ballsChanged = true
   }

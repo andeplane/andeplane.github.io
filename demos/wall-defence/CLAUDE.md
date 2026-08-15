@@ -7,10 +7,13 @@ and the rules the code implements: `docs/DESIGN.md` (read it before touching
 ## Commands
 
 - `npm run dev` — vite dev server
-- `npm run check` — typecheck + determinism replay test + self-play balance
-  assertions. **Run after any change to `src/sim/`**; the balance assertions
-  (tower-bot can win, no-tower bot always dead by wave 7) are the contract that
-  the TD layer stays mandatory.
+- `npm run check` — typecheck + determinism replay test + fast self-play gate.
+  **Run after any change to `src/sim/`.**
+- `npm run balance` (`tsx tools/balance.ts [seeds]`) — the full balance
+  contract: 6 bot profiles (novice/average/expert + sliver/turtle/no-tower)
+  × N seeds, 11 criteria (skill ladder monotone, win-rate bands, degenerate
+  strategies lose, walls stay contested, plugging works). **Run before
+  claiming any balance change is an improvement**, with ≥ 20 seeds.
 - `npm run build` — typecheck + vite build (site deploy builds every demo, so a
   broken build here breaks the whole site deploy)
 
@@ -34,7 +37,9 @@ and the rules the code implements: `docs/DESIGN.md` (read it before touching
 ## Tools
 
 - `tools/determinism.ts` — bot game recorded + replayed, per-tick hash compare.
-- `tools/selfplay.ts` — balance stats + assertions across seeds.
+- `tools/selfplay.ts` — fast balance gate (subset of balance.ts).
+- `tools/balance.ts` — full profile × seed matrix; `tools/bot.ts` holds the
+  profiles (reaction cadence, sampling, error rate, plug/turtle/sliver flags).
 - `tools/record.ts <seed>` — emit an event log JSON for browser replay.
 - `tools/inspect.ts <log> <tick>` — replay a log headless, dump cell counts.
 - In the browser, `window.__wd` exposes `state`, `emit(event)`,
@@ -53,3 +58,9 @@ and the rules the code implements: `docs/DESIGN.md` (read it before touching
   (`cellOf(head)` lands on the blocker otherwise and converts a CLAIMED cell to
   WALL).
 - `(a/b)|0` truncates toward zero; use floor division for negative velocities.
+- Claims may ONLY happen on a tick where a cut completed (`recomputeClaims`'s
+  `allowClaims` flag). Letting ball deaths claim regions re-opens the
+  "turrets clear the board → everything auto-claims" snowball that broke all
+  balance in rev 2.
+- Capture bursts pay only for never-before-claimed cells (`everClaimed`);
+  paying on re-claims re-opens the breach-farm money printer.

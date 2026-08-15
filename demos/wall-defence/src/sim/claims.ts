@@ -77,7 +77,12 @@ export function expireDrains(s: GameState): boolean {
   return changed
 }
 
-export function recomputeClaims(s: GameState): void {
+// allowClaims: OPEN→CLAIMED conversion happens only when a cut completed
+// this tick — claims come from the verb, never from ball deaths alone.
+// (Killing out a pocket leaves it open until one cheap cut takes it; this
+// kills the "turrets clear the board → everything auto-claims" snowball.)
+// Breach detection (CLAIMED→DRAINING) runs on every recompute regardless.
+export function recomputeClaims(s: GameState, allowClaims: boolean): void {
   // Label connected components of non-WALL cells.
   const label = new Int32Array(CELLS).fill(-1)
   const compCells: number[][] = []
@@ -126,6 +131,7 @@ export function recomputeClaims(s: GameState): void {
   for (let id = 0; id < compCells.length; id++) {
     const cells = compCells[id]
     if (!hasBall[id]) {
+      if (!allowClaims) continue
       // Claim: OPEN cells are new captures (burst); DRAINING cells are
       // rescues (no burst).
       const newly: number[] = []
@@ -135,10 +141,19 @@ export function recomputeClaims(s: GameState): void {
         s.grid[c] = CLAIMED
       }
       if (newly.length > 0) {
+        // Bursts pay only for first-time cells — re-sealing farmed territory
+        // restores income and quota but is not a money printer.
+        let fresh = 0
+        for (const c of newly) {
+          if (s.everClaimed[c] === 0) {
+            s.everClaimed[c] = 1
+            fresh++
+          }
+        }
         let mult = 1
-        if (newly.length * 100 >= BURST_TIER3_PCT * CELLS) mult = 3
-        else if (newly.length * 100 >= BURST_TIER2_PCT * CELLS) mult = 2
-        const burst = Math.max(1, Math.floor((newly.length * mult) / BURST_DIVISOR))
+        if (fresh * 100 >= BURST_TIER3_PCT * CELLS) mult = 3
+        else if (fresh * 100 >= BURST_TIER2_PCT * CELLS) mult = 2
+        const burst = fresh > 0 ? Math.max(1, Math.floor((fresh * mult) / BURST_DIVISOR)) : 0
         s.money += burst
         s.fx.claims.push({ cells: newly, burst })
 

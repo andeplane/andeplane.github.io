@@ -5,13 +5,13 @@
 import { step } from '../src/sim/sim'
 import { createState, hashState, PLAYING } from '../src/sim/state'
 import type { LoggedEvent, SimEvent } from '../src/sim/events'
-import { Bot } from './bot'
+import { Bot, PROFILES } from './bot'
 
 const MAX_TICKS = 25000
 
 function playWithBot(seed: number): { log: LoggedEvent[]; hashes: number[] } {
   const s = createState(seed)
-  const bot = new Bot(seed, { useTowers: true })
+  const bot = new Bot(seed, PROFILES.expert)
   const log: LoggedEvent[] = []
   const hashes: number[] = []
   let guard = 0

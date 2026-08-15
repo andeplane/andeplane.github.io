@@ -7,7 +7,8 @@
     "dev": "vite",
     "build": "tsc --noEmit && vite build",
     "preview": "vite preview",
-    "check": "tsc --noEmit && tsx tools/determinism.ts && tsx tools/selfplay.ts"
+    "check": "tsc --noEmit && tsx tools/determinism.ts && tsx tools/selfplay.ts",
+    "balance": "tsx tools/balance.ts"
   },
   "devDependencies": {
     "@types/node": "^26.2.0",

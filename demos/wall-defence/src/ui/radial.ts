@@ -4,7 +4,7 @@
 import { TowerType } from '../sim/constants'
 import type { SimEvent } from '../sim/events'
 import { CLAIMED, type GameState, type Tower } from '../sim/state'
-import { towerCost } from '../sim/towers'
+import { placeCost, towerCost } from '../sim/towers'
 
 export class Radial {
   private parent: HTMLElement
@@ -36,8 +36,8 @@ export class Radial {
     this.close()
     if (s.grid[cell] !== CLAIMED) return
     const el = this.make(screenX, screenY)
-    const turretCost = towerCost(TowerType.Turret, 0)
-    const slowCost = towerCost(TowerType.Slow, 0)
+    const turretCost = placeCost(s, TowerType.Turret)
+    const slowCost = placeCost(s, TowerType.Slow)
     this.button(el, `⬢ Turret ${turretCost}¢`, s.money >= turretCost, () => {
       emit({ kind: 'PlaceTower', cell, tower: TowerType.Turret })
       this.close()
