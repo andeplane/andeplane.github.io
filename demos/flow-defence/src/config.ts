@@ -174,8 +174,11 @@ export const CONFIG = {
   // personalities live in engine/sporeDefs.ts. This file keeps only the
   // world/physics/economy tunables.
   match: {
-    /** Passive gold per second. */
-    goldTrickle: 1,
+    /** Water royalties: passive gold per second AT FULL DELIVERY — scales
+     *  with the water actually reaching the base (see Engine.tick). Raised
+     *  1 -> 1.5 when drowned spores stopped paying bounty: the open-river
+     *  carrot carries more of the economy. */
+    goldTrickle: 1.5,
     /**
      * The base drinks from the river: nominal outlet water flux (sum of ux
      * over outlet cells per tick, empirically measured on the open default
