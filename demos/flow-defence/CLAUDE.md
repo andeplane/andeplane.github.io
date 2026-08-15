@@ -28,11 +28,13 @@ npm run build    # tsc + vite build
    import no DOM and no Babylon — that's what makes vitest/headless possible.
    `sim/gpu/` and `render/` are the browser boundary.
 3. **GPU→CPU quantities are monotone accumulators** (`counters` buffer:
-   [0] breaches, [1] spore kills, [2] spore escapes). The engine consumes
-   diffs between snapshots, so readback staleness can never lose or
-   double-count. Alive count = spawned − kills − escapes (all CPU-known).
-   Enemy positions read back every 10 ticks (32 KB) purely for overlay
-   beams/dots, extrapolated by each spore's stored per-tick velocity.
+   [0] breaches, [1] tower kills (pay bounty), [2] escapes, [3] outlet flux
+   out, [4] outlet backflow, [5] suffocated (pay NOTHING — sealed basins
+   must not be bounty farms)). The engine consumes diffs between snapshots,
+   so readback staleness can never lose or double-count. Alive count =
+   spawned − kills − escapes (all CPU-known). Enemy positions read back
+   every 10 ticks (32 KB) purely for overlay beams/dots, extrapolated by
+   each spore's stored per-tick velocity.
 4. **Walls are painted with per-cell partial buffer writes** (`paintWall`).
    A full upload from the CPU mirror would resurrect cells the GPU erosion
    pass has already breached. The CPU mirror is *optimistic*, the GPU is truth.
@@ -49,9 +51,19 @@ npm run build    # tsc + vite build
 - **The outlet must anchor pressure** (feq at ρ=1, extrapolated u). A
   zero-gradient copy outlet never sets the domain's pressure level; the inlet
   then pressurizes the whole domain without bound. Cost a debugging session.
-- Spores suffocate below `enemies.stagnantU` flow speed — this is what makes
-  sealing an arm a real (and bounty-paying) defense instead of creating
-  trapped zombies that stall the wave forever.
+- Spores suffocate below `enemies.stagnantU` flow speed — sealing an arm is
+  a real defense (no bounty) instead of creating trapped zombies that stall
+  the wave forever. But becalmed spores first HUNT for current (`seek*` in
+  config): they sniff the local speed gradient and crawl toward moving
+  water, holding their breath while any is in reach. Only genuinely sealed
+  pockets drown quietly. This is the anti-exploit rule: a dam with a hair
+  canal leaks the swarm through the canal, and a rotting blockade funnels
+  spores to its cracks — verified by bot-farm/bot-blockade LOSING.
+- The base must drink: intake (30 s net outlet volume window) below
+  `thirstFraction × nominalFlux` starves the base (lives drain, flood
+  pressure ramps until blockades burst). `nominalFlux` is per level,
+  measured with scratchpad `flux-measure.mjs` — REMEASURE when
+  `inlet.choke` or an arena changes.
 - Erosion = shear above threshold + pressure head above threshold × porosity
   (porosity grows as integrity falls → breaches cascade). Tuning lives in
   `config.ts#erosion`; the same rule runs in `erosionRule.ts` and WGSL.
