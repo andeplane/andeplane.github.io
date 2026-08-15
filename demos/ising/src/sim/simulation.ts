@@ -57,6 +57,12 @@ export class Simulation {
   sweepCount = 0;
   /** Sweeps since the last successful measurement encode (for the acceptance rate). */
   sweepsSinceMeasure = 0;
+  /**
+   * Whether the configuration may have changed since the last measurement. Guards
+   * against re-measuring a frozen (paused) lattice every frame, which would flood the
+   * statistics bins with duplicates of one configuration and collapse χ and C_v.
+   */
+  dirtySinceMeasure = true;
 
   spins!: GPUBuffer;
   readonly results: GPUBuffer;
@@ -247,6 +253,7 @@ export class Simulation {
 
   reset(mode: FillMode): void {
     this.seed = randomSeed();
+    this.dirtySinceMeasure = true;
     const modeCode = mode === 'down' ? 0 : mode === 'up' ? 1 : 2;
     this.device.queue.writeBuffer(this.fillUniforms, 0, new Uint32Array([modeCode, this.seed, this.N, this.L]));
     const encoder = this.device.createCommandEncoder({ label: 'fill' });
@@ -270,8 +277,10 @@ export class Simulation {
 
     if (this.paintQueue.length > 0) {
       this.encodePaints(encoder);
+      this.dirtySinceMeasure = true;
     }
     if (sweeps === 0) return;
+    this.dirtySinceMeasure = true;
 
     for (let p = 0; p < totalPasses; p++) {
       const base = p * SLOT;
@@ -361,6 +370,7 @@ export class Simulation {
     encoder.clearBuffer(this.flips);
     const covered = this.sweepsSinceMeasure;
     this.sweepsSinceMeasure = 0;
+    this.dirtySinceMeasure = false;
     return covered;
   }
 }

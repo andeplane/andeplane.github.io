@@ -705,7 +705,7 @@ async function start(): Promise<void> {
     sim.encodeFrame(encoder, sweeps);
 
     let pending: { staging: GPUBuffer; tag: SampleTag } | null = null;
-    const staging = observables.acquire();
+    const staging = sim.dirtySinceMeasure ? observables.acquire() : null;
     if (staging) {
       const flipSweeps = sim.encodeMeasure(encoder, staging);
       pending = {
