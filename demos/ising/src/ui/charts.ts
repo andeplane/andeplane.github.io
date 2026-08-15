@@ -123,12 +123,14 @@ export class Chart {
 
   draw(): void {
     if (!this.dirty) return;
-    this.dirty = false;
 
     const dpr = Math.min(window.devicePixelRatio || 1, 2);
     const w = this.canvas.clientWidth;
     const h = this.canvas.clientHeight;
+    // Hidden (zero-size) canvases stay dirty, so they render on first reveal even if
+    // no new data arrives — clearing the flag here would leave them blank forever.
     if (w === 0 || h === 0) return;
+    this.dirty = false;
     if (w !== this.width || h !== this.height) {
       this.width = w;
       this.height = h;

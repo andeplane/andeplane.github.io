@@ -55,11 +55,12 @@ export class LoopChart {
 
   draw(): void {
     if (!this.dirty) return;
-    this.dirty = false;
     const dpr = Math.min(window.devicePixelRatio || 1, 2);
     const w = this.canvas.clientWidth;
     const h = this.canvas.clientHeight;
+    // Hidden canvases stay dirty so they render on first reveal (see charts.ts).
     if (w === 0 || h === 0) return;
+    this.dirty = false;
     if (w !== this.width || h !== this.height) {
       this.width = w;
       this.height = h;
