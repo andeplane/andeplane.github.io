@@ -137,13 +137,15 @@ export const TOWER_DEFS: Record<TowerId, TowerDef> = {
     id: 'sonar',
     name: 'Sonar',
     cost: 25,
-    radius: 24,
+    radius: 34,
     desc: 'Pings its ring — phantoms are revealed (and killable) only inside sonar.',
     color: '#fcd34d',
     sprite: 'sonar',
     sonar: true,
     unlockLevel: 6,
   },
+  // (sonar radius is deliberately generous — one dish must blanket a whole
+  // kill corridor or phantoms are unplayable to defend against)
   sniper: {
     id: 'sniper',
     name: 'Harpoon',
