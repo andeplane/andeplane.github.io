@@ -61,6 +61,13 @@ npm run build    # tsc + vite build
   spores to its cracks — verified by bot-farm/bot-blockade LOSING.
 - The base must drink: intake (12 s net outlet volume window — short so
   reopening a strangled river visibly refills the bar within seconds) below
+  the thirst line is FORGIVEN while jet-caused: blasting the jet in a
+  funnel's throat genuinely stalls net through-flow (domain pressurizes,
+  choked inlets quit), so a cistern (`match.reserveTicks`) absorbs starving
+  ticks within `jetForgiveTicks` of jet use. Eligibility must stay CAUSAL —
+  a plain time-based reserve let the blockade bot WIN. When bot-verifying
+  thirst/economy changes, include a bot that actually JETS (scratchpad
+  repro-jetgap.mjs) — the campaign bots never touch the core verb.
   `thirstFraction × nominalFlux` starves the base (lives drain, flood
   pressure ramps until blockades burst). `nominalFlux` is per level,
   measured with scratchpad `flux-measure.mjs` — REMEASURE when
