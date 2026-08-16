@@ -14,9 +14,10 @@ material lives in `IDEAS.md`; this file is only for things we intend to ship.
 - [ ] **Level editor.** Levels are terrain shapes + wave tables + numbers —
       an in-browser editor that emits that JSON (paint bedrock, place inlets,
       author waves, playtest in place, share via URL).
-- [ ] **Bot-verify all 8 levels.** bot-campaign.mjs plays any level via the
-      ?bot=1 API; every level's plan must WIN and the exploit bots must
-      still LOSE. In progress — the release gate for the campaign build.
+- [x] **Bot-verify all 8 levels.** Done 2026-08-16: every level's
+      bot-campaign plan WINS (canal/funnel meta) and the exploit bots
+      (drown-farm, blockade, idle) all LOSE; 20/20 unit tests. Verified via
+      frozen `vite preview` builds on port 4173 (see CLAUDE.md).
 - [ ] **Tower upgrades** (tiers bought in place) — next big system after
       the campaign lands; the registry already isolates all tower data.
 
