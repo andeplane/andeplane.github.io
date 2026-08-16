@@ -31,7 +31,10 @@ const PALETTE_CSS = /* css */ `
 .fd-pal-key {
   position: absolute; top: 1px; left: 4px; opacity: 0.75; font-size: 9px; color: #eaf6ff;
 }
-.fd-pal-cost { display: block; margin-top: 1px; color: #ffd479; }
+.fd-pal-cost {
+  display: block; margin-top: 1px; color: #ffd479;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
 .fd-pal-cost.free { color: #7fe0a8; }
 .fd-pal-card {
   position: absolute; bottom: calc(100% + 8px); left: 50%; transform: translateX(-50%);
@@ -82,7 +85,7 @@ export class Palette {
       el.innerHTML = `
         <span class="fd-pal-key">${item.hotkey}</span>
         ${item.icon ? `<img class="fd-pal-icon" src="${item.icon}" alt="">` : `<div class="fd-pal-glyph">${item.glyph ?? '?'}</div>`}
-        <span class="fd-pal-cost ${item.cost == null ? 'free' : ''}">${item.cost == null ? item.label : `${item.cost}g${item.costSuffix ?? ''}`}</span>
+        <span class="fd-pal-cost ${item.cost == null ? 'free' : ''}">${item.cost == null ? item.label : `${item.cost}g`}</span>
         <div class="fd-pal-card"><b>${item.label}</b><span class="c">${item.cost != null ? `${item.cost}g${item.costSuffix ?? ''} · ` : ''}key ${item.hotkey}</span><br>${item.desc}</div>`
       el.addEventListener('click', () => onSelect(item.key))
       this.root.appendChild(el)
