@@ -59,7 +59,8 @@ npm run build    # tsc + vite build
   pockets drown quietly. This is the anti-exploit rule: a dam with a hair
   canal leaks the swarm through the canal, and a rotting blockade funnels
   spores to its cracks — verified by bot-farm/bot-blockade LOSING.
-- The base must drink: intake (30 s net outlet volume window) below
+- The base must drink: intake (12 s net outlet volume window — short so
+  reopening a strangled river visibly refills the bar within seconds) below
   `thirstFraction × nominalFlux` starves the base (lives drain, flood
   pressure ramps until blockades burst). `nominalFlux` is per level,
   measured with scratchpad `flux-measure.mjs` — REMEASURE when
