@@ -4,6 +4,7 @@
 // (arc lightning, mortar blasts, harpoon tracers, sonar ripples), and the
 // jet ring with its charge arc. Phantoms render only inside sonar coverage.
 
+import { CONFIG } from '../config'
 import type { DomainMap } from '../engine/map'
 import { SPORES_BY_INDEX } from '../engine/sporeDefs'
 import { TOWER_DEFS } from '../engine/towerDefs'
@@ -20,6 +21,11 @@ export interface JetOverlay {
   held: boolean
   charge: number
 }
+
+/** What the selected tool would do at the cursor — drawn before any click. */
+export type GhostPreview =
+  | { kind: 'tower'; type: Tower['type']; x: number; y: number; valid: boolean }
+  | { kind: 'brush'; x: number; y: number; erase: boolean }
 
 interface Popup {
   x: number
@@ -108,7 +114,13 @@ export class Overlay {
     for (const e of enemies) this.lastSeen.set(e.slot, e)
   }
 
-  draw(towers: Tower[], pending: PendingPlacement | null, enemies: EnemyView[], jet: JetOverlay | null): void {
+  draw(
+    towers: Tower[],
+    pending: PendingPlacement | null,
+    ghost: GhostPreview | null,
+    enemies: EnemyView[],
+    jet: JetOverlay | null,
+  ): void {
     this.frame++
     const dpr = Math.min(window.devicePixelRatio || 1, 2)
     const cw = this.canvas.clientWidth
@@ -134,6 +146,7 @@ export class Overlay {
     this.drawBeams(ctx, towers, shown, toScreen)
     for (const t of towers) this.drawTower(ctx, t, toScreen, cellPx, 1)
     if (pending) this.drawTower(ctx, { id: 0, ...pending }, toScreen, cellPx, 0.55)
+    else if (ghost) this.drawGhost(ctx, ghost, toScreen, cellPx)
     // Zap effects live between towers and spores — lightning over rings.
     this.fx = this.fx.filter((f) => drawFx(ctx, f, sx, sy, cellPx))
     this.drawEnemies(ctx, shown, toScreen, cellPx)
@@ -248,6 +261,58 @@ export class Overlay {
     ctx.beginPath()
     ctx.arc(sx, sy, Math.max(8, cellPx * 3), -Math.PI / 2, -Math.PI / 2 + Math.PI * 2 * jet.charge)
     ctx.stroke()
+    ctx.restore()
+  }
+
+  /** Hover ghost: what the selected tool does at the cursor, before a click.
+   *  Towers show sprite + range at half strength with a validity ring; the
+   *  wall/erase brush shows its stamp footprint. */
+  private drawGhost(
+    ctx: CanvasRenderingContext2D,
+    ghost: GhostPreview,
+    toScreen: (x: number, y: number) => [number, number],
+    cellPx: number,
+  ): void {
+    const [sx, sy] = toScreen(ghost.x, ghost.y)
+    if (ghost.kind === 'brush') {
+      const color = ghost.erase ? '#f0abfc' : '#cfe4f4'
+      ctx.save()
+      ctx.strokeStyle = color
+      ctx.shadowColor = color
+      ctx.shadowBlur = 6
+      ctx.globalAlpha = 0.9
+      ctx.lineWidth = 1.4
+      ctx.beginPath()
+      ctx.arc(sx, sy, Math.max(5, CONFIG.build.brushRadius * cellPx), 0, Math.PI * 2)
+      ctx.stroke()
+      ctx.fillStyle = color
+      ctx.globalAlpha = 0.6
+      ctx.beginPath()
+      ctx.arc(sx, sy, 1.5, 0, Math.PI * 2)
+      ctx.fill()
+      ctx.restore()
+      return
+    }
+    this.drawTower(ctx, { id: 0, type: ghost.type, x: ghost.x, y: ghost.y, angle: 0 }, toScreen, cellPx, 0.45)
+    // Validity ring: green = will place here, red = blocked/too poor.
+    ctx.save()
+    ctx.strokeStyle = ghost.valid ? '#7fe0a8' : '#f87171'
+    ctx.globalAlpha = 0.85
+    ctx.lineWidth = 1.4
+    ctx.setLineDash([4, 4])
+    ctx.beginPath()
+    ctx.arc(sx, sy, Math.max(12, cellPx * 6), 0, Math.PI * 2)
+    ctx.stroke()
+    if (!ghost.valid) {
+      const r = Math.max(5, cellPx * 2.5)
+      ctx.setLineDash([])
+      ctx.beginPath()
+      ctx.moveTo(sx - r, sy - r)
+      ctx.lineTo(sx + r, sy + r)
+      ctx.moveTo(sx + r, sy - r)
+      ctx.lineTo(sx - r, sy + r)
+      ctx.stroke()
+    }
     ctx.restore()
   }
 

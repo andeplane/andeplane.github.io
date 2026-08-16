@@ -34,6 +34,8 @@ export class BuildInput {
   readonly hotkeys: ReadonlyMap<string, Tool>
   /** Live tower placement being aimed (for the overlay preview). */
   pending: PendingPlacement | null = null
+  /** Cursor cell while inside the domain (for the build ghost preview). */
+  hover: { x: number; y: number } | null = null
   /** The jet verb: main.ts feeds this to the sim each frame. */
   readonly jet: JetState = { x: 0, y: 0, held: false }
   /** Palette sync: called whenever the tool changes (hotkey or click). */
@@ -98,6 +100,7 @@ export class BuildInput {
 
   private move(e: PointerEvent): void {
     const cell = this.cellAt(e)
+    this.hover = cell
     if (cell) {
       this.jet.x = cell.x
       this.jet.y = cell.y

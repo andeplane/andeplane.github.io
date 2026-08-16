@@ -7,9 +7,9 @@ import { SeededRng } from './core/rng'
 import { Engine } from './engine/Engine'
 import { SPORES_BY_INDEX, sporesUnlockedAt } from './engine/sporeDefs'
 import { TOWER_DEFS, towersForLevel, towersUnlockedAt } from './engine/towerDefs'
-import { splatTowerFields } from './engine/towers'
+import { canPlace, splatTowerFields, towerCost } from './engine/towers'
 import { stampZaps, ZapController } from './engine/zap'
-import { Overlay } from './render/overlay'
+import { Overlay, type GhostPreview } from './render/overlay'
 import { Renderer } from './render/Renderer'
 import { CELL } from './sim/core/constants'
 import { GpuSim } from './sim/gpu/GpuSim'
@@ -260,9 +260,21 @@ async function start(): Promise<void> {
       hud.setTool(input.tool)
       hud.setHint(hints?.current({ match, input }) ?? null)
     }
+    // Build ghost: whatever the selected tool would do at the cursor.
+    let ghost: GhostPreview | null = null
+    if (level && input.hover && match.phase !== 'over' && !(menu?.isOpen ?? false)) {
+      const { x, y } = input.hover
+      if (input.tool === 'wall' || input.tool === 'erase') {
+        ghost = { kind: 'brush', x, y, erase: input.tool === 'erase' }
+      } else {
+        const valid = match.gold >= towerCost(input.tool) && canPlace(map, x, y, match.towers)
+        ghost = { kind: 'tower', type: input.tool, x, y, valid }
+      }
+    }
     overlay.draw(
       match.towers,
       input.pending,
+      ghost,
       level ? sim.liveEnemies() : [],
       level ? { x: input.jet.x, y: input.jet.y, held: input.jet.held, charge: match.jetCharge } : null,
     )
