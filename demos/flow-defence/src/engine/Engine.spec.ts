@@ -97,6 +97,7 @@ describe('Engine waves', () => {
     engine.tick(obs(1000, 0, 0, 100))
     expect(engine.thirsting).toBe(true)
     const before = engine.lives
+    // No jet involved: an unjetted blockade gets no cistern forgiveness.
     const drainTicks = CONFIG.match.thirstGraceTicks + CONFIG.match.thirstLifeTicks * 2 + 2
     for (let t = 0; t < drainTicks; t++) engine.tick(null)
     expect(engine.lives).toBeLessThanOrEqual(before - 2)
@@ -106,6 +107,26 @@ describe('Engine waves', () => {
     // Restore the flow → thirst recovers, no further bleeding.
     engine.tick(obs(4000, 0, 0, 100 + 14 * 3980))
     expect(engine.thirsting).toBe(false)
+  })
+
+  it('jet-caused starvation draws from the cistern instead of thirsting', () => {
+    const { engine } = makeEngine()
+    engine.start()
+    engine.tick(obs(10, 0, 0, 100))
+    engine.tick(obs(1000, 0, 0, 100))
+    expect(engine.thirsting).toBe(true)
+    const before = engine.lives
+    // Player is jetting (the stall is their own blast): the reserve absorbs
+    // far past the point where an unjetted blockade would bleed.
+    const span = CONFIG.match.thirstGraceTicks + CONFIG.match.thirstLifeTicks * 4
+    for (let t = 0; t < span; t++) engine.tick(null, true)
+    expect(engine.lives).toBe(before)
+    expect(engine.floodPressure).toBeLessThan(0.01)
+    expect(engine.reserveTicks).toBeLessThan(CONFIG.match.reserveTicks)
+    // But the cistern is finite: once drained, jetting no longer shields.
+    for (let t = 0; t < CONFIG.match.reserveTicks + CONFIG.match.thirstGraceTicks + CONFIG.match.thirstLifeTicks + 2; t++)
+      engine.tick(null, true)
+    expect(engine.lives).toBeLessThan(before)
   })
 
   it('auto-starts the wave when the build countdown expires', () => {

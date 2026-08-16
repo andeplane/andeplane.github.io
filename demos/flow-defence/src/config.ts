@@ -192,6 +192,17 @@ export const CONFIG = {
      *  narrow canals — a canal's cost is erosion and pressure, not thirst.
      *  (Measured: minimal 15-row canal ≈ 0.6–1.0; blockade flushes ≈ 0–0.3.) */
     thirstFraction: 0.05,
+    /** The base's cistern: ticks of JET-CAUSED starvation absorbed before
+     *  thirst begins (jetting a funnel's throat legitimately stalls net
+     *  through-flow). Only starving ticks within jetForgiveTicks of jet use
+     *  draw from it — an unjetted blockade is punished immediately. */
+    reserveTicks: 2700,
+    /** Reserve refilled per healthy tick (full refill ≈ 3 min of open river,
+     *  so repeated deliberate stalls don't come free). */
+    reserveRefill: 0.25,
+    /** A starving tick counts as jet-caused within this many ticks of jet
+     *  use (covers the ~15 s eddy/pressure decay after a blast). */
+    jetForgiveTicks: 900,
     /** Ticks for flood escalation to ramp from 0 to full while starved. */
     floodRampTicks: 1800,
     /** Ticks of starvation tolerated before lives start draining. */

@@ -62,6 +62,15 @@ export class Engine {
   intakeFlux = -1
   /** Ticks spent starved of water (drains lives past the grace period). */
   thirstTicks = 0
+  /** The base's cistern, in ticks of JET-CAUSED starvation it can absorb.
+   *  Blasting the jet inside a funnel legitimately stalls net through-flow
+   *  (the domain pressurizes, the choked inlets quit) — without forgiveness,
+   *  using the game's core verb starved the base within one wave. The reserve
+   *  only covers starving ticks within jetForgiveTicks of jet use, so an
+   *  unjetted blockade is punished immediately, exactly as before. */
+  reserveTicks: number = CONFIG.match.reserveTicks
+  /** Ticks since the jet was last held (drives cistern eligibility). */
+  private sinceJet = Number.MAX_SAFE_INTEGER
   /** Flood escalation 0..1 — ramps while the base is starved, and bursts
    *  blockades via inlet pressure far past the piping threshold. */
   floodPressure = 0
@@ -147,9 +156,11 @@ export class Engine {
     // --- Jet stamina ---------------------------------------------------------
     if (jetHeld && this.jetCharge > 0) {
       this.jetCharge = Math.max(0, this.jetCharge - 1 / (CONFIG.jet.drainSeconds * 60))
+      this.sinceJet = 0
     } else if (!jetHeld) {
       this.jetCharge = Math.min(1, this.jetCharge + 1 / (CONFIG.jet.rechargeSeconds * 60))
     }
+    if (!jetHeld && this.sinceJet < Number.MAX_SAFE_INTEGER) this.sinceJet++
 
     // --- Ingest observables (diffs of monotone accumulators) -----------------
     if (obs && obs.tick !== this.lastObsTick) {
@@ -206,21 +217,30 @@ export class Engine {
     // build phase alone is free experimentation time.
     const matchLive = this.phase === 'wave' || this.waveIndex > 0
     if (matchLive && this.thirsting) {
-      this.thirstTicks++
-      // The river's answer: pressure escalates until the blockage bursts.
-      this.floodPressure = Math.min(1, this.floodPressure + 1 / CONFIG.match.floodRampTicks)
-      const past = this.thirstTicks - CONFIG.match.thirstGraceTicks
-      if (past > 0 && past % CONFIG.match.thirstLifeTicks === 0) {
-        this.lives--
-        if (this.lives <= 0) {
-          this.lives = 0
-          this.end('attacker')
-          return this.inletStates
+      if (this.reserveTicks > 0 && this.sinceJet < CONFIG.match.jetForgiveTicks) {
+        // Jet-caused stall: the cistern absorbs it — no thirst, no flood.
+        this.reserveTicks--
+      } else {
+        this.thirstTicks++
+        // The river's answer: pressure escalates until the blockage bursts.
+        this.floodPressure = Math.min(1, this.floodPressure + 1 / CONFIG.match.floodRampTicks)
+        const past = this.thirstTicks - CONFIG.match.thirstGraceTicks
+        if (past > 0 && past % CONFIG.match.thirstLifeTicks === 0) {
+          this.lives--
+          if (this.lives <= 0) {
+            this.lives = 0
+            this.end('attacker')
+            return this.inletStates
+          }
         }
       }
     } else if (!this.thirsting) {
       if (this.thirstTicks > 0) this.thirstTicks--
       this.floodPressure = Math.max(0, this.floodPressure - 2 / CONFIG.match.floodRampTicks)
+      this.reserveTicks = Math.min(
+        CONFIG.match.reserveTicks,
+        this.reserveTicks + CONFIG.match.reserveRefill,
+      )
     }
     for (const s of this.inletStates) s.flood = this.floodPressure
 

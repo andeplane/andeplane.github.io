@@ -253,13 +253,20 @@ export class Hud {
       'low',
       engine.intakeFlux >= 0 && intake < CONFIG.match.thirstFraction * 3,
     )
+    // Three escalation stages: reserves draining (cistern absorbing a dip,
+    // no penalty yet) -> the base thirsts -> the flood rises.
+    const reserveLow = engine.reserveTicks < CONFIG.match.reserveTicks * 0.6
     this.thirstEl.textContent =
       engine.floodPressure > 0.15
         ? 'The base thirsts — the flood rises'
-        : 'The base thirsts — let the river flow'
+        : engine.reserveTicks <= 0
+          ? 'The base thirsts — let the river flow'
+          : 'Water reserves draining — let the river flow'
     this.thirstEl.classList.toggle(
       'show',
-      engine.phase !== 'over' && (engine.thirsting || engine.floodPressure > 0.15),
+      engine.phase !== 'over' &&
+        ((engine.thirsting && (reserveLow || engine.reserveTicks <= 0)) ||
+          engine.floodPressure > 0.15),
     )
   }
 
