@@ -145,7 +145,7 @@ export const LEVELS: readonly LevelConfig[] = [
   {
     name: 'Blackwater',
     description: 'Almost nothing to see out there. That is the problem.',
-    lives: 8,
+    lives: 10,
     startingGold: 210,
     nominalFlux: 13.9,
     terrain: [
