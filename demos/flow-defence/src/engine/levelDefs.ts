@@ -159,7 +159,7 @@ export const LEVELS: readonly LevelConfig[] = [
       { count: 13, hp: 1.9, interval: 18, arms: [0, 2], types: ['standard', 'phantom'] },
       { count: 11, hp: 2.3, interval: 16, arms: [0, 1, 2], types: ['phantom', 'swimmer'], surge: true },
       { count: 14, hp: 2.6, interval: 14, arms: [0, 1, 2], types: ['standard', 'phantom'] },
-      { count: 15, hp: 2.7, interval: 13, arms: [0, 1, 2], types: ['phantom', 'swimmer', 'splitter'], surge: true },
+      { count: 12, hp: 2.4, interval: 14, arms: [0, 1, 2], types: ['phantom', 'swimmer', 'splitter'], surge: true },
     ],
   },
   {
