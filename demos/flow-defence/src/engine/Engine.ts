@@ -52,10 +52,13 @@ export class Engine {
   wallCellsBuilt = 0
   /** Jet stamina 0..1: drains while held, recharges while released. */
   jetCharge = 1
-  /** Water intake: NET outlet discharge per tick, averaged over a ~10 s
+  /** Water intake: NET outlet discharge per tick, averaged over a ~12 s
    *  rolling window (−1 until the window fills). Sloshing/seiche moves zero
    *  net volume, so only true throughput registers. The base drinks from the
-   *  river — strangle it and the base thirsts. */
+   *  river — strangle it and the base thirsts. The window is deliberately
+   *  short enough that reopening a strangled river visibly refills the bar
+   *  within seconds — a 30 s window read as "intake stuck at zero" long
+   *  after the player had fixed their mistake. */
   intakeFlux = -1
   /** Ticks spent starved of water (drains lives past the grace period). */
   thirstTicks = 0
@@ -75,10 +78,12 @@ export class Engine {
   private lastBreach = 0
   private lastObsTick = -1
   /** Rolling (tick, out, in) accumulator samples spanning ~intakeWindow ticks.
-   *  The window must cover several acoustic round-trips of the domain (~10 s
-   *  each at c_s) or basin seiche won't cancel out of the net volume. */
+   *  The window must cover a few acoustic round-trips of the domain
+   *  (512 cells / c_s ≈ 890 ticks round-trip ≈ 5 s at K=3) or basin seiche
+   *  won't cancel out of the net volume — verified: wave-transition slosh
+   *  dips net by at most ~half, nowhere near the 5% thirst threshold. */
   private readonly fluxHistory: Array<{ tick: number; out: number; inn: number }> = []
-  private static readonly intakeWindow = 1800
+  private static readonly intakeWindow = 720
   private readonly pendingSpawns: SpawnRequest[] = []
   readonly map: DomainMap
 
