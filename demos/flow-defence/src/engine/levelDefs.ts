@@ -187,7 +187,7 @@ export const LEVELS: readonly LevelConfig[] = [
   {
     name: 'The Throat',
     description: 'Everything you have met, all at once, through one narrows. Tame the flow.',
-    lives: 12,
+    lives: 14,
     startingGold: 240,
     nominalFlux: 9.7,
     terrain: [
