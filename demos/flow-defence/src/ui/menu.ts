@@ -22,26 +22,31 @@ const MENU_CSS = /* css */ `
   text-transform: uppercase;
 }
 .fd-menu .fd-sub { opacity: 0.65; letter-spacing: 0.2em; margin-bottom: 34px; font-size: 11px; }
-.fd-levels { display: grid; gap: 12px; margin-bottom: 22px; }
+.fd-levels {
+  display: grid; grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 10px; margin-bottom: 22px;
+}
 .fd-level, .fd-btn {
   cursor: pointer; border: 1px solid rgba(130, 200, 255, 0.25); border-radius: 6px;
-  padding: 12px 18px; background: rgba(10, 22, 40, 0.5); text-align: left;
+  padding: 12px 18px; background: rgba(10, 22, 40, 0.5);
   color: inherit; font: inherit; transition: border-color 0.15s, box-shadow 0.15s;
 }
 .fd-level:hover, .fd-btn:hover {
   border-color: rgba(130, 210, 255, 0.7); box-shadow: 0 0 18px rgba(80, 180, 255, 0.25);
 }
-.fd-level b { color: #eaf6ff; letter-spacing: 0.08em; }
-.fd-level small { display: block; opacity: 0.65; }
-.fd-level { position: relative; }
-.fd-level .fd-stars {
-  position: absolute; right: 14px; top: 12px; color: #fcd34d; letter-spacing: 0.2em;
-  text-shadow: 0 0 10px rgba(252, 211, 77, 0.7); font-size: 13px;
+.fd-level { padding: 8px 4px 7px; text-align: center; }
+.fd-level b { display: block; color: #eaf6ff; font-size: 17px; font-weight: 400; }
+.fd-level small {
+  display: block; opacity: 0.6; font-size: 9px; letter-spacing: 0.04em;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis; padding: 0 2px;
 }
+.fd-level .fd-stars {
+  display: block; color: #fcd34d; letter-spacing: 0.2em; font-size: 11px;
+  text-shadow: 0 0 10px rgba(252, 211, 77, 0.7); min-height: 17px;
+}
+.fd-level .fd-stars.empty { opacity: 0.25; color: #b8d4e8; text-shadow: none; }
 .fd-level.locked { opacity: 0.45; cursor: not-allowed; }
 .fd-level.locked:hover { border-color: rgba(130, 200, 255, 0.25); box-shadow: none; }
-.fd-level .fd-lock { position: absolute; right: 14px; top: 12px; opacity: 0.8; }
-.fd-levels { max-height: 52vh; overflow-y: auto; padding-right: 6px; }
 .fd-btn { text-align: center; }
 .fd-menu-row { display: flex; gap: 12px; justify-content: center; }
 .fd-howto { text-align: left; max-height: 62vh; overflow-y: auto; padding-right: 8px; }
@@ -192,12 +197,14 @@ export class Menu {
         const badge = unlocked
           ? stars > 0
             ? `<span class="fd-stars">${starGlyphs(stars)}</span>`
-            : ''
-          : `<span class="fd-lock">🔒</span>`
+            : `<span class="fd-stars empty">···</span>`
+          : `<span class="fd-stars empty">🔒</span>`
+        const tip = unlocked ? `${lv.name} — ${lv.description}` : `Clear Level ${num - 1} to unlock.`
         return `
-      <button class="fd-level ${unlocked ? '' : 'locked'}" data-level="${num}" ${unlocked ? '' : 'disabled'}>
-        <b>Level ${num} — ${lv.name}</b>${badge}
-        <small>${unlocked ? lv.description : `Clear Level ${num - 1} to unlock.`}</small>
+      <button class="fd-level ${unlocked ? '' : 'locked'}" data-level="${num}" ${unlocked ? '' : 'disabled'}
+        title="${tip.replace(/"/g, '&quot;')}">
+        <b>${num}</b>${badge}
+        <small>${unlocked ? lv.name : 'Locked'}</small>
       </button>`
       })
       .join('')
