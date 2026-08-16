@@ -58,7 +58,7 @@ export const LEVELS: readonly LevelConfig[] = [
     name: 'Crosscurrents',
     description: 'A serpentine canyon — and something in it swims for your throat.',
     lives: 12,
-    startingGold: 150,
+    startingGold: 165,
     nominalFlux: 4.2,
     terrain: [
       { kind: 'bar', x0: 0.24, y0: 1, x1: 0.24, y1: 0.44, w: 8 },
@@ -70,9 +70,9 @@ export const LEVELS: readonly LevelConfig[] = [
       { count: 10, hp: 1.2, interval: 26, arms: [0, 2] },
       { count: 12, hp: 1.4, interval: 22, arms: [0, 1, 2], types: ['standard', 'swimmer'] },
       { count: 16, hp: 2.2, interval: 18, arms: [1], surge: true },
-      { count: 18, hp: 2.4, interval: 16, arms: [0, 1, 2], types: ['standard', 'swimmer'] },
-      { count: 20, hp: 3, interval: 14, arms: [0, 2], types: ['swimmer'], surge: true },
-      { count: 26, hp: 3.4, interval: 12, arms: [0, 1, 2], types: ['standard', 'swimmer'], surge: true },
+      { count: 16, hp: 2.2, interval: 17, arms: [0, 1, 2], types: ['standard', 'swimmer'] },
+      { count: 16, hp: 2.6, interval: 15, arms: [0, 2], types: ['swimmer'], surge: true },
+      { count: 22, hp: 3, interval: 13, arms: [0, 1, 2], types: ['standard', 'swimmer'], surge: true },
     ],
   },
   {
