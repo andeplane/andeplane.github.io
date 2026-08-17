@@ -1,0 +1,33 @@
+name: CI
+
+on:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      # Same entry point the Pages deploy uses: builds every demo under
+      # demos/ (each demo's own build script, including its test suite)
+      # and then typechecks and builds the site itself.
+      - name: Build site and all demos
+        run: npm run build
