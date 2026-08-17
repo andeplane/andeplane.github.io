@@ -22,13 +22,24 @@ of a millisecond.
 Hit the closed left end and watch a compact overpressure pulse travel down the tube at
 the actual speed of sound, meet a side hole, and visibly split: part continues past it
 toward the open end, part radiates outward through the hole as a clean expanding
-half-ring, part reflects back toward the strike point. Slow the playback down to
-0.01× and the whole event — a few milliseconds in reality — stretches into several
-seconds you can actually watch. Drag a hole's edges to resize it, or its middle to
-reposition it, live, and repeat the strike: a small hole barely dents the wave passing
-by; a large one diverts most of it. Add a second hole, change the tube's length or
-diameter, drop probes to read pressure vs. time at specific points, or just step
-through frame by frame.
+half-ring, part reflects back toward the strike point. A pulse crosses a metre of tube
+in three milliseconds, so slow motion isn't a garnish — at 0.001× that trip takes three
+seconds, and you can watch the split happen. Drag a hole's edges to resize it, or its
+middle to reposition it, live, and repeat the strike: a small hole barely dents the wave
+passing by; a large one diverts most of it. Add a second hole, change the tube's length
+or diameter, turn on the drifting air-motion particles to see *where* the air is
+actually moving, or just step through frame by frame.
+
+## Measuring it, not just watching it
+
+Click anywhere in the air to drop a pressure meter — up to three, each with its own
+color. Every meter shows its live reading right on the field and draws p(t) into one
+shared plot along the bottom, so a point before the hole, a point after it, and a point
+outside in the atmosphere can be compared on the same time base: the incoming pulse, the
+reflection coming back, and how much of it ever made it downstream, as numbers rather
+than an impression. Hover the plot to read every trace at that instant. Meters sample on
+the simulation clock rather than once per rendered frame, so the waveform is the same
+whether you watch it at 1× or at 0.001×.
 
 ## Why it isn't a leak coefficient
 
@@ -50,11 +61,14 @@ opening — it falls out of the same update rule everywhere. The one exception i
 domain's outer edge, which needs to *not* exist as far as the physics can tell: a
 Cerjan-style exponential damping sponge in the outer ~18 cells kills a wave's amplitude
 before it reaches the boundary, so the canvas edge doesn't lie by reflecting energy
-that should have left the scene. A self-test suite (\`npm run selftest\`, no browser
-required) checks the measured wave speed against c, confirms the sponge leaves under
-1% residual reflection, and confirms — the one property that actually mattered for
-this to be worth building — that a bigger hole quantifiably lets less through and
-radiates more.
+that should have left the scene. The field itself is drawn additively — silence is transparent, so a wave glows over
+the geometry instead of painting an opaque sheet across it, and the auto-gain has a
+floor so it can't chase a decaying field down until round-off noise fills the screen.
+A self-test suite (\`npm run selftest\`, no browser required) checks the measured wave
+speed against c, confirms the sponge leaves under 1% residual reflection, checks that
+a pressure meter records the pulse arriving when the speed of sound says it should,
+and confirms — the one property that actually mattered for this to be worth building —
+that a bigger hole quantifiably lets less through and radiates more.
   `.trim(),
 }
 

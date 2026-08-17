@@ -22,7 +22,10 @@
       </p>
     </header>
 
-    <button id="strike" type="button">Hit / Strike</button>
+    <button id="strike" type="button">
+      <span class="strike-label">Hit / Strike</span>
+      <span class="strike-key">space</span>
+    </button>
 
     <aside id="controls">
       <button id="controls-close" type="button" aria-label="Close controls">×</button>
@@ -30,11 +33,11 @@
       <section>
         <h2>Excitation</h2>
         <label
-          >Impulse strength
-          <input id="ctl-strength" type="range" min="0" max="1" step="0.01" value="0.6" />
+          ><span class="lbl">Impulse strength<em id="val-strength"></em></span>
+          <input id="ctl-strength" type="range" min="0.05" max="1" step="0.01" value="0.6" />
         </label>
         <label
-          >Pulse width
+          ><span class="lbl">Pulse width<em id="val-pulsewidth"></em></span>
           <input id="ctl-pulsewidth" type="range" min="0" max="1" step="0.01" value="0.3" />
         </label>
       </section>
@@ -42,11 +45,11 @@
       <section>
         <h2>Tube</h2>
         <label
-          >Length
+          ><span class="lbl">Length<em id="val-length"></em></span>
           <input id="ctl-length" type="range" min="0.4" max="2" step="0.02" value="1" />
         </label>
         <label
-          >Diameter
+          ><span class="lbl">Diameter<em id="val-diameter"></em></span>
           <input id="ctl-diameter" type="range" min="0.04" max="0.3" step="0.005" value="0.12" />
         </label>
       </section>
@@ -57,6 +60,7 @@
         <button id="add-hole" type="button">+ Add hole</button>
         <p class="hint">
           Drag the middle of a hole on the tube to move it, or drag its edge to resize it.
+          A hole is a real gap in the wall — its size changes the physics, not the drawing.
         </p>
       </section>
 
@@ -68,25 +72,42 @@
           <button id="step" type="button">Step</button>
           <button id="reset" type="button">Reset</button>
         </div>
+        <label class="switch">
+          <input id="ctl-particles" type="checkbox" checked />
+          <span>Show air motion</span>
+        </label>
+        <p class="hint">Space strikes, P pauses, R resets.</p>
       </section>
 
       <section>
-        <h2>Probes</h2>
-        <p class="hint">Click anywhere in the air to drop a probe. Click a probe to remove it.</p>
-        <canvas id="probe-plot" width="320" height="120"></canvas>
-        <div id="probe-legend"></div>
+        <h2>Pressure meters</h2>
+        <p class="hint">
+          Click anywhere in the air to drop a meter (up to 3), and read p(t) in the plot
+          along the bottom. Click a meter again to remove it.
+        </p>
+        <button id="clear-probes" type="button">Clear meters</button>
       </section>
     </aside>
 
+    <section id="probe-dock">
+      <header>
+        <h2>Pressure p(t)</h2>
+        <div id="probe-legend"></div>
+      </header>
+      <canvas id="probe-plot"></canvas>
+    </section>
+
     <div id="legend">
-      <span class="lo">rarefaction</span>
+      <span class="cap hi">compression</span>
       <span id="legend-bar"></span>
-      <span class="hi">compression</span>
+      <span class="cap lo">rarefaction</span>
+      <span id="legend-scale" class="scale"></span>
     </div>
 
     <div id="hud">
-      <span id="hud-time">t = 0.0 ms</span>
+      <span id="hud-time">t = 0.00 ms</span>
       <span id="hud-speed"></span>
+      <span id="hud-energy"></span>
     </div>
 
     <button id="controls-open" type="button" aria-label="Open controls">⚙ Controls</button>

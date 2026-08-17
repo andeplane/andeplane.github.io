@@ -3,6 +3,7 @@
  * DOM/canvas code. Run with `npm run selftest`.
  */
 import { C_SOUND } from '../src/physics/constants';
+import { createProbe, PROBE_SAMPLE_INTERVAL, sampleProbe } from '../src/sim/probes';
 import { Solver } from '../src/sim/solver';
 import type { TubeParams } from '../src/sim/types';
 
@@ -181,6 +182,64 @@ console.log('\n4) hole diameter actually changes the physics (not just the drawi
     `large hole radiates more outside it (${largeRes.atHole.toFixed(2)} > ${smallRes.atHole.toFixed(2)} Pa)`,
     largeRes.atHole > smallRes.atHole,
     'expected the larger hole to radiate a stronger pulse into the atmosphere',
+  );
+}
+
+console.log('\n5) a new strike starts from silence');
+{
+  const tube: TubeParams = { length: 1.0, diameter: 0.12, holes: [{ position: 0.5, diameter: 0.03 }] };
+  const solver = makeSolver(tube);
+  solver.strike({ strength: 1, pulseWidth: 0.3 });
+  for (let step = 0; step < 3000; step++) solver.step();
+  const beforeRestrike = solver.p.reduce((m, v) => Math.max(m, Math.abs(v)), 0);
+
+  solver.strike({ strength: 1, pulseWidth: 0.3 });
+  const afterRestrike = solver.p.reduce((m, v) => Math.max(m, Math.abs(v)), 0);
+  check(
+    'the tube was still ringing before the second strike',
+    beforeRestrike > 1,
+    `max |p| was only ${beforeRestrike.toFixed(2)} Pa — the first strike left nothing to clear`,
+  );
+  check(
+    'striking again clears the field and the clock',
+    afterRestrike === 0 && solver.simTime === 0,
+    `max |p| = ${afterRestrike} Pa, t = ${solver.simTime}`,
+  );
+}
+
+console.log('\n6) a pressure meter records the pulse arriving when it should');
+{
+  const tube: TubeParams = { length: 1.4, diameter: 0.12, holes: [] };
+  const solver = makeSolver(tube);
+  const { tubeX0, tubeX1, nx, ny } = solver.layout;
+  const x = tubeX1 - 12;
+  const y = midY(solver);
+  const probe = createProbe(1, x / nx, y / ny);
+  solver.strike({ strength: 0.8, pulseWidth: 0.2 });
+
+  const travelM = (x - solver.layout.sourceX) * solver.layout.h;
+  const steps = Math.ceil(((travelM / C_SOUND) * 1.5) / solver.layout.dt);
+  for (let step = 0; step < steps; step++) {
+    solver.step();
+    sampleProbe(probe, solver);
+  }
+
+  let peakIndex = 0;
+  for (let i = 1; i < probe.p.length; i++) {
+    if (Math.abs(probe.p[i]) > Math.abs(probe.p[peakIndex])) peakIndex = i;
+  }
+  const arrival = probe.t[peakIndex];
+  const expected = travelM / C_SOUND;
+  const relError = Math.abs(arrival - expected) / expected;
+  check(
+    'the meter recorded samples on the simulation clock',
+    probe.t.length > 10 && probe.t[1] - probe.t[0] >= PROBE_SAMPLE_INTERVAL,
+    `${probe.t.length} samples, first gap ${(probe.t[1] - probe.t[0]).toExponential(2)} s`,
+  );
+  check(
+    `peak arrives at ${(arrival * 1000).toFixed(2)} ms, expected ${(expected * 1000).toFixed(2)} ms`,
+    relError < 0.1 && probe.peak > 1,
+    `relative error ${(relError * 100).toFixed(1)}%, peak ${probe.peak.toFixed(2)} Pa (tube ${tubeX0}..${tubeX1})`,
   );
 }
 

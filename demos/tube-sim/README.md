@@ -10,6 +10,10 @@ the drawing.
 
 Standalone Vite app; built into the site by `scripts/build-demos.mjs`.
 
+Click the air to drop pressure meters and read p(t) where you want it; slow the
+playback to 0.001× and the few milliseconds the whole event takes stretch into
+something you can actually watch.
+
 - `npm run dev` — local dev server
 - `npm run build` — typecheck + bundle
 - `npm run selftest` — solver correctness checks (wave speed, CFL stability, sponge
@@ -41,6 +45,42 @@ Standalone Vite app; built into the site by `scripts/build-demos.mjs`.
   open end, capped at 480×260 cells so extreme tube params can't blow up the compute
   budget — see `buildGridLayout`.
 - **Solver runs independently of display**: a fixed physics `dt` accumulates against
-  wall-clock time scaled by the playback-speed knob (0.01×–1×), with a per-frame
-  compute-time ceiling so the UI never locks up; under heavy load playback just falls
-  behind the requested speed rather than freezing.
+  wall-clock time scaled by the playback-speed knob, with a per-frame compute-time
+  ceiling so the UI never locks up; under heavy load playback just falls behind the
+  requested speed rather than freezing. The accumulator keeps the fractional
+  remainder between frames, so 0.001× is really 0.001× rather than a rounding error.
+- **Slow motion is the point**: a pulse crosses a 1 m tube in ~3 ms, so the whole
+  event is over in ~10 ms. The speed ladder runs down to 0.001× (≈3 s per length of
+  tube) and defaults to 0.003×; anything faster and the wave is a flicker.
+- **Every strike starts from silence**: `strike()` clears the field and resets the
+  clock, so what you watch is one clean pulse rather than a hit landing on the
+  reverberant tail of the last one.
+
+## Pressure meters
+
+Click anywhere in the air to drop a meter (up to 3); each shows its live reading on
+the field and a colored trace in the shared p(t) plot along the bottom, so traces from
+different points can be compared on one time base. Hovering the plot reads every trace
+at that instant.
+
+Meters sample on the *simulation* clock (`PROBE_SAMPLE_INTERVAL`, 5 µs), inside the
+stepping loop rather than once per rendered frame — at 1× a single frame covers
+thousands of steps, and a per-frame sample would alias the waveform into nonsense.
+Traces draw as a per-pixel min/max envelope once there are more samples than pixels,
+so a fast oscillation reads as a band instead of a misleading smooth line.
+
+## Rendering notes
+
+- The pressure field is drawn **additively** (silence is transparent) with a blurred
+  bloom pass under a sharp one, so a wave glows over the geometry instead of painting
+  an opaque sheet over it — that's what keeps a weak, spread-out disturbance visible
+  without flattening the tube underneath.
+- Auto-gain has a fast attack and a slow release with a floor at a fraction of the
+  remembered peak: the gain can't chase a decaying field down to where round-off
+  noise fills the screen, and the exterior stays honestly fainter than the bore.
+- The field fades to nothing across the sponge (`buildEdgeMask`), so the domain's
+  rectangular edge never draws itself — waves die away into "somewhere else" rather
+  than stopping at a visible line.
+- "Show air motion" advects a cloud of dust motes with the local velocity. The
+  displacement is amplified (real acoustic displacements here are microns); direction
+  and relative magnitude are honest, absolute size is not.
