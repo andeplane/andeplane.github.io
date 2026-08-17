@@ -31,7 +31,9 @@ passing by; a large one diverts most of it. Cap the far end and the reflection c
 character completely — an open mouth sends a compression back as suction, a rigid cap
 sends it back as it left, and the meters show the sign flip as a number. Add a second
 hole, change the tube's length or diameter, turn on the drifting air-motion particles to
-see *where* the air is actually moving, or just step through frame by frame.
+see *where* the air is actually moving, or just step through frame by frame. Scroll or
+pinch to zoom right in on the hole and drag to pan, so you can watch the wavefront cross
+the gap cell by cell instead of squinting at a metre of tube.
 
 ## Measuring it, not just watching it
 

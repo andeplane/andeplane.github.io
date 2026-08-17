@@ -38,6 +38,7 @@ const hudEnergy = document.getElementById('hud-energy')!;
 const legendScale = document.getElementById('legend-scale')!;
 const probePlot = new ProbePlot(document.getElementById('probe-plot') as HTMLCanvasElement);
 const probeLegend = document.getElementById('probe-legend')!;
+const resetViewButton = document.getElementById('reset-view') as HTMLButtonElement;
 
 function rebuildSolver(nextTube: TubeParams): void {
   tube = nextTube;
@@ -119,6 +120,26 @@ new CanvasInteractions(canvas, {
   onProbeHover(id) {
     hoveredProbeId = id;
   },
+  onZoom(x, y, factor) {
+    renderer.zoomAt(x, y, factor, solver.layout.nx, solver.layout.ny);
+    syncZoomButton();
+  },
+  onPan(dx, dy) {
+    renderer.panBy(dx, dy, solver.layout.nx, solver.layout.ny);
+    syncZoomButton();
+  },
+});
+
+/** The reset only appears once there is something to reset. */
+function syncZoomButton(): void {
+  const zoomed = renderer.zoom > 1.001;
+  resetViewButton.classList.toggle('visible', zoomed);
+  resetViewButton.textContent = zoomed ? `${renderer.zoom.toFixed(1)}× — reset view` : 'reset view';
+}
+
+resetViewButton.addEventListener('click', () => {
+  renderer.resetView();
+  syncZoomButton();
 });
 
 function removeProbe(id: number): void {
@@ -161,6 +182,9 @@ window.addEventListener('keydown', (e) => {
     solver.reset();
     running = false;
     peakEnergy = 0;
+  } else if (e.key === '0') {
+    renderer.resetView();
+    syncZoomButton();
   }
 });
 
@@ -224,5 +248,6 @@ function formatPa(v: number): string {
 
 // Render one frame synchronously so the full labeled geometry is visible
 // immediately, even before the animation loop's first callback fires.
+syncZoomButton();
 renderer.render(solver, { probes, showParticles, labels: true, simDt: 0 });
 requestAnimationFrame((t) => frame(t, t));

@@ -24,6 +24,13 @@ const PEAK_FLOOR_FRACTION = 0.12; // gain never rises past ~8× below the recent
 const HOT: readonly [number, number, number] = [255, 104, 52]; // compression
 const COLD: readonly [number, number, number] = [70, 156, 255]; // rarefaction
 
+export const MIN_ZOOM = 1;
+/** Past ~16× a cell is a fat block; there is nothing finer to look at. */
+export const MAX_ZOOM = 16;
+/** Scene labels fade out across this zoom range, once you're inspecting a detail. */
+const LABEL_FADE_START = 1.6;
+const LABEL_FADE_END = 2.6;
+
 const BRASS_OUTER = '#4c4230';
 const BRASS_MID = '#c9ae77';
 const BRASS_LIGHT = '#f2e5c0';
@@ -64,6 +71,12 @@ export class Renderer {
   private dpr = 1;
   private padding: Padding = { left: 0, right: 0, top: 0, bottom: 0 };
   private readonly blurSupported: boolean;
+  /**
+   * Zoom, plus the grid point held at the centre of the visible area, stored as
+   * a fraction of the grid rather than in cells or pixels — the grid is rebuilt
+   * whenever the tube changes, and the view should survive that unchanged.
+   */
+  private view = { zoom: 1, cx: 0.5, cy: 0.5 };
 
   constructor(private readonly canvas: HTMLCanvasElement) {
     const ctx = canvas.getContext('2d');
@@ -93,19 +106,74 @@ export class Renderer {
     this.padding = padding;
   }
 
-  /** Fits the domain into the canvas area left free by the floating panels. */
-  computeTransform(nx: number, ny: number): Transform {
+  /** The canvas area left free by the floating panels, in device pixels. */
+  private viewport(): { left: number; top: number; width: number; height: number } {
     const d = this.dpr;
-    const left = this.padding.left * d;
-    const top = this.padding.top * d;
-    const availW = Math.max(80, this.canvas.width - (this.padding.left + this.padding.right) * d);
-    const availH = Math.max(80, this.canvas.height - (this.padding.top + this.padding.bottom) * d);
-    const scale = Math.min(availW / nx, availH / ny);
+    return {
+      left: this.padding.left * d,
+      top: this.padding.top * d,
+      width: Math.max(80, this.canvas.width - (this.padding.left + this.padding.right) * d),
+      height: Math.max(80, this.canvas.height - (this.padding.top + this.padding.bottom) * d),
+    };
+  }
+
+  /**
+   * Fits the domain into that area, then applies the zoom/pan view on top.
+   * At zoom 1 with the view centred this is exactly the plain fit.
+   */
+  computeTransform(nx: number, ny: number): Transform {
+    const v = this.viewport();
+    const scale = Math.min(v.width / nx, v.height / ny) * this.view.zoom;
+    this.clampView(nx, ny, scale, v);
     return {
       scale,
-      offsetX: left + (availW - nx * scale) / 2,
-      offsetY: top + (availH - ny * scale) / 2,
+      offsetX: v.left + v.width / 2 - this.view.cx * nx * scale,
+      offsetY: v.top + v.height / 2 - this.view.cy * ny * scale,
     };
+  }
+
+  /** Keeps the visible window inside the grid, so it can't be panned into the void. */
+  private clampView(
+    nx: number,
+    ny: number,
+    scale: number,
+    v: { width: number; height: number },
+  ): void {
+    const halfX = v.width / (2 * scale * nx);
+    const halfY = v.height / (2 * scale * ny);
+    this.view.cx = halfX >= 0.5 ? 0.5 : clamp(this.view.cx, halfX, 1 - halfX);
+    this.view.cy = halfY >= 0.5 ? 0.5 : clamp(this.view.cy, halfY, 1 - halfY);
+  }
+
+  get zoom(): number {
+    return this.view.zoom;
+  }
+
+  /** Zooms by `factor`, holding the grid point under (x, y) — device px — still. */
+  zoomAt(x: number, y: number, factor: number, nx: number, ny: number): void {
+    const before = this.computeTransform(nx, ny);
+    const gx = (x - before.offsetX) / before.scale;
+    const gy = (y - before.offsetY) / before.scale;
+    this.view.zoom = clamp(this.view.zoom * factor, MIN_ZOOM, MAX_ZOOM);
+
+    const v = this.viewport();
+    const scale = Math.min(v.width / nx, v.height / ny) * this.view.zoom;
+    this.view.cx = (gx * scale + v.left + v.width / 2 - x) / (nx * scale);
+    this.view.cy = (gy * scale + v.top + v.height / 2 - y) / (ny * scale);
+    this.clampView(nx, ny, scale, v);
+  }
+
+  /** Drags the view by a device-pixel delta. */
+  panBy(dx: number, dy: number, nx: number, ny: number): void {
+    const v = this.viewport();
+    const scale = Math.min(v.width / nx, v.height / ny) * this.view.zoom;
+    this.view.cx -= dx / (nx * scale);
+    this.view.cy -= dy / (ny * scale);
+    this.clampView(nx, ny, scale, v);
+  }
+
+  resetView(): void {
+    this.view = { zoom: 1, cx: 0.5, cy: 0.5 };
   }
 
   render(solver: Solver, opts: RenderOptions): Transform {
@@ -340,6 +408,13 @@ export class Renderer {
 
   private drawLabels(layout: Solver['layout'], t: Transform): void {
     const ctx = this.ctx;
+    // These name the scene as a whole; zoom in on a detail and most of what
+    // they point at is off screen, so they fade out rather than leaving stray
+    // leader lines running off the canvas.
+    const alpha = clamp((LABEL_FADE_END - this.view.zoom) / (LABEL_FADE_END - LABEL_FADE_START), 0, 1);
+    if (alpha <= 0.02) return;
+    ctx.save();
+    ctx.globalAlpha = alpha;
     const fontSize = Math.max(11, Math.min(14, t.scale * 3.2)) * this.dpr;
     ctx.font = `500 ${fontSize}px ${SANS}`;
     ctx.textBaseline = 'middle';
@@ -366,6 +441,7 @@ export class Renderer {
       const labelY = top ? anchorY - 8 : anchorY + 8;
       this.pill('hole', cx, labelY, t, 'center', [{ x: cx, y: anchorY }]);
     }
+    ctx.restore();
   }
 
   /** A label chip with an optional leader line to the thing it names. */
@@ -427,6 +503,10 @@ function buildEdgeMask(nx: number, ny: number, spongeWidth: number): Float32Arra
     }
   }
   return mask;
+}
+
+function clamp(v: number, lo: number, hi: number): number {
+  return Math.max(lo, Math.min(hi, v));
 }
 
 const SANS = "ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif";

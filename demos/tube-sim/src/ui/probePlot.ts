@@ -1,7 +1,7 @@
 import { PROBE_COLORS } from '../render/palette';
 import type { Probe } from '../sim/types';
 
-const PAD_LEFT = 46;
+const PAD_LEFT = 58; // room for the widest guide label, e.g. "−30.6 Pa"
 const PAD_RIGHT = 12;
 const PAD_TOP = 10;
 const PAD_BOTTOM = 20;

@@ -89,6 +89,22 @@ thousands of steps, and a per-frame sample would alias the waveform into nonsens
 Traces draw as a per-pixel min/max envelope once there are more samples than pixels,
 so a fast oscillation reads as a band instead of a misleading smooth line.
 
+## Zoom and pan
+
+Scroll (or trackpad-pinch, which browsers report as ctrl+wheel) zooms about the
+pointer; two-finger pinch does the same on touch; dragging empty air pans, and `0`
+or the "reset view" chip returns to the fit. The view is stored as a zoom factor
+plus the *grid fraction* held at the centre of the visible area, not as pixels or
+cells — the grid is rebuilt whenever the tube changes, and the view has to survive
+that untouched. It is clamped so the domain can never be panned into the void, and
+zooming out lands back on exactly the fit rather than near it.
+
+One-finger gestures address the simulation, two-finger gestures address the view.
+A press doesn't decide what it is until it moves past the slop or is released, so a
+pan never places a meter and a tap never nudges a hole. Scene labels fade out
+between 1.6× and 2.6×: they name the whole instrument, and once you're inspecting a
+detail most of what they point at is off screen.
+
 ## Rendering notes
 
 - The pressure field is drawn **additively** (silence is transparent) with a blurred

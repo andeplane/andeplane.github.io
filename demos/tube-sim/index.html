@@ -85,7 +85,10 @@
           <input id="ctl-particles" type="checkbox" checked />
           <span>Show air motion</span>
         </label>
-        <p class="hint">Space strikes, P pauses, R resets.</p>
+        <p class="hint">
+          Scroll or pinch to zoom in on the hole; drag the air to pan. Space strikes,
+          P pauses, R resets, 0 resets the view.
+        </p>
       </section>
 
       <section>
@@ -106,6 +109,8 @@
       </header>
       <canvas id="probe-plot"></canvas>
     </section>
+
+    <button id="reset-view" type="button">reset view</button>
 
     <div id="legend">
       <span class="cap hi">compression</span>

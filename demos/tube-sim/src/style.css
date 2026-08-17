@@ -529,6 +529,38 @@ body {
   box-shadow: var(--panel-shadow);
 }
 
+/* Only present while the view is zoomed — an escape hatch, not a permanent knob. */
+#reset-view {
+  position: fixed;
+  top: 3.6rem;
+  right: 22rem;
+  z-index: 20;
+  font-family: var(--mono);
+  font-size: 0.68rem;
+  color: var(--ink-dim);
+  background: var(--surface);
+  backdrop-filter: blur(10px);
+  border: 1px solid var(--edge);
+  border-radius: 0.6rem;
+  padding: 0.35rem 0.7rem;
+  cursor: pointer;
+  opacity: 0;
+  pointer-events: none;
+  transform: translateY(-0.3rem);
+  transition: opacity 0.18s ease, transform 0.18s ease, border-color 0.15s ease;
+}
+
+#reset-view.visible {
+  opacity: 1;
+  pointer-events: auto;
+  transform: none;
+}
+
+#reset-view:hover {
+  border-color: var(--edge-bright);
+  color: var(--ink);
+}
+
 #hud-time {
   color: var(--ink);
 }
@@ -551,6 +583,11 @@ body {
     top: auto;
     bottom: 1rem;
     left: auto;
+  }
+
+  #reset-view {
+    top: 1rem;
+    right: 1rem;
   }
 }
 
@@ -624,6 +661,13 @@ body {
     right: auto;
     flex-direction: column;
     gap: 0.15rem;
+  }
+
+  #reset-view {
+    top: 4rem;
+    right: 0.8rem;
+    font-size: 0.62rem;
+    padding: 0.3rem 0.55rem;
   }
 
   #strike {
