@@ -10,6 +10,13 @@ export interface TubeParams {
   length: number;
   /** Interior diameter (the 2D cross-section's height) in meters. */
   diameter: number;
+  /**
+   * Caps the far (right) end with rigid wall instead of leaving it open to the
+   * atmosphere. Defaults to open. Like a hole, this is real geometry — the cap
+   * is wall in the mask — so the sign of the reflection comes out of the solver
+   * rather than being asserted.
+   */
+  endClosed?: boolean;
   holes: HoleParams[];
 }
 
@@ -34,6 +41,8 @@ export interface GridLayout {
   tubeY0: number;
   tubeY1: number;
   wallThicknessCells: number;
+  /** Whether the far end is capped; drives both the wall mask and the label. */
+  endClosed: boolean;
 
   // Source location (cell indices), just inside the closed left cap.
   sourceX: number;
@@ -43,11 +52,16 @@ export interface GridLayout {
   holeGaps: { x0: number; x1: number; wall: 'top' | 'bottom'; holeIndex: number }[];
 }
 
+/** A pressure meter: a fixed point in the air, recording p(t) as the sim runs. */
 export interface Probe {
   id: number;
   /** Position as a fraction (0..1) of the current grid, so it survives grid rebuilds. */
   fx: number;
   fy: number;
-  /** Most recent pressure samples, in Pa, oldest first. */
-  history: number[];
+  /** Sample times in seconds, oldest first. Same length as `p`. */
+  t: number[];
+  /** Pressure samples in Pa, oldest first. */
+  p: number[];
+  /** Largest |p| seen since the last strike, in Pa. */
+  peak: number;
 }

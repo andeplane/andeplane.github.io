@@ -1,6 +1,25 @@
+import {
+  PISTON_MAX_VELOCITY,
+  PULSE_MAX_DURATION,
+  PULSE_MIN_DURATION,
+} from '../sim/solver';
 import type { ExcitationParams, HoleParams, TubeParams } from '../sim/types';
 
-export const SPEED_OPTIONS = [0.01, 0.03, 0.1, 0.3, 1];
+/**
+ * A pulse crosses a 1 m tube in ~3 ms, so the interesting part of the event is
+ * over in about 10 ms. Even 0.01× flashes past; the slowest settings are what
+ * make the wave watchable, and 0.003× (≈1 s per length of tube) is the default.
+ * The bottom of the ladder, 0.0001×, stretches that same trip to ~30 s — slow
+ * enough to watch the wavefront cross the hole edge cell by cell.
+ */
+export const SPEED_OPTIONS = [0.0001, 0.0003, 0.001, 0.003, 0.01, 0.03, 0.1, 0.3, 1];
+export const DEFAULT_SPEED = 0.003;
+
+/** Shared by the speed buttons and the HUD so they never disagree. */
+export function formatSpeed(v: number): string {
+  if (v >= 0.1) return String(v);
+  return v.toFixed(4).replace(/0+$/, '');
+}
 
 export interface ControlsHandlers {
   onExcitationChange(excitation: ExcitationParams): void;
@@ -10,6 +29,8 @@ export interface ControlsHandlers {
   onStep(): void;
   onReset(): void;
   onSpeedChange(speed: number): void;
+  onParticlesToggle(show: boolean): void;
+  onClearProbes(): void;
   onControlsToggle(open: boolean): void;
 }
 
@@ -18,6 +39,16 @@ const $ = <T extends HTMLElement>(id: string): T => {
   if (!el) throw new Error(`missing #${id}`);
   return el as T;
 };
+
+/** `<label><span class="lbl">Name<em>value</em></span> …` — matches the static markup. */
+function labelWithValue(name: string, value: HTMLElement): HTMLLabelElement {
+  const label = document.createElement('label');
+  const head = document.createElement('span');
+  head.className = 'lbl';
+  head.append(name, value);
+  label.appendChild(head);
+  return label;
+}
 
 export class Controls {
   private readonly holeList = $<HTMLDivElement>('hole-list');
@@ -32,6 +63,20 @@ export class Controls {
     this.wireStatic();
     this.buildSpeedButtons();
     this.renderHoles();
+    this.syncReadouts();
+  }
+
+  /** Mirrors every slider into a physical number, so the knobs aren't opaque. */
+  private syncReadouts(): void {
+    const pulseMs =
+      (PULSE_MIN_DURATION +
+        this.excitation.pulseWidth * (PULSE_MAX_DURATION - PULSE_MIN_DURATION)) *
+      1000;
+    $('val-strength').textContent = `${(this.excitation.strength * PISTON_MAX_VELOCITY).toFixed(1)} m/s`;
+    $('val-pulsewidth').textContent = `${pulseMs.toFixed(2)} ms`;
+    $('val-length').textContent = `${Math.round(this.tube.length * 100)} cm`;
+    $('val-diameter').textContent = `${Math.round(this.tube.diameter * 1000)} mm`;
+    $<HTMLInputElement>('ctl-endclosed').checked = this.tube.endClosed === true;
   }
 
   setSpeed(speed: number): void {
@@ -44,9 +89,14 @@ export class Controls {
     this.pauseButton.textContent = paused ? 'Resume' : 'Pause';
   }
 
+  setParticles(show: boolean): void {
+    $<HTMLInputElement>('ctl-particles').checked = show;
+  }
+
   private wireStatic(): void {
     $<HTMLInputElement>('ctl-strength').addEventListener('input', (e) => {
       this.excitation = { ...this.excitation, strength: Number((e.target as HTMLInputElement).value) };
+      this.syncReadouts();
       this.handlers.onExcitationChange(this.excitation);
     });
     $<HTMLInputElement>('ctl-pulsewidth').addEventListener('input', (e) => {
@@ -54,14 +104,18 @@ export class Controls {
         ...this.excitation,
         pulseWidth: Number((e.target as HTMLInputElement).value),
       };
+      this.syncReadouts();
       this.handlers.onExcitationChange(this.excitation);
     });
     $<HTMLInputElement>('ctl-length').addEventListener('input', (e) => {
       this.tube = { ...this.tube, length: Number((e.target as HTMLInputElement).value) };
+      this.syncReadouts();
       this.handlers.onTubeChange(this.tube);
     });
     $<HTMLInputElement>('ctl-diameter').addEventListener('input', (e) => {
       this.tube = { ...this.tube, diameter: Number((e.target as HTMLInputElement).value) };
+      this.syncReadouts();
+      this.renderHoles(); // the hole-diameter range depends on the bore
       this.handlers.onTubeChange(this.tube);
     });
     $<HTMLButtonElement>('add-hole').addEventListener('click', () => {
@@ -70,10 +124,18 @@ export class Controls {
       this.renderHoles();
       this.handlers.onTubeChange(this.tube);
     });
+    $<HTMLInputElement>('ctl-endclosed').addEventListener('change', (e) => {
+      this.tube = { ...this.tube, endClosed: (e.target as HTMLInputElement).checked };
+      this.handlers.onTubeChange(this.tube);
+    });
+    $<HTMLInputElement>('ctl-particles').addEventListener('change', (e) => {
+      this.handlers.onParticlesToggle((e.target as HTMLInputElement).checked);
+    });
     $<HTMLButtonElement>('strike').addEventListener('click', () => this.handlers.onStrike());
     $<HTMLButtonElement>('pause').addEventListener('click', () => this.handlers.onPauseToggle());
     $<HTMLButtonElement>('step').addEventListener('click', () => this.handlers.onStep());
     $<HTMLButtonElement>('reset').addEventListener('click', () => this.handlers.onReset());
+    $<HTMLButtonElement>('clear-probes').addEventListener('click', () => this.handlers.onClearProbes());
     $<HTMLButtonElement>('controls-open').addEventListener('click', () => this.handlers.onControlsToggle(true));
     $<HTMLButtonElement>('controls-close').addEventListener('click', () =>
       this.handlers.onControlsToggle(false),
@@ -85,7 +147,7 @@ export class Controls {
     for (const speed of SPEED_OPTIONS) {
       const btn = document.createElement('button');
       btn.type = 'button';
-      btn.textContent = `${speed}×`;
+      btn.textContent = `${formatSpeed(speed)}×`;
       btn.dataset.speed = String(speed);
       btn.addEventListener('click', () => this.handlers.onSpeedChange(speed));
       this.speedButtons.appendChild(btn);
@@ -96,6 +158,7 @@ export class Controls {
   syncTube(tube: TubeParams): void {
     this.tube = tube;
     this.renderHoles();
+    this.syncReadouts();
   }
 
   private renderHoles(): void {
@@ -123,30 +186,40 @@ export class Controls {
     });
     head.append(title, removeBtn);
 
-    const posLabel = document.createElement('label');
-    posLabel.textContent = 'Position along tube';
+    const posValue = document.createElement('em');
+    const posLabel = labelWithValue('Position along tube', posValue);
     const posInput = document.createElement('input');
     posInput.type = 'range';
     posInput.min = '0.05';
     posInput.max = '0.95';
     posInput.step = '0.01';
     posInput.value = String(hole.position);
+    const showPos = () => {
+      posValue.textContent = `${Math.round(Number(posInput.value) * this.tube.length * 100)} cm`;
+    };
     posInput.addEventListener('input', () => {
+      showPos();
       this.updateHole(index, { position: Number(posInput.value) });
     });
+    showPos();
     posLabel.appendChild(posInput);
 
-    const diaLabel = document.createElement('label');
-    diaLabel.textContent = 'Diameter';
+    const diaValue = document.createElement('em');
+    const diaLabel = labelWithValue('Diameter', diaValue);
     const diaInput = document.createElement('input');
     diaInput.type = 'range';
     diaInput.min = '0.01';
-    diaInput.max = String(Math.max(0.01, this.tube.diameter * 0.9));
+    diaInput.max = String(Math.max(0.012, this.tube.diameter * 0.9));
     diaInput.step = '0.002';
-    diaInput.value = String(hole.diameter);
+    diaInput.value = String(Math.min(hole.diameter, Number(diaInput.max)));
+    const showDia = () => {
+      diaValue.textContent = `${Math.round(Number(diaInput.value) * 1000)} mm`;
+    };
     diaInput.addEventListener('input', () => {
+      showDia();
       this.updateHole(index, { diameter: Number(diaInput.value) });
     });
+    showDia();
     diaLabel.appendChild(diaInput);
 
     row.append(head, posLabel, diaLabel);

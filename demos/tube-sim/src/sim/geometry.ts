@@ -11,9 +11,9 @@ const MAX_NY = 260;
  * extent, and where the walls/holes/source sit in cell-index space.
  *
  * The domain always contains: a rigid closed cap + wall on the left/top/bottom
- * of the tube, the tube's interior air, the open right end, and enough
- * surrounding atmosphere (plus a damping sponge shell) to watch radiation
- * happen instead of hitting the canvas edge.
+ * of the tube, the tube's interior air, the far end (open, or capped when
+ * `endClosed`), and enough surrounding atmosphere (plus a damping sponge shell)
+ * to watch radiation happen instead of hitting the canvas edge.
  */
 export function buildGridLayout(tube: TubeParams): GridLayout {
   const diameterCells = 24; // resolution across the tube diameter, before any cap
@@ -83,6 +83,7 @@ export function buildGridLayout(tube: TubeParams): GridLayout {
     tubeY0,
     tubeY1,
     wallThicknessCells: WALL_THICKNESS_CELLS,
+    endClosed: tube.endClosed === true,
     sourceX,
     sourceY0: tubeY0,
     sourceY1: tubeY1,
@@ -98,16 +99,26 @@ export interface WallRect {
 }
 
 /**
- * Analytic list of solid wall rectangles: the closed left cap, the top/bottom
- * wall runs (split around hole gaps), and a short protruding "chimney" rim at
- * each hole so it reads as an actual neck rather than a bare gap. Shared by
- * the mask builder and the renderer so geometry can't drift between them.
+ * Analytic list of solid wall rectangles: the closed left cap, the far-end cap
+ * when the tube is closed at both ends, the top/bottom wall runs (split around
+ * hole gaps), and a short protruding "chimney" rim at each hole so it reads as
+ * an actual neck rather than a bare gap. Shared by the mask builder and the
+ * renderer so geometry can't drift between them.
  */
 export function wallRects(layout: GridLayout): WallRect[] {
-  const { tubeX0, tubeX1, tubeY0, tubeY1, wallThicknessCells, holeGaps } = layout;
+  const { tubeX0, tubeX1, tubeY0, tubeY1, wallThicknessCells, holeGaps, endClosed } = layout;
   const rects: WallRect[] = [
     { x0: 0, x1: tubeX0 - 1, y0: tubeY0 - wallThicknessCells, y1: tubeY1 + wallThicknessCells },
   ];
+
+  if (endClosed) {
+    rects.push({
+      x0: tubeX1 + 1,
+      x1: tubeX1 + wallThicknessCells,
+      y0: tubeY0 - wallThicknessCells,
+      y1: tubeY1 + wallThicknessCells,
+    });
+  }
 
   for (const wall of ['top', 'bottom'] as const) {
     const gaps = holeGaps.filter((g) => g.wall === wall);

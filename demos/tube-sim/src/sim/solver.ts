@@ -3,9 +3,9 @@ import { buildGridLayout, buildSolidMask } from './geometry';
 import type { ExcitationParams, GridLayout, TubeParams } from './types';
 
 const REFLECTION_TARGET = 1e-3;
-const PISTON_MAX_VELOCITY = 3; // m/s peak, at strength = 1
-const PULSE_MIN_DURATION = 0.05e-3; // s
-const PULSE_MAX_DURATION = 1.2e-3; // s
+export const PISTON_MAX_VELOCITY = 3; // m/s peak, at strength = 1
+export const PULSE_MIN_DURATION = 0.05e-3; // s
+export const PULSE_MAX_DURATION = 1.2e-3; // s
 
 /**
  * 2D acoustic FDTD solver on a MAC (staggered) grid — pressure at cell
@@ -47,7 +47,13 @@ export class Solver {
     this.dampUy = precomputeDamping(nx, ny + 1, spongeWidth, cellSize, dt);
   }
 
+  /**
+   * Starts a fresh strike. The field is cleared first: a second hit landing on
+   * top of the reverberant tail of the first one is a mess to look at, and the
+   * thing worth watching here is one clean pulse making one clean trip.
+   */
   strike(excitation: ExcitationParams): void {
+    this.reset();
     this.strikeStart = this.simTime;
     this.strikeDuration =
       PULSE_MIN_DURATION + excitation.pulseWidth * (PULSE_MAX_DURATION - PULSE_MIN_DURATION);
@@ -156,6 +162,22 @@ export class Solver {
     const { nx, ny } = this.layout;
     if (xCell < 0 || xCell >= nx || yCell < 0 || yCell >= ny) return 0;
     return this.p[yCell * nx + xCell];
+  }
+
+  /**
+   * Cell-centered air velocity (m/s), averaged from the two staggered faces on
+   * each axis. Used by the drifting-particle overlay; the solver itself always
+   * works on the faces directly.
+   */
+  velocityAt(xCell: number, yCell: number, out: { vx: number; vy: number }): void {
+    const { nx, ny } = this.layout;
+    out.vx = 0;
+    out.vy = 0;
+    if (xCell < 0 || xCell >= nx || yCell < 0 || yCell >= ny) return;
+    if (this.solid[yCell * nx + xCell]) return;
+    const rowUx = yCell * (nx + 1) + xCell;
+    out.vx = (this.ux[rowUx] + this.ux[rowUx + 1]) / 2;
+    out.vy = (this.uy[yCell * nx + xCell] + this.uy[(yCell + 1) * nx + xCell]) / 2;
   }
 }
 
