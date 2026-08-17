@@ -1,13 +1,40 @@
+import { C_SOUND, RHO_AIR } from '../physics/constants';
 import { wallRects } from '../sim/geometry';
 import type { Solver } from '../sim/solver';
 import type { Probe } from '../sim/types';
+import { PROBE_COLORS } from './palette';
+import { ParticleField } from './particles';
 
-const WALL_COLOR = '#8a8172';
-const WALL_STROKE = '#5b5548';
-const NEUTRAL = [22, 26, 36] as const;
-const RED = [235, 70, 55] as const;
-const BLUE = [60, 130, 235] as const;
-const MIN_SCALE_PA = 4;
+/**
+ * Everything on screen, drawn in layers so the geometry reads at a glance even
+ * with the field at rest:
+ *
+ *   background → tube interior → pressure field (additive, with bloom) →
+ *   air-motion particles → brass walls → probes → labels
+ *
+ * The field is drawn *additively* rather than as an opaque sheet: silence is
+ * transparent, so a wave glows over the scene instead of tinting every cell.
+ * That's what makes a weak, spread-out disturbance stay visible without
+ * flattening the geometry underneath it.
+ */
+
+const NEUTRAL_FLOOR_PA = 2.5; // color scale never collapses below this
+const PEAK_FORGET = 0.999; // per frame; the remembered peak fades over ~10 s
+const PEAK_FLOOR_FRACTION = 0.12; // gain never rises past ~8× below the recent peak
+const HOT: readonly [number, number, number] = [255, 104, 52]; // compression
+const COLD: readonly [number, number, number] = [70, 156, 255]; // rarefaction
+
+export const MIN_ZOOM = 1;
+/** Past ~16× a cell is a fat block; there is nothing finer to look at. */
+export const MAX_ZOOM = 16;
+/** Scene labels fade out across this zoom range, once you're inspecting a detail. */
+const LABEL_FADE_START = 1.6;
+const LABEL_FADE_END = 2.6;
+
+const BRASS_OUTER = '#4c4230';
+const BRASS_MID = '#c9ae77';
+const BRASS_LIGHT = '#f2e5c0';
+const BRASS_DEEP = '#6d5c39';
 
 export interface Transform {
   scale: number; // canvas px per cell
@@ -15,13 +42,41 @@ export interface Transform {
   offsetY: number;
 }
 
+export interface Padding {
+  left: number;
+  right: number;
+  top: number;
+  bottom: number;
+}
+
+export interface RenderOptions {
+  probes: Probe[];
+  showParticles: boolean;
+  labels: boolean;
+  /** Simulated seconds advanced since the previous frame, for particle advection. */
+  simDt: number;
+  /** Meter under the pointer; it draws as a remove target. */
+  hoveredProbeId?: number | null;
+}
+
 export class Renderer {
+  readonly particles = new ParticleField();
   private readonly ctx: CanvasRenderingContext2D;
-  private fieldCanvas: HTMLCanvasElement;
-  private fieldCtx: CanvasRenderingContext2D;
+  private readonly fieldCanvas: HTMLCanvasElement;
+  private readonly fieldCtx: CanvasRenderingContext2D;
   private fieldImage: ImageData | null = null;
-  private colorScale = MIN_SCALE_PA;
+  private edgeMask: Float32Array<ArrayBufferLike> = new Float32Array(0);
+  private colorScale = NEUTRAL_FLOOR_PA;
+  private peakPa = NEUTRAL_FLOOR_PA;
   private dpr = 1;
+  private padding: Padding = { left: 0, right: 0, top: 0, bottom: 0 };
+  private readonly blurSupported: boolean;
+  /**
+   * Zoom, plus the grid point held at the centre of the visible area, stored as
+   * a fraction of the grid rather than in cells or pixels — the grid is rebuilt
+   * whenever the tube changes, and the view should survive that unchanged.
+   */
+  private view = { zoom: 1, cx: 0.5, cy: 0.5 };
 
   constructor(private readonly canvas: HTMLCanvasElement) {
     const ctx = canvas.getContext('2d');
@@ -32,173 +87,427 @@ export class Renderer {
     if (!fctx) throw new Error('2D canvas context unavailable');
     this.fieldCtx = fctx;
     this.fieldCtx.imageSmoothingEnabled = false;
+    fctx.filter = 'blur(2px)';
+    this.blurSupported = fctx.filter === 'blur(2px)';
+    fctx.filter = 'none';
   }
 
-  resize(cssWidth: number, cssHeight: number): void {
+  /** Peak pressure the color scale currently maps to full saturation, in Pa. */
+  get scalePa(): number {
+    return this.colorScale;
+  }
+
+  resize(cssWidth: number, cssHeight: number, padding: Padding): void {
     this.dpr = Math.min(window.devicePixelRatio || 1, 2);
     this.canvas.width = Math.round(cssWidth * this.dpr);
     this.canvas.height = Math.round(cssHeight * this.dpr);
     this.canvas.style.width = `${cssWidth}px`;
     this.canvas.style.height = `${cssHeight}px`;
+    this.padding = padding;
   }
 
-  computeTransform(nx: number, ny: number): Transform {
-    const w = this.canvas.width;
-    const h = this.canvas.height;
-    const margin = 0.04;
-    const scale = Math.min((w * (1 - 2 * margin)) / nx, (h * (1 - 2 * margin)) / ny);
+  /** The canvas area left free by the floating panels, in device pixels. */
+  private viewport(): { left: number; top: number; width: number; height: number } {
+    const d = this.dpr;
     return {
-      scale,
-      offsetX: (w - nx * scale) / 2,
-      offsetY: (h - ny * scale) / 2,
+      left: this.padding.left * d,
+      top: this.padding.top * d,
+      width: Math.max(80, this.canvas.width - (this.padding.left + this.padding.right) * d),
+      height: Math.max(80, this.canvas.height - (this.padding.top + this.padding.bottom) * d),
     };
   }
 
-  render(
-    solver: Solver,
-    opts: { showVelocity: boolean; probes: Probe[]; labels: boolean },
-  ): Transform {
+  /**
+   * Fits the domain into that area, then applies the zoom/pan view on top.
+   * At zoom 1 with the view centred this is exactly the plain fit.
+   */
+  computeTransform(nx: number, ny: number): Transform {
+    const v = this.viewport();
+    const scale = Math.min(v.width / nx, v.height / ny) * this.view.zoom;
+    this.clampView(nx, ny, scale, v);
+    return {
+      scale,
+      offsetX: v.left + v.width / 2 - this.view.cx * nx * scale,
+      offsetY: v.top + v.height / 2 - this.view.cy * ny * scale,
+    };
+  }
+
+  /** Keeps the visible window inside the grid, so it can't be panned into the void. */
+  private clampView(
+    nx: number,
+    ny: number,
+    scale: number,
+    v: { width: number; height: number },
+  ): void {
+    const halfX = v.width / (2 * scale * nx);
+    const halfY = v.height / (2 * scale * ny);
+    this.view.cx = halfX >= 0.5 ? 0.5 : clamp(this.view.cx, halfX, 1 - halfX);
+    this.view.cy = halfY >= 0.5 ? 0.5 : clamp(this.view.cy, halfY, 1 - halfY);
+  }
+
+  get zoom(): number {
+    return this.view.zoom;
+  }
+
+  /** Zooms by `factor`, holding the grid point under (x, y) — device px — still. */
+  zoomAt(x: number, y: number, factor: number, nx: number, ny: number): void {
+    const before = this.computeTransform(nx, ny);
+    const gx = (x - before.offsetX) / before.scale;
+    const gy = (y - before.offsetY) / before.scale;
+    this.view.zoom = clamp(this.view.zoom * factor, MIN_ZOOM, MAX_ZOOM);
+
+    const v = this.viewport();
+    const scale = Math.min(v.width / nx, v.height / ny) * this.view.zoom;
+    this.view.cx = (gx * scale + v.left + v.width / 2 - x) / (nx * scale);
+    this.view.cy = (gy * scale + v.top + v.height / 2 - y) / (ny * scale);
+    this.clampView(nx, ny, scale, v);
+  }
+
+  /** Drags the view by a device-pixel delta. */
+  panBy(dx: number, dy: number, nx: number, ny: number): void {
+    const v = this.viewport();
+    const scale = Math.min(v.width / nx, v.height / ny) * this.view.zoom;
+    this.view.cx -= dx / (nx * scale);
+    this.view.cy -= dy / (ny * scale);
+    this.clampView(nx, ny, scale, v);
+  }
+
+  resetView(): void {
+    this.view = { zoom: 1, cx: 0.5, cy: 0.5 };
+  }
+
+  render(solver: Solver, opts: RenderOptions): Transform {
     const { layout, p, solid } = solver;
     const { nx, ny } = layout;
     const t = this.computeTransform(nx, ny);
     const ctx = this.ctx;
 
-    ctx.fillStyle = '#0c0e14';
-    ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
+    this.drawBackground(layout, t);
+    this.drawTubeInterior(layout, t);
 
-    this.updateFieldImage(p, solid, nx, ny);
-    ctx.save();
-    ctx.imageSmoothingEnabled = true;
-    ctx.drawImage(this.fieldCanvas, t.offsetX, t.offsetY, nx * t.scale, ny * t.scale);
-    ctx.restore();
+    this.updateFieldImage(p, solid, nx, ny, layout.spongeWidth);
+    this.drawField(t, nx, ny);
+
+    if (opts.showParticles) {
+      this.particles.sync(solver);
+      this.particles.update(solver, opts.simDt);
+      this.particles.draw(ctx, t, this.colorScale / (RHO_AIR * C_SOUND));
+    }
 
     this.drawWalls(layout, t);
-    if (opts.showVelocity) this.drawVelocity(solver, t);
-    this.drawProbes(opts.probes, layout, t);
+    this.drawProbes(opts.probes, layout, t, opts.hoveredProbeId ?? null);
     if (opts.labels) this.drawLabels(layout, t);
 
     return t;
   }
 
-  private updateFieldImage(p: Float32Array, solid: Uint8Array, nx: number, ny: number): void {
+  private drawBackground(layout: Solver['layout'], t: Transform): void {
+    const ctx = this.ctx;
+    const { width: w, height: h } = this.canvas;
+    const sky = ctx.createLinearGradient(0, 0, 0, h);
+    sky.addColorStop(0, '#0a0e18');
+    sky.addColorStop(0.55, '#080b13');
+    sky.addColorStop(1, '#05070d');
+    ctx.fillStyle = sky;
+    ctx.fillRect(0, 0, w, h);
+
+    // A soft pool of light behind the tube, so the instrument sits in a space
+    // rather than floating on a flat slab.
+    const cx = t.offsetX + ((layout.tubeX0 + layout.tubeX1) / 2) * t.scale;
+    const cy = t.offsetY + ((layout.tubeY0 + layout.tubeY1) / 2) * t.scale;
+    const glow = ctx.createRadialGradient(cx, cy, 0, cx, cy, Math.max(w, h) * 0.55);
+    glow.addColorStop(0, 'rgba(88, 128, 200, 0.10)');
+    glow.addColorStop(0.5, 'rgba(60, 90, 160, 0.04)');
+    glow.addColorStop(1, 'rgba(0, 0, 0, 0)');
+    ctx.fillStyle = glow;
+    ctx.fillRect(0, 0, w, h);
+  }
+
+  private drawTubeInterior(layout: Solver['layout'], t: Transform): void {
+    const ctx = this.ctx;
+    const x = t.offsetX + layout.tubeX0 * t.scale;
+    const y = t.offsetY + layout.tubeY0 * t.scale;
+    const w = (layout.tubeX1 - layout.tubeX0 + 1) * t.scale;
+    const h = (layout.tubeY1 - layout.tubeY0 + 1) * t.scale;
+
+    const bore = ctx.createLinearGradient(0, y, 0, y + h);
+    bore.addColorStop(0, 'rgba(120, 150, 205, 0.16)');
+    bore.addColorStop(0.5, 'rgba(90, 118, 175, 0.07)');
+    bore.addColorStop(1, 'rgba(120, 150, 205, 0.16)');
+    ctx.fillStyle = bore;
+    ctx.fillRect(x, y, w, h);
+  }
+
+  private updateFieldImage(
+    p: Float32Array,
+    solid: Uint8Array,
+    nx: number,
+    ny: number,
+    spongeWidth: number,
+  ): void {
     if (this.fieldCanvas.width !== nx || this.fieldCanvas.height !== ny) {
       this.fieldCanvas.width = nx;
       this.fieldCanvas.height = ny;
       this.fieldImage = this.fieldCtx.createImageData(nx, ny);
+      this.edgeMask = buildEdgeMask(nx, ny, spongeWidth);
     }
     const img = this.fieldImage!;
     const data = img.data;
 
-    let currentMax = MIN_SCALE_PA;
+    // Auto-gain: snap up to a louder peak immediately, then release slowly and
+    // never all the way. A pulse that has spread out stays readable, but the
+    // gain can't chase the field down to where round-off noise fills the
+    // screen — the exterior is *supposed* to look fainter than the bore.
+    let currentMax = NEUTRAL_FLOOR_PA;
     for (let i = 0; i < p.length; i++) {
       const a = Math.abs(p[i]);
       if (a > currentMax) currentMax = a;
     }
+    this.peakPa = Math.max(this.peakPa * PEAK_FORGET, currentMax);
+    const target = Math.max(currentMax, this.peakPa * PEAK_FLOOR_FRACTION, NEUTRAL_FLOOR_PA);
     this.colorScale =
-      currentMax > this.colorScale ? currentMax : this.colorScale * 0.995 + currentMax * 0.005;
-    if (this.colorScale < MIN_SCALE_PA) this.colorScale = MIN_SCALE_PA;
+      target > this.colorScale ? target : this.colorScale * 0.99 + target * 0.01;
 
-    const scale = this.colorScale;
+    const inv = 1 / this.colorScale;
     for (let i = 0; i < p.length; i++) {
       const o = i * 4;
       if (solid[i]) {
+        data[o] = 0;
+        data[o + 1] = 0;
+        data[o + 2] = 0;
         data[o + 3] = 0;
         continue;
       }
-      const v = Math.max(-1, Math.min(1, p[i] / scale));
-      const mag = Math.pow(Math.abs(v), 0.6);
-      const target = v >= 0 ? RED : BLUE;
-      data[o] = NEUTRAL[0] + (target[0] - NEUTRAL[0]) * mag;
-      data[o + 1] = NEUTRAL[1] + (target[1] - NEUTRAL[1]) * mag;
-      data[o + 2] = NEUTRAL[2] + (target[2] - NEUTRAL[2]) * mag;
+      const v = p[i] * inv;
+      const clamped = v > 1 ? 1 : v < -1 ? -1 : v;
+      // Gamma < 1 lifts the faint tail of the wave without blowing out the core.
+      const mag = Math.pow(Math.abs(clamped), 0.7) * this.edgeMask[i];
+      const c = clamped >= 0 ? HOT : COLD;
+      data[o] = c[0] * mag;
+      data[o + 1] = c[1] * mag;
+      data[o + 2] = c[2] * mag;
       data[o + 3] = 255;
     }
     this.fieldCtx.putImageData(img, 0, 0);
   }
 
+  private drawField(t: Transform, nx: number, ny: number): void {
+    const ctx = this.ctx;
+    const w = nx * t.scale;
+    const h = ny * t.scale;
+    ctx.save();
+    ctx.imageSmoothingEnabled = true;
+    ctx.imageSmoothingQuality = 'high';
+    ctx.globalCompositeOperation = 'lighter';
+    if (this.blurSupported) {
+      ctx.filter = `blur(${Math.max(2, t.scale * 0.9).toFixed(1)}px)`;
+      ctx.globalAlpha = 0.45;
+      ctx.drawImage(this.fieldCanvas, t.offsetX, t.offsetY, w, h);
+      ctx.filter = 'none';
+    }
+    ctx.globalAlpha = 1;
+    ctx.drawImage(this.fieldCanvas, t.offsetX, t.offsetY, w, h);
+    ctx.restore();
+  }
+
   private drawWalls(layout: Solver['layout'], t: Transform): void {
     const ctx = this.ctx;
-    ctx.fillStyle = WALL_COLOR;
-    ctx.strokeStyle = WALL_STROKE;
-    ctx.lineWidth = Math.max(1, t.scale * 0.15);
+    ctx.save();
+    ctx.shadowColor = 'rgba(0, 0, 0, 0.55)';
+    ctx.shadowBlur = Math.max(4, t.scale * 2);
     for (const r of wallRects(layout)) {
       const x = t.offsetX + r.x0 * t.scale;
       const y = t.offsetY + r.y0 * t.scale;
       const w = (r.x1 - r.x0 + 1) * t.scale;
       const h = (r.y1 - r.y0 + 1) * t.scale;
-      ctx.fillRect(x, y, w, h);
-      ctx.strokeRect(x, y, w, h);
+      // Brass, lit from the side the wall is thinnest across: vertical runs get
+      // a horizontal gradient, horizontal runs a vertical one.
+      const across = w < h ? ctx.createLinearGradient(x, 0, x + w, 0) : ctx.createLinearGradient(0, y, 0, y + h);
+      across.addColorStop(0, BRASS_OUTER);
+      across.addColorStop(0.3, BRASS_MID);
+      across.addColorStop(0.45, BRASS_LIGHT);
+      across.addColorStop(0.72, BRASS_DEEP);
+      across.addColorStop(1, BRASS_OUTER);
+      ctx.fillStyle = across;
+      const radius = Math.min(t.scale * 0.8, w / 2, h / 2);
+      ctx.beginPath();
+      ctx.roundRect(x, y, w, h, radius);
+      ctx.fill();
     }
+    ctx.restore();
   }
 
-  private drawVelocity(solver: Solver, t: Transform): void {
-    const { layout } = solver;
-    const { nx, ny } = layout;
-    const ctx = this.ctx;
-    const step = 8; // sample every N cells, sparse enough to stay unobtrusive
-    ctx.strokeStyle = 'rgba(255,255,255,0.35)';
-    ctx.lineWidth = 1;
-    for (let j = step / 2; j < ny; j += step) {
-      for (let i = step / 2; i < nx; i += step) {
-        const idx = Math.floor(j) * nx + Math.floor(i);
-        if (solver.solid[idx]) continue;
-        const p = solver.pressureAt(Math.floor(i), Math.floor(j));
-        if (Math.abs(p) < this.colorScale * 0.08) continue;
-        const cx = t.offsetX + i * t.scale;
-        const cy = t.offsetY + j * t.scale;
-        const len = Math.min(step * t.scale * 0.4, (Math.abs(p) / this.colorScale) * step * t.scale);
-        const dx = p >= 0 ? len : -len;
-        ctx.beginPath();
-        ctx.moveTo(cx - dx / 2, cy);
-        ctx.lineTo(cx + dx / 2, cy);
-        ctx.stroke();
-      }
-    }
-  }
-
-  private drawProbes(probes: Probe[], layout: Solver['layout'], t: Transform): void {
+  private drawProbes(
+    probes: Probe[],
+    layout: Solver['layout'],
+    t: Transform,
+    hoveredId: number | null,
+  ): void {
     const ctx = this.ctx;
     probes.forEach((probe, i) => {
       const cx = t.offsetX + (probe.fx * layout.nx + 0.5) * t.scale;
       const cy = t.offsetY + (probe.fy * layout.ny + 0.5) * t.scale;
+      const hovered = probe.id === hoveredId;
+      const r = Math.max(4 * this.dpr, t.scale * 0.55) * (hovered ? 1.35 : 1);
+      const color = PROBE_COLORS[i % PROBE_COLORS.length];
+      ctx.save();
+      ctx.globalCompositeOperation = 'lighter';
+      ctx.fillStyle = color;
+      ctx.globalAlpha = hovered ? 0.34 : 0.22;
       ctx.beginPath();
-      ctx.arc(cx, cy, Math.max(4, t.scale * 0.5), 0, Math.PI * 2);
-      ctx.fillStyle = PROBE_COLORS[i % PROBE_COLORS.length];
+      ctx.arc(cx, cy, r * 2.4, 0, Math.PI * 2);
       ctx.fill();
-      ctx.strokeStyle = '#fff';
-      ctx.lineWidth = 1.5;
+      ctx.restore();
+
+      ctx.beginPath();
+      ctx.arc(cx, cy, r, 0, Math.PI * 2);
+      ctx.fillStyle = hovered ? color : 'rgba(8, 11, 18, 0.85)';
+      ctx.fill();
+      ctx.lineWidth = Math.max(1.5, r * 0.35);
+      ctx.strokeStyle = color;
       ctx.stroke();
+
+      // Hovering turns the meter into an obvious remove target — a cross in the
+      // dot and a label saying what the click will do.
+      if (hovered) {
+        const arm = r * 0.45;
+        ctx.strokeStyle = 'rgba(8, 11, 18, 0.9)';
+        ctx.lineWidth = Math.max(1.5, r * 0.28);
+        ctx.lineCap = 'round';
+        ctx.beginPath();
+        ctx.moveTo(cx - arm, cy - arm);
+        ctx.lineTo(cx + arm, cy + arm);
+        ctx.moveTo(cx + arm, cy - arm);
+        ctx.lineTo(cx - arm, cy + arm);
+        ctx.stroke();
+        ctx.lineCap = 'butt';
+      }
+
+      // The live reading sits on the meter itself, so you can watch the number
+      // move with the wave without looking away from the field.
+      const latest = probe.p[probe.p.length - 1] ?? 0;
+      const text = hovered
+        ? `click to remove P${i + 1}`
+        : `P${i + 1}  ${latest >= 0 ? '+' : '−'}${Math.abs(latest).toFixed(0)} Pa`;
+      ctx.font = `${11 * this.dpr}px ${MONO}`;
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'bottom';
+      const tw = ctx.measureText(text).width;
+      const ty = cy - r * 1.9;
+      // Keep the readout on screen for a meter dropped near the canvas edge.
+      const margin = tw / 2 + 8 * this.dpr;
+      const tx = Math.min(Math.max(cx, margin), this.canvas.width - margin);
+      ctx.beginPath();
+      ctx.roundRect(tx - tw / 2 - 5 * this.dpr, ty - 13 * this.dpr, tw + 10 * this.dpr, 15 * this.dpr, 4 * this.dpr);
+      ctx.fillStyle = 'rgba(9, 12, 20, 0.8)';
+      ctx.fill();
+      ctx.fillStyle = color;
+      ctx.fillText(text, tx, ty);
     });
   }
 
   private drawLabels(layout: Solver['layout'], t: Transform): void {
     const ctx = this.ctx;
-    const fontSize = Math.max(11, Math.min(16, t.scale * 4)) * this.dpr;
-    ctx.font = `${fontSize}px system-ui, sans-serif`;
-    ctx.fillStyle = 'rgba(230,232,240,0.85)';
-    ctx.strokeStyle = 'rgba(12,14,20,0.85)';
-    ctx.lineWidth = 3;
+    // These name the scene as a whole; zoom in on a detail and most of what
+    // they point at is off screen, so they fade out rather than leaving stray
+    // leader lines running off the canvas.
+    const alpha = clamp((LABEL_FADE_END - this.view.zoom) / (LABEL_FADE_END - LABEL_FADE_START), 0, 1);
+    if (alpha <= 0.02) return;
+    ctx.save();
+    ctx.globalAlpha = alpha;
+    const fontSize = Math.max(11, Math.min(14, t.scale * 3.2)) * this.dpr;
+    ctx.font = `500 ${fontSize}px ${SANS}`;
     ctx.textBaseline = 'middle';
 
-    const label = (text: string, xCell: number, yCell: number, align: CanvasTextAlign = 'left') => {
-      const x = t.offsetX + xCell * t.scale;
-      const y = t.offsetY + yCell * t.scale;
-      ctx.textAlign = align;
-      ctx.strokeText(text, x, y);
-      ctx.fillText(text, x, y);
-    };
+    const wall = layout.wallThicknessCells;
+    const midY = (layout.tubeY0 + layout.tubeY1) / 2;
 
-    label('closed end (strike here)', layout.tubeX0 + 2, layout.tubeY0 - layout.wallThicknessCells - 8, 'left');
-    label('tube wall', layout.tubeX0 + 2, layout.tubeY0 - 3, 'left');
-    label('atmosphere', layout.nx - 2, 8, 'right');
-    label('open end →', layout.tubeX1 + 4, (layout.tubeY0 + layout.tubeY1) / 2, 'left');
+    this.pill('strike here', layout.tubeX0 - 1, layout.tubeY0 - wall - 6, t, 'left', [
+      { x: layout.tubeX0 + 0.5, y: layout.tubeY0 - wall - 1 },
+    ]);
+    this.pill('tube wall', layout.tubeX0 + 14, layout.tubeY1 + wall + 7, t, 'left', [
+      { x: layout.tubeX0 + 16, y: layout.tubeY1 + wall + 1 },
+    ]);
+    const endLabelX = layout.tubeX1 + (layout.endClosed ? wall + 6 : 6);
+    this.pill(layout.endClosed ? 'closed end' : 'open end', endLabelX, midY, t, 'left', [
+      { x: layout.tubeX1 + 1, y: midY },
+    ]);
+    this.pill('atmosphere', layout.nx - layout.spongeWidth - 4, layout.spongeWidth + 5, t, 'right', []);
 
     for (const gap of layout.holeGaps) {
       const cx = (gap.x0 + gap.x1) / 2;
-      const y = gap.wall === 'top' ? layout.tubeY0 - layout.wallThicknessCells - 12 : layout.tubeY1 + layout.wallThicknessCells + 14;
-      label('hole', cx, y, 'center');
+      const top = gap.wall === 'top';
+      const anchorY = top ? layout.tubeY0 - wall - 4 : layout.tubeY1 + wall + 4;
+      const labelY = top ? anchorY - 8 : anchorY + 8;
+      this.pill('hole', cx, labelY, t, 'center', [{ x: cx, y: anchorY }]);
     }
+    ctx.restore();
+  }
+
+  /** A label chip with an optional leader line to the thing it names. */
+  private pill(
+    text: string,
+    xCell: number,
+    yCell: number,
+    t: Transform,
+    align: 'left' | 'center' | 'right',
+    anchors: { x: number; y: number }[],
+  ): void {
+    const ctx = this.ctx;
+    const x = t.offsetX + xCell * t.scale;
+    const y = t.offsetY + yCell * t.scale;
+    const padX = 7 * this.dpr;
+    const padY = 4 * this.dpr;
+    const m = ctx.measureText(text);
+    const w = m.width + padX * 2;
+    const h = 11 * this.dpr + padY * 2;
+    const bx = align === 'left' ? x : align === 'right' ? x - w : x - w / 2;
+    const by = y - h / 2;
+
+    for (const a of anchors) {
+      ctx.beginPath();
+      ctx.moveTo(t.offsetX + a.x * t.scale, t.offsetY + a.y * t.scale);
+      ctx.lineTo(align === 'center' ? bx + w / 2 : bx + (align === 'left' ? padX : w - padX), y);
+      ctx.strokeStyle = 'rgba(190, 205, 235, 0.3)';
+      ctx.lineWidth = Math.max(1, this.dpr);
+      ctx.stroke();
+    }
+
+    ctx.beginPath();
+    ctx.roundRect(bx, by, w, h, h / 2);
+    ctx.fillStyle = 'rgba(9, 12, 20, 0.78)';
+    ctx.fill();
+    ctx.strokeStyle = 'rgba(160, 185, 230, 0.18)';
+    ctx.lineWidth = Math.max(1, this.dpr);
+    ctx.stroke();
+
+    ctx.fillStyle = 'rgba(214, 226, 245, 0.92)';
+    ctx.textAlign = 'left';
+    ctx.fillText(text, bx + padX, y + 0.5 * this.dpr);
   }
 }
 
-const PROBE_COLORS = ['#ffd166', '#06d6a0', '#ef476f', '#a3a1ff'];
+/**
+ * Fades the field out across the damping sponge, so the domain's rectangular
+ * edge never draws itself. Waves visibly die away into "somewhere else"
+ * instead of stopping at a line — which is what the sponge physically models.
+ */
+function buildEdgeMask(nx: number, ny: number, spongeWidth: number): Float32Array {
+  const mask = new Float32Array(nx * ny);
+  const band = Math.max(1, spongeWidth);
+  for (let j = 0; j < ny; j++) {
+    for (let i = 0; i < nx; i++) {
+      const d = Math.min(i, nx - 1 - i, j, ny - 1 - j);
+      const f = d >= band ? 1 : d / band;
+      mask[j * nx + i] = f * f * (3 - 2 * f); // smoothstep
+    }
+  }
+  return mask;
+}
+
+function clamp(v: number, lo: number, hi: number): number {
+  return Math.max(lo, Math.min(hi, v));
+}
+
+const SANS = "ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif";
+const MONO = "ui-monospace, SFMono-Regular, Menlo, monospace";
