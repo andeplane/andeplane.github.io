@@ -2,7 +2,7 @@ import { Renderer, type Padding, type Transform } from './render/renderer';
 import { clearProbe, createProbe, MAX_PROBES, sampleProbe } from './sim/probes';
 import { Solver } from './sim/solver';
 import type { ExcitationParams, HoleParams, Probe, TubeParams } from './sim/types';
-import { Controls, DEFAULT_SPEED } from './ui/controls';
+import { Controls, DEFAULT_SPEED, formatSpeed } from './ui/controls';
 import { CanvasInteractions } from './ui/interactions';
 import { ProbePlot, updateProbeLegend } from './ui/probePlot';
 
@@ -21,6 +21,7 @@ let paused = false;
 let showParticles = true;
 let pendingSteps = 0;
 let probes: Probe[] = [];
+let hoveredProbeId: number | null = null;
 /** The clock only runs once there is something to watch. */
 let running = false;
 let simAccumulator = 0;
@@ -91,6 +92,7 @@ const controls = new Controls(tube, excitation, {
   },
   onClearProbes() {
     probes = [];
+    hoveredProbeId = null;
     syncProbeDock();
   },
   onSpeedChange(next) {
@@ -123,11 +125,17 @@ new CanvasInteractions(canvas, {
     probes = [...probes, createProbe(nextProbeId++, fx, fy)];
     syncProbeDock();
   },
-  onProbeRemove(id) {
-    probes = probes.filter((p) => p.id !== id);
-    syncProbeDock();
+  onProbeRemove: removeProbe,
+  onProbeHover(id) {
+    hoveredProbeId = id;
   },
 });
+
+function removeProbe(id: number): void {
+  probes = probes.filter((p) => p.id !== id);
+  if (hoveredProbeId === id) hoveredProbeId = null;
+  syncProbeDock();
+}
 
 /** Keeps the simulation centred in the screen area the floating panels leave free. */
 function currentPadding(): Padding {
@@ -201,9 +209,10 @@ function frame(nowMs: number, lastMs: number): void {
     showParticles,
     labels: true,
     simDt: stepsDone * dt,
+    hoveredProbeId,
   });
   probePlot.draw(probes);
-  updateProbeLegend(probeLegend, probes);
+  updateProbeLegend(probeLegend, probes, removeProbe);
 
   const energy = solver.tubeEnergy();
   if (energy > peakEnergy) peakEnergy = energy;
@@ -215,10 +224,6 @@ function frame(nowMs: number, lastMs: number): void {
   legendScale.textContent = `±${formatPa(renderer.scalePa)}`;
 
   requestAnimationFrame((t) => frame(t, nowMs));
-}
-
-function formatSpeed(v: number): string {
-  return v >= 0.1 ? String(v) : v.toFixed(3).replace(/0+$/, '');
 }
 
 function formatPa(v: number): string {

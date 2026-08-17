@@ -50,8 +50,10 @@ something you can actually watch.
   requested speed rather than freezing. The accumulator keeps the fractional
   remainder between frames, so 0.001× is really 0.001× rather than a rounding error.
 - **Slow motion is the point**: a pulse crosses a 1 m tube in ~3 ms, so the whole
-  event is over in ~10 ms. The speed ladder runs down to 0.001× (≈3 s per length of
-  tube) and defaults to 0.003×; anything faster and the wave is a flicker.
+  event is over in ~10 ms. The speed ladder runs down to 0.0001× (≈30 s per length of
+  tube) and defaults to 0.003×; anything faster than ~0.01× and the wave is a flicker.
+  At the bottom of the ladder a display frame is a fraction of one physics step, which
+  is exactly what the fractional accumulator above exists to handle.
 - **Every strike starts from silence**: `strike()` clears the field and resets the
   clock, so what you watch is one clean pulse rather than a hit landing on the
   reverberant tail of the last one.
@@ -62,6 +64,14 @@ Click anywhere in the air to drop a meter (up to 3); each shows its live reading
 the field and a colored trace in the shared p(t) plot along the bottom, so traces from
 different points can be compared on one time base. Hovering the plot reads every trace
 at that instant.
+
+To remove one, click the meter itself — hovering it turns it into an × and its readout
+into "click to remove", so the affordance is visible rather than something you have to
+be told. The grab radius is at least 22 device pixels, well past the drawn dot, because
+a few grid cells is a tiny target. Touch has no hover, so each chip in the plot header
+also carries an × button; that path is the one that always works. The legend chips are
+only rebuilt when the set of meters changes — the readings update in place — because
+replacing the DOM under the pointer between mousedown and mouseup swallows the click.
 
 Meters sample on the *simulation* clock (`PROBE_SAMPLE_INTERVAL`, 5 µs), inside the
 stepping loop rather than once per rendered frame — at 1× a single frame covers

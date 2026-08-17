@@ -9,9 +9,17 @@ import type { ExcitationParams, HoleParams, TubeParams } from '../sim/types';
  * A pulse crosses a 1 m tube in ~3 ms, so the interesting part of the event is
  * over in about 10 ms. Even 0.01× flashes past; the slowest settings are what
  * make the wave watchable, and 0.003× (≈1 s per length of tube) is the default.
+ * The bottom of the ladder, 0.0001×, stretches that same trip to ~30 s — slow
+ * enough to watch the wavefront cross the hole edge cell by cell.
  */
-export const SPEED_OPTIONS = [0.001, 0.003, 0.01, 0.03, 0.1, 0.3, 1];
+export const SPEED_OPTIONS = [0.0001, 0.0003, 0.001, 0.003, 0.01, 0.03, 0.1, 0.3, 1];
 export const DEFAULT_SPEED = 0.003;
+
+/** Shared by the speed buttons and the HUD so they never disagree. */
+export function formatSpeed(v: number): string {
+  if (v >= 0.1) return String(v);
+  return v.toFixed(4).replace(/0+$/, '');
+}
 
 export interface ControlsHandlers {
   onExcitationChange(excitation: ExcitationParams): void;
@@ -134,7 +142,7 @@ export class Controls {
     for (const speed of SPEED_OPTIONS) {
       const btn = document.createElement('button');
       btn.type = 'button';
-      btn.textContent = `${speed}×`;
+      btn.textContent = `${formatSpeed(speed)}×`;
       btn.dataset.speed = String(speed);
       btn.addEventListener('click', () => this.handlers.onSpeedChange(speed));
       this.speedButtons.appendChild(btn);

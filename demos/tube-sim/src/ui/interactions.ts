@@ -10,11 +10,15 @@ export interface InteractionHandlers {
   onHoleUpdate(holeIndex: number, patch: Partial<HoleParams>): void;
   onProbeAdd(fx: number, fy: number): void;
   onProbeRemove(id: number): void;
+  /** Which meter the pointer is over, so the renderer can offer a visible "click to remove". */
+  onProbeHover(id: number | null): void;
 }
 
 const EDGE_HIT_CELLS = 2.5;
 const BODY_HIT_MARGIN_CELLS = 2;
 const PROBE_HIT_CELLS = 1.6;
+/** Minimum grab radius in device pixels — a few cells is a very small target on a big grid. */
+const PROBE_HIT_PX = 22;
 
 type Drag =
   | { kind: 'move'; holeIndex: number; startCellX: number; startPosition: number; tubeLength: number; h: number }
@@ -30,15 +34,35 @@ type Drag =
 export class CanvasInteractions {
   private drag: Drag | null = null;
   private pointerDownAt: { x: number; y: number } | null = null;
+  private hoveredProbe: number | null = null;
 
   constructor(private readonly canvas: HTMLCanvasElement, private readonly handlers: InteractionHandlers) {
     canvas.addEventListener('pointerdown', (e) => this.onPointerDown(e));
     canvas.addEventListener('pointermove', (e) => this.onPointerMove(e));
+    canvas.addEventListener('pointerleave', () => this.setHovered(null));
     window.addEventListener('pointerup', (e) => this.onPointerUp(e));
     window.addEventListener('pointercancel', () => {
       this.drag = null;
       this.pointerDownAt = null;
     });
+  }
+
+  /** The meter under the pointer, if any. */
+  private probeAt(cx: number, cy: number): number | null {
+    const layout = this.handlers.getSolver().layout;
+    const radius = Math.max(PROBE_HIT_CELLS, PROBE_HIT_PX / this.handlers.getTransform().scale);
+    for (const probe of this.handlers.getProbes()) {
+      const { x, y } = probeCell(probe, layout);
+      if (Math.hypot(cx - x, cy - y) <= radius) return probe.id;
+    }
+    return null;
+  }
+
+  private setHovered(id: number | null): void {
+    if (this.hoveredProbe === id) return;
+    this.hoveredProbe = id;
+    this.canvas.style.cursor = id === null ? '' : 'pointer';
+    this.handlers.onProbeHover(id);
   }
 
   private eventToCell(e: PointerEvent): { cx: number; cy: number } {
@@ -54,6 +78,16 @@ export class CanvasInteractions {
     this.pointerDownAt = { x: e.clientX, y: e.clientY };
     const solver = this.handlers.getSolver();
     const { layout } = solver;
+
+    // Meters win over the geometry underneath them: one sitting in a hole gap
+    // must still be clickable to remove.
+    const hitProbe = this.probeAt(cx, cy);
+    if (hitProbe !== null) {
+      this.handlers.onProbeRemove(hitProbe);
+      this.setHovered(null);
+      this.pointerDownAt = null;
+      return;
+    }
 
     for (const gap of layout.holeGaps) {
       const bandY =
@@ -96,20 +130,14 @@ export class CanvasInteractions {
       }
       return;
     }
-
-    for (const probe of this.handlers.getProbes()) {
-      const { x, y } = probeCell(probe, layout);
-      if (Math.hypot(cx - x, cy - y) <= PROBE_HIT_CELLS) {
-        this.handlers.onProbeRemove(probe.id);
-        this.pointerDownAt = null;
-        return;
-      }
-    }
   }
 
   private onPointerMove(e: PointerEvent): void {
-    if (!this.drag) return;
-    const { cx } = this.eventToCell(e);
+    const { cx, cy } = this.eventToCell(e);
+    if (!this.drag) {
+      this.setHovered(this.probeAt(cx, cy));
+      return;
+    }
     const d = this.drag;
     if (d.kind === 'move') {
       const dPosition = ((cx - d.startCellX) * d.h) / d.tubeLength;

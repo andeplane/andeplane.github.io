@@ -68,11 +68,19 @@ export class ProbePlot {
     this.drawAxes(ctx, { x0, x1, y0, y1, mid, tMin, tSpan, pMax });
 
     if (withData.length === 0) {
+      // A meter with no samples yet means the tube is silent, not that there is
+      // no meter — say the thing that actually gets a trace on screen.
+      const message =
+        probes.length === 0 ? 'click the air to drop a pressure meter' : 'press Hit to record p(t)';
       ctx.fillStyle = 'rgba(150,175,225,0.4)';
-      ctx.font = `${11 * d}px ui-monospace, SFMono-Regular, Menlo, monospace`;
       ctx.textAlign = 'center';
       ctx.textBaseline = 'middle';
-      ctx.fillText('click the air in the simulation to drop a pressure meter', (x0 + x1) / 2, mid);
+      let size = 11 * d;
+      do {
+        ctx.font = `${size}px ui-monospace, SFMono-Regular, Menlo, monospace`;
+        size -= 0.5 * d;
+      } while (size > 7 * d && ctx.measureText(message).width > x1 - x0);
+      ctx.fillText(message, (x0 + x1) / 2, mid);
       return;
     }
 
@@ -248,24 +256,50 @@ export class ProbePlot {
   }
 }
 
-export function updateProbeLegend(container: HTMLElement, probes: Probe[]): void {
-  container.innerHTML = '';
-  if (probes.length === 0) {
-    container.textContent = 'click the air to drop a meter (up to 3)';
-    return;
+/**
+ * The readings update every frame, but the chips themselves are only rebuilt
+ * when the set of meters changes — replacing the DOM under the pointer between
+ * mousedown and mouseup would swallow the click on the remove button.
+ */
+export function updateProbeLegend(
+  container: HTMLElement,
+  probes: Probe[],
+  onRemove: (id: number) => void,
+): void {
+  const key = probes.map((p) => p.id).join(',');
+  if (container.dataset.probeKey !== key) {
+    container.dataset.probeKey = key;
+    container.innerHTML = '';
+    if (probes.length === 0) {
+      container.textContent = 'click the air to drop a meter (up to 3)';
+    }
+    probes.forEach((probe, i) => {
+      const item = document.createElement('span');
+      item.className = 'probe-chip';
+      const dot = document.createElement('span');
+      dot.className = 'dot';
+      dot.style.background = PROBE_COLORS[i % PROBE_COLORS.length];
+      const text = document.createElement('span');
+      text.className = 'probe-read';
+      // Touch has no hover, so the on-canvas "click to remove" affordance never
+      // shows there; this button is the one that always works.
+      const remove = document.createElement('button');
+      remove.type = 'button';
+      remove.className = 'probe-remove';
+      remove.textContent = '×';
+      remove.title = `Remove meter P${i + 1}`;
+      remove.setAttribute('aria-label', `Remove meter P${i + 1}`);
+      remove.addEventListener('click', () => onRemove(probe.id));
+      item.append(dot, text, remove);
+      container.appendChild(item);
+    });
   }
+
+  const readouts = container.querySelectorAll<HTMLElement>('.probe-read');
   probes.forEach((probe, i) => {
-    const item = document.createElement('span');
-    item.className = 'probe-chip';
-    const dot = document.createElement('span');
-    dot.className = 'dot';
-    dot.style.background = PROBE_COLORS[i % PROBE_COLORS.length];
-    item.appendChild(dot);
     const latest = probe.p[probe.p.length - 1] ?? 0;
-    item.appendChild(
-      document.createTextNode(`P${i + 1} ${latest.toFixed(1)} Pa · peak ${probe.peak.toFixed(0)}`),
-    );
-    container.appendChild(item);
+    const el = readouts[i];
+    if (el) el.textContent = `P${i + 1} ${latest.toFixed(1)} Pa · peak ${probe.peak.toFixed(0)}`;
   });
 }
 

@@ -352,14 +352,15 @@ body {
 
 #speed-buttons {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  grid-template-columns: repeat(3, 1fr);
   gap: 0.3rem;
 }
 
 #speed-buttons button {
-  padding: 0.4rem 0.2rem;
+  padding: 0.4rem 0.15rem;
   font-family: var(--mono);
-  font-size: 0.7rem;
+  font-size: 0.68rem;
+  letter-spacing: -0.02em;
 }
 
 #clear-probes {
@@ -442,6 +443,31 @@ body.has-probes #probe-plot {
   display: inline-flex;
   align-items: center;
   white-space: nowrap;
+}
+
+.probe-remove {
+  margin-left: 0.4rem;
+  width: 1.05rem;
+  height: 1.05rem;
+  padding: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid rgba(150, 175, 225, 0.22);
+  border-radius: 50%;
+  background: rgba(150, 175, 225, 0.08);
+  color: var(--ink-faint);
+  font-family: var(--font);
+  font-size: 0.8rem;
+  line-height: 1;
+  cursor: pointer;
+  transition: background 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+}
+
+.probe-remove:hover {
+  background: rgba(255, 104, 82, 0.22);
+  border-color: rgba(255, 104, 82, 0.5);
+  color: #ffd9d0;
 }
 
 /* ---------- legend + hud ---------- */

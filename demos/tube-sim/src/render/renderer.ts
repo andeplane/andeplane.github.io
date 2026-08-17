@@ -48,6 +48,8 @@ export interface RenderOptions {
   labels: boolean;
   /** Simulated seconds advanced since the previous frame, for particle advection. */
   simDt: number;
+  /** Meter under the pointer; it draws as a remove target. */
+  hoveredProbeId?: number | null;
 }
 
 export class Renderer {
@@ -125,7 +127,7 @@ export class Renderer {
     }
 
     this.drawWalls(layout, t);
-    this.drawProbes(opts.probes, layout, t);
+    this.drawProbes(opts.probes, layout, t, opts.hoveredProbeId ?? null);
     if (opts.labels) this.drawLabels(layout, t);
 
     return t;
@@ -267,17 +269,23 @@ export class Renderer {
     ctx.restore();
   }
 
-  private drawProbes(probes: Probe[], layout: Solver['layout'], t: Transform): void {
+  private drawProbes(
+    probes: Probe[],
+    layout: Solver['layout'],
+    t: Transform,
+    hoveredId: number | null,
+  ): void {
     const ctx = this.ctx;
     probes.forEach((probe, i) => {
       const cx = t.offsetX + (probe.fx * layout.nx + 0.5) * t.scale;
       const cy = t.offsetY + (probe.fy * layout.ny + 0.5) * t.scale;
-      const r = Math.max(4 * this.dpr, t.scale * 0.55);
+      const hovered = probe.id === hoveredId;
+      const r = Math.max(4 * this.dpr, t.scale * 0.55) * (hovered ? 1.35 : 1);
       const color = PROBE_COLORS[i % PROBE_COLORS.length];
       ctx.save();
       ctx.globalCompositeOperation = 'lighter';
       ctx.fillStyle = color;
-      ctx.globalAlpha = 0.22;
+      ctx.globalAlpha = hovered ? 0.34 : 0.22;
       ctx.beginPath();
       ctx.arc(cx, cy, r * 2.4, 0, Math.PI * 2);
       ctx.fill();
@@ -285,27 +293,48 @@ export class Renderer {
 
       ctx.beginPath();
       ctx.arc(cx, cy, r, 0, Math.PI * 2);
-      ctx.fillStyle = 'rgba(8, 11, 18, 0.85)';
+      ctx.fillStyle = hovered ? color : 'rgba(8, 11, 18, 0.85)';
       ctx.fill();
       ctx.lineWidth = Math.max(1.5, r * 0.35);
       ctx.strokeStyle = color;
       ctx.stroke();
 
+      // Hovering turns the meter into an obvious remove target — a cross in the
+      // dot and a label saying what the click will do.
+      if (hovered) {
+        const arm = r * 0.45;
+        ctx.strokeStyle = 'rgba(8, 11, 18, 0.9)';
+        ctx.lineWidth = Math.max(1.5, r * 0.28);
+        ctx.lineCap = 'round';
+        ctx.beginPath();
+        ctx.moveTo(cx - arm, cy - arm);
+        ctx.lineTo(cx + arm, cy + arm);
+        ctx.moveTo(cx + arm, cy - arm);
+        ctx.lineTo(cx - arm, cy + arm);
+        ctx.stroke();
+        ctx.lineCap = 'butt';
+      }
+
       // The live reading sits on the meter itself, so you can watch the number
       // move with the wave without looking away from the field.
       const latest = probe.p[probe.p.length - 1] ?? 0;
-      const text = `P${i + 1}  ${latest >= 0 ? '+' : '−'}${Math.abs(latest).toFixed(0)} Pa`;
+      const text = hovered
+        ? `click to remove P${i + 1}`
+        : `P${i + 1}  ${latest >= 0 ? '+' : '−'}${Math.abs(latest).toFixed(0)} Pa`;
       ctx.font = `${11 * this.dpr}px ${MONO}`;
       ctx.textAlign = 'center';
       ctx.textBaseline = 'bottom';
       const tw = ctx.measureText(text).width;
       const ty = cy - r * 1.9;
+      // Keep the readout on screen for a meter dropped near the canvas edge.
+      const margin = tw / 2 + 8 * this.dpr;
+      const tx = Math.min(Math.max(cx, margin), this.canvas.width - margin);
       ctx.beginPath();
-      ctx.roundRect(cx - tw / 2 - 5 * this.dpr, ty - 13 * this.dpr, tw + 10 * this.dpr, 15 * this.dpr, 4 * this.dpr);
+      ctx.roundRect(tx - tw / 2 - 5 * this.dpr, ty - 13 * this.dpr, tw + 10 * this.dpr, 15 * this.dpr, 4 * this.dpr);
       ctx.fillStyle = 'rgba(9, 12, 20, 0.8)';
       ctx.fill();
       ctx.fillStyle = color;
-      ctx.fillText(text, cx, ty);
+      ctx.fillText(text, tx, ty);
     });
   }
 

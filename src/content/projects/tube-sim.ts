@@ -24,7 +24,8 @@ the actual speed of sound, meet a side hole, and visibly split: part continues p
 toward the open end, part radiates outward through the hole as a clean expanding
 half-ring, part reflects back toward the strike point. A pulse crosses a metre of tube
 in three milliseconds, so slow motion isn't a garnish — at 0.001× that trip takes three
-seconds, and you can watch the split happen. Drag a hole's edges to resize it, or its
+seconds, and at 0.0001× it takes half a minute, slow enough to watch the wavefront cross
+the edge of the hole. Drag a hole's edges to resize it, or its
 middle to reposition it, live, and repeat the strike: a small hole barely dents the wave
 passing by; a large one diverts most of it. Add a second hole, change the tube's length
 or diameter, turn on the drifting air-motion particles to see *where* the air is
@@ -37,9 +38,9 @@ color. Every meter shows its live reading right on the field and draws p(t) into
 shared plot along the bottom, so a point before the hole, a point after it, and a point
 outside in the atmosphere can be compared on the same time base: the incoming pulse, the
 reflection coming back, and how much of it ever made it downstream, as numbers rather
-than an impression. Hover the plot to read every trace at that instant. Meters sample on
-the simulation clock rather than once per rendered frame, so the waveform is the same
-whether you watch it at 1× or at 0.001×.
+than an impression. Hover the plot to read every trace at that instant, and click a meter to
+take it away again. Meters sample on the simulation clock rather than once per rendered
+frame, so the waveform is the same whether you watch it at 1× or at 0.0001×.
 
 ## Why it isn't a leak coefficient
 
