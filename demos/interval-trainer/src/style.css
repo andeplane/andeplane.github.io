@@ -1,0 +1,1209 @@
+/*
+ * Nocturne. Near-black ground, a slow aurora behind everything, frosted instrument panels
+ * floating over it — the same visual language as the other labs on this site, tuned
+ * darker because this one is about listening.
+ *
+ * Two colours carry meaning and nothing else does: cool blue is the app talking, warm
+ * gold is an answer. Keep it that way.
+ */
+
+:root {
+  --ground: #05060c;
+  --ink: #e9edf8;
+  --dim: #8b94ad;
+  --faint: #59617a;
+  --edge: rgba(255, 255, 255, 0.09);
+  --edge-strong: rgba(255, 255, 255, 0.16);
+  --surface: rgba(12, 16, 28, 0.55);
+  --surface-solid: rgba(9, 12, 22, 0.92);
+  --accent: #7fb2ff;
+  --gold: #f5c274;
+  --bad: #ff7d8c;
+  --font: ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  --mono: ui-monospace, 'SF Mono', 'JetBrains Mono', 'Fira Code', monospace;
+  --radius: 14px;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+/*
+ * Several elements below set `display`, which beats the user-agent rule for [hidden] and
+ * leaves them invisible but still swallowing clicks. Hidden means hidden.
+ */
+[hidden] {
+  display: none !important;
+}
+
+html {
+  background: var(--ground);
+}
+
+html,
+body {
+  height: 100%;
+  margin: 0;
+  overflow: hidden;
+  /*
+   * No background on `body` itself: in-flow block backgrounds paint *after* negative
+   * z-index descendants, so a body background would bury the two backdrop layers below.
+   */
+  background: transparent;
+  color: var(--ink);
+  font-family: var(--font);
+  -webkit-font-smoothing: antialiased;
+  overscroll-behavior: none;
+}
+
+/*
+ * The backdrop is two layers: a CSS gradient that is always right, and a generated
+ * image on top of it. If the image never loads, the gradient alone still reads as a
+ * deliberate night sky rather than a blank page.
+ */
+body::before {
+  content: '';
+  position: fixed;
+  inset: -10%;
+  z-index: -2;
+  background:
+    radial-gradient(60% 45% at 18% 22%, rgba(86, 66, 190, 0.5), transparent 70%),
+    radial-gradient(55% 40% at 80% 18%, rgba(36, 108, 170, 0.42), transparent 72%),
+    radial-gradient(70% 50% at 60% 92%, rgba(24, 62, 120, 0.4), transparent 70%),
+    radial-gradient(45% 35% at 32% 78%, rgba(120, 48, 150, 0.28), transparent 72%),
+    var(--ground);
+  animation: drift 64s ease-in-out infinite alternate;
+}
+
+body::after {
+  content: '';
+  position: fixed;
+  inset: -8%;
+  z-index: -1;
+  background-image: url('./assets/aurora.webp');
+  background-size: cover;
+  background-position: center;
+  opacity: 0.34;
+  mix-blend-mode: screen;
+  filter: blur(2px) saturate(120%);
+  animation: drift 88s ease-in-out infinite alternate-reverse;
+}
+
+@keyframes drift {
+  from {
+    transform: scale(1) translate3d(0, 0, 0);
+  }
+  to {
+    transform: scale(1.08) translate3d(2%, -1.5%, 0);
+  }
+}
+
+/*
+ * Vignette, over the wave canvas as well as the backdrop: it darkens the edges of both,
+ * which keeps the eye on the middle of the stage and stops ripples from crawling into the
+ * corners behind the keypad.
+ */
+#vignette {
+  position: fixed;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  background: radial-gradient(
+    125% 105% at 50% 42%,
+    rgba(5, 6, 12, 0) 30%,
+    rgba(5, 6, 12, 0.32) 66%,
+    rgba(5, 6, 12, 0.78) 100%
+  );
+}
+
+/* Grain: the one thing that stops a big dark gradient looking like a flat PNG. */
+#grain {
+  position: fixed;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  opacity: 0.13;
+  mix-blend-mode: overlay;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3'/%3E%3C/filter%3E%3Crect width='140' height='140' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+#waves {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  /* Screen, not normal: the field is light being added to the scene, not paint on it. */
+  mix-blend-mode: screen;
+}
+
+#app {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  padding: max(0.75rem, env(safe-area-inset-top)) max(0.9rem, env(safe-area-inset-right))
+    max(0.9rem, env(safe-area-inset-bottom)) max(0.9rem, env(safe-area-inset-left));
+  gap: 0.75rem;
+}
+
+.micro {
+  font-family: var(--mono);
+  font-size: 0.62rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--faint);
+}
+
+/* ---- HUD ---------------------------------------------------------------- */
+
+#hud {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.hud-side {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  flex: 1;
+  min-width: 0;
+}
+
+.hud-side--end {
+  justify-content: flex-end;
+}
+
+.brand {
+  font-size: 0.82rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  color: var(--dim);
+  white-space: nowrap;
+}
+
+.chip {
+  font-family: var(--mono);
+  font-size: 0.6rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  padding: 0.22rem 0.5rem;
+  border-radius: 999px;
+  border: 1px solid var(--edge);
+  color: var(--dim);
+  background: var(--surface);
+  cursor: pointer;
+}
+
+.chip:hover {
+  color: var(--ink);
+  border-color: var(--edge-strong);
+}
+
+.chip[data-mode='game'] {
+  color: var(--gold);
+  border-color: rgba(245, 194, 116, 0.35);
+}
+
+/* The difficulty is worth knowing but not worth reading first. */
+.chip--quiet {
+  border-color: transparent;
+  background: none;
+  cursor: default;
+  opacity: 0.7;
+}
+
+/* ---- segmented control (difficulty, score tabs) -------------------------- */
+
+.segmented {
+  /* A column-flex panel would otherwise stretch it edge to edge. */
+  align-self: center;
+  display: inline-flex;
+  padding: 0.2rem;
+  gap: 0.2rem;
+  border-radius: 999px;
+  border: 1px solid var(--edge);
+  background: rgba(0, 0, 0, 0.25);
+}
+
+.segment {
+  padding: 0.35rem 0.9rem;
+  border: 0;
+  border-radius: 999px;
+  background: none;
+  color: var(--dim);
+  font: inherit;
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: color 0.15s, background 0.15s;
+}
+
+.segment:hover {
+  color: var(--ink);
+}
+
+.segment.is-active {
+  background: var(--surface-strong, rgba(255, 255, 255, 0.1));
+  color: var(--ink);
+}
+
+/* A board with nothing on it yet: still reachable, just not advertised. */
+.segment.is-quiet:not(.is-active) {
+  opacity: 0.55;
+}
+
+.difficulty-legend {
+  list-style: none;
+  margin: 0.9rem 0 0.2rem;
+  padding: 0;
+  display: grid;
+  gap: 0.3rem;
+  text-align: left;
+  font-size: 0.85rem;
+  line-height: 1.35;
+  color: var(--dim);
+}
+
+.difficulty-legend li {
+  display: grid;
+  grid-template-columns: 4.6rem 1fr;
+  gap: 0.6rem;
+  padding: 0.3rem 0.55rem;
+  border-radius: calc(var(--radius) * 0.6);
+  border: 1px solid transparent;
+}
+
+.difficulty-legend li.is-active {
+  border-color: var(--edge);
+  background: rgba(255, 255, 255, 0.045);
+  color: var(--ink);
+}
+
+.difficulty-legend b {
+  color: var(--ink);
+  font-weight: 600;
+}
+
+@media (max-width: 480px) {
+  .difficulty-legend li {
+    grid-template-columns: 1fr;
+    gap: 0.1rem;
+  }
+}
+
+.readouts {
+  display: flex;
+  gap: 1.1rem;
+}
+
+.readout {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.1rem;
+  min-width: 3.2rem;
+}
+
+.readout b {
+  font-family: var(--mono);
+  font-size: 1.1rem;
+  font-variant-numeric: tabular-nums;
+  color: var(--ink);
+}
+
+#score {
+  color: var(--gold);
+}
+
+#streak[data-hot='yes'] {
+  color: var(--gold);
+}
+
+.bump {
+  animation: bump 0.35s ease-out;
+}
+
+@keyframes bump {
+  40% {
+    transform: scale(1.22);
+  }
+}
+
+/* Drifting *down*, out of the header: rising would put it straight over the "score"
+   label it is explaining. */
+.float-points {
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  font-family: var(--mono);
+  font-size: 0.72rem;
+  color: var(--gold);
+  white-space: nowrap;
+  pointer-events: none;
+  animation: float-away 1s ease-out forwards;
+}
+
+@keyframes float-away {
+  from {
+    opacity: 0;
+    transform: translate(-50%, -0.4rem);
+  }
+  20% {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+    transform: translate(-50%, 1.3rem);
+  }
+}
+
+/* Earned seconds in flight, from the note that won them to the clock. The path itself is
+   scripted in ui/hud.ts, because it depends on where the note happens to be. */
+.time-fly {
+  position: fixed;
+  z-index: 6;
+  font-family: var(--mono);
+  font-size: 1.15rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  color: var(--gold);
+  text-shadow: 0 0 20px rgba(245, 194, 116, 0.55), 0 0 4px rgba(245, 194, 116, 0.8);
+  white-space: nowrap;
+  pointer-events: none;
+  will-change: transform, opacity;
+}
+
+/* ...and the clock catching them. */
+.time-gain {
+  animation: time-gain 0.55s ease-out;
+}
+
+@keyframes time-gain {
+  30% {
+    transform: scale(1.34);
+    color: var(--gold);
+    text-shadow: 0 0 22px rgba(245, 194, 116, 0.6);
+  }
+}
+
+.icon-btn {
+  width: 2rem;
+  height: 2rem;
+  display: grid;
+  place-items: center;
+  border-radius: 999px;
+  border: 1px solid var(--edge);
+  background: var(--surface);
+  color: var(--dim);
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: color 0.15s, border-color 0.15s, transform 0.15s;
+}
+
+.icon-btn:hover {
+  color: var(--ink);
+  border-color: var(--edge-strong);
+  transform: translateY(-1px);
+}
+
+#timebar {
+  height: 3px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.07);
+  overflow: hidden;
+}
+
+#timebar-fill {
+  height: 100%;
+  width: 100%;
+  transform-origin: left;
+  background: linear-gradient(90deg, var(--accent), var(--gold));
+  transition: transform 0.12s linear;
+}
+
+#timebar[data-low='yes'] #timebar-fill {
+  background: var(--bad);
+  animation: urgent 0.8s ease-in-out infinite;
+}
+
+@keyframes urgent {
+  50% {
+    opacity: 0.45;
+  }
+}
+
+/* ---- stage -------------------------------------------------------------- */
+
+#stage {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1.1rem;
+  min-height: 0;
+}
+
+#key-readout b {
+  color: var(--accent);
+  font-family: var(--mono);
+  letter-spacing: 0.1em;
+}
+
+#constellation {
+  display: flex;
+  align-items: flex-end;
+  gap: clamp(2.2rem, 9vw, 5rem);
+  height: 8.5rem;
+  padding-bottom: 0.5rem;
+}
+
+.note {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  transform: translateY(calc(-1 * var(--lift, 0px)));
+  transition: transform 0.55s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.note .dot {
+  width: 12px;
+  height: 12px;
+  border-radius: 999px;
+  background: rgba(127, 178, 255, 0.35);
+  box-shadow: 0 0 0 0 rgba(127, 178, 255, 0.5);
+  transition: background 0.3s, box-shadow 0.4s;
+}
+
+.note .tag {
+  font-family: var(--mono);
+  font-size: 0.85rem;
+  color: var(--faint);
+  transition: color 0.3s;
+}
+
+.note.is-sounding .dot {
+  background: var(--accent);
+  animation: dot-ping 0.9s ease-out;
+}
+
+@keyframes dot-ping {
+  from {
+    box-shadow: 0 0 0 0 rgba(127, 178, 255, 0.55);
+  }
+  to {
+    box-shadow: 0 0 0 22px rgba(127, 178, 255, 0);
+  }
+}
+
+.note--target .dot {
+  background: transparent;
+  border: 1.5px dashed rgba(245, 194, 116, 0.6);
+  width: 14px;
+  height: 14px;
+}
+
+.note--target .tag {
+  color: var(--gold);
+}
+
+.note--target.is-revealed .dot {
+  border-style: solid;
+  background: var(--gold);
+  border-color: var(--gold);
+}
+
+.note--target.is-wrong .dot,
+.note--target.is-wrong .tag {
+  color: var(--bad);
+  background: var(--bad);
+  border-color: var(--bad);
+}
+
+.note--target.is-wrong .tag {
+  background: none;
+}
+
+.stage-actions {
+  display: flex;
+  gap: 0.6rem;
+  align-items: center;
+}
+
+.ghost-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.6rem 1.2rem;
+  border-radius: 999px;
+  border: 1px solid var(--edge-strong);
+  background: var(--surface);
+  backdrop-filter: blur(16px);
+  color: var(--ink);
+  font: inherit;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: border-color 0.15s, transform 0.15s, background 0.15s;
+}
+
+.ghost-btn:hover {
+  border-color: var(--accent);
+  transform: translateY(-1px);
+}
+
+.ghost-btn--quiet {
+  color: var(--dim);
+  font-size: 0.78rem;
+  padding: 0.5rem 0.9rem;
+  border-color: var(--edge);
+}
+
+.ghost-btn:disabled {
+  opacity: 0.4;
+  cursor: default;
+  transform: none;
+  border-color: var(--edge);
+}
+
+kbd {
+  font-family: var(--mono);
+  font-size: 0.62rem;
+  padding: 0.1rem 0.35rem;
+  border-radius: 5px;
+  border: 1px solid var(--edge);
+  color: var(--faint);
+  background: rgba(255, 255, 255, 0.04);
+}
+
+#prompt {
+  margin: 0;
+  min-height: 1.4rem;
+  font-size: 0.95rem;
+  color: var(--dim);
+  text-align: center;
+  transition: color 0.2s;
+}
+
+#prompt[data-tone='good'] {
+  color: var(--gold);
+}
+
+#prompt[data-tone='bad'] {
+  color: var(--bad);
+}
+
+/* ---- keypad -------------------------------------------------------------- */
+
+#keypad {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 0.55rem;
+  max-width: 60rem;
+  width: 100%;
+  margin: 0 auto;
+}
+
+/* Easy asks about five degrees; stretching them across the ten-key width would make the
+   pad look half-empty rather than simply smaller. */
+#keypad[data-count='5'] {
+  max-width: 40rem;
+}
+
+.key {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.15rem;
+  min-height: 4.4rem;
+  padding: 0.6rem 0.3rem;
+  border-radius: var(--radius);
+  border: 1px solid var(--edge);
+  background: var(--surface);
+  backdrop-filter: blur(18px);
+  color: var(--ink);
+  font: inherit;
+  cursor: pointer;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+  transition: border-color 0.15s, background 0.15s, transform 0.1s, opacity 0.2s;
+}
+
+.key:hover:not(:disabled) {
+  border-color: var(--edge-strong);
+  transform: translateY(-2px);
+}
+
+.key:active:not(:disabled) {
+  transform: translateY(0);
+}
+
+.key:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.key:disabled {
+  cursor: default;
+  opacity: 0.55;
+}
+
+.key-label {
+  font-size: 1.5rem;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  line-height: 1;
+}
+
+.key-name {
+  font-family: var(--mono);
+  font-size: 0.58rem;
+  letter-spacing: 0.08em;
+  color: var(--faint);
+}
+
+.key-hint {
+  position: absolute;
+  top: 0.35rem;
+  right: 0.45rem;
+  border: none;
+  background: none;
+  padding: 0;
+  color: rgba(255, 255, 255, 0.16);
+}
+
+.key.is-dimmed {
+  opacity: 0.25;
+  pointer-events: none;
+}
+
+.key.is-correct {
+  border-color: var(--gold);
+  background: rgba(245, 194, 116, 0.14);
+}
+
+.key.is-correct .key-label {
+  color: var(--gold);
+}
+
+.key.is-wrong {
+  border-color: var(--bad);
+  background: rgba(255, 125, 140, 0.12);
+}
+
+.key.is-wrong .key-label {
+  color: var(--bad);
+}
+
+.pulse-correct {
+  animation: pulse-gold 0.6s ease-out;
+}
+
+.pulse-wrong {
+  animation: shake 0.35s ease-out;
+}
+
+@keyframes pulse-gold {
+  from {
+    box-shadow: 0 0 0 0 rgba(245, 194, 116, 0.45);
+  }
+  to {
+    box-shadow: 0 0 0 18px rgba(245, 194, 116, 0);
+  }
+}
+
+@keyframes shake {
+  25% {
+    transform: translateX(-4px);
+  }
+  75% {
+    transform: translateX(4px);
+  }
+}
+
+/* ---- practice stats ------------------------------------------------------ */
+
+#stats-strip {
+  display: flex;
+  justify-content: center;
+  gap: 0.5rem;
+  height: 2.6rem;
+  transition: opacity 0.4s;
+}
+
+#stats-strip[data-empty='yes'] {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.stat {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.2rem;
+  width: 1.9rem;
+}
+
+.stat-gauge {
+  position: relative;
+  width: 100%;
+  flex: 1;
+  border-radius: 4px;
+  background: rgba(255, 255, 255, 0.05);
+  overflow: hidden;
+}
+
+.stat-fill {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: var(--accent);
+  transition: height 0.4s ease-out;
+}
+
+.stat[data-level='good'] .stat-fill {
+  background: var(--gold);
+}
+
+.stat[data-level='poor'] .stat-fill {
+  background: var(--bad);
+}
+
+.stat-label {
+  font-family: var(--mono);
+  font-size: 0.55rem;
+  color: var(--faint);
+}
+
+.stat.is-empty .stat-label {
+  opacity: 0.4;
+}
+
+/* ---- overlay ------------------------------------------------------------- */
+
+#overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 10;
+  display: grid;
+  place-items: center;
+  padding: 1.2rem;
+  background: rgba(3, 4, 10, 0.55);
+  backdrop-filter: blur(6px);
+  animation: fade-in 0.25s ease-out;
+}
+
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+}
+
+#overlay-card {
+  width: min(34rem, 100%);
+  max-height: 100%;
+  overflow-y: auto;
+  outline: none;
+}
+
+.panel {
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+  padding: 1.6rem;
+  border-radius: 20px;
+  border: 1px solid var(--edge-strong);
+  background: var(--surface-solid);
+  backdrop-filter: blur(24px);
+  box-shadow: 0 30px 80px rgba(0, 0, 0, 0.55);
+  animation: rise 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes rise {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+}
+
+.panel-title {
+  margin: 0;
+  font-size: clamp(1.5rem, 4vw, 2rem);
+  font-weight: 600;
+  letter-spacing: -0.02em;
+}
+
+.panel-eyebrow {
+  margin: 0;
+}
+
+.panel-text {
+  margin: 0;
+  font-size: 0.92rem;
+  line-height: 1.55;
+  color: var(--dim);
+}
+
+/* A footnote to the control above it, not a paragraph in its own right. */
+.panel-text--tight {
+  font-size: 0.8rem;
+  opacity: 0.8;
+}
+
+.panel-text b {
+  color: var(--ink);
+  font-weight: 600;
+}
+
+.panel-empty {
+  padding: 1.2rem 0;
+  text-align: center;
+}
+
+.panel-row {
+  display: flex;
+  gap: 0.6rem;
+  flex-wrap: wrap;
+}
+
+.panel-btn {
+  flex: 1;
+  min-width: 8rem;
+  padding: 0.7rem 1.1rem;
+  border-radius: 10px;
+  border: 1px solid var(--edge-strong);
+  background: transparent;
+  color: var(--ink);
+  font: inherit;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: border-color 0.15s, background 0.15s, transform 0.15s;
+}
+
+.panel-btn:hover {
+  border-color: var(--accent);
+  transform: translateY(-1px);
+}
+
+.panel-btn--primary {
+  border-color: transparent;
+  background: linear-gradient(135deg, rgba(127, 178, 255, 0.9), rgba(140, 130, 255, 0.85));
+  color: #08101f;
+  font-weight: 600;
+}
+
+.panel-btn--primary:hover {
+  filter: brightness(1.08);
+}
+
+.panel-foot {
+  margin: 0;
+  text-align: center;
+}
+
+.panel-field {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.7rem 0;
+  border-top: 1px solid var(--edge);
+}
+
+.panel-field-text {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+}
+
+.panel-field-label {
+  font-size: 0.92rem;
+}
+
+.panel-field-hint {
+  font-size: 0.74rem;
+  color: var(--faint);
+  max-width: 22rem;
+}
+
+.panel-select {
+  padding: 0.45rem 0.6rem;
+  border-radius: 8px;
+  border: 1px solid var(--edge-strong);
+  background: rgba(255, 255, 255, 0.05);
+  color: var(--ink);
+  font: inherit;
+  font-size: 0.85rem;
+}
+
+.switch {
+  position: relative;
+  display: inline-block;
+  flex: none;
+}
+
+.switch input {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  cursor: pointer;
+}
+
+.switch-track {
+  display: block;
+  width: 42px;
+  height: 24px;
+  border-radius: 999px;
+  border: 1px solid var(--edge-strong);
+  background: rgba(255, 255, 255, 0.06);
+  transition: background 0.2s, border-color 0.2s;
+}
+
+.switch-track::after {
+  content: '';
+  display: block;
+  width: 16px;
+  height: 16px;
+  margin: 3px;
+  border-radius: 999px;
+  background: var(--dim);
+  transition: transform 0.2s, background 0.2s;
+}
+
+.switch input:checked + .switch-track {
+  background: rgba(127, 178, 255, 0.28);
+  border-color: var(--accent);
+}
+
+.switch input:checked + .switch-track::after {
+  transform: translateX(18px);
+  background: var(--accent);
+}
+
+.switch input:focus-visible + .switch-track {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+/* ---- scoreboard ---------------------------------------------------------- */
+
+.score-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.score-row {
+  display: grid;
+  grid-template-columns: 1.6rem 1fr auto auto;
+  align-items: baseline;
+  gap: 0.7rem;
+  padding: 0.5rem 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.score-rank {
+  font-family: var(--mono);
+  font-size: 0.75rem;
+  color: var(--faint);
+}
+
+.score-name {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.score-value {
+  font-family: var(--mono);
+  font-variant-numeric: tabular-nums;
+  color: var(--gold);
+}
+
+.score-row.is-new {
+  background: rgba(245, 194, 116, 0.08);
+  border-radius: 8px;
+  padding-inline: 0.5rem;
+}
+
+.name-input {
+  flex: 2;
+  min-width: 8rem;
+  padding: 0.7rem 0.9rem;
+  border-radius: 10px;
+  border: 1px solid var(--edge-strong);
+  background: rgba(255, 255, 255, 0.05);
+  color: var(--ink);
+  font: inherit;
+}
+
+.name-input:focus {
+  outline: none;
+  border-color: var(--accent);
+}
+
+/* ---- tutorial ------------------------------------------------------------ */
+
+.tutorial-progress {
+  display: flex;
+  gap: 0.35rem;
+}
+
+.tutorial-dot {
+  width: 1.5rem;
+  height: 3px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.12);
+}
+
+.tutorial-dot.is-done {
+  background: rgba(127, 178, 255, 0.5);
+}
+
+.tutorial-dot.is-current {
+  background: var(--accent);
+}
+
+.tutorial-grid {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 0.4rem;
+}
+
+.tutorial-choices {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 0.6rem;
+}
+
+.key--mini {
+  min-height: 3.2rem;
+  padding: 0.4rem 0.2rem;
+}
+
+.key--mini .key-label {
+  font-size: 1.15rem;
+}
+
+.tutorial-readout {
+  margin: 0;
+  min-height: 1.3rem;
+  font-size: 0.85rem;
+  color: var(--dim);
+  text-align: center;
+}
+
+.tutorial-rules {
+  margin: 0;
+  padding-left: 1.1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  font-size: 0.88rem;
+  line-height: 1.5;
+  color: var(--dim);
+}
+
+.tutorial-rules b {
+  color: var(--ink);
+  font-weight: 600;
+}
+
+/* ---- responsive ---------------------------------------------------------- */
+
+@media (max-width: 860px) {
+  .brand {
+    display: none;
+  }
+
+  #constellation {
+    height: 7rem;
+  }
+
+  .key-name {
+    display: none;
+  }
+}
+
+@media (max-width: 640px) {
+  #keypad {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 0.5rem;
+  }
+
+  /* Five keys in two columns leave one orphan; give it the whole row. */
+  #keypad[data-count='5'] .key:last-child {
+    grid-column: 1 / -1;
+  }
+
+  .key {
+    min-height: 3.4rem;
+  }
+
+  .key-label {
+    font-size: 1.3rem;
+  }
+
+  #stage {
+    gap: 0.8rem;
+  }
+
+  #constellation {
+    height: 6rem;
+    gap: 2rem;
+  }
+
+  #stats-strip {
+    height: 2rem;
+  }
+
+  .tutorial-grid {
+    grid-template-columns: repeat(5, 1fr);
+  }
+
+  .panel {
+    padding: 1.2rem;
+  }
+}
+
+/* Touch devices have no keyboard to shortcut with, so drop the hints entirely. */
+@media (hover: none) and (pointer: coarse) {
+  kbd,
+  .key-hint {
+    display: none;
+  }
+}
+
+/* Short landscape phones: the keypad wins, the constellation gives up its height. */
+@media (max-height: 520px) {
+  #constellation {
+    height: 4.5rem;
+  }
+
+  #stats-strip,
+  #key-readout {
+    display: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001s !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001s !important;
+  }
+}
