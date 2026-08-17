@@ -19,6 +19,8 @@ const BODY_HIT_MARGIN_CELLS = 2;
 const PROBE_HIT_CELLS = 1.6;
 /** Minimum grab radius in device pixels — a few cells is a very small target on a big grid. */
 const PROBE_HIT_PX = 22;
+/** How far the pointer must travel before a press counts as a drag rather than a click. */
+const DRAG_SLOP_PX = 6;
 
 type Drag =
   | { kind: 'move'; holeIndex: number; startCellX: number; startPosition: number; tubeLength: number; h: number }
@@ -33,6 +35,7 @@ type Drag =
 
 export class CanvasInteractions {
   private drag: Drag | null = null;
+  private dragMoved = false;
   private pointerDownAt: { x: number; y: number } | null = null;
   private hoveredProbe: number | null = null;
 
@@ -43,6 +46,7 @@ export class CanvasInteractions {
     window.addEventListener('pointerup', (e) => this.onPointerUp(e));
     window.addEventListener('pointercancel', () => {
       this.drag = null;
+      this.dragMoved = false;
       this.pointerDownAt = null;
     });
   }
@@ -76,6 +80,7 @@ export class CanvasInteractions {
   private onPointerDown(e: PointerEvent): void {
     const { cx, cy } = this.eventToCell(e);
     this.pointerDownAt = { x: e.clientX, y: e.clientY };
+    this.dragMoved = false;
     const solver = this.handlers.getSolver();
     const { layout } = solver;
 
@@ -98,7 +103,11 @@ export class CanvasInteractions {
       if (cx < gap.x0 - BODY_HIT_MARGIN_CELLS || cx > gap.x1 + BODY_HIT_MARGIN_CELLS) continue;
 
       this.canvas.setPointerCapture(e.pointerId);
-      if (Math.abs(cx - gap.x0) <= EDGE_HIT_CELLS) {
+      // Keep the middle third grabbable for moving: on a hole only a few cells
+      // wide, fixed-width edge zones would cover all of it and it could only
+      // ever be resized.
+      const edgeHit = Math.min(EDGE_HIT_CELLS, (gap.x1 - gap.x0 + 1) / 3);
+      if (Math.abs(cx - gap.x0) <= edgeHit) {
         this.drag = {
           kind: 'resize',
           holeIndex: gap.holeIndex,
@@ -107,7 +116,7 @@ export class CanvasInteractions {
           startDiameter: (gap.x1 - gap.x0 + 1) * layout.h,
           h: layout.h,
         };
-      } else if (Math.abs(cx - gap.x1) <= EDGE_HIT_CELLS) {
+      } else if (Math.abs(cx - gap.x1) <= edgeHit) {
         this.drag = {
           kind: 'resize',
           holeIndex: gap.holeIndex,
@@ -139,6 +148,14 @@ export class CanvasInteractions {
       return;
     }
     const d = this.drag;
+    // A hole only actually moves once the pointer has travelled far enough to
+    // read as a drag; below that the press is still a click looking for a spot
+    // to put a meter.
+    if (!this.dragMoved) {
+      const start = this.pointerDownAt;
+      if (start && Math.hypot(e.clientX - start.x, e.clientY - start.y) <= DRAG_SLOP_PX) return;
+      this.dragMoved = true;
+    }
     if (d.kind === 'move') {
       const dPosition = ((cx - d.startCellX) * d.h) / d.tubeLength;
       this.handlers.onHoleUpdate(d.holeIndex, {
@@ -154,15 +171,16 @@ export class CanvasInteractions {
   }
 
   private onPointerUp(e: PointerEvent): void {
-    if (this.drag) {
-      this.drag = null;
-      this.pointerDownAt = null;
-      return;
-    }
+    // A press that armed a hole drag but never moved is a click, and should
+    // drop a meter like any other click — the grab band around a hole reaches
+    // into the exterior air, which is exactly where you want to measure.
+    const dragged = this.drag !== null && this.dragMoved;
+    this.drag = null;
+    this.dragMoved = false;
     const start = this.pointerDownAt;
     this.pointerDownAt = null;
-    if (!start) return;
-    if (Math.hypot(e.clientX - start.x, e.clientY - start.y) > 6) return;
+    if (dragged || !start) return;
+    if (Math.hypot(e.clientX - start.x, e.clientY - start.y) > DRAG_SLOP_PX) return;
 
     const { cx, cy } = this.eventToCell(e);
     const solver = this.handlers.getSolver();

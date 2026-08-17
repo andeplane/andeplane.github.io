@@ -27,9 +27,11 @@ in three milliseconds, so slow motion isn't a garnish — at 0.001× that trip t
 seconds, and at 0.0001× it takes half a minute, slow enough to watch the wavefront cross
 the edge of the hole. Drag a hole's edges to resize it, or its
 middle to reposition it, live, and repeat the strike: a small hole barely dents the wave
-passing by; a large one diverts most of it. Add a second hole, change the tube's length
-or diameter, turn on the drifting air-motion particles to see *where* the air is
-actually moving, or just step through frame by frame.
+passing by; a large one diverts most of it. Cap the far end and the reflection changes
+character completely — an open mouth sends a compression back as suction, a rigid cap
+sends it back as it left, and the meters show the sign flip as a number. Add a second
+hole, change the tube's length or diameter, turn on the drifting air-motion particles to
+see *where* the air is actually moving, or just step through frame by frame.
 
 ## Measuring it, not just watching it
 
@@ -58,7 +60,9 @@ Pressure-velocity leapfrog FDTD on a staggered (MAC) grid — pressure at cell c
 velocity components a half-cell off on the faces between them. Rigid walls are simply
 any velocity face touching a solid cell forced to zero; the hole and the open end are
 just gaps in that solid mask, so nothing is hard-coded about how sound behaves at an
-opening — it falls out of the same update rule everywhere. The one exception is the
+opening — it falls out of the same update rule everywhere. Capping the far end simply
+adds a rectangle of wall across the mouth; that the reflection then comes back
+un-inverted is a measured consequence, not a rule the code was told. The one exception is the
 domain's outer edge, which needs to *not* exist as far as the physics can tell: a
 Cerjan-style exponential damping sponge in the outer ~18 cells kills a wave's amplitude
 before it reaches the boundary, so the canvas edge doesn't lie by reflecting energy

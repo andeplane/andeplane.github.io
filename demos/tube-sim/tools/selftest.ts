@@ -243,5 +243,58 @@ console.log('\n6) a pressure meter records the pulse arriving when it should');
   );
 }
 
+console.log('\n7) the far end reflects with the sign its boundary condition demands');
+{
+  // A rigid cap reflects a compression as a compression; an open mouth is a
+  // pressure release, so the same pulse returns inverted. Nothing in the solver
+  // knows about "ends" — this is the wall mask alone, so it is worth checking.
+  function returningPeak(endClosed: boolean): { value: number; incident: number } {
+    const tube: TubeParams = { length: 1.2, diameter: 0.12, endClosed, holes: [] };
+    const solver = makeSolver(tube);
+    solver.strike({ strength: 0.8, pulseWidth: 0.2 });
+    const y = midY(solver);
+    const { tubeX1, sourceX, h, dt } = solver.layout;
+    const x = Math.round(sourceX + (tubeX1 - sourceX) * 0.35); // well clear of both ends
+
+    const trace: number[] = [];
+    const roundTripSteps = Math.ceil(((2 * (tubeX1 - x) * h) / C_SOUND / dt) * 1.35);
+    const arrivalStep = Math.round(((x - sourceX) * h) / C_SOUND / dt);
+    for (let step = 0; step < arrivalStep + roundTripSteps; step++) {
+      solver.step();
+      trace.push(solver.pressureAt(x, y));
+    }
+
+    // Incident peak first, then the extremum in the window where the round trip
+    // to the far end and back puts the reflection.
+    let incident = 0;
+    for (let i = 0; i < Math.min(trace.length, Math.round(arrivalStep * 1.5)); i++) {
+      if (Math.abs(trace[i]) > Math.abs(incident)) incident = trace[i];
+    }
+    let value = 0;
+    for (let i = Math.round(arrivalStep * 1.7); i < trace.length; i++) {
+      if (Math.abs(trace[i]) > Math.abs(value)) value = trace[i];
+    }
+    return { value, incident };
+  }
+
+  const closed = returningPeak(true);
+  const open = returningPeak(false);
+  check(
+    `closed end returns the pulse un-inverted (incident ${closed.incident.toFixed(0)} Pa, returning ${closed.value.toFixed(0)} Pa)`,
+    closed.incident > 0 && closed.value > 0 && Math.abs(closed.value) > 1,
+    'a rigid cap should send a compression back as a compression',
+  );
+  check(
+    `open end returns it inverted (incident ${open.incident.toFixed(0)} Pa, returning ${open.value.toFixed(0)} Pa)`,
+    open.incident > 0 && open.value < 0 && Math.abs(open.value) > 1,
+    'an open mouth is a pressure release, so the reflection should change sign',
+  );
+  check(
+    `closed end keeps more of the pulse in the tube (${Math.abs(closed.value).toFixed(0)} > ${Math.abs(open.value).toFixed(0)} Pa)`,
+    Math.abs(closed.value) > Math.abs(open.value),
+    'the open end radiates part of the energy away; the cap radiates none',
+  );
+}
+
 console.log(failures === 0 ? '\nAll checks passed.' : `\n${failures} check(s) failed.`);
 process.exit(failures === 0 ? 0 : 1);

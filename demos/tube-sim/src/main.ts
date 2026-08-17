@@ -39,14 +39,6 @@ const legendScale = document.getElementById('legend-scale')!;
 const probePlot = new ProbePlot(document.getElementById('probe-plot') as HTMLCanvasElement);
 const probeLegend = document.getElementById('probe-legend')!;
 
-/** The meter dock grows once there is a trace to show; the view resizes around it. */
-function syncProbeDock(): void {
-  const has = probes.length > 0;
-  if (document.body.classList.contains('has-probes') === has) return;
-  document.body.classList.toggle('has-probes', has);
-  resize();
-}
-
 function rebuildSolver(nextTube: TubeParams): void {
   tube = nextTube;
   solver = new Solver(tube);
@@ -93,7 +85,6 @@ const controls = new Controls(tube, excitation, {
   onClearProbes() {
     probes = [];
     hoveredProbeId = null;
-    syncProbeDock();
   },
   onSpeedChange(next) {
     speed = next;
@@ -123,7 +114,6 @@ new CanvasInteractions(canvas, {
   onProbeAdd(fx, fy) {
     if (probes.length >= MAX_PROBES) probes = probes.slice(1);
     probes = [...probes, createProbe(nextProbeId++, fx, fy)];
-    syncProbeDock();
   },
   onProbeRemove: removeProbe,
   onProbeHover(id) {
@@ -134,19 +124,21 @@ new CanvasInteractions(canvas, {
 function removeProbe(id: number): void {
   probes = probes.filter((p) => p.id !== id);
   if (hoveredProbeId === id) hoveredProbeId = null;
-  syncProbeDock();
 }
 
-/** Keeps the simulation centred in the screen area the floating panels leave free. */
+/**
+ * Keeps the simulation centred in the screen area the floating panels leave
+ * free. The p(t) dock is always there, so this never changes when a meter is
+ * dropped — the picture must not move out from under the click that placed it.
+ */
 function currentPadding(): Padding {
   const narrow = window.innerWidth <= 700;
   const panelOpen = !narrow || document.body.classList.contains('controls-visible');
-  const dock = document.body.classList.contains('has-probes');
   return {
     left: narrow ? 16 : 92,
     right: panelOpen && !narrow ? 348 : 16,
     top: narrow ? 96 : 136,
-    bottom: narrow ? (dock ? 190 : 104) : dock ? 232 : 96,
+    bottom: narrow ? 190 : 232,
   };
 }
 

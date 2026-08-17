@@ -76,6 +76,7 @@ export class Controls {
     $('val-pulsewidth').textContent = `${pulseMs.toFixed(2)} ms`;
     $('val-length').textContent = `${Math.round(this.tube.length * 100)} cm`;
     $('val-diameter').textContent = `${Math.round(this.tube.diameter * 1000)} mm`;
+    $<HTMLInputElement>('ctl-endclosed').checked = this.tube.endClosed === true;
   }
 
   setSpeed(speed: number): void {
@@ -123,6 +124,10 @@ export class Controls {
       this.renderHoles();
       this.handlers.onTubeChange(this.tube);
     });
+    $<HTMLInputElement>('ctl-endclosed').addEventListener('change', (e) => {
+      this.tube = { ...this.tube, endClosed: (e.target as HTMLInputElement).checked };
+      this.handlers.onTubeChange(this.tube);
+    });
     $<HTMLInputElement>('ctl-particles').addEventListener('change', (e) => {
       this.handlers.onParticlesToggle((e.target as HTMLInputElement).checked);
     });
@@ -153,6 +158,7 @@ export class Controls {
   syncTube(tube: TubeParams): void {
     this.tube = tube;
     this.renderHoles();
+    this.syncReadouts();
   }
 
   private renderHoles(): void {

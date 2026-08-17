@@ -17,8 +17,8 @@ something you can actually watch.
 - `npm run dev` — local dev server
 - `npm run build` — typecheck + bundle
 - `npm run selftest` — solver correctness checks (wave speed, CFL stability, sponge
-  absorption, hole-size-changes-transmission), run with `tsx` against plain Node, no
-  browser required
+  absorption, hole-size-changes-transmission, meter timing, open-vs-closed reflection
+  sign), run with `tsx` against plain Node, no browser required
 
 ## Physics notes that matter to the code
 
@@ -32,6 +32,12 @@ something you can actually watch.
   builds it), not a leak coefficient — energy splits between what continues past the
   gap and what escapes through it because the solver sees genuine 2D geometry on both
   sides.
+- **The far end can be capped** (`TubeParams.endClosed`), which adds a wall rectangle
+  across the mouth and nothing else: the solver has no notion of "ends". That the
+  reflection then comes back un-inverted (a compression returns as a compression,
+  where an open mouth returns it as suction) is a result, not a rule — selftest 7
+  measures the sign both ways, and measures that the cap keeps far more of the pulse
+  in the tube (~400 Pa returning versus ~86 Pa).
 - **Absorbing outer boundary**: a Cerjan-style exponential damping sponge in the outer
   ~18 cells of the domain (`precomputeDamping` in `solver.ts`), tuned so a wave hitting
   it loses ~99.9% of its amplitude before reaching the (otherwise rigid) domain edge —
@@ -72,6 +78,10 @@ a few grid cells is a tiny target. Touch has no hover, so each chip in the plot 
 also carries an × button; that path is the one that always works. The legend chips are
 only rebuilt when the set of meters changes — the readings update in place — because
 replacing the DOM under the pointer between mousedown and mouseup swallows the click.
+
+The dock is always on screen at a fixed height, even with no meters placed. It used to
+grow on the first click, which re-centred the whole simulation out from under the
+pointer that placed the meter — the picture must not move as a result of using it.
 
 Meters sample on the *simulation* clock (`PROBE_SAMPLE_INTERVAL`, 5 µs), inside the
 stepping loop rather than once per rendered frame — at 1× a single frame covers

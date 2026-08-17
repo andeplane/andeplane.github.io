@@ -375,7 +375,9 @@ body {
   right: 22rem;
   bottom: 1rem;
   z-index: 18;
-  height: 3rem;
+  /* Fixed height whether or not there are meters: growing the dock on the first
+     click would re-centre the whole simulation out from under the pointer. */
+  height: 13rem;
   display: flex;
   flex-direction: column;
   background: var(--surface);
@@ -385,11 +387,6 @@ body {
   padding: 0.55rem 0.8rem;
   box-shadow: var(--panel-shadow);
   overflow: hidden;
-  transition: height 0.22s cubic-bezier(0.2, 0.8, 0.2, 1);
-}
-
-body.has-probes #probe-dock {
-  height: 13rem;
 }
 
 #probe-dock header {
@@ -410,16 +407,12 @@ body.has-probes #probe-dock {
 }
 
 #probe-plot {
-  display: none;
+  display: block;
   flex: 1;
   width: 100%;
   min-height: 0;
   margin-top: 0.3rem;
   cursor: crosshair;
-}
-
-body.has-probes #probe-plot {
-  display: block;
 }
 
 #probe-legend {
@@ -647,10 +640,7 @@ body.has-probes #probe-plot {
     left: 0.6rem;
     right: 0.6rem;
     bottom: 4.4rem;
-    padding: 0.45rem 0.6rem;
-  }
-
-  body.has-probes #probe-dock {
     height: 10rem;
+    padding: 0.45rem 0.6rem;
   }
 }

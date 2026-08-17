@@ -353,7 +353,10 @@ export class Renderer {
     this.pill('tube wall', layout.tubeX0 + 14, layout.tubeY1 + wall + 7, t, 'left', [
       { x: layout.tubeX0 + 16, y: layout.tubeY1 + wall + 1 },
     ]);
-    this.pill('open end', layout.tubeX1 + 6, midY, t, 'left', [{ x: layout.tubeX1 + 1, y: midY }]);
+    const endLabelX = layout.tubeX1 + (layout.endClosed ? wall + 6 : 6);
+    this.pill(layout.endClosed ? 'closed end' : 'open end', endLabelX, midY, t, 'left', [
+      { x: layout.tubeX1 + 1, y: midY },
+    ]);
     this.pill('atmosphere', layout.nx - layout.spongeWidth - 4, layout.spongeWidth + 5, t, 'right', []);
 
     for (const gap of layout.holeGaps) {

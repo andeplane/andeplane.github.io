@@ -10,6 +10,13 @@ export interface TubeParams {
   length: number;
   /** Interior diameter (the 2D cross-section's height) in meters. */
   diameter: number;
+  /**
+   * Caps the far (right) end with rigid wall instead of leaving it open to the
+   * atmosphere. Defaults to open. Like a hole, this is real geometry — the cap
+   * is wall in the mask — so the sign of the reflection comes out of the solver
+   * rather than being asserted.
+   */
+  endClosed?: boolean;
   holes: HoleParams[];
 }
 
@@ -34,6 +41,8 @@ export interface GridLayout {
   tubeY0: number;
   tubeY1: number;
   wallThicknessCells: number;
+  /** Whether the far end is capped; drives both the wall mask and the label. */
+  endClosed: boolean;
 
   // Source location (cell indices), just inside the closed left cap.
   sourceX: number;
