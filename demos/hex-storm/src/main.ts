@@ -9,12 +9,12 @@ const SATURN_DAYS_PER_UNIT = 5.75; // time unit ≈ 61 h; Saturn day ≈ 10.6 h
 const SIM_TIME_PER_FRAME = 0.012; // at speed 1 and 60 fps: one jet lap ≈ 5 s
 
 /** Presets: jet widths that select the polygon. Tuned against the mode readout. */
-const PRESETS: { name: string; params: Partial<Params> }[] = [
-  { name: 'Saturn ⬡', params: { jetWidth: 0.08, gamma: 5.3, relax: 1.2 } },
-  { name: 'Pentagon', params: { jetWidth: 0.09, gamma: 5.3, relax: 1.2 } },
-  { name: 'Square', params: { jetWidth: 0.11, gamma: 5.3, relax: 1.2 } },
-  { name: 'Heptagon', params: { jetWidth: 0.07, gamma: 5.3, relax: 1.2 } },
-  { name: 'Octagon', params: { jetWidth: 0.06, gamma: 5.3, relax: 1.2 } },
+const PRESETS: { name: string; sides: number; params: Partial<Params> }[] = [
+  { name: 'Saturn ⬡', sides: 6, params: { jetWidth: 0.08, gamma: 5.3, relax: 1.2 } },
+  { name: 'Pentagon', sides: 5, params: { jetWidth: 0.09, gamma: 5.3, relax: 1.2 } },
+  { name: 'Square', sides: 4, params: { jetWidth: 0.11, gamma: 5.3, relax: 1.2 } },
+  { name: 'Heptagon', sides: 7, params: { jetWidth: 0.07, gamma: 5.3, relax: 1.2 } },
+  { name: 'Octagon', sides: 8, params: { jetWidth: 0.06, gamma: 5.3, relax: 1.2 } },
 ];
 
 async function main(): Promise<void> {
@@ -90,9 +90,16 @@ async function main(): Promise<void> {
     stableSince = 0;
   };
 
-  const presetRow = h('div', { class: 'btnrow' });
+  const presetRow = h('div', { class: 'btnrow', title: 'Each preset is a jet width. The number of sides is the number of unstable-wave crests that fit around the jet: about 0.9 × jet radius ÷ jet width.' });
   const presetButtons = PRESETS.map((p) => {
-    const b = h('button', { type: 'button' }, p.name);
+    const b = h(
+      'button',
+      {
+        type: 'button',
+        title: `Jet width ${p.params.jetWidth} → about ${p.sides} wave crests fit around the jet, so the polygon has ${p.sides} sides. Only the jet width changes between presets; the physics is identical.`,
+      },
+      p.name,
+    );
     b.addEventListener('click', () => {
       params = { ...params, ...p.params };
       syncSliders();
@@ -244,7 +251,7 @@ async function main(): Promise<void> {
       bar.style.height = `${max > 0 ? (100 * s.power[m]) / max : 0}%`;
       bar.classList.toggle('top', m === s.dominant && s.purity > 0.3);
     }
-    const confident = s.purity > 0.45 && max > 1e-3;
+    const confident = s.purity > 0.6 && max > 1e-3;
     if (confident) {
       if (s.dominant !== lastDominant) {
         lastDominant = s.dominant;
@@ -281,7 +288,7 @@ async function main(): Promise<void> {
       {
         title: 'Watch it go unstable',
         body: 'You are looking at <b>vorticity</b> — local spin. Amber spins counter-clockwise, blue clockwise. The jet started as two smooth rings of opposite spin plus a little noise. The noise is being amplified into waves, and the readout at bottom-left is counting how many crests fit around the ring.',
-        waitFor: { text: 'waiting for a dominant wave to lock in…', done: () => !!spectrum && spectrum.purity > 0.45 && stableSince > 0 && performance.now() - stableSince > 1500 },
+        waitFor: { text: 'waiting for a dominant wave to lock in…', done: () => !!spectrum && spectrum.purity > 0.6 && stableSince > 0 && performance.now() - stableSince > 1500 },
       },
       {
         title: 'Why six?',
