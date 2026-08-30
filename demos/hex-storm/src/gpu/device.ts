@@ -18,13 +18,15 @@ export function showUnsupported(message?: string): void {
 
 export async function initGpu(canvas: HTMLCanvasElement): Promise<Gpu | null> {
   if (!('gpu' in navigator)) {
-    showUnsupported();
+    showUnsupported('navigator.gpu is missing — this browser has WebGPU disabled or unavailable.');
     return null;
   }
   try {
-    const adapter = await navigator.gpu.requestAdapter({ powerPreference: 'high-performance' });
+    const adapter =
+      (await navigator.gpu.requestAdapter({ powerPreference: 'high-performance' })) ??
+      (await navigator.gpu.requestAdapter());
     if (!adapter) {
-      showUnsupported();
+      showUnsupported('navigator.gpu exists but requestAdapter() returned null — no usable GPU adapter.');
       return null;
     }
     const device = await adapter.requestDevice();
@@ -41,14 +43,15 @@ export async function initGpu(canvas: HTMLCanvasElement): Promise<Gpu | null> {
     });
     const context = canvas.getContext('webgpu');
     if (!context) {
-      showUnsupported();
+      showUnsupported('canvas.getContext("webgpu") returned null.');
       return null;
     }
     const format = navigator.gpu.getPreferredCanvasFormat();
     context.configure({ device, format, alphaMode: 'opaque' });
     return { device, context, format };
-  } catch {
-    showUnsupported();
+  } catch (err) {
+    console.error('[hex-storm] WebGPU init failed', err);
+    showUnsupported(`WebGPU init failed: ${err instanceof Error ? err.message : String(err)}`);
     return null;
   }
 }
