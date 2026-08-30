@@ -35,7 +35,7 @@ That is everything. There is no term that prefers six.
 
 A jet with a smooth velocity profile is unstable if the vorticity gradient changes sign across it — Rayleigh's criterion, with Kuo's correction for $\beta$ (here $2\gamma r$). A Gaussian jet passes easily: the gradient is one sign on the inner flank and the other on the outer. Small wiggles on the flanks feed on the shear and grow.
 
-Which wiggle grows fastest is a classical result: for a Bickley jet $U\,\mathrm{sech}^2(y/L)$ the sinuous mode peaks near $kL \approx 0.9$, i.e. a wavelength of about seven jet widths. Bend the jet into a ring of radius $R_0$ and the wavenumber must be an integer, so the polygon is
+Which wiggle grows fastest has a classical inviscid answer: for a Bickley jet $U\,\mathrm{sech}^2(y/L)$ the sinuous mode peaks near $kL \approx 0.9$, a wavelength of about seven jet widths. A Gaussian jet with a little $\beta$ and damping is not exactly that, but it is close enough to predict the count. Bend the jet into a ring of radius $R_0$ and the wavenumber must be an integer, so the polygon is
 
 $$
 m \approx \frac{0.9\,R_0}{L}.
@@ -55,7 +55,7 @@ I wanted the wave to be able to sit on the jet for hundreds of laps without nume
 
 Advection is the **Arakawa Jacobian** — the nine-point finite-difference form that conserves both energy and enstrophy in the semi-discrete limit. It is what weather models used for decades and it is nine lines of WGSL.
 
-The Poisson solve $\nabla^2\psi = \zeta$ is where GPU fluid codes usually cut corners: a few dozen Jacobi sweeps converge on the small scales and never on the large ones, and the large scales are the whole story here. So it is an **FFT**. Each one-dimensional transform of a row or column runs entirely inside one workgroup, the 512 complex values living in shared memory and 256 threads doing the butterflies with a barrier between stages. Rows forward, columns forward with the division by the Laplacian's eigenvalues fused in, rows back, columns back: a full solve is **four dispatches**. Dividing by the eigenvalues of the *discrete* five-point Laplacian rather than $-k^2$ makes the finite-difference velocity exactly divergence-free, which the Arakawa scheme quietly assumes.
+The Poisson solve $\nabla^2\psi = \zeta$ is where GPU fluid codes usually cut corners: a few dozen Jacobi sweeps converge on the small scales and never on the large ones, and the large scales are the whole story here. So it is an **FFT**. Each one-dimensional transform of a row or column runs entirely inside one workgroup, the 512 complex values living in shared memory and 256 threads doing the butterflies with a barrier between stages. Rows forward, columns forward with the division by the Laplacian's eigenvalues fused in, rows back, columns back: a full solve is **four dispatches**. Dividing by the eigenvalues of the *discrete* five-point Laplacian rather than $-k^2$ makes $\nabla^2_{\text{FD}}\psi = \zeta$ hold exactly on the grid, which is the identity the Arakawa scheme's conservation proof quietly assumes.
 
 Time-stepping is SSP-RK3, three solves per step. At $512^2$ a step is about 0.4 ms on an M-series laptop, so a jet lap takes a few seconds of wall clock at the default speed.
 

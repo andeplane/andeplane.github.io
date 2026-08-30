@@ -5,7 +5,7 @@
  *
  *   npx tsx tools/reference.ts [N] [T] [jetWidth ...]
  */
-import { DEFAULT_PARAMS, spongeRate, stableDt, targetVorticity, type Params } from '../src/sim/params.ts';
+import { DEFAULT_PARAMS, gridNu, spongeRate, stableDt, targetVorticity, type Params } from '../src/sim/params.ts';
 import { analyseRing, RING_SAMPLES } from '../src/sim/modes.ts';
 
 // ---------- FFT ----------
@@ -252,7 +252,7 @@ for (const arg of process.argv.slice(4)) {
 }
 
 {
-  const p = { ...DEFAULT_PARAMS, nu: DEFAULT_PARAMS.nu * (512 / N), ...overrides };
+  const p = { ...DEFAULT_PARAMS, nu: gridNu(N, DEFAULT_PARAMS.nu), ...overrides };
   const w = p.jetWidth;
   const s = new Solver(N, p);
   const dt = stableDt(N, p);

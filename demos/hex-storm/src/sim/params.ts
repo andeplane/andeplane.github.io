@@ -4,7 +4,7 @@
  *
  * Units: the jet's peak speed is 1 and the box is [-1, 1]². The jet sits at radius R0,
  * which stands for Saturn's 78°N. Time unit = (R0 / 0.55) × 2.2·10⁷ m / 100 m s⁻¹
- * ≈ 61 hours, so one jet lap (2πR0 ≈ 3.5) is about nine Saturn days.
+ * ≈ 61 hours, so one jet lap (2πR0 ≈ 3.5) is about twenty Saturn days.
  */
 export interface Params {
   /** Jet radius — the latitude of the hexagon. */
@@ -70,9 +70,27 @@ export function spongeRate(r: number, p: Params): number {
   return p.spongeRate * t * t * (3 - 2 * t);
 }
 
-/** Stable time step for the grid: CFL 0.4 against the peak speed. */
+/**
+ * Stable time step for the grid: CFL 0.4 against the largest speed the sliders and the
+ * mouse can produce, so it never has to change while running.
+ */
 export function stableDt(n: number, p: Params): number {
   const dx = 2 / n;
-  const umax = Math.max(1, p.jetSpeed + p.poleSpeed * 0.3);
+  const umax = Math.max(1.6, p.jetSpeed + p.poleSpeed * 0.3);
   return 0.4 * dx / umax;
+}
+
+/**
+ * A narrow jet on a coarse grid is effectively a little wider (the profile is smeared
+ * over ~5 cells), so the same nominal width lands one polygon lower. The presets are
+ * tuned at 512²; this factor keeps them on the same rung elsewhere (256² measured
+ * against the CPU reference; 1024² assumed converged).
+ */
+export function gridWidthFactor(n: number): number {
+  return n <= 256 ? 0.875 : 1;
+}
+
+/** Viscosity scaled so the cell Reynolds number stays at its 512² design value. */
+export function gridNu(n: number, nu: number): number {
+  return nu * (512 / n);
 }

@@ -161,7 +161,6 @@ fn fs(in: VSOut) -> @location(0) vec4f {
     col = mix(c0, c1, smoothstep(0.2, 0.8, band)) * (0.5 + 0.5 * exposure);
     col = mix(col, col * vec3f(0.9, 0.6, 0.9), a * 0.3);
     col += vec3f(cloud) * 0.6;
-    col = mix(col, vec3f(0.02), smoothstep(0.75, 1.05, speed) * 0.0);
   }
 
   // ---------- streamline overlay ----------

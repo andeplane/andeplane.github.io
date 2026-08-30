@@ -5,7 +5,8 @@
 ## Decision
 
 - **Poisson by FFT.** ψ = ∇⁻²ζ on a periodic N×N grid, dividing by the eigenvalues of
-  the 5-point Laplacian so the finite-difference velocity is exactly divergence-free.
+  the 5-point Laplacian so that ∇²_FD ψ = ζ holds exactly — the identity the Arakawa
+  conservation properties rely on.
   Each row/column transform runs in one workgroup with the data in shared memory
   (N ≤ 1024 complex values), so a full solve is four compute dispatches — cheap enough for
   three solves per time step.

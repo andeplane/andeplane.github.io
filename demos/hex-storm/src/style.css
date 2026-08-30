@@ -91,5 +91,5 @@ label.check input { accent-color: var(--accent); }
   #readouts .value { font-size: 40px; }
   .stats { display: none; }
   #hint { display: none; }
-  #tour { bottom: auto; top: 90px; }
+  #tour { bottom: auto; top: 300px; }
 }

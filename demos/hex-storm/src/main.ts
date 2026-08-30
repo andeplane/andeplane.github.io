@@ -96,7 +96,7 @@ async function main(): Promise<void> {
       'button',
       {
         type: 'button',
-        title: `Jet width ${p.params.jetWidth} → about ${p.sides} wave crests fit around the jet, so the polygon has ${p.sides} sides. Only the jet width changes between presets; the physics is identical.`,
+        title: `Jet width ${p.params.jetWidth} → about ${p.sides} wave crests fit around the jet, so the polygon has ${p.sides} sides. Presets only set the jet width (and reset rotation and forcing to Saturn's); the physics is identical.`,
       },
       p.name,
     );
@@ -223,7 +223,9 @@ async function main(): Promise<void> {
   );
 
   window.addEventListener('keydown', (ev) => {
-    if ((ev.target as HTMLElement).tagName === 'INPUT' || (ev.target as HTMLElement).tagName === 'SELECT') return;
+    if (ev.metaKey || ev.ctrlKey || ev.altKey) return;
+    const tag = (ev.target as HTMLElement).tagName;
+    if (tag === 'INPUT' || tag === 'SELECT' || tag === 'BUTTON' || tag === 'A') return;
     if (ev.key === ' ') { ev.preventDefault(); togglePause(); }
     if (ev.key === 'r' || ev.key === 'R') reset();
     if (ev.key >= '1' && ev.key <= '4') { view.mode = Number(ev.key) - 1; viewSeg.set(view.mode); }
@@ -287,17 +289,18 @@ async function main(): Promise<void> {
       },
       {
         title: 'Watch it go unstable',
-        body: 'You are looking at <b>vorticity</b> — local spin. Amber spins counter-clockwise, blue clockwise. The jet started as two smooth rings of opposite spin plus a little noise. The noise is being amplified into waves, and the readout at bottom-left is counting how many crests fit around the ring.',
+        body: 'You are looking at <b>vorticity</b> — local spin. Amber spins counter-clockwise, blue clockwise. The jet started as two smooth rings of opposite spin plus a little noise. The noise is being amplified into waves, and the <b>sides</b> readout is counting how many crests fit around the ring.',
+        onEnter: () => { view.mode = 1; viewSeg.set(1); },
         waitFor: { text: 'waiting for a dominant wave to lock in…', done: () => !!spectrum && spectrum.purity > 0.6 && stableSince > 0 && performance.now() - stableSince > 1500 },
       },
       {
         title: 'Why six?',
-        body: 'The fastest-growing wave has a wavelength of about <b>seven times the jet width</b> — a fixed result of shear-flow stability theory. How many of those fit around a circle of the jet\'s radius decides the polygon. On Saturn the answer is six. Rotation (Rossby waves) and the forcing tidy it up and hold it steady.<br><br>Now switch to the cloud view: the bright, sharp-edged jet is the hexagon Cassini photographed.',
+        body: 'For a smooth jet the fastest-growing wave has a wavelength of roughly <b>seven jet widths</b> (the classical Bickley-jet result). How many of those fit around a circle of the jet\'s radius decides the polygon. On Saturn the answer is six. Rotation (Rossby waves) and the forcing tidy it up and hold it steady.<br><br>Now switch to the cloud view: the bright, sharp-edged jet is the hexagon Cassini photographed.',
         onEnter: () => { view.mode = 0; viewSeg.set(0); },
       },
       {
         title: 'Make a pentagon',
-        body: 'Try the <b>Jet width</b> slider or the presets on the right. A wider jet fits fewer waves — five, then four. A narrower one gives seven or eight. This is exactly the experiment Aguiar, Read and colleagues did in 2010 with a spinning tank of water, and they got every polygon from 2 to 8.',
+        body: 'Try the <b>Jet width</b> slider or the presets in the panel. A wider jet fits fewer waves — five, then four. A narrower one gives seven or eight. This is exactly the experiment Aguiar, Read and colleagues did in 2010 with a spinning tank of water, and they got every polygon from 2 to 8.',
         onEnter: () => { document.getElementById('panel')!.classList.add('flash'); },
         onLeave: () => { document.getElementById('panel')!.classList.remove('flash'); },
       },
@@ -333,12 +336,13 @@ async function main(): Promise<void> {
     stepCount += steps;
     frames++;
     if (++ringTick % 6 === 0) {
-      void solver.readRing().then((ring) => {
-        if (ring) {
+      const s = solver;
+      void s.readRing().then((ring) => {
+        if (ring && s === solver) {
           spectrum = analyseRing(ring);
           updateSpectrum(spectrum);
         }
-      });
+      }).catch(() => { /* solver was rebuilt mid-readback */ });
     }
   };
 

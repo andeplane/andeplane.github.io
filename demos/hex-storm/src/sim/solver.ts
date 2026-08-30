@@ -7,7 +7,7 @@ import { fftShader, FFT_WORKGROUP, type FftVariant } from '../gpu/shaders/fft.wg
 import { RENDER } from '../gpu/shaders/render.wgsl.ts';
 import { RHS, RING, RK, TRACER, TRACER_INIT, TRACER_SCALE } from '../gpu/shaders/sim.wgsl.ts';
 import { RING_SAMPLES } from './modes.ts';
-import { spongeRate, stableDt, targetVorticity, type Params } from './params.ts';
+import { gridNu, gridWidthFactor, spongeRate, stableDt, targetVorticity, type Params } from './params.ts';
 
 export const GRID_SIZES = [256, 512, 1024] as const;
 
@@ -74,6 +74,8 @@ export class Solver {
   private readonly ringGroups = new Map<GPUBuffer, GPUBindGroup>();
   private readonly renderGroups = new Map<string, GPUBindGroup>();
   private tracerGroups!: [GPUBindGroup, GPUBindGroup];
+  // rk stage groups keyed by `${z0.label}/${stage}`; zin/zout follow from stage and z0.
+  private readonly rkGroups = new Map<string, GPUBindGroup>();
   private tracerInitGroups!: [GPUBindGroup, GPUBindGroup];
 
   constructor(device: GPUDevice, n: number, params: Params, format: GPUTextureFormat) {
@@ -215,6 +217,19 @@ export class Solver {
       }),
     ];
 
+    for (const [z0, zB] of [[this.zA, this.zB], [this.zB, this.zA]] as const) {
+      const stages: [GPUBuffer, GPUBuffer][] = [[z0, this.z1], [this.z1, this.z2], [this.z2, zB]];
+      stages.forEach(([zin, zout], stage) => {
+        this.rkGroups.set(
+          `${z0.label}/${stage}`,
+          d.createBindGroup({
+            layout: this.rkPipelines[stage].getBindGroupLayout(0),
+            entries: [u, buf(1, z0), buf(2, zin), buf(3, this.k), buf(4, zout)],
+          }),
+        );
+      });
+    }
+
     const tracerGroup = (src: number) =>
       d.createBindGroup({
         layout: this.tracerPipeline.getBindGroupLayout(0),
@@ -256,6 +271,7 @@ export class Solver {
   /** Recompute the target-vorticity and sponge fields from the current params. */
   uploadProfiles(): void {
     const { n, dx, params } = this;
+    const profile = { ...params, jetWidth: params.jetWidth * gridWidthFactor(n) };
     const zt = new Float32Array(n * n);
     const sp = new Float32Array(n * n);
     for (let j = 0; j < n; j++) {
@@ -263,7 +279,7 @@ export class Solver {
       for (let i = 0; i < n; i++) {
         const x = -1 + (i + 0.5) * dx;
         const r = Math.hypot(x, y);
-        zt[j * n + i] = targetVorticity(r, params);
+        zt[j * n + i] = targetVorticity(r, profile);
         sp[j * n + i] = spongeRate(r, params);
       }
     }
@@ -327,7 +343,7 @@ export class Solver {
     f[3] = this.time;
     f[4] = p.jetRadius;
     f[5] = p.gamma;
-    f[6] = p.nu;
+    f[6] = gridNu(this.n, p.nu);
     f[7] = p.relax;
     f[8] = mouse.x;
     f[9] = mouse.y;
@@ -367,19 +383,9 @@ export class Solver {
     pass.dispatchWorkgroups(wg, wg);
   }
 
-  private rk(pass: GPUComputePassEncoder, stage: number, z0: GPUBuffer, zin: GPUBuffer, zout: GPUBuffer): void {
-    const group = this.device.createBindGroup({
-      layout: this.rkPipelines[stage].getBindGroupLayout(0),
-      entries: [
-        { binding: 0, resource: { buffer: this.uniformBuffer } },
-        { binding: 1, resource: { buffer: z0 } },
-        { binding: 2, resource: { buffer: zin } },
-        { binding: 3, resource: { buffer: this.k } },
-        { binding: 4, resource: { buffer: zout } },
-      ],
-    });
+  private rk(pass: GPUComputePassEncoder, stage: number, z0: GPUBuffer): void {
     pass.setPipeline(this.rkPipelines[stage]);
-    pass.setBindGroup(0, group);
+    pass.setBindGroup(0, this.rkGroups.get(`${z0.label}/${stage}`)!);
     pass.dispatchWorkgroups(Math.ceil((this.n * this.n) / 256));
   }
 
@@ -395,11 +401,11 @@ export class Solver {
     for (let s = 0; s < steps; s++) {
       // SSP-RK3: z1 = z + dt k(z); z2 = ¾z + ¼(z1 + dt k(z1)); z' = ⅓z + ⅔(z2 + dt k(z2))
       this.rhs(pass, this.zA);
-      this.rk(pass, 0, this.zA, this.zA, this.z1);
+      this.rk(pass, 0, this.zA);
       this.rhs(pass, this.z1);
-      this.rk(pass, 1, this.zA, this.z1, this.z2);
+      this.rk(pass, 1, this.zA);
       this.rhs(pass, this.z2);
-      this.rk(pass, 2, this.zA, this.z2, this.zB);
+      this.rk(pass, 2, this.zA);
       [this.zA, this.zB] = [this.zB, this.zA];
       this.time += this.dt;
       this.steps++;
