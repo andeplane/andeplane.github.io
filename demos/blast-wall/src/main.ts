@@ -486,8 +486,12 @@ function frame(now: number): void {
   last = now;
 
   if (needsRebuild) {
+    // A rebuild subsumes the other two — it makes a fresh solver with the current
+    // materials and load — but the readout still has to be refreshed, or resizing the
+    // wall leaves the old scaled distance and peak pressure sitting in the HUD.
     needsRebuild = needsMaterials = needsLoad = false;
     rebuild();
+    updateBlastReadout();
   }
   if (needsMaterials) {
     needsMaterials = false;
