@@ -1,0 +1,71 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Blast Wall Lab — a masonry wall, a charge, and the finite element method</title>
+    <meta
+      name="description"
+      content="A 3D finite element simulation of a brick wall hit by a blast wave. Real bricks in løperforband, real mortar joints with a cohesive-frictional law, solved on your GPU."
+    />
+    <link rel="stylesheet" href="/src/style.css" />
+  </head>
+  <body>
+    <canvas id="view"></canvas>
+    <svg id="overlay" aria-hidden="true"></svg>
+
+    <div id="loading"><span>laying bricks…</span></div>
+
+    <div id="unsupported" hidden>
+      <div>
+        <h1>WebGPU required</h1>
+        <p>
+          This lab runs a finite element solver over thousands of bricks on your GPU, and
+          needs a browser with WebGPU. Recent Chrome, Edge or Safari should work; in
+          Firefox, enable it in <code>about:config</code>.
+        </p>
+      </div>
+    </div>
+
+    <aside id="panel">
+      <header>
+        <h1>Blast Wall Lab</h1>
+        <p>
+          Bricks in løperforband, mortar joints that crack, slide, bear and crush, and a
+          Friedlander pulse arriving from outside. Every joint is solved, not scripted.
+        </p>
+      </header>
+
+      <div id="actions">
+        <button id="detonate" class="btn primary">Detonate</button>
+        <button id="playpause" class="btn">Pause</button>
+        <button id="reset" class="btn">Rebuild</button>
+      </div>
+
+      <div id="tools">
+        <button class="tool active" data-tool="select">Select</button>
+        <button class="tool" data-tool="carve">Carve</button>
+        <button class="tool" data-tool="pin">Pin</button>
+        <button class="tool" data-tool="opening">Opening</button>
+      </div>
+
+      <div id="groups"></div>
+
+      <p id="status">
+        Drag to orbit, scroll to zoom, shift-drag to pan. Click a brick to select it; drag
+        the red charge to move it.
+      </p>
+    </aside>
+
+    <div id="hud">
+      <div class="stat"><span>t</span><b id="hud-time">0.0 ms</b></div>
+      <div class="stat"><span>joints cracked</span><b id="hud-cracked">0 %</b></div>
+      <div class="stat"><span>peak reflected</span><b id="hud-pressure">—</b></div>
+      <div class="stat"><span>scaled distance Z</span><b id="hud-z">—</b></div>
+      <div class="stat"><span>fastest debris</span><b id="hud-speed">0.0 m/s</b></div>
+      <div class="stat"><span>model</span><b id="hud-size">—</b></div>
+    </div>
+
+    <script type="module" src="/src/main.ts"></script>
+  </body>
+</html>
