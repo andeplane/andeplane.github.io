@@ -186,7 +186,100 @@ html, body {
 }
 #trace-canvas { display: block; width: 100%; height: 96px; }
 
-/* ---- the guide / theory sheet ---- */
+/* ---- the typeset theory paper ---- */
+
+#explainer {
+  width: min(46rem, calc(100vw - 2rem));
+  max-height: min(88vh, 62rem);
+  margin: auto;
+  padding: 0;
+  border: 1px solid var(--edge-strong);
+  border-radius: 14px;
+  background: #12151a;
+  color: var(--ink);
+  overflow: hidden;
+}
+#explainer::backdrop { background: rgba(6, 7, 9, 0.74); backdrop-filter: blur(3px); }
+
+#explainer article {
+  max-height: min(88vh, 62rem);
+  overflow-y: auto;
+  padding: 2.4rem 2.8rem 3rem;
+  scrollbar-width: thin;
+}
+
+.explainer-close {
+  position: absolute;
+  top: 0.7rem;
+  right: 0.9rem;
+  z-index: 2;
+  width: 2rem;
+  height: 2rem;
+  padding: 0;
+  font: inherit;
+  font-size: 1.2rem;
+  line-height: 1;
+  color: var(--muted);
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid var(--edge);
+  border-radius: 50%;
+  cursor: pointer;
+}
+.explainer-close:hover { color: var(--ink); background: rgba(255, 255, 255, 0.11); }
+
+#explainer h1 {
+  margin: 0;
+  font-size: 1.5rem;
+  font-weight: 600;
+  line-height: 1.22;
+  letter-spacing: -0.018em;
+  text-wrap: balance;
+}
+#explainer .byline {
+  margin: 0.5rem 0 0;
+  font-size: 0.8rem;
+  font-style: italic;
+  color: var(--muted);
+}
+#explainer section { margin-top: 2rem; }
+#explainer h2 {
+  margin: 0 0 0.7rem;
+  font-size: 0.72rem;
+  font-weight: 650;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--accent);
+}
+#explainer p,
+#explainer li {
+  margin: 0 0 0.95rem;
+  font-size: 0.87rem;
+  line-height: 1.72;
+  color: #c8cdd4;
+  text-wrap: pretty;
+}
+#explainer ul { margin: 0 0 0.95rem; padding-left: 1.1rem; }
+#explainer li { margin-bottom: 0.55rem; }
+#explainer li::marker { color: var(--accent); }
+#explainer strong, #explainer b { color: var(--ink); font-weight: 600; }
+#explainer em { font-style: italic; }
+#explainer .abstract {
+  padding-left: 1rem;
+  border-left: 2px solid var(--accent);
+  color: var(--ink);
+}
+
+/* KaTeX inherits the panel's colour, and long display maths scrolls in its own box
+   rather than widening the dialog. */
+#explainer .katex { color: var(--ink); font-size: 1em; }
+#explainer .katex-display {
+  margin: 1.1rem 0;
+  padding: 0.2rem 0;
+  overflow-x: auto;
+  overflow-y: hidden;
+}
+
+/* ---- the guide sheet ---- */
 
 #sheet {
   position: fixed;

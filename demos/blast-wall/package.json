@@ -11,7 +11,11 @@
     "typecheck": "tsc --noEmit",
     "selftest": "tsx tools/selftest.ts"
   },
+  "dependencies": {
+    "katex": "^0.16.11"
+  },
   "devDependencies": {
+    "@types/katex": "^0.16.8",
     "@types/node": "^24.0.0",
     "@webgpu/types": "^0.1.64",
     "tsx": "^4.19.0",

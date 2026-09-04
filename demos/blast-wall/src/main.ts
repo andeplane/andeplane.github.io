@@ -34,6 +34,7 @@ import { OrbitCamera } from './render/camera.ts';
 import { Panel, type Group } from './ui/controls.ts';
 import { Editor, type Tool } from './ui/editor.ts';
 import { Sheet } from './ui/sheet.ts';
+import { createExplainer } from './ui/explainer.ts';
 import { TracePlot } from './ui/trace.ts';
 
 // Divisions through the thickness are derived (nx / 2), because the lattice has to stay
@@ -670,8 +671,9 @@ async function boot(): Promise<void> {
   });
 
   const sheet = new Sheet();
+  const explainer = createExplainer();
   el('open-guide').addEventListener('click', () => sheet.open('guide'));
-  el('open-theory').addEventListener('click', () => sheet.open('theory'));
+  el('open-theory').addEventListener('click', () => void explainer.open());
 
   document.getElementById('loading')?.remove();
   sheet.openIfFirstVisit();
