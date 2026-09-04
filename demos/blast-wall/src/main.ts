@@ -34,6 +34,7 @@ import { OrbitCamera } from './render/camera.ts';
 import { Panel, type Group } from './ui/controls.ts';
 import { Editor, type Tool } from './ui/editor.ts';
 import { Sheet } from './ui/sheet.ts';
+import { TracePlot } from './ui/trace.ts';
 
 // Divisions through the thickness are derived (nx / 2), because the lattice has to stay
 // square in plan for the corners of a room to bond. See `latticeFor`.
@@ -61,6 +62,7 @@ state.charge = { ...defaultCharge(), x: 1.8, y: 1.0, z: -4.5, mass: 25 };
 const canvas = document.getElementById('view') as HTMLCanvasElement;
 const overlay = document.getElementById('overlay') as unknown as SVGSVGElement;
 const camera = new OrbitCamera();
+const trace = new TracePlot(document.getElementById('trace-canvas') as HTMLCanvasElement);
 
 let mesh: Mesh;
 let solver: GpuSolver;
@@ -100,6 +102,7 @@ function rebuild(): void {
   // Editing mid-flight would silently restart the run on the new geometry, which reads
   // as the wall teleporting. Stop, so an edit is something you make and then fire.
   state.playing = false;
+  trace.reset();
   const pp = document.getElementById('playpause');
   if (pp) pp.textContent = 'Play';
 }
@@ -572,6 +575,8 @@ function frame(now: number): void {
       if (!s) return;
       el('hud-cracked').textContent = `${(s.cracked * 100).toFixed(1)} %`;
       el('hud-speed').textContent = `${s.maxSpeed.toFixed(1)} m/s`;
+      trace.update(s.trace);
+      el('trace-value').textContent = `${trace.latest().toFixed(1)} mm`;
     });
   }
 
@@ -638,6 +643,7 @@ async function boot(): Promise<void> {
 
   el('detonate').addEventListener('click', () => {
     solver.reset();
+    trace.reset();
     state.playing = true;
     el('playpause').textContent = 'Pause';
     setStatus('Firing. The front leaves the charge at several times the speed of sound and slows as it goes.');
@@ -648,6 +654,7 @@ async function boot(): Promise<void> {
   });
   el('reset').addEventListener('click', () => {
     solver.reset();
+    trace.reset();
     state.playing = false;
     el('playpause').textContent = 'Play';
     setStatus('Wall rebuilt, undamaged, at rest.');

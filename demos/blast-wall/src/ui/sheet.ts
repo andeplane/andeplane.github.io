@@ -53,8 +53,10 @@ const GUIDE = /* html */ `
 </ol>
 
 <p class="foot">
-  Drag to orbit · scroll to zoom · shift-drag to pan. The numbers top-right are live:
-  scaled distance Z, peak reflected pressure, the fraction of joints fully cracked.
+  Drag to orbit · scroll to zoom · shift-drag to pan. The numbers top-right are live, and
+  the plot bottom-right is the displacement of the middle of the loaded wall against
+  time — the trace a real blast test records. For the maths behind all of it, the
+  <b>Theory</b> button sits next to the one that opened this.
 </p>
 `;
 

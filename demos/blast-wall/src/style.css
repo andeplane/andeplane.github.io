@@ -136,17 +136,55 @@ html, body {
 .tool.active { color: #14100d; background: var(--cool); border-color: var(--cool); font-weight: 600; }
 
 #reads { display: flex; gap: 6px; }
+/* Not ghosted: the first version of these was faint enough that people looked straight
+   past the Theory button and concluded the demo had no theory. */
 .btn.ghost {
-  padding: 6px 10px;
-  font-size: 12px;
-  font-weight: 500;
-  color: var(--muted);
-  background: transparent;
-  border-color: var(--edge);
+  padding: 7px 10px;
+  font-size: 12.5px;
+  font-weight: 550;
+  color: var(--cool);
+  background: rgba(88, 183, 214, 0.1);
+  border-color: rgba(88, 183, 214, 0.4);
 }
-.btn.ghost:hover { color: var(--ink); background: rgba(255, 255, 255, 0.06); }
+.btn.ghost:hover { background: rgba(88, 183, 214, 0.2); }
 
 #groups { display: flex; flex-direction: column; gap: 6px; }
+
+/* ---- d(t) plot ---- */
+
+#trace {
+  position: fixed;
+  right: 14px;
+  bottom: 14px;
+  z-index: 10;
+  margin: 0;
+  width: 300px;
+  padding: 10px 12px 6px;
+  background: var(--panel);
+  backdrop-filter: blur(14px);
+  border: 1px solid var(--edge);
+  border-radius: 10px;
+}
+#trace figcaption {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 12px;
+  margin-bottom: 4px;
+}
+#trace figcaption span {
+  font-size: 10.5px;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+#trace figcaption b {
+  font-family: var(--mono);
+  font-size: 12.5px;
+  font-weight: 500;
+  font-variant-numeric: tabular-nums;
+}
+#trace-canvas { display: block; width: 100%; height: 96px; }
 
 /* ---- the guide / theory sheet ---- */
 

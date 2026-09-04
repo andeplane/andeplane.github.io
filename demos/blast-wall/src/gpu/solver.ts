@@ -16,8 +16,18 @@ import type { WorldOptions } from '../physics/solver.ts';
 import { boxStiffness, maxElementFrequency } from '../physics/element.ts';
 import { buildNodeLoads } from '../physics/load.ts';
 import type { Charge } from '../physics/blast.ts';
-import { layoutFor, OFFSET_FIELDS, PARAMS_BYTES, type Layout } from './layout.ts';
+import { layoutFor, OFFSET_FIELDS, PARAMS_BYTES, TRACE_SAMPLES, type Layout } from './layout.ts';
 import { simShader } from './shaders/sim.wgsl.ts';
+
+export interface Stats {
+  /** Fraction of joints fully cracked. */
+  cracked: number;
+  maxSpeed: number;
+  /** Fraction of nodes moving faster than 0.5 m/s. */
+  flying: number;
+  /** Interleaved (time, displacement) pairs for the probe node. */
+  trace: Float32Array;
+}
 
 export class GpuSolver {
   readonly device: GPUDevice;
@@ -47,6 +57,8 @@ export class GpuSolver {
   private readonly buildDensity: number;
   /** Live nodal inverse masses, rescaled whenever the density changes. */
   private readonly invMass: F32;
+  /** The node whose displacement history the d(t) plot shows. */
+  readonly probeNode: number;
   private staging: GPUBuffer | null = null;
   private statsPending = false;
 
@@ -66,6 +78,7 @@ export class GpuSolver {
     this.nodeMass = (materials.density * mesh.dx * mesh.dy * mesh.dz) / 8;
     this.buildDensity = materials.density;
     this.invMass = Float32Array.from(mesh.invMass);
+    this.probeNode = findProbeNode(mesh);
 
     const L = this.layout;
     const adj = buildAdjacency(mesh);
@@ -233,6 +246,12 @@ export class GpuSolver {
     OFFSET_FIELDS.forEach((name, i) => {
       u[24 + i] = this.layout.off[name];
     });
+    const tail = 24 + OFFSET_FIELDS.length;
+    u[tail] = this.probeNode;
+    // Aim the trace at roughly a full ring over the length of a blast event, so the
+    // curve is dense without the recording kernel running every single step.
+    u[tail + 1] = Math.max(1, Math.round(0.35 / this.dt / TRACE_SAMPLES));
+    u[tail + 2] = TRACE_SAMPLES;
     this.device.queue.writeBuffer(this.params, 0, this.paramBytes);
   }
 
@@ -273,22 +292,32 @@ export class GpuSolver {
    * Called a few times a second, not every frame: it is the only place the CPU looks at
    * the solver's state, and "34 % of joints cracked" is worth one small copy.
    */
-  async readStats(): Promise<{ cracked: number; maxSpeed: number; flying: number } | null> {
+  async readStats(): Promise<Stats | null> {
     if (this.statsPending) return null;
     this.statsPending = true;
     const L = this.layout;
     const damageBytes = L.p * 4;
     const scalarBytes = L.n * 2 * 4;
+    const clockBytes = 16;
+    const traceBytes = TRACE_SAMPLES * 2 * 4;
     if (!this.staging) {
       this.staging = this.device.createBuffer({
         label: 'stats staging',
-        size: damageBytes + scalarBytes,
+        size: damageBytes + scalarBytes + clockBytes + traceBytes,
         usage: GPUBufferUsage.COPY_DST | GPUBufferUsage.MAP_READ,
       });
     }
     const encoder = this.device.createCommandEncoder();
     encoder.copyBufferToBuffer(this.rw, L.off.pairDamage * 4, this.staging, 0, damageBytes);
     encoder.copyBufferToBuffer(this.rw, L.off.nodeScalar * 4, this.staging, damageBytes, scalarBytes);
+    encoder.copyBufferToBuffer(this.rw, L.off.clock * 4, this.staging, damageBytes + scalarBytes, clockBytes);
+    encoder.copyBufferToBuffer(
+      this.rw,
+      L.off.trace * 4,
+      this.staging,
+      damageBytes + scalarBytes + clockBytes,
+      traceBytes,
+    );
     this.device.queue.submit([encoder.finish()]);
     try {
       await this.staging.mapAsync(GPUMapMode.READ);
@@ -304,7 +333,15 @@ export class GpuSolver {
         if (s > maxSpeed) maxSpeed = s;
         if (s > 0.5) flying++;
       }
-      return { cracked: cracked / Math.max(L.p, 1), maxSpeed, flying: flying / Math.max(L.n, 1) };
+      // The trace ring: (t, d) pairs the solver wrote on its own clock.
+      const traceBase = L.p + L.n * 2 + 4;
+      const samples = Math.min(view[L.p + L.n * 2 + 2] | 0, TRACE_SAMPLES);
+      return {
+        cracked: cracked / Math.max(L.p, 1),
+        maxSpeed,
+        flying: flying / Math.max(L.n, 1),
+        trace: view.subarray(traceBase, traceBase + samples * 2),
+      };
     } catch {
       return null;
     } finally {
@@ -324,6 +361,30 @@ export class GpuSolver {
   flushReadOnly(): void {
     this.device.queue.writeBuffer(this.ro, 0, this.roData);
   }
+}
+
+/**
+ * Where to put the displacement gauge: the middle of the loaded face.
+ *
+ * A real blast test puts a transducer at mid-span, because that is where a one-way
+ * spanning panel moves most and where the textbook single-degree-of-freedom solution
+ * applies. Taking a maximum over the whole façade instead would track whichever brick
+ * happens to be flying fastest, which is a different and much less readable quantity.
+ */
+function findProbeNode(mesh: Mesh): number {
+  const targetX = mesh.lattice.length / 2;
+  const targetY = mesh.lattice.height / 2;
+  let best = 0;
+  let bestD = Infinity;
+  for (let n = 0; n < mesh.nodeCount; n++) {
+    if (mesh.x0[n * 3 + 2] > 1e-6) continue; // the outer face of the loaded wall
+    const d = Math.hypot(mesh.x0[n * 3] - targetX, mesh.x0[n * 3 + 1] - targetY);
+    if (d < bestD) {
+      bestD = d;
+      best = n;
+    }
+  }
+  return best;
 }
 
 function groups(count: number): number {
