@@ -14,7 +14,7 @@
  * bond at their corners. See `latticeFor`.
  */
 
-import { brickThickness, type WallSpec } from './types.ts';
+import { brickThickness, type FaceName, type WallSpec } from './types.ts';
 
 export interface Unit {
   /** Stable id across re-generation, "course:latticeX:latticeZ". */
@@ -228,7 +228,7 @@ function layRun(
 
       const key = `${course}:${ix0}:${iz0}`;
       if (ctx.removed.has(key)) continue;
-      if (insideOpening(spec, lat, ix0, ix1, iy0, iy0 + lat.uy, iz0)) continue;
+      if (insideOpening(spec, lat, { ix0, ix1, iy0, iy1: iy0 + lat.uy, iz0, iz1 })) continue;
       ctx.units.push({
         key,
         course,
@@ -252,21 +252,48 @@ function layRun(
  * Openings are drawn on the face nearest the charge, so they only cut the wall they were
  * drawn on — otherwise every window would come with a matching hole in the back wall.
  */
-function insideOpening(
-  spec: WallSpec,
-  lat: Lattice,
-  ix0: number,
-  ix1: number,
-  iy0: number,
-  iy1: number,
-  iz0: number,
-): boolean {
+/** Anything with lattice extents: a unit, or a candidate cell being tested. */
+export interface Box {
+  ix0: number;
+  ix1: number;
+  iy0: number;
+  iy1: number;
+  iz0: number;
+  iz1: number;
+}
+
+/**
+ * Which of a room's walls a unit belongs to, or null if it is not on one — which for a
+ * single wall is everything, and that is what makes `face` meaningless there.
+ */
+export function faceOf(lat: Lattice, b: Box): FaceName | null {
+  if (b.iz0 < lat.wall) return 'z0';
+  if (b.iz1 > lat.nz - lat.wall) return 'z1';
+  if (b.ix0 < lat.wall) return 'x0';
+  if (b.ix1 > lat.nx - lat.wall) return 'x1';
+  return null;
+}
+
+/**
+ * A unit is cut away by an opening when its centre falls inside one.
+ *
+ * An opening belongs to the wall it was drawn on, and only cuts that one — otherwise
+ * every window comes with a matching hole in the wall opposite. The in-plane coordinate
+ * runs along the wall itself: x for the front and back, z for the returns, so a window
+ * dragged on a return wall means what it looked like it meant.
+ */
+function insideOpening(spec: WallSpec, lat: Lattice, b: Box): boolean {
   if (spec.openings.length === 0) return false;
-  // Cut only the wall the opening was drawn on, or every window would come with a
-  // matching hole in the back wall. Compare against the façade's whole thickness, not
-  // just its outer leaf — keying on iz0 === 0 left a solid inner leaf behind the hole.
-  if (spec.plan === 'room' && iz0 >= lat.wall) return false;
-  const cx = ((ix0 + ix1) / 2) * lat.dx;
-  const cy = ((iy0 + iy1) / 2) * lat.dy;
-  return spec.openings.some((o) => cx > o.x && cx < o.x + o.w && cy > o.y && cy < o.y + o.h);
+  const cy = ((b.iy0 + b.iy1) / 2) * lat.dy;
+  const wall = spec.plan === 'room' ? faceOf(lat, b) : 'z0';
+  if (wall === null) return false;
+  const along =
+    wall === 'x0' || wall === 'x1'
+      ? ((b.iz0 + b.iz1) / 2) * lat.dz
+      : ((b.ix0 + b.ix1) / 2) * lat.dx;
+
+  return spec.openings.some((o) => {
+    if (spec.plan === 'room' && (o.face ?? 'z0') !== wall) return false;
+    return along > o.x && along < o.x + o.w && cy > o.y && cy < o.y + o.h;
+  });
 }

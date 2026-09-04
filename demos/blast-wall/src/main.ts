@@ -611,13 +611,22 @@ function drawOverlay(): void {
   if (!r) return;
   const rect = canvas.getBoundingClientRect();
   const aspect = rect.width / Math.max(rect.height, 1);
+  // The band lives in its own wall's plane, so lift its two in-plane coordinates back
+  // into world space according to which wall that is.
+  const lat = mesh.lattice;
+  const onZ = r.face === 'z0' || r.face === 'z1';
+  const plane =
+    r.face === 'z0' ? 0 : r.face === 'z1' ? lat.thickness : r.face === 'x0' ? 0 : lat.length;
+  const world = (along: number, y: number): [number, number, number] =>
+    onZ ? [along, y, plane] : [plane, y, along];
+
   const pts = [
     [r.x, r.y],
     [r.x + r.w, r.y],
     [r.x + r.w, r.y + r.h],
     [r.x, r.y + r.h],
   ]
-    .map(([x, y]) => camera.project([x, y, 0], aspect, rect.width, rect.height))
+    .map(([a, y]) => camera.project(world(a, y), aspect, rect.width, rect.height))
     .map(([px, py]) => `${px.toFixed(1)},${py.toFixed(1)}`)
     .join(' ');
   const poly = document.createElementNS('http://www.w3.org/2000/svg', 'polygon');

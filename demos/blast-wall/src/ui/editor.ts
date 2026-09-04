@@ -13,7 +13,8 @@
  */
 
 import type { Mesh } from '../model/mesh.ts';
-import type { WallSpec } from '../model/types.ts';
+import { faceOf } from '../model/bond.ts';
+import type { FaceName, WallSpec } from '../model/types.ts';
 import type { Charge } from '../physics/blast.ts';
 import type { OrbitCamera, Vec3 } from '../render/camera.ts';
 
@@ -37,15 +38,16 @@ interface Drag {
   x: number;
   y: number;
   moved: number;
-  /** Wall-plane anchor for a rubber-banded opening. */
+  /** Wall-plane anchor for a rubber-banded opening, and the wall it started on. */
   anchor?: [number, number];
+  face?: FaceName;
 }
 
 export class Editor {
   tool: Tool = 'select';
   selection = new Set<number>();
-  /** Live rubber band in wall coordinates, for the overlay. */
-  rubber: { x: number; y: number; w: number; h: number } | null = null;
+  /** Live rubber band in the coordinates of the wall it is being dragged on. */
+  rubber: { x: number; y: number; w: number; h: number; face: FaceName } | null = null;
 
   private drag: Drag | null = null;
 
@@ -87,10 +89,10 @@ export class Editor {
     }
 
     if (this.tool === 'opening') {
-      const p = this.wallPlanePoint(origin, dir);
+      const p = this.wallHit(origin, dir);
       if (p) {
-        this.drag = { ...base, mode: 'opening', anchor: p };
-        this.rubber = { x: p[0], y: p[1], w: 0, h: 0 };
+        this.drag = { ...base, mode: 'opening', anchor: [p.along, p.y], face: p.face };
+        this.rubber = { x: p.along, y: p.y, w: 0, h: 0, face: p.face };
         return;
       }
     }
@@ -136,13 +138,16 @@ export class Editor {
       }
       case 'opening': {
         const { origin, dir } = this.ray(e);
-        const p = this.wallPlanePoint(origin, dir);
-        if (p && d.anchor) {
+        const p = this.wallHit(origin, dir);
+        // Dragging onto a different wall mid-gesture keeps the rectangle on the one it
+        // started on, rather than jumping the opening around the room.
+        if (p && d.anchor && p.face === d.face) {
           this.rubber = {
-            x: Math.min(d.anchor[0], p[0]),
-            y: Math.min(d.anchor[1], p[1]),
-            w: Math.abs(p[0] - d.anchor[0]),
-            h: Math.abs(p[1] - d.anchor[1]),
+            x: Math.min(d.anchor[0], p.along),
+            y: Math.min(d.anchor[1], p.y),
+            w: Math.abs(p.along - d.anchor[0]),
+            h: Math.abs(p.y - d.anchor[1]),
+            face: p.face,
           };
         }
         break;
@@ -263,6 +268,10 @@ export class Editor {
   /** Nearest unit along the ray, or −1. */
   private pick(e: PointerEvent): number {
     const { origin, dir } = this.ray(e);
+    return this.pickRay(origin, dir);
+  }
+
+  private pickRay(origin: Vec3, dir: Vec3): number {
     // Pointer handlers are live before the first mesh exists — the loading overlay
     // usually swallows the click, but a click during WebGPU bring-up would land here.
     const mesh = this.host.mesh() as Mesh | undefined;
@@ -286,18 +295,36 @@ export class Editor {
     return best;
   }
 
-  /** Where the ray meets the wall's outer face, in wall coordinates. */
-  private wallPlanePoint(origin: Vec3, dir: Vec3): [number, number] | null {
-    if (Math.abs(dir[2]) < 1e-6) return null;
-    const t = (0 - origin[2]) / dir[2];
-    if (t <= 0) return null;
+  /**
+   * Where the ray meets a wall, and WHICH wall.
+   *
+   * The first version of this always intersected the plane z = 0, so a rectangle dragged
+   * on the near wall of a room was cut out of the far one. Find the wall under the cursor
+   * first, then intersect that wall's own outer plane, and report the coordinate along
+   * the wall rather than a world axis.
+   */
+  private wallHit(origin: Vec3, dir: Vec3): { along: number; y: number; face: FaceName } | null {
     const mesh = this.host.mesh() as Mesh | undefined;
     if (!mesh) return null;
     const lat = mesh.lattice;
-    const x = origin[0] + dir[0] * t;
-    const y = origin[1] + dir[1] * t;
-    if (x < -0.5 || x > lat.length + 0.5 || y < -0.5 || y > lat.height + 0.5) return null;
-    return [x, y];
+
+    const unit = this.pickRay(origin, dir);
+    if (unit < 0) return null;
+    const face = this.host.spec().plan === 'room' ? faceOf(lat, mesh.units[unit]) : 'z0';
+    if (!face) return null;
+
+    const axis = face === 'z0' || face === 'z1' ? 2 : 0;
+    const plane =
+      face === 'z0' ? 0 : face === 'z1' ? lat.nz * lat.dz : face === 'x0' ? 0 : lat.nx * lat.dx;
+    if (Math.abs(dir[axis]) < 1e-6) return null;
+    const t = (plane - origin[axis]) / dir[axis];
+    if (t <= 0) return null;
+
+    const p: Vec3 = [origin[0] + dir[0] * t, origin[1] + dir[1] * t, origin[2] + dir[2] * t];
+    const along = axis === 2 ? p[0] : p[2];
+    const span = axis === 2 ? lat.length : lat.thickness;
+    if (along < -0.5 || along > span + 0.5 || p[1] < -0.5 || p[1] > lat.height + 0.5) return null;
+    return { along, y: p[1], face };
   }
 }
 

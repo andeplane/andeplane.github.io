@@ -625,6 +625,29 @@ function testRoom(): void {
     );
   }
 
+  // An opening belongs to the wall it was drawn on. Cutting one out of a return wall
+  // used to punch it through the façade instead, because the editor always intersected
+  // the plane z = 0 and the mesher only ever cut units with iz0 === 0.
+  {
+    const cut: WallSpec = {
+      ...spec,
+      openings: [{ x: 0.4, y: 0.2, w: 0.6, h: 0.5, face: 'x0' }],
+    };
+    const before = buildMesh(spec, mat.density);
+    const after = buildMesh(cut, mat.density);
+    const onWall = (m: typeof before, face: 'x0' | 'z0') =>
+      m.units.filter((u) =>
+        face === 'x0' ? u.ix0 < m.lattice.wall : u.iz0 < m.lattice.wall,
+      ).length;
+    const lostReturn = onWall(before, 'x0') - onWall(after, 'x0');
+    const lostFacade = onWall(before, 'z0') - onWall(after, 'z0');
+    check(
+      'an opening cuts the wall it was drawn on and no other',
+      lostReturn > 0 && lostFacade === 0,
+      `${lostReturn} bricks gone from the return wall, ${lostFacade} from the façade`,
+    );
+  }
+
   check(
     'return walls hold the ends of the façade that a lone wall cannot',
     inRoom < alone * 0.6,
