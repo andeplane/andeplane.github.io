@@ -70,7 +70,7 @@ html, body {
   top: 14px;
   left: 14px;
   bottom: 14px;
-  width: 316px;
+  width: 344px;
   display: flex;
   flex-direction: column;
   gap: 12px;
@@ -387,11 +387,26 @@ html, body {
 .group-body { display: flex; flex-direction: column; gap: 7px; padding: 11px; }
 
 .row { display: grid; align-items: center; gap: 8px; font-size: 12.5px; }
-.row.slider { grid-template-columns: 96px 1fr 62px; }
-.row.choice { grid-template-columns: 96px 1fr; }
+/* A grid track is `min-width: auto` by default, so a <select> whose longest option is
+   "four walls, bonded at the corners" widens its column to fit that text, pushes the
+   whole row past the panel, and takes the value readout off the edge with it. Letting
+   the tracks shrink is the fix; the select then ellipsises instead. */
+.row > * { min-width: 0; }
+.row select { width: 100%; }
+/* The value column has to hold the widest readout a slider can produce — "0.30 MPa",
+   "1900 kg/m³" — or the number is clipped at the panel edge and the control becomes a
+   guess. Sized for the longest, not the average. */
+.row.slider { grid-template-columns: 84px 1fr 84px; }
+.row.choice { grid-template-columns: 84px 1fr; }
 .row.toggle { grid-template-columns: 1fr auto; }
 .row .name { color: var(--muted); }
-.row .value { font-family: var(--mono); font-size: 11.5px; text-align: right; color: var(--ink); }
+.row .value {
+  font-family: var(--mono);
+  font-size: 11px;
+  text-align: right;
+  white-space: nowrap;
+  color: var(--ink);
+}
 
 input[type="range"] {
   -webkit-appearance: none;
