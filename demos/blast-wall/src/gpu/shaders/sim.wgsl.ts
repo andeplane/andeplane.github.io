@@ -32,7 +32,8 @@ struct Params {
   oLoadDir: u32, oLoadPulse: u32, oK: u32, oUnitScale: u32,
   oX: u32, oVel: u32, oQuat: u32, oElemForce: u32,
   oPairForce: u32, oPairDamage: u32, oPairState: u32, oNodeScalar: u32,
-  oClock: u32, oCentroid: u32,
+  oClock: u32, oCentroid: u32, oTrace: u32, probeNode: u32,
+  traceStride: u32, traceLen: u32,
 };
 `;
 
@@ -320,9 +321,28 @@ fn integrate(@builtin(global_invocation_id) gid: vec3<u32>) {
   RW[P.oNodeScalar + i * 2u + 1u] = length(v);
 }
 
+/**
+ * Advance the clock, and record the probe's displacement while we are here.
+ *
+ * The trace is written by the solver rather than sampled by the renderer, so the curve
+ * is spaced evenly in SIMULATION time. Sampling it per frame instead would stretch and
+ * squash the axis every time the playback speed changed, or the frame rate dipped.
+ */
 @compute @workgroup_size(1)
 fn advanceClock() {
-  RW[P.oClock] = RW[P.oClock] + P.dt;
+  let t = RW[P.oClock] + P.dt;
+  RW[P.oClock] = t;
+  let step = RW[P.oClock + 1u] + 1.0;
+  RW[P.oClock + 1u] = step;
+
+  if (u32(step) % P.traceStride != 0u) { return; }
+  let s = u32(RW[P.oClock + 2u]);
+  if (s >= P.traceLen) { return; }
+  let d = rw3(P.oX, P.probeNode) - ro3(P.oX0, P.probeNode);
+  // Out of plane is +z: the façade faces −z and the blast pushes it inward.
+  RW[P.oTrace + s * 2u] = t;
+  RW[P.oTrace + s * 2u + 1u] = d.z;
+  RW[P.oClock + 2u] = f32(s + 1u);
 }
 
 /**

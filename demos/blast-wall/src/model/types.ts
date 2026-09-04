@@ -30,13 +30,24 @@ export type SupportName = 'base' | 'base-top' | 'three-sided' | 'four-sided' | '
 /** A single wall standing on its own, or four of them bonded into a room. */
 export type PlanName = 'wall' | 'room';
 
+/**
+ * Which of a room's four walls something belongs to, named by the face it sits on:
+ * z0 is the wall nearest the charge, x0 and x1 the returns.
+ */
+export type FaceName = 'z0' | 'z1' | 'x0' | 'x1';
+
 export interface Opening {
-  /** Left edge, metres from the wall's left end. */
+  /**
+   * Left edge, metres along the wall's own run direction — x for the front and back
+   * walls, z for the returns.
+   */
   x: number;
   /** Bottom edge, metres above the base. */
   y: number;
   w: number;
   h: number;
+  /** The wall it was cut in. Absent means the front wall, for older saved specs. */
+  face?: FaceName;
 }
 
 export interface WallSpec {

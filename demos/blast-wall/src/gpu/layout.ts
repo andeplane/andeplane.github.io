@@ -10,6 +10,9 @@
 
 import type { Mesh } from '../model/mesh.ts';
 
+/** How many (time, displacement) samples the trace ring holds. */
+export const TRACE_SAMPLES = 1024;
+
 export interface Layout {
   n: number;
   e: number;
@@ -74,6 +77,9 @@ export function layoutFor(mesh: Mesh): Layout {
   rw('nodeScalar', 2 * n);
   rw('clock', 4);
   rw('centroid', 3 * u);
+  // The displacement history of one probe node: (t, d) pairs, written by the solver
+  // itself so the curve is sampled on the simulation clock rather than on frames.
+  rw('trace', TRACE_SAMPLES * 2);
   const rwSize = c;
 
   return { n, e, p, u, u32Size, roSize, rwSize, off };
@@ -107,7 +113,12 @@ export const OFFSET_FIELDS = [
   'nodeScalar',
   'clock',
   'centroid',
+  'trace',
 ] as const;
 
-/** Bytes in the params uniform: 20 floats, 4 counts, then the offsets, padded to 16. */
-export const PARAMS_BYTES = Math.ceil((20 + 4 + OFFSET_FIELDS.length) / 4) * 4 * 4;
+/** Words after the offsets: probe node, trace stride, trace capacity. */
+export const PARAMS_TAIL = 3;
+
+/** Bytes in the params uniform: 20 floats, 4 counts, the offsets, the tail, padded to 16. */
+export const PARAMS_BYTES =
+  Math.ceil((20 + 4 + OFFSET_FIELDS.length + PARAMS_TAIL) / 4) * 4 * 4;
