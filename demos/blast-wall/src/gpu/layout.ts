@@ -56,7 +56,7 @@ export function layoutFor(mesh: Mesh): Layout {
   ro('loadDir', 3 * n);
   ro('loadPulse', 3 * n);
   ro('K', 576);
-  ro('unitScale', 4 * u);
+  ro('unitScale', 8 * u);
   const roSize = c;
 
   c = 0;

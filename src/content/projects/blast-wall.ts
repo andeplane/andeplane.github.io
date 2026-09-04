@@ -4,19 +4,25 @@ const project: ProjectMeta = {
   slug: 'blast-wall',
   title: 'Blast Wall Lab',
   description:
-    'A 3D finite element simulation of a brick wall hit by a blast wave. Every mortar joint cracks, slides, bears and crushes for real — change the bond pattern and the crack path changes with it.',
+    'A 3D finite element simulation of masonry hit by a blast wave: four brick walls bonded at the corners, every mortar joint cracking, sliding, bearing and crushing for real.',
   tags: ['TypeScript', 'WebGPU', 'Physics', 'Simulation', 'Finite Elements', 'Masonry'],
   liveUrl: '/demos/blast-wall/',
   repoUrl: 'https://github.com/andeplane/andeplane.github.io/tree/main/demos/blast-wall',
   screenshot: '/projects/blast-wall/preview.png',
   longDescription: `
-Set a charge in front of a brick wall and something obviously happens. But *where* does it
-break, and why there? This answers that with a real solver rather than an animation of
-one: several hundred bricks, each a mesh of hexahedral finite elements, every mortar joint
-between them a surface with a cohesive-frictional law, and a blast pulse whose peak
-pressure, duration and arrival time come from the charge mass and the standoff. Thousands
-of elements and tens of thousands of joint node pairs, stepped on your GPU, in slow motion
-down to a thousandth of real time.
+Set a charge in front of a brick building and something obviously happens. But *where*
+does it break, and why there? This answers that with a real solver rather than an
+animation of one: four walls bonded at the corners, eighteen hundred bricks, each a mesh
+of hexahedral finite elements, every mortar joint between them a surface with a
+cohesive-frictional law, and a blast pulse whose peak pressure, duration and arrival time
+come from the charge mass and the standoff. Tens of thousands of elements and hundreds of
+thousands of joint node pairs, stepped on your GPU, in slow motion down to a thousandth of
+real time.
+
+The corners are the reason it is four walls and not one. A lone wall simply falls over,
+which is dramatic and says almost nothing. Tie it into return walls and you get the
+failure buildings actually have: the façade bulges inward, the corners split from top to
+bottom, and what is left of the structure stands there.
 
 ## The thing worth seeing
 
@@ -32,10 +38,11 @@ exists, made visible.
 ## What you can do
 
 Drag the charge around the scene and watch the shock sphere expand from it, decelerating
-from several times the speed of sound toward it, then sweep across the wall face and hit
-one end before the other. Change the wall: length, height, half-brick or full-brick
-thickness, four bond patterns, free-standing or built in as an infill panel between floor
-and ceiling. Click a brick to select it, sweep a cursor across the wall to carve bricks
+from several times the speed of sound toward it, then sweep across the façade and hit one
+end before the other. Change the building: plan, length, depth, height, half-brick or
+full-brick walls, four bond patterns, free-standing or built in as an infill panel between
+floor and ceiling — or drop to a single wall standing alone when you want to watch a bond
+pattern rather than a structure. Click a brick to select it, sweep a cursor across the wall to carve bricks
 out, drag a rectangle to cut a window or a doorway, paint pins wherever you want a fixed
 support. Then colour the wall by joint damage to see the crack path glowing through the
 fuger, or by speed to see what is actually flying.
@@ -63,6 +70,21 @@ held at top and bottom does not resist by bending — it arches, and an arch con
 its thrust onto a sliver of joint at each hinge, multiplying the stress by an order of
 magnitude. Without the cap, such a wall turned out to be literally unbreakable. It just
 rang.
+
+## Why four walls cost nothing
+
+A room is not a special case anywhere in the solver, the mesher or the renderer. It falls
+out of one fact about masonry: the module. Two brick widths plus a joint make one brick
+length — 108 + 12 + 108 = 228 — so the expanded header is exactly half the expanded
+stretcher. Divide the stretcher into *n* lattice steps and the header into *n*/2, and the
+lattice spacing comes out identical along the wall and through it. With a square plan
+lattice, a wall running the other way is just a brick elongated the other way: same
+lattice, same element, and the joint where a return wall meets a façade matches node for
+node like every other joint in the model. The mesher needed no changes at all.
+
+The corner itself alternates course by course — the walls one way run through the corner
+square, the walls the other way stop short, then they swap. That is how a mason turns a
+corner, and it hands the return walls their running bond for free.
 
 ## Under the hood
 

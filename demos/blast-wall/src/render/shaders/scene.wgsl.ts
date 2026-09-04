@@ -57,13 +57,10 @@ fn vsWall(@builtin(vertex_index) vi: u32, @builtin(instance_index) inst: u32) ->
   // Both bodies shrink around the unit's own DEFORMED centroid, so the inset follows a
   // brick when it tumbles instead of pointing off along fixed world axes.
   let c = rw3(S.offA.y, unit);
-  let b = S.offB.x + unit * 4u;
-  let s = vec4<f32>(RO[b], RO[b + 1u], RO[b + 2u], RO[b + 3u]);
-  if (inst == 1u) {
-    p = c + (p - c) * s.xyz;              // the brick
-  } else {
-    p = c + (p - c) * vec3<f32>(1.0, 1.0, s.w);  // the mortar behind it
-  }
+  // Slot 0 is the brick's scale, slot 1 the mortar body's; which axis the mortar is set
+  // back along depends on which way this wall runs, so the mesher bakes it in.
+  let b = S.offB.x + unit * 8u + inst * 4u;
+  p = c + (p - c) * vec3<f32>(RO[b], RO[b + 1u], RO[b + 2u]);
   var out: WallOut;
   out.clip = S.viewProj * vec4<f32>(p, 1.0);
   out.world = p;
@@ -85,7 +82,7 @@ fn heat(t: f32) -> vec3<f32> {
   let u = clamp(t, 0.0, 1.0);
   let a = vec3<f32>(0.35, 0.10, 0.05);
   let b = vec3<f32>(0.95, 0.35, 0.08);
-  let c = vec3<f32>(1.00, 0.86, 0.55);
+  let c = vec3<f32>(1.00, 0.60, 0.20);
   if (u < 0.5) { return mix(a, b, u * 2.0); }
   return mix(b, c, (u - 0.5) * 2.0);
 }
@@ -117,7 +114,7 @@ fn fsWall(in: WallOut) -> @location(0) vec4<f32> {
     let d = clamp(in.damage, 0.0, 1.0);
     if (in.kind == 0u) {
       base = mix(base, heat(d), d);
-      emissive = heat(d) * pow(d, 2.0) * 0.55;
+      emissive = heat(d) * pow(d, 2.0) * 0.45;
     } else {
       base = base * (1.0 - 0.18 * d);
     }
@@ -136,6 +133,9 @@ fn fsWall(in: WallOut) -> @location(0) vec4<f32> {
 
   var colour = base * (sky * S.light.w + vec3<f32>(1.0, 0.94, 0.84) * diff * 1.05);
   colour = colour + emissive + vec3<f32>(0.45, 0.62, 0.85) * rim;
+  // Roll off rather than clip. Late in a run almost every joint is fully damaged, and
+  // without this the whole wall saturates to white and stops reading as masonry at all.
+  colour = vec3<f32>(1.0) - exp(-colour * 1.25);
 
   if (unitFlags[in.unit] != 0u) {
     colour = mix(colour, vec3<f32>(0.30, 0.85, 0.95), 0.35) + vec3<f32>(0.05, 0.18, 0.22);

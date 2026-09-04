@@ -52,8 +52,8 @@ export interface Mesh {
   quads: U32;
 
   /**
-   * Per-unit render shrink, 4 floats: the brick's scale on each axis, then how far the
-   * mortar body is set back through the wall's thickness. See the note in the mesher.
+   * Per-unit render scales, 8 floats: the mortar body's scale on each axis (padded to a
+   * vec4), then the brick's — in that order, because it is the draw instance order.
    */
   unitScale: F32;
   /** Per-unit node range [start, end) for centroids, picking and selection. */
@@ -92,7 +92,7 @@ export function buildMesh(spec: WallSpec, density: number): Mesh {
   const nodeUnit = new Uint32Array(nodeCount);
   const unitNodeStart = new Uint32Array(units.length);
   const unitNodeEnd = new Uint32Array(units.length);
-  const unitScale = new Float32Array(units.length * 4);
+  const unitScale = new Float32Array(units.length * 8);
 
   for (let ui = 0; ui < lay.length; ui++) {
     const u = lay[ui];
@@ -113,13 +113,19 @@ export function buildMesh(spec: WallSpec, density: number): Mesh {
     // expanded unit shrunk by half a fuge on every face, so it is the real 228 × 62 mm
     // stone. The mortar body keeps the unit's full extent across the wall face — that is
     // what fills the joint between neighbouring bricks — but is set back further through
-    // the thickness, so it reads as raked mortar behind the brick rather than a box the
-    // brick is hidden inside.
+    // the wall's own thickness, so it reads as raked mortar behind the brick rather than
+    // a box the brick is hidden inside.
+    //
+    // Which axis is "through the thickness" depends on which way the wall runs, so the
+    // unit carries it. Setting a return wall back along its LENGTH instead turns it into
+    // a set of vertical stripes.
     const j = spec.joint;
-    unitScale[ui * 4] = Math.max(0.2, 1 - j / (u.nxb * dx));
-    unitScale[ui * 4 + 1] = Math.max(0.2, 1 - j / (u.nyb * dy));
-    unitScale[ui * 4 + 2] = Math.max(0.2, 1 - j / (u.nzb * dz));
-    unitScale[ui * 4 + 3] = Math.max(0.2, 1 - (2.2 * j) / (u.nzb * dz));
+    // Slot order matches the draw order: instance 0 is the mortar, instance 1 the brick.
+    const span = [u.nxb * dx, u.nyb * dy, u.nzb * dz];
+    for (let a = 0; a < 3; a++) {
+      unitScale[ui * 8 + a] = a === u.thicknessAxis ? Math.max(0.2, 1 - (2.2 * j) / span[a]) : 1;
+      unitScale[ui * 8 + 4 + a] = Math.max(0.2, 1 - j / span[a]);
+    }
   }
 
   // --- elements and lumped mass ------------------------------------------------

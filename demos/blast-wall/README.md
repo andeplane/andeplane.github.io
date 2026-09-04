@@ -1,11 +1,16 @@
 # Blast Wall Lab
 
-A 3D finite element simulation of a masonry wall hit by a blast wave. Not an animation of
-one: every brick is a mesh of hexahedral elements, every mortar joint is a surface with a
+A 3D finite element simulation of masonry hit by a blast wave. Not an animation of one:
+every brick is a mesh of hexahedral elements, every mortar joint is a surface with a
 cohesive-frictional law that cracks, slides, bears and crushes, and the load is a
 Friedlander pulse whose peak, duration and arrival time come from the charge mass and the
 standoff. Change the bond pattern and the crack path changes, because the crack path is
 solved rather than drawn.
+
+The default model is four walls bonded at the corners rather than one wall standing
+alone, because a lone wall just falls over and that says very little. Tie it into return
+walls and the failure becomes the one buildings actually have: the façade bulges in, the
+corners split, and what is left stands.
 
 Standalone Vite app; built into the site by `scripts/build-demos.mjs`. Needs WebGPU.
 
@@ -32,6 +37,26 @@ Two consequences run through the whole codebase:
   node. No surface search, no projection, no master/slave. This is the single decision
   that makes the rest easy, and it is why bricks are laid on the lattice rather than
   dragged anywhere you like.
+
+## Four walls, and the arithmetic that makes them free
+
+A room is not a special case in the solver, the mesher, or the renderer. It falls out of
+one fact about masonry: the module. Two brick widths plus a joint make one brick length
+(108 + 12 + 108 = 228), so the EXPANDED header, 120 mm, is exactly half the EXPANDED
+stretcher, 240 mm. Divide the stretcher into `nx` lattice steps and the header into
+`nx / 2`, and the lattice spacing is the same in x and in z.
+
+With a square plan lattice, a wall running along z is just a unit elongated in z instead
+of x. Same lattice, same element box — so still exactly one stiffness matrix — and the
+joint where a return wall meets a façade matches node for node like every other joint in
+the model. `buildMesh` needed no changes at all; only the generator did. If dx and dz
+were allowed to differ, the corner would need a real contact search.
+
+The corner itself alternates: on even courses the walls running along x carry through the
+corner squares and the return walls stop short of them, on odd courses they swap. That is
+how a mason turns a corner, and it also gives the return walls their running bond for
+free — a wall that starts at 0 on one course and half a stretcher in on the next is
+already bonded, with no extra offset applied.
 
 ## Physics notes that matter to the code
 
@@ -109,9 +134,13 @@ an answer known ahead of time:
 - linear momentum is conserved to 1e-6 over 2000 steps (this is what catches an
   asymmetric internal force), and the measured critical time step really is critical:
   0.9× is stable and 1.25× diverges;
-- and the headline claim gets a test rather than a screenshot — **the same charge cracks a
+- the headline claim gets a test rather than a screenshot — **the same charge cracks a
   stack-bonded wall more than a running-bonded one and breaks it into more pieces**
-  (fragments counted by union-find over joints that are not fully cracked).
+  (fragments counted by union-find over joints that are not fully cracked);
+- and the room holds together: the plan lattice really is square, joints really do cross
+  the corners, the four walls are **one** connected structure rather than four things
+  standing next to each other, and a façade tied into return walls has its ends held —
+  108 mm of end movement standing alone, 61 mm in a room, under the same charge.
 
 ## Known ceilings
 
@@ -125,5 +154,8 @@ Marked in the source with `ponytail:` comments.
   fragment-fragment collision is a broadphase problem, not a joint law.
 - Bricks can be removed, pinned or cut away but not dragged to arbitrary positions.
   Off-lattice units would break the node-for-node match that makes a joint a joint.
+- A room has no roof and no floor slab, so it is a masonry enclosure rather than a
+  building. Adding either would mostly mean deciding how a slab bears on a wall, which is
+  a modelling question rather than a solver one.
 - Blast clearing and diffraction around the wall's edges are ignored; the pressure is
   prescribed on faces rather than solved for in the air.

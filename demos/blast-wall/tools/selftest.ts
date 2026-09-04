@@ -108,7 +108,7 @@ function testElement(): void {
 // ---------------------------------------------------------------------------
 function testBond(): void {
   console.log('\n2. Bond geometry');
-  const spec = { ...defaultWall(), length: 2.4, height: 1.184 };
+  const spec: WallSpec = { ...defaultWall(), plan: 'wall', length: 2.4, height: 1.184 };
 
   for (const bond of ['running', 'stack'] as const) {
     const { units, lattice } = generateUnits({ ...spec, bond });
@@ -166,10 +166,11 @@ function twoBrickSolver(): { solver: Solver; top: number[]; area: number } {
   // One column, two courses, stack bond: exactly one bed joint, nothing else.
   const spec: WallSpec = {
     ...defaultWall(),
+    plan: 'wall',
     length: 0.24,
     height: 0.148,
     bond: 'stack',
-    divisions: { nx: 2, ny: 1, nz: 1 },
+    divisions: { nx: 2, ny: 1 },
     supports: 'free',
   };
   const mat = defaultMaterials();
@@ -280,11 +281,12 @@ function testTripletShear(): void {
 function smallWall(bond: 'running' | 'stack', supports: WallSpec['supports'] = 'base-top'): WallSpec {
   return {
     ...defaultWall(),
+    plan: 'wall',
     length: 1.44,
     height: 1.036,
     bond,
     supports,
-    divisions: { nx: 2, ny: 1, nz: 1 },
+    divisions: { nx: 2, ny: 1 },
   };
 }
 
@@ -299,11 +301,12 @@ function smallWall(bond: 'running' | 'stack', supports: WallSpec['supports'] = '
 function tallWall(bond: 'running' | 'stack'): WallSpec {
   return {
     ...defaultWall(),
+    plan: 'wall',
     length: 1.44,
     height: 2.072,
     bond,
     supports: 'base',
-    divisions: { nx: 2, ny: 1, nz: 1 },
+    divisions: { nx: 2, ny: 1 },
   };
 }
 
@@ -455,6 +458,96 @@ function testBondMatters(): void {
 }
 
 // ---------------------------------------------------------------------------
+// 8. Four walls, bonded at the corners
+// ---------------------------------------------------------------------------
+function testRoom(): void {
+  console.log('\n8. Four walls, bonded at the corners');
+  const mat = defaultMaterials();
+  const spec: WallSpec = {
+    ...defaultWall(),
+    plan: 'room',
+    length: 1.92,
+    width: 1.44,
+    height: 1.036,
+    divisions: { nx: 2, ny: 1 },
+  };
+  const mesh = buildMesh(spec, mat.density);
+
+  // Everything rests on this: a square plan lattice is what lets a wall running along z
+  // be the same kind of object as one running along x.
+  check(
+    'the plan lattice is square',
+    Math.abs(mesh.dx - mesh.dz) < 1e-12,
+    `dx = ${(mesh.dx * 1000).toFixed(1)} mm, dz = ${(mesh.dz * 1000).toFixed(1)} mm`,
+  );
+
+  // A corner joint is one whose two bricks belong to walls running on different axes.
+  const runsAlongX = (u: number) => {
+    const b = mesh.units[u];
+    return b.ix1 - b.ix0 >= b.iz1 - b.iz0;
+  };
+  let corner = 0;
+  for (let p = 0; p < mesh.pairCount; p++) {
+    const a = mesh.nodeUnit[mesh.pairs[p * 2]];
+    const b = mesh.nodeUnit[mesh.pairs[p * 2 + 1]];
+    if (runsAlongX(a) !== runsAlongX(b)) corner++;
+  }
+  check('the return walls are jointed to the façades', corner > 0, `${corner} joint pairs cross a corner`);
+
+  // And the four walls have to be ONE structure, not four things standing next to
+  // each other — which is the entire reason for building a room rather than a wall.
+  const parent = new Int32Array(mesh.units.length).map((_, i) => i);
+  const find = (i: number): number => {
+    while (parent[i] !== i) i = parent[i] = parent[parent[i]];
+    return i;
+  };
+  for (let p = 0; p < mesh.pairCount; p++) {
+    const ra = find(mesh.nodeUnit[mesh.pairs[p * 2]]);
+    const rb = find(mesh.nodeUnit[mesh.pairs[p * 2 + 1]]);
+    if (ra !== rb) parent[ra] = rb;
+  }
+  const pieces = new Set<number>();
+  for (let u = 0; u < mesh.units.length; u++) pieces.add(find(u));
+  check('the room is one connected structure', pieces.size === 1, `${mesh.units.length} bricks in ${pieces.size} connected piece(s)`);
+
+  // The point the corners earn. Measured at the ENDS of the façade rather than at its
+  // middle: a wall standing alone has nothing holding its ends, and mid-span it is going
+  // over either way, so mid-span barely separates the two cases. What return walls do is
+  // pin the corners, and that is where to look for it.
+  const runFacade = (plan: 'wall' | 'room'): number => {
+    const s2: WallSpec = { ...spec, plan, height: 2.072 };
+    const m2 = buildMesh(s2, mat.density);
+    const solver = new Solver(m2, defaultMaterials(), {
+      ...defaultCharge(),
+      x: m2.lattice.length / 2,
+      y: 0.6,
+      z: -3.5,
+      mass: 8,
+    }, defaultWorld());
+    for (let i = 0, n = Math.ceil(0.05 / solver.dt); i < n; i++) solver.step();
+    // Measure the façade only: the wall nearest the charge, which for the single-wall
+    // plan is the whole model and for a room is the front leaf.
+    const facade = m2.lattice.wall * m2.dz + 1e-9;
+    const end = m2.lattice.ux * m2.dx;
+    let disp = 0;
+    for (let i = 0; i < m2.nodeCount; i++) {
+      if (m2.x0[i * 3 + 2] > facade) continue;
+      const x = m2.x0[i * 3];
+      if (x > end && x < m2.lattice.length - end) continue;
+      disp = Math.max(disp, solver.x[i * 3 + 2] - m2.x0[i * 3 + 2]);
+    }
+    return disp;
+  };
+  const alone = runFacade('wall');
+  const inRoom = runFacade('room');
+  check(
+    'return walls hold the ends of the façade that a lone wall cannot',
+    inRoom < alone * 0.6,
+    `ends move ${(alone * 1000).toFixed(0)} mm alone, ${(inRoom * 1000).toFixed(0)} mm in a room`,
+  );
+}
+
+// ---------------------------------------------------------------------------
 
 console.log('blast-wall self-test');
 testElement();
@@ -465,6 +558,7 @@ testMomentum();
 testCfl();
 testBlast();
 testBondMatters();
+testRoom();
 
 console.log(failures === 0 ? '\nall checks passed\n' : `\n${failures} check(s) failed\n`);
 process.exit(failures === 0 ? 0 : 1);

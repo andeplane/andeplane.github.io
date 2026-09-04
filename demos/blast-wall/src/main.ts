@@ -7,7 +7,14 @@
  * a slider does not rebuild a wall sixty times a second.
  */
 
-import { defaultWall, type WallSpec, type BondName, type SupportName } from './model/types.ts';
+import {
+  defaultWall,
+  brickThickness,
+  type WallSpec,
+  type BondName,
+  type SupportName,
+  type PlanName,
+} from './model/types.ts';
 import { buildMesh, type Mesh } from './model/mesh.ts';
 import { defaultMaterials, type Materials } from './physics/materials.ts';
 import { defaultWorld, type WorldOptions } from './physics/solver.ts';
@@ -27,10 +34,12 @@ import { OrbitCamera } from './render/camera.ts';
 import { Panel, type Group } from './ui/controls.ts';
 import { Editor, type Tool } from './ui/editor.ts';
 
-const RESOLUTIONS: Record<string, { nx: number; ny: number; nz: number }> = {
-  fast: { nx: 2, ny: 1, nz: 1 },
-  balanced: { nx: 4, ny: 2, nz: 2 },
-  fine: { nx: 6, ny: 2, nz: 2 },
+// Divisions through the thickness are derived (nx / 2), because the lattice has to stay
+// square in plan for the corners of a room to bond. See `latticeFor`.
+const RESOLUTIONS: Record<string, { nx: number; ny: number }> = {
+  fast: { nx: 2, ny: 1 },
+  balanced: { nx: 4, ny: 2 },
+  fine: { nx: 6, ny: 2 },
 };
 
 const state = {
@@ -46,10 +55,6 @@ const state = {
   resolution: 'balanced',
 };
 
-// A free-standing wall makes the most honest first impression: held top and bottom, a
-// squat panel resists by arching and barely moves, which is true but reads as "nothing
-// happened". Both are one dropdown apart.
-state.spec.supports = 'base';
 state.charge = { ...defaultCharge(), x: 1.8, y: 1.0, z: -4.5, mass: 25 };
 
 const canvas = document.getElementById('view') as HTMLCanvasElement;
@@ -214,9 +219,23 @@ function geometryGroups(): Group[] {
       controls: [
         {
           kind: 'choice',
+          label: 'Plan',
+          options: [
+            { value: 'room', label: 'four walls, bonded at the corners' },
+            { value: 'wall', label: 'one wall, standing alone' },
+          ],
+          get: () => s().plan,
+          set: (v) => {
+            s().plan = v as PlanName;
+            framed = false;
+            scheduleRebuild();
+          },
+        },
+        {
+          kind: 'choice',
           label: 'Bond',
           options: [
-            { value: 'running', label: 'løperforband (½ offset)' },
+            { value: 'running', label: 'running bond (½ offset)' },
             { value: 'stack', label: 'stack (no offset)' },
             { value: 'third', label: 'third bond (⅓ offset)' },
             { value: 'wild', label: 'wild bond (random)' },
@@ -254,11 +273,24 @@ function geometryGroups(): Group[] {
           },
         },
         {
+          kind: 'slider',
+          label: 'Depth',
+          unit: ' m',
+          min: 0.48,
+          max: 8,
+          step: 0.24,
+          get: () => s().width,
+          set: (v) => {
+            s().width = v;
+            scheduleRebuild();
+          },
+        },
+        {
           kind: 'choice',
           label: 'Thickness',
           options: [
-            { value: '1', label: 'half brick (108 mm)' },
-            { value: '2', label: 'full brick (228 mm)' },
+            { value: '1', label: `half brick (${mm(brickThickness(s()))} mm)` },
+            { value: '2', label: `full brick (${mm(2 * brickThickness(s()) + s().joint)} mm)` },
           ],
           get: () => String(s().wythes),
           set: (v) => {
@@ -288,7 +320,7 @@ function geometryGroups(): Group[] {
           options: [
             { value: 'fast', label: 'fast — 2 elements/brick' },
             { value: 'balanced', label: 'balanced — 16' },
-            { value: 'fine', label: 'fine — 24' },
+            { value: 'fine', label: 'fine — 36' },
           ],
           get: () => state.resolution,
           set: (v) => {
@@ -546,6 +578,8 @@ function frame(now: number): void {
 }
 
 function updateBlastReadout(): void {
+  // Measured to the middle of the loaded face. For a room, the centre of the model is
+  // inside the box, which would report a standoff nobody is standing at.
   const lat = mesh.lattice;
   const r = Math.hypot(
     lat.length / 2 - state.charge.x,
@@ -623,6 +657,10 @@ async function boot(): Promise<void> {
     last = t;
     frame(t);
   });
+}
+
+function mm(metres: number): number {
+  return Math.round(metres * 1000);
 }
 
 function fmtK(n: number): string {
