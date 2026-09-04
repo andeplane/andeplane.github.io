@@ -75,6 +75,9 @@ export function layoutFor(mesh: Mesh): Layout {
   rw('pairDamage', p);
   rw('pairState', 5 * p);
   rw('nodeScalar', 2 * n);
+  // The gathered nodal force, stored so a test can prescribe positions, step with dt = 0
+  // and read the traction straight back. One extra store per node per step.
+  rw('nodeForce', 3 * n);
   rw('clock', 4);
   rw('centroid', 3 * u);
   // The displacement history of one probe node: (t, d) pairs, written by the solver
@@ -111,6 +114,7 @@ export const OFFSET_FIELDS = [
   'pairDamage',
   'pairState',
   'nodeScalar',
+  'nodeForce',
   'clock',
   'centroid',
   'trace',

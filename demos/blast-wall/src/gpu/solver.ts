@@ -12,7 +12,7 @@ import type { Mesh } from '../model/mesh.ts';
 import { buildAdjacency } from '../model/mesh.ts';
 import type { Materials } from '../physics/materials.ts';
 import type { F32, U32 } from '../model/types.ts';
-import type { WorldOptions } from '../physics/solver.ts';
+import type { WorldOptions } from '../physics/world.ts';
 import { boxStiffness, maxElementFrequency } from '../physics/element.ts';
 import { buildNodeLoads } from '../physics/load.ts';
 import type { Charge } from '../physics/blast.ts';
@@ -152,7 +152,7 @@ export class GpuSolver {
     this.updateMaterials(materials);
     this.updateLoad(charge);
     this.flushReadOnly();
-    this.reset();
+    this.reset(false);
   }
 
   /**
@@ -208,23 +208,57 @@ export class GpuSolver {
     this.device.queue.writeBuffer(this.ro, this.layout.off.loadPulse * 4, load.pulse);
   }
 
-  /** Back to the undeformed wall at t = 0, with every joint whole again. */
-  reset(): void {
+  /**
+   * Back to an undamaged wall, standing under its own weight, at rest.
+   *
+   * The undeformed mesh is not equilibrium: switch gravity on at t = 0 and the wall
+   * starts oscillating about its settled position, and since the blast arrives a few
+   * milliseconds later — comparable to the wall's own fundamental period — it would
+   * arrive while the wall is still ringing from being stood up. It also matters for
+   * strength, because joint shear capacity is c + σ·tanφ and the σ in that expression is
+   * self-weight: about 50 kPa at the base of a 2.7 m wall, worth ~9 % of the shear
+   * capacity, which ought to be present and steady rather than vibrating.
+   *
+   * So relax first: the same explicit kernels, heavily damped, with the blast switched
+   * off, until the motion dies. Dynamic relaxation reaches the same static state as an
+   * implicit solve here, using machinery that already exists, because at self-weight the
+   * joints are all in compression and nothing has cracked — there is no softening for a
+   * Newton method to be needed for.
+   */
+  reset(settle = true): void {
     const L = this.layout;
     const rw = new Float32Array(L.rwSize);
     rw.set(this.mesh.x0, L.off.x);
     for (let e = 0; e < L.e; e++) rw[L.off.quat + e * 4 + 3] = 1; // identity rotation
     this.device.queue.writeBuffer(this.rw, 0, rw);
     this.time = 0;
+    // Settling is thousands of steps, so it is not run while a geometry slider is being
+    // dragged — a rebuild lands every frame there. Firing the charge settles first.
+    if (!settle) return;
+
+    this.settle();
+
+    // Keep where the wall settled to; drop the velocity, the clock and the trace, so the
+    // event starts from rest at t = 0. writeBuffer is ordered against the submit above.
+    this.device.queue.writeBuffer(this.rw, L.off.vel * 4, new Float32Array(L.n * 3));
+    this.device.queue.writeBuffer(this.rw, L.off.clock * 4, new Float32Array(4));
+    this.device.queue.writeBuffer(this.rw, L.off.trace * 4, new Float32Array(TRACE_SAMPLES * 2));
+    // encodeSteps advanced the mirror clock through the relaxation run; the GPU's own
+    // clock was just zeroed, and these two have to agree or the shock sphere is drawn
+    // for a time the solver is not at.
+    this.time = 0;
   }
 
-  private writeParams(): void {
+  private writeParams(relax = false): void {
     const f = this.paramF32;
     const u = this.paramU32;
     const m = this.materials;
     f[0] = this.dt;
     f[1] = this.world.gravity;
-    f[2] = m.damping;
+    // Relaxation runs heavily damped with the blast switched off: a viscous crawl down
+    // to static equilibrium, using the same kernels rather than a second solver.
+    f[2] = relax ? this.relax().damping : m.damping;
+    f[17] = relax ? 0 : 1;
     f[3] = m.dif;
     f[4] = m.kn;
     f[5] = m.ks;
@@ -249,8 +283,11 @@ export class GpuSolver {
     const tail = 24 + OFFSET_FIELDS.length;
     u[tail] = this.probeNode;
     // Aim the trace at roughly a full ring over the length of a blast event, so the
-    // curve is dense without the recording kernel running every single step.
-    u[tail + 1] = Math.max(1, Math.round(0.35 / this.dt / TRACE_SAMPLES));
+    // curve is dense without the recording kernel running every single step. Guarded
+    // because the tests evaluate forces with dt = 0, which would otherwise land a
+    // non-finite stride in a Uint32Array — silently zero, and a modulo by zero in WGSL.
+    const stride = Math.round(0.35 / this.dt / TRACE_SAMPLES);
+    u[tail + 1] = Number.isFinite(stride) ? Math.max(1, stride) : 1;
     u[tail + 2] = TRACE_SAMPLES;
     this.device.queue.writeBuffer(this.params, 0, this.paramBytes);
   }
@@ -349,6 +386,82 @@ export class GpuSolver {
     }
   }
 
+  /**
+   * Run `count` steps now, optionally with a different time step.
+   *
+   * `dt = 0` evaluates forces without moving anything, which is how the self-test reads a
+   * joint's traction–separation curve: put the bricks where you want them, step once,
+   * read the force back.
+   */
+  run(count: number, dtOverride?: number): void {
+    const saved = this.dt;
+    if (dtOverride !== undefined) {
+      this.dt = dtOverride;
+      this.writeParams();
+    }
+    const encoder = this.device.createCommandEncoder({ label: 'run' });
+    this.encodeSteps(encoder, count);
+    this.device.queue.submit([encoder.finish()]);
+    if (dtOverride !== undefined) {
+      this.dt = saved;
+      this.writeParams();
+    }
+  }
+
+  /**
+   * One batch of self-weight relaxation: viscously damped stepping with the blast off,
+   * ending at rest.
+   *
+   * This gets the wall most of the way to equilibrium and no further — see the note on
+   * `relaxSchedule` for why, and what it would take to close the gap.
+   */
+  settle(): void {
+    this.writeParams(true);
+    const encoder = this.device.createCommandEncoder({ label: 'settle' });
+    this.encodeSteps(encoder, this.relax().steps);
+    this.device.queue.submit([encoder.finish()]);
+    this.writeParams();
+    this.device.queue.writeBuffer(
+      this.rw,
+      this.layout.off.vel * 4,
+      new Float32Array(this.layout.n * 3),
+    );
+  }
+
+  /** Damping, duration and reset interval for the self-weight relaxation run. */
+  private relax(): { damping: number; steps: number } {
+    return relaxSchedule(
+      this.mesh.lattice.height,
+      this.mesh.lattice.wall * this.mesh.dz,
+      this.materials.E,
+      this.materials.density,
+      this.dt,
+    );
+  }
+
+  /** Overwrite one named region of the read-write arena. */
+  writeRegion(name: string, data: F32): void {
+    this.device.queue.writeBuffer(this.rw, this.layout.off[name] * 4, data);
+  }
+
+  /** Read one named region of the read-write arena back to the CPU. */
+  async readRegion(name: string, floats: number): Promise<Float32Array> {
+    const bytes = floats * 4;
+    const staging = this.device.createBuffer({
+      label: `read ${name}`,
+      size: bytes,
+      usage: GPUBufferUsage.COPY_DST | GPUBufferUsage.MAP_READ,
+    });
+    const encoder = this.device.createCommandEncoder();
+    encoder.copyBufferToBuffer(this.rw, this.layout.off[name] * 4, staging, 0, bytes);
+    this.device.queue.submit([encoder.finish()]);
+    await staging.mapAsync(GPUMapMode.READ);
+    const out = new Float32Array(staging.getMappedRange().slice(0));
+    staging.unmap();
+    staging.destroy();
+    return out;
+  }
+
   destroy(): void {
     this.staging?.destroy();
     this.params.destroy();
@@ -385,6 +498,49 @@ function findProbeNode(mesh: Mesh): number {
     }
   }
   return best;
+}
+
+/**
+ * How long to relax for, and how hard to damp, from an estimate of the wall's own
+ * fundamental frequency.
+ *
+ * A fixed per-step damping fraction is the obvious thing and the wrong one: on a tall
+ * wall it lands at ten-plus times critical, and an over-damped structure does not settle
+ * quickly, it CREEPS. The first version left a 2 m wall six percent short of carrying its
+ * own weight — visibly nothing, but the equilibrium check caught it.
+ *
+ * So aim at critical damping for the first mode, α = 2ω₁, and run for a few periods of
+ * it. ω₁ is the cantilever estimate 3.516/H² · √(EI/m̄), which for a wall of thickness t
+ * reduces to 3.516/H² · t·√(E/12ρ). A wall held top and bottom is stiffer than that, so
+ * the estimate errs toward relaxing for too long, which is the harmless direction.
+ *
+ * ponytail: this reaches about 85 % of exact equilibrium and then stops improving. The
+ * remainder is a standing wave in the stiff axial modes that carry the self-weight:
+ * mass-proportional damping gives ζ = α/2ω, so it barely touches them, and turning α up
+ * far enough to catch them either exceeds the stability limit or makes the low modes
+ * creep instead. The textbook answer is kinetic damping — dump the velocity each time the
+ * kinetic energy peaks — which kills every mode regardless of frequency. Resetting at a
+ * FIXED interval instead was tried and is worse than useless: at an arbitrary phase it
+ * leaves the wall pinned at high potential energy, and at short intervals it diverges.
+ * Doing it properly needs a kinetic-energy reduction on the GPU to find the peaks.
+ */
+function relaxSchedule(
+  height: number,
+  thickness: number,
+  E: number,
+  density: number,
+  dt: number,
+): { damping: number; steps: number } {
+  const omega =
+    (3.516 / Math.max(height * height, 1e-6)) * thickness * Math.sqrt(E / (12 * density));
+  const w = Math.max(omega, 1);
+  const period = (2 * Math.PI) / w;
+  return {
+    // Light viscous damping on top of the kinetic resets: enough to take the edge off the
+    // fundamental, nowhere near enough to make it creep.
+    damping: 2 * w,
+    steps: Math.min(40000, Math.max(2000, Math.ceil((2.5 * period) / dt))),
+  };
 }
 
 function groups(count: number): number {

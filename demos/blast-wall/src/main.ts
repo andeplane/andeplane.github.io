@@ -17,7 +17,7 @@ import {
 } from './model/types.ts';
 import { buildMesh, type Mesh } from './model/mesh.ts';
 import { defaultMaterials, type Materials } from './physics/materials.ts';
-import { defaultWorld, type WorldOptions } from './physics/solver.ts';
+import { defaultWorld, type WorldOptions } from './physics/world.ts';
 import {
   defaultCharge,
   ArrivalTable,
@@ -676,6 +676,15 @@ async function boot(): Promise<void> {
   el('open-theory').addEventListener('click', () => void explainer.open());
 
   document.getElementById('loading')?.remove();
+
+  // ?selftest validates the kernels that actually ship, in the browser, because there is
+  // no CPU mirror to validate instead — see src/selftest.ts.
+  if (new URLSearchParams(location.search).has('selftest')) {
+    const { runSelfTest } = await import('./selftest.ts');
+    await runSelfTest(device);
+    return;
+  }
+
   sheet.openIfFirstVisit();
   requestAnimationFrame((t) => {
     last = t;
