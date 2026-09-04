@@ -38,11 +38,17 @@ export function buildNodeLoads(mesh: Mesh, charge: Charge): NodeLoad {
   }
   const table = new ArrivalTable(charge.mass, rMax * 1.2);
 
+  const occ = buildOccupancy(mesh);
+
   for (let q = 0; q < mesh.quadCount; q++) {
     const c = centre(mesh, q, X);
     const nr = normal(mesh, q, X);
     const p = pulseFor(charge, c[0], c[1], c[2], nr[0], nr[1], nr[2], table);
     if (p.peak <= 0) continue;
+    // A face that cannot see the charge does not get loaded. Without this the pressure
+    // goes straight through the façade and lands on the inside of the back wall — which
+    // it did, at 30 % of the façade's own load, pushing the room apart from within.
+    if (shadowed(occ, mesh, charge, c, nr)) continue;
     // The pressure pushes into the surface, so the load is along −n.
     const fx = -nr[0] * (nr[3] / 4) * p.peak;
     const fy = -nr[1] * (nr[3] / 4) * p.peak;
@@ -69,6 +75,97 @@ export function buildNodeLoads(mesh: Mesh, charge: Charge): NodeLoad {
     pulse[i * 3 + 2] /= weight[i];
   }
   return { dir, pulse };
+}
+
+/**
+ * Which lattice cells are solid.
+ *
+ * Units are boxes on the lattice, so occupancy is exact rather than a bounding-volume
+ * approximation, and building it costs one pass over the cells the bricks actually fill.
+ */
+function buildOccupancy(mesh: Mesh): Uint8Array {
+  const { nx, ny, nz } = mesh.lattice;
+  const occ = new Uint8Array(nx * ny * nz);
+  for (const u of mesh.units) {
+    for (let i = u.ix0; i < u.ix1; i++) {
+      for (let j = u.iy0; j < u.iy1; j++) {
+        for (let k = u.iz0; k < u.iz1; k++) occ[(i * ny + j) * nz + k] = 1;
+      }
+    }
+  }
+  return occ;
+}
+
+/**
+ * Is the straight line from this face to the charge blocked by masonry?
+ *
+ * A 3D DDA over the same lattice the bricks are laid on: step cell to cell along the ray
+ * and stop at the first solid one. Exact for axis-aligned boxes, and it costs a few dozen
+ * steps per face — only for faces that passed the incidence test, so most of the model is
+ * never marched at all.
+ *
+ * This is line-of-sight only. Real blast diffracts around edges and wraps into shadowed
+ * regions at reduced pressure; treating shadow as zero understates that, which is the
+ * same simplification as ignoring clearing.
+ */
+function shadowed(
+  occ: Uint8Array,
+  mesh: Mesh,
+  charge: Charge,
+  c: [number, number, number],
+  nr: [number, number, number, number],
+): boolean {
+  const lat = mesh.lattice;
+  const cell = [lat.dx, lat.dy, lat.dz];
+  const dim = [lat.nx, lat.ny, lat.nz];
+
+  // Start one cell outside the face, so its own brick does not count as a blocker.
+  const axis = Math.abs(nr[0]) > 0.5 ? 0 : Math.abs(nr[1]) > 0.5 ? 1 : 2;
+  const o = [c[0], c[1], c[2]];
+  o[axis] += nr[axis] * cell[axis] * 0.51;
+
+  const d = [charge.x - o[0], charge.y - o[1], charge.z - o[2]];
+  const len = Math.hypot(d[0], d[1], d[2]);
+  if (len < 1e-9) return false;
+  for (let a = 0; a < 3; a++) d[a] /= len;
+
+  const idx = [0, 0, 0];
+  const step = [0, 0, 0];
+  const tMax = [0, 0, 0];
+  const tDelta = [0, 0, 0];
+  for (let a = 0; a < 3; a++) {
+    idx[a] = Math.floor(o[a] / cell[a]);
+    if (d[a] > 1e-12) {
+      step[a] = 1;
+      tMax[a] = ((idx[a] + 1) * cell[a] - o[a]) / d[a];
+      tDelta[a] = cell[a] / d[a];
+    } else if (d[a] < -1e-12) {
+      step[a] = -1;
+      tMax[a] = (idx[a] * cell[a] - o[a]) / d[a];
+      tDelta[a] = -cell[a] / d[a];
+    } else {
+      tMax[a] = Infinity;
+      tDelta[a] = Infinity;
+    }
+  }
+
+  for (let guard = 0; guard < 8192; guard++) {
+    if (
+      idx[0] >= 0 && idx[0] < dim[0] &&
+      idx[1] >= 0 && idx[1] < dim[1] &&
+      idx[2] >= 0 && idx[2] < dim[2] &&
+      occ[(idx[0] * dim[1] + idx[1]) * dim[2] + idx[2]]
+    ) {
+      return true;
+    }
+    const a = tMax[0] < tMax[1] ? (tMax[0] < tMax[2] ? 0 : 2) : tMax[1] < tMax[2] ? 1 : 2;
+    if (tMax[a] >= len) return false;
+    idx[a] += step[a];
+    tMax[a] += tDelta[a];
+    // Each axis is monotone along the ray, so once it leaves the grid it cannot return.
+    if ((step[a] > 0 && idx[a] >= dim[a]) || (step[a] < 0 && idx[a] < 0)) return false;
+  }
+  return false;
 }
 
 function centre(mesh: Mesh, q: number, X: F32): [number, number, number] {

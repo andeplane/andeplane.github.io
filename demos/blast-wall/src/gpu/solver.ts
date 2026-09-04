@@ -43,6 +43,10 @@ export class GpuSolver {
   /** Simulated time, mirrored on the CPU so the UI can read it without a readback. */
   time = 0;
   nodeMass: number;
+  /** The density the mesh's nodal masses were baked at, so a change can be rescaled. */
+  private readonly buildDensity: number;
+  /** Live nodal inverse masses, rescaled whenever the density changes. */
+  private readonly invMass: F32;
   private staging: GPUBuffer | null = null;
   private statsPending = false;
 
@@ -60,6 +64,8 @@ export class GpuSolver {
     this.charge = charge;
     this.layout = layoutFor(mesh);
     this.nodeMass = (materials.density * mesh.dx * mesh.dy * mesh.dz) / 8;
+    this.buildDensity = materials.density;
+    this.invMass = Float32Array.from(mesh.invMass);
 
     const L = this.layout;
     const adj = buildAdjacency(mesh);
@@ -153,7 +159,7 @@ export class GpuSolver {
     }
     let invMassMax = 0;
     for (let i = 0; i < m.pairCount * 2; i++) {
-      invMassMax = Math.max(invMassMax, m.invMass[m.pairs[i]]);
+      invMassMax = Math.max(invMassMax, this.invMass[m.pairs[i]]);
     }
     const wJoint = Math.sqrt(kMax * 2 * invMassMax);
     return 2 / Math.max(wElem, wJoint, this.world.groundOmega, 1e-6);
@@ -162,6 +168,17 @@ export class GpuSolver {
   updateMaterials(materials: Materials): void {
     this.materials = materials;
     this.nodeMass = (materials.density * this.mesh.dx * this.mesh.dy * this.mesh.dz) / 8;
+
+    // The mesh baked its nodal masses at the density it was built with, so a density
+    // change has to move them too. Mass is linear in density, so rescale rather than
+    // re-mesh. Skipping this is not cosmetic: dt is recomputed from the new density
+    // while the actual masses stay put, so dragging the slider upward walks the step
+    // straight past the stability limit and the whole model goes to NaN.
+    const ratio = this.buildDensity / materials.density;
+    for (let i = 0; i < this.invMass.length; i++) this.invMass[i] = this.mesh.invMass[i] * ratio;
+    this.roData.set(this.invMass, this.layout.off.invMass);
+    this.device.queue.writeBuffer(this.ro, this.layout.off.invMass * 4, this.invMass);
+
     const K = boxStiffness(this.mesh.dx, this.mesh.dy, this.mesh.dz, materials.E, materials.nu);
     this.roData.set(K, this.layout.off.K);
     this.device.queue.writeBuffer(this.ro, this.layout.off.K * 4, K);

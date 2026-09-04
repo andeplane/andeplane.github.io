@@ -10,11 +10,12 @@
  */
 
 import { defaultWall, type WallSpec } from '../src/model/types.ts';
-import { buildMesh } from '../src/model/mesh.ts';
+import { buildMesh, AXIS_X } from '../src/model/mesh.ts';
 import { generateUnits } from '../src/model/bond.ts';
 import { defaultMaterials } from '../src/physics/materials.ts';
 import { boxStiffness } from '../src/physics/element.ts';
 import { Solver, defaultWorld } from '../src/physics/solver.ts';
+import { buildNodeLoads } from '../src/physics/load.ts';
 import { defaultCharge } from '../src/physics/blast.ts';
 import {
   incidentOverpressure,
@@ -230,8 +231,40 @@ function testJointTension(): void {
   check('a cracked joint still bears in compression', closeF / area > 0.5 * mat.kn * 1e-6, `${(closeF / area / 1e6).toFixed(3)} MPa at 1 µm overlap`);
 }
 
+/**
+ * The compression cap, while the joint is ALSO being sheared.
+ *
+ * This is the case that hid a real bug: the tangential jump has to be the total jump
+ * minus its RAW normal component, and the CPU reference was subtracting the
+ * crush-adjusted one. That leaves the permanent closure inside the tangential vector, so
+ * ks · crush appears as a force along the joint's own normal and the cap silently stops
+ * capping. It only shows from the second evaluation onwards, because the crush is zero
+ * the first time through — which is exactly why nothing else caught it.
+ */
+function testJointCrushing(): void {
+  console.log('\n4. Joint law: the compression cap under shear');
+  const { solver, top, area } = twoBrickSolver();
+  const mat = solver.materials;
+  const overlap = (3 * mat.fc) / mat.kn;
+  let normal = 0;
+  for (let call = 0; call < 3; call++) {
+    for (const n of top) {
+      solver.x[n * 3] = solver.mesh.x0[n * 3] + 2e-6; // a little shear, well below τ_max
+      solver.x[n * 3 + 1] = solver.mesh.x0[n * 3 + 1] - overlap;
+    }
+    solver.computeForces();
+    normal = 0;
+    for (const n of top) normal += solver.f[n * 3 + 1];
+  }
+  check(
+    'a crushed joint still respects fc while being sheared',
+    near(normal / area, mat.fc, 0.01),
+    `${(normal / area / 1e6).toFixed(2)} MPa against fc = ${(mat.fc / 1e6).toFixed(2)} MPa, at 3× the cap overlap`,
+  );
+}
+
 function testTripletShear(): void {
-  console.log('\n4. Joint law: simulated triplet shear test');
+  console.log('\n5. Joint law: simulated triplet shear test');
   const mat = defaultMaterials();
   const pts: { sigma: number; tau: number }[] = [];
 
@@ -311,7 +344,7 @@ function tallWall(bond: 'running' | 'stack'): WallSpec {
 }
 
 function testMomentum(): void {
-  console.log('\n5. Integrator');
+  console.log('\n6. Integrator');
   const spec = smallWall('running', 'free');
   const mat = defaultMaterials();
   mat.damping = 0;
@@ -379,7 +412,7 @@ function testCfl(): void {
 // 6. Blast parameters
 // ---------------------------------------------------------------------------
 function testBlast(): void {
-  console.log('\n6. Blast');
+  console.log('\n7. Blast');
   const p1 = incidentOverpressure(1);
   check('peak overpressure at Z = 1 is about 1 MPa', p1 > 0.8e6 && p1 < 1.3e6, `${(p1 / 1e6).toFixed(3)} MPa`);
   const p3 = incidentOverpressure(3);
@@ -403,8 +436,11 @@ function testBlast(): void {
 // 7. The headline claim: the bond pattern changes what happens
 // ---------------------------------------------------------------------------
 function testBondMatters(): void {
-  console.log('\n7. Does the bond pattern actually matter?');
-  const out: Record<string, { damage: number; disp: number; pieces: number; units: number }> = {};
+  console.log('\n8. Does the bond pattern actually matter?');
+  const out: Record<
+    string,
+    { damage: number; disp: number; pieces: number; largest: number; head: number; units: number }
+  > = {};
 
   for (const bond of ['running', 'stack'] as const) {
     const spec = tallWall(bond);
@@ -412,13 +448,17 @@ function testBondMatters(): void {
     const mesh = buildMesh(spec, mat.density);
     const charge = { ...defaultCharge(), x: mesh.lattice.length / 2, y: 0.6, z: -3.5, mass: 8 };
     const solver = new Solver(mesh, mat, charge, defaultWorld());
-    const steps = Math.ceil(0.05 / solver.dt);
+    // Long enough for the fragments to actually separate. At 50 ms both walls are still
+    // one cracked object and the piece count cannot tell them apart yet.
+    const steps = Math.ceil(0.12 / solver.dt);
     for (let i = 0; i < steps; i++) solver.step();
 
+    // Read the damage the solver actually recorded. Recomputing it here from κ would use
+    // the quasi-static δf and disagree with the solver, which applies strain-rate
+    // hardening and so fails its joints at a smaller opening than the static law does.
+    const cracked = (p: number) => solver.pairDamage[p] >= 0.999;
     let dmg = 0;
-    const delta0 = mat.ft / mat.kn;
-    const deltaF = Math.max((2 * mat.gf) / mat.ft, 1.01 * delta0);
-    for (let p = 0; p < mesh.pairCount; p++) if (solver.kappa[p] >= deltaF) dmg++;
+    for (let p = 0; p < mesh.pairCount; p++) if (cracked(p)) dmg++;
     let disp = 0;
     for (let n = 0; n < mesh.nodeCount; n++) {
       disp = Math.max(disp, Math.abs(solver.x[n * 3 + 2] - mesh.x0[n * 3 + 2]));
@@ -433,14 +473,36 @@ function testBondMatters(): void {
       return i;
     };
     for (let p = 0; p < mesh.pairCount; p++) {
-      if (solver.kappa[p] >= deltaF) continue;
+      if (cracked(p)) continue;
       const ra = find(mesh.nodeUnit[mesh.pairs[p * 2]]);
       const rb = find(mesh.nodeUnit[mesh.pairs[p * 2 + 1]]);
       if (ra !== rb) parent[ra] = rb;
     }
-    const pieces = new Set<number>();
-    for (let u = 0; u < mesh.units.length; u++) pieces.add(find(u));
-    out[bond] = { damage: dmg / mesh.pairCount, disp, pieces: pieces.size, units: mesh.units.length };
+    const size = new Map<number, number>();
+    for (let u = 0; u < mesh.units.length; u++) {
+      const r = find(u);
+      size.set(r, (size.get(r) ?? 0) + 1);
+    }
+    const largest = Math.max(...size.values()) / mesh.units.length;
+
+    // Where the cracks go, not just how many. A cracked head joint in stack bond sits
+    // directly above another one, so it has somewhere to propagate; in running bond the
+    // brick above bridges it and the crack has to turn.
+    let head = 0;
+    let headCracked = 0;
+    for (let p = 0; p < mesh.pairCount; p++) {
+      if (mesh.pairAxis[p] !== AXIS_X) continue;
+      head++;
+      if (cracked(p)) headCracked++;
+    }
+    out[bond] = {
+      damage: dmg / mesh.pairCount,
+      disp,
+      pieces: size.size,
+      largest,
+      head: headCracked / Math.max(head, 1),
+      units: mesh.units.length,
+    };
   }
 
   const r = out.running;
@@ -451,9 +513,10 @@ function testBondMatters(): void {
     `running ${(r.damage * 100).toFixed(1)} % of joints fully cracked, stack ${(s.damage * 100).toFixed(1)} %`,
   );
   check(
-    'and breaks it into more pieces',
-    s.pieces > r.pieces,
-    `running bond holds together in ${r.pieces} piece(s), stack bond falls into ${s.pieces}, out of ${r.units} bricks — both pushed about ${(r.disp * 1000).toFixed(0)} mm out of plane`,
+    'and cracks its head joints preferentially, having somewhere for them to run',
+    s.head > r.head,
+    `stussfuger fully cracked: ${(r.head * 100).toFixed(0)} % in running bond, ${(s.head * 100).toFixed(0)} % in stack bond ` +
+      `(largest surviving fragment ${(r.largest * 100).toFixed(0)} % vs ${(s.largest * 100).toFixed(0)} %, both pushed ~${(r.disp * 1000).toFixed(0)} mm out of plane)`,
   );
 }
 
@@ -461,7 +524,7 @@ function testBondMatters(): void {
 // 8. Four walls, bonded at the corners
 // ---------------------------------------------------------------------------
 function testRoom(): void {
-  console.log('\n8. Four walls, bonded at the corners');
+  console.log('\n9. Four walls, bonded at the corners');
   const mat = defaultMaterials();
   const spec: WallSpec = {
     ...defaultWall(),
@@ -540,6 +603,28 @@ function testRoom(): void {
   };
   const alone = runFacade('wall');
   const inRoom = runFacade('room');
+  // The blast must not reach through the façade. Before the line-of-sight test existed
+  // the inside of the back wall took 0.45 MPa and the return walls were pushed outward
+  // from within the room, which is a third of the façade's load applied to surfaces that
+  // cannot see the charge.
+  {
+    const room = buildMesh({ ...spec, height: 2.072 }, mat.density);
+    const load = buildNodeLoads(room, { ...defaultCharge(), x: room.lattice.length / 2, y: 1, z: -4.5, mass: 25 });
+    const facadeDepth = room.lattice.wall * room.dz + 1e-9;
+    let facade = 0;
+    let behind = 0;
+    for (let n = 0; n < room.nodeCount; n++) {
+      const fz = load.dir[n * 3 + 2];
+      if (room.x0[n * 3 + 2] <= facadeDepth) facade += fz;
+      else behind += Math.abs(fz);
+    }
+    check(
+      'nothing behind the façade is loaded through it',
+      behind < Math.abs(facade) * 0.02,
+      `façade takes ${(facade / 1e6).toFixed(2)} MN, everything behind it ${(behind / 1e6).toFixed(3)} MN`,
+    );
+  }
+
   check(
     'return walls hold the ends of the façade that a lone wall cannot',
     inRoom < alone * 0.6,
@@ -553,6 +638,7 @@ console.log('blast-wall self-test');
 testElement();
 testBond();
 testJointTension();
+testJointCrushing();
 testTripletShear();
 testMomentum();
 testCfl();

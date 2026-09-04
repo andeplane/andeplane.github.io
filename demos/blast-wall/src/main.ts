@@ -33,6 +33,7 @@ import { Scene, type ColourMode } from './render/scene.ts';
 import { OrbitCamera } from './render/camera.ts';
 import { Panel, type Group } from './ui/controls.ts';
 import { Editor, type Tool } from './ui/editor.ts';
+import { Sheet } from './ui/sheet.ts';
 
 // Divisions through the thickness are derived (nx / 2), because the lattice has to stay
 // square in plan for the corners of a room to bond. See `latticeFor`.
@@ -652,7 +653,12 @@ async function boot(): Promise<void> {
     setStatus('Wall rebuilt, undamaged, at rest.');
   });
 
+  const sheet = new Sheet();
+  el('open-guide').addEventListener('click', () => sheet.open('guide'));
+  el('open-theory').addEventListener('click', () => sheet.open('theory'));
+
   document.getElementById('loading')?.remove();
+  sheet.openIfFirstVisit();
   requestAnimationFrame((t) => {
     last = t;
     frame(t);

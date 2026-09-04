@@ -43,6 +43,11 @@
         <button id="reset" class="btn">Rebuild</button>
       </div>
 
+      <div id="reads">
+        <button id="open-guide" class="btn ghost">Guide</button>
+        <button id="open-theory" class="btn ghost">Theory</button>
+      </div>
+
       <div id="tools">
         <button class="tool active" data-tool="select">Select</button>
         <button class="tool" data-tool="carve">Carve</button>
@@ -65,6 +70,16 @@
       <div class="stat"><span>scaled distance Z</span><b id="hud-z">—</b></div>
       <div class="stat"><span>fastest debris</span><b id="hud-speed">0.0 m/s</b></div>
       <div class="stat"><span>model</span><b id="hud-size">—</b></div>
+    </div>
+
+    <div id="sheet" hidden>
+      <article>
+        <header>
+          <h2 id="sheet-title"></h2>
+          <button id="sheet-close" aria-label="Close">×</button>
+        </header>
+        <div id="sheet-body"></div>
+      </article>
     </div>
 
     <script type="module" src="/src/main.ts"></script>

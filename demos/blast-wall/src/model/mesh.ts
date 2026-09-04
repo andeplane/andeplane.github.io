@@ -187,15 +187,28 @@ export function buildMesh(spec: WallSpec, density: number): Mesh {
   const pairAx: number[] = [];
   const pairAr: number[] = [];
 
-  // Units are few (hundreds) and this runs once, so the O(n²) sweep is not worth
-  // bucketing. Two units make a joint when they touch on one axis AND overlap with
-  // positive extent on both others — the overlap test is what stops diagonal
-  // neighbours across a bond from being glued together.
+  // Two units make a joint when they touch on one axis AND overlap with positive extent
+  // on both others — the overlap test is what stops diagonal neighbours across a bond
+  // from being glued together.
+  //
+  // Bucketed by course, because a unit can only ever meet one in its own course (head and
+  // collar joints) or the one directly above or below (bed joints). The all-pairs sweep
+  // this replaced was fine for a single wall of a few hundred bricks, but a room is
+  // thousands, and it ran on the main thread on every frame of a slider drag: 570 ms to
+  // build an 8 × 8 m room at the fine mesh, against 40 ms now.
+  const byCourse = new Map<number, number[]>();
+  for (let i = 0; i < lay.length; i++) {
+    const list = byCourse.get(lay[i].course);
+    if (list) list.push(i);
+    else byCourse.set(lay[i].course, [i]);
+  }
+
   const area = [dy * dz, dx * dz, dx * dy];
   for (let a = 0; a < lay.length; a++) {
-    for (let b = 0; b < lay.length; b++) {
+    const A = lay[a];
+    for (let c = A.course - 1; c <= A.course + 1; c++) {
+      for (const b of byCourse.get(c) ?? []) {
       if (a === b) continue;
-      const A = lay[a];
       const B = lay[b];
       for (let axis = 0; axis < 3; axis++) {
         if (hi(A, axis) !== lo(B, axis)) continue; // A's + face against B's − face
@@ -224,6 +237,7 @@ export function buildMesh(spec: WallSpec, density: number): Mesh {
             pairAx.push(axis);
             pairAr.push(Math.min(wa, wb) * area[axis]);
           }
+        }
         }
       }
     }

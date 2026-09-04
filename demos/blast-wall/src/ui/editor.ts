@@ -263,7 +263,10 @@ export class Editor {
   /** Nearest unit along the ray, or −1. */
   private pick(e: PointerEvent): number {
     const { origin, dir } = this.ray(e);
-    const mesh = this.host.mesh();
+    // Pointer handlers are live before the first mesh exists — the loading overlay
+    // usually swallows the click, but a click during WebGPU bring-up would land here.
+    const mesh = this.host.mesh() as Mesh | undefined;
+    if (!mesh) return -1;
     const { dx, dy, dz } = mesh;
     let best = -1;
     let bestT = Infinity;
@@ -288,7 +291,9 @@ export class Editor {
     if (Math.abs(dir[2]) < 1e-6) return null;
     const t = (0 - origin[2]) / dir[2];
     if (t <= 0) return null;
-    const lat = this.host.mesh().lattice;
+    const mesh = this.host.mesh() as Mesh | undefined;
+    if (!mesh) return null;
+    const lat = mesh.lattice;
     const x = origin[0] + dir[0] * t;
     const y = origin[1] + dir[1] * t;
     if (x < -0.5 || x > lat.length + 0.5 || y < -0.5 || y > lat.height + 0.5) return null;

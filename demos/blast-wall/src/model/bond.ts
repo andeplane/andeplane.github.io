@@ -14,7 +14,7 @@
  * bond at their corners. See `latticeFor`.
  */
 
-import type { WallSpec } from './types.ts';
+import { brickThickness, type WallSpec } from './types.ts';
 
 export interface Unit {
   /** Stable id across re-generation, "course:latticeX:latticeZ". */
@@ -87,7 +87,14 @@ export function latticeFor(spec: WallSpec): Lattice {
 
   const ux = spec.brick.length + spec.joint;
   const uy = spec.brick.height + spec.joint;
-  const uz = ux / 2;
+  // A room pays for its corners: every wall is one modular header thick (120 mm), which
+  // is the brick plus the joint its return wall butts into. A lone wall has no corner to
+  // bond, so it keeps its true 108 mm — expanded only for a collar joint, and only when
+  // there are two leaves to put one between.
+  const uz =
+    spec.plan === 'room'
+      ? ux / 2
+      : brickThickness(spec) + (spec.wythes > 1 ? spec.joint / 2 : 0);
 
   const cols = Math.max(1, Math.round(spec.length / ux));
   const courses = Math.max(1, Math.round(spec.height / uy));
@@ -255,7 +262,10 @@ function insideOpening(
   iz0: number,
 ): boolean {
   if (spec.openings.length === 0) return false;
-  if (spec.plan === 'room' && iz0 !== 0) return false;
+  // Cut only the wall the opening was drawn on, or every window would come with a
+  // matching hole in the back wall. Compare against the façade's whole thickness, not
+  // just its outer leaf — keying on iz0 === 0 left a solid inner leaf behind the hole.
+  if (spec.plan === 'room' && iz0 >= lat.wall) return false;
   const cx = ((ix0 + ix1) / 2) * lat.dx;
   const cy = ((iy0 + iy1) / 2) * lat.dy;
   return spec.openings.some((o) => cx > o.x && cx < o.x + o.w && cy > o.y && cy < o.y + o.h);

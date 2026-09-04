@@ -49,6 +49,11 @@ export class Solver {
   readonly slip: Float32Array;
   /** Permanent closure from crushing, m (≤ 0). */
   readonly crush: Float32Array;
+  /**
+   * Damage per pair, 0 to 1. Recorded rather than recomputed, because δf moves with the
+   * strain-rate factor and cannot be reconstructed after the fact from κ alone.
+   */
+  readonly pairDamage: Float32Array;
   /** Per-node scalars the renderer reads: 0 = joint damage, 1 = speed. */
   readonly damage: Float32Array;
 
@@ -78,6 +83,7 @@ export class Solver {
     this.kappa = new Float32Array(mesh.pairCount);
     this.slip = new Float32Array(mesh.pairCount * 3);
     this.crush = new Float32Array(mesh.pairCount);
+    this.pairDamage = new Float32Array(mesh.pairCount);
     this.damage = new Float32Array(n);
 
     this.K = boxStiffness(mesh.dx, mesh.dy, mesh.dz, materials.E, materials.nu);
@@ -293,9 +299,14 @@ export class Solver {
       let t0 = 0;
       let t1 = 0;
       let t2 = 0;
-      const s0 = dx - (axis === 0 ? dn : 0) - this.slip[p * 3];
-      const s1 = dy - (axis === 1 ? dn : 0) - this.slip[p * 3 + 1];
-      const s2 = dz - (axis === 2 ? dn : 0) - this.slip[p * 3 + 2];
+      // The tangential jump is d with its normal component removed — the RAW one. Using
+      // the crush-adjusted `dn` here leaves the permanent closure sitting in the
+      // tangential vector, so a crushed joint generates a shear force along its own
+      // normal and quietly defeats the compression cap. The WGSL kernel gets this right
+      // via `d - n*dot(d, n)`; this line is why the two disagreed.
+      const s0 = (axis === 0 ? 0 : dx) - this.slip[p * 3];
+      const s1 = (axis === 1 ? 0 : dy) - this.slip[p * 3 + 1];
+      const s2 = (axis === 2 ? 0 : dz) - this.slip[p * 3 + 2];
       t0 = mat.ks * s0;
       t1 = mat.ks * s1;
       t2 = mat.ks * s2;
@@ -322,6 +333,7 @@ export class Solver {
       this.f[b * 3 + 1] -= fy;
       this.f[b * 3 + 2] -= fz;
 
+      this.pairDamage[p] = dmg;
       if (dmg > this.damage[a]) this.damage[a] = dmg;
       if (dmg > this.damage[b]) this.damage[b] = dmg;
     }

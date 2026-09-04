@@ -134,9 +134,12 @@ an answer known ahead of time:
 - linear momentum is conserved to 1e-6 over 2000 steps (this is what catches an
   asymmetric internal force), and the measured critical time step really is critical:
   0.9× is stable and 1.25× diverges;
-- the headline claim gets a test rather than a screenshot — **the same charge cracks a
-  stack-bonded wall more than a running-bonded one and breaks it into more pieces**
-  (fragments counted by union-find over joints that are not fully cracked);
+- the headline claim gets a test rather than a screenshot — the same charge cracks a
+  stack-bonded wall more of the way through (34% of joints against 30%), and **cracks its
+  head joints preferentially**, 28% against 15%, because in stack bond a cracked stussfuge
+  sits directly above another one and has somewhere to run. Fragments are counted by
+  union-find over joints that are not fully cracked; the largest surviving piece is 62% of
+  a running-bonded wall against 39% of a stack-bonded one;
 - and the room holds together: the plan lattice really is square, joints really do cross
   the corners, the four walls are **one** connected structure rather than four things
   standing next to each other, and a façade tied into return walls has its ends held —

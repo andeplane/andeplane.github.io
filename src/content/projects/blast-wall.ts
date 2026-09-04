@@ -15,8 +15,8 @@ does it break, and why there? This answers that with a real solver rather than a
 animation of one: four walls bonded at the corners, eighteen hundred bricks, each a mesh
 of hexahedral finite elements, every mortar joint between them a surface with a
 cohesive-frictional law, and a blast pulse whose peak pressure, duration and arrival time
-come from the charge mass and the standoff. Tens of thousands of elements and hundreds of
-thousands of joint node pairs, stepped on your GPU, in slow motion down to a thousandth of
+come from the charge mass and the standoff. Twenty-eight thousand elements and forty-six
+thousand joint node pairs, stepped on your GPU, in slow motion down to a thousandth of
 real time.
 
 The corners are the reason it is four walls and not one. A lone wall simply falls over,
@@ -85,6 +85,18 @@ node like every other joint in the model. The mesher needed no changes at all.
 The corner itself alternates course by course — the walls one way run through the corner
 square, the walls the other way stop short, then they swap. That is how a mason turns a
 corner, and it hands the return walls their running bond for free.
+
+## The theory
+
+If you want the whole chain written out — momentum balance, the weak form, why trilinear
+hexahedra and not tetrahedra, the Gauss quadrature of the stiffness integral, the
+corotational trick that lets a linear element tumble through the air, the cohesive law
+whose area under the curve is the fracture energy by construction, and the stability limit
+of the time integrator — it is in
+[A brick wall, from the weak form up](/blog/a-brick-wall-from-the-weak-form-up). That post
+also carries the honest list of what this is *not*: explicit only, corotational linear
+rather than large-strain, an interface integrated nodally rather than by quadrature, and
+bricks that cannot themselves break.
 
 ## Under the hood
 

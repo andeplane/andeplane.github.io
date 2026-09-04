@@ -57,8 +57,9 @@ fn vsWall(@builtin(vertex_index) vi: u32, @builtin(instance_index) inst: u32) ->
   // Both bodies shrink around the unit's own DEFORMED centroid, so the inset follows a
   // brick when it tumbles instead of pointing off along fixed world axes.
   let c = rw3(S.offA.y, unit);
-  // Slot 0 is the brick's scale, slot 1 the mortar body's; which axis the mortar is set
-  // back along depends on which way this wall runs, so the mesher bakes it in.
+  // Slot 0 is the mortar body's scale, slot 1 the brick's — the draw instance order.
+  // Which axis the mortar is set back along depends on which way this wall runs, so the
+  // mesher bakes it in.
   let b = S.offB.x + unit * 8u + inst * 4u;
   p = c + (p - c) * vec3<f32>(RO[b], RO[b + 1u], RO[b + 2u]);
   var out: WallOut;
