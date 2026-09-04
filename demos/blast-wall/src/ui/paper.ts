@@ -215,6 +215,27 @@ export const PAPER = `
 </section>
 
 <section>
+  <h2>Standing the wall up first</h2>
+  <p>
+    The undeformed mesh is not equilibrium. Switch gravity on at $t = 0$ and the wall
+    begins oscillating about its settled position — and the blast arrives a few
+    milliseconds later, comparable to the wall's own fundamental period, so it would meet
+    a wall still ringing from being stood up. It matters for strength too, because joint
+    shear capacity is $c + \\sigma\\tan\\varphi$ and the $\\sigma$ there is self-weight:
+    about 50 kPa at the base of a 2.7 m wall, worth roughly a tenth of the shear capacity,
+    which ought to be present and steady rather than vibrating.
+  </p>
+  <p>
+    So the wall is relaxed into equilibrium before the clock starts: the same explicit
+    kernels, heavily damped, with the load switched off, until the motion dies. Dynamic
+    relaxation reaches the same static state an implicit solve would, and it does so with
+    machinery that already exists — at self-weight every joint is in compression and
+    elastic, so there is no softening in the problem yet and nothing for a Newton method
+    to earn its keep on. The self-test checks the result as a force balance: what the
+    supports hold must equal the weight of everything free to fall, and it does to within
+    a third of a percent.
+  </p>
+
   <h2>Time integration</h2>
   <p>The semi-discrete system is integrated by central differences on half-step velocities:</p>
   $$\\mathbf{v}^{\\,n+1/2} = \\mathbf{v}^{\\,n-1/2} + \\Delta t\\,\\mathbf{M}^{-1}\\!\\left(\\mathbf{f}^{\\,n}_{\\text{ext}} - \\mathbf{f}^{\\,n}_{\\text{int}}\\right),
@@ -254,9 +275,9 @@ export const PAPER = `
 </section>
 
 <section>
-  <h2>What this is not</h2>
+  <h2>The limits of this model</h2>
   <ul>
-    <li><strong>Explicit only.</strong> No tangent stiffness assembly, no Newton iteration, no equation solving. None of this would work for a static problem.</li>
+    <li><strong>The integration is explicit, and only explicit.</strong> There is no tangent stiffness assembly, no Newton iteration and no equation solving anywhere — which is what makes it robust through fracture, and also means it cannot be asked for a static answer directly. Self-weight is reached by relaxing dynamically into it rather than by solving for it.</li>
     <li><strong>Corotational linear, not large-strain.</strong> No hyperelastic material, no objective stress rate.</li>
     <li><strong>The interface is integrated nodally</strong>, not by Gauss quadrature with interface shape functions.</li>
     <li><strong>Full integration locks in bending.</strong> With one or two elements through the thickness a brick is far too stiff in flexure. It matters less than it sounds, because a masonry wall's compliance comes from joints opening rather than bricks bending — but it is a real limitation.</li>

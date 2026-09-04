@@ -24,7 +24,7 @@ struct Params {
   kn: f32, ks: f32, ft: f32, gf: f32,
   cohesion: f32, tanPhi: f32, fc: f32, jointThickness: f32,
   groundOmega: f32, groundFriction: f32, dx: f32, dy: f32,
-  dz: f32, spare17: f32, spare18: f32, spare19: f32,
+  dz: f32, loadScale: f32, spare18: f32, spare19: f32,
   nodeCount: u32, elementCount: u32, pairCount: u32, unitCount: u32,
   oElements: u32, oPairs: u32, oPairAxis: u32, oElemStart: u32,
   oElemData: u32, oPairStart: u32, oPairData: u32, oUnitRange: u32,
@@ -287,10 +287,14 @@ fn integrate(@builtin(global_invocation_id) gid: vec3<u32>) {
     dmg = max(dmg, RW[P.oPairDamage + pi]);
   }
 
-  let lp = P.oLoadPulse + i * 3u;
-  let shape = friedlander((RW[P.oClock] - RO[lp]) / max(RO[lp + 1u], 1e-9), RO[lp + 2u]);
-  if (shape != 0.0) {
-    f = f + ro3(P.oLoadDir, i) * shape;
+  // loadScale is zero while the wall settles under its own weight, so the blast cannot
+  // go off during the relaxation run.
+  if (P.loadScale != 0.0) {
+    let lp = P.oLoadPulse + i * 3u;
+    let shape = friedlander((RW[P.oClock] - RO[lp]) / max(RO[lp + 1u], 1e-9), RO[lp + 2u]);
+    if (shape != 0.0) {
+      f = f + ro3(P.oLoadDir, i) * shape * P.loadScale;
+    }
   }
 
   let mass = 1.0 / inv;

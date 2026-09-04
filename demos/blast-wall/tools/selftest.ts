@@ -10,7 +10,7 @@
  */
 
 import { defaultWall, type WallSpec } from '../src/model/types.ts';
-import { buildMesh, AXIS_X } from '../src/model/mesh.ts';
+import { buildMesh, AXIS_X, AXIS_Y } from '../src/model/mesh.ts';
 import { generateUnits } from '../src/model/bond.ts';
 import { defaultMaterials } from '../src/physics/materials.ts';
 import { boxStiffness } from '../src/physics/element.ts';
@@ -656,6 +656,54 @@ function testRoom(): void {
 }
 
 // ---------------------------------------------------------------------------
+// 10. Standing the wall up before anything is done to it
+// ---------------------------------------------------------------------------
+function testSettling(): void {
+  console.log('\n10. Standing the wall up under its own weight');
+  const mat = defaultMaterials();
+  const mesh = buildMesh(smallWall('running', 'base'), mat.density);
+  const solver = new Solver(mesh, mat, { ...defaultCharge(), mass: 0 }, defaultWorld());
+  solver.settle();
+
+  // Equilibrium, stated as a force balance: whatever the supports are holding has to be
+  // exactly the weight of everything free to fall. Summing internal forces over the held
+  // nodes tests the settled state without needing to know what it looks like.
+  solver.computeForces();
+  let reaction = 0;
+  let freeMass = 0;
+  for (let n = 0; n < mesh.nodeCount; n++) {
+    if (mesh.invMass[n] === 0) reaction += solver.f[n * 3 + 1];
+    else freeMass += 1 / mesh.invMass[n];
+  }
+  const weight = freeMass * solver.world.gravity;
+  check(
+    'a settled wall carries its own weight into its supports',
+    near(-reaction, weight, 0.02),
+    `${(-reaction / 1000).toFixed(2)} kN into the base against ${(weight / 1000).toFixed(2)} kN of wall`,
+  );
+
+  const ke = solver.kineticEnergy();
+  check('and is at rest when the clock starts', ke < 1e-4, `${ke.toExponential(2)} J left`);
+
+  // And the point of doing it at all: the bed joints are in compression before the blast
+  // arrives, which is what gives them their share of the shear capacity.
+  let deepest = 0;
+  for (let p = 0; p < mesh.pairCount; p++) {
+    if (mesh.pairAxis[p] !== AXIS_Y) continue;
+    const a = mesh.pairs[p * 2];
+    const b = mesh.pairs[p * 2 + 1];
+    const dn = solver.x[b * 3 + 1] - solver.x[a * 3 + 1] - solver.crush[p];
+    deepest = Math.min(deepest, mat.kn * dn);
+  }
+  const expected = -mat.density * solver.world.gravity * mesh.lattice.height;
+  check(
+    'and its bed joints are under the weight of the wall above them',
+    deepest < expected * 0.5 && deepest > expected * 3,
+    `${(deepest / 1000).toFixed(1)} kPa at the most compressed joint, against ${(expected / 1000).toFixed(1)} kPa of wall standing on it`,
+  );
+}
+
+// ---------------------------------------------------------------------------
 
 console.log('blast-wall self-test');
 testElement();
@@ -668,6 +716,7 @@ testCfl();
 testBlast();
 testBondMatters();
 testRoom();
+testSettling();
 
 console.log(failures === 0 ? '\nall checks passed\n' : `\n${failures} check(s) failed\n`);
 process.exit(failures === 0 ? 0 : 1);

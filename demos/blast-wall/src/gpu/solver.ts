@@ -152,7 +152,7 @@ export class GpuSolver {
     this.updateMaterials(materials);
     this.updateLoad(charge);
     this.flushReadOnly();
-    this.reset();
+    this.reset(false);
   }
 
   /**
@@ -208,23 +208,61 @@ export class GpuSolver {
     this.device.queue.writeBuffer(this.ro, this.layout.off.loadPulse * 4, load.pulse);
   }
 
-  /** Back to the undeformed wall at t = 0, with every joint whole again. */
-  reset(): void {
+  /**
+   * Back to an undamaged wall, standing under its own weight, at rest.
+   *
+   * The undeformed mesh is not equilibrium: switch gravity on at t = 0 and the wall
+   * starts oscillating about its settled position, and since the blast arrives a few
+   * milliseconds later — comparable to the wall's own fundamental period — it would
+   * arrive while the wall is still ringing from being stood up. It also matters for
+   * strength, because joint shear capacity is c + σ·tanφ and the σ in that expression is
+   * self-weight: about 50 kPa at the base of a 2.7 m wall, worth ~9 % of the shear
+   * capacity, which ought to be present and steady rather than vibrating.
+   *
+   * So relax first: the same explicit kernels, heavily damped, with the blast switched
+   * off, until the motion dies. Dynamic relaxation reaches the same static state as an
+   * implicit solve here, using machinery that already exists, because at self-weight the
+   * joints are all in compression and nothing has cracked — there is no softening for a
+   * Newton method to be needed for.
+   */
+  reset(settle = true): void {
     const L = this.layout;
     const rw = new Float32Array(L.rwSize);
     rw.set(this.mesh.x0, L.off.x);
     for (let e = 0; e < L.e; e++) rw[L.off.quat + e * 4 + 3] = 1; // identity rotation
     this.device.queue.writeBuffer(this.rw, 0, rw);
     this.time = 0;
+    // Settling is thousands of steps, so it is not run while a geometry slider is being
+    // dragged — a rebuild lands every frame there. Firing the charge settles first.
+    if (!settle) return;
+
+    this.writeParams(true);
+    const encoder = this.device.createCommandEncoder({ label: 'settle' });
+    this.encodeSteps(encoder, RELAX_STEPS);
+    this.device.queue.submit([encoder.finish()]);
+    this.writeParams();
+
+    // Keep where the wall settled to; drop the velocity, the clock and the trace, so the
+    // event starts from rest at t = 0. writeBuffer is ordered against the submit above.
+    this.device.queue.writeBuffer(this.rw, L.off.vel * 4, new Float32Array(L.n * 3));
+    this.device.queue.writeBuffer(this.rw, L.off.clock * 4, new Float32Array(4));
+    this.device.queue.writeBuffer(this.rw, L.off.trace * 4, new Float32Array(TRACE_SAMPLES * 2));
+    // encodeSteps advanced the mirror clock through the relaxation run; the GPU's own
+    // clock was just zeroed, and these two have to agree or the shock sphere is drawn
+    // for a time the solver is not at.
+    this.time = 0;
   }
 
-  private writeParams(): void {
+  private writeParams(relax = false): void {
     const f = this.paramF32;
     const u = this.paramU32;
     const m = this.materials;
     f[0] = this.dt;
     f[1] = this.world.gravity;
-    f[2] = m.damping;
+    // Relaxation runs heavily damped with the blast switched off: a viscous crawl down
+    // to static equilibrium, using the same kernels rather than a second solver.
+    f[2] = relax ? RELAX_DAMPING / this.dt : m.damping;
+    f[17] = relax ? 0 : 1;
     f[3] = m.dif;
     f[4] = m.kn;
     f[5] = m.ks;
@@ -386,6 +424,16 @@ function findProbeNode(mesh: Mesh): number {
   }
   return best;
 }
+
+/**
+ * Mass-proportional damping during relaxation, as a fraction of velocity removed per
+ * step. Expressed per step rather than per second so it does not change meaning when the
+ * time step does.
+ */
+const RELAX_DAMPING = 0.02;
+
+/** Steps of relaxation. Long enough to settle a wall many times taller than these. */
+const RELAX_STEPS = 2500;
 
 function groups(count: number): number {
   return Math.max(1, Math.ceil(count / 64));

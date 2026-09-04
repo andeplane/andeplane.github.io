@@ -242,9 +242,9 @@ Solving the air instead would be a second solver of comparable size, and the wal
 
 Yes, in the way that matters. A Galerkin discretisation of the weak form, isoparametric elements, a Gauss-integrated stiffness, a mass matrix, an interface constitutive law, and a time integrator whose stability limit is derived from the discrete operator rather than assumed. It is the same formulation an explicit blast or crash code uses, and it is checked against closed-form answers rather than asserted.
 
-And here is what it is **not**, stated as plainly:
+And here are its limits, stated as plainly:
 
-- **Explicit only.** There is no tangent stiffness assembly, no Newton iteration, no equation solving. None of this would work for a static problem.
+- **The integration is explicit, and only explicit.** There is no tangent stiffness assembly, no Newton iteration and no equation solving anywhere. That is exactly what makes it robust through fracture — and it also means the model cannot be asked for a static answer directly. Self-weight is reached by relaxing dynamically into it instead.
 - **Corotational linear, not large-strain.** Valid for small strain with arbitrary rotation. There is no hyperelastic material model, no objective stress rate.
 - **The interface is integrated nodally**, not by Gauss quadrature with interface shape functions.
 - **H8 with full integration locks in bending.** With one or two elements through the thickness, a brick is far too stiff in flexure. It matters less here than it sounds, because a masonry wall's bending compliance comes from joints opening rather than bricks bending — which is physically true — but it is a real limitation, not an absent one.

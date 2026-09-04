@@ -67,6 +67,8 @@ export class Solver {
   readonly nodeMass: number;
   dt: number;
   time = 0;
+  /** Zero while relaxing under self-weight, so the blast cannot fire during it. */
+  loadScale = 1;
 
   constructor(mesh: Mesh, materials: Materials, charge: Charge, world = defaultWorld()) {
     this.mesh = mesh;
@@ -341,7 +343,31 @@ export class Solver {
 
   // --- external -----------------------------------------------------------------
 
+  /**
+   * Stand the wall up under its own weight before anything else happens.
+   *
+   * The undeformed mesh is not equilibrium, and a blast arriving a few milliseconds after
+   * gravity is switched on would hit a wall still ringing from being stood up. Relax with
+   * the same kernels, heavily damped and with the load switched off, then drop the
+   * velocity and restart the clock — the settled positions and joint state are kept.
+   *
+   * Dynamic relaxation gets to the same place an implicit solve would, because at
+   * self-weight every joint is in compression and elastic: there is no softening in the
+   * problem yet, so there is nothing for a Newton method to earn its keep on.
+   */
+  settle(steps = 2500, perStepDamping = 0.02): void {
+    const damping = this.materials.damping;
+    this.loadScale = 0;
+    this.materials.damping = perStepDamping / this.dt;
+    for (let i = 0; i < steps; i++) this.step();
+    this.materials.damping = damping;
+    this.loadScale = 1;
+    this.v.fill(0);
+    this.time = 0;
+  }
+
   private externalForces(): void {
+    if (this.loadScale === 0) return;
     for (let n = 0; n < this.mesh.nodeCount; n++) {
       const td = this.loadPulse[n * 3 + 1];
       const s = friedlander((this.time - this.loadPulse[n * 3]) / Math.max(td, 1e-9), this.loadPulse[n * 3 + 2]);
