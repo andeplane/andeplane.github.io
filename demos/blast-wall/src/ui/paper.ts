@@ -228,12 +228,22 @@ export const PAPER = `
   <p>
     So the wall is relaxed into equilibrium before the clock starts: the same explicit
     kernels, heavily damped, with the load switched off, until the motion dies. Dynamic
-    relaxation reaches the same static state an implicit solve would, and it does so with
-    machinery that already exists — at self-weight every joint is in compression and
-    elastic, so there is no softening in the problem yet and nothing for a Newton method
-    to earn its keep on. The self-test checks the result as a force balance: what the
-    supports hold must equal the weight of everything free to fall, and it does to within
-    a third of a percent.
+    relaxation uses machinery that already exists, and at self-weight every joint is in
+    compression and elastic, so there is no softening for a Newton method to earn its keep
+    on.
+  </p>
+  <p>
+    It does not get all the way there. The self-test measures the result as a force
+    balance — what the supports hold against the weight of everything free to fall — and
+    relaxation reaches about 85 % of it, from nothing. The rest is a standing wave in the
+    stiff axial modes that actually carry the self-weight: mass-proportional damping gives
+    $\\zeta = \\alpha/2\\omega$, so it bites on the low modes and barely touches those, and
+    turning it up far enough either exceeds the stability limit or makes the low modes
+    creep instead. Closing the gap means kinetic damping — dumping the velocity each time
+    the kinetic energy peaks, which kills every mode whatever its frequency — and that
+    needs a reduction over the whole model to find the peaks. It is the honest state of
+    this particular corner, and 85 % of the pre-compression is a great deal better than
+    the ringing it replaced.
   </p>
 
   <h2>Time integration</h2>

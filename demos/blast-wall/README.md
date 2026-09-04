@@ -16,7 +16,8 @@ Standalone Vite app; built into the site by `scripts/build-demos.mjs`. Needs Web
 
 - `npm run dev` — local dev server
 - `npm run build` — self-tests, typecheck, bundle
-- `npm run selftest` — physics validation in plain Node, no browser and no GPU
+- `npm run selftest` — the checks that need no solver, in plain Node, no browser, no GPU
+- `?selftest` in the browser — the checks that do, against the kernels that ship
 
 ## The modelling choice
 
@@ -63,8 +64,7 @@ already bonded, with no extra offset applied.
 - **Integration**: explicit central difference on a lumped diagonal mass. No linear
   solve, no equilibrium iterations, and — the reason blast codes are explicit — it keeps
   running when elements lose all their stiffness, which is exactly what happens when a
-  wall comes apart. `src/physics/solver.ts` is the reference; `src/gpu/shaders/sim.wgsl.ts`
-  is the same maths in WGSL.
+  wall comes apart. There is one implementation of it, `src/gpu/shaders/sim.wgsl.ts`.
 - **Elements**: corotational trilinear hexes. The rotation is pulled out of the
   deformation gradient with Müller's iterative polar decomposition, warm-started from the
   previous step so it converges in one or two iterations. Without it, a brick tumbling in
@@ -118,8 +118,21 @@ already bonded, with no extra offset applied.
 
 ## What the self-tests check
 
-`npm run selftest` runs in plain Node against the CPU reference solver. Every check has
-an answer known ahead of time:
+There are two suites, and the split matters.
+
+`npm run selftest` runs in plain Node with no browser and no GPU, so CI runs it on every
+pull request. It covers everything that is a pure function of the mesh: the element
+stiffness matrix, the bond geometry, joint pairing, the blast fits, line-of-sight
+occlusion, opening faces.
+
+`?selftest` in the browser runs the rest against **the kernels that actually ship** — the
+joint law, the integrator, settling, the bond comparison. There used to be a CPU mirror
+of the solver acting as the oracle for these, and it drifted: the mirror was the copy that
+was wrong, so the suite certified a bug in the compression cap instead of catching it.
+There is one solver now. The cost is that CI cannot run these, because WebGPU needs a real
+adapter and headless Chrome with software rendering does not expose one.
+
+Between them, every check has an answer known ahead of time:
 
 - the element's six rigid-body modes carry no force, and uniaxial strain and simple shear
   return (λ+2μ)ε and μγ exactly;
@@ -160,5 +173,11 @@ Marked in the source with `ponytail:` comments.
 - A room has no roof and no floor slab, so it is a masonry enclosure rather than a
   building. Adding either would mostly mean deciding how a slab bears on a wall, which is
   a modelling question rather than a solver one.
+- Self-weight relaxation reaches about 85 % of exact equilibrium and then stops. The
+  remainder is a standing wave in the stiff axial modes that carry the load, which
+  mass-proportional damping cannot reach; closing it needs kinetic damping with a
+  kinetic-energy reduction to find the peaks. Measured, and asserted at what it actually
+  achieves rather than at what would be ideal.
+- The GPU self-tests do not run in CI, for want of a WebGPU adapter on the runner.
 - Blast clearing and diffraction around the wall's edges are ignored; the pressure is
   prescribed on faces rather than solved for in the air.

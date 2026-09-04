@@ -1,5 +1,7 @@
 /**
- * The solver, on the GPU. A line-for-line port of `src/physics/solver.ts`.
+ * The solver. There is only this one: a CPU mirror of the same maths used to exist as
+ * a test oracle, and it drifted — the mirror was the copy that was wrong, and the suite
+ * certified the bug rather than catching it. `src/selftest.ts` tests these kernels.
  *
  * Four kernels:
  *
@@ -32,8 +34,8 @@ struct Params {
   oLoadDir: u32, oLoadPulse: u32, oK: u32, oUnitScale: u32,
   oX: u32, oVel: u32, oQuat: u32, oElemForce: u32,
   oPairForce: u32, oPairDamage: u32, oPairState: u32, oNodeScalar: u32,
-  oClock: u32, oCentroid: u32, oTrace: u32, probeNode: u32,
-  traceStride: u32, traceLen: u32,
+  oNodeForce: u32, oClock: u32, oCentroid: u32, oTrace: u32,
+  probeNode: u32, traceStride: u32, traceLen: u32,
 };
 `;
 
@@ -260,14 +262,6 @@ fn integrate(@builtin(global_invocation_id) gid: vec3<u32>) {
   let i = gid.x;
   if (i >= P.nodeCount) { return; }
 
-  let inv = RO[P.oInvMass + i];
-  if (inv == 0.0) {
-    setRw3(P.oVel, i, vec3<f32>(0.0));
-    RW[P.oNodeScalar + i * 2u] = 0.0;
-    RW[P.oNodeScalar + i * 2u + 1u] = 0.0;
-    return;
-  }
-
   var f = vec3<f32>(0.0);
 
   // Gather: every element and every joint this node takes part in.
@@ -295,6 +289,20 @@ fn integrate(@builtin(global_invocation_id) gid: vec3<u32>) {
     if (shape != 0.0) {
       f = f + ro3(P.oLoadDir, i) * shape * P.loadScale;
     }
+  }
+
+  // Store the gathered internal force before gravity, damping and contact are folded in.
+  // This is what the self-test reads to check the joint law's traction directly — and it
+  // is stored for HELD nodes too, because the force arriving at a support is its
+  // reaction, which is how the settled state gets checked as a force balance.
+  setRw3(P.oNodeForce, i, f);
+
+  let inv = RO[P.oInvMass + i];
+  if (inv == 0.0) {
+    setRw3(P.oVel, i, vec3<f32>(0.0));
+    RW[P.oNodeScalar + i * 2u] = dmg;
+    RW[P.oNodeScalar + i * 2u + 1u] = 0.0;
+    return;
   }
 
   let mass = 1.0 / inv;
@@ -332,6 +340,23 @@ fn integrate(@builtin(global_invocation_id) gid: vec3<u32>) {
  * is spaced evenly in SIMULATION time. Sampling it per frame instead would stretch and
  * squash the axis every time the playback speed changed, or the frame rate dipped.
  */
+/**
+ * Throw away all velocity — kinetic damping, the classic dynamic-relaxation trick.
+ *
+ * Viscous damping cannot settle this on its own: mass-proportional damping gives
+ * ζ = α/2ω, so it bites hard on the low modes and barely touches the high ones, and the
+ * stiff axial modes that actually carry self-weight ring straight through it. Turning it
+ * up far enough to catch them exceeds the stability limit, and turning it up part way
+ * makes the low modes creep instead. Periodically dumping the kinetic energy kills every
+ * mode at once, whatever its frequency.
+ */
+@compute @workgroup_size(64)
+fn zeroVelocity(@builtin(global_invocation_id) gid: vec3<u32>) {
+  let i = gid.x;
+  if (i >= P.nodeCount) { return; }
+  setRw3(P.oVel, i, vec3<f32>(0.0));
+}
+
 @compute @workgroup_size(1)
 fn advanceClock() {
   let t = RW[P.oClock] + P.dt;
