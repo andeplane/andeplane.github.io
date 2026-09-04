@@ -283,8 +283,11 @@ export class GpuSolver {
     const tail = 24 + OFFSET_FIELDS.length;
     u[tail] = this.probeNode;
     // Aim the trace at roughly a full ring over the length of a blast event, so the
-    // curve is dense without the recording kernel running every single step.
-    u[tail + 1] = Math.max(1, Math.round(0.35 / this.dt / TRACE_SAMPLES));
+    // curve is dense without the recording kernel running every single step. Guarded
+    // because the tests evaluate forces with dt = 0, which would otherwise land a
+    // non-finite stride in a Uint32Array — silently zero, and a modulo by zero in WGSL.
+    const stride = Math.round(0.35 / this.dt / TRACE_SAMPLES);
+    u[tail + 1] = Number.isFinite(stride) ? Math.max(1, stride) : 1;
     u[tail + 2] = TRACE_SAMPLES;
     this.device.queue.writeBuffer(this.params, 0, this.paramBytes);
   }
