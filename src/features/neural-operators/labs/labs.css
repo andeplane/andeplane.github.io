@@ -2461,3 +2461,28 @@
 .no-labs .kernel-preferences-footer .paper-button{min-width:90px;padding:9px 20px;font-size:13px;}
 .no-labs .kernel-preferences [data-slot=dialog-close]{color:#d6e1f5;}
 @media(max-width:650px){.no-labs .kernel-preferences-header{padding:22px 20px 18px;}.no-labs .kernel-preferences-body{padding:0 20px;}.no-labs .kernel-preferences-footer{padding:14px 20px;}.no-labs .kernel-preferences-grid{grid-template-columns:1fr;gap:0}.no-labs .kernel-preferences .paper-control label{min-height:0}.no-labs .kernel-preferences[data-slot=dialog-content]{max-height:calc(100dvh - 24px);}}
+
+/* Native Base UI attributes replace unavailable custom Tailwind orientation variants. */
+.no-labs .lab-tabs{display:flex;flex-direction:column;gap:16px;width:100%;min-width:0;}
+.no-labs .lab-tabs[data-orientation=vertical]{flex-direction:row;}
+.no-labs .lab-tab-list{display:flex;flex-flow:row wrap;align-items:center;justify-content:flex-start;gap:5px;flex-shrink:0;width:100%;min-width:0;height:auto;margin:0;padding:4px;border-radius:8px;background:#1b2331;}
+.no-labs .lab-tab-list[data-orientation=vertical]{flex-direction:column;width:auto;}
+.no-labs .lab-tab{display:inline-flex;align-items:center;justify-content:center;gap:6px;flex:0 1 auto;min-height:38px;height:auto;min-width:0;max-width:100%;padding:9px 12px;border:1px solid transparent;border-radius:6px;background:transparent;color:#adbbd1;font-size:12px;line-height:1.4;white-space:normal;text-align:left;cursor:pointer;}
+.no-labs .lab-tab[aria-selected=true]{background:#2b3852;color:#eef2ff;border-color:#52678e;}
+.no-labs .lab-tab:hover{color:#fff;background:#253149;}
+.no-labs .lab-tab:focus-visible{outline:2px solid #a1b5ff;outline-offset:2px;}
+.no-labs .lab-tab svg{width:15px;height:15px;flex-shrink:0;}
+.no-labs .lab-tab-panel{display:block;flex:none;width:100%;min-width:0;max-width:100%;outline:none;}
+.no-labs .lab-tab-panel[hidden]{display:none;}
+.no-labs .lesson-tabs[data-slot=tabs-list]{display:flex;flex-wrap:wrap;gap:6px!important;margin:8px 0 20px;padding:0 0 14px!important;}
+.no-labs .lesson-tabs .lab-tab[data-slot=tabs-trigger]{flex:1 1 145px;min-width:0;height:auto;min-height:42px;padding:10px!important;border:1px solid #303b4e;border-radius:7px;background:#192231;}
+.no-labs .lesson-tabs .lab-tab[aria-selected=true]{background:#2b3852!important;border-color:#839cdd;color:#edf2ff!important;}
+.no-labs .lesson-tabs .step-arrow{display:none;}
+.no-labs .fourier-case-study{min-width:0;max-width:100%;container-type:inline-size;}
+.no-labs .shell.case-study-shell{padding:0;width:100%;min-width:0;}
+.no-labs .fourier-case-study .workspace{grid-template-columns:minmax(0,1fr);}
+.no-labs .fourier-case-study .lesson{border-right:0;border-bottom:1px solid #303b4e;padding:22px;min-width:0;}
+.no-labs .fourier-case-study .workspace>*{min-width:0;}
+.no-labs .fourier-case-study .chapter-bridge{margin:18px 0;padding:18px 20px;}
+.no-labs .fourier-case-study .math-typeset,.no-labs .fourier-case-study pre{max-width:100%;overflow-x:auto;}
+@container(max-width:750px){.no-labs .fourier-case-study .map-grid,.no-labs .fourier-case-study .foundation-grid,.no-labs .fourier-case-study .architecture-flow{grid-template-columns:minmax(0,1fr);}}
