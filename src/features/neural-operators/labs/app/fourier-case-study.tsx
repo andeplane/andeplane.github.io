@@ -373,7 +373,7 @@ export default function FourierCaseStudy({ lesson, setLesson }: { lesson: number
                     We start these 40 multipliers at 0.1, an intentionally poor
                     guess. Training compares predictions with known future
                     fields and adjusts the multipliers. The Fourier transform is
-                    fixed; only the multipliers learn. The Theory tab then
+                    fixed; only the multipliers learn. The Theory & code section then
                     expands this into a full FNO with learned channels and
                     nonlinear layers.
                   </p>

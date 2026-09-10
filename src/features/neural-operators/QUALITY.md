@@ -16,11 +16,17 @@ Objective: a consistent place to learn, play and explore neural operators, organ
 - Added primary-abstract-screened WNO (2022) and multiwavelet (2021) records, author/topic/field links, reading notes and timeline entries. JSON, CSV and GraphML IDs/counts were checked together, including all edge endpoints and paper-note coverage. PDFs downloaded to the original research papers folder and verified to be PDF files. No new bibliography citation edges were inferred from abstracts.
 - Short Fourier exercise reached 200/200 updates and reset to zero. Kernel Preferences switched to CPU, random grids and the coordinate-only weighted kernel; training advanced, pause worked and Reset weights returned to zero updates. Output-offset wording now matches the implementation.
 
-## Remaining review before calling the broad goal complete
+## Completion audit — 10 September 2026
 
-- Exercise remaining training/reset/preferences paths and Fourier controls, including whether step navigation retains the intended experiment state.
-- Review the long-form lessons for unnecessary repetition, unexplained notation and claims that exceed the examples; check the new guided activities on more than the default state.
-- Finish author/field traversal and additional timeline filters; paper search, note round-trip, Connections citation toggle and the operator-methods filter have now been exercised.
-- Recheck responsive layout and keyboard access for any controls changed in those passes.
+| Requirement | Evidence |
+|---|---|
+| One consistent application and navigation hierarchy | Shared homepage shell; one course pager; lesson/step URLs; desktop and phone-width route checks described above. Duplicate inner footer removed and in-page theory jumps verified. |
+| Learn without a required paper syllabus | Start page offers learning/play/research entry points. Foundations teach samples, grids, integrals, learned kernels, architectures and evaluation. Paper review is an optional case study. Long-form explanations retain named sources without relying on an unnamed “the paper.” |
+| Activities explain what to manipulate and observe | Goals, activities and revealable explanations were compared with implemented controls. Guided kernel fitting, held-out exploration, different grids, Fourier sampling and horizon changes were exercised. Information available to the model is distinguished from simulator reference information. |
+| Playable experiments and reliable state | CPU and WebGPU kernel smoke checks, pause/reset and alternate data/kernel settings; short Fourier completion/reset; long Fourier completion at 400 updates and retention into prediction. Keyboard output-grid change 64→80 retained weights; changing horizon 0.30→0.35 restored the untrained state. |
+| Meaningful research exploration | Paper search, note round-trip, author and field traversal, citation visibility in Connections view and all timeline filters verified. Timeline has 22 milestones; sampling/application/robotics filters each show their five entries. Wavelet concepts connect to primary-paper notes and graph nodes. |
+| Accessible and responsive controls | Shared sliders now put accessible names on their actual thumbs. Keyboard arrows changed Fourier controls and Enter opened an author graph node. Labeled mobile selectors, Preferences open/close, and desktop/390px layout checks passed. Long equations/tables/code scroll within their containers. |
+| Accurate scope and provenance | Integral/field/model/simulator distinctions retained. Output-label bump is identified as a post-generation offset, not physical forcing. Wavelet application hypotheses and editorial edges are distinguished from evidence. Graph exports and paper-note coverage validated together. |
+| Technical regression gate | Fresh 24/24 numerical tests, TypeScript and production Vite build passed after the slider fix. Prior complete homepage CI build passed; final branch remains an unmerged PR. |
 
-Preserve the simulator/model distinction and the difference between input measurements and output queries. Do not replace numerical physics as part of an interface cleanup. Keep PR #35 unmerged pending user review.
+The review is complete for the requested learning app. These checks establish the implemented workflows and tested layouts, not universal browser/hardware performance or independent reproduction of every research result. The numerical models retain their documented limitations; the research collection remains a dated, curated snapshot. PR #35 must remain unmerged until the user's review.

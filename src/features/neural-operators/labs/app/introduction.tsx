@@ -94,7 +94,7 @@ export default function Introduction({
           samples into Fourier coefficients, multiply each coefficient by a
           learned number for that frequency and time jump. Those numbers are
           weights. We introduce this model in detail before training it; the
-          Theory tab then expands it to a full FNO.
+          Theory & code section then expands it to a full FNO.
         </p>
       </div>
       <section className="intro-lab">
