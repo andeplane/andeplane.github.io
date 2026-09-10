@@ -1,7 +1,6 @@
 'use client';
 import { useState } from 'react';
 import { ArrowRight } from 'lucide-react';
-import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/features/neural-operators/labs/components/ui/tabs';
 import { MathTex } from '@/features/neural-operators/labs/components/math-tex';
 import FieldFoundation from './field-foundation';
 import FourierLayerExample from './fourier-layer-example';
@@ -11,14 +10,10 @@ import { IntegralLab, NeuralKernelLab, RadiusLab } from './continuous-labs';
 const chapters = ['Fields & samples', 'Why grids matter', 'Build an integral', 'Learn the kernel', 'Real architectures', 'Read the paper', 'Fourier case study', 'Fourier layer example'];
 const titles = ['A field exists before its pixels.', 'The same array operation can mean different physics.', 'Use the samples to approximate a continuous operation.', 'Learn a function that supplies the weights.', 'Extend neural layers to functions.', 'What the paper establishes—and what it does not.', 'Fourier operators, step by step.', 'A learned operator in Fourier space.'];
 const tex = String.raw;
-export default function Home() {
-  const [chapter, setChapter] = useState(0), [n, setN] = useState(8);
-  return <main className="paper-course">
-    <div className="shell">
-      <div className="paper-route"><span>Continuous field</span><ArrowRight size={18} /><span>Samples + coordinates</span><ArrowRight size={18} /><span>Learned operator</span><ArrowRight size={18} /><span>Output at requested coordinates</span></div>
-      <Tabs value={chapter} onValueChange={v => setChapter(Number(v))}>
-        <TabsList className="steps paper-tabs" aria-label="Paper learning path">{chapters.map((c, i) => <TabsTrigger key={c} value={i}><span className="step-number">{i >= 6 ? '+' : `0${i + 1}`}</span>{c}</TabsTrigger>)}</TabsList>
-        {chapters.map((_, i) => <TabsContent value={i} key={i}><article className="paper-chapter"><div className="eyebrow">{i >= 6 ? 'OPTIONAL / A CONCRETE SPECTRAL MODEL' : `LESSON ${i + 1} / ${chapters[i].toUpperCase()}`}</div><h2>{titles[i]}</h2>
+export default function Course({ chapter, setChapter }: { chapter: number; setChapter: (chapter: number) => void }) {
+  const [n, setN] = useState(8);
+  return <div className="paper-course">
+        {chapters.map((_, i) => i === chapter && <article key={i} className="paper-chapter"><div className="eyebrow">{i >= 6 ? 'OPTIONAL / A CONCRETE SPECTRAL MODEL' : `LESSON ${i + 1} / ${chapters[i].toUpperCase()}`}</div><h2>{titles[i]}</h2>
           {i === 0 && <>
             <p>The paper asks how a neural network can act on <strong>functions</strong> while the computer only receives arrays of samples. The goal is to approximate one function-to-function map consistently across different discretizations. Super-resolution is one application of this idea; producing more pixels by itself is not the definition of a neural operator.</p>
             <FieldFoundation n={n} onNChange={setN} />
@@ -40,11 +35,8 @@ export default function Home() {
           {i === 7 && <FourierLayerExample />}
           
           {i < chapters.length - 1 && <button className="paper-button primary next-lesson" onClick={() => { setChapter(i + 1); window.scrollTo({ top: 290, behavior: 'smooth' }); }}>Next: {chapters[i + 1]} <ArrowRight size={17} /></button>}
-        </article></TabsContent>)}
-      </Tabs>
-      <footer><span>TypeScript simulations · LaTeX mathematics · explicit numerical assumptions</span><a href="https://doi.org/10.1038/s42256-026-01267-z" target="_blank" rel="noreferrer">Read the source paper ↗</a></footer>
-    </div>
-  </main>;
+        </article>)}
+  </div>;
 }
 function Architectures() {
   return <>

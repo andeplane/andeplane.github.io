@@ -7,7 +7,7 @@ Native React/TypeScript integration of the interactive Neural Operator Lab and i
 - `concepts.tsx` / `Formula.tsx`: explanatory chapters with KaTeX-rendered formulas.
 - `Timeline.tsx` / `data/timeline.ts`: high-level milestones and sources.
 - `Reading.tsx`: bundled Markdown documents and per-paper notes.
-- `Labs.tsx` / `labs/`: migrated numerical experiments, loaded separately; heavy Three.js, TensorFlow/WebGPU and Pyodide functionality remains dynamically loaded.
+- `Labs.tsx` / `labs/`: native lesson navigation with shareable `?lesson=thermal` (and other lesson IDs), migrated numerical experiments, loaded separately; heavy Three.js, TensorFlow/WebGPU and Pyodide functionality remains dynamically loaded.
 - `research.css`: scoped interest styling. `labs/labs.css` scopes the original numerical-workbench styles to `.no-labs`, including its Preferences portal.
 
 The numerical implementation is migrated from `personal/neural-operators`. It still uses the deliberately nonlocal temperature simulator; do not describe it as a conventional local heat PDE. Training, prediction horizons, input interpolation, quadrature and CPU/WebGPU behavior are retained. Numerical regression tests live in `tests/neural-operators`:
