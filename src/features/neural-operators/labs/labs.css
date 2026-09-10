@@ -2431,3 +2431,33 @@
 .no-labs svg rect[fill=white]+text{fill:#172338;}
 @media(max-width:1100px){.no-lab-layout{grid-template-columns:185px minmax(0,1fr);gap:20px}.no-labs .paper-two{grid-template-columns:1fr}.no-labs .paper-metrics{grid-template-columns:1fr}}
 @media(max-width:650px){.no-lab-layout{display:block}.no-labs .paper-chapter{padding:20px 16px}.no-labs .paper-chapter>h2{font-size:23px}}
+
+/* Explicit dimensions avoid relying on the old app's custom Tailwind variants. */
+.no-labs [data-slot=slider]{display:block;width:100%;}
+.no-labs [data-slot=slider-control]{position:relative;display:flex;align-items:center;width:100%;height:24px;touch-action:none;}
+.no-labs [data-slot=slider-track]{position:relative;display:block;width:100%;height:6px;flex-grow:1;overflow:hidden;border-radius:999px;background:#36435b;}
+.no-labs [data-slot=slider-range]{position:absolute;height:100%;border-radius:999px;background:#9bafff;}
+.no-labs [data-slot=slider-thumb]{display:block;width:16px;height:16px;border:2px solid #b7c6ff;border-radius:50%;background:#e5ebff;box-shadow:0 1px 5px #0005;}
+.no-labs [data-slot=slider-thumb]:focus-visible{outline:3px solid #8b9eff66;outline-offset:4px;}
+.no-labs .kernel-preferences[data-slot=dialog-content]{display:flex;flex-direction:column;gap:0;width:min(760px,calc(100vw - 32px));max-width:min(760px,calc(100vw - 32px));max-height:calc(100dvh - 64px);padding:0;overflow:hidden;border:1px solid #354158;border-radius:16px;background:#151a24;color:#dfe6f4;box-shadow:0 32px 100px #0009;font-size:14px;}
+.no-labs .kernel-preferences-header{padding:27px 32px 22px;border-bottom:1px solid #30394b;background:#191f2b;flex-shrink:0;}
+.no-labs .kernel-preferences [data-slot=dialog-title]{margin:0 35px 10px 0;font-size:23px;line-height:1.3;letter-spacing:-.025em;color:#f0f3fc;}
+.no-labs .kernel-preferences [data-slot=dialog-description]{color:#aab7cc;font-size:13px;line-height:1.7;margin:0;max-width:58ch;}
+.no-labs .kernel-preferences-body{min-height:0;overflow-y:auto;padding:0 32px;overscroll-behavior:contain;}
+.no-labs .kernel-preferences-section{padding:23px 0;border-bottom:1px solid #30394b;}
+.no-labs .kernel-preferences-section:last-child{border-bottom:0;}
+.no-labs .kernel-preferences-section h3{font-size:11px;text-transform:uppercase;letter-spacing:.12em;font-weight:650;color:#93a8cb;margin:0 0 18px;}
+.no-labs .kernel-preferences-section p{font-size:12px;color:#aab7cc;line-height:1.75;margin:12px 0 0;}
+.no-labs .kernel-preferences-section label{display:block;color:#d8e2f3;font-size:13px;margin:16px 0 9px;}
+.no-labs .kernel-preferences-section [data-slot=native-select-wrapper]{width:100%;}
+.no-labs .kernel-preferences-section select,.no-labs .kernel-number-input{display:block;width:100%;min-height:40px;padding:9px 32px 9px 12px;border:1px solid #3b4860;border-radius:7px;color:#e1e8f6;background:#222c3d;font-size:13px;color-scheme:dark;}
+.no-labs .kernel-preferences-section select:focus-visible,.no-labs .kernel-number-input:focus-visible{outline:2px solid #9bafff;outline-offset:2px;}
+.no-labs .kernel-preferences-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:24px;}
+.no-labs .kernel-preferences .paper-control{min-width:0;max-width:none;width:100%;margin:4px 0 18px;}
+.no-labs .kernel-preferences .paper-control label{display:flex;justify-content:space-between;align-items:start;gap:12px;min-height:38px;margin:0 0 10px;line-height:1.5;color:#cbd7ec;}
+.no-labs .kernel-preferences .paper-control label b{color:#e7edff;font-variant-numeric:tabular-nums;}
+.no-labs .kernel-preferences-footer{display:flex;justify-content:space-between;align-items:center;gap:16px;padding:16px 32px;border-top:1px solid #30394b;background:#191f2b;flex-shrink:0;}
+.no-labs .kernel-preferences-footer span{font-size:11px;color:#aab7cc;}
+.no-labs .kernel-preferences-footer .paper-button{min-width:90px;padding:9px 20px;font-size:13px;}
+.no-labs .kernel-preferences [data-slot=dialog-close]{color:#d6e1f5;}
+@media(max-width:650px){.no-labs .kernel-preferences-header{padding:22px 20px 18px;}.no-labs .kernel-preferences-body{padding:0 20px;}.no-labs .kernel-preferences-footer{padding:14px 20px;}.no-labs .kernel-preferences-grid{grid-template-columns:1fr;gap:0}.no-labs .kernel-preferences .paper-control label{min-height:0}.no-labs .kernel-preferences[data-slot=dialog-content]{max-height:calc(100dvh - 24px);}}
