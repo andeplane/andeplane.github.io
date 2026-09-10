@@ -726,3 +726,27 @@
     padding: 23px;
   }
 }
+
+/* One course menu and one pager; Fourier steps belong to their experiment. */
+.no-side-nav .no-lesson-link { width: 100%; }
+.no-lesson-group { margin: 18px 0 10px; }
+.no-side-nav > div:first-child .no-lesson-group { margin-top: 0; }
+.no-lesson-steps { margin: 4px 0 12px 14px; display: grid; }
+.no-side-nav .no-lesson-steps button { padding: 7px 12px; font-size: 11px; }
+#lab-content { min-width: 0; scroll-margin-top: 90px; }
+.no-lesson-pager { display: flex; justify-content: space-between; gap: 20px; border-top: 1px solid var(--no-line); padding: 24px 0; margin-top: 24px; }
+.no-lesson-pager button, .no-lesson-pager a { display: grid; gap: 6px; max-width: 48%; text-align: left; background: none; border: 0; padding: 0; color: #edf1ff; font-size: 14px; text-decoration: none; }
+.no-lesson-pager > :last-child { text-align: right; }
+.no-lesson-pager small { color: #a1b5ff; font-size: 11px; }
+.no-lesson-pager button:hover, .no-lesson-pager a:hover { color: #a1b5ff; }
+.no-mobile-lessons { display: none; }
+@media (max-width: 900px) {
+  .no-reading-layout { display: block; }
+  .no-reading-layout .no-side-nav { display: none; }
+  .no-mobile-lessons { display: grid; gap: 8px; margin-bottom: 20px; color: #a5adbe; font-size: 12px; }
+  .no-mobile-lessons select { width: 100%; padding: 12px; background: #171d28; color: #edf1ff; border: 1px solid #303748; border-radius: 6px; }
+  .no-tabbar { align-items: flex-start; }
+  .no-tabbar nav { flex-wrap: wrap; overflow: visible; column-gap: 20px; row-gap: 0; }
+  .no-tabbar nav a { padding: 9px 0; }
+}
+@media (max-width: 650px) { .no-article.prose .tablewrap table { min-width: 600px; } }

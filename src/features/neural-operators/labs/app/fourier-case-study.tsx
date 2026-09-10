@@ -4,7 +4,7 @@ import { E } from '@/features/neural-operators/labs/lib/equations';
 import { useEffect, useMemo, useState } from 'react';
 import { flushSync } from 'react-dom';
 import { Slider } from '@/features/neural-operators/labs/components/ui/slider';
-import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/features/neural-operators/labs/components/ui/tabs';
+import { Tabs, TabsList, TabsTrigger } from '@/features/neural-operators/labs/components/ui/tabs';
 import {
   ArrowRight,
   FlaskConical,
@@ -163,9 +163,8 @@ const future = field(detected, outputN, weights)
 // Inside field(): c and s are multiplied by weights[k].
 // outputN changes sampling, not learned parameters.`,
 ];
-export default function FourierCaseStudy() {
-  const [lesson, setLesson] = useState(-1),
-    [n, setN] = useState(8),
+export default function FourierCaseStudy({ lesson, setLesson }: { lesson: number; setLesson: (step: number) => void }) {
+  const [n, setN] = useState(8),
     [inputSource, setInputSource] = useState('coarse'),
     [seed, setSeed] = useState(42),
     [resolution, setResolution] = useState(64),
@@ -280,52 +279,18 @@ export default function FourierCaseStudy() {
     } catch {}
     return () => life.abort();
   }, []);
+  useEffect(() => { setQuiz(null); }, [lesson]);
   const err = relativeError(prediction, truth);
   const storyMode = modes.findIndex(([x, y]) => x === 1 && y === 0);
   const metric = (v: number) => (v * 100).toFixed(2) + '%';
   return (
     <div className="fourier-case-study">
       <div className="shell case-study-shell">
-        <div className="chapter-bridge"><strong>Optional case study: Fourier representation → a learned heat map.</strong><p>This is our teaching experiment, not the paper’s Navier–Stokes benchmark. Its trainable model is linear in Fourier coefficients. The Theory & code tab distinguishes it from a full nonlinear FNO.</p></div>
-        <Tabs
-          value={lesson}
-          onValueChange={(v) => {
-            setLesson(Number(v));
-            setQuiz(null);
-          }}
-        >
-          <TabsList className="steps lesson-tabs" aria-label="Learning path">
-            <TabsTrigger value={-1}>
-              <span className="step-number">→</span>Start here
-            </TabsTrigger>
-            {lessons.map((l, i) => (
-              <TabsTrigger key={l} value={i}>
-                <span className="step-number">0{i + 1}</span>
-                {l}
-                {i < 3 && <ArrowRight className="step-arrow" size={15} />}
-              </TabsTrigger>
-            ))}
-            <TabsTrigger value={4}>
-              <span className="step-number">∑</span>Theory & code
-            </TabsTrigger>
-          </TabsList>
-          <TabsContent value={4}>
-            <Theory />
-          </TabsContent>
-          <TabsContent value={-1}>
-            <Introduction
-              diffusivity={nu}
-              horizon={time}
-              n={n}
-              onNChange={setN}
-              onContinue={() => {
-                setLesson(0);
-                window.scrollTo({ top: 180, behavior: 'smooth' });
-              }}
-            />
-          </TabsContent>
-          {lessons.map((l, i) => (
-            <TabsContent key={l} value={i}>
+        <div className="case-study-context"><p>This is our teaching experiment, not the paper’s Navier–Stokes benchmark. Its trainable model is linear in Fourier coefficients. The Theory & code section distinguishes it from a full nonlinear FNO.</p></div>
+        {lesson === 4 && <Theory />}
+        {lesson === -1 && <Introduction diffusivity={nu} horizon={time} n={n} onNChange={setN} />}
+          {lessons.map((l, i) => lesson === i && (
+            <div key={l}>
               <div className="chapter-bridge">
                 <span className="eyebrow">
                   {i < 2
@@ -974,46 +939,8 @@ export default function FourierCaseStudy() {
                   </p>
                 </section>
               </div>
-              <div className="lesson-bottom">
-                <span>
-                  0{i + 1} / 04 &nbsp; {l}
-                </span>
-                {i < 3 ? (
-                  <button
-                    className="primary"
-                    onClick={() => {
-                      setLesson(i + 1);
-                      setQuiz(null);
-                      window.scrollTo({ top: 180, behavior: 'smooth' });
-                    }}
-                  >
-                    Next: {lessons[i + 1]} <ArrowRight size={16} />
-                  </button>
-                ) : (
-                  <a
-                    href="https://arxiv.org/abs/2010.08895"
-                    target="_blank"
-                    rel="noreferrer"
-                  >
-                    Read the original FNO paper ↗
-                  </a>
-                )}
-              </div>
-            </TabsContent>
+            </div>
           ))}
-        </Tabs>
-        <footer>
-          <span>
-            operator lab &nbsp; / &nbsp; Small experiments. Real computations.
-          </span>
-          <a
-            href="https://neuraloperator.github.io/dev/theory_guide/fno.html"
-            target="_blank"
-            rel="noreferrer"
-          >
-            Go deeper: Fourier neural operators ↗
-          </a>
-        </footer>
       </div>
     </div>
   );

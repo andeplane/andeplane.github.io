@@ -10,18 +10,23 @@ const Labs = lazy(() => import("./Labs"));
 const base = "/interests/neural-operators";
 const tabs = [
   ["labs", "Learning labs"],
-  ["graph", "Literature graph"],
   ["concepts", "Concepts"],
+  ["graph", "Literature graph"],
   ["timeline", "Timeline"],
-  ["reading", "Reading"],
+  ["reading", "Papers & reading"],
 ] as const;
 function Concepts() {
   const [search, setSearch] = useSearchParams();
   const selected = concepts.find((c) => c.id === search.get("topic")) ?? concepts[0];
   return (
     <div className="no-reading-layout">
+      <label className="no-mobile-lessons">Concept reference
+        <select aria-label="Choose a concept" value={selected.id} onChange={event => setSearch({ topic: event.target.value })}>
+          {concepts.map(c => <option key={c.id} value={c.id}>{c.label}</option>)}
+        </select>
+      </label>
       <nav className="no-side-nav" aria-label="Concept chapters">
-        <p className="no-eyebrow">The fundamentals</p>
+        <p className="no-eyebrow">Concept reference</p>
         {concepts.map((c, i) => (
           <button
             key={c.id}
@@ -98,7 +103,7 @@ export default function NeuralOperators() {
             </NavLink>
           ))}
         </nav>
-        <div className="no-export">
+        {active === "graph" && <div className="no-export">
           <button aria-expanded={exportsOpen} onClick={() => setExportsOpen(!exportsOpen)}>
             Export ↓
           </button>
@@ -118,7 +123,7 @@ export default function NeuralOperators() {
               )}
             </div>
           )}
-        </div>
+        </div>}
       </div>
       <div className="no-tab-content">
         {active === "labs" ? (

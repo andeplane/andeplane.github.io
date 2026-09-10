@@ -63,11 +63,11 @@ export default function Theory() {
         </p>
       </div>
       <nav className="theory-nav" aria-label="Theory sections">
-        <a href="#theory-sampling">Sampling & DFT</a>
-        <a href="#theory-learning">What is learned?</a>
-        <a href="#theory-fno">Full FNO</a>
-        <a href="#theory-python">Run Python</a>
-        <a href="#theory-practice">Real implementation</a>
+        <button onClick={() => document.getElementById("theory-sampling")?.scrollIntoView({ behavior: "smooth", block: "start" })}>Sampling & DFT</button>
+        <button onClick={() => document.getElementById("theory-learning")?.scrollIntoView({ behavior: "smooth", block: "start" })}>What is learned?</button>
+        <button onClick={() => document.getElementById("theory-fno")?.scrollIntoView({ behavior: "smooth", block: "start" })}>Full FNO</button>
+        <button onClick={() => document.getElementById("theory-python")?.scrollIntoView({ behavior: "smooth", block: "start" })}>Run Python</button>
+        <button onClick={() => document.getElementById("theory-practice")?.scrollIntoView({ behavior: "smooth", block: "start" })}>Real implementation</button>
       </nav>
       <section id="theory-sampling">
         <span className="eyebrow">

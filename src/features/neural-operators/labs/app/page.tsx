@@ -1,6 +1,5 @@
 'use client';
 import { useState } from 'react';
-import { ArrowRight } from 'lucide-react';
 import { MathTex } from '@/features/neural-operators/labs/components/math-tex';
 import FieldFoundation from './field-foundation';
 import FourierLayerExample from './fourier-layer-example';
@@ -10,7 +9,7 @@ import { IntegralLab, NeuralKernelLab, RadiusLab } from './continuous-labs';
 const chapters = ['Fields & samples', 'Why grids matter', 'Build an integral', 'Learn the kernel', 'Real architectures', 'Read the paper', 'Fourier case study', 'Fourier layer example'];
 const titles = ['A field exists before its pixels.', 'The same array operation can mean different physics.', 'Use the samples to approximate a continuous operation.', 'Learn a function that supplies the weights.', 'Extend neural layers to functions.', 'What the paper establishes—and what it does not.', 'Fourier operators, step by step.', 'A learned operator in Fourier space.'];
 const tex = String.raw;
-export default function Course({ chapter, setChapter }: { chapter: number; setChapter: (chapter: number) => void }) {
+export default function Course({ chapter, step, setStep }: { chapter: number; step: number; setStep: (step: number) => void }) {
   const [n, setN] = useState(8);
   return <div className="paper-course">
         {chapters.map((_, i) => i === chapter && <article key={i} className="paper-chapter"><div className="eyebrow">{i >= 6 ? 'OPTIONAL / A CONCRETE SPECTRAL MODEL' : `LESSON ${i + 1} / ${chapters[i].toUpperCase()}`}</div><h2>{titles[i]}</h2>
@@ -30,11 +29,10 @@ export default function Course({ chapter, setChapter }: { chapter: number; setCh
           {i === 2 && <IntegralLab />}
           {i === 3 && <NeuralKernelLab />}
           {i === 4 && <Architectures />}
-          {i === 5 && <PaperReading onFourier={() => setChapter(6)} />}
-          {i === 6 && <FourierCaseStudy />}
+          {i === 5 && <PaperReading />}
+          {i === 6 && <FourierCaseStudy lesson={step} setLesson={setStep} />}
           {i === 7 && <FourierLayerExample />}
           
-          {i < chapters.length - 1 && <button className="paper-button primary next-lesson" onClick={() => { setChapter(i + 1); window.scrollTo({ top: 290, behavior: 'smooth' }); }}>Next: {chapters[i + 1]} <ArrowRight size={17} /></button>}
         </article>)}
   </div>;
 }
@@ -93,7 +91,7 @@ class IntegralLayer(nn.Module):
     <p className="paper-source">Paper connection: Figure 2 and the architecture correspondences in equations (8)–(19). The Fourier case study provides the pixel-to-DFT arithmetic, training examples, a runnable NumPy exercise and a fuller FNO implementation reference.</p>
   </>;
 }
-function PaperReading({ onFourier }: { onFourier: () => void }) {
+function PaperReading() {
   return <>
     <p><strong>Berner et al., Nature Machine Intelligence 8, 1173–1181 (2026).</strong> The central contribution is a principled recipe for extending neural architectures to function spaces, demonstrated across several architectures. It is not a claim that Fourier truncation reconstructs arbitrary missing detail.</p>
     <h3>Read it in this order</h3>
@@ -110,7 +108,7 @@ function PaperReading({ onFourier }: { onFourier: () => void }) {
     <div className="paper-callout"><b>For your physics upscaling problem</b><p>First identify the desired map: coarse measurements → a reconstruction of the same field, a material/forcing field → a solution, or a state → its future state. Then specify the domain, coordinates, boundary conditions, measurement process and output queries. Distinguish point samples from pixel averages. Only then choose an architecture and a loss that represent that physical task.</p><p>Evaluate on held-out fields and unseen resolutions. Compare against interpolation for reconstruction, and an appropriate numerical solver for a physics map. Check physical quantities as well as visual sharpness. An attractive fine grid can still contain the wrong field.</p></div>
     <h3>What this app reproduces</h3>
     <p>The quadrature, neighborhood and neural-kernel exercises are small original demonstrations of the paper’s mechanisms. The heat example is a separate, exactly solvable teaching problem. This app does <strong>not</strong> reproduce the paper’s Navier–Stokes training run or its plotted benchmark numbers. We describe those results from the supplied article; we do not present toy results as benchmark evidence.</p>
-    <div className="paper-actions"><a className="paper-button" href="https://doi.org/10.1038/s42256-026-01267-z" target="_blank" rel="noreferrer">Paper & supplementary material ↗</a><a className="paper-button" href="https://doi.org/10.5281/zenodo.20335280" target="_blank" rel="noreferrer">Study implementation, reference 22 ↗</a><a className="paper-button" href="https://doi.org/10.5281/zenodo.15687518" target="_blank" rel="noreferrer">Study datasets ↗</a><button className="paper-button" onClick={onFourier}>Explore the Fourier case study</button></div>
+    <div className="paper-actions"><a className="paper-button" href="https://doi.org/10.1038/s42256-026-01267-z" target="_blank" rel="noreferrer">Paper & supplementary material ↗</a><a className="paper-button" href="https://doi.org/10.5281/zenodo.20335280" target="_blank" rel="noreferrer">Study implementation, reference 22 ↗</a><a className="paper-button" href="https://doi.org/10.5281/zenodo.15687518" target="_blank" rel="noreferrer">Study datasets ↗</a></div>
     <p className="paper-source">Based on the supplied main article, including its methods and figure captions. Links to supplementary material and source code are provided for further study; the external supplement has not been reproduced here.</p>
   </>;
 }

@@ -1684,7 +1684,7 @@
   flex-wrap: wrap;
   margin: 27px 0 36px;
 }
-.no-labs .theory-nav a {
+.no-labs .theory-nav button {
   font-size: 14px;
   text-decoration: none;
   padding: 9px 14px;
@@ -2486,3 +2486,8 @@
 .no-labs .fourier-case-study .chapter-bridge{margin:18px 0;padding:18px 20px;}
 .no-labs .fourier-case-study .math-typeset,.no-labs .fourier-case-study pre{max-width:100%;overflow-x:auto;}
 @container(max-width:750px){.no-labs .fourier-case-study .map-grid,.no-labs .fourier-case-study .foundation-grid,.no-labs .fourier-case-study .architecture-flow{grid-template-columns:minmax(0,1fr);}}
+
+.no-labs .theory-page section[id], .no-labs section[id^="theory-"] { scroll-margin-top: 85px; }
+.no-labs .below-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.no-labs .below-grid > *, .no-labs .workspace > * { min-width: 0; }
+@container (max-width: 750px) { .no-labs .fourier-case-study .below-grid { grid-template-columns: minmax(0, 1fr); } }

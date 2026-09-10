@@ -37,6 +37,12 @@ export default function Reading() {
   }
   return (
     <div className="no-reading-layout">
+      <label className="no-mobile-lessons">Papers & reading
+        <select aria-label="Choose a reading document" value={doc} onChange={event => setParams({ doc: event.target.value })}>
+          {documents.map(([id, label]) => <option key={id} value={id}>{label}</option>)}
+          {doc.startsWith('notes/') && <option value={doc}>Current paper note</option>}
+        </select>
+      </label>
       <nav className="no-side-nav" aria-label="Reading documents">
         <p className="no-eyebrow">The collection</p>
         {documents.map(([id, label]) => (

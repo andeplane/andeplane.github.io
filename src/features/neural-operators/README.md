@@ -20,3 +20,9 @@ npm run build
 Research data are a September 2026 snapshot. Citation counts are within this curated collection, not global impact measures. Graph relationships distinguish bibliography citations from editorial classifications and hypotheses. The original PDF collection remains in the research workspace; public pages link to primary sources rather than republishing manuscripts. Graph exports are in `public/interests/neural-operators/`.
 
 Source workspace generators no longer update this interest automatically. Make future UI/content changes in this React feature; update both `data/graph.json` and the portable exports together when editing graph data.
+
+## Navigation and UI review
+
+`Labs.tsx` owns the course menu and the only previous/next pager. The six foundations precede two Fourier experiments. Fourier heat steps use `?lesson=fourier-heat&step=waves` (overview, pixels, waves, training, prediction, theory); the experiment retains its model state while moving between those steps. Its components must not add another course pager or site footer. Theory section buttons scroll locally without overwriting the hash-router URL. Below 900px, lessons, concept chapters and reading documents use labeled selectors.
+
+Browser review on 10 September 2026 covered all eight lesson routes, all six Fourier steps, the ten concepts, six reading documents and the graph/timeline sections. Desktop and 390px page-overflow checks passed for the lesson/section routes; concepts also passed at 390px with no KaTeX errors. Checked the shared Next button, browser Back, mobile selectors, Preferences open/close and the Full FNO section jump. This is navigation/layout QA, not a browser-wide GPU or numerical performance validation.

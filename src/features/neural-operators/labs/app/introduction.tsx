@@ -10,13 +10,11 @@ import { Slider } from '@/features/neural-operators/labs/components/ui/slider';
 import { spatialField } from '@/features/neural-operators/labs/lib/operator';
 import { Heatmap } from './field-view';
 export default function Introduction({
-  onContinue,
   n,
   onNChange,
   diffusivity,
   horizon,
 }: {
-  onContinue: () => void;
   n: number;
   onNChange: (n: number) => void;
   diffusivity: number;
@@ -338,9 +336,7 @@ export default function Introduction({
             those measured pixels.
           </p>
         </div>
-        <button className="primary" onClick={onContinue}>
-          Step 1: measure the field <ArrowRight size={17} />
-        </button>
+
       </div>
     </div>
   );
