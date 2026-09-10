@@ -20,16 +20,20 @@ export default function Labs() {
   const found = lessons.findIndex(lesson => lesson.id === requested);
   const chapter = found < 0 ? 0 : found;
   const stepIndex = Math.max(0, stepIds.indexOf(params.get('step') ?? 'overview'));
-  const go = (index: number, step = 0) => {
-    setParams(index === 6 ? { lesson: lessons[index].id, step: stepIds[step] } : { lesson: lessons[index].id });
-    document.getElementById('lab-content')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  const go = (index: number, step = 0, fromPager = false) => {
+    // Menu selections keep the viewport steady; the bottom pager starts at the top.
+    // Let the router own scrolling so it cannot race an outgoing lesson's animation.
+    setParams(
+      index === 6 ? { lesson: lessons[index].id, step: stepIds[step] } : { lesson: lessons[index].id },
+      { preventScrollReset: !fromPager },
+    );
   };
   const previous = chapter === 6 && stepIndex > 0
-    ? { label: steps[stepIndex - 1], go: () => go(6, stepIndex - 1) }
-    : chapter > 0 ? { label: lessons[chapter - 1].label, go: () => go(chapter - 1, chapter === 7 ? 5 : 0) } : null;
+    ? { label: steps[stepIndex - 1], go: () => go(6, stepIndex - 1, true) }
+    : chapter > 0 ? { label: lessons[chapter - 1].label, go: () => go(chapter - 1, chapter === 7 ? 5 : 0, true) } : null;
   const next = chapter === 6 && stepIndex < steps.length - 1
-    ? { label: steps[stepIndex + 1], go: () => go(6, stepIndex + 1) }
-    : chapter < lessons.length - 1 ? { label: lessons[chapter + 1].label, go: () => go(chapter + 1) } : null;
+    ? { label: steps[stepIndex + 1], go: () => go(6, stepIndex + 1, true) }
+    : chapter < lessons.length - 1 ? { label: lessons[chapter + 1].label, go: () => go(chapter + 1, 0, true) } : null;
   return <div className="no-reading-layout no-lab-layout">
     <label className="no-mobile-lessons">Learning labs
       <select aria-label="Choose a lesson or Fourier step" value={chapter === 6 ? `6:${stepIndex}` : String(chapter)} onChange={event => { const [index, step] = event.target.value.split(':').map(Number); go(index, step || 0); }}>
