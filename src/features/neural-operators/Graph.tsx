@@ -1,5 +1,5 @@
 import { useMemo, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useSearchParams } from "react-router-dom";
 import {
   nodes,
   papers,
@@ -59,25 +59,28 @@ function lines(label: string) {
   return out;
 }
 export default function Graph() {
-  const [selected, setSelected] = useState("fno-2020"),
-    [view, setView] = useState<"fields" | "local">("fields"),
-    [query, setQuery] = useState(""),
+  const [params, setParams] = useSearchParams();
+  const requested = params.get("node") ?? "fno-2020";
+  const selected = byId.has(requested) ? requested : "fno-2020";
+  const node = byId.get(selected)!;
+  const view = params.get("view") === "local" || !["paper", "area"].includes(node.type) ? "local" : "fields";
+  const setView = (value: "fields" | "local") => setParams({ node: value === "fields" && !["paper", "area"].includes(node.type) ? "fno-2020" : selected, view: value }, { preventScrollReset: true });
+  const [query, setQuery] = useState(""),
     [showCites, setShowCites] = useState(true),
     [zoom, setZoom] = useState(1),
     [wide, setWide] = useState(false),
-    [history, setHistory] = useState<string[]>([]);
-  const node = byId.get(selected)!;
+    [history, setHistory] = useState<Array<{ node: string; view: string }>>([]);
   const choose = (id: string) => {
-    setHistory((h) => [...h, selected]);
-    setSelected(id);
-    if (!["paper", "area"].includes(byId.get(id)!.type)) setView("local");
+    if (id === selected) return;
+    setHistory(h => [...h, { node: selected, view }]);
+    setParams({ node: id, view: !["paper", "area"].includes(byId.get(id)!.type) ? "local" : view }, { preventScrollReset: true });
   };
   const results = useMemo(
     () =>
       query.trim()
         ? nodes
             .filter((n) =>
-              [n.title, ...(n.authors ?? [])].join(" ").toLowerCase().includes(query.toLowerCase()),
+              [n.title, ...(n.authors ?? [])].join(" ").toLowerCase().includes(query.trim().toLowerCase()),
             )
             .slice(0, 30)
         : [],
@@ -103,7 +106,7 @@ export default function Graph() {
   const renderedEdges =
     view === "fields"
       ? [...memberships, ...(showCites ? citations : [])]
-      : connected.filter((e) => coords.has(e.source) && coords.has(e.target));
+      : connected.filter((e) => coords.has(e.source) && coords.has(e.target) && (showCites || e.relation !== "cites"));
   const height =
     view === "fields" ? 700 : Math.max(700, Math.ceil((localNodes.length - 1) / 2) * 64 + 50);
   function drawNode(n: ResearchNode) {
@@ -176,6 +179,7 @@ export default function Graph() {
         <div className="no-segment">
           <button
             className={view === "fields" ? "active" : ""}
+            aria-pressed={view === "fields"}
             onClick={() => {
               setView("fields");
               setZoom(1);
@@ -185,6 +189,7 @@ export default function Graph() {
           </button>
           <button
             className={view === "local" ? "active" : ""}
+            aria-pressed={view === "local"}
             onClick={() => {
               setView("local");
               setZoom(1);
@@ -247,7 +252,7 @@ export default function Graph() {
               <button
                 disabled={!history.length}
                 onClick={() => {
-                  setSelected(history[history.length - 1]);
+                  setParams(history[history.length - 1], { preventScrollReset: true });
                   setHistory((h) => h.slice(0, -1));
                 }}
               >

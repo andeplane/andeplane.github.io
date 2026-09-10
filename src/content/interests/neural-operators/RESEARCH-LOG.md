@@ -39,3 +39,7 @@ Citation extraction is conservative and incomplete: PDF columns, hyphenation, un
 Scripts under `scripts/` build the catalog, notes, BibTeX, graph exports and offline HTML. The embedded graph needs no external service. Local PDFs can be opened through the viewer. Source links remain available for metadata-only entries and for checking newer versions. Metadata and graph exports are portable; downloading originals does not change their individual licenses.
 
 The research overview, routes and bridge suggestions are synthesis judgments. Before choosing a thesis, perform a narrower novelty search around the exact model, data, sampling freedom, baseline methods and computational objective, then run a small feasibility experiment.
+
+## Wavelet coverage follow-up (10 September 2026)
+
+Added Tripura & Chakraborty, arXiv:2205.02191, and Gupta, Xiao & Bogdan, arXiv:2109.13459. Primary abstracts and bylines were checked; PDFs were saved locally. Their stated PDE/multiscale contributions support method and application classifications. The relationship between these two methods is an editorial reading connection, not a verified bibliography citation. Neither abstract establishes embedded rotating-equipment fault-detection latency.

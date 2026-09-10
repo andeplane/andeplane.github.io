@@ -763,3 +763,5 @@
 .no-learning-questions li { margin: 15px 0; padding-left: 6px; }
 .no-learning-questions strong { color: #edf1ff; }
 @media (max-width: 850px) { .no-start-grid { grid-template-columns: minmax(0, 1fr); } }
+.no-timeline-graph-link { display: inline-block; margin: 0 0 14px; color: #a1b5ff; font-size: 12px; }
+.no-note-context { margin-bottom: 24px; font-size: 13px; }

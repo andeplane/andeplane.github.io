@@ -302,6 +302,7 @@ export const concepts = [
           localized. Particular WNO architectures differ; they are not all the same Fourier formula
           with a renamed transform.
         </p>
+        <p>Compare the <a href="#/interests/neural-operators/graph?node=mwt-2021">2021 multiwavelet operator</a> with the <a href="#/interests/neural-operators/graph?node=wno-2022">2022 Wavelet Neural Operator</a> in the literature graph. Their wavelet representations differ; neither establishes millisecond fault detection on embedded hardware.</p>
         <p>
           A schematic coefficient-space layer uses a wavelet analysis transform{" "}
           <Formula inline tex={String.raw`\mathcal W`} />, learned coefficient processing{" "}

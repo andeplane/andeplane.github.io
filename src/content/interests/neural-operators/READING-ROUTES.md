@@ -40,3 +40,7 @@ Classify each learned object: value function, shape map, physical transition, la
 [FourCastNet](notes/fourcastnet-2022.md) → [SFNO](notes/sfno-2023.md) → [FourCastNet 3](notes/fourcastnet3-2025.md); then [GINO](notes/gino-2023.md), [electromagnetic design](notes/em-design-2023.md), [NIO](notes/nio-2023.md), [Poseidon](notes/poseidon-2024.md), and [LatentDDM](notes/composition-2026.md).
 
 For implementation/data orientation use [NeuralOperator](notes/neuralop-library-2024.md), [PDEBench](notes/pdebench-2022.md), and [The Well](notes/well-2024.md). Start with a subset rather than treating a complete large benchmark or pretraining pipeline as the thesis.
+
+## Wavelets, local structure and monitoring
+
+Read the [multiwavelet operator note](notes/mwt-2021.md), then the [Wavelet Neural Operator note](notes/wno-2022.md). Compare what each learns in the transformed representation with FNO. These are starting points for localized/multiscale representations, not demonstrations of an IMU-sized fault detector. For rotating equipment, define the observation window, sample rate and deployment budget before choosing an architecture.

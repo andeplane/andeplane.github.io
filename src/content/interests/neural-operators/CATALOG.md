@@ -21,6 +21,8 @@ Research snapshot: 10 September 2026. Year = first posting/publication in the co
 | [Neural Operator: Learning Maps Between Function Spaces](https://arxiv.org/abs/2108.08481) | 2021 | core | [PDF](2108.08481v6.pdf) | [Note](notes/neural-operator-2021.md) |
 | [Seismic wave propagation and inversion with Neural Operators](https://arxiv.org/abs/2108.05421) | 2021 | application | [PDF](seismic-2021.pdf) | [Note](notes/seismic-2021.md) |
 | [U-FNO -- An enhanced Fourier neural operator-based deep-learning model for multiphase flow](https://arxiv.org/abs/2109.03697) | 2021 | application | [PDF](u-fno-2021.pdf) | [Note](notes/u-fno-2021.md) |
+| [Multiwavelet-based Operator Learning for Differential Equations](https://arxiv.org/abs/2109.13459) | 2021 | core | [PDF](mwt-2021.pdf) | [Note](notes/mwt-2021.md) |
+| [Wavelet neural operator: a neural operator for parametric partial differential equations](https://arxiv.org/abs/2205.02191) | 2022 | core | [PDF](wno-2022.pdf) | [Note](notes/wno-2022.md) |
 | [FourCastNet: A Global Data-driven High-resolution Weather Model using Adaptive Fourier Neural Operators](https://arxiv.org/abs/2202.11214) | 2022 | core | [PDF](2202.11214v1.pdf) | [Note](notes/fourcastnet-2022.md) |
 | [PDEBENCH: An Extensive Benchmark for Scientific Machine Learning](https://arxiv.org/abs/2210.07182) | 2022 | resource | [PDF](pdebench-2022.pdf) | [Note](notes/pdebench-2022.md) |
 | [CECM: A continuous empirical cubature method with application to the dimensional hyperreduction of parameterized finite element models](https://arxiv.org/abs/2308.03877) | 2023 | core | [PDF](cecm-2023.pdf) | [Note](notes/cecm-2023.md) |

@@ -696,5 +696,26 @@
     "year": 2026,
     "source_url": "https://arxiv.org/abs/2603.14482",
     "publication_status": "arXiv version collected; separate publication status not independently verified"
+  },
+  "mwt-2021": {
+    "title": "Multiwavelet-based Operator Learning for Differential Equations",
+    "authors": [
+      "Gaurav Gupta",
+      "Xiongye Xiao",
+      "Paul Bogdan"
+    ],
+    "year": 2021,
+    "publication_status": "Primary arXiv record; year denotes first preprint",
+    "source_url": "https://arxiv.org/abs/2109.13459"
+  },
+  "wno-2022": {
+    "title": "Wavelet neural operator: a neural operator for parametric partial differential equations",
+    "authors": [
+      "Tapas Tripura",
+      "Souvik Chakraborty"
+    ],
+    "year": 2022,
+    "publication_status": "Primary arXiv record; year denotes first preprint",
+    "source_url": "https://arxiv.org/abs/2205.02191"
   }
 }

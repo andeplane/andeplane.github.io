@@ -2941,7 +2941,7 @@
       "type": "area",
       "label": "Operator learning",
       "title": "Operator learning",
-      "paper_count": 29
+      "paper_count": 31
     },
     {
       "id": "area:fourier",
@@ -2969,14 +2969,14 @@
       "type": "area",
       "label": "Physical simulation & engineering",
       "title": "Physical simulation & engineering",
-      "paper_count": 10
+      "paper_count": 12
     },
     {
       "id": "area:weather",
       "type": "area",
       "label": "Weather & climate",
       "title": "Weather & climate",
-      "paper_count": 3
+      "paper_count": 4
     },
     {
       "id": "area:robotics",
@@ -3012,6 +3012,94 @@
       "label": "Time series & monitoring",
       "title": "Time series & monitoring",
       "paper_count": 3
+    },
+    {
+      "id": "field:wavelets",
+      "type": "field",
+      "label": "Wavelet operators",
+      "title": "Wavelets and multiscale operator representations"
+    },
+    {
+      "id": "mwt-2021",
+      "type": "paper",
+      "label": "Multiwavelet operator",
+      "title": "Multiwavelet-based Operator Learning for Differential Equations",
+      "year": 2021,
+      "priority": "core",
+      "summary": "Projects operator kernels onto fixed multiwavelet polynomial bases and learns interactions across scales. Demonstrated on several PDE families.",
+      "limits": "Kernel compression here is a multiscale representation, not a compressed-sensing recovery guarantee. The abstract does not establish embedded vibration-monitoring latency.",
+      "url": "https://arxiv.org/abs/2109.13459",
+      "file": "mwt-2021.pdf",
+      "authors": [
+        "Gaurav Gupta",
+        "Xiongye Xiao",
+        "Paul Bogdan"
+      ],
+      "tags": [
+        "operator-learning",
+        "wavelets"
+      ],
+      "publication_status": "Primary arXiv record; year denotes first preprint",
+      "review_level": "abstract_screened",
+      "seed": false
+    },
+    {
+      "id": "author:gaurav-gupta",
+      "type": "author",
+      "label": "Gaurav Gupta",
+      "title": "Gaurav Gupta",
+      "paper_count": 1
+    },
+    {
+      "id": "author:xiongye-xiao",
+      "type": "author",
+      "label": "Xiongye Xiao",
+      "title": "Xiongye Xiao",
+      "paper_count": 1
+    },
+    {
+      "id": "author:paul-bogdan",
+      "type": "author",
+      "label": "Paul Bogdan",
+      "title": "Paul Bogdan",
+      "paper_count": 1
+    },
+    {
+      "id": "wno-2022",
+      "type": "paper",
+      "label": "Wavelet Neural Operator",
+      "title": "Wavelet neural operator: a neural operator for parametric partial differential equations",
+      "year": 2022,
+      "priority": "core",
+      "summary": "Combines learned integral-kernel operations with localized wavelet transforms. Examples include PDE solution maps and air-temperature prediction.",
+      "limits": "Spatial/frequency localization motivates studying transient signals, but this paper is not evidence of millisecond fault detection inside an IMU. Validate sampling, window length, memory and end-to-end delay separately.",
+      "url": "https://arxiv.org/abs/2205.02191",
+      "file": "wno-2022.pdf",
+      "authors": [
+        "Tapas Tripura",
+        "Souvik Chakraborty"
+      ],
+      "tags": [
+        "operator-learning",
+        "wavelets"
+      ],
+      "publication_status": "Primary arXiv record; year denotes first preprint",
+      "review_level": "abstract_screened",
+      "seed": false
+    },
+    {
+      "id": "author:tapas-tripura",
+      "type": "author",
+      "label": "Tapas Tripura",
+      "title": "Tapas Tripura",
+      "paper_count": 1
+    },
+    {
+      "id": "author:souvik-chakraborty",
+      "type": "author",
+      "label": "Souvik Chakraborty",
+      "title": "Souvik Chakraborty",
+      "paper_count": 1
     }
   ],
   "edges": [
@@ -10115,6 +10203,156 @@
       "evidence": "Complementary simulation benchmarks, with The Well broadening the range of physical behavior.",
       "evidence_url": "https://arxiv.org/abs/2210.07182",
       "evidence_locator": "Abstract/method comparison; analyst reading link, not a verified citation",
+      "epistemic_status": "analyst_inference"
+    },
+    {
+      "id": "e688",
+      "source": "author:gaurav-gupta",
+      "target": "mwt-2021",
+      "relation": "authored",
+      "evidence": "Author listed in the primary paper byline.",
+      "evidence_url": "https://arxiv.org/abs/2109.13459",
+      "evidence_locator": "Primary abstract and byline, checked 2026-09-10",
+      "epistemic_status": "documented"
+    },
+    {
+      "id": "e689",
+      "source": "author:xiongye-xiao",
+      "target": "mwt-2021",
+      "relation": "authored",
+      "evidence": "Author listed in the primary paper byline.",
+      "evidence_url": "https://arxiv.org/abs/2109.13459",
+      "evidence_locator": "Primary abstract and byline, checked 2026-09-10",
+      "epistemic_status": "documented"
+    },
+    {
+      "id": "e690",
+      "source": "author:paul-bogdan",
+      "target": "mwt-2021",
+      "relation": "authored",
+      "evidence": "Author listed in the primary paper byline.",
+      "evidence_url": "https://arxiv.org/abs/2109.13459",
+      "evidence_locator": "Primary abstract and byline, checked 2026-09-10",
+      "epistemic_status": "documented"
+    },
+    {
+      "id": "e691",
+      "source": "mwt-2021",
+      "target": "field:operator-learning",
+      "relation": "classified_in",
+      "evidence": "Projects operator kernels onto fixed multiwavelet polynomial bases and learns interactions across scales. Demonstrated on several PDE families.",
+      "evidence_url": "https://arxiv.org/abs/2109.13459",
+      "evidence_locator": "Primary abstract and byline, checked 2026-09-10",
+      "epistemic_status": "curated_classification"
+    },
+    {
+      "id": "e692",
+      "source": "mwt-2021",
+      "target": "field:wavelets",
+      "relation": "classified_in",
+      "evidence": "Projects operator kernels onto fixed multiwavelet polynomial bases and learns interactions across scales. Demonstrated on several PDE families.",
+      "evidence_url": "https://arxiv.org/abs/2109.13459",
+      "evidence_locator": "Primary abstract and byline, checked 2026-09-10",
+      "epistemic_status": "curated_classification"
+    },
+    {
+      "id": "e693",
+      "source": "mwt-2021",
+      "target": "area:operators",
+      "relation": "bridges_field",
+      "evidence": "Projects operator kernels onto fixed multiwavelet polynomial bases and learns interactions across scales. Demonstrated on several PDE families.",
+      "evidence_url": "https://arxiv.org/abs/2109.13459",
+      "evidence_locator": "Primary abstract and byline, checked 2026-09-10",
+      "epistemic_status": "curated_classification"
+    },
+    {
+      "id": "e694",
+      "source": "mwt-2021",
+      "target": "area:engineering",
+      "relation": "bridges_field",
+      "evidence": "Projects operator kernels onto fixed multiwavelet polynomial bases and learns interactions across scales. Demonstrated on several PDE families.",
+      "evidence_url": "https://arxiv.org/abs/2109.13459",
+      "evidence_locator": "Primary abstract and byline, checked 2026-09-10",
+      "epistemic_status": "curated_classification"
+    },
+    {
+      "id": "e695",
+      "source": "author:tapas-tripura",
+      "target": "wno-2022",
+      "relation": "authored",
+      "evidence": "Author listed in the primary paper byline.",
+      "evidence_url": "https://arxiv.org/abs/2205.02191",
+      "evidence_locator": "Primary abstract and byline, checked 2026-09-10",
+      "epistemic_status": "documented"
+    },
+    {
+      "id": "e696",
+      "source": "author:souvik-chakraborty",
+      "target": "wno-2022",
+      "relation": "authored",
+      "evidence": "Author listed in the primary paper byline.",
+      "evidence_url": "https://arxiv.org/abs/2205.02191",
+      "evidence_locator": "Primary abstract and byline, checked 2026-09-10",
+      "epistemic_status": "documented"
+    },
+    {
+      "id": "e697",
+      "source": "wno-2022",
+      "target": "field:operator-learning",
+      "relation": "classified_in",
+      "evidence": "Combines learned integral-kernel operations with localized wavelet transforms. Examples include PDE solution maps and air-temperature prediction.",
+      "evidence_url": "https://arxiv.org/abs/2205.02191",
+      "evidence_locator": "Primary abstract and byline, checked 2026-09-10",
+      "epistemic_status": "curated_classification"
+    },
+    {
+      "id": "e698",
+      "source": "wno-2022",
+      "target": "field:wavelets",
+      "relation": "classified_in",
+      "evidence": "Combines learned integral-kernel operations with localized wavelet transforms. Examples include PDE solution maps and air-temperature prediction.",
+      "evidence_url": "https://arxiv.org/abs/2205.02191",
+      "evidence_locator": "Primary abstract and byline, checked 2026-09-10",
+      "epistemic_status": "curated_classification"
+    },
+    {
+      "id": "e699",
+      "source": "wno-2022",
+      "target": "area:operators",
+      "relation": "bridges_field",
+      "evidence": "Combines learned integral-kernel operations with localized wavelet transforms. Examples include PDE solution maps and air-temperature prediction.",
+      "evidence_url": "https://arxiv.org/abs/2205.02191",
+      "evidence_locator": "Primary abstract and byline, checked 2026-09-10",
+      "epistemic_status": "curated_classification"
+    },
+    {
+      "id": "e700",
+      "source": "wno-2022",
+      "target": "area:engineering",
+      "relation": "bridges_field",
+      "evidence": "Combines learned integral-kernel operations with localized wavelet transforms. Examples include PDE solution maps and air-temperature prediction.",
+      "evidence_url": "https://arxiv.org/abs/2205.02191",
+      "evidence_locator": "Primary abstract and byline, checked 2026-09-10",
+      "epistemic_status": "curated_classification"
+    },
+    {
+      "id": "e701",
+      "source": "wno-2022",
+      "target": "area:weather",
+      "relation": "bridges_field",
+      "evidence": "Combines learned integral-kernel operations with localized wavelet transforms. Examples include PDE solution maps and air-temperature prediction.",
+      "evidence_url": "https://arxiv.org/abs/2205.02191",
+      "evidence_locator": "Primary abstract and byline, checked 2026-09-10",
+      "epistemic_status": "curated_classification"
+    },
+    {
+      "id": "e702",
+      "source": "wno-2022",
+      "target": "mwt-2021",
+      "relation": "method_connection",
+      "evidence": "Both use wavelet representations for operator learning; they are distinct architectures. This is a reading connection, not a verified citation.",
+      "evidence_url": "https://arxiv.org/abs/2205.02191",
+      "evidence_locator": "Primary abstract and byline, checked 2026-09-10",
       "epistemic_status": "analyst_inference"
     }
   ],

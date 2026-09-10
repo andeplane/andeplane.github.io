@@ -18,6 +18,8 @@ const documents = [
 export default function Reading() {
   const [params, setParams] = useSearchParams();
   const doc = params.get("doc") ?? "OVERVIEW.md";
+  const paperId = doc.startsWith("notes/") ? doc.slice(6).replace(/\.md$/, "") : null;
+  const paper = papers.find(p => p.id === paperId);
   const found = Object.entries(files).find(([key]) => key.endsWith("/" + doc));
   const content = found?.[1] ?? "# Reading note unavailable\nChoose a document from the menu.";
   function target(href: string) {
@@ -54,9 +56,10 @@ export default function Reading() {
             {label}
           </button>
         ))}
-        {doc.startsWith("notes/") && <Link to="/interests/neural-operators/graph">← Back to graph</Link>}
+        {doc.startsWith("notes/") && <Link to={`/interests/neural-operators/graph?node=${paperId}`}>← This paper in the graph</Link>}
       </nav>
       <article className="no-article prose">
+        {paper && <div className="no-note-context"><Link to={`/interests/neural-operators/graph?node=${paper.id}`}>← Explore {paper.label} in the graph</Link></div>}
         <ReactMarkdown
           remarkPlugins={[remarkGfm]}
           components={{

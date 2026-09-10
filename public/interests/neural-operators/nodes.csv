@@ -307,14 +307,22 @@ field:manufacturing,field,Manufacturing,Manufacturing,,,,,,,,,,,,
 field:representation-learning,field,Representation Learning,Representation Learning,,,,,,,,,,,,
 field:domain-decomposition,field,Domain Decomposition,Domain Decomposition,,,,,,,,,,,,
 field:multiscale,field,Multiscale,Multiscale,,,,,,,,,,,,
-area:operators,area,Operator learning,Operator learning,,,,,,,,,,,,29
+area:operators,area,Operator learning,Operator learning,,,,,,,,,,,,31
 area:fourier,area,Fourier neural operators,Fourier neural operators,,,,,,,,,,,,10
 area:sparse,area,Sparse recovery & sampling,Sparse recovery & sampling,,,,,,,,,,,,10
 area:integration,area,Quadrature & model reduction,Quadrature & model reduction,,,,,,,,,,,,11
-area:engineering,area,Physical simulation & engineering,Physical simulation & engineering,,,,,,,,,,,,10
-area:weather,area,Weather & climate,Weather & climate,,,,,,,,,,,,3
+area:engineering,area,Physical simulation & engineering,Physical simulation & engineering,,,,,,,,,,,,12
+area:weather,area,Weather & climate,Weather & climate,,,,,,,,,,,,4
 area:robotics,area,Robotics & control,Robotics & control,,,,,,,,,,,,6
 area:world,area,World models & representations,World models & representations,,,,,,,,,,,,5
 area:foundation,area,Foundation models & transfer,Foundation models & transfer,,,,,,,,,,,,2
 area:inverse,area,Inverse problems & design,Inverse problems & design,,,,,,,,,,,,4
 area:timeseries,area,Time series & monitoring,Time series & monitoring,,,,,,,,,,,,3
+field:wavelets,field,Wavelet operators,Wavelets and multiscale operator representations,,,,,,,,,,,,
+mwt-2021,paper,Multiwavelet operator,Multiwavelet-based Operator Learning for Differential Equations,2021,core,Projects operator kernels onto fixed multiwavelet polynomial bases and learns interactions across scales. Demonstrated on several PDE families.,"Kernel compression here is a multiscale representation, not a compressed-sensing recovery guarantee. The abstract does not establish embedded vibration-monitoring latency.",https://arxiv.org/abs/2109.13459,mwt-2021.pdf,"[""Gaurav Gupta"", ""Xiongye Xiao"", ""Paul Bogdan""]","[""operator-learning"", ""wavelets""]",Primary arXiv record; year denotes first preprint,abstract_screened,False,
+author:gaurav-gupta,author,Gaurav Gupta,Gaurav Gupta,,,,,,,,,,,,1
+author:xiongye-xiao,author,Xiongye Xiao,Xiongye Xiao,,,,,,,,,,,,1
+author:paul-bogdan,author,Paul Bogdan,Paul Bogdan,,,,,,,,,,,,1
+wno-2022,paper,Wavelet Neural Operator,Wavelet neural operator: a neural operator for parametric partial differential equations,2022,core,Combines learned integral-kernel operations with localized wavelet transforms. Examples include PDE solution maps and air-temperature prediction.,"Spatial/frequency localization motivates studying transient signals, but this paper is not evidence of millisecond fault detection inside an IMU. Validate sampling, window length, memory and end-to-end delay separately.",https://arxiv.org/abs/2205.02191,wno-2022.pdf,"[""Tapas Tripura"", ""Souvik Chakraborty""]","[""operator-learning"", ""wavelets""]",Primary arXiv record; year denotes first preprint,abstract_screened,False,
+author:tapas-tripura,author,Tapas Tripura,Tapas Tripura,,,,,,,,,,,,1
+author:souvik-chakraborty,author,Souvik Chakraborty,Souvik Chakraborty,,,,,,,,,,,,1

@@ -1,4 +1,6 @@
 import { useState } from "react";
+import { Link } from "react-router-dom";
+import { byId } from "./model";
 import { researchEras, researchMilestones, researchTracks, researchPapers } from "./data/timeline";
 export default function Timeline() {
   const [track, setTrack] = useState("all");
@@ -39,7 +41,7 @@ export default function Timeline() {
                       <p>{m.context}</p>
                       <p className="no-muted">{m.dateNote}</p>
                       {m.papers.map((id) => (
-                        <a
+                        <div key={id}><a
                           className="no-paper-link"
                           key={id}
                           href={researchPapers[id].source_url}
@@ -47,7 +49,7 @@ export default function Timeline() {
                           rel="noreferrer"
                         >
                           {researchPapers[id].title} ↗
-                        </a>
+                        </a>{byId.has(id) && <Link className="no-timeline-graph-link" to={`/interests/neural-operators/graph?node=${id}`}>Explore connections →</Link>}</div>
                       ))}
                     </details>
                   </div>
