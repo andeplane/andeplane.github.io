@@ -3,6 +3,7 @@ import { NavLink } from 'react-router-dom'
 const links = [
   { to: '/', label: 'Home' },
   { to: '/projects', label: 'Projects' },
+  { to: '/interests', label: 'Interests' },
   { to: '/blog', label: 'Blog' },
   { to: '/about', label: 'About' },
 ]
@@ -24,7 +25,10 @@ export default function Navbar() {
           maxWidth: '1200px',
           margin: '0 auto',
           padding: '0 clamp(0.75rem, 4vw, 1.5rem)',
-          height: '60px',
+          minHeight: '60px',
+          flexWrap: 'wrap',
+          gap: '0.5rem',
+          paddingBlock: '0.6rem',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'space-between',
