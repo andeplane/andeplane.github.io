@@ -286,7 +286,7 @@ export default function FourierCaseStudy({ lesson, setLesson }: { lesson: number
   return (
     <div className="fourier-case-study">
       <div className="shell case-study-shell">
-        <div className="case-study-context"><p>This is our teaching experiment, not the paper’s Navier–Stokes benchmark. Its trainable model is linear in Fourier coefficients. The Theory & code section distinguishes it from a full nonlinear FNO.</p></div>
+        <div className="case-study-context"><p>This teaching experiment maps initial temperature to future temperature on a periodic plate. Its trainable model is linear in Fourier coefficients. The Theory & code section distinguishes it from a full nonlinear FNO.</p></div>
         {lesson === 4 && <Theory />}
         {lesson === -1 && <Introduction diffusivity={nu} horizon={time} n={n} onNChange={setN} />}
           {lessons.map((l, i) => lesson === i && (

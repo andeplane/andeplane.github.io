@@ -750,3 +750,16 @@
   .no-tabbar nav a { padding: 9px 0; }
 }
 @media (max-width: 650px) { .no-article.prose .tablewrap table { min-width: 600px; } }
+
+.no-start-intro { max-width: 800px; margin: 8px 0 30px; }
+.no-start-intro h2 { font-size: clamp(23px, 3vw, 32px); line-height: 1.25; margin-bottom: 18px; letter-spacing: -.6px; }
+.no-start-intro p, .no-learning-questions { color: var(--no-muted); line-height: 1.8; }
+.no-start-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 18px; margin: 28px 0 42px; }
+.no-start-grid > a { display: block; border: 1px solid var(--no-line); border-radius: 10px; padding: 24px; background: #12151c; color: #edf1ff; text-decoration: none; }
+.no-start-grid > a:hover { border-color: #8498dc; background: #171c28; }
+.no-start-grid h3 { font-size: 19px; line-height: 1.4; margin: 12px 0; }
+.no-start-grid p { color: var(--no-muted); line-height: 1.7; font-size: 14px; }
+.no-learning-questions { padding-left: 22px; }
+.no-learning-questions li { margin: 15px 0; padding-left: 6px; }
+.no-learning-questions strong { color: #edf1ff; }
+@media (max-width: 850px) { .no-start-grid { grid-template-columns: minmax(0, 1fr); } }

@@ -2491,3 +2491,7 @@
 .no-labs .below-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 .no-labs .below-grid > *, .no-labs .workspace > * { min-width: 0; }
 @container (max-width: 750px) { .no-labs .fourier-case-study .below-grid { grid-template-columns: minmax(0, 1fr); } }
+.no-labs .learning-guide { margin: 24px 0 32px; padding: 0 0 22px; border-bottom: 1px solid #303748; }
+.no-labs .learning-guide p { font-size: 14px; line-height: 1.7; margin: 10px 0; }
+.no-labs .learning-guide strong { color: #c4ceff; margin-right: 8px; }
+.no-labs .learning-guide details { margin: 16px 0 0; padding: 12px 16px; background: #171d28; }

@@ -2,19 +2,20 @@
 import { useState } from 'react';
 import { MathTex } from '@/features/neural-operators/labs/components/math-tex';
 import FieldFoundation from './field-foundation';
+import LearningGuide from './learning-guide';
 import FourierLayerExample from './fourier-layer-example';
 import FourierCaseStudy from './fourier-case-study';
 import { IntegralLab, NeuralKernelLab, RadiusLab } from './continuous-labs';
 
-const chapters = ['Fields & samples', 'Why grids matter', 'Build an integral', 'Learn the kernel', 'Real architectures', 'Read the paper', 'Fourier case study', 'Fourier layer example'];
-const titles = ['A field exists before its pixels.', 'The same array operation can mean different physics.', 'Use the samples to approximate a continuous operation.', 'Learn a function that supplies the weights.', 'Extend neural layers to functions.', 'What the paper establishes—and what it does not.', 'Fourier operators, step by step.', 'A learned operator in Fourier space.'];
+const chapters = ['Fields & samples', 'Why grids matter', 'Build an integral', 'Learn the kernel', 'Real architectures', 'Evaluate a model', 'Fourier case study', 'Fourier layer example'];
+const titles = ['A field exists before its pixels.', 'The same array operation can mean different physics.', 'Use the samples to approximate a continuous operation.', 'Learn a function that supplies the weights.', 'Extend neural layers to functions.', 'Does the learned map work beyond its training examples?', 'Fourier operators, step by step.', 'A learned operator in Fourier space.'];
 const tex = String.raw;
 export default function Course({ chapter, step, setStep }: { chapter: number; step: number; setStep: (step: number) => void }) {
   const [n, setN] = useState(8);
   return <div className="paper-course">
-        {chapters.map((_, i) => i === chapter && <article key={i} className="paper-chapter"><div className="eyebrow">{i >= 6 ? 'OPTIONAL / A CONCRETE SPECTRAL MODEL' : `LESSON ${i + 1} / ${chapters[i].toUpperCase()}`}</div><h2>{titles[i]}</h2>
+        {chapters.map((_, i) => i === chapter && <article key={i} className="paper-chapter"><div className="eyebrow">{i >= 6 ? 'OPTIONAL / A CONCRETE SPECTRAL MODEL' : `LESSON ${i + 1} / ${chapters[i].toUpperCase()}`}</div><h2>{titles[i]}</h2><LearningGuide chapter={i} />
           {i === 0 && <>
-            <p>The paper asks how a neural network can act on <strong>functions</strong> while the computer only receives arrays of samples. The goal is to approximate one function-to-function map consistently across different discretizations. Super-resolution is one application of this idea; producing more pixels by itself is not the definition of a neural operator.</p>
+            <p>Operator learning asks how a neural network can act on <strong>functions</strong> while the computer only receives arrays of samples. The goal is to approximate one function-to-function map consistently across different discretizations. Super-resolution is one application of this idea; producing more pixels by itself is not the definition of a neural operator.</p>
             <FieldFoundation n={n} onNChange={setN} />
             <h3>Two different questions: reconstruct a field, or map it to another field?</h3>
             <div className="paper-two"><div className="paper-callout"><b>Reconstruction</b><MathTex tex={tex`\{(x_i,y_j),F_{ij}\}\longmapsto\widetilde f(x,y)`} /><p>Estimate the same field between measurements. Interpolation chooses one estimate based on assumptions. A finite sample set does not uniquely determine the continuous field: unresolved features can fit between samples.</p></div><div className="paper-callout"><b>Operator learning</b><MathTex tex={tex`\mathcal G:f\longmapsto g,\qquad g=\mathcal G(f)`} /><p>Learn a mapping that works for many input fields. For example, forcing across a fluid domain → its vorticity at a specified later time. One model must handle different forcing functions, not memorize one output field.</p></div></div>
@@ -22,14 +23,14 @@ export default function Course({ chapter, step, setStep }: { chapter: number; st
             <MathTex tex={tex`\underbrace{\{(\mathbf x_i,F_i)\}_{i=1}^{N}}_{\text{input measurements}}\xrightarrow{\quad\mathcal G_{\theta,N,M}\quad}\underbrace{\{(\mathbf y_j,\widehat G_j)\}_{j=1}^{M}}_{\widehat G_j\,\approx\,(\mathcal G_\theta f)(\mathbf y_j)}`} />
             <p>Bold coordinates represent positions in one, two or three dimensions; in the plate above, each is an (x, y) pair. Input positions and output query positions can differ. Here <MathTex inline tex={tex`\theta`} /> means the finite set of learned model parameters. <MathTex inline tex="N" /> and <MathTex inline tex="M" /> count samples and queries, not parameters.</p>
             <div className="paper-callout"><b>What “the same operator” means</b><p>Hold the input field and trained parameters fixed. As its measurement grid becomes sufficiently fine, the numerical predictions should approach the output of one continuous operator. The limit can still differ from the desired physical solution if the model was poorly approximated or trained.</p></div>
-            <p>We will use a simple spatial smoothing map to expose the mechanism. Then we will connect it to dense layers, convolution, attention and Fourier operators, and finally return to the paper’s actual fluid experiment. The separate heat case study introduces physical time explicitly.</p>
-            <p className="paper-source">Paper connection: Figure 1, Table 1, equations (1)–(2). A neural field represents one function; a neural operator maps an input function to an output function.</p>
+            <p>We will use a simple spatial smoothing map to expose the mechanism. Then we will connect it to dense layers, convolution, attention and Fourier operators, and learn how to evaluate a model beyond its training data. The separate heat case study introduces physical time explicitly.</p>
+            <p className="paper-source">Further reading — Berner et al. (2026): Figure 1, Table 1, equations (1)–(2). A neural field represents one function; a neural operator maps an input function to an output function.</p>
           </>}
           {i === 1 && <RadiusLab />}
           {i === 2 && <IntegralLab />}
           {i === 3 && <NeuralKernelLab />}
           {i === 4 && <Architectures />}
-          {i === 5 && <PaperReading />}
+          {i === 5 && <><EvaluationLesson /><details><summary>Research case study: Berner et al. (2026)</summary><PaperReading /></details></>}
           {i === 6 && <FourierCaseStudy lesson={step} setLesson={setStep} />}
           {i === 7 && <FourierLayerExample />}
           
@@ -38,7 +39,7 @@ export default function Course({ chapter, step, setStep }: { chapter: number; st
 }
 function Architectures() {
   return <>
-    <p>The paper’s recipe is: identify the continuous counterpart of a familiar neural layer, then discretize it using coordinates and quadrature. Fourier transforms are one implementation choice within this recipe.</p>
+    <p>One way to design an operator architecture is to identify the continuous counterpart of a familiar neural layer, then discretize it using coordinates and quadrature. Fourier transforms are one implementation choice within this recipe.</p>
     <h3>1. A dense matrix becomes a kernel function</h3>
     <MathTex tex={tex`g_j=\sum_i W_{ji}f_i+b_j\quad\longrightarrow\quad g(y)=\int_\Omega K_\theta(x,y)f(x)\,dx+b_\theta(y)`} />
     <p>A dense matrix assigns parameters to index pairs. Change the array dimensions and the matrix no longer fits. A kernel network accepts coordinates and returns a number (or a channel-mixing matrix). New coordinates produce new kernel values using the same parameters. The previous lesson implements exactly this mechanism.</p>
@@ -88,7 +89,7 @@ class IntegralLayer(nn.Module):
     <MathTex tex={tex`\widehat F_{k_x,k_y}=\frac1{N_xN_y}\sum_{i=0}^{N_x-1}\sum_{j=0}^{N_y-1}F_{ij}\exp\!\left[-2\pi\mathrm i\left(\frac{k_xi}{N_x}+\frac{k_yj}{N_y}\right)\right]`} />
     <p>This is the normalized DFT for uniform periodic samples. It is a finite sum over the pixels, usually computed by FFT. It estimates Fourier-series coefficients, subject to sampling and aliasing. It does not discover information absent from the samples.</p>
     <div className="paper-callout"><b>Yes: Fourier space is also discretized.</b><p>On a fixed domain, increasing the spatial grid count raises the maximum resolvable frequency. It does not make the frequency spacing finer; that spacing is set by the physical domain length. Keeping the same retained modes reuses the same learned parameters. Adding learned modes expands the parameterization and requires parameters for those new modes, usually with additional training. More evaluation pixels alone do neither.</p><p>A fixed mode cutoff leaves a representation limit. Stacked nonlinear FNO layers can create additional feature frequencies, but zero-shot evaluation on a finer grid does not guarantee accurate recovery of unresolved physical structure.</p></div>
-    <p className="paper-source">Paper connection: Figure 2 and the architecture correspondences in equations (8)–(19). The Fourier case study provides the pixel-to-DFT arithmetic, training examples, a runnable NumPy exercise and a fuller FNO implementation reference.</p>
+    <p className="paper-source">Further reading — Berner et al. (2026): Figure 2 and the architecture correspondences in equations (8)–(19). The Fourier case study provides the pixel-to-DFT arithmetic, training examples, a runnable NumPy exercise and a fuller FNO implementation reference.</p>
   </>;
 }
 function PaperReading() {
@@ -110,5 +111,25 @@ function PaperReading() {
     <p>The quadrature, neighborhood and neural-kernel exercises are small original demonstrations of the paper’s mechanisms. The heat example is a separate, exactly solvable teaching problem. This app does <strong>not</strong> reproduce the paper’s Navier–Stokes training run or its plotted benchmark numbers. We describe those results from the supplied article; we do not present toy results as benchmark evidence.</p>
     <div className="paper-actions"><a className="paper-button" href="https://doi.org/10.1038/s42256-026-01267-z" target="_blank" rel="noreferrer">Paper & supplementary material ↗</a><a className="paper-button" href="https://doi.org/10.5281/zenodo.20335280" target="_blank" rel="noreferrer">Study implementation, reference 22 ↗</a><a className="paper-button" href="https://doi.org/10.5281/zenodo.15687518" target="_blank" rel="noreferrer">Study datasets ↗</a></div>
     <p className="paper-source">Based on the supplied main article, including its methods and figure captions. Links to supplementary material and source code are provided for further study; the external supplement has not been reproduced here.</p>
+  </>;
+}
+
+function EvaluationLesson() {
+  return <>
+    <p>A model can fit its training examples and still fail on a new field, a different grid or a longer rollout. Treat these as different experiments: change one thing at a time and keep the other conditions fixed.</p>
+    <div className="paper-table-wrap"><table className="paper-table"><thead><tr><th>Question</th><th>Try in the kernel lab</th><th>What it tells you</th></tr></thead><tbody>
+      <tr><td>Did optimization fit the examples?</td><td>Train and inspect the training pairs and MSE.</td><td>Fit to the supplied data, not generalization.</td></tr>
+      <tr><td>Does it work on unseen fields?</td><td>Pause training and select another held-out field.</td><td>Sensitivity to inputs outside the training set.</td></tr>
+      <tr><td>Does the sampling matter?</td><td>Keep the field and weights fixed; vary evaluation input samples and use a clustered grid.</td><td>The combined effect of available information and numerical integration.</td></tr>
+      <tr><td>Does a denser output help?</td><td>Keep input samples fixed; increase only output queries.</td><td>Denser evaluation of the same learned map, not new measurements.</td></tr>
+    </tbody></table></div>
+    <h3>A useful comparison needs the same information budget</h3>
+    <p>For reconstruction, compare with interpolation using the same input samples. For a future-state prediction, interpolation alone does not evolve the state: compare with persistence (predicting no change), a suitable numerical solver, or another learned predictor. Record both error and computation cost, including preprocessing.</p>
+    <h3>Make a prediction, then challenge it</h3>
+    <p>Choose one held-out field before training. After training, pause and reduce its input measurements. Where would you expect the prediction to deteriorate first? Add a measurement in that region and compare again. Repeat with another field before drawing a conclusion.</p>
+    <details><summary>What should I conclude?</summary><p>Narrow features can be missed by sparse measurements, while numerical integration also changes with the grid. An extra measurement can help, but improvement is not guaranteed for every point or model. A convincing claim needs several held-out fields and controlled comparisons, not one attractive plot.</p></details>
+    <h3>From a teaching experiment to an application</h3>
+    <p>Specify the input and output functions, units, domain, sampling process and prediction horizon. Define what the model may observe. Then choose test cases that reflect deployment: changed operating conditions, sensor layouts, noise and events absent from training. A rotating-equipment monitor also needs a detection-delay and memory budget; a physical surrogate may need conservation and rollout-stability checks.</p>
+    <p>The paper case study below is one example of evaluating across resolutions. Use the broader literature collection to compare other architectures and applications.</p>
   </>;
 }

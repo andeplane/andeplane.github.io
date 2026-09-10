@@ -1,6 +1,7 @@
 import { Link, NavLink, useParams, useSearchParams } from "react-router-dom";
 import { lazy, Suspense, useEffect, useState } from "react";
 import Graph from "./Graph";
+import Overview from "./Overview";
 import Reading from "./Reading";
 import Timeline from "./Timeline";
 import { concepts } from "./concepts";
@@ -9,6 +10,7 @@ import "./research.css";
 const Labs = lazy(() => import("./Labs"));
 const base = "/interests/neural-operators";
 const tabs = [
+  ["overview", "Start here"],
   ["labs", "Learning labs"],
   ["concepts", "Concepts"],
   ["graph", "Literature graph"],
@@ -61,8 +63,8 @@ function Concepts() {
   );
 }
 export default function NeuralOperators() {
-  const { tab = "graph" } = useParams();
-  const active = tabs.some((t) => t[0] === tab) ? tab : "graph";
+  const { tab = "overview" } = useParams();
+  const active = tabs.some((t) => t[0] === tab) ? tab : "overview";
   const [exportsOpen, setExportsOpen] = useState(false);
   useEffect(() => {
     document.title = `${tabs.find((t) => t[0] === active)?.[1]} · Neural operators · andeplane`;
@@ -126,7 +128,7 @@ export default function NeuralOperators() {
         </div>}
       </div>
       <div className="no-tab-content">
-        {active === "labs" ? (
+        {active === "overview" ? <Overview /> : active === "labs" ? (
           <Suspense fallback={<p>Loading interactive labs…</p>}>
             <Labs />
           </Suspense>

@@ -8,7 +8,7 @@ const lessons = [
   { id: 'integral', label: 'Build an integral' },
   { id: 'thermal', label: 'Thermal · learn the kernel' },
   { id: 'architectures', label: 'Real architectures' },
-  { id: 'paper', label: 'Read the paper' },
+  { id: 'evaluation', label: 'Evaluate a model' },
   { id: 'fourier-heat', label: 'Fourier heat case study' },
   { id: 'fourier-layer', label: 'Fourier layer example' },
 ];
@@ -16,7 +16,8 @@ const steps = ['Overview', 'Field → pixels', 'Pixels → waves', 'Learn the ch
 const stepIds = ['overview', 'pixels', 'waves', 'training', 'prediction', 'theory'];
 export default function Labs() {
   const [params, setParams] = useSearchParams();
-  const found = lessons.findIndex(lesson => lesson.id === params.get('lesson'));
+  const requested = params.get('lesson') === 'paper' ? 'evaluation' : params.get('lesson');
+  const found = lessons.findIndex(lesson => lesson.id === requested);
   const chapter = found < 0 ? 0 : found;
   const stepIndex = Math.max(0, stepIds.indexOf(params.get('step') ?? 'overview'));
   const go = (index: number, step = 0) => {

@@ -71,7 +71,7 @@ const G = queries.map(y =>
 // Increase N: more observations, more terms, smaller cells.
 // Increase M: more output evaluations, same observations.
 // The kernel function is unchanged in both cases.`}</code></pre>
-    <p className="paper-source">Paper connection: equations (7), (9), (20) and Figure 5. The reference here is a 512-point quadrature, not an exact symbolic integral. Reported errors compare outputs at the displayed equally spaced queries.</p>
+    <p className="paper-source">Further reading — Berner et al. (2026): equations (7), (9), (20) and Figure 5. The reference here is a 512-point quadrature, not an exact symbolic integral. Reported errors compare outputs at the displayed equally spaced queries.</p>
   </>;
 }
 export function RadiusLab() {
@@ -79,13 +79,13 @@ export function RadiusLab() {
   const xs = points(n), y = 0.5, radius = 0.2;
   const fixedPoints = xs.filter(x => Math.abs(x - y) <= 2 / n), physical = xs.filter(x => Math.abs(x - y) <= radius);
   return <>
-    <p>A five-position convolution stencil is defined in array indices. If its offsets are −2, −1, 0, 1, 2, its physical half-width is 2/N on a unit domain. Refining the grid changes what “nearby” means. The paper’s remedy is to define the neighborhood in physical coordinates and approximate the resulting integral.</p>
+    <p>A five-position convolution stencil is defined in array indices. If its offsets are −2, −1, 0, 1, 2, its physical half-width is 2/N on a unit domain. Refining the grid changes what “nearby” means. To preserve that physical meaning, define the neighborhood in physical coordinates and approximate the resulting integral.</p>
     <Control label="Grid resolution N" value={n} min={8} max={96} step={8} onChange={setN} />
     <div className="paper-two"><Plot label={`Fixed index radius: 2/N = ${(2 / n).toFixed(3)}`} region={[y - 2 / n, y + 2 / n]} lines={[{ values: displayX.map(x => probe(x)), color: '#245de5', name: 'f(x)' }]} dots={fixedPoints.map(x => ({ x, y: probe(x) }))} /><Plot label={`Fixed physical radius: ${radius} (${physical.length} input points)`} region={[y - radius, y + radius]} lines={[{ values: displayX.map(x => probe(x)), color: '#245de5', name: 'f(x)' }]} dots={physical.map(x => ({ x, y: probe(x) }))} /></div>
     <p>The query at 0.5 lies between samples on these midpoint grids; the diagram highlights contributing inputs inside each radius. Watch the orange window as you refine the grid: the index-defined neighborhood collapses; the physical one stays put.</p>
     <MathTex tex={String.raw`g(y)=\int_{|x-y|\le r}K_\theta(y-x)f(x)\,dx\;\approx\!\sum_{|x_i-y|\le r}K_\theta(y-x_i)F_i\Delta_i`} />
     <p><strong>Variable array size alone is not resolution independence.</strong> The neighborhoods, kernel and integration weights must represent the same continuous operation. This example concerns a fixed stencil; an architecture can deliberately compensate through coordinate-aware kernels and physical neighborhoods.</p>
-    <p className="paper-source">Paper connection: equations (11)–(12), Figure 3.</p>
+    <p className="paper-source">Further reading — Berner et al. (2026): equations (11)–(12), Figure 3.</p>
   </>;
 }
 export function NeuralKernelLab() {
