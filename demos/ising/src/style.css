@@ -343,7 +343,7 @@ body {
   left: 1.9rem;
   bottom: 6.4rem;
   width: 17.5rem;
-  max-height: min(calc(100vh - 14rem), 42rem);
+  max-height: min(calc(100dvh - 20rem), 42rem);
   overflow-y: auto;
   overscroll-behavior: contain;
   padding: 0.85rem 0.95rem 1.1rem;
@@ -1120,4 +1120,9 @@ input[type='range']::-moz-range-thumb {
   #mobilebar {
     display: none !important;
   }
+}
+
+/* Leave room for the title and its theory button above mobile readouts. */
+@media (max-width: 760px) {
+  #readouts { top: 7rem; }
 }
