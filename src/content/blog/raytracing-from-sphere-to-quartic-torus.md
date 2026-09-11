@@ -88,10 +88,10 @@ No trigonometry, no parametrisation, no UV seams — one gradient evaluated at t
 
 ## Finding quartic roots without crying
 
-Ferrari's closed-form quartic solution exists and is a numerical horror show in `float32` — catastrophic cancellation everywhere, exactly the precision GLSL gives you. The explorer takes the robust route instead, and makes it a lesson of its own:
+Ferrari’s closed-form quartic solution exists, but a direct floating-point implementation can lose accuracy through cancellation. Numerical root-finding has its own limitations. The explorer makes those tradeoffs a lesson:
 
 - **Scan + bisect:** march $t$ in small steps, watch for sign changes of $f$, then bisect each bracketing interval down to pixel precision. Bisection converges once a continuous function has been bracketed by opposite signs. The scan is the weak part: a tangent root need not change sign, and two crossings can hide inside one scan interval. A smaller step reduces that risk but does not certify all hits.
-- **Newton's method** as the comparison: $t_{n+1} = t_n - f(t_n)/f'(t_n)$ converges quadratically when it converges — and the explorer lets you watch it shoot off to the wrong root from an unlucky start, which teaches more about Newton than any theorem statement.
+- **Newton's method** as the comparison: $t_{n+1} = t_n - f(t_n)/f'(t_n)$ converges quadratically near a simple root when started sufficiently close — and the explorer lets you watch it shoot off to the wrong root from an unlucky start, which teaches more about Newton than any theorem statement.
 
 The torus is the sweet spot of this whole topic: rich enough to need real care (four roots! numerical traps!), small enough to fit on a napkin. Some higher-degree special cases still have exact solutions. Abel–Ruffini rules out a general formula by radicals for arbitrary quintics; it does not set a universal boundary on ray tracing. Non-polynomial implicit surfaces need other methods, and sphere tracing needs a suitable distance function or conservative distance bound.
 
