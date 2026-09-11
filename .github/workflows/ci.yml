@@ -43,3 +43,6 @@ jobs:
 
       - name: Test recorder acoustics and playback
         run: npm test --prefix demos/flute-lab
+
+      - name: Test AM receiver and electromagnetic field numerics
+        run: npm test --prefix demos/am-radio
