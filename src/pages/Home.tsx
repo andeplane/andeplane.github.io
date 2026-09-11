@@ -1,3 +1,4 @@
+import portrait from '@/assets/anders-hafreager.jpg'
 import { Link } from 'react-router-dom'
 import { useState, useEffect, useRef, useCallback } from 'react'
 import type { CSSProperties } from 'react'
@@ -7,7 +8,7 @@ import ProjectCard from '@/components/projects/ProjectCard'
 import BlogCard from '@/components/blog/BlogCard'
 import type { ProjectMeta } from '@/types'
 
-const INTERVAL = 5000
+const INTERVAL = 10000
 
 const ANIM_MS = 400
 
@@ -178,44 +179,50 @@ export default function Home() {
   return (
     <div>
       {/* Hero */}
-      <section style={{ paddingBottom: '5rem', borderBottom: '1px solid var(--color-border)' }}>
-        <div style={{ display: 'inline-block', padding: '0.3em 0.8em', borderRadius: '20px', background: 'var(--color-surface-2)', border: '1px solid var(--color-border)', fontSize: '0.8rem', color: 'var(--color-text-muted)', marginBottom: '1.5rem' }}>
-          Engineering Manager at Cognite
-        </div>
-        <h1 style={{ fontSize: 'clamp(2rem, 5vw, 3.5rem)', fontWeight: 800, lineHeight: 1.15, letterSpacing: '-0.03em', color: '#fff', margin: '0 0 1.25rem' }}>
-          Hi, I'm Anders Hafreager.
-        </h1>
-        <p style={{ fontSize: '1.15rem', color: 'var(--color-text-muted)', maxWidth: '55ch', lineHeight: 1.7, margin: '0 0 2.5rem' }}>
-          Engineering Manager at <a href="https://www.cognite.com" target="_blank" rel="noopener noreferrer" style={{ color: 'var(--color-accent-light)' }}>Cognite</a>, PhD in computational physics from the University of Oslo. I build simulations, games, and AI-powered tools — mostly in TypeScript, C++, and Python, often in the browser. I love graphics programming and getting things to run in the browser — especially pushing what's possible with WebAssembly and WebGPU.
-        </p>
-        <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap' }}>
-          <Link
-            to="/projects"
-            style={{
-              display: 'inline-flex', alignItems: 'center', gap: '0.5rem',
-              padding: '0.65rem 1.5rem', background: 'var(--color-accent)',
-              color: '#fff', borderRadius: '8px', fontWeight: 600, fontSize: '0.95rem',
-              textDecoration: 'none', transition: 'background 0.15s',
-            }}
-            onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.background = 'var(--color-accent-hover)' }}
-            onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.background = 'var(--color-accent)' }}
-          >
-            View Projects →
-          </Link>
-          <Link
-            to="/about"
-            style={{
-              display: 'inline-flex', alignItems: 'center',
-              padding: '0.65rem 1.5rem', background: 'transparent',
-              color: 'var(--color-text)', border: '1px solid var(--color-border)',
-              borderRadius: '8px', fontWeight: 500, fontSize: '0.95rem',
-              textDecoration: 'none', transition: 'border-color 0.15s',
-            }}
-            onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.borderColor = 'var(--color-accent)' }}
-            onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.borderColor = 'var(--color-border)' }}
-          >
-            About me
-          </Link>
+      <section className="personal-intro" style={{ paddingBottom: '5rem', borderBottom: '1px solid var(--color-border)' }}>
+        <img className="personal-portrait" src={portrait} alt="Anders Hafreager" width={2000} height={3000} fetchPriority="high" />
+        <div className="personal-intro-copy">
+          <div style={{ display: 'inline-block', padding: '0.3em 0.8em', borderRadius: '20px', background: 'var(--color-surface-2)', border: '1px solid var(--color-border)', fontSize: '0.8rem', color: 'var(--color-text-muted)', marginBottom: '1.5rem' }}>
+            Vice President of Engineering at Cognite
+          </div>
+          <h1 style={{ fontSize: 'clamp(2rem, 5vw, 3.5rem)', fontWeight: 800, lineHeight: 1.15, letterSpacing: '-0.03em', color: '#fff', margin: '0 0 1.25rem' }}>
+            Hi, I'm Anders Hafreager.
+          </h1>
+          <p style={{ fontSize: '1.15rem', color: 'var(--color-text-muted)', maxWidth: '55ch', lineHeight: 1.7, margin: '0 0 1.25rem' }}>
+            I'm Vice President of Engineering at <a href="https://www.cognite.com" target="_blank" rel="noopener noreferrer" style={{ color: 'var(--color-accent-light)' }}>Cognite</a>, where I focus on building teams and software that solve real industrial problems. I'm interested in applying AI on industrial data to help people understand and improve the systems they work with. My PhD in computational physics from the University of Oslo shapes how I approach that work: understand the problem, build a model, and test it against reality.
+          </p>
+          <p style={{ fontSize: '1.15rem', color: 'var(--color-text-muted)', maxWidth: '55ch', lineHeight: 1.7, margin: '0 0 2.5rem' }}>
+            Outside work, my interests span <strong style={{ color: 'var(--color-text)', fontWeight: 600 }}>maths, physics, 3D graphics, music, and AI</strong>. In the era of coding agents, I'm enjoying the freedom to be creative and build things that bring these interests together — from simulations and interactive explanations to games. Have a look through my projects; they're where I try out ideas and see what I can make.
+          </p>
+          <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap' }}>
+            <Link
+              to="/projects"
+              style={{
+                display: 'inline-flex', alignItems: 'center', gap: '0.5rem',
+                padding: '0.65rem 1.5rem', background: 'var(--color-accent)',
+                color: '#fff', borderRadius: '8px', fontWeight: 600, fontSize: '0.95rem',
+                textDecoration: 'none', transition: 'background 0.15s',
+              }}
+              onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.background = 'var(--color-accent-hover)' }}
+              onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.background = 'var(--color-accent)' }}
+            >
+              View Projects →
+            </Link>
+            <Link
+              to="/about"
+              style={{
+                display: 'inline-flex', alignItems: 'center',
+                padding: '0.65rem 1.5rem', background: 'transparent',
+                color: 'var(--color-text)', border: '1px solid var(--color-border)',
+                borderRadius: '8px', fontWeight: 500, fontSize: '0.95rem',
+                textDecoration: 'none', transition: 'border-color 0.15s',
+              }}
+              onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.borderColor = 'var(--color-accent)' }}
+              onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.borderColor = 'var(--color-border)' }}
+            >
+              About me
+            </Link>
+          </div>
         </div>
       </section>
 

@@ -165,3 +165,50 @@ a:hover {
 ::-webkit-scrollbar-track { background: transparent; }
 ::-webkit-scrollbar-thumb { background: var(--color-border); border-radius: 3px; }
 ::-webkit-scrollbar-thumb:hover { background: #3a3a3a; }
+
+/* Shared portrait layout for the home and About introductions. */
+.personal-intro {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(220px, 300px);
+  align-items: center;
+  gap: clamp(2rem, 5vw, 4rem);
+}
+
+.personal-intro-copy {
+  grid-column: 1;
+  grid-row: 1;
+  min-width: 0;
+}
+
+.personal-portrait {
+  grid-column: 2;
+  grid-row: 1;
+  display: block;
+  width: 100%;
+  height: auto;
+  aspect-ratio: 2 / 3;
+  border-radius: 16px;
+  border: 1px solid var(--color-border);
+}
+
+.personal-intro-about {
+  align-items: start;
+}
+
+@media (max-width: 760px) {
+  .personal-intro {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 2rem;
+  }
+
+  .personal-portrait {
+    grid-column: 1;
+    grid-row: 1;
+    width: 180px;
+    max-width: 100%;
+  }
+
+  .personal-intro-copy {
+    grid-row: 2;
+  }
+}

@@ -57,3 +57,11 @@ Research snapshot: 10 September 2026. Year = first posting/publication in the co
 | [Infinite-Dimensional Closed-Loop Inverse Kinematics for Soft Robots via Neural Operators](https://arxiv.org/abs/2602.18655) | 2026 | core | [PDF](soft-robot-2026.pdf) | [Note](notes/soft-robot-2026.md) |
 | [A short tour of operator learning theory: Convergence rates, statistical limits, and open questions](https://arxiv.org/abs/2603.00819) | 2026 | core | [PDF](theory-tour-2026.pdf) | [Note](notes/theory-tour-2026.md) |
 | [V-JEPA 2.1: Unlocking Dense Features in Video Self-Supervised Learning](https://arxiv.org/abs/2603.14482) | 2026 | application | [PDF](vjepa21-2026.pdf) | [Note](notes/vjepa21-2026.md) |
+
+| [The Parametric Complexity of Operator Learning](https://arxiv.org/abs/2306.15924) | 2023 | core | [PDF](https://arxiv.org/pdf/2306.15924) | [Note](notes/parametric-complexity-2023.md) |
+
+| [Representation Equivalent Neural Operators: a Framework for Alias-free Operator Learning](https://arxiv.org/abs/2305.19913) | 2023 | core | [PDF](https://arxiv.org/pdf/2305.19913) | [Note](notes/reno-2023.md) |
+
+### Gaussian quadrature background (added 2026-09-11)
+
+- [Fast and Accurate Computation of Gauss–Legendre and Gauss–Jacobi Quadrature Nodes and Weights](https://appliedmaths.sun.ac.za/~nhale/publications/HaleTownsend2013a.pdf) — Nicholas Hale and Alex Townsend (2013). Constructs Gauss–Legendre and Gauss–Jacobi nodes and weights efficiently using asymptotic formulas and Newton iteration. Local PDF: `gauss-nodes-hale-townsend-2013.pdf`.

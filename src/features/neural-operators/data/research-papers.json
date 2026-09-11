@@ -717,5 +717,39 @@
     "year": 2022,
     "publication_status": "Primary arXiv record; year denotes first preprint",
     "source_url": "https://arxiv.org/abs/2205.02191"
+  },
+  "parametric-complexity-2023": {
+    "title": "The Parametric Complexity of Operator Learning",
+    "authors": [
+      "Samuel Lanthaler",
+      "Andrew M. Stuart"
+    ],
+    "year": 2023,
+    "source_url": "https://arxiv.org/abs/2306.15924",
+    "publication_status": "arXiv preprint; year denotes first posting"
+  },
+  "reno-2023": {
+    "title": "Representation Equivalent Neural Operators: a Framework for Alias-free Operator Learning",
+    "authors": [
+      "Francesca Bartolucci",
+      "Emmanuel de Bézenac",
+      "Bogdan Raonić",
+      "Roberto Molinaro",
+      "Siddhartha Mishra",
+      "Rima Alaifari"
+    ],
+    "year": 2023,
+    "source_url": "https://arxiv.org/abs/2305.19913",
+    "publication_status": "arXiv preprint; year denotes first posting"
+  },
+  "gauss-nodes-hale-townsend-2013": {
+    "title": "Fast and Accurate Computation of Gauss–Legendre and Gauss–Jacobi Quadrature Nodes and Weights",
+    "authors": [
+      "Hale, Nicholas",
+      "Townsend, Alex"
+    ],
+    "year": 2013,
+    "source_url": "https://appliedmaths.sun.ac.za/~nhale/publications/HaleTownsend2013a.pdf",
+    "publication_status": "SIAM Journal on Scientific Computing 35(2), A652–A674 (2013)"
   }
 }

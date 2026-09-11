@@ -1,7 +1,10 @@
+import { lazy, Suspense } from 'react'
 import { useParams, Link } from 'react-router-dom'
 import { useBlogPost } from '@/hooks/useBlogPosts'
 import MarkdownRenderer from '@/components/blog/MarkdownRenderer'
 import Tag from '@/components/ui/Tag'
+
+const GaussianArticle = lazy(() => import('@/features/gaussian-quadrature/Article'))
 
 function formatDate(iso: string): string {
   if (!iso) return ''
@@ -53,7 +56,7 @@ export default function BlogPost() {
 
       <hr style={{ border: 'none', borderTop: '1px solid var(--color-border)', marginBottom: '3rem' }} />
 
-      <MarkdownRenderer content={content} />
+      {slug === 'gaussian-quadrature-two-points-a-cubic' ? <Suspense fallback={<p>Loading experiments…</p>}><GaussianArticle /></Suspense> : <MarkdownRenderer content={content} />}
     </div>
   )
 }
