@@ -1,3 +1,5 @@
+import { Link } from 'react-router-dom'
+import { sitePagePath } from './sitePagePath'
 import ReactMarkdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
 import remarkMath from 'remark-math'
@@ -10,6 +12,10 @@ interface Props {
 }
 
 const components: Components = {
+  a({ href = '', children, node: _node, ...props }) {
+    const path = sitePagePath(href)
+    return path ? <Link to={path} {...props}>{children}</Link> : <a href={href} {...props}>{children}</a>
+  },
   // Code blocks
   pre({ children, ...props }) {
     return (
