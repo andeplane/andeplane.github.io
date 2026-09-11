@@ -1,6 +1,6 @@
 {
   "schema_version": "1.0",
-  "as_of": "2026-09-10",
+  "as_of": "2026-09-11",
   "description": "Curated literature graph. Only cites edges assert a verified citation. Other paper links are explicitly typed reading relationships or hypotheses; author/topic edges derive from metadata and task classification.",
   "nodes": [
     {
@@ -1398,1321 +1398,1541 @@
       "id": "author:chen-tianping",
       "type": "author",
       "label": "Tianping Chen",
-      "title": "Tianping Chen"
+      "title": "Tianping Chen",
+      "paper_count": 1
     },
     {
       "id": "author:chen-hong",
       "type": "author",
       "label": "Hong Chen",
-      "title": "Hong Chen"
+      "title": "Hong Chen",
+      "paper_count": 1
     },
     {
       "id": "author:barrault-maxime",
       "type": "author",
       "label": "Maxime Barrault",
-      "title": "Maxime Barrault"
+      "title": "Maxime Barrault",
+      "paper_count": 1
     },
     {
       "id": "author:maday-yvon",
       "type": "author",
       "label": "Yvon Maday",
-      "title": "Yvon Maday"
+      "title": "Yvon Maday",
+      "paper_count": 1
     },
     {
       "id": "author:nguyen-ngoc-cuong",
       "type": "author",
       "label": "Ngoc Cuong Nguyen",
-      "title": "Ngoc Cuong Nguyen"
+      "title": "Ngoc Cuong Nguyen",
+      "paper_count": 1
     },
     {
       "id": "author:patera-anthony-t",
       "type": "author",
       "label": "Anthony T. Patera",
-      "title": "Anthony T. Patera"
+      "title": "Anthony T. Patera",
+      "paper_count": 1
     },
     {
       "id": "author:chaturantabut-saifon",
       "type": "author",
       "label": "Saifon Chaturantabut",
-      "title": "Saifon Chaturantabut"
+      "title": "Saifon Chaturantabut",
+      "paper_count": 1
     },
     {
       "id": "author:sorensen-danny-c",
       "type": "author",
       "label": "Danny C. Sorensen",
-      "title": "Danny C. Sorensen"
+      "title": "Danny C. Sorensen",
+      "paper_count": 1
     },
     {
       "id": "author:candes-emmanuel",
       "type": "author",
       "label": "Emmanuel Candes",
-      "title": "Emmanuel Candes"
+      "title": "Emmanuel Candes",
+      "paper_count": 1
     },
     {
       "id": "author:romberg-justin",
       "type": "author",
       "label": "Justin Romberg",
-      "title": "Justin Romberg"
+      "title": "Justin Romberg",
+      "paper_count": 1
     },
     {
       "id": "author:tao-terence",
       "type": "author",
       "label": "Terence Tao",
-      "title": "Terence Tao"
+      "title": "Terence Tao",
+      "paper_count": 1
     },
     {
       "id": "author:heckel-reinhard",
       "type": "author",
       "label": "Reinhard Heckel",
-      "title": "Reinhard Heckel"
+      "title": "Reinhard Heckel",
+      "paper_count": 1
     },
     {
       "id": "author:bolcskei-helmut",
       "type": "author",
       "label": "Helmut Bölcskei",
-      "title": "Helmut Bölcskei"
+      "title": "Helmut Bölcskei",
+      "paper_count": 1
     },
     {
       "id": "author:brunton-steven-l",
       "type": "author",
       "label": "Steven L. Brunton",
-      "title": "Steven L. Brunton"
+      "title": "Steven L. Brunton",
+      "paper_count": 1
     },
     {
       "id": "author:proctor-joshua-l",
       "type": "author",
       "label": "Joshua L. Proctor",
-      "title": "Joshua L. Proctor"
+      "title": "Joshua L. Proctor",
+      "paper_count": 1
     },
     {
       "id": "author:kutz-j-nathan",
       "type": "author",
       "label": "J. Nathan Kutz",
-      "title": "J. Nathan Kutz"
+      "title": "J. Nathan Kutz",
+      "paper_count": 1
     },
     {
       "id": "author:adcock-ben",
       "type": "author",
       "label": "Ben Adcock",
-      "title": "Ben Adcock"
+      "title": "Ben Adcock",
+      "paper_count": 4
     },
     {
       "id": "author:brugiapaglia-simone",
       "type": "author",
       "label": "Simone Brugiapaglia",
-      "title": "Simone Brugiapaglia"
+      "title": "Simone Brugiapaglia",
+      "paper_count": 2
     },
     {
       "id": "author:webster-clayton-g",
       "type": "author",
       "label": "Clayton G. Webster",
-      "title": "Clayton G. Webster"
+      "title": "Clayton G. Webster",
+      "paper_count": 1
     },
     {
       "id": "author:bora-ashish",
       "type": "author",
       "label": "Ashish Bora",
-      "title": "Ashish Bora"
+      "title": "Ashish Bora",
+      "paper_count": 1
     },
     {
       "id": "author:jalal-ajil",
       "type": "author",
       "label": "Ajil Jalal",
-      "title": "Ajil Jalal"
+      "title": "Ajil Jalal",
+      "paper_count": 1
     },
     {
       "id": "author:price-eric",
       "type": "author",
       "label": "Eric Price",
-      "title": "Eric Price"
+      "title": "Eric Price",
+      "paper_count": 1
     },
     {
       "id": "author:dimakis-alexandros-g",
       "type": "author",
       "label": "Alexandros G. Dimakis",
-      "title": "Alexandros G. Dimakis"
+      "title": "Alexandros G. Dimakis",
+      "paper_count": 1
     },
     {
       "id": "author:hernandez-j-a",
       "type": "author",
       "label": "J. A. Hernandez",
-      "title": "J. A. Hernandez"
+      "title": "J. A. Hernandez",
+      "paper_count": 3
     },
     {
       "id": "author:caicedo-m-a",
       "type": "author",
       "label": "M. A. Caicedo",
-      "title": "M. A. Caicedo"
+      "title": "M. A. Caicedo",
+      "paper_count": 1
     },
     {
       "id": "author:ferrer-a",
       "type": "author",
       "label": "A. Ferrer",
-      "title": "A. Ferrer"
+      "title": "A. Ferrer",
+      "paper_count": 1
     },
     {
       "id": "author:ha-david",
       "type": "author",
       "label": "David Ha",
-      "title": "David Ha"
+      "title": "David Ha",
+      "paper_count": 1
     },
     {
       "id": "author:schmidhuber-jurgen",
       "type": "author",
       "label": "Jürgen Schmidhuber",
-      "title": "Jürgen Schmidhuber"
+      "title": "Jürgen Schmidhuber",
+      "paper_count": 1
     },
     {
       "id": "author:lu-lu",
       "type": "author",
       "label": "Lu Lu",
-      "title": "Lu Lu"
+      "title": "Lu Lu",
+      "paper_count": 1
     },
     {
       "id": "author:jin-pengzhan",
       "type": "author",
       "label": "Pengzhan Jin",
-      "title": "Pengzhan Jin"
+      "title": "Pengzhan Jin",
+      "paper_count": 1
     },
     {
       "id": "author:karniadakis-george-em",
       "type": "author",
       "label": "George Em Karniadakis",
-      "title": "George Em Karniadakis"
+      "title": "George Em Karniadakis",
+      "paper_count": 2
     },
     {
       "id": "author:li-zongyi",
       "type": "author",
       "label": "Zongyi Li",
-      "title": "Zongyi Li"
+      "title": "Zongyi Li",
+      "paper_count": 7
     },
     {
       "id": "author:kovachki-nikola",
       "type": "author",
       "label": "Nikola Kovachki",
-      "title": "Nikola Kovachki"
+      "title": "Nikola Kovachki",
+      "paper_count": 5
     },
     {
       "id": "author:azizzadenesheli-kamyar",
       "type": "author",
       "label": "Kamyar Azizzadenesheli",
-      "title": "Kamyar Azizzadenesheli"
+      "title": "Kamyar Azizzadenesheli",
+      "paper_count": 10
     },
     {
       "id": "author:liu-burigede",
       "type": "author",
       "label": "Burigede Liu",
-      "title": "Burigede Liu"
+      "title": "Burigede Liu",
+      "paper_count": 3
     },
     {
       "id": "author:bhattacharya-kaushik",
       "type": "author",
       "label": "Kaushik Bhattacharya",
-      "title": "Kaushik Bhattacharya"
+      "title": "Kaushik Bhattacharya",
+      "paper_count": 3
     },
     {
       "id": "author:stuart-andrew",
       "type": "author",
       "label": "Andrew Stuart",
-      "title": "Andrew Stuart"
+      "title": "Andrew Stuart",
+      "paper_count": 5
     },
     {
       "id": "author:anandkumar-anima",
       "type": "author",
       "label": "Anima Anandkumar",
-      "title": "Anima Anandkumar"
+      "title": "Anima Anandkumar",
+      "paper_count": 11
     },
     {
       "id": "author:sanchez-gonzalez-alvaro",
       "type": "author",
       "label": "Alvaro Sanchez-Gonzalez",
-      "title": "Alvaro Sanchez-Gonzalez"
+      "title": "Alvaro Sanchez-Gonzalez",
+      "paper_count": 1
     },
     {
       "id": "author:godwin-jonathan",
       "type": "author",
       "label": "Jonathan Godwin",
-      "title": "Jonathan Godwin"
+      "title": "Jonathan Godwin",
+      "paper_count": 1
     },
     {
       "id": "author:pfaff-tobias",
       "type": "author",
       "label": "Tobias Pfaff",
-      "title": "Tobias Pfaff"
+      "title": "Tobias Pfaff",
+      "paper_count": 1
     },
     {
       "id": "author:ying-rex",
       "type": "author",
       "label": "Rex Ying",
-      "title": "Rex Ying"
+      "title": "Rex Ying",
+      "paper_count": 1
     },
     {
       "id": "author:leskovec-jure",
       "type": "author",
       "label": "Jure Leskovec",
-      "title": "Jure Leskovec"
+      "title": "Jure Leskovec",
+      "paper_count": 1
     },
     {
       "id": "author:battaglia-peter-w",
       "type": "author",
       "label": "Peter W. Battaglia",
-      "title": "Peter W. Battaglia"
+      "title": "Peter W. Battaglia",
+      "paper_count": 1
     },
     {
       "id": "author:wen-gege",
       "type": "author",
       "label": "Gege Wen",
-      "title": "Gege Wen"
+      "title": "Gege Wen",
+      "paper_count": 1
     },
     {
       "id": "author:benson-sally-m",
       "type": "author",
       "label": "Sally M. Benson",
-      "title": "Sally M. Benson"
+      "title": "Sally M. Benson",
+      "paper_count": 1
     },
     {
       "id": "author:yang-yan",
       "type": "author",
       "label": "Yan Yang",
-      "title": "Yan Yang"
+      "title": "Yan Yang",
+      "paper_count": 1
     },
     {
       "id": "author:gao-angela-f",
       "type": "author",
       "label": "Angela F. Gao",
-      "title": "Angela F. Gao"
+      "title": "Angela F. Gao",
+      "paper_count": 1
     },
     {
       "id": "author:castellanos-jorge-c",
       "type": "author",
       "label": "Jorge C. Castellanos",
-      "title": "Jorge C. Castellanos"
+      "title": "Jorge C. Castellanos",
+      "paper_count": 1
     },
     {
       "id": "author:ross-zachary-e",
       "type": "author",
       "label": "Zachary E. Ross",
-      "title": "Zachary E. Ross"
+      "title": "Zachary E. Ross",
+      "paper_count": 1
     },
     {
       "id": "author:clayton-robert-w",
       "type": "author",
       "label": "Robert W. Clayton",
-      "title": "Robert W. Clayton"
+      "title": "Robert W. Clayton",
+      "paper_count": 1
     },
     {
       "id": "author:pathak-jaideep",
       "type": "author",
       "label": "Jaideep Pathak",
-      "title": "Jaideep Pathak"
+      "title": "Jaideep Pathak",
+      "paper_count": 2
     },
     {
       "id": "author:subramanian-shashank",
       "type": "author",
       "label": "Shashank Subramanian",
-      "title": "Shashank Subramanian"
+      "title": "Shashank Subramanian",
+      "paper_count": 1
     },
     {
       "id": "author:harrington-peter",
       "type": "author",
       "label": "Peter Harrington",
-      "title": "Peter Harrington"
+      "title": "Peter Harrington",
+      "paper_count": 1
     },
     {
       "id": "author:raja-sanjeev",
       "type": "author",
       "label": "Sanjeev Raja",
-      "title": "Sanjeev Raja"
+      "title": "Sanjeev Raja",
+      "paper_count": 1
     },
     {
       "id": "author:chattopadhyay-ashesh",
       "type": "author",
       "label": "Ashesh Chattopadhyay",
-      "title": "Ashesh Chattopadhyay"
+      "title": "Ashesh Chattopadhyay",
+      "paper_count": 1
     },
     {
       "id": "author:mardani-morteza",
       "type": "author",
       "label": "Morteza Mardani",
-      "title": "Morteza Mardani"
+      "title": "Morteza Mardani",
+      "paper_count": 1
     },
     {
       "id": "author:kurth-thorsten",
       "type": "author",
       "label": "Thorsten Kurth",
-      "title": "Thorsten Kurth"
+      "title": "Thorsten Kurth",
+      "paper_count": 3
     },
     {
       "id": "author:hall-david",
       "type": "author",
       "label": "David Hall",
-      "title": "David Hall"
+      "title": "David Hall",
+      "paper_count": 1
     },
     {
       "id": "author:hassanzadeh-pedram",
       "type": "author",
       "label": "Pedram Hassanzadeh",
-      "title": "Pedram Hassanzadeh"
+      "title": "Pedram Hassanzadeh",
+      "paper_count": 1
     },
     {
       "id": "author:kashinath-karthik",
       "type": "author",
       "label": "Karthik Kashinath",
-      "title": "Karthik Kashinath"
+      "title": "Karthik Kashinath",
+      "paper_count": 3
     },
     {
       "id": "author:takamoto-makoto",
       "type": "author",
       "label": "Makoto Takamoto",
-      "title": "Makoto Takamoto"
+      "title": "Makoto Takamoto",
+      "paper_count": 1
     },
     {
       "id": "author:praditia-timothy",
       "type": "author",
       "label": "Timothy Praditia",
-      "title": "Timothy Praditia"
+      "title": "Timothy Praditia",
+      "paper_count": 1
     },
     {
       "id": "author:leiteritz-raphael",
       "type": "author",
       "label": "Raphael Leiteritz",
-      "title": "Raphael Leiteritz"
+      "title": "Raphael Leiteritz",
+      "paper_count": 1
     },
     {
       "id": "author:mackinlay-dan",
       "type": "author",
       "label": "Dan MacKinlay",
-      "title": "Dan MacKinlay"
+      "title": "Dan MacKinlay",
+      "paper_count": 1
     },
     {
       "id": "author:alesiani-francesco",
       "type": "author",
       "label": "Francesco Alesiani",
-      "title": "Francesco Alesiani"
+      "title": "Francesco Alesiani",
+      "paper_count": 1
     },
     {
       "id": "author:pfluger-dirk",
       "type": "author",
       "label": "Dirk Pflüger",
-      "title": "Dirk Pflüger"
+      "title": "Dirk Pflüger",
+      "paper_count": 1
     },
     {
       "id": "author:niepert-mathias",
       "type": "author",
       "label": "Mathias Niepert",
-      "title": "Mathias Niepert"
+      "title": "Mathias Niepert",
+      "paper_count": 1
     },
     {
       "id": "author:molinaro-roberto",
       "type": "author",
       "label": "Roberto Molinaro",
-      "title": "Roberto Molinaro"
+      "title": "Roberto Molinaro",
+      "paper_count": 3
     },
     {
       "id": "author:yang-yunan",
       "type": "author",
       "label": "Yunan Yang",
-      "title": "Yunan Yang"
+      "title": "Yunan Yang",
+      "paper_count": 1
     },
     {
       "id": "author:engquist-bjorn",
       "type": "author",
       "label": "Björn Engquist",
-      "title": "Björn Engquist"
+      "title": "Björn Engquist",
+      "paper_count": 1
     },
     {
       "id": "author:mishra-siddhartha",
       "type": "author",
       "label": "Siddhartha Mishra",
-      "title": "Siddhartha Mishra"
+      "title": "Siddhartha Mishra",
+      "paper_count": 3
     },
     {
       "id": "author:augenstein-yannick",
       "type": "author",
       "label": "Yannick Augenstein",
-      "title": "Yannick Augenstein"
+      "title": "Yannick Augenstein",
+      "paper_count": 1
     },
     {
       "id": "author:repan-taavi",
       "type": "author",
       "label": "Taavi Repän",
-      "title": "Taavi Repän"
+      "title": "Taavi Repän",
+      "paper_count": 1
     },
     {
       "id": "author:rockstuhl-carsten",
       "type": "author",
       "label": "Carsten Rockstuhl",
-      "title": "Carsten Rockstuhl"
+      "title": "Carsten Rockstuhl",
+      "paper_count": 1
     },
     {
       "id": "author:bonev-boris",
       "type": "author",
       "label": "Boris Bonev",
-      "title": "Boris Bonev"
+      "title": "Boris Bonev",
+      "paper_count": 4
     },
     {
       "id": "author:hundt-christian",
       "type": "author",
       "label": "Christian Hundt",
-      "title": "Christian Hundt"
+      "title": "Christian Hundt",
+      "paper_count": 2
     },
     {
       "id": "author:baust-maximilian",
       "type": "author",
       "label": "Maximilian Baust",
-      "title": "Maximilian Baust"
+      "title": "Maximilian Baust",
+      "paper_count": 1
     },
     {
       "id": "author:qi-jie",
       "type": "author",
       "label": "Jie Qi",
-      "title": "Jie Qi"
+      "title": "Jie Qi",
+      "paper_count": 1
     },
     {
       "id": "author:zhang-jing",
       "type": "author",
       "label": "Jing Zhang",
-      "title": "Jing Zhang"
+      "title": "Jing Zhang",
+      "paper_count": 1
     },
     {
       "id": "author:krstic-miroslav",
       "type": "author",
       "label": "Miroslav Krstic",
-      "title": "Miroslav Krstic"
+      "title": "Miroslav Krstic",
+      "paper_count": 1
     },
     {
       "id": "author:choy-chris",
       "type": "author",
       "label": "Chris Choy",
-      "title": "Chris Choy"
+      "title": "Chris Choy",
+      "paper_count": 1
     },
     {
       "id": "author:li-boyi",
       "type": "author",
       "label": "Boyi Li",
-      "title": "Boyi Li"
+      "title": "Boyi Li",
+      "paper_count": 1
     },
     {
       "id": "author:kossaifi-jean",
       "type": "author",
       "label": "Jean Kossaifi",
-      "title": "Jean Kossaifi"
+      "title": "Jean Kossaifi",
+      "paper_count": 5
     },
     {
       "id": "author:otta-shourya-prakash",
       "type": "author",
       "label": "Shourya Prakash Otta",
-      "title": "Shourya Prakash Otta"
+      "title": "Shourya Prakash Otta",
+      "paper_count": 1
     },
     {
       "id": "author:nabian-mohammad-amin",
       "type": "author",
       "label": "Mohammad Amin Nabian",
-      "title": "Mohammad Amin Nabian"
+      "title": "Mohammad Amin Nabian",
+      "paper_count": 1
     },
     {
       "id": "author:stadler-maximilian",
       "type": "author",
       "label": "Maximilian Stadler",
-      "title": "Maximilian Stadler"
+      "title": "Maximilian Stadler",
+      "paper_count": 1
     },
     {
       "id": "author:bravo-j-r",
       "type": "author",
       "label": "J. R. Bravo",
-      "title": "J. R. Bravo"
+      "title": "J. R. Bravo",
+      "paper_count": 1
     },
     {
       "id": "author:de-parga-s-ares",
       "type": "author",
       "label": "S. Ares de Parga",
-      "title": "S. Ares de Parga"
+      "title": "S. Ares de Parga",
+      "paper_count": 2
     },
     {
       "id": "author:hafner-danijar",
       "type": "author",
       "label": "Danijar Hafner",
-      "title": "Danijar Hafner"
+      "title": "Danijar Hafner",
+      "paper_count": 1
     },
     {
       "id": "author:pasukonis-jurgis",
       "type": "author",
       "label": "Jurgis Pasukonis",
-      "title": "Jurgis Pasukonis"
+      "title": "Jurgis Pasukonis",
+      "paper_count": 1
     },
     {
       "id": "author:ba-jimmy",
       "type": "author",
       "label": "Jimmy Ba",
-      "title": "Jimmy Ba"
+      "title": "Jimmy Ba",
+      "paper_count": 1
     },
     {
       "id": "author:lillicrap-timothy",
       "type": "author",
       "label": "Timothy Lillicrap",
-      "title": "Timothy Lillicrap"
+      "title": "Timothy Lillicrap",
+      "paper_count": 1
     },
     {
       "id": "author:griebel-michael",
       "type": "author",
       "label": "Michael Griebel",
-      "title": "Michael Griebel"
+      "title": "Michael Griebel",
+      "paper_count": 1
     },
     {
       "id": "author:maier-gregor",
       "type": "author",
       "label": "Gregor Maier",
-      "title": "Gregor Maier"
+      "title": "Gregor Maier",
+      "paper_count": 1
     },
     {
       "id": "author:cardenas-juan-m",
       "type": "author",
       "label": "Juan M. Cardenas",
-      "title": "Juan M. Cardenas"
+      "title": "Juan M. Cardenas",
+      "paper_count": 1
     },
     {
       "id": "author:dexter-nick",
       "type": "author",
       "label": "Nick Dexter",
-      "title": "Nick Dexter"
+      "title": "Nick Dexter",
+      "paper_count": 1
     },
     {
       "id": "author:lanthaler-samuel",
       "type": "author",
       "label": "Samuel Lanthaler",
-      "title": "Samuel Lanthaler"
+      "title": "Samuel Lanthaler",
+      "paper_count": 2
     },
     {
       "id": "author:trautner-margaret",
       "type": "author",
       "label": "Margaret Trautner",
-      "title": "Margaret Trautner"
+      "title": "Margaret Trautner",
+      "paper_count": 1
     },
     {
       "id": "author:herde-maximilian",
       "type": "author",
       "label": "Maximilian Herde",
-      "title": "Maximilian Herde"
+      "title": "Maximilian Herde",
+      "paper_count": 1
     },
     {
       "id": "author:raonic-bogdan",
       "type": "author",
       "label": "Bogdan Raonić",
-      "title": "Bogdan Raonić"
+      "title": "Bogdan Raonić",
+      "paper_count": 2
     },
     {
       "id": "author:rohner-tobias",
       "type": "author",
       "label": "Tobias Rohner",
-      "title": "Tobias Rohner"
+      "title": "Tobias Rohner",
+      "paper_count": 1
     },
     {
       "id": "author:kappeli-roger",
       "type": "author",
       "label": "Roger Käppeli",
-      "title": "Roger Käppeli"
+      "title": "Roger Käppeli",
+      "paper_count": 1
     },
     {
       "id": "author:de-bezenac-emmanuel",
       "type": "author",
       "label": "Emmanuel de Bézenac",
-      "title": "Emmanuel de Bézenac"
+      "title": "Emmanuel de Bézenac",
+      "paper_count": 2
     },
     {
       "id": "author:lowery-matthew",
       "type": "author",
       "label": "Matthew Lowery",
-      "title": "Matthew Lowery"
+      "title": "Matthew Lowery",
+      "paper_count": 1
     },
     {
       "id": "author:turnage-john",
       "type": "author",
       "label": "John Turnage",
-      "title": "John Turnage"
+      "title": "John Turnage",
+      "paper_count": 1
     },
     {
       "id": "author:morrow-zachary",
       "type": "author",
       "label": "Zachary Morrow",
-      "title": "Zachary Morrow"
+      "title": "Zachary Morrow",
+      "paper_count": 1
     },
     {
       "id": "author:jakeman-john-d",
       "type": "author",
       "label": "John D. Jakeman",
-      "title": "John D. Jakeman"
+      "title": "John D. Jakeman",
+      "paper_count": 1
     },
     {
       "id": "author:narayan-akil",
       "type": "author",
       "label": "Akil Narayan",
-      "title": "Akil Narayan"
+      "title": "Akil Narayan",
+      "paper_count": 1
     },
     {
       "id": "author:zhe-shandian",
       "type": "author",
       "label": "Shandian Zhe",
-      "title": "Shandian Zhe"
+      "title": "Shandian Zhe",
+      "paper_count": 1
     },
     {
       "id": "author:shankar-varun",
       "type": "author",
       "label": "Varun Shankar",
-      "title": "Varun Shankar"
+      "title": "Varun Shankar",
+      "paper_count": 2
     },
     {
       "id": "author:ohana-ruben",
       "type": "author",
       "label": "Ruben Ohana",
-      "title": "Ruben Ohana"
+      "title": "Ruben Ohana",
+      "paper_count": 1
     },
     {
       "id": "author:mccabe-michael",
       "type": "author",
       "label": "Michael McCabe",
-      "title": "Michael McCabe"
+      "title": "Michael McCabe",
+      "paper_count": 1
     },
     {
       "id": "author:meyer-lucas",
       "type": "author",
       "label": "Lucas Meyer",
-      "title": "Lucas Meyer"
+      "title": "Lucas Meyer",
+      "paper_count": 1
     },
     {
       "id": "author:morel-rudy",
       "type": "author",
       "label": "Rudy Morel",
-      "title": "Rudy Morel"
+      "title": "Rudy Morel",
+      "paper_count": 1
     },
     {
       "id": "author:agocs-fruzsina-j",
       "type": "author",
       "label": "Fruzsina J. Agocs",
-      "title": "Fruzsina J. Agocs"
+      "title": "Fruzsina J. Agocs",
+      "paper_count": 1
     },
     {
       "id": "author:beneitez-miguel",
       "type": "author",
       "label": "Miguel Beneitez",
-      "title": "Miguel Beneitez"
+      "title": "Miguel Beneitez",
+      "paper_count": 1
     },
     {
       "id": "author:berger-marsha",
       "type": "author",
       "label": "Marsha Berger",
-      "title": "Marsha Berger"
+      "title": "Marsha Berger",
+      "paper_count": 1
     },
     {
       "id": "author:burkhart-blakesley",
       "type": "author",
       "label": "Blakesley Burkhart",
-      "title": "Blakesley Burkhart"
+      "title": "Blakesley Burkhart",
+      "paper_count": 1
     },
     {
       "id": "author:burns-keaton",
       "type": "author",
       "label": "Keaton Burns",
-      "title": "Keaton Burns"
+      "title": "Keaton Burns",
+      "paper_count": 1
     },
     {
       "id": "author:dalziel-stuart-b",
       "type": "author",
       "label": "Stuart B. Dalziel",
-      "title": "Stuart B. Dalziel"
+      "title": "Stuart B. Dalziel",
+      "paper_count": 1
     },
     {
       "id": "author:fielding-drummond-b",
       "type": "author",
       "label": "Drummond B. Fielding",
-      "title": "Drummond B. Fielding"
+      "title": "Drummond B. Fielding",
+      "paper_count": 1
     },
     {
       "id": "author:fortunato-daniel",
       "type": "author",
       "label": "Daniel Fortunato",
-      "title": "Daniel Fortunato"
+      "title": "Daniel Fortunato",
+      "paper_count": 1
     },
     {
       "id": "author:goldberg-jared-a",
       "type": "author",
       "label": "Jared A. Goldberg",
-      "title": "Jared A. Goldberg"
+      "title": "Jared A. Goldberg",
+      "paper_count": 1
     },
     {
       "id": "author:hirashima-keiya",
       "type": "author",
       "label": "Keiya Hirashima",
-      "title": "Keiya Hirashima"
+      "title": "Keiya Hirashima",
+      "paper_count": 1
     },
     {
       "id": "author:jiang-yan-fei",
       "type": "author",
       "label": "Yan-Fei Jiang",
-      "title": "Yan-Fei Jiang"
+      "title": "Yan-Fei Jiang",
+      "paper_count": 1
     },
     {
       "id": "author:kerswell-rich-r",
       "type": "author",
       "label": "Rich R. Kerswell",
-      "title": "Rich R. Kerswell"
+      "title": "Rich R. Kerswell",
+      "paper_count": 1
     },
     {
       "id": "author:maddu-suryanarayana",
       "type": "author",
       "label": "Suryanarayana Maddu",
-      "title": "Suryanarayana Maddu"
+      "title": "Suryanarayana Maddu",
+      "paper_count": 1
     },
     {
       "id": "author:miller-jonah",
       "type": "author",
       "label": "Jonah Miller",
-      "title": "Jonah Miller"
+      "title": "Jonah Miller",
+      "paper_count": 1
     },
     {
       "id": "author:mukhopadhyay-payel",
       "type": "author",
       "label": "Payel Mukhopadhyay",
-      "title": "Payel Mukhopadhyay"
+      "title": "Payel Mukhopadhyay",
+      "paper_count": 1
     },
     {
       "id": "author:nixon-stefan-s",
       "type": "author",
       "label": "Stefan S. Nixon",
-      "title": "Stefan S. Nixon"
+      "title": "Stefan S. Nixon",
+      "paper_count": 1
     },
     {
       "id": "author:shen-jeff",
       "type": "author",
       "label": "Jeff Shen",
-      "title": "Jeff Shen"
+      "title": "Jeff Shen",
+      "paper_count": 1
     },
     {
       "id": "author:watteaux-romain",
       "type": "author",
       "label": "Romain Watteaux",
-      "title": "Romain Watteaux"
+      "title": "Romain Watteaux",
+      "paper_count": 1
     },
     {
       "id": "author:blancard-bruno-regaldo-saint",
       "type": "author",
       "label": "Bruno Régaldo-Saint Blancard",
-      "title": "Bruno Régaldo-Saint Blancard"
+      "title": "Bruno Régaldo-Saint Blancard",
+      "paper_count": 1
     },
     {
       "id": "author:rozet-francois",
       "type": "author",
       "label": "François Rozet",
-      "title": "François Rozet"
+      "title": "François Rozet",
+      "paper_count": 1
     },
     {
       "id": "author:parker-liam-h",
       "type": "author",
       "label": "Liam H. Parker",
-      "title": "Liam H. Parker"
+      "title": "Liam H. Parker",
+      "paper_count": 1
     },
     {
       "id": "author:cranmer-miles",
       "type": "author",
       "label": "Miles Cranmer",
-      "title": "Miles Cranmer"
+      "title": "Miles Cranmer",
+      "paper_count": 1
     },
     {
       "id": "author:ho-shirley",
       "type": "author",
       "label": "Shirley Ho",
-      "title": "Shirley Ho"
+      "title": "Shirley Ho",
+      "paper_count": 1
     },
     {
       "id": "author:matada-sharath",
       "type": "author",
       "label": "Sharath Matada",
-      "title": "Sharath Matada"
+      "title": "Sharath Matada",
+      "paper_count": 1
     },
     {
       "id": "author:bhan-luke",
       "type": "author",
       "label": "Luke Bhan",
-      "title": "Luke Bhan"
+      "title": "Luke Bhan",
+      "paper_count": 1
     },
     {
       "id": "author:shi-yuanyuan",
       "type": "author",
       "label": "Yuanyuan Shi",
-      "title": "Yuanyuan Shi"
+      "title": "Yuanyuan Shi",
+      "paper_count": 1
     },
     {
       "id": "author:atanasov-nikolay",
       "type": "author",
       "label": "Nikolay Atanasov",
-      "title": "Nikolay Atanasov"
+      "title": "Nikolay Atanasov",
+      "paper_count": 1
     },
     {
       "id": "author:kim-minjung",
       "type": "author",
       "label": "Minjung Kim",
-      "title": "Minjung Kim"
+      "title": "Minjung Kim",
+      "paper_count": 1
     },
     {
       "id": "author:hioka-yusuke",
       "type": "author",
       "label": "Yusuke Hioka",
-      "title": "Yusuke Hioka"
+      "title": "Yusuke Hioka",
+      "paper_count": 1
     },
     {
       "id": "author:witbrock-michael",
       "type": "author",
       "label": "Michael Witbrock",
-      "title": "Michael Witbrock"
+      "title": "Michael Witbrock",
+      "paper_count": 1
     },
     {
       "id": "author:pitt-david",
       "type": "author",
       "label": "David Pitt",
-      "title": "David Pitt"
+      "title": "David Pitt",
+      "paper_count": 1
     },
     {
       "id": "author:liu-schiaffini-miguel",
       "type": "author",
       "label": "Miguel Liu-Schiaffini",
-      "title": "Miguel Liu-Schiaffini"
+      "title": "Miguel Liu-Schiaffini",
+      "paper_count": 2
     },
     {
       "id": "author:george-robert-joseph",
       "type": "author",
       "label": "Robert Joseph George",
-      "title": "Robert Joseph George"
+      "title": "Robert Joseph George",
+      "paper_count": 1
     },
     {
       "id": "author:berner-julius",
       "type": "author",
       "label": "Julius Berner",
-      "title": "Julius Berner"
+      "title": "Julius Berner",
+      "paper_count": 2
     },
     {
       "id": "author:duruisseaux-valentin",
       "type": "author",
       "label": "Valentin Duruisseaux",
-      "title": "Valentin Duruisseaux"
+      "title": "Valentin Duruisseaux",
+      "paper_count": 3
     },
     {
       "id": "author:kumar-avisha",
       "type": "author",
       "label": "Avisha Kumar",
-      "title": "Avisha Kumar"
+      "title": "Avisha Kumar",
+      "paper_count": 1
     },
     {
       "id": "author:zhi-xuzhe",
       "type": "author",
       "label": "Xuzhe Zhi",
-      "title": "Xuzhe Zhi"
+      "title": "Xuzhe Zhi",
+      "paper_count": 1
     },
     {
       "id": "author:ahmad-zan",
       "type": "author",
       "label": "Zan Ahmad",
-      "title": "Zan Ahmad"
+      "title": "Zan Ahmad",
+      "paper_count": 1
     },
     {
       "id": "author:yin-minglang",
       "type": "author",
       "label": "Minglang Yin",
-      "title": "Minglang Yin"
+      "title": "Minglang Yin",
+      "paper_count": 1
     },
     {
       "id": "author:manbachi-amir",
       "type": "author",
       "label": "Amir Manbachi",
-      "title": "Amir Manbachi"
+      "title": "Amir Manbachi",
+      "paper_count": 1
     },
     {
       "id": "author:wan-ruyin",
       "type": "author",
       "label": "Ruyin Wan",
-      "title": "Ruyin Wan"
+      "title": "Ruyin Wan",
+      "paper_count": 1
     },
     {
       "id": "author:kharazmi-ehsan",
       "type": "author",
       "label": "Ehsan Kharazmi",
-      "title": "Ehsan Kharazmi"
+      "title": "Ehsan Kharazmi",
+      "paper_count": 1
     },
     {
       "id": "author:triantafyllou-michael-s",
       "type": "author",
       "label": "Michael S Triantafyllou",
-      "title": "Michael S Triantafyllou"
+      "title": "Michael S Triantafyllou",
+      "paper_count": 1
     },
     {
       "id": "author:assran-mido",
       "type": "author",
       "label": "Mido Assran",
-      "title": "Mido Assran"
+      "title": "Mido Assran",
+      "paper_count": 2
     },
     {
       "id": "author:bardes-adrien",
       "type": "author",
       "label": "Adrien Bardes",
-      "title": "Adrien Bardes"
+      "title": "Adrien Bardes",
+      "paper_count": 2
     },
     {
       "id": "author:fan-david",
       "type": "author",
       "label": "David Fan",
-      "title": "David Fan"
+      "title": "David Fan",
+      "paper_count": 1
     },
     {
       "id": "author:garrido-quentin",
       "type": "author",
       "label": "Quentin Garrido",
-      "title": "Quentin Garrido"
+      "title": "Quentin Garrido",
+      "paper_count": 1
     },
     {
       "id": "author:howes-russell",
       "type": "author",
       "label": "Russell Howes",
-      "title": "Russell Howes"
+      "title": "Russell Howes",
+      "paper_count": 1
     },
     {
       "id": "author:mojtaba",
       "type": "author",
       "label": "Mojtaba",
-      "title": "Mojtaba"
+      "title": "Mojtaba",
+      "paper_count": 1
     },
     {
       "id": "author:komeili",
       "type": "author",
       "label": "Komeili",
-      "title": "Komeili"
+      "title": "Komeili",
+      "paper_count": 1
     },
     {
       "id": "author:muckley-matthew",
       "type": "author",
       "label": "Matthew Muckley",
-      "title": "Matthew Muckley"
+      "title": "Matthew Muckley",
+      "paper_count": 2
     },
     {
       "id": "author:rizvi-ammar",
       "type": "author",
       "label": "Ammar Rizvi",
-      "title": "Ammar Rizvi"
+      "title": "Ammar Rizvi",
+      "paper_count": 1
     },
     {
       "id": "author:roberts-claire",
       "type": "author",
       "label": "Claire Roberts",
-      "title": "Claire Roberts"
+      "title": "Claire Roberts",
+      "paper_count": 1
     },
     {
       "id": "author:sinha-koustuv",
       "type": "author",
       "label": "Koustuv Sinha",
-      "title": "Koustuv Sinha"
+      "title": "Koustuv Sinha",
+      "paper_count": 2
     },
     {
       "id": "author:zholus-artem",
       "type": "author",
       "label": "Artem Zholus",
-      "title": "Artem Zholus"
+      "title": "Artem Zholus",
+      "paper_count": 1
     },
     {
       "id": "author:arnaud-sergio",
       "type": "author",
       "label": "Sergio Arnaud",
-      "title": "Sergio Arnaud"
+      "title": "Sergio Arnaud",
+      "paper_count": 1
     },
     {
       "id": "author:gejji-abha",
       "type": "author",
       "label": "Abha Gejji",
-      "title": "Abha Gejji"
+      "title": "Abha Gejji",
+      "paper_count": 1
     },
     {
       "id": "author:martin-ada",
       "type": "author",
       "label": "Ada Martin",
-      "title": "Ada Martin"
+      "title": "Ada Martin",
+      "paper_count": 1
     },
     {
       "id": "author:hogan-francois-robert",
       "type": "author",
       "label": "Francois Robert Hogan",
-      "title": "Francois Robert Hogan"
+      "title": "Francois Robert Hogan",
+      "paper_count": 1
     },
     {
       "id": "author:dugas-daniel",
       "type": "author",
       "label": "Daniel Dugas",
-      "title": "Daniel Dugas"
+      "title": "Daniel Dugas",
+      "paper_count": 1
     },
     {
       "id": "author:bojanowski-piotr",
       "type": "author",
       "label": "Piotr Bojanowski",
-      "title": "Piotr Bojanowski"
+      "title": "Piotr Bojanowski",
+      "paper_count": 1
     },
     {
       "id": "author:khalidov-vasil",
       "type": "author",
       "label": "Vasil Khalidov",
-      "title": "Vasil Khalidov"
+      "title": "Vasil Khalidov",
+      "paper_count": 1
     },
     {
       "id": "author:labatut-patrick",
       "type": "author",
       "label": "Patrick Labatut",
-      "title": "Patrick Labatut"
+      "title": "Patrick Labatut",
+      "paper_count": 1
     },
     {
       "id": "author:massa-francisco",
       "type": "author",
       "label": "Francisco Massa",
-      "title": "Francisco Massa"
+      "title": "Francisco Massa",
+      "paper_count": 1
     },
     {
       "id": "author:szafraniec-marc",
       "type": "author",
       "label": "Marc Szafraniec",
-      "title": "Marc Szafraniec"
+      "title": "Marc Szafraniec",
+      "paper_count": 1
     },
     {
       "id": "author:krishnakumar-kapil",
       "type": "author",
       "label": "Kapil Krishnakumar",
-      "title": "Kapil Krishnakumar"
+      "title": "Kapil Krishnakumar",
+      "paper_count": 1
     },
     {
       "id": "author:li-yong",
       "type": "author",
       "label": "Yong Li",
-      "title": "Yong Li"
+      "title": "Yong Li",
+      "paper_count": 1
     },
     {
       "id": "author:ma-xiaodong",
       "type": "author",
       "label": "Xiaodong Ma",
-      "title": "Xiaodong Ma"
+      "title": "Xiaodong Ma",
+      "paper_count": 1
     },
     {
       "id": "author:chandar-sarath",
       "type": "author",
       "label": "Sarath Chandar",
-      "title": "Sarath Chandar"
+      "title": "Sarath Chandar",
+      "paper_count": 1
     },
     {
       "id": "author:meier-franziska",
       "type": "author",
       "label": "Franziska Meier",
-      "title": "Franziska Meier"
+      "title": "Franziska Meier",
+      "paper_count": 1
     },
     {
       "id": "author:lecun-yann",
       "type": "author",
       "label": "Yann LeCun",
-      "title": "Yann LeCun"
+      "title": "Yann LeCun",
+      "paper_count": 2
     },
     {
       "id": "author:rabbat-michael",
       "type": "author",
       "label": "Michael Rabbat",
-      "title": "Michael Rabbat"
+      "title": "Michael Rabbat",
+      "paper_count": 1
     },
     {
       "id": "author:ballas-nicolas",
       "type": "author",
       "label": "Nicolas Ballas",
-      "title": "Nicolas Ballas"
+      "title": "Nicolas Ballas",
+      "paper_count": 2
     },
     {
       "id": "author:mahesh-ankur",
       "type": "author",
       "label": "Ankur Mahesh",
-      "title": "Ankur Mahesh"
+      "title": "Ankur Mahesh",
+      "paper_count": 1
     },
     {
       "id": "author:bisson-mauro",
       "type": "author",
       "label": "Mauro Bisson",
-      "title": "Mauro Bisson"
+      "title": "Mauro Bisson",
+      "paper_count": 1
     },
     {
       "id": "author:collins-william-d",
       "type": "author",
       "label": "William D. Collins",
-      "title": "William D. Collins"
+      "title": "William D. Collins",
+      "paper_count": 1
     },
     {
       "id": "author:pritchard-michael-s",
       "type": "author",
       "label": "Michael S. Pritchard",
-      "title": "Michael S. Pritchard"
+      "title": "Michael S. Pritchard",
+      "paper_count": 1
     },
     {
       "id": "author:keller-alexander",
       "type": "author",
       "label": "Alexander Keller",
-      "title": "Alexander Keller"
+      "title": "Alexander Keller",
+      "paper_count": 1
     },
     {
       "id": "author:pal-sourav",
       "type": "author",
       "label": "Sourav Pal",
-      "title": "Sourav Pal"
+      "title": "Sourav Pal",
+      "paper_count": 1
     },
     {
       "id": "author:singh-vikas",
       "type": "author",
       "label": "Vikas Singh",
-      "title": "Vikas Singh"
+      "title": "Vikas Singh",
+      "paper_count": 1
     },
     {
       "id": "author:tian-mingxuan",
       "type": "author",
       "label": "Mingxuan Tian",
-      "title": "Mingxuan Tian"
+      "title": "Mingxuan Tian",
+      "paper_count": 1
     },
     {
       "id": "author:mu-haochen",
       "type": "author",
       "label": "Haochen Mu",
-      "title": "Haochen Mu"
+      "title": "Haochen Mu",
+      "paper_count": 1
     },
     {
       "id": "author:ding-donghong",
       "type": "author",
       "label": "Donghong Ding",
-      "title": "Donghong Ding"
+      "title": "Donghong Ding",
+      "paper_count": 1
     },
     {
       "id": "author:li-mengjiao",
       "type": "author",
       "label": "Mengjiao Li",
-      "title": "Mengjiao Li"
+      "title": "Mengjiao Li",
+      "paper_count": 1
     },
     {
       "id": "author:ding-yuhan",
       "type": "author",
       "label": "Yuhan Ding",
-      "title": "Yuhan Ding"
+      "title": "Yuhan Ding",
+      "paper_count": 1
     },
     {
       "id": "author:zhao-jianping",
       "type": "author",
       "label": "Jianping Zhao",
-      "title": "Jianping Zhao"
+      "title": "Jianping Zhao",
+      "paper_count": 1
     },
     {
       "id": "author:veil-carina",
       "type": "author",
       "label": "Carina Veil",
-      "title": "Carina Veil"
+      "title": "Carina Veil",
+      "paper_count": 1
     },
     {
       "id": "author:flaschel-moritz",
       "type": "author",
       "label": "Moritz Flaschel",
-      "title": "Moritz Flaschel"
+      "title": "Moritz Flaschel",
+      "paper_count": 1
     },
     {
       "id": "author:kuhl-ellen",
       "type": "author",
       "label": "Ellen Kuhl",
-      "title": "Ellen Kuhl"
+      "title": "Ellen Kuhl",
+      "paper_count": 1
     },
     {
       "id": "author:della-santina-cosimo",
       "type": "author",
       "label": "Cosimo Della Santina",
-      "title": "Cosimo Della Santina"
+      "title": "Cosimo Della Santina",
+      "paper_count": 1
     },
     {
       "id": "author:franco-nicola-rares",
       "type": "author",
       "label": "Nicola Rares Franco",
-      "title": "Nicola Rares Franco"
+      "title": "Nicola Rares Franco",
+      "paper_count": 1
     },
     {
       "id": "author:nelsen-nicholas-h",
       "type": "author",
       "label": "Nicholas H. Nelsen",
-      "title": "Nicholas H. Nelsen"
+      "title": "Nicholas H. Nelsen",
+      "paper_count": 1
     },
     {
       "id": "author:mur-labadia-lorenzo",
       "type": "author",
       "label": "Lorenzo Mur-Labadia",
-      "title": "Lorenzo Mur-Labadia"
+      "title": "Lorenzo Mur-Labadia",
+      "paper_count": 1
     },
     {
       "id": "author:bar-amir",
       "type": "author",
       "label": "Amir Bar",
-      "title": "Amir Bar"
+      "title": "Amir Bar",
+      "paper_count": 1
     },
     {
       "id": "author:rabbat-mike",
       "type": "author",
       "label": "Mike Rabbat",
-      "title": "Mike Rabbat"
+      "title": "Mike Rabbat",
+      "paper_count": 1
     },
     {
       "id": "author:khan-muhammad-idrees",
       "type": "author",
       "label": "Muhammad Idrees Khan",
-      "title": "Muhammad Idrees Khan"
+      "title": "Muhammad Idrees Khan",
+      "paper_count": 1
     },
     {
       "id": "author:yao-hua-dong",
       "type": "author",
       "label": "Hua-Dong Yao",
-      "title": "Hua-Dong Yao"
+      "title": "Hua-Dong Yao",
+      "paper_count": 1
     },
     {
       "id": "author:chen-zituo",
       "type": "author",
       "label": "Zituo Chen",
-      "title": "Zituo Chen"
+      "title": "Zituo Chen",
+      "paper_count": 1
     },
     {
       "id": "author:zhang-baiming",
       "type": "author",
       "label": "Baiming Zhang",
-      "title": "Baiming Zhang"
+      "title": "Baiming Zhang",
+      "paper_count": 1
     },
     {
       "id": "author:deng-sili",
       "type": "author",
       "label": "Sili Deng",
-      "title": "Sili Deng"
+      "title": "Sili Deng",
+      "paper_count": 1
     },
     {
       "id": "author:rossi-riccardo",
       "type": "author",
       "label": "Riccardo Rossi",
-      "title": "Riccardo Rossi"
+      "title": "Riccardo Rossi",
+      "paper_count": 1
     },
     {
       "id": "author:frieden-branden",
       "type": "author",
       "label": "Branden Frieden",
-      "title": "Branden Frieden"
+      "title": "Branden Frieden",
+      "paper_count": 1
     },
     {
       "id": "author:whitehead-ryan",
       "type": "author",
       "label": "Ryan Whitehead",
-      "title": "Ryan Whitehead"
+      "title": "Ryan Whitehead",
+      "paper_count": 1
     },
     {
       "id": "author:ballard-m-keith",
       "type": "author",
       "label": "M. Keith Ballard",
-      "title": "M. Keith Ballard"
+      "title": "M. Keith Ballard",
+      "paper_count": 1
     },
     {
       "id": "author:kirby-robert-m",
       "type": "author",
       "label": "Robert M. Kirby",
-      "title": "Robert M. Kirby"
+      "title": "Robert M. Kirby",
+      "paper_count": 1
     },
     {
       "id": "field:operator-learning",
@@ -3099,6 +3319,71 @@
       "type": "author",
       "label": "Souvik Chakraborty",
       "title": "Souvik Chakraborty",
+      "paper_count": 1
+    },
+    {
+      "id": "parametric-complexity-2023",
+      "type": "paper",
+      "label": "Operator learning complexity",
+      "title": "The Parametric Complexity of Operator Learning",
+      "year": 2023,
+      "priority": "core",
+      "summary": "Proves a curse of parametric complexity for general regular operator classes, and shows how Hamilton–Jacobi structure permits a more efficient architecture.",
+      "limits": "Addresses whether operator models can be smaller: no universal compression law follows from using an operator architecture. Efficiency depends on structure in the target operator. These are approximation-complexity results, not empirical training scaling laws.",
+      "url": "https://arxiv.org/abs/2306.15924",
+      "file": "parametric-complexity-2023.pdf",
+      "authors": [
+        "Samuel Lanthaler",
+        "Andrew M. Stuart"
+      ],
+      "tags": [
+        "operator-learning",
+        "theory"
+      ],
+      "publication_status": "arXiv preprint; year denotes first posting",
+      "review_level": "abstract_and_references_screened",
+      "seed": false
+    },
+    {
+      "id": "reno-2023",
+      "type": "paper",
+      "label": "Representation equivalent operators",
+      "title": "Representation Equivalent Neural Operators: a Framework for Alias-free Operator Learning",
+      "year": 2023,
+      "priority": "core",
+      "summary": "Introduces representation equivalence and operator aliasing to analyze consistency between continuous operators and their discrete implementations.",
+      "limits": "Explains why shared weights across grids do not alone guarantee the same field-level computation. Varying training grids can encourage robustness, but cannot by itself guarantee alias-free evaluation or recover unmeasured information.",
+      "url": "https://arxiv.org/abs/2305.19913",
+      "file": "reno-2023.pdf",
+      "authors": [
+        "Francesca Bartolucci",
+        "Emmanuel de Bézenac",
+        "Bogdan Raonić",
+        "Roberto Molinaro",
+        "Siddhartha Mishra",
+        "Rima Alaifari"
+      ],
+      "tags": [
+        "operator-learning",
+        "theory",
+        "sampling"
+      ],
+      "publication_status": "arXiv preprint; year denotes first posting",
+      "review_level": "abstract_and_references_screened",
+      "seed": false
+    },
+    {
+      "id": "author:francesca-bartolucci",
+      "type": "author",
+      "label": "Francesca Bartolucci",
+      "title": "Francesca Bartolucci",
+      "paper_count": 1
+    },
+    {
+      "id": "author:rima-alaifari",
+      "type": "author",
+      "label": "Rima Alaifari",
+      "title": "Rima Alaifari",
       "paper_count": 1
     }
   ],
@@ -10354,6 +10639,226 @@
       "evidence_url": "https://arxiv.org/abs/2205.02191",
       "evidence_locator": "Primary abstract and byline, checked 2026-09-10",
       "epistemic_status": "analyst_inference"
+    },
+    {
+      "id": "addition-author-lanthaler-samuel-authored-parametric-complexity-2023",
+      "source": "author:lanthaler-samuel",
+      "target": "parametric-complexity-2023",
+      "relation": "authored",
+      "evidence": "Author verified in downloaded PDF byline.",
+      "evidence_url": "https://arxiv.org/abs/2306.15924",
+      "evidence_locator": "PDF page 1",
+      "epistemic_status": "documented"
+    },
+    {
+      "id": "addition-parametric-complexity-2023-classified-in-field-operator-learning",
+      "source": "parametric-complexity-2023",
+      "target": "field:operator-learning",
+      "relation": "classified_in",
+      "evidence": "Proves a curse of parametric complexity for general regular operator classes, and shows how Hamilton–Jacobi structure permits a more efficient architecture.",
+      "evidence_url": "https://arxiv.org/abs/2306.15924",
+      "evidence_locator": "Abstract",
+      "epistemic_status": "curated_classification"
+    },
+    {
+      "id": "addition-parametric-complexity-2023-classified-in-field-theory",
+      "source": "parametric-complexity-2023",
+      "target": "field:theory",
+      "relation": "classified_in",
+      "evidence": "Proves a curse of parametric complexity for general regular operator classes, and shows how Hamilton–Jacobi structure permits a more efficient architecture.",
+      "evidence_url": "https://arxiv.org/abs/2306.15924",
+      "evidence_locator": "Abstract",
+      "epistemic_status": "curated_classification"
+    },
+    {
+      "id": "addition-parametric-complexity-2023-bridges-field-area-operators",
+      "source": "parametric-complexity-2023",
+      "target": "area:operators",
+      "relation": "bridges_field",
+      "evidence": "Proves a curse of parametric complexity for general regular operator classes, and shows how Hamilton–Jacobi structure permits a more efficient architecture.",
+      "evidence_url": "https://arxiv.org/abs/2306.15924",
+      "evidence_locator": "Abstract",
+      "epistemic_status": "curated_classification"
+    },
+    {
+      "id": "addition-parametric-complexity-2023-bridges-field-area-fourier",
+      "source": "parametric-complexity-2023",
+      "target": "area:fourier",
+      "relation": "bridges_field",
+      "evidence": "Proves a curse of parametric complexity for general regular operator classes, and shows how Hamilton–Jacobi structure permits a more efficient architecture.",
+      "evidence_url": "https://arxiv.org/abs/2306.15924",
+      "evidence_locator": "Abstract",
+      "epistemic_status": "curated_classification"
+    },
+    {
+      "id": "addition-parametric-complexity-2023-cites-fno-2020",
+      "source": "parametric-complexity-2023",
+      "target": "fno-2020",
+      "relation": "cites",
+      "evidence": "Verified title in downloaded PDF reference list.",
+      "evidence_url": "https://arxiv.org/abs/2306.15924",
+      "evidence_locator": "References [46], downloaded v4",
+      "epistemic_status": "documented"
+    },
+    {
+      "id": "addition-parametric-complexity-2023-cites-neural-operator-2021",
+      "source": "parametric-complexity-2023",
+      "target": "neural-operator-2021",
+      "relation": "cites",
+      "evidence": "Verified title in downloaded PDF reference list.",
+      "evidence_url": "https://arxiv.org/abs/2306.15924",
+      "evidence_locator": "References [40], downloaded v4",
+      "epistemic_status": "documented"
+    },
+    {
+      "id": "addition-author-francesca-bartolucci-authored-reno-2023",
+      "source": "author:francesca-bartolucci",
+      "target": "reno-2023",
+      "relation": "authored",
+      "evidence": "Author verified in downloaded PDF byline.",
+      "evidence_url": "https://arxiv.org/abs/2305.19913",
+      "evidence_locator": "PDF page 1",
+      "epistemic_status": "documented"
+    },
+    {
+      "id": "addition-author-de-bezenac-emmanuel-authored-reno-2023",
+      "source": "author:de-bezenac-emmanuel",
+      "target": "reno-2023",
+      "relation": "authored",
+      "evidence": "Author verified in downloaded PDF byline.",
+      "evidence_url": "https://arxiv.org/abs/2305.19913",
+      "evidence_locator": "PDF page 1",
+      "epistemic_status": "documented"
+    },
+    {
+      "id": "addition-author-raonic-bogdan-authored-reno-2023",
+      "source": "author:raonic-bogdan",
+      "target": "reno-2023",
+      "relation": "authored",
+      "evidence": "Author verified in downloaded PDF byline.",
+      "evidence_url": "https://arxiv.org/abs/2305.19913",
+      "evidence_locator": "PDF page 1",
+      "epistemic_status": "documented"
+    },
+    {
+      "id": "addition-author-molinaro-roberto-authored-reno-2023",
+      "source": "author:molinaro-roberto",
+      "target": "reno-2023",
+      "relation": "authored",
+      "evidence": "Author verified in downloaded PDF byline.",
+      "evidence_url": "https://arxiv.org/abs/2305.19913",
+      "evidence_locator": "PDF page 1",
+      "epistemic_status": "documented"
+    },
+    {
+      "id": "addition-author-mishra-siddhartha-authored-reno-2023",
+      "source": "author:mishra-siddhartha",
+      "target": "reno-2023",
+      "relation": "authored",
+      "evidence": "Author verified in downloaded PDF byline.",
+      "evidence_url": "https://arxiv.org/abs/2305.19913",
+      "evidence_locator": "PDF page 1",
+      "epistemic_status": "documented"
+    },
+    {
+      "id": "addition-author-rima-alaifari-authored-reno-2023",
+      "source": "author:rima-alaifari",
+      "target": "reno-2023",
+      "relation": "authored",
+      "evidence": "Author verified in downloaded PDF byline.",
+      "evidence_url": "https://arxiv.org/abs/2305.19913",
+      "evidence_locator": "PDF page 1",
+      "epistemic_status": "documented"
+    },
+    {
+      "id": "addition-reno-2023-classified-in-field-operator-learning",
+      "source": "reno-2023",
+      "target": "field:operator-learning",
+      "relation": "classified_in",
+      "evidence": "Introduces representation equivalence and operator aliasing to analyze consistency between continuous operators and their discrete implementations.",
+      "evidence_url": "https://arxiv.org/abs/2305.19913",
+      "evidence_locator": "Abstract",
+      "epistemic_status": "curated_classification"
+    },
+    {
+      "id": "addition-reno-2023-classified-in-field-theory",
+      "source": "reno-2023",
+      "target": "field:theory",
+      "relation": "classified_in",
+      "evidence": "Introduces representation equivalence and operator aliasing to analyze consistency between continuous operators and their discrete implementations.",
+      "evidence_url": "https://arxiv.org/abs/2305.19913",
+      "evidence_locator": "Abstract",
+      "epistemic_status": "curated_classification"
+    },
+    {
+      "id": "addition-reno-2023-classified-in-field-sampling",
+      "source": "reno-2023",
+      "target": "field:sampling",
+      "relation": "classified_in",
+      "evidence": "Introduces representation equivalence and operator aliasing to analyze consistency between continuous operators and their discrete implementations.",
+      "evidence_url": "https://arxiv.org/abs/2305.19913",
+      "evidence_locator": "Abstract",
+      "epistemic_status": "curated_classification"
+    },
+    {
+      "id": "addition-reno-2023-bridges-field-area-operators",
+      "source": "reno-2023",
+      "target": "area:operators",
+      "relation": "bridges_field",
+      "evidence": "Introduces representation equivalence and operator aliasing to analyze consistency between continuous operators and their discrete implementations.",
+      "evidence_url": "https://arxiv.org/abs/2305.19913",
+      "evidence_locator": "Abstract",
+      "epistemic_status": "curated_classification"
+    },
+    {
+      "id": "addition-reno-2023-bridges-field-area-fourier",
+      "source": "reno-2023",
+      "target": "area:fourier",
+      "relation": "bridges_field",
+      "evidence": "Introduces representation equivalence and operator aliasing to analyze consistency between continuous operators and their discrete implementations.",
+      "evidence_url": "https://arxiv.org/abs/2305.19913",
+      "evidence_locator": "Abstract",
+      "epistemic_status": "curated_classification"
+    },
+    {
+      "id": "addition-reno-2023-bridges-field-area-sparse",
+      "source": "reno-2023",
+      "target": "area:sparse",
+      "relation": "bridges_field",
+      "evidence": "Introduces representation equivalence and operator aliasing to analyze consistency between continuous operators and their discrete implementations.",
+      "evidence_url": "https://arxiv.org/abs/2305.19913",
+      "evidence_locator": "Abstract",
+      "epistemic_status": "curated_classification"
+    },
+    {
+      "id": "addition-reno-2023-cites-fno-2020",
+      "source": "reno-2023",
+      "target": "fno-2020",
+      "relation": "cites",
+      "evidence": "Verified title in downloaded PDF reference list.",
+      "evidence_url": "https://arxiv.org/abs/2305.19913",
+      "evidence_locator": "References [17], downloaded v2",
+      "epistemic_status": "documented"
+    },
+    {
+      "id": "addition-reno-2023-cites-neural-operator-2021",
+      "source": "reno-2023",
+      "target": "neural-operator-2021",
+      "relation": "cites",
+      "evidence": "Verified title in downloaded PDF reference list.",
+      "evidence_url": "https://arxiv.org/abs/2305.19913",
+      "evidence_locator": "References [15], downloaded v2",
+      "epistemic_status": "documented"
+    },
+    {
+      "id": "addition-author-stuart-andrew-authored-parametric-complexity-2023",
+      "source": "author:stuart-andrew",
+      "target": "parametric-complexity-2023",
+      "relation": "authored",
+      "evidence": "Author verified in downloaded PDF byline.",
+      "evidence_url": "https://arxiv.org/abs/2306.15924",
+      "evidence_locator": "PDF page 1",
+      "epistemic_status": "documented"
     }
   ],
   "author_aliases": {
