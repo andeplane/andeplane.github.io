@@ -5,7 +5,9 @@ description: "A moon of point masses on damped springs, plain Newtonian gravity,
 tags: ["Physics", "Simulation", "Three.js", "WebGL"]
 ---
 
-The Moon keeps one face toward us. The standard explanation goes: the Earth raises a tidal bulge on the Moon, internal friction makes that bulge lag the Earth–Moon line, and gravity pulling on the misaligned bulge exerts a braking torque until the spin matches the orbit.
+The Moon keeps one face toward us because it rotates once per orbit. Walk around a chair while always facing it: you must turn your body once during the circuit. That is **synchronous rotation**.
+
+For a moon initially spinning faster than it orbits, internal friction delays the material’s response to changing gravity. Rotation carries the tidal bulge slightly **ahead** of the planet direction. Gravity pulls on that misaligned bulge and brakes the spin. A slower-spinning moon has the opposite offset and is sped up. [NASA’s introduction](https://science.nasa.gov/moon/tidal-locking/) gives the astronomical context.
 
 That explanation is correct. It also, stated that way, asserts everything interesting in it — the bulge, the lag, the torque. So I wanted to build the thing that *doesn't* assert any of it, and watch.
 
@@ -13,11 +15,11 @@ That explanation is correct. It also, stated that way, asserts everything intere
 
 ## Why you can't simplify your way out
 
-The first thing worth noticing is that a point mass cannot tidally lock at all. Gravity acting on a point exerts no torque about that point:
+A structureless point mass has no orientation or spin to lock. For two point masses, their central gravitational force also exerts no **orbital torque** about the planet, since the separation $\mathbf{r}$ and force $\mathbf{F}$ are parallel:
 
 $$\frac{d\mathbf{L}}{dt} = \mathbf{r}\times\mathbf{F} = \mathbf{r}\times\left(-\frac{GMm}{r^{3}}\mathbf{r}\right) = \mathbf{0}$$
 
-A point-mass moon spins forever at whatever rate it started with. Extent isn't a refinement of the problem — it *is* the problem. So the model has to be an extended body, and once it is extended it has to be deformable, and once it deforms it has to be lossy. Those three ingredients, and nothing else.
+Here $\mathbf{L}$ is orbital angular momentum, $G$ the gravitational constant, and $M,m$ the masses. This equation does not describe spin. For an extended moon, forces at different locations can instead exert a torque about the moon’s own centre of mass. Extent isn't a refinement of the problem — it *is* the problem. So the model has to be an extended body, and once it is extended it has to be deformable, and once it deforms it has to be lossy. Those three ingredients, and nothing else.
 
 ## The model
 
@@ -25,7 +27,7 @@ A point-mass planet, and a moon made of 200 point masses joined to their neighbo
 
 $$\mathbf{f}_{ij} = \Big[\,k\big(\lVert\mathbf{d}\rVert - \ell_{ij}\big) + c\,\big(\dot{\mathbf{d}}\cdot\hat{\mathbf{d}}\big)\Big]\hat{\mathbf{d}}$$
 
-Hooke's law plus a dashpot on the rate of change of bond length. That $c$ is the only irreversibility in the entire model. Integration is velocity Verlet with the forces evaluated at the half-step velocity, because plain Verlet assumes forces depend only on position and a dashpot doesn't.
+Here $\mathbf{d}$ points from particle $i$ to $j$, its hat denotes a unit vector, $\ell_{ij}$ is the resting bond length, $k$ the spring stiffness and $c$ the damping strength. The first term resists stretching; the dashpot resists changes in bond length. That $c$ is the only irreversibility in the entire model. Integration is velocity Verlet with the forces evaluated at the half-step velocity, because plain Verlet assumes forces depend only on position and a dashpot doesn't.
 
 There is no tidal-force term anywhere in the code, no torque term, and nothing that checks whether the moon is locked.
 
@@ -37,9 +39,9 @@ $$\mathbf{x}_i\times\mathbf{f}_{ij} + \mathbf{x}_j\times\mathbf{f}_{ji} = (\math
 
 Internal forces cannot change the body's angular momentum. Only the planet's gravity can.
 
-This matters more than it might look. Had the damping carried *any* component perpendicular to the bond, it would have been friction against an absolute frame — it would have slowed the moon's rotation directly, and the simulation would have "demonstrated" tidal locking by quietly applying a brake. Every soft-body engine I know damps velocity that way by default, because it's stabilising and nobody usually cares.
+A noncentral pair force can create an internal torque even if it depends only on relative velocity and is independent of the reference frame. Choosing axial dashpots makes each pair’s net torque zero, so the model cannot brake rigid rotation through its internal damping alone.
 
-The proof that it hasn't happened here is in the readout: **total angular momentum holds to about one part in 10¹⁴** over tens of millions of steps, while the moon's spin angular momentum visibly drains into the orbit.
+In the recorded example run below, the readout provides a numerical check: **total angular momentum holds to about one part in 10¹⁴** over tens of millions of steps, while the moon's spin angular momentum visibly drains into the orbit.
 
 | | Start | Orbit 2,600 |
 |---|---|---|
@@ -50,7 +52,7 @@ The proof that it hasn't happened here is in the readout: **total angular moment
 
 The spin loses 2.006 × 10⁻⁴. The orbit gains 2.006 × 10⁻⁴. The total moves by 8 × 10⁻¹⁶, which is round-off.
 
-Energy, by contrast, is emphatically *not* conserved — 0.4% of the initial kinetic energy has become heat inside the moon. That asymmetry is the whole phenomenon: angular momentum gets redistributed, energy gets destroyed, and the moon climbs away from the planet as a consequence. Ours recedes 0.7%; the real one manages 3.8 cm a year.
+**Mechanical energy** decreases — 0.4% of the initial kinetic energy has become heat inside the moon. That asymmetry is the whole phenomenon: angular momentum gets redistributed, mechanical energy becomes heat, and the moon climbs away from the planet as a consequence. Including that heat restores the total-energy accounting, up to numerical error. In this example the separation grows by about 0.6%; the real one manages 3.8 cm a year.
 
 ## Two things that were much harder than the physics
 
@@ -74,4 +76,4 @@ None of the numbers are the real Earth–Moon system. The classical estimate for
 
 $$t_{\text{lock}} \approx \frac{\omega\,a^{6}\,I\,Q}{3\,G\,m_p^{2}\,k_2\,R^{5}}$$
 
-and that sixth power of the semi-major axis is why the real Moon took something like 10⁷ years. To make it watchable this moon orbits at 7.5 of its own radii — the real one sits at about 221 — and is far softer and far more lossy than rock. Only the constants that set the rate have been changed. The mechanism is untouched, which is the whole point: nothing in the code knows what it's supposed to do.
+and that sixth power of the semi-major axis is why the real Moon took something like 10⁷ years. To make it watchable this moon orbits at 7.5 of its own radii — the real one sits at about 221 — and is far softer and far more lossy than rock. This is an idealized spring network, not a calibrated model of lunar rock. It retains the gravity–deformation–dissipation mechanism, which is the whole point: nothing in the code knows what it's supposed to do.

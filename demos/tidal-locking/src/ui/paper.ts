@@ -17,9 +17,9 @@ point-mass planet under ordinary inverse-square gravity, spontaneously evolves t
 synchronous rotation. No tidal-force term, no torque term, and no test for
 synchronicity appears anywhere in the equations of motion. Starting at
 $\\Omega_{\\text{spin}} = 1.4\\,\\Omega_{\\text{orb}}$, the body reaches synchronous rotation
-after roughly one thousand orbits while conserving total angular momentum to one part in
+over thousands of orbits in a recorded example run while conserving total angular momentum to one part in
 $10^{14}$, dissipating $0.4\\%$ of its initial kinetic energy as heat, and receding
-$0.7\\%$ from the planet.
+$0.6\\%$ from the planet. These are example diagnostics, not universal locking times.
 </p>
 </section>
 
@@ -27,19 +27,21 @@ $0.7\\%$ from the planet.
 <h2>1. Introduction</h2>
 <p>
 The Moon keeps one face toward the Earth. The standard explanation is that the Earth
-raises a tidal bulge on the Moon, that internal friction makes the bulge lag the
-Earth&ndash;Moon line, and that gravity acting on the misaligned bulge exerts a braking
-torque. The explanation is correct, but stated that way it can feel as though the
+raises a tidal bulge on the Moon. For a moon spinning faster than it orbits, delayed
+material response carries the bulge ahead of the planet direction, and gravity acting
+on it exerts a braking torque. Synchronous rotation means one turn per orbit: walking
+around a chair while facing it requires exactly that turn. The explanation is correct, but stated that way it can feel as though the
 conclusion has been assumed: the bulge, the lag and the torque are all asserted.
 </p>
 <p>
-It is worth noting first why the effect cannot be avoided by simplifying. A point mass
-cannot lock at all. Gravity acting on a point exerts no torque about that point, so
+It is worth noting first why the effect cannot be avoided by simplifying. A structureless point mass
+has no spin or orientation. Central gravity also gives zero orbital torque about the
+planet, because separation and force are parallel:
 </p>
 $$\\frac{d\\mathbf{L}}{dt} = \\mathbf{r}\\times\\mathbf{F} = \\mathbf{r}\\times\\left(-\\frac{GMm}{r^{3}}\\mathbf{r}\\right) = \\mathbf{0},$$
 <p>
-and a point-mass moon spins forever at whatever rate it began with. Extent is not a
-detail of the problem; it is the whole of it.
+Here L is orbital angular momentum, not spin. An extended body lets gravity act at
+different locations and exert torque about its own centre of mass. That extent is essential.
 </p>
 <p>
 This simulation therefore implements only three things &mdash; gravity, an extended
@@ -89,10 +91,8 @@ the pair contributes no net force and no net torque:
 $$\\mathbf{x}_i\\times\\mathbf{f}_{ij} + \\mathbf{x}_j\\times\\mathbf{f}_{ji} = (\\mathbf{x}_i-\\mathbf{x}_j)\\times\\mathbf{f}_{ij} = -\\mathbf{d}\\times\\hat{\\mathbf{d}}\\,(\\cdots) = \\mathbf{0}.$$
 <p>
 Internal forces therefore cannot change the body's angular momentum; only the planet's
-gravity can. Had the damping carried any component perpendicular to the bond it would
-have been friction against an absolute frame &mdash; it would have slowed the moon's
-rotation directly, and the simulation would have &ldquo;demonstrated&rdquo; tidal locking
-by quietly applying a brake. The measured drift in total angular momentum, of order
+gravity can. A noncentral pair damping force can create internal torque even when it depends only
+on relative velocity. Axial dashpots avoid that artificial brake on rigid rotation. The measured drift in total angular momentum, of order
 $10^{-14}$ relative over tens of millions of steps, is the evidence that this has not
 happened.
 </p>
@@ -103,14 +103,16 @@ happened.
 <p>
 Integration is velocity Verlet, with one modification. Plain Verlet assumes forces depend
 only on position, which the dashpot violates. Evaluating the forces at the half-step
-velocity restores second-order accuracy:
+velocity gives the explicit update used here. For velocity-dependent forces this
+substitution alone does not establish second-order accuracy; timestep refinement is
+needed to assess the error:
 </p>
 $$\\mathbf{v}^{n+1/2} = \\mathbf{v}^{n} + \\tfrac{1}{2}\\,\\mathbf{a}^{n}\\,\\Delta t,\\qquad
 \\mathbf{x}^{n+1} = \\mathbf{x}^{n} + \\mathbf{v}^{n+1/2}\\Delta t,$$
 $$\\mathbf{a}^{n+1} = \\mathbf{A}\\!\\left(\\mathbf{x}^{n+1},\\,\\mathbf{v}^{n+1/2}\\right),\\qquad
 \\mathbf{v}^{n+1} = \\mathbf{v}^{n+1/2} + \\tfrac{1}{2}\\,\\mathbf{a}^{n+1}\\Delta t.$$
 <p>
-Two separate conditions bound the step. The elastic one is set by the stiffest lattice
+Two heuristic stability estimates guide the step; they do not establish trajectory accuracy. The elastic one is set by the stiffest lattice
 mode, $\\Delta t \\lesssim 2/\\omega_{\\max}$ with
 $\\omega_{\\max}\\simeq\\sqrt{z\\,k/m_p}$ for coordination number $z$; the dissipative one
 by $\\Delta t \\lesssim 2 m_p/(c\\,z)$. Omitting $z$ from the second is a good way to
@@ -204,7 +206,7 @@ the rendered surface, with normals following from $\\mathbf{F}^{-\\mathsf{T}}$.
 <section>
 <h2>6. Results</h2>
 <p>
-With the shipped parameters the spin ratio falls from $1.40$ to $1.00$ by orbit $1{,}000$
+In the example run recorded during development the spin ratio fell from $1.40$ to $1.00$ by orbit $1{,}000$
 and then holds, librating. The bulge lead is positive throughout the despinning phase and
 crosses zero at synchronicity &mdash; the mechanism doing exactly what the argument in
 &sect;1 says it should.
@@ -222,16 +224,18 @@ crosses zero at synchronicity &mdash; the mechanism doing exactly what the argum
 </table>
 <p>
 The spin loses $2.006\\times10^{-4}$; the orbit gains $2.006\\times10^{-4}$. The total moves
-by $8\\times10^{-16}$, which is round-off. Energy, by contrast, is <em>not</em> conserved:
+by $8\\times10^{-16}$, which is round-off. <em>Mechanical</em> energy decreases:
 $0.4\\%$ of the initial kinetic energy has become heat inside the moon. That asymmetry is
-the whole phenomenon &mdash; angular momentum is redistributed, energy is destroyed, and
-the moon climbs away from the planet as a consequence.
+the whole phenomenon &mdash; angular momentum is redistributed, mechanical energy becomes heat, and
+the moon climbs away from the planet as a consequence. Total energy includes that heat;
+its residual change measures numerical error.
 </p>
 <p>
 Setting $c=0$ is the control experiment. The moon still bulges and the bulge still tracks
 the planet, but the despinning very nearly stops: over $2{,}500$ orbits the spin ratio
-falls by $6\\%$, against reaching synchronous with friction on. What remains is the
-integrator's own energy leak rather than physics.
+falls by $6\\%$, against reaching synchronous with friction on. The residual is not automatically an integrator leak: conservative spin–orbit–vibration
+exchanges can change spin too. Compare total energy and repeat at smaller timesteps
+before assigning a cause.
 </p>
 </section>
 
@@ -247,7 +251,8 @@ with $Q$ the dissipation function and $k_2$ the tidal Love number. The sixth pow
 semi-major axis is why the real Moon took of order $10^{7}$ years, and why nothing about
 this simulation's numbers is to scale. Here the moon orbits at $7.5$ of its own radii
 &mdash; the real one sits at about $221$ &mdash; and is far softer and far more lossy than
-rock. Only the constants that set the rate have been changed; the mechanism is untouched.
+rock. The spring network is an idealization, not calibrated lunar material; it retains the
+gravity–deformation–dissipation mechanism.
 </p>
 <p>
 Two further stylisations are worth stating plainly. The planet is drawn at about $2.5$
@@ -261,8 +266,8 @@ times a second.
 <section>
 <h2>8. What to try</h2>
 <ul>
-<li><strong>Set the internal friction to zero.</strong> The bulge remains; the locking
-stops. This is the control experiment above, run live.</li>
+<li><strong>Set the internal friction to zero.</strong> The bulge remains; the dissipative locking is strongly reduced. Compare a reset run with friction on,
+using the same initial spin and orbit count. This is the control experiment above, run live.</li>
 <li><strong>Set the initial spin below $1\\times$.</strong> The moon now turns too slowly,
 the bulge lags rather than leads, and the torque reverses sign: it <em>speeds up</em> to
 synchronous.</li>
