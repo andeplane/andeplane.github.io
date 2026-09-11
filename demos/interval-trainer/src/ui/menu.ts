@@ -22,8 +22,8 @@ export function buildMenu(
     title('Name the note'),
     para(
       'Every question sounds the <b>root and its fifth together</b> to set the key, then ' +
-        'one more note. Say where that note sits: <b>3</b> or <b>3b</b>, <b>7</b> or ' +
-        '<b>7b</b>.',
+        'one more note. Say where that note sits: <b>3</b> or <b>♭3</b>, <b>7</b> or ' +
+        '<b>♭7</b>.',
     ),
     difficultyPicker(info.difficulty, handlers.onDifficulty),
     difficultyLegend(info.difficulty),

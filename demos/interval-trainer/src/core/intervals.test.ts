@@ -7,19 +7,19 @@ describe('intervals', () => {
     expect(INTERVALS.map((i) => i.semitones)).toEqual([...Array(12).keys()]);
   });
 
-  it('labels flats after the number, and the tritone as 4#', () => {
+  it('labels altered degrees with a leading flat, including the tritone', () => {
     expect(INTERVALS.map((i) => i.label)).toEqual([
       '1',
-      '2b',
+      '♭2',
       '2',
-      '3b',
+      '♭3',
       '3',
       '4',
-      '4#',
+      '♭5',
       '5',
-      '6b',
+      '♭6',
       '6',
-      '7b',
+      '♭7',
       '7',
     ]);
   });

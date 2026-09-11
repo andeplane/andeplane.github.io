@@ -18,8 +18,8 @@ C–D–E–F–G–A–B are degrees 1–7: E is degree 3 and G is degree 5. A 
 not a count of semitones. A **semitone** is the step to the adjacent piano key,
 including black keys; C to E spans four, while C to G spans seven.
 
-Here `3b` means lower degree 3 by one semitone: E-flat when C is home. `4#` means
-raise degree 4: F-sharp. The octave is the next C, twelve semitones above the root.
+Here `♭3` means lower degree 3 by one semitone: E-flat when C is home. `♭5` means
+lower degree 5: G-flat, the six-semitone tritone. The octave is the next C, twelve semitones above the root.
 Try singing C–D–E, then compare C–E with C–E-flat before using the keypad.
 
 ## Two sounds, not three
@@ -33,11 +33,11 @@ One second of an open fifth to tell your ear where home is, then the note you ha
 That choice pays a second dividend. If the opening chord hands you `1` and `5` for free, they can never be the answer, and the keypad drops from twelve buttons to ten:
 
 ```
-2b  2  3b  3  4  4#
-6b  6  7b  7
+♭2  2  ♭3  3  4  ♭5
+♭6  6  ♭7  7
 ```
 
-The accidental goes *after* the number, which is how I think when I'm counting degrees, and the tritone is `4#` rather than `5b` — the fifth is the fifth, and it is already in the chord.
+The accidental goes **before** the number. I use flat labels consistently for the altered degrees. In equal temperament, `♭2 = ♯1`, `♭3 = ♯2`, `♭5 = ♯4`, `♭6 = ♯5` and `♭7 = ♯6`: these are **enharmonic** spellings of the same pitches. Musical context determines the spelling, but this game asks you to recognise a sound relative to the root. Each pitch therefore has one answer button. The perfect fifth (`5`, seven semitones) is in the opening chord; the tritone (`♭5`, six semitones) is still an answer.
 
 ## What actually makes it hard
 

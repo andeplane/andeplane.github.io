@@ -2,7 +2,7 @@
 
 Ear training for musical intervals. Every question sounds the root and its fifth
 *together* to establish a key, then one more note; you name where that note sits — `3` or
-`3b`, `7` or `7b`. Practice mode has no clock and tracks which intervals you keep missing;
+`♭3`, `7` or `♭7`. Practice mode has no clock and tracks which intervals you keep missing;
 game mode runs a two-minute clock that correct answers extend.
 
 ```
@@ -19,7 +19,8 @@ silent for screenshotting. `?canvas2d` forces the wave field's fallback renderer
 
 - **Ten answers, never the root or the fifth** — those two are given away by the chord.
   `src/core/intervals.ts` holds all twelve degrees and the ten askable ones, labelled with
-  the accidental after the number (`3b`, `7b`) and the tritone written `4#`.
+  the accidental before the number (`♭3`, `♭7`) and the tritone written `♭5`.
+  The tutorial explains enharmonic alternatives, including ♯4 = ♭5 and ♯5 = ♭6.
 - **Three difficulties** (`src/core/difficulty.ts`), two dials between them: which degrees
   can be asked, and whether the key moves. *Easy* holds one key for the whole run and asks
   only the five degrees written without a flat or a sharp — a five-key pad, shortcuts

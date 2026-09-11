@@ -20,7 +20,7 @@ export const DIFFICULTY_ORDER: readonly Difficulty[] = ['easy', 'medium', 'hard'
 
 /** The degrees written without a flat or a sharp: 2, 3, 4, 6, 7. */
 export const NATURAL_SEMITONES: readonly number[] = ANSWERS.filter(
-  (interval) => !/[b#]/.test(interval.label),
+  (interval) => [2, 4, 5, 9, 11].includes(interval.semitones),
 ).map((interval) => interval.semitones);
 
 export const ALL_SEMITONES: readonly number[] = ANSWERS.map((interval) => interval.semitones);

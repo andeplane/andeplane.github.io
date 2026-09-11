@@ -143,10 +143,16 @@ export class Tutorial {
         `Count the major scale from the root: C, D, E, F, G are <b>1, 2, 3, 4, 5</b>.
 A degree is not a semitone count: C to E is degree 3 but spans four piano-key steps.
 A <b>semitone</b> is one adjacent key, including black keys; twelve make an octave.
-With C as root, <b>3</b> is E and <b>3b</b> is E-flat. <b>b</b> after a degree means ` +
-          'a semitone lower: <b>3</b> is the bright major third, <b>3b</b> the darker ' +
-          'minor one. <b>4#</b> is the restless one halfway up (some write it <b>5b</b>). ' +
-          'The root and fifth are not here — the opening chord gives you those for free.',
+With C as root, <b>3</b> is E and <b>♭3</b> is E-flat. A <b>♭</b> before a degree
+means one semitone lower; <b>♯</b> means one semitone higher.
+The <b>♭5</b>, or <b>tritone</b>, is six semitones above the root.
+The root and perfect fifth are not here — the opening chord gives you those for free.`,
+      ),
+      para(
+        `Different spellings can name the same pitch in this equal-tempered tuning:
+<b>♭2 = ♯1</b>, <b>♭3 = ♯2</b>, <b>♭5 = ♯4</b>, <b>♭6 = ♯5</b> and <b>♭7 = ♯6</b>.
+These are called <b>enharmonic</b> spellings. Musical context determines which spelling fits;
+this listening game uses one flat label per altered pitch, so there is no extra answer to learn.`,
       ),
       grid,
       readout,
