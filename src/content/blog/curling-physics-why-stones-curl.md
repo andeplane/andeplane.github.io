@@ -9,13 +9,13 @@ Joachim and I built a [curling game](https://andeplane.github.io/curling-simulat
 
 ## Ice friction isn't a constant
 
-Start with a fact every curler knows in their hands: a stone doesn't decelerate uniformly. It glides serenely off the release and then dies quickly at the end. Constant-μ Coulomb friction can't do that; ice friction *rises as the stone slows*. The standard model for ice has
+Start with a fact every curler knows in their hands: a stone doesn't decelerate uniformly. It glides serenely off the release and then dies quickly at the end. Constant-μ Coulomb friction can't do that; ice friction *rises as the stone slows*. The phenomenological law used here is
 
 $$
 \mu(v) = \mu_0 \sqrt{\frac{v_0}{v}}
 $$
 
-The microscopic story: friction melts a nanometre-scale water film under the running band, and the film — which is what makes ice ice — is thinner at low speed, so slow stones grip more. Integrating $\dot{v} = -\mu(v)\,g$ with a realistic release (~2.2 m/s for a draw) gives the familiar profile: a 28-metre glide over ~22 seconds with the deceleration loaded into the finale.
+Here µ is the friction coefficient and v is sliding speed. Thin water films, surface roughness and contact history all enter microscopic explanations of ice friction; this fitted speed law does not establish which mechanism dominates a curling shot. Integrating $\dot{v} = -\mu(v)\,g$ with a realistic release (~2.2 m/s for a draw) gives the familiar profile: a 28-metre glide over ~22 seconds with the deceleration loaded into the finale.
 
 The curl follows the same script, and this is the signature the whole game hangs on: **most of the break happens in the last third of the shot**. Reading it is the core skill — and any simulator that gets it wrong feels immediately fake:
 
@@ -47,7 +47,7 @@ $$
 
 with $\hat{\mathbf{n}}$ perpendicular to the velocity, the sign set by the handle, and $\delta(v)$ growing as the stone slows — which is what measurements of real stones show. Calibrate $\mu_0$ against hog-to-tee travel times and $\delta_0,\ \delta_{\max}$ against the observed ~1 m of total curl, and you get the blue curve in the figure — plus emergent behaviour curlers recognise: heavy takeout weight runs nearly straight, dying draws hook hard at the end.
 
-**Sweeping** falls out of the same model: brushing warms the ice ahead of the stone, thickening the water film — effectively lowering $\mu$ locally. Hold Space while the stone runs and it travels farther *and* curls less, which is exactly the tactical trade-off real sweepers manage. Angular momentum gets its own decay equation (the band's friction torque bleeds off spin slowly), and **collisions** are impulse-based with restitution and tangential friction, so spin transfers between stones on contact — you can throw a proper tap-back with roll.
+**Sweeping** is represented by lowering $\mu$ locally. This is a simplified gameplay model of brushing’s effects on the ice. Hold Space while the stone runs and it travels farther *and* curls less, a useful gameplay trade-off; real sweeping can affect both distance and line in more complicated ways. Angular momentum gets its own decay equation (the band's friction torque bleeds off spin slowly), and **collisions** are impulse-based with restitution and tangential friction, so spin transfers between stones on contact — you can throw a proper tap-back with roll.
 
 ## The renderer sells the physics
 

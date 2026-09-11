@@ -10,6 +10,10 @@ const project: ProjectMeta = {
   longDescription: `
 Real-time screen sharing from a Mac to a Tesla's built-in browser. The goal: keep working — primarily **coding with Claude Code** — from the car while parked or charging, eyes-up and hands-free.
 
+WebRTC connects browser peers; a DataChannel carries arbitrary bytes. Signalling
+exchanges connection details, while a TURN relay may forward encrypted traffic when
+a direct connection is unavailable.
+
 ## The Tesla constraint
 
 Tesla blocks \`<video>\` playback in its browser while the car is in use, so a normal WebRTC video stream is a dead end. Instead, the Mac captures the screen with \`getDisplayMedia()\`, draws each frame to an offscreen canvas, encodes it as a JPEG, and ships the raw bytes over a WebRTC DataChannel. The Tesla renders each frame into an \`<img>\` element — which Tesla doesn't block. Frame rate adapts to connection quality.
@@ -20,11 +24,13 @@ Mac → getDisplayMedia() → canvas → JPEG → DataChannel → Tesla <img>
                            Server (Hono/WS)
 \`\`\`
 
-The server only brokers the WebRTC handshake; once connected, frames flow peer-to-peer (or via a TURN relay when the car's network requires it — Tesla's in-car connectivity always does).
+The server only brokers the WebRTC handshake; once connected, frames flow peer-to-peer (or via a TURN relay when the car's network requires it — depending on network conditions).
 
 ## Hands-free controls
 
-Mic and Send buttons on the Tesla viewer send keystrokes back to the Mac, so you can drive a voice-mode Claude Code session entirely from the car's touchscreen. A small local daemon (\`npx teslacode.dev\`) receives the commands and synthesises the keystrokes — key events travel Tesla → DataChannel → share page → local daemon, never through the server.
+Mic and Send buttons on the Tesla viewer send keystrokes back to the Mac, so you can drive a voice-mode Claude Code session entirely from the car's touchscreen. A small local daemon (\`npx teslacode.dev\`) receives the commands and synthesises the keystrokes — key events travel Tesla → DataChannel → share page → local daemon, outside the signalling service’s application-message path; encrypted traffic may
+still pass through a TURN relay. Input authorization also depends on pairing and
+the trusted app/daemon, not just the transport.
 
 ## Product
 

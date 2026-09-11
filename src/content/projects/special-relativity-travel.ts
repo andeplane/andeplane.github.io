@@ -9,7 +9,12 @@ const project: ProjectMeta = {
   repoUrl: 'https://github.com/andeplane/special-relativity-travel',
   screenshot: '/projects/special-relativity-travel/preview.png',
   longDescription: `
-A browser-based simulator that makes the effects of special relativity tangible. Configure a journey between Earth and any star or galaxy, set your ship's max speed (as a fraction of c) and acceleration in g's, and watch the physics update in real time.
+A browser-based simulator that makes the effects of special relativity tangible. Configure a journey between Earth and any star or galaxy, set your ship's max speed (as a fraction of c) and acceleration in g’s (multiples of Earth gravity), and watch the physics update in real time.
+
+Here c is the speed of light. Proper acceleration is what an accelerometer aboard
+the ship reads; it differs from acceleration measured in Earth’s frame as speed rises.
+The model assumes flat spacetime, neglecting gravity and cosmological expansion, so
+very distant galaxy trips are conceptual examples.
 
 ## Relativistic physics
 
@@ -17,7 +22,7 @@ All calculations use proper special-relativistic kinematics — no Newtonian app
 
 - **Lorentz factor** — γ = 1 / √(1 − v²/c²) drives all derived quantities
 - **Time dilation** — journey time as experienced on the ship vs. clocks back on Earth, integrated across the full acceleration/coast/deceleration profile
-- **Length contraction** — the universe shrinks along the direction of travel; the 3D scene shows both the rest-frame distance and the contracted distance side by side
+- **Length contraction** — distances along travel measured simultaneously in the ship’s instantaneous inertial frame are shorter than in the Earth–target rest frame; the 3D scene shows both the rest-frame distance and the contracted distance side by side
 - **Relativistic rocket equation** — used to compute fuel mass for a 1-tonne ship
 
 ## 3D visualisation
@@ -30,7 +35,7 @@ The simulator models a symmetric three-phase journey — accelerate at constant 
 
 ## Fuel calculator
 
-Fuel requirements are computed for two drive types: a theoretical perfect matter–antimatter engine (exhaust velocity = c) and conventional chemical rockets (I_sp ≈ 450 s). For relativistic speeds, chemical fuel mass quickly exceeds the mass of the observable universe, which the UI notes explicitly.
+Fuel requirements are computed for two drive types: an ideal photon rocket (perfectly directed radiation exhaust at c, without conversion losses) and conventional chemical rockets (I_sp ≈ 450 s). For relativistic speeds, chemical fuel mass quickly exceeds the mass of the observable universe, which the UI notes explicitly.
   `.trim(),
 }
 
