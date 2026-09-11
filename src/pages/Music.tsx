@@ -57,7 +57,7 @@ export default function Music() {
           <h2 id="music-theory">The theory is part of the fun</h2>
           <p>
             I’m also interested in music theory and the things around music: recognising
-            intervals, understanding how notes fit together, and connecting what I hear
+            intervals — the distance in pitch between two notes — and understanding how notes fit together, and connecting what I hear
             with what I’m playing.
           </p>
           <p>
@@ -67,6 +67,21 @@ export default function Music() {
           </p>
         </section>
       </div>
+
+      <section className="no-article mt-8" aria-labelledby="music-first-listen">
+        <h2 id="music-first-listen">A first thing to listen for</h2>
+        <p>The root is the note we treat as home. Count C, D, E, F, G: G is the fifth
+          note of C major, so C to G is a fifth. C to the next C is an octave; its
+          frequency doubles. A semitone is one step between adjacent piano keys,
+          including the black keys, and twelve semitones make an octave.</p>
+        <p>In the trainer, listen to C and G together, then compare E with E-flat.
+          E is the major third, labelled 3; E-flat is one semitone lower, labelled 3b.
+          Start in Easy practice and replay before answering. The aim is to recognise
+          each note’s relationship to home, even when home changes.</p>
+        <p>In the tube lab, watch the pressure rather than a travelling parcel of air.
+          Air moves back and forth locally while the disturbance travels along the tube.
+          Compare the returning pulse with the far end open and capped.</p>
+      </section>
 
       <section className="mt-12" aria-labelledby="music-experiments">
         <p className="no-eyebrow">Listen, practise, experiment</p>
