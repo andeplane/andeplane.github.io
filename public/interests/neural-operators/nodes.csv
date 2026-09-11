@@ -86,7 +86,7 @@ author:kovachki-nikola,author,Nikola Kovachki,Nikola Kovachki,,,,,,,,,,,,5
 author:azizzadenesheli-kamyar,author,Kamyar Azizzadenesheli,Kamyar Azizzadenesheli,,,,,,,,,,,,10
 author:liu-burigede,author,Burigede Liu,Burigede Liu,,,,,,,,,,,,3
 author:bhattacharya-kaushik,author,Kaushik Bhattacharya,Kaushik Bhattacharya,,,,,,,,,,,,3
-author:stuart-andrew,author,Andrew Stuart,Andrew Stuart,,,,,,,,,,,,4
+author:stuart-andrew,author,Andrew Stuart,Andrew Stuart,,,,,,,,,,,,5
 author:anandkumar-anima,author,Anima Anandkumar,Anima Anandkumar,,,,,,,,,,,,11
 author:sanchez-gonzalez-alvaro,author,Alvaro Sanchez-Gonzalez,Alvaro Sanchez-Gonzalez,,,,,,,,,,,,1
 author:godwin-jonathan,author,Jonathan Godwin,Jonathan Godwin,,,,,,,,,,,,1
@@ -327,7 +327,6 @@ wno-2022,paper,Wavelet Neural Operator,Wavelet neural operator: a neural operato
 author:tapas-tripura,author,Tapas Tripura,Tapas Tripura,,,,,,,,,,,,1
 author:souvik-chakraborty,author,Souvik Chakraborty,Souvik Chakraborty,,,,,,,,,,,,1
 parametric-complexity-2023,paper,Operator learning complexity,The Parametric Complexity of Operator Learning,2023,core,"Proves a curse of parametric complexity for general regular operator classes, and shows how Hamilton–Jacobi structure permits a more efficient architecture.","Addresses whether operator models can be smaller: no universal compression law follows from using an operator architecture. Efficiency depends on structure in the target operator. These are approximation-complexity results, not empirical training scaling laws.",https://arxiv.org/abs/2306.15924,parametric-complexity-2023.pdf,"[""Samuel Lanthaler"", ""Andrew M. Stuart""]","[""operator-learning"", ""theory""]",arXiv preprint; year denotes first posting,abstract_and_references_screened,False,
-author:andrew-m-stuart,author,Andrew M. Stuart,Andrew M. Stuart,,,,,,,,,,,,1
 reno-2023,paper,Representation equivalent operators,Representation Equivalent Neural Operators: a Framework for Alias-free Operator Learning,2023,core,Introduces representation equivalence and operator aliasing to analyze consistency between continuous operators and their discrete implementations.,"Explains why shared weights across grids do not alone guarantee the same field-level computation. Varying training grids can encourage robustness, but cannot by itself guarantee alias-free evaluation or recover unmeasured information.",https://arxiv.org/abs/2305.19913,reno-2023.pdf,"[""Francesca Bartolucci"", ""Emmanuel de Bézenac"", ""Bogdan Raonić"", ""Roberto Molinaro"", ""Siddhartha Mishra"", ""Rima Alaifari""]","[""operator-learning"", ""theory"", ""sampling""]",arXiv preprint; year denotes first posting,abstract_and_references_screened,False,
 author:francesca-bartolucci,author,Francesca Bartolucci,Francesca Bartolucci,,,,,,,,,,,,1
 author:rima-alaifari,author,Rima Alaifari,Rima Alaifari,,,,,,,,,,,,1
