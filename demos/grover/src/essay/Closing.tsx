@@ -15,11 +15,11 @@ export function Closing() {
           <M>{String.raw`\Omega(\sqrt N)`}</M> oracle calls. Quadratic is not nothing; it
           is also not the sci-fi version. Searching an exponentially large haystack —
           say, all <M>{String.raw`2^{128}`}</M> AES keys — still takes{' '}
-          <M>{String.raw`2^{64}`}</M> quantum steps. Grover does not "break encryption";
-          it halves the effective key length, which is why the practical response was not
-          panic but AES-256. And each "step" here is a full, coherent, error-corrected run
-          of the oracle circuit — plausibly slower per step than classical hardware by
-          enough to eat the advantage for any N a datacenter could brute-force anyway.
+          on the order of <M>{String.raw`2^{64}`}</M> oracle queries in the idealized
+          search model. This is a query count, not a runtime estimate: reversible key
+          checking, error correction and available hardware all have costs. Doubling
+          key length offsets this square-root scaling in that model; it does not by
+          itself establish a practical attack or a complete security assessment.
         </p>
         <p>
           What the algorithm actually is, is something better than a product pitch: the
