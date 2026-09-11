@@ -4,14 +4,14 @@
 **First posted / published:** 2021/08/11
 **Last revision shown by source:** 2021/10/13
 **Publication status:** arXiv version collected; separate publication status not independently verified
-**Review depth:** abstract_screened
+**Review depth:** abstract screened
 **Reading location:** Abstract and primary bibliographic record.
 
 Studies neural-operator surrogates for wave propagation and seismic inversion.
 
 Shows how fast forward models can support inverse tasks. An inaccurate surrogate can bias inversion even when average forward error looks small.
 
-[Primary source](https://arxiv.org/abs/2108.05421) · [Local PDF](../seismic-2021.pdf)
+[Primary source](https://arxiv.org/abs/2108.05421)
 
 **Topics:** operator-learning, inverse-problems, seismology, fourier-neural-operators
 

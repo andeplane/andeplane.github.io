@@ -4,7 +4,20 @@ Research snapshot: **10 September 2026**. This is a curated literature overview 
 
 **Main assessment:** the most useful intersection for this project is between operator learning and established numerical methods for reducing measurements and computation. Robotics supplies concrete applications, but neural operators and modern video/latent world models are overlapping research interests rather than one established architecture family.
 
-Start with the [interactive knowledge graph](graph/index.html), [complete catalog](CATALOG.md), or [short reading routes](READING-ROUTES.md). Each catalog entry links to its PDF, primary source, and an annotated reading note.
+Start with the [interactive knowledge graph](graph/index.html), [complete catalog](CATALOG.md), or [short reading routes](READING-ROUTES.md). Each catalog entry links to a public primary source and an annotated reading note. Public sources may offer a PDF; collected private copies are not hosted here.
+
+## New to these ideas?
+
+Start with the [interactive concepts](concepts.html), then read the [FNO note](notes/fno-2020.md), and only then follow a specialized reading route. Keep one example in mind: a temperature field now → a temperature field after heat has spread.
+
+- A **field** assigns a value to every location; a grid records finitely many samples of it.
+- An **operator** maps a whole function or field to another one. A neural operator learns such a map from examples.
+- A **PDE** (partial differential equation) relates a field’s changes in space and time. A numerical solver approximates its solution.
+- **Quadrature** approximates an integral by a weighted sum; **cubature** usually refers to the multidimensional version.
+- **Reduced-order modelling** uses a smaller representation. **Hyper-reduction** also reduces the work needed to evaluate its equations.
+- A **surrogate** approximates a more expensive model. A **foundation model** is pretrained for reuse across tasks; transfer must still be tested.
+
+For each note, ask: what is the input, what is predicted, what data or assumptions make that possible, and what evidence supports the claimed improvement? “Abstract screened” means a first-pass reading, not a full technical review.
 
 ## 1. What the four seed papers establish
 
@@ -37,7 +50,7 @@ Brugiapaglia, Franco and Nelsen's short 2026 theory tour connects approximation 
 
 The practical lesson is to distinguish **sampling different input functions for training** from **sampling spatial points within one input function**. An optimal strategy for the former is not automatically an optimal quadrature rule for the latter.
 
-## 4. What is closest to our smart-integration idea?
+## 4. Which methods could reduce the cost of integration?
 
 **Continuous Empirical Cubature (2023)** optimizes both weights and locations. It directly addresses representing a family of integrals with a small rule. Movable quadrature nodes require the ability to evaluate the integrand there; installed industrial sensors may not permit this. [CECM](https://arxiv.org/abs/2308.03877)
 

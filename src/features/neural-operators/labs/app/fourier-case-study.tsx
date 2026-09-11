@@ -861,7 +861,7 @@ export default function FourierCaseStudy({ lesson, setLesson }: { lesson: number
                         'The source is a spatial Gaussian hot spot and cold spot, not a finite wave sum. Narrow structures contain high frequencies. Coarse sampling can miss them, and finite Fourier reconstruction also introduces truncation error.',
                         'Step 1 measures the field; step 2 reconstructs from those same pixels. Optional interpolation assumes a local shape between samples. Fourier reconstruction assumes a periodic, band-limited sum of waves. The coefficients are computed from pixels, not guessed or learned. Step 3 introduces learning for a different task: predicting the future.',
                         'The 24 training pairs vary the initial condition. The original walkthrough field is held out for step 4. The model learns 40 multipliers shared by sine and cosine components; the measured input mean is preserved separately because periodic heat diffusion conserves it.',
-                        'This example uses localized Gaussian fields, finite retained Fourier modes, constant diffusivity, a unit periodic square, and an exact spectral reference. Real applications require held-out fine-grid data, conservation checks, boundary treatment, and tests outside the training distribution.',
+                        'This example uses localized Gaussian fields, finite retained Fourier modes, constant diffusivity, a unit periodic square, and an independent spatial Gaussian heat reference. Real applications require held-out fine-grid data, conservation checks, boundary treatment, and tests outside the training distribution.',
                       ][i]
                     }
                   </p>
