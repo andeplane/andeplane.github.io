@@ -41,7 +41,7 @@ export function WhySqrtN() {
       <Prose>
         <p>
           So a Grover run is not "iterate until found." It is: compute{' '}
-          <M>{String.raw`t^{*} = \operatorname{round}\!\left(\frac{\pi}{4\theta}-\frac12\right)`}</M> ahead of time for one known winner. For N = 8 this gives two iterations
+          <M>{String.raw`t^{*} = \operatorname{round}\!\left(\frac{\pi}{4\theta}-\frac12\right)`}</M> ahead of time when exactly one winner is known to exist. For N = 8 this gives two iterations
           and success probability 121/128. Take that many steps, then measure once and check the answer classically
           (one more oracle call; if you were unlucky, rerun). The payoff compounds
           brutally with scale:

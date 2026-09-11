@@ -27,7 +27,9 @@ export function TheOracle() {
           First, what does "checking a box" even mean in superposition? The yes/no check
           is given to us as a circuit — the <strong>oracle</strong>. Fed a single box, it
           can reversibly write its answer into an extra qubit. Preparing that qubit in
-          the minus state converts the answer into a phase change, called phase kickback.
+          the minus state — equal amplitudes for 0 and 1 with opposite signs — converts
+          a yes answer into a sign change. Flipping that extra qubit exchanges those
+          amplitudes, multiplying the branch by −1. This is phase kickback.
           The resulting phase oracle{' '}
           <strong>flips the sign of the marked box's amplitude</strong> and leaves every
           other box alone.
