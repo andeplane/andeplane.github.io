@@ -26,6 +26,9 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
+      - name: Test content navigation
+        run: node --experimental-strip-types --test tests/content/*.test.ts
+
       - name: Test neural operator numerics
         run: npm run test:neural-operators
 
