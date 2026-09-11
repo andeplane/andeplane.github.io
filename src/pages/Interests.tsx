@@ -1,11 +1,12 @@
 import { Link } from "react-router-dom";
+import AtomsIllustration from "@/features/rendering/AtomsIllustration";
 import "@/features/neural-operators/research.css";
 export default function Interests() {
   return (
     <div className="no-root">
-      <p className="no-eyebrow">Reading, questions & connections</p>
+      <p className="no-eyebrow">Learning, playing & exploring</p>
       <h1 className="no-page-title">Interests</h1>
-      <p className="no-lead">Topics I’m exploring, with the papers and ideas behind them.</p>
+      <p className="no-lead">Things I enjoy exploring, with the ideas, experiments and projects behind them.</p>
       <Link className="no-interest-card" to="/interests/neural-operators">
         <div className="no-card-art" aria-hidden="true">
           <svg viewBox="0 0 600 180">
@@ -35,6 +36,51 @@ export default function Interests() {
             <span>Literature graph</span>
             <span>Concepts</span>
             <span>Timeline</span>
+          </div>
+        </div>
+      </Link>
+      <Link className="no-interest-card" to="/interests/music">
+        <div className="no-card-art" aria-hidden="true">
+          <svg viewBox="0 0 600 180">
+            {Array.from({ length: 14 }, (_, i) => (
+              <rect key={i} x={91 + i * 30} y="35" width="28" height="110" rx="3" fill="currentColor" opacity="0.75" />
+            ))}
+            {[0, 1, 3, 4, 5, 7, 8, 10, 11, 12].map((i) => (
+              <rect key={i} x={111 + i * 30} y="35" width="18" height="68" rx="2" fill="#111723" />
+            ))}
+          </svg>
+          <span>PIANO · GUITAR · SOUND</span>
+        </div>
+        <div className="no-card-body">
+          <p className="no-eyebrow">Playing & understanding</p>
+          <h2>Music <span>↗</span></h2>
+          <p>
+            Piano since childhood, a guitar ambition, and curiosity about music theory
+            and the physics of sound.
+          </p>
+          <div className="no-tags">
+            <span>Music theory</span>
+            <span>Ear training</span>
+            <span>Acoustics</span>
+          </div>
+        </div>
+      </Link>
+      <Link className="no-interest-card" to="/interests/3d-rendering">
+        <div className="no-card-art" aria-hidden="true">
+          <AtomsIllustration />
+          <span>ATOMS · BONDS · PERCEPTION</span>
+        </div>
+        <div className="no-card-body">
+          <p className="no-eyebrow">The unreasonable effectiveness of</p>
+          <h2>3D rendering <span>↗</span></h2>
+          <p>
+            Why a few well-lit spheres make people stop and look. Billboards, atoms and
+            bonds, and giving the visual brain something to work with.
+          </p>
+          <div className="no-tags">
+            <span>Billboarding</span>
+            <span>Molecular graphics</span>
+            <span>Visual perception</span>
           </div>
         </div>
       </Link>
