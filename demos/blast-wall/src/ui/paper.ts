@@ -11,6 +11,13 @@ export const PAPER = `
 <p class="byline">On what this solver actually solves, the choices behind it, and what it leaves out.</p>
 
 <section>
+<h2>Before the equations</h2>
+<p>Imagine pushing the middle of a brick while holding its ends. The unknown is its displacement: how far each location moves. A mesh divides the brick into small elements, with nodes at their corners. Shape functions interpolate the motion between those nodes. Changes in displacement give strain (relative stretching and shearing); a material law converts strain to stress (internal force per area). Surface force per area is called traction. Mortar is the layer joining bricks; here its opening and sliding are represented by interface laws.</p>
+<p>The finite element method (FEM) balances these forces through weighted integrals. A virtual displacement is a small imagined motion, compatible with the supports, used as a weight. Requiring balance for each independent nodal motion gives equations for the nodal displacements. This is the bridge from a continuous brick to numbers a computer can advance.</p>
+<p>Read the equations below as a map of that process. A dot over displacement means a time derivative; two dots mean acceleration. Ω denotes a volume, Γ a surface, and an integral adds contributions over it. A colon between stress and strain tensors sums their matching components.</p>
+</section>
+
+<section>
   <h2>Abstract</h2>
   <p class="abstract">
     Every brick on screen is a mesh of hexahedral finite elements, and every mortar joint
@@ -57,7 +64,8 @@ export const PAPER = `
    = \\sum_b \\int_{\\Gamma_t} \\delta\\mathbf{u}\\cdot\\bar{\\mathbf{t}}\\,d\\Gamma
    + \\sum_b \\int_{\\Omega_b} \\rho\\,\\delta\\mathbf{u}\\cdot\\mathbf{b}\\,d\\Omega$$
   <p>
-    Four integrals — inertia, internal work, interface work, external work. Everything
+    Five integrals in four groups — inertia, internal work, interface work, and external work
+    from surface loading plus gravity. Everything
     below is a decision about how to evaluate one of them.
   </p>
 </section>
@@ -145,10 +153,10 @@ export const PAPER = `
   $$\\mathbf{F} = \\sum_{a=1}^{8}(\\mathbf{x}_a - \\bar{\\mathbf{x}}) \\otimes \\nabla_X N_a\\big|_{\\boldsymbol{\\xi}=0},
     \\qquad \\nabla_X N_a\\big|_{0} = \\left(\\frac{\\xi_a}{4a},\\ \\frac{\\eta_a}{4b},\\ \\frac{\\zeta_a}{4c}\\right),$$
   <p>
-    polar-decomposed as $\\mathbf{F} = \\mathbf{R}\\,\\mathbf{U}$, and the internal force
-    becomes
+    polar-decomposed as $\\mathbf{F} = \\mathbf{R}\\,\\mathbf{U}$, and the resisting internal force
+    (subtracted from external force in the update) becomes
   </p>
-  $$\\mathbf{f}^{\\,e}_{\\text{int}} = -\\,\\mathbf{R}\\,\\mathbf{K}_e\\Big(\\mathbf{R}^{\\mathsf{T}}(\\mathbf{x}_e - \\bar{\\mathbf{x}}) - (\\mathbf{X}_e - \\bar{\\mathbf{X}})\\Big),$$
+  $$\\mathbf{f}^{\\,e}_{\\text{int}} = \\mathbf{R}\\,\\mathbf{K}_e\\Big(\\mathbf{R}^{\\mathsf{T}}(\\mathbf{x}_e - \\bar{\\mathbf{x}}) - (\\mathbf{X}_e - \\bar{\\mathbf{X}})\\Big),$$
   <p>
     which is exactly zero for any rigid motion and reduces to linear elasticity when
     $\\mathbf{R} = \\mathbf{I}$. $\\mathbf{R}$ comes from Müller's iterative quaternion
@@ -252,9 +260,9 @@ export const PAPER = `
     \\qquad \\mathbf{u}^{\\,n+1} = \\mathbf{u}^{\\,n} + \\Delta t\\,\\mathbf{v}^{\\,n+1/2}$$
   <p>
     Because $\\mathbf{M}$ is diagonal there is no solve anywhere in the loop — and, more
-    importantly here, the scheme keeps running when elements lose all their stiffness. That
-    is why blast and crash codes are explicit: an implicit solver needs a tangent stiffness
-    that stays invertible, and a wall coming apart does not oblige. The scheme is
+    importantly here, the scheme keeps running when elements lose all their stiffness. Explicit methods avoid repeated nonlinear equilibrium solves as joints fail.
+    Implicit dynamics can include mass and damping in its effective matrix even when
+    material stiffness is singular; convergence and cost are the tradeoff. The scheme is
     conditionally stable at $\\Delta t \\le 2/\\omega_{\\max}$, and $\\omega_{\\max}$ is
     measured rather than guessed — power iteration on $\\mathbf{M}^{-1}\\mathbf{K}_e$ for
     the element, then compared against the joint springs at
@@ -322,4 +330,7 @@ export const PAPER = `
     predict something it could have got wrong has not been tested, only run.
   </p>
 </section>
+<p>These are software verification checks, not validation against a real blast test.
+Material calibration, mesh and timestep convergence, and physical measurements are
+needed before treating a predicted failure load as an engineering result.</p>
 `;

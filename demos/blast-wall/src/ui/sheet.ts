@@ -24,7 +24,7 @@ const GUIDE = /* html */ `
   </li>
   <li>
     <b>Everything happens in 300 milliseconds</b>, so playback starts at 0.03× and goes
-    down to 0.003×. At real speed you would miss the entire event between two frames.
+    down to 0.003×. At 60 frames per second that is only about eighteen frames, too fast to inspect each crack.
   </li>
   <li>
     <b>Colour by joint damage</b> to see the crack path glowing through the mortar, or by
@@ -37,7 +37,7 @@ const GUIDE = /* html */ `
   </li>
   <li>
     <b>Every material number is a slider</b>, with its literature range behind it. Drive
-    the joint tensile strength to zero for a dry-stacked wall held up by friction alone.
+    both joint tensile strength and cohesion to zero for a dry-stacked wall held up by friction alone.
     Turn strain-rate hardening off and the same charge does more damage.
   </li>
   <li>
