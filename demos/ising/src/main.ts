@@ -239,7 +239,7 @@ async function start(): Promise<void> {
     for (const s of scatters) s.setTc(Tc());
     scatterM.setRefCurve(
       g === 'square' ? (T) => onsagerMagnetization(T) : null,
-      g === 'square' ? 'Onsager, exact' : '',
+      g === 'square' ? 'Yang, infinite lattice' : '',
     );
   }
   applyGeometryToCharts();

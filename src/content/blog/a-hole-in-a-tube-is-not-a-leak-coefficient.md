@@ -23,6 +23,8 @@ So: no 1D bore. The simulation is the whole two-dimensional region — the air i
 
 $$\frac{\partial p}{\partial t} = -\rho c^{2}\,\nabla\cdot\mathbf{u}, \qquad \frac{\partial \mathbf{u}}{\partial t} = -\frac{1}{\rho}\,\nabla p$$
 
+Here $p$ is pressure relative to ambient pressure, in pascals (Pa); $\mathbf{u}$ is the small local air velocity, not the wave’s travel speed. The constants $\rho$ and $c$ are ambient air density and sound speed. The grid cell width is $h$ and the time step is $\Delta t$.
+
 Pressure and velocity leapfrog: update $p$ from the divergence of $\mathbf{u}$, then $\mathbf{u}$ from the gradient of the $p$ you just wrote. They live on a staggered (MAC) grid — $p$ at cell centres, the velocity components on the faces between cells, half a cell offset. That offset is what makes the finite differences second-order accurate on a stencil one cell wide, and it's also what makes the wall condition trivial, which is the next point.
 
 The time step is fixed by stability. Two-dimensional leapfrog needs $c\,\Delta t/h \le 1/\sqrt{2}$; I run at half that:
@@ -55,13 +57,15 @@ The field is also *drawn* fading to nothing across that layer, so the rectangula
 
 The compression front (orange) arrives, and while it's over the gap it drives air out through the neck — the plume below the wall. Behind it, blue: the rarefaction that follows, and behind that the ringing left over from the strike. Part of the front continues down the bore to the right, at reduced amplitude. Part reflects back toward the strike point.
 
-Widen the hole and the split moves: more escapes, less continues. That relationship is measured rather than typed in, and it's the check I care most about in the test suite — a 90 mm hole leaves 347 Pa downstream where a 10 mm hole leaves 395 Pa, and radiates 122 Pa into the atmosphere below where the small one radiates 19 Pa.
+Widen the hole and the probe amplitudes change: the downstream peak decreases and the exterior peak increases in this comparison. That relationship is measured rather than typed in, and it's the check I care most about in the test suite — a 90 mm hole leaves 347 Pa downstream where a 10 mm hole leaves 395 Pa, and radiates 122 Pa into the atmosphere below where the small one radiates 19 Pa.
+
+Pressure peaks at different points are not energy fractions. Acoustic energy flux is $p\mathbf{u}$; measuring transmitted or radiated energy requires integrating its outward normal component over a boundary and over time (per unit depth in this 2D model). The probes shown here measure pressure, so they establish local waveform changes.
 
 ## The end of the tube is the other half of the story
 
 I built this to look at the hole, and then spent most of my time looking at the far end, because the far end does something that reads as counterintuitive until you see it twice.
 
-An open end is a *pressure release*. The air in the bore opens onto an atmosphere that can't sustain the overpressure, so $p \approx 0$ there, and a compression arriving at an open end reflects **inverted** — it comes back as suction. A rigid cap is the opposite: the air can't move, pressure doubles at the wall, and the pulse returns with the sign it left with. In impedance terms, with $R = (Z_2 - Z_1)/(Z_2 + Z_1)$, the cap is $Z_2 \to \infty$ and $R \to +1$; the open end is $Z_2 \to 0$ and $R \to -1$.
+At wavelengths long compared with the opening, an open end is approximately a *pressure release*. The air in the bore opens onto an atmosphere that can't sustain the overpressure, so $p \approx 0$ there, and a compression arriving at an open end reflects **inverted** — it comes back as suction. A rigid cap is the opposite: the air can't move, pressure doubles at the wall, and the pulse returns with the sign it left with. In impedance terms, with $R = (Z_2 - Z_1)/(Z_2 + Z_1)$, the cap is $Z_2 \to \infty$ and $R \to +1$; an ideal pressure-release end is $Z_2 \to 0$ and $R \to -1$. Here Z is acoustic impedance, the pressure-to-velocity ratio for the travelling wave. A real opening has frequency-dependent radiation impedance, so a broadband pulse is not simply multiplied by −1.
 
 Here's one meter, a third of the way down a plain tube, in both cases. Same strike, same tube, only the far end differs.
 
@@ -69,9 +73,9 @@ Here's one meter, a third of the way down a plain tube, in both cases. Same stri
 
 ![Closed end: the pulse returns with the same sign and nearly the same size](/blog/tube-sim/closed-end-trace.png)
 
-Both traces show the incident pulse at ~1.5 ms as a clean spike of about +290 Pa. The difference is at ~4.5 ms, when the round trip to the far end and back completes. With the end capped, the meter sees another full positive peak — the pulse came back the way it left. With the end open, it sees a shallow *negative* trough instead: inverted, and much smaller, because most of that energy didn't reflect at all, it radiated out of the mouth and left.
+Both traces show the incident pulse at ~1.5 ms as a clean spike of about +290 Pa. The difference is at ~4.5 ms, when the round trip to the far end and back completes. With the end capped, the meter sees another full positive peak — the pulse came back the way it left. With the end open, it sees a shallow *negative* trough instead: inverted, and much smaller, consistent with radiation out of the mouth and a changed waveform. The peak-pressure ratio alone does not measure the radiated energy fraction.
 
-The measured version, from the test suite: +400 Pa returning from the cap, −86 Pa returning from the open mouth. The sign flip and the radiated loss, both, from one rectangle of solid cells.
+The measured version, from the test suite: +400 Pa returning from the cap, −86 Pa returning from the open mouth. The sign flip and changed pressure peak, both, from one rectangle of solid cells.
 
 ## Three milliseconds is not a spectator sport
 
@@ -98,6 +102,6 @@ The demo ships a test suite that runs on plain Node, no browser:
 - A meter records the pulse arriving at 4.02 ms where the speed of sound says 3.86 ms.
 - A capped end returns +400 Pa; an open end returns −86 Pa.
 
-The first one is the honest calibration: it tells you the grid is fine enough to be believed to about half a percent, and everything else is measured on top of that.
+The first check bounds the wave-speed error for that pulse and grid. It does not establish half-percent accuracy for hole scattering, amplitudes or the whole model; the separate arrival-time check differs by about 4%. Refine the grid and compare the particular observable you care about before assigning an error bar.
 
 **[Go hit the tube](/demos/tube-sim/)** — drop a meter before the hole and another after it, cap the far end, and watch the sign of what comes back.

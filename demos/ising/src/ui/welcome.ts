@@ -24,7 +24,7 @@ export function showWelcome(tc: number): Promise<void> {
       <p class="welcome-lede">
         Every pixel is a tiny magnet, flipping millions of times a second on your GPU.
         They only talk to their neighbors — yet together they do something sharp and
-        dramatic at one exact temperature.
+        dramatic near a critical temperature.
       </p>
       <ol class="welcome-steps">
         <li>
@@ -53,7 +53,7 @@ export function showWelcome(tc: number): Promise<void> {
       </ol>
       <p class="welcome-note">
         Every chart is measured live from <em>your</em> lattice — and for the square
-        lattice, your dots land on a curve Onsager computed by hand in 1944. The full
+        lattice, compare your finite, sampled measurements with exact equilibrium references. The full
         story is under “How does it work?”, top left.
       </p>
       <button type="button" class="welcome-go">Let’s go</button>
