@@ -57,8 +57,8 @@ The renderer is where the Moon becomes the Moon:
 
 - **Normals from the heightfield gradient** feed a custom surface shader.
 - **Per-vertex ambient occlusion**, baked at generation time, darkens crater floors — cheap and surprisingly effective.
-- **A low sun angle** exaggerates relief; the terminator region is where lunar landscapes look best (every Apollo photo you remember was shot there).
-- **No atmospheric scattering.** This is the counterintuitive one: on Earth, distance means haze and a bright horizon. On the Moon there is no air, so the horizon *darkens* into black sky. Getting this wrong — adding the usual fog — instantly makes it look like a desert level. The absence of an effect is the effect.
+- **A low sun angle** exaggerates relief; the terminator region is where lunar landscapes look best (long shadows make small changes in height easier to read).
+- **No atmospheric scattering.** This is the counterintuitive one: on Earth, distance means haze and a bright horizon. The Moon has no substantial atmosphere to scatter sunlight into a bright sky. The sky stays black even beside sunlit terrain; the ground need not darken merely because it is distant. Getting this wrong — adding the usual fog — instantly makes it look like a desert level. The absence of an effect is the effect.
 
 ## What's next
 

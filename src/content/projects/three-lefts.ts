@@ -66,8 +66,7 @@ The governing constraint is that **no screen-space technique may sample across a
 boundary**. SSAO, SSR, TAA and screen-space shadows all read neighbouring pixels, and
 across a doorway edge the neighbouring pixel is in a different room; they smear and ghost
 at exactly the seam the player is staring at. That rules out the cheap route to looking
-good, so the look comes from baked vertex AO, a purpose-built environment map, and MSAA —
-the only anti-aliasing that qualifies.
+good, so the look comes from baked vertex AO, a purpose-built environment map, and MSAA (multisample anti-aliasing), which smooths geometry edges without borrowing a neighboring room’s pixels.
 
 Sound obeys the same graph. Audio travels the portal edges rather than any space the rooms
 sit in, so a lantern two rooms away arrives from the direction the *graph* says. The
