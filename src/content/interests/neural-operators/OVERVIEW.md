@@ -50,7 +50,7 @@ Brugiapaglia, Franco and Nelsen's short 2026 theory tour connects approximation 
 
 The practical lesson is to distinguish **sampling different input functions for training** from **sampling spatial points within one input function**. An optimal strategy for the former is not automatically an optimal quadrature rule for the latter.
 
-## 4. What is closest to our smart-integration idea?
+## 4. Which methods could reduce the cost of integration?
 
 **Continuous Empirical Cubature (2023)** optimizes both weights and locations. It directly addresses representing a family of integrals with a small rule. Movable quadrature nodes require the ability to evaluate the integrand there; installed industrial sensors may not permit this. [CECM](https://arxiv.org/abs/2308.03877)
 
