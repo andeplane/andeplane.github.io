@@ -4,14 +4,14 @@
 **First posted / published:** 2026/09/02
 **Last revision shown by source:** 2026/09/02
 **Publication status:** arXiv version collected; separate publication status not independently verified
-**Review depth:** targeted_full_text
+**Review depth:** targeted full text
 **Reading location:** Abstract and targeted method discussion.
 
 Lets cubature weights vary with latent state and prunes integration entities in reduced finite-element models.
 
 September 2026 preprint especially close to the proposed adaptive-inference idea. Reported point reductions are benchmark-specific and are not neural-operator runtime measurements.
 
-[Primary source](https://arxiv.org/abs/2609.03068) · [Local PDF](../adaptive-cubature-2026.pdf)
+[Primary source](https://arxiv.org/abs/2609.03068)
 
 **Topics:** quadrature, hyper-reduction
 

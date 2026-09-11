@@ -215,7 +215,7 @@ export const concepts = [
           <Formula inline tex={String.raw`\kappa_\theta(y-x)`} />. Its learned parameters are
           spectral coefficients; there is no need to evaluate a coordinate network for every pair.
         </p>
-        <h3>3. Match your A / K formulation</h3>
+        <h3>3. Relate the sampling map A to the operator K</h3>
         <Formula
           tex={String.raw`K_\theta(x,y,f(x),f(y))=\underbrace{\sum_{k\in\mathcal M}R_\theta(k)e^{2\pi i k(y-x)}}_{\kappa_\theta(y-x)}\,f(x)`}
         />

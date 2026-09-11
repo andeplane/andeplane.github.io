@@ -4,14 +4,14 @@
 **First posted / published:** 2017/03/09
 **Last revision shown by source:** 2017/03/09
 **Publication status:** arXiv version collected; separate publication status not independently verified
-**Review depth:** abstract_screened
+**Review depth:** abstract screened
 **Reading location:** Abstract and primary bibliographic record.
 
 Uses the range of a generative model as a prior for recovering signals from limited measurements.
 
 Connects learned structure to recovery guarantees. This concerns recovering a signal using a learned prior, not automatically accelerating training of that prior.
 
-[Primary source](https://arxiv.org/abs/1703.03208) · [Local PDF](../cs-generative-2017.pdf)
+[Primary source](https://arxiv.org/abs/1703.03208)
 
 **Topics:** compressed-sensing, inverse-problems
 

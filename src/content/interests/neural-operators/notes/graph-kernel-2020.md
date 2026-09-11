@@ -4,14 +4,14 @@
 **First posted / published:** 2020/03/07
 **Last revision shown by source:** 2020/03/07
 **Publication status:** arXiv version collected; separate publication status not independently verified
-**Review depth:** abstract_screened
+**Review depth:** abstract screened
 **Reading location:** Abstract and primary bibliographic record.
 
 Learns kernel interactions over spatial samples to approximate PDE solution maps.
 
 Direct ancestor of integral neural operators and a useful connection to graph methods; graph sampling and numerical integration still affect the result.
 
-[Primary source](https://arxiv.org/abs/2003.03485) · [Local PDF](../graph-kernel-2020.pdf)
+[Primary source](https://arxiv.org/abs/2003.03485)
 
 **Topics:** operator-learning, graphs
 

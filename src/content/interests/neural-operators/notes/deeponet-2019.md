@@ -4,14 +4,14 @@
 **First posted / published:** 2019/10/08
 **Last revision shown by source:** 2020/04/15
 **Publication status:** arXiv version collected; separate publication status not independently verified
-**Review depth:** abstract_screened
+**Review depth:** abstract screened
 **Reading location:** Abstract and primary bibliographic record.
 
 Represents an operator using an input-function encoder and a coordinate-dependent output representation.
 
 Core architecture and reference for sensor-to-field prediction. The original fixed-sensor branch network does not automatically support arbitrary input sensor layouts.
 
-[Primary source](https://arxiv.org/abs/1910.03193) · [Local PDF](../deeponet-2019.pdf)
+[Primary source](https://arxiv.org/abs/1910.03193)
 
 **Topics:** operator-learning, theory
 

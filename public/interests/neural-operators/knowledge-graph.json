@@ -1042,8 +1042,7 @@
         "David Fan",
         "Quentin Garrido",
         "Russell Howes",
-        "Mojtaba",
-        "Komeili",
+        "Mojtaba Komeili",
         "Matthew Muckley",
         "Ammar Rizvi",
         "Claire Roberts",
@@ -2536,17 +2535,10 @@
       "paper_count": 1
     },
     {
-      "id": "author:mojtaba",
+      "id": "author:komeili-mojtaba",
       "type": "author",
-      "label": "Mojtaba",
-      "title": "Mojtaba",
-      "paper_count": 1
-    },
-    {
-      "id": "author:komeili",
-      "type": "author",
-      "label": "Komeili",
-      "title": "Komeili",
+      "label": "Mojtaba Komeili",
+      "title": "Mojtaba Komeili",
       "paper_count": 1
     },
     {
@@ -6477,22 +6469,12 @@
     },
     {
       "id": "e306",
-      "source": "author:mojtaba",
+      "source": "author:komeili-mojtaba",
       "target": "vjepa2-2025",
       "relation": "authored",
-      "evidence": "Author listed in primary bibliographic metadata or PDF.",
-      "evidence_url": "https://arxiv.org/abs/2506.09985",
-      "evidence_locator": "citation_author metadata / paper byline",
-      "epistemic_status": "documented"
-    },
-    {
-      "id": "e307",
-      "source": "author:komeili",
-      "target": "vjepa2-2025",
-      "relation": "authored",
-      "evidence": "Author listed in primary bibliographic metadata or PDF.",
-      "evidence_url": "https://arxiv.org/abs/2506.09985",
-      "evidence_locator": "citation_author metadata / paper byline",
+      "evidence": "One author in the full-text byline; landing-page metadata splits the name.",
+      "evidence_url": "https://arxiv.org/html/2506.09985v1",
+      "evidence_locator": "Full-text byline",
       "epistemic_status": "documented"
     },
     {

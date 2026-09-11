@@ -64,7 +64,7 @@ export default function Reading() {
           remarkPlugins={[remarkGfm]}
           components={{
             a: ({ href = "", children }) => {
-              if (href.endsWith(".pdf"))
+              if (!href.startsWith("http") && href.endsWith(".pdf"))
                 return <span className="no-muted">{children} (see primary source)</span>;
               const url = target(href);
               return (

@@ -4,14 +4,14 @@
 **First posted / published:** 2024/05/29
 **Last revision shown by source:** 2024/11/05
 **Publication status:** arXiv version collected; separate publication status not independently verified
-**Review depth:** abstract_screened
+**Review depth:** abstract screened
 **Reading location:** Abstract and primary bibliographic record.
 
 Pretrains a PDE model and adapts it to downstream physical problems.
 
 Evidence of movement toward transfer across tasks and physics. Pretraining-scale costs differ sharply from a small thesis experiment using an existing model or benchmark.
 
-[Primary source](https://arxiv.org/abs/2405.19101) · [Local PDF](../poseidon-2024.pdf)
+[Primary source](https://arxiv.org/abs/2405.19101)
 
 **Topics:** operator-learning, foundation-models
 
