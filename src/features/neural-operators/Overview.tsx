@@ -13,6 +13,10 @@ export default function Overview() {
       <Link to={`${base}/labs?lesson=fourier-layer`}><span className="no-eyebrow">Explore another representation</span><h3>Try a Fourier layer →</h3><p>Learn six spectral multipliers in a small heat experiment. Then follow the longer Fourier walkthrough.</p></Link>
     </div>
     <section className="no-start-intro">
+      <h2>Go deeper: Gaussian quadrature</h2>
+      <p>How much can a few well-chosen samples tell us about an integral? <Link to="/blog/gaussian-quadrature-two-points-a-cubic">Explore Gaussian quadrature →</Link> Discover the two-point rule, compare evaluation budgets, and experiment with Legendre, Jacobi, Laguerre and Hermite rules.</p>
+    </section>
+    <section className="no-start-intro">
       <h2>Three questions to keep separate</h2>
       <ol className="no-learning-questions">
         <li><strong>What was measured?</strong> Input samples are the model’s information. A denser output plot does not add observations.</li>

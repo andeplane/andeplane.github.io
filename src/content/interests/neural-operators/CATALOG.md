@@ -61,3 +61,7 @@ Research snapshot: 10 September 2026. Year = first posting/publication in the co
 | [The Parametric Complexity of Operator Learning](https://arxiv.org/abs/2306.15924) | 2023 | core | [PDF](https://arxiv.org/pdf/2306.15924) | [Note](notes/parametric-complexity-2023.md) |
 
 | [Representation Equivalent Neural Operators: a Framework for Alias-free Operator Learning](https://arxiv.org/abs/2305.19913) | 2023 | core | [PDF](https://arxiv.org/pdf/2305.19913) | [Note](notes/reno-2023.md) |
+
+### Gaussian quadrature background (added 2026-09-11)
+
+- [Fast and Accurate Computation of Gauss–Legendre and Gauss–Jacobi Quadrature Nodes and Weights](https://appliedmaths.sun.ac.za/~nhale/publications/HaleTownsend2013a.pdf) — Nicholas Hale and Alex Townsend (2013). Constructs Gauss–Legendre and Gauss–Jacobi nodes and weights efficiently using asymptotic formulas and Newton iteration. Local PDF: `gauss-nodes-hale-townsend-2013.pdf`.
