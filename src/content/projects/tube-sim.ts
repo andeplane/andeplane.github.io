@@ -4,7 +4,7 @@ const project: ProjectMeta = {
   slug: 'tube-sim',
   title: 'Tube Acoustics Lab',
   description:
-    'A real 2D acoustic FDTD solver, not an animation. Strike a tube, watch the overpressure wave hit a hole in slow motion, and see exactly how much continues, escapes, and reflects.',
+    'A real 2D acoustic FDTD solver, not an animation. Strike a tube, watch the overpressure wave hit a hole in slow motion, and compare the pressure pulses that continue, escape, and reflect.',
   tags: ['TypeScript', 'Canvas 2D', 'Physics', 'Simulation', 'Acoustics'],
   liveUrl: '/demos/tube-sim/',
   repoUrl: 'https://github.com/andeplane/andeplane.github.io/tree/main/demos/tube-sim',
@@ -16,6 +16,10 @@ much bounces back? This is a real answer, not an animation of one: the whole 2D 
 domain — tube interior, walls, the hole's exterior, the open end's exterior — is
 solved with the linearized acoustic wave equation, in slow motion, down to fractions
 of a millisecond.
+
+Pressure here means the deviation from ambient pressure, measured in pascals (Pa).
+The colors show compression and rarefaction; the local air motion is much slower than
+the wave moving through it. This is a 2D slot model, not a calibrated cylindrical pipe.
 
 ## What you can do
 
@@ -41,8 +45,8 @@ Click anywhere in the air to drop a pressure meter — up to three, each with it
 color. Every meter shows its live reading right on the field and draws p(t) into one
 shared plot along the bottom, so a point before the hole, a point after it, and a point
 outside in the atmosphere can be compared on the same time base: the incoming pulse, the
-reflection coming back, and how much of it ever made it downstream, as numbers rather
-than an impression. Hover the plot to read every trace at that instant, and click a meter to
+reflection coming back, and how much of it ever made it downstream, as local pressure waveforms. Peak ratios are not energy fractions: energy flux is
+pressure times particle velocity, integrated across a boundary and over time. Hover the plot to read every trace at that instant, and click a meter to
 take it away again. Meters sample on the simulation clock rather than once per rendered
 frame, so the waveform is the same whether you watch it at 1× or at 0.0001×.
 
