@@ -57,7 +57,7 @@ export default function Music() {
           <h2 id="music-theory">The theory is part of the fun</h2>
           <p>
             I’m also interested in music theory and the things around music: recognising
-            intervals — the distance in pitch between two notes — and understanding how notes fit together, and connecting what I hear
+            intervals — the distance in pitch between two notes — understanding how notes fit together, and connecting what I hear
             with what I’m playing.
           </p>
           <p>

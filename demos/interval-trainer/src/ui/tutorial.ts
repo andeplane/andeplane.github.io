@@ -140,10 +140,10 @@ export class Tutorial {
       eyebrow('step 2 of 4'),
       title('Ten places a note can land'),
       para(
-        'Count the major scale from the root: C, D, E, F, G are <b>1, 2, 3, 4, 5</b>.
+        `Count the major scale from the root: C, D, E, F, G are <b>1, 2, 3, 4, 5</b>.
 A degree is not a semitone count: C to E is degree 3 but spans four piano-key steps.
 A <b>semitone</b> is one adjacent key, including black keys; twelve make an octave.
-With C as root, <b>3</b> is E and <b>3b</b> is E-flat. <b>b</b> after a degree means ' +
+With C as root, <b>3</b> is E and <b>3b</b> is E-flat. <b>b</b> after a degree means ` +
           'a semitone lower: <b>3</b> is the bright major third, <b>3b</b> the darker ' +
           'minor one. <b>4#</b> is the restless one halfway up (some write it <b>5b</b>). ' +
           'The root and fifth are not here — the opening chord gives you those for free.',
