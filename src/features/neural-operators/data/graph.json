@@ -3385,6 +3385,43 @@
       "label": "Rima Alaifari",
       "title": "Rima Alaifari",
       "paper_count": 1
+    },
+    {
+      "id": "gauss-nodes-hale-townsend-2013",
+      "type": "paper",
+      "label": "Fast Gaussian quadrature",
+      "title": "Fast and Accurate Computation of Gauss–Legendre and Gauss–Jacobi Quadrature Nodes and Weights",
+      "year": 2013,
+      "priority": "background",
+      "summary": "Constructs Gauss–Legendre and Gauss–Jacobi nodes and weights efficiently using asymptotic formulas and Newton iteration.",
+      "limits": "Background for the Gaussian quadrature article. Fast construction of a rule is distinct from integration error and neural-operator training cost; no benchmark was reproduced.",
+      "url": "https://appliedmaths.sun.ac.za/~nhale/publications/HaleTownsend2013a.pdf",
+      "file": "gauss-nodes-hale-townsend-2013.pdf",
+      "authors": [
+        "Nicholas Hale",
+        "Alex Townsend"
+      ],
+      "tags": [
+        "quadrature",
+        "theory"
+      ],
+      "publication_status": "SIAM Journal on Scientific Computing 35(2), A652–A674 (2013)",
+      "review_level": "abstract_and_introduction_screened",
+      "seed": false
+    },
+    {
+      "id": "author:hale-nicholas",
+      "type": "author",
+      "label": "Nicholas Hale",
+      "title": "Nicholas Hale",
+      "paper_count": 1
+    },
+    {
+      "id": "author:townsend-alex",
+      "type": "author",
+      "label": "Alex Townsend",
+      "title": "Alex Townsend",
+      "paper_count": 1
     }
   ],
   "edges": [
@@ -10859,6 +10896,56 @@
       "evidence_url": "https://arxiv.org/abs/2306.15924",
       "evidence_locator": "PDF page 1",
       "epistemic_status": "documented"
+    },
+    {
+      "id": "gaussian-blog-0",
+      "source": "author:hale-nicholas",
+      "target": "gauss-nodes-hale-townsend-2013",
+      "relation": "authored",
+      "evidence": "Verified author on the PDF byline.",
+      "evidence_url": "https://appliedmaths.sun.ac.za/~nhale/publications/HaleTownsend2013a.pdf",
+      "evidence_locator": "Page 1: byline, abstract and introduction",
+      "epistemic_status": "documented"
+    },
+    {
+      "id": "gaussian-blog-1",
+      "source": "author:townsend-alex",
+      "target": "gauss-nodes-hale-townsend-2013",
+      "relation": "authored",
+      "evidence": "Verified author on the PDF byline.",
+      "evidence_url": "https://appliedmaths.sun.ac.za/~nhale/publications/HaleTownsend2013a.pdf",
+      "evidence_locator": "Page 1: byline, abstract and introduction",
+      "epistemic_status": "documented"
+    },
+    {
+      "id": "gaussian-blog-2",
+      "source": "gauss-nodes-hale-townsend-2013",
+      "target": "field:quadrature",
+      "relation": "classified_in",
+      "evidence": "Constructs Gauss–Legendre and Gauss–Jacobi nodes and weights efficiently using asymptotic formulas and Newton iteration.",
+      "evidence_url": "https://appliedmaths.sun.ac.za/~nhale/publications/HaleTownsend2013a.pdf",
+      "evidence_locator": "Page 1: byline, abstract and introduction",
+      "epistemic_status": "curated_classification"
+    },
+    {
+      "id": "gaussian-blog-3",
+      "source": "gauss-nodes-hale-townsend-2013",
+      "target": "field:theory",
+      "relation": "classified_in",
+      "evidence": "Constructs Gauss–Legendre and Gauss–Jacobi nodes and weights efficiently using asymptotic formulas and Newton iteration.",
+      "evidence_url": "https://appliedmaths.sun.ac.za/~nhale/publications/HaleTownsend2013a.pdf",
+      "evidence_locator": "Page 1: byline, abstract and introduction",
+      "epistemic_status": "curated_classification"
+    },
+    {
+      "id": "gaussian-blog-4",
+      "source": "gauss-nodes-hale-townsend-2013",
+      "target": "area:integration",
+      "relation": "bridges_field",
+      "evidence": "Constructs Gauss–Legendre and Gauss–Jacobi nodes and weights efficiently using asymptotic formulas and Newton iteration.",
+      "evidence_url": "https://appliedmaths.sun.ac.za/~nhale/publications/HaleTownsend2013a.pdf",
+      "evidence_locator": "Page 1: byline, abstract and introduction",
+      "epistemic_status": "curated_classification"
     }
   ],
   "author_aliases": {

@@ -29,6 +29,9 @@ jobs:
       - name: Test neural operator numerics
         run: npm run test:neural-operators
 
+      - name: Test Gaussian quadrature numerics
+        run: node --experimental-strip-types --test tests/gaussian-quadrature/*.test.ts
+
       # Same entry point the Pages deploy uses: builds every demo under
       # demos/ (each demo's own build script, including its test suite)
       # and then typechecks and builds the site itself.
