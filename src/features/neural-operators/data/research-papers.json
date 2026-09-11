@@ -1,0 +1,721 @@
+{
+  "chen-1995": {
+    "title": "Universal approximation to nonlinear operators by neural networks with arbitrary activation functions and its application to dynamical systems",
+    "authors": [
+      "Chen, Tianping",
+      "Chen, Hong"
+    ],
+    "year": 1995,
+    "source_url": "https://pubmed.ncbi.nlm.nih.gov/18263379/",
+    "publication_status": "IEEE Transactions on Neural Networks 6(4):911–917; DOI 10.1109/72.392253"
+  },
+  "eim-2004": {
+    "title": "An empirical interpolation method: application to efficient reduced-basis discretization of partial differential equations",
+    "authors": [
+      "Barrault, Maxime",
+      "Maday, Yvon",
+      "Nguyen, Ngoc Cuong",
+      "Patera, Anthony T."
+    ],
+    "year": 2004,
+    "source_url": "https://www.mit.edu/~cuongng/publication/pub1/",
+    "publication_status": "Comptes Rendus Mathematique 339 (2004), 667–672; DOI 10.1016/j.crma.2004.08.006"
+  },
+  "stable-cs-2005": {
+    "title": "Stable Signal Recovery from Incomplete and Inaccurate Measurements",
+    "authors": [
+      "Candes, Emmanuel",
+      "Romberg, Justin",
+      "Tao, Terence"
+    ],
+    "year": 2005,
+    "source_url": "https://arxiv.org/abs/math/0503066",
+    "publication_status": "arXiv version collected; separate publication status not independently verified"
+  },
+  "deim-2009": {
+    "title": "Discrete Empirical Interpolation for Nonlinear Model Reduction",
+    "authors": [
+      "Chaturantabut, Saifon",
+      "Sorensen, Danny C."
+    ],
+    "year": 2009,
+    "source_url": "https://laertes.caam.rice.edu/tech_reports/2009/TR09-05.pdf",
+    "publication_status": "Rice technical report TR09-05 (2009); precursor to SIAM J. Sci. Comput. 2010 DEIM article"
+  },
+  "sparse-operators-2012": {
+    "title": "Identification of Sparse Linear Operators",
+    "authors": [
+      "Heckel, Reinhard",
+      "Bölcskei, Helmut"
+    ],
+    "year": 2012,
+    "source_url": "https://arxiv.org/abs/1209.5187",
+    "publication_status": "arXiv version collected; separate publication status not independently verified"
+  },
+  "sindy-2015": {
+    "title": "Discovering governing equations from data: Sparse identification of nonlinear dynamical systems",
+    "authors": [
+      "Brunton, Steven L.",
+      "Proctor, Joshua L.",
+      "Kutz, J. Nathan"
+    ],
+    "year": 2015,
+    "source_url": "https://arxiv.org/abs/1509.03580",
+    "publication_status": "arXiv version collected; separate publication status not independently verified"
+  },
+  "cs-generative-2017": {
+    "title": "Compressed Sensing using Generative Models",
+    "authors": [
+      "Bora, Ashish",
+      "Jalal, Ajil",
+      "Price, Eric",
+      "Dimakis, Alexandros G."
+    ],
+    "year": 2017,
+    "source_url": "https://arxiv.org/abs/1703.03208",
+    "publication_status": "arXiv version collected; separate publication status not independently verified"
+  },
+  "cs-polynomials-2017": {
+    "title": "Compressed sensing approaches for polynomial approximation of high-dimensional functions",
+    "authors": [
+      "Adcock, Ben",
+      "Brugiapaglia, Simone",
+      "Webster, Clayton G."
+    ],
+    "year": 2017,
+    "source_url": "https://arxiv.org/abs/1703.06987",
+    "publication_status": "arXiv version collected; separate publication status not independently verified"
+  },
+  "ecm-2017": {
+    "title": "Dimensional hyper-reduction of nonlinear finite element models via empirical cubature",
+    "authors": [
+      "Hernandez, J. A.",
+      "Caicedo, M. A.",
+      "Ferrer, A."
+    ],
+    "year": 2017,
+    "source_url": "https://upcommons.upc.edu/handle/2117/91502?locale-attribute=en",
+    "publication_status": "Computer Methods in Applied Mechanics and Engineering 313 (2017), 687–722"
+  },
+  "world-models-2018": {
+    "title": "World Models",
+    "authors": [
+      "Ha, David",
+      "Schmidhuber, Jürgen"
+    ],
+    "year": 2018,
+    "source_url": "https://arxiv.org/abs/1803.10122",
+    "publication_status": "arXiv version collected; separate publication status not independently verified"
+  },
+  "deeponet-2019": {
+    "title": "DeepONet: Learning nonlinear operators for identifying differential equations based on the universal approximation theorem of operators",
+    "authors": [
+      "Lu, Lu",
+      "Jin, Pengzhan",
+      "Karniadakis, George Em"
+    ],
+    "year": 2019,
+    "source_url": "https://arxiv.org/abs/1910.03193",
+    "publication_status": "arXiv version collected; separate publication status not independently verified"
+  },
+  "fno-2020": {
+    "title": "Fourier Neural Operator for Parametric Partial Differential Equations",
+    "authors": [
+      "Li, Zongyi",
+      "Kovachki, Nikola",
+      "Azizzadenesheli, Kamyar",
+      "Liu, Burigede",
+      "Bhattacharya, Kaushik",
+      "Stuart, Andrew",
+      "Anandkumar, Anima"
+    ],
+    "year": 2020,
+    "source_url": "https://arxiv.org/abs/2010.08895",
+    "publication_status": "ICLR 2021; cited as such in the 2026 seed"
+  },
+  "gns-2020": {
+    "title": "Learning to Simulate Complex Physics with Graph Networks",
+    "authors": [
+      "Sanchez-Gonzalez, Alvaro",
+      "Godwin, Jonathan",
+      "Pfaff, Tobias",
+      "Ying, Rex",
+      "Leskovec, Jure",
+      "Battaglia, Peter W."
+    ],
+    "year": 2020,
+    "source_url": "https://arxiv.org/abs/2002.09405",
+    "publication_status": "arXiv version collected; separate publication status not independently verified"
+  },
+  "graph-kernel-2020": {
+    "title": "Neural Operator: Graph Kernel Network for Partial Differential Equations",
+    "authors": [
+      "Li, Zongyi",
+      "Kovachki, Nikola",
+      "Azizzadenesheli, Kamyar",
+      "Liu, Burigede",
+      "Bhattacharya, Kaushik",
+      "Stuart, Andrew",
+      "Anandkumar, Anima"
+    ],
+    "year": 2020,
+    "source_url": "https://arxiv.org/abs/2003.03485",
+    "publication_status": "arXiv version collected; separate publication status not independently verified"
+  },
+  "neural-operator-2021": {
+    "title": "Neural Operator: Learning Maps Between Function Spaces",
+    "authors": [
+      "Kovachki, Nikola",
+      "Li, Zongyi",
+      "Liu, Burigede",
+      "Azizzadenesheli, Kamyar",
+      "Bhattacharya, Kaushik",
+      "Stuart, Andrew",
+      "Anandkumar, Anima"
+    ],
+    "year": 2021,
+    "source_url": "https://arxiv.org/abs/2108.08481",
+    "publication_status": "JMLR 24(89):1–97 (2023)"
+  },
+  "seismic-2021": {
+    "title": "Seismic wave propagation and inversion with Neural Operators",
+    "authors": [
+      "Yang, Yan",
+      "Gao, Angela F.",
+      "Castellanos, Jorge C.",
+      "Ross, Zachary E.",
+      "Azizzadenesheli, Kamyar",
+      "Clayton, Robert W."
+    ],
+    "year": 2021,
+    "source_url": "https://arxiv.org/abs/2108.05421",
+    "publication_status": "arXiv version collected; separate publication status not independently verified"
+  },
+  "u-fno-2021": {
+    "title": "U-FNO -- An enhanced Fourier neural operator-based deep-learning model for multiphase flow",
+    "authors": [
+      "Wen, Gege",
+      "Li, Zongyi",
+      "Azizzadenesheli, Kamyar",
+      "Anandkumar, Anima",
+      "Benson, Sally M."
+    ],
+    "year": 2021,
+    "source_url": "https://arxiv.org/abs/2109.03697",
+    "publication_status": "arXiv version collected; separate publication status not independently verified"
+  },
+  "fourcastnet-2022": {
+    "title": "FourCastNet: A Global Data-driven High-resolution Weather Model using Adaptive Fourier Neural Operators",
+    "authors": [
+      "Pathak, Jaideep",
+      "Subramanian, Shashank",
+      "Harrington, Peter",
+      "Raja, Sanjeev",
+      "Chattopadhyay, Ashesh",
+      "Mardani, Morteza",
+      "Kurth, Thorsten",
+      "Hall, David",
+      "Li, Zongyi",
+      "Azizzadenesheli, Kamyar",
+      "Hassanzadeh, Pedram",
+      "Kashinath, Karthik",
+      "Anandkumar, Animashree"
+    ],
+    "year": 2022,
+    "source_url": "https://arxiv.org/abs/2202.11214",
+    "publication_status": "arXiv version collected; separate publication status not independently verified"
+  },
+  "pdebench-2022": {
+    "title": "PDEBENCH: An Extensive Benchmark for Scientific Machine Learning",
+    "authors": [
+      "Takamoto, Makoto",
+      "Praditia, Timothy",
+      "Leiteritz, Raphael",
+      "MacKinlay, Dan",
+      "Alesiani, Francesco",
+      "Pflüger, Dirk",
+      "Niepert, Mathias"
+    ],
+    "year": 2022,
+    "source_url": "https://arxiv.org/abs/2210.07182",
+    "publication_status": "arXiv version collected; separate publication status not independently verified"
+  },
+  "cecm-2023": {
+    "title": "CECM: A continuous empirical cubature method with application to the dimensional hyperreduction of parameterized finite element models",
+    "authors": [
+      "Hernandez, J. A.",
+      "Bravo, J. R.",
+      "de Parga, S. Ares"
+    ],
+    "year": 2023,
+    "source_url": "https://arxiv.org/abs/2308.03877",
+    "publication_status": "arXiv version collected; separate publication status not independently verified"
+  },
+  "dreamerv3-2023": {
+    "title": "Mastering Diverse Domains through World Models",
+    "authors": [
+      "Hafner, Danijar",
+      "Pasukonis, Jurgis",
+      "Ba, Jimmy",
+      "Lillicrap, Timothy"
+    ],
+    "year": 2023,
+    "source_url": "https://arxiv.org/abs/2301.04104",
+    "publication_status": "Collected arXiv precursor; journal article in Nature (2025) has title Mastering diverse control tasks through world models"
+  },
+  "em-design-2023": {
+    "title": "A neural operator-based surrogate solver for free-form electromagnetic inverse design",
+    "authors": [
+      "Augenstein, Yannick",
+      "Repän, Taavi",
+      "Rockstuhl, Carsten"
+    ],
+    "year": 2023,
+    "source_url": "https://arxiv.org/abs/2302.01934",
+    "publication_status": "arXiv version collected; separate publication status not independently verified"
+  },
+  "gino-2023": {
+    "title": "Geometry-Informed Neural Operator for Large-Scale 3D PDEs",
+    "authors": [
+      "Li, Zongyi",
+      "Kovachki, Nikola Borislavov",
+      "Choy, Chris",
+      "Li, Boyi",
+      "Kossaifi, Jean",
+      "Otta, Shourya Prakash",
+      "Nabian, Mohammad Amin",
+      "Stadler, Maximilian",
+      "Hundt, Christian",
+      "Azizzadenesheli, Kamyar",
+      "Anandkumar, Anima"
+    ],
+    "year": 2023,
+    "source_url": "https://arxiv.org/abs/2309.00583",
+    "publication_status": "arXiv version collected; separate publication status not independently verified"
+  },
+  "nio-2023": {
+    "title": "Neural Inverse Operators for Solving PDE Inverse Problems",
+    "authors": [
+      "Molinaro, Roberto",
+      "Yang, Yunan",
+      "Engquist, Björn",
+      "Mishra, Siddhartha"
+    ],
+    "year": 2023,
+    "source_url": "https://arxiv.org/abs/2301.11167",
+    "publication_status": "arXiv version collected; separate publication status not independently verified"
+  },
+  "pde-control-2023": {
+    "title": "Neural Operators for PDE Backstepping Control of First-Order Hyperbolic PIDE with Recycle and Delay",
+    "authors": [
+      "Qi, Jie",
+      "Zhang, Jing",
+      "Krstic, Miroslav"
+    ],
+    "year": 2023,
+    "source_url": "https://arxiv.org/abs/2307.11436",
+    "publication_status": "arXiv version collected; separate publication status not independently verified"
+  },
+  "sfno-2023": {
+    "title": "Spherical Fourier Neural Operators: Learning Stable Dynamics on the Sphere",
+    "authors": [
+      "Bonev, Boris",
+      "Kurth, Thorsten",
+      "Hundt, Christian",
+      "Pathak, Jaideep",
+      "Baust, Maximilian",
+      "Kashinath, Karthik",
+      "Anandkumar, Anima"
+    ],
+    "year": 2023,
+    "source_url": "https://arxiv.org/abs/2306.03838",
+    "publication_status": "ICML 2023; PMLR 202"
+  },
+  "fno-discretization-2024": {
+    "title": "Discretization Error of Fourier Neural Operators",
+    "authors": [
+      "Lanthaler, Samuel",
+      "Stuart, Andrew M.",
+      "Trautner, Margaret"
+    ],
+    "year": 2024,
+    "source_url": "https://arxiv.org/abs/2405.02221",
+    "publication_status": "arXiv version collected; separate publication status not independently verified"
+  },
+  "kno-2024": {
+    "title": "Kernel Neural Operators (KNOs) for Scalable, Memory-efficient, Geometrically-flexible Operator Learning",
+    "authors": [
+      "Lowery, Matthew",
+      "Turnage, John",
+      "Morrow, Zachary",
+      "Jakeman, John D.",
+      "Narayan, Akil",
+      "Zhe, Shandian",
+      "Shankar, Varun"
+    ],
+    "year": 2024,
+    "source_url": "https://arxiv.org/abs/2407.00809",
+    "publication_status": "arXiv version collected; separate publication status not independently verified"
+  },
+  "neuralop-library-2024": {
+    "title": "A Library for Learning Neural Operators",
+    "authors": [
+      "Kossaifi, Jean",
+      "Kovachki, Nikola",
+      "Li, Zongyi",
+      "Pitt, David",
+      "Liu-Schiaffini, Miguel",
+      "George, Robert Joseph",
+      "Bonev, Boris",
+      "Azizzadenesheli, Kamyar",
+      "Berner, Julius",
+      "Duruisseaux, Valentin",
+      "Anandkumar, Anima"
+    ],
+    "year": 2024,
+    "source_url": "https://arxiv.org/abs/2412.10354",
+    "publication_status": "arXiv version collected; separate publication status not independently verified"
+  },
+  "nfm-2024": {
+    "title": "Neural Fourier Modelling: A Highly Compact Approach to Time-Series Analysis",
+    "authors": [
+      "Kim, Minjung",
+      "Hioka, Yusuke",
+      "Witbrock, Michael"
+    ],
+    "year": 2024,
+    "source_url": "https://arxiv.org/abs/2410.04703",
+    "publication_status": "arXiv version collected; separate publication status not independently verified"
+  },
+  "nonlinear-sampling-2024": {
+    "title": "A Unified Framework for Learning with Nonlinear Model Classes from Arbitrary Linear Samples",
+    "authors": [
+      "Adcock, Ben",
+      "Cardenas, Juan M.",
+      "Dexter, Nick"
+    ],
+    "year": 2024,
+    "source_url": "https://proceedings.mlr.press/v235/adcock24a.html",
+    "publication_status": "ICML 2024, PMLR 235:169–202"
+  },
+  "operator-sampling-2024": {
+    "title": "The Sample Complexity of Learning Lipschitz Operators with respect to Gaussian Measures",
+    "authors": [
+      "Adcock, Ben",
+      "Griebel, Michael",
+      "Maier, Gregor"
+    ],
+    "year": 2024,
+    "source_url": "https://arxiv.org/abs/2410.23440",
+    "publication_status": "arXiv version collected; separate publication status not independently verified"
+  },
+  "optimal-sampling-2024": {
+    "title": "Optimal sampling for least-squares approximation",
+    "authors": [
+      "Adcock, Ben"
+    ],
+    "year": 2024,
+    "source_url": "https://arxiv.org/abs/2409.02342",
+    "publication_status": "arXiv version collected; separate publication status not independently verified"
+  },
+  "pno-2024": {
+    "title": "Generalizable Motion Planning via Operator Learning",
+    "authors": [
+      "Matada, Sharath",
+      "Bhan, Luke",
+      "Shi, Yuanyuan",
+      "Atanasov, Nikolay"
+    ],
+    "year": 2024,
+    "source_url": "https://arxiv.org/abs/2410.17547",
+    "publication_status": "ICLR 2025; inspected PDF states venue"
+  },
+  "poseidon-2024": {
+    "title": "Poseidon: Efficient Foundation Models for PDEs",
+    "authors": [
+      "Herde, Maximilian",
+      "Raonić, Bogdan",
+      "Rohner, Tobias",
+      "Käppeli, Roger",
+      "Molinaro, Roberto",
+      "de Bézenac, Emmanuel",
+      "Mishra, Siddhartha"
+    ],
+    "year": 2024,
+    "source_url": "https://arxiv.org/abs/2405.19101",
+    "publication_status": "arXiv version collected; separate publication status not independently verified"
+  },
+  "ultrasound-2024": {
+    "title": "Convolutional Deep Operator Networks for Learning Nonlinear Focused Ultrasound Wave Propagation in Heterogeneous Spinal Cord Anatomy",
+    "authors": [
+      "Kumar, Avisha",
+      "Zhi, Xuzhe",
+      "Ahmad, Zan",
+      "Yin, Minglang",
+      "Manbachi, Amir"
+    ],
+    "year": 2024,
+    "source_url": "https://arxiv.org/abs/2412.16118",
+    "publication_status": "arXiv version collected; separate publication status not independently verified"
+  },
+  "well-2024": {
+    "title": "The Well: a Large-Scale Collection of Diverse Physics Simulations for Machine Learning",
+    "authors": [
+      "Ohana, Ruben",
+      "McCabe, Michael",
+      "Meyer, Lucas",
+      "Morel, Rudy",
+      "Agocs, Fruzsina J.",
+      "Beneitez, Miguel",
+      "Berger, Marsha",
+      "Burkhart, Blakesley",
+      "Burns, Keaton",
+      "Dalziel, Stuart B.",
+      "Fielding, Drummond B.",
+      "Fortunato, Daniel",
+      "Goldberg, Jared A.",
+      "Hirashima, Keiya",
+      "Jiang, Yan-Fei",
+      "Kerswell, Rich R.",
+      "Maddu, Suryanarayana",
+      "Miller, Jonah",
+      "Mukhopadhyay, Payel",
+      "Nixon, Stefan S.",
+      "Shen, Jeff",
+      "Watteaux, Romain",
+      "Blancard, Bruno Régaldo-Saint",
+      "Rozet, François",
+      "Parker, Liam H.",
+      "Cranmer, Miles",
+      "Ho, Shirley"
+    ],
+    "year": 2024,
+    "source_url": "https://arxiv.org/abs/2412.00568",
+    "publication_status": "arXiv version collected; separate publication status not independently verified"
+  },
+  "deepvivonet-2025": {
+    "title": "DeepVIVONet: Using deep neural operators to optimize sensor locations with application to vortex-induced vibrations",
+    "authors": [
+      "Wan, Ruyin",
+      "Kharazmi, Ehsan",
+      "Triantafyllou, Michael S",
+      "Karniadakis, George Em"
+    ],
+    "year": 2025,
+    "source_url": "https://arxiv.org/abs/2501.04105",
+    "publication_status": "arXiv version collected; separate publication status not independently verified"
+  },
+  "fourcastnet3-2025": {
+    "title": "FourCastNet 3: A geometric approach to probabilistic machine-learning weather forecasting at scale",
+    "authors": [
+      "Bonev, Boris",
+      "Kurth, Thorsten",
+      "Mahesh, Ankur",
+      "Bisson, Mauro",
+      "Kossaifi, Jean",
+      "Kashinath, Karthik",
+      "Anandkumar, Anima",
+      "Collins, William D.",
+      "Pritchard, Michael S.",
+      "Keller, Alexander"
+    ],
+    "year": 2025,
+    "source_url": "https://arxiv.org/abs/2507.12144",
+    "publication_status": "arXiv version collected; separate publication status not independently verified"
+  },
+  "learnable-quadrature-2025": {
+    "title": "PINNs with Learnable Quadrature",
+    "authors": [
+      "Pal, Sourav",
+      "Azizzadenesheli, Kamyar",
+      "Singh, Vikas"
+    ],
+    "year": 2025,
+    "source_url": "https://papers.neurips.cc/paper_files/paper/2025/hash/382b95a6580cfb0b5ca33c74b4e0e770-Abstract-Conference.html",
+    "publication_status": "NeurIPS 2025"
+  },
+  "manufacturing-2025": {
+    "title": "Real-time distortion prediction in metallic additive manufacturing via a physics-informed neural operator approach",
+    "authors": [
+      "Tian, Mingxuan",
+      "Mu, Haochen",
+      "Ding, Donghong",
+      "Li, Mengjiao",
+      "Ding, Yuhan",
+      "Zhao, Jianping"
+    ],
+    "year": 2025,
+    "source_url": "https://arxiv.org/abs/2511.13178",
+    "publication_status": "arXiv version collected; separate publication status not independently verified"
+  },
+  "practical-fno-2025": {
+    "title": "Fourier Neural Operators Explained: A Practical Perspective",
+    "authors": [
+      "Duruisseaux, Valentin",
+      "Kossaifi, Jean",
+      "Anandkumar, Anima"
+    ],
+    "year": 2025,
+    "source_url": "https://arxiv.org/abs/2512.01421",
+    "publication_status": "arXiv version collected; separate publication status not independently verified"
+  },
+  "principled-2026": {
+    "title": "Principled approaches for extending neural architectures to function spaces for operator learning",
+    "authors": [
+      "Berner, Julius",
+      "Liu-Schiaffini, Miguel",
+      "Kossaifi, Jean",
+      "Duruisseaux, Valentin",
+      "Bonev, Boris",
+      "Azizzadenesheli, Kamyar",
+      "Anandkumar, Anima"
+    ],
+    "year": 2025,
+    "source_url": "https://www.nature.com/articles/s42256-026-01267-z",
+    "publication_status": "Nature Machine Intelligence 8, 1173–1181 (2026); DOI 10.1038/s42256-026-01267-z"
+  },
+  "vjepa2-2025": {
+    "title": "V-JEPA 2: Self-Supervised Video Models Enable Understanding, Prediction and Planning",
+    "authors": [
+      "Assran, Mido",
+      "Bardes, Adrien",
+      "Fan, David",
+      "Garrido, Quentin",
+      "Howes, Russell",
+      "Mojtaba",
+      "Komeili",
+      "Muckley, Matthew",
+      "Rizvi, Ammar",
+      "Roberts, Claire",
+      "Sinha, Koustuv",
+      "Zholus, Artem",
+      "Arnaud, Sergio",
+      "Gejji, Abha",
+      "Martin, Ada",
+      "Hogan, Francois Robert",
+      "Dugas, Daniel",
+      "Bojanowski, Piotr",
+      "Khalidov, Vasil",
+      "Labatut, Patrick",
+      "Massa, Francisco",
+      "Szafraniec, Marc",
+      "Krishnakumar, Kapil",
+      "Li, Yong",
+      "Ma, Xiaodong",
+      "Chandar, Sarath",
+      "Meier, Franziska",
+      "LeCun, Yann",
+      "Rabbat, Michael",
+      "Ballas, Nicolas"
+    ],
+    "year": 2025,
+    "source_url": "https://arxiv.org/abs/2506.09985",
+    "publication_status": "arXiv version collected; separate publication status not independently verified"
+  },
+  "acoustic-quadrature-2026": {
+    "title": "Quadrature-Aware Complex-Linear Neural Operator for Boundary-to-Field Prediction in Resonant Acoustics",
+    "authors": [
+      "Khan, Muhammad Idrees",
+      "Yao, Hua-Dong"
+    ],
+    "year": 2026,
+    "source_url": "https://arxiv.org/abs/2607.04407",
+    "publication_status": "arXiv version collected; separate publication status not independently verified"
+  },
+  "adaptive-cubature-2026": {
+    "title": "Dimensional hyperreduction of nonlinear finite element models via empirical cubature with manifold-adaptive weights",
+    "authors": [
+      "Hernández, Joaquín A.",
+      "de Parga, S. Ares",
+      "Rossi, Riccardo"
+    ],
+    "year": 2026,
+    "source_url": "https://arxiv.org/abs/2609.03068",
+    "publication_status": "arXiv version collected; separate publication status not independently verified"
+  },
+  "composition-2026": {
+    "title": "Learnable composition for neural operators",
+    "authors": [
+      "Chen, Zituo",
+      "Zhang, Baiming",
+      "Deng, Sili"
+    ],
+    "year": 2026,
+    "source_url": "https://arxiv.org/abs/2609.03069",
+    "publication_status": "arXiv version collected; separate publication status not independently verified"
+  },
+  "frame-kernel-2026": {
+    "title": "The Frame Kernel Method for Multiscale Operator Learning",
+    "authors": [
+      "Frieden, Branden",
+      "Whitehead, Ryan",
+      "Ballard, M. Keith",
+      "Kirby, Robert M.",
+      "Shankar, Varun"
+    ],
+    "year": 2026,
+    "source_url": "https://arxiv.org/abs/2608.25084",
+    "publication_status": "arXiv version collected; separate publication status not independently verified"
+  },
+  "soft-robot-2026": {
+    "title": "Infinite-Dimensional Closed-Loop Inverse Kinematics for Soft Robots via Neural Operators",
+    "authors": [
+      "Veil, Carina",
+      "Flaschel, Moritz",
+      "Kuhl, Ellen",
+      "Della Santina, Cosimo"
+    ],
+    "year": 2026,
+    "source_url": "https://arxiv.org/abs/2602.18655",
+    "publication_status": "arXiv version collected; separate publication status not independently verified"
+  },
+  "theory-tour-2026": {
+    "title": "A short tour of operator learning theory: Convergence rates, statistical limits, and open questions",
+    "authors": [
+      "Brugiapaglia, Simone",
+      "Franco, Nicola Rares",
+      "Nelsen, Nicholas H."
+    ],
+    "year": 2026,
+    "source_url": "https://arxiv.org/abs/2603.00819",
+    "publication_status": "arXiv version collected; separate publication status not independently verified"
+  },
+  "vjepa21-2026": {
+    "title": "V-JEPA 2.1: Unlocking Dense Features in Video Self-Supervised Learning",
+    "authors": [
+      "Mur-Labadia, Lorenzo",
+      "Muckley, Matthew",
+      "Bar, Amir",
+      "Assran, Mido",
+      "Sinha, Koustuv",
+      "Rabbat, Mike",
+      "LeCun, Yann",
+      "Ballas, Nicolas",
+      "Bardes, Adrien"
+    ],
+    "year": 2026,
+    "source_url": "https://arxiv.org/abs/2603.14482",
+    "publication_status": "arXiv version collected; separate publication status not independently verified"
+  },
+  "mwt-2021": {
+    "title": "Multiwavelet-based Operator Learning for Differential Equations",
+    "authors": [
+      "Gaurav Gupta",
+      "Xiongye Xiao",
+      "Paul Bogdan"
+    ],
+    "year": 2021,
+    "publication_status": "Primary arXiv record; year denotes first preprint",
+    "source_url": "https://arxiv.org/abs/2109.13459"
+  },
+  "wno-2022": {
+    "title": "Wavelet neural operator: a neural operator for parametric partial differential equations",
+    "authors": [
+      "Tapas Tripura",
+      "Souvik Chakraborty"
+    ],
+    "year": 2022,
+    "publication_status": "Primary arXiv record; year denotes first preprint",
+    "source_url": "https://arxiv.org/abs/2205.02191"
+  }
+}

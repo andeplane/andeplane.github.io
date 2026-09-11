@@ -1,0 +1,19 @@
+const guides = [
+  { aim: 'Separate the continuous field from the measurements available to a model.', action: 'Reduce the measurement grid, then increase it. Look for a narrow feature that the coarse grid misses.', question: 'Does drawing more output pixels recover a feature that was never measured?', answer: 'A denser drawing can show the chosen reconstruction more smoothly. It does not determine the missing feature: many continuous fields can agree with the same sparse samples.' },
+  { aim: 'Distinguish an index neighborhood from a neighborhood with a fixed physical size.', action: 'Increase grid resolution N. Compare the shaded widths in the two plots before comparing their sample counts.', question: 'Which operation still covers the same part of the physical domain?', answer: 'The fixed physical radius keeps its width and includes more samples as the grid gets finer. A fixed number of neighboring indices covers a shrinking physical region.' },
+  { aim: 'Understand why an integral needs both sampled values and integration weights.', action: 'Compare uniform and clustered input points. Increase output queries M without changing input samples N, then change N separately.', question: 'Why can equal weights be misleading on clustered samples?', answer: 'Equal weights give densely sampled regions extra influence. Cell-length weights account for the physical interval represented by each sample. They reduce this sampling-density bias, but a coarse grid still has integration error.' },
+  { aim: 'Train a function used inside a quadrature sum, then test it on a new field.', action: 'Inspect a training pair, train the kernel, then pause. Select another held-out field and change only the evaluation input count.', question: 'Which error can still change after the learned weights stop changing?', answer: 'Prediction error can change with the field and its measurements. Sparse inputs change both the information supplied to the model and the numerical approximation of its integral. Training loss alone cannot explain those effects.' },
+  { aim: 'Recognize different ways to implement a function-to-function map.', action: 'For each architecture below, identify what mixes positions, what mixes feature channels, and which quantities are learned.', question: 'Is a coordinate-dependent neural kernel necessarily nonlinear in the input field?', answer: 'No. A kernel K(x,y) can be nonlinear in its coordinates while integration against f remains linear in f. Field-dependent kernels or nonlinear operations between layers can make the operator nonlinear in f.' },
+  { aim: 'Design a comparison that distinguishes fitting, generalization and discretization.', action: 'Choose one row in the evaluation table below. Write down what you will hold fixed and what you will change.', question: 'What would make a comparison unfair?', answer: 'Giving one method denser observations, a different target horizon or easier test fields changes the problem. Match the information and target before comparing errors or speed.' },
+  null,
+  { aim: 'Follow samples into Fourier coefficients, learned multipliers and output values.', action: 'Train the layer, then vary input samples N while keeping its six learned multipliers fixed.', question: 'Does increasing N add trainable Fourier modes?', answer: 'No. N changes the measurements and the discrete transform. This model always has six trainable multipliers; input sampling must resolve a mode before its measured coefficient is reliable.' },
+];
+export default function LearningGuide({ chapter }: { chapter: number }) {
+  const guide = guides[chapter];
+  if (!guide) return null;
+  return <section className="learning-guide" aria-label="Learning goal and experiment">
+    <p><strong>Your goal</strong> {guide.aim}</p>
+    <p><strong>Try this</strong> {guide.action}</p>
+    <details><summary>{guide.question}</summary><p>{guide.answer}</p></details>
+  </section>;
+}
