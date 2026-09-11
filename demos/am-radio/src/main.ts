@@ -12,14 +12,15 @@ import {
 import { createScene } from "./scene";
 import { theory } from "./theory";
 import { history } from "./history";
+import { setupIntroduction } from "./introduction";
 import { createField } from "./field";
 import processorUrl from "./processor.ts?worker&url";
 const $ = <T extends HTMLElement = HTMLElement>(s: string) =>
   document.querySelector<T>(s)!;
 const state = { ...defaults, stations: [...defaults.stations] };
 $("#app").innerHTML =
-  `<header><a href="/">AH / EXPERIMENTS</a><a href="#theory">Read the physics ↗</a></header><main>
-<section class="intro"><div><p class="eyebrow">INTERACTIVE PHYSICS · NO. 04</p><h1>In the air<span>.</span></h1><p class="lede">Five broadcasts. One antenna. A little electricity.<br>Build an AM radio from the field up.</p></div><div class="intro-note">A working circuit simulation<br><b>600 — 1200 kHz</b><br>Move the plates. Find the music.</div></section>
+  `<header><a href="/">AH / EXPERIMENTS</a><div class="header-actions"><button type="button" id="about-lab">About this lab</button><a href="#theory">Read the physics ↗</a></div></header><main>
+<section class="intro"><div><p class="eyebrow">INTERACTIVE PHYSICS · NO. 04</p><h1>How does a<br>radio work<span>?</span></h1><p class="lede">Five simulated broadcasts in one signal.<br>Move the plates. Hear how a radio finds a station.</p></div><div class="intro-note">A working circuit simulation<br><b>600 — 1200 kHz</b><br>Move the plates. Find the music.</div></section>
 <section class="lab"><div class="lab-top"><span><i class="status-dot"></i> AM RECEIVER / LIVE BENCH</span><div><button id="play" class="primary">▶ Start receiver</button><label class="volume">Listen <input id="volume" aria-label="Listening volume" type="range" min="0" max="1" step=".01" value=".35"></label></div></div>
 <div class="bench"><div class="visual"><div id="scene" aria-label="Interactive 3D illustration of antenna, tuning plates, coil, diode and speaker"></div><div class="scene-caption"><span>E FIELD <b class="teal">━</b> &nbsp; B FIELD <b class="purple">━</b></span><span>Drag to orbit · scroll to zoom</span></div><div class="scene-labels"><span>01 ANTENNA</span><span>02 LC TANK</span><span>03 DIODE</span><span>04 LOAD</span></div><p class="visual-note">Illustrative geometry · normalized fields · slowed carrier · cone indicates voltage</p></div>
 <aside><span class="eyebrow">TUNING / AIR CAPACITOR</span><div class="frequency"><span id="frequency">900</span><small>kHz</small></div><div class="station-presets">${STATIONS.map((station, i) => `<button class="preset" data-station="${i}">${CARRIERS[i] / 1000}<small>${station.name}</small></button>`).join("")}</div><label class="control">Plate separation <output id="gap-value"></output><input id="gap" aria-label="Plate separation" type="range" min=".25" max="1.45" step=".001" value="${state.gap}"></label><div class="minor-readings"><span>C <b id="capacitance"></b></span><span>L <b>250 μH</b></span></div><p class="hint">Wider gap → less capacitance → higher frequency.</p><label class="control">Antenna angle <output id="angle-value"></output><input id="angle" aria-label="Antenna angle" type="range" min="0" max="90" step="1" value="0"></label><label class="check"><input id="direct" type="checkbox"> Direct signal injection</label><p id="status" role="status">Start to hear and measure the circuit.</p></aside></div>
@@ -393,6 +394,9 @@ function frame(ms: number) {
   }
 }
 sync();
+setupIntroduction(() => {
+  if (ctx?.state !== "running") $("#play").click();
+});
 requestAnimationFrame(frame);
 window.addEventListener("pagehide", () => {
   void ctx?.close();
