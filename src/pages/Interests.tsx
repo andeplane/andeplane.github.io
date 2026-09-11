@@ -29,8 +29,8 @@ export default function Interests() {
             Neural operators <span>↗</span>
           </h2>
           <p>
-            From integral kernels and Fourier layers to sparse computation, physical simulation and
-            robotics.
+            Learning maps between whole fields — such as temperature now and after heat spreads —
+            with interactive concepts, physical simulations and a literature graph.
           </p>
           <div className="no-tags">
             <span>Literature graph</span>
