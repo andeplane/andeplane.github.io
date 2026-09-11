@@ -37,3 +37,6 @@ jobs:
       # and then typechecks and builds the site itself.
       - name: Build site and all demos
         run: npm run build
+
+      - name: Test recorder acoustics and playback
+        run: npm test --prefix demos/flute-lab
