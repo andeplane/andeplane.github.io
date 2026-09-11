@@ -1,9 +1,18 @@
 import { Link } from 'react-router-dom'
 import intervalTrainer from '@/content/projects/interval-trainer'
 import tubeSim from '@/content/projects/tube-sim'
+import recorderLab from '@/content/projects/flute-lab'
 import '@/features/neural-operators/research.css'
 
 const experiments = [
+  {
+    project: recorderLab,
+    eyebrow: 'Play the physics',
+    description: 'Hold Space to blow into a recorder-inspired model, cover holes to play a melody, and measure the sound with a microphone in the simulated room. Watch its Fourier spectrum, or slow the physics and the pitch together.',
+    action: 'Play Recorder Lab',
+    post: 'from-a-steady-breath-to-a-measured-note',
+    postTitle: 'From a steady breath to a measured note',
+  },
   {
     project: intervalTrainer,
     eyebrow: 'Train your ear',
@@ -63,7 +72,7 @@ export default function Music() {
           <p>
             Then there’s the physics. Notes are vibrations, instruments shape sound,
             and a hole in a tube becomes a surprisingly interesting simulation problem.
-            The apps below are two ways of exploring that curiosity.
+            The apps below explore that curiosity through listening, playing and simulation.
           </p>
         </section>
       </div>

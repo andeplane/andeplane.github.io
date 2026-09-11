@@ -2,6 +2,7 @@ import { useParams, Link } from 'react-router-dom'
 import { useProject } from '@/hooks/useProjects'
 import MarkdownRenderer from '@/components/blog/MarkdownRenderer'
 import Tag from '@/components/ui/Tag'
+import RecorderEmbed from '@/components/demos/RecorderEmbed'
 
 export default function ProjectDetail() {
   const { slug } = useParams<{ slug: string }>()
@@ -12,6 +13,18 @@ export default function ProjectDetail() {
       <div style={{ textAlign: 'center', paddingTop: '4rem' }}>
         <h2 style={{ color: '#fff' }}>Project not found</h2>
         <Link to="/projects" style={{ color: 'var(--color-accent-light)' }}>← Back to projects</Link>
+      </div>
+    )
+  }
+
+  if (project.slug === 'flute-lab') {
+    return (
+      <div style={{ width: '100%' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.875rem', marginBottom: '0.75rem' }}>
+          <Link to="/projects">← Projects</Link>
+          <a href={project.liveUrl} target="_blank" rel="noreferrer">Open standalone ↗</a>
+        </div>
+        <RecorderEmbed />
       </div>
     )
   }
