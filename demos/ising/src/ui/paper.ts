@@ -80,8 +80,8 @@ export const PAPER = `
     concerns the infinite-system limit with a sign selected.
   </p>
   <p>
-    For the square lattice, Onsager's exact solution puts the transition at
-    $T_c = 2/\\ln(1+\\sqrt{2}) \\approx 2.269$, at zero field. Yang’s 1952 spontaneous magnetization formula below that temperature is
+    For the square lattice, Onsager's exact solution puts the zero-field transition at
+    $T_c = 2/\\ln(1+\\sqrt{2}) \\approx 2.269$. Yang’s 1952 spontaneous magnetization formula below that temperature is
   </p>
   $$m(T) = \\left(1 - \\sinh^{-4}(2/T)\\right)^{1/8},$$
   <p>
@@ -116,7 +116,7 @@ export const PAPER = `
     vanishes as $m \\sim (T_c - T)^{\\beta}$ with $\\beta = 1/8$ on all three lattices —
     the same critical exponent, exactly. Microscopic details wash out at the critical
     point; only dimensionality and symmetry survive. This is universality, one of the
-    deepest facts in statistical physics, The pictures suggest that shared behavior. Measuring the exponent requires
+    deepest facts in statistical physics. The pictures suggest that shared behavior. Measuring the exponent requires
     finite-size scaling, equilibration and uncertainty estimates, not just matching shapes.
   </p>
 </section>
