@@ -3,7 +3,7 @@ import { test } from 'node:test'
 import { sitePagePath } from '../../src/components/blog/sitePagePath.ts'
 
 test('article-to-page links stay in the hash router, including existing root hash links', () => {
-  for (const href of ['/blog/a-brick-wall-from-the-weak-form-up', '/projects/tube-sim', '/about', '/', '/interests/music', '/interests/neural-operators/reading?doc=notes/fno-2020.md']) {
+  for (const href of ['/blog/a-brick-wall-from-the-weak-form-up', '/projects/tube-sim', '/about', '/', '/interests/music', '/interests/physics', '/interests/neural-operators/reading?doc=notes/fno-2020.md']) {
     assert.equal(sitePagePath(href), href)
     assert.equal(sitePagePath('/#' + href), href)
   }
