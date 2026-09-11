@@ -10,7 +10,7 @@ export function TheCircuit() {
       <Prose>
         <p>
           Everything so far could be accused of being a cartoon. So here is the third
-          altitude: real gates on real qubits, no shortcuts. Three qubits give{' '}
+          altitude: a classical simulation of quantum gates on three qubits. Three qubits give{' '}
           <M>{String.raw`2^3 = 8`}</M> basis states — our eight boxes; "box 5" is the
           bitstring <M>{String.raw`|101\rangle`}</M>. Only three gate types appear:{' '}
           <strong>H</strong> (the Hadamard, which builds and unbuilds superpositions),{' '}

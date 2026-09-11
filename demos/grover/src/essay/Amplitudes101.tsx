@@ -34,10 +34,14 @@ export function Amplitudes101() {
           moment, is <em>at</em> one box. A quantum computer instead keeps a number for{' '}
           <em>every</em> box at once — called an <strong>amplitude</strong> — and this is
           the whole data structure. Four boxes, four amplitudes. A million boxes, a million
-          amplitudes.
+          amplitudes in its mathematical description. This browser simulator stores that
+          array explicitly. A quantum device uses qubits: q qubits have 2ᑫ basis states,
+          but measuring them does not let you read out the whole array.
         </p>
         <p>
-          Two rules govern these numbers. First: when you <em>measure</em> — when you
+          General amplitudes are complex numbers, with probability |a|². This Grover
+          construction stays real, so signed bars and ordinary squares are sufficient.
+          Two rules govern these real numbers. First: when you <em>measure</em> — when you
           finally look — you get exactly one box, at random, and the probability of getting
           box <M>i</M> is its amplitude squared:
         </p>

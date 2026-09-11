@@ -17,7 +17,7 @@ export function BreakIt() {
         <p>
           Give it an oracle that <strong>marks nothing</strong>, and diffusion has nothing
           to bite on: the uniform state's mean is the uniform state, reflection fixes every
-          bar in place, and the algorithm politely spins forever at{' '}
+          bar in place, and the state stays fixed, with each box still at{' '}
           <span style={{ whiteSpace: 'nowrap' }}>P = 1/N</span>. Give it an oracle that
           confidently <strong>marks the wrong box</strong>, and the machine works
           flawlessly — amplifying the wrong box to near-certainty. Grover's algorithm is
