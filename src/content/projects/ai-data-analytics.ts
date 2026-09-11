@@ -21,9 +21,17 @@ Upload any CSV or JSON file and describe what you want to know — "show me mont
 4. **Automatic visualisation** — generated charts are converted to images and rendered alongside sortable tables
 5. **Iterative refinement** — follow-up questions maintain conversation context so the model can build on previous analyses
 
+## Reading an answer critically
+
+A runnable program can answer the wrong question. For “highest return rate,” check
+that the denominator is items sold, not all returned items, and inspect how missing
+values and date filters are handled. Compare one small group by hand. Generated code
+makes an answer inspectable; successful execution alone does not make it correct.
+
 ## Design goals
 
-The goal was zero-dependency, privacy-first data exploration — no Python environment, no Jupyter, no server, no API keys. Everything runs in the browser and your data never leaves your device, making it easy to share a URL and let anyone analyse their own data without setup.
+The goal was zero-dependency, privacy-first data exploration — no Python environment, no Jupyter, no server, no API keys. The intended analysis path keeps model inference and data processing on the device, making it easy to share a URL and let anyone analyse their own data without a local Python setup. Browser runtimes, packages and model weights still
+need downloading and caching; local execution is not a blanket security guarantee.
   `.trim(),
 }
 

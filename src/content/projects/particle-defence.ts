@@ -15,15 +15,15 @@ A competitive tower defence game where instead of placing turrets, you spawn par
 
 Each player controls a base on opposite sides of the map. Particles spawn at intervals and drift toward the enemy base — biased random motion with wall bounce — so maze walls physically herd them. Place obstacles to redirect enemy particles while leaving clean corridors for your own. Earn gold by killing enemy particles, spend it on upgrades.
 
-**Upgrade tree** — particles can be upgraded with higher speed, shields, or homing behaviour. Special abilities include area-of-effect blasts and a nuclear strike that clears a large section of the maze.
+**Upgrades** — health, attack, radius, spawn rate, speed, defense, maximum particles and interest on banked gold. Research Laser and Slow towers for damage and area control; the nuke clears enemy particles and towers on a cooldown.
 
 ## AI opponent
 
-The AI controller evaluates the maze topology to decide when to upgrade vs. when to rebuild routing. It uses a threat-score heuristic: if many of its particles are dying in the same map region, it reroutes them and considers a nuke. Difficulty scales by adjusting the AI's gold-spending rate and reaction time.
+The AI makes economic and timing decisions: which upgrade to buy, where to place researched towers, and when to use a nuke. It cannot reroute particles, because their motion uses the same local wall-bounce rule as yours. Difficulty changes its priorities and reaction speed.
 
 ## Architecture
 
-Built with **Phaser 3** for rendering and physics. All game constants live in a single \`config.ts\` file so balancing changes are easy. The post-game stats screen shows nine dual-series timeline graphs (gold, particles spawned, particles killed, etc.) rendered as canvas line charts with glow effects.
+Built with **Phaser 3** for rendering and physics. All game constants live in a single \`config.ts\` file so balancing changes are easy. The post-game stats screen shows ten dual-series timeline graphs (gold, particles spawned, particles killed, etc.) rendered as canvas line charts with glow effects.
   `.trim(),
 }
 

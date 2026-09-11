@@ -32,7 +32,7 @@ export default function About() {
           </p>
 
           <p>
-            Outside of simulations I build games (a curling simulator with a real friction model, a tower defence game with pathfinding AI), developer tools, and occasional experiments with LLMs. I'm particularly interested in the Claude API and what becomes possible when you combine language models with structured data and domain knowledge.
+            Outside of simulations I build games (a curling simulator with a model of friction and curl, a tower defence game with an economic AI opponent), developer tools, and occasional experiments with LLMs. I'm particularly interested in the Claude API and what becomes possible when you combine language models with structured data and domain knowledge.
           </p>
 
           <p>
