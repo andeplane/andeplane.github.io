@@ -9,23 +9,23 @@ const project: ProjectMeta = {
   repoUrl: 'https://github.com/andeplane/enigma.py',
   screenshot: '/projects/enigma/preview.png',
   longDescription: `
-A historically faithful Enigma machine emulator implemented in Python, with two distinct internal approaches that illuminate the mathematics behind the cipher.
+Enigma replaces each typed letter with another letter, then moves its rotors so the next substitution changes. This Python emulator models that mechanical cipher in two ways, letting the same signal path be followed as wiring or as mathematics.
 
 ## Two implementations, one interface
 
 **Python implementation** (\`enigma_python.py\`) — uses straightforward index arithmetic to simulate rotor wiring and rotation. Each rotor applies a character substitution via lookup, and the notch mechanism advances neighbouring rotors. Clear, readable, and educational.
 
-**Matrix implementation** (\`enigma_matrix.py\`) — represents every rotor, reflector, and plugboard as a 26×26 NumPy permutation matrix. Encryption is a chain of matrix multiplications; rotation is a permutation of rows and columns. This framing makes it obvious why the Enigma is its own inverse (the product of all matrices is an involution).
+**Matrix implementation** (\`enigma_matrix.py\`) — represents every rotor, reflector, and plugboard as a 26×26 NumPy permutation matrix. Encryption is a chain of matrix multiplications; rotation is a permutation of rows and columns. A permutation matrix rearranges letter positions. At a fixed rotor state, the outgoing path, paired-letter reflector and reversed return path together form an involution: applying that substitution twice gives the original letter.
 
 ## Architecture
 
 Abstract base classes define \`Rotor\`, \`Reflector\`, and \`Plugboard\` interfaces, so either implementation can be swapped in without touching the \`EnigmaMachine\` orchestrator. Both implementations produce identical output for the same key settings.
 
-A web interface compiled to WebAssembly is hosted on GitHub Pages — try encrypting a message and then decrypting the ciphertext with the same key to verify the involution property.
+A web interface compiled to WebAssembly is hosted on GitHub Pages — try encrypting a message and then decrypting the ciphertext with the same settings **after resetting the rotors to their starting positions**. This repeats the same sequence of substitutions and recovers the original message.
 
 ## Why it's interesting
 
-The matrix framing makes it easy to see why the Germans believed Enigma was unbreakable (the key space is enormous) and why it had the fatal flaw the Allies exploited (no letter can encrypt to itself, because the diagonal of the combined matrix is always zero).
+The reflector makes it impossible for a letter to encrypt to itself. That constraint can reject a guessed plaintext alignment, but it does not recover the key on its own. The accompanying article derives the constraint and explains why changing rotor positions, including the middle rotor’s double-step, must be treated separately from the fixed-state algebra.
   `.trim(),
 }
 

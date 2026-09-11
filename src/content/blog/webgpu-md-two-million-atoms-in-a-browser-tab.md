@@ -9,11 +9,11 @@ Ever since I ported [Atomify](#/blog/atomify-molecular-dynamics-for-the-rest-of-
 
 **WebGPU changes that.** It exposes actual compute pipelines — storage buffers, workgroups, atomics — through a browser API. So the obvious experiment: write a molecular dynamics engine where *every* step of the physics loop is a WGSL kernel, and see how many atoms a browser tab can honestly move. That became [webgpu-md](https://github.com/andeplane/webgpu-md).
 
-The answer up front: **1–2 million Lennard-Jones atoms at interactive framerates** on an ordinary laptop GPU, with a 4-million-atom mode if you're patient. Roughly 10–50× the same algorithm in JavaScript, depending on system size.
+Development runs reached **1–2 million Lennard-Jones particles at interactive display rates**, with a 4-million-particle mode available. Those figures are workload-dependent observations, not a portable benchmark: record GPU, density, cutoff and simulation steps per frame when comparing. Display frames per second and simulated time advanced per second measure different things.
 
 ## The only algorithm that matters here
 
-The force loop is where all the time goes. Evaluating the Lennard-Jones potential between all pairs is $N(N-1)/2$ distance checks — hopeless at a million atoms. But the potential is short-ranged: beyond a cutoff $r_c$ (conventionally $2.5\sigma$) the interaction is negligible and skipped.
+The force loop is where all the time goes. Evaluating the Lennard-Jones potential between all pairs is $N(N-1)/2$ distance checks — hopeless at a million atoms. But the potential is short-ranged: beyond a cutoff $r_c$ (conventionally $2.5\sigma$) the remaining interaction is truncated as a modelling approximation. Its effect depends on the observable and cutoff treatment.
 
 Enter the classic **cell list**. Divide the box into cells at least $r_c$ wide and bin atoms into them. Any atom's neighbours must then live in its own cell or the ones directly adjacent — a 3×3 block in 2D, 3×3×3 = **27 cells** in 3D:
 
@@ -60,3 +60,5 @@ There's a scaling benchmark built in — 4K to 4M atoms — plus adjustable temp
 Fifteen years ago this simulation was a cluster job. Ten years ago, a CUDA workstation. Five years ago, a native app on a good laptop. Today it's a URL: [andeplane.github.io/webgpu-md](https://andeplane.github.io/webgpu-md). Nothing to install, no drivers to match — the same tab that runs your email now integrates Newton's equations for two million atoms.
 
 The next obvious step is hooking kernels like these back into the full LAMMPS-in-the-browser stack, so the interactive engine and the serious engine stop being different things.
+
+The near-linear neighbor-list cost also assumes bounded density and occupancy; putting many particles in one cell defeats that scaling. Lennard-Jones reduced units use the pair energy scale ε, length scale σ and particle mass to define simulation units.

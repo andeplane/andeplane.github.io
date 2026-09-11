@@ -23,13 +23,13 @@ But it doesn't block images. And that asymmetry is the whole product:
 
 The Mac side captures the screen with `getDisplayMedia()`, draws each frame to an offscreen canvas, encodes JPEGs, and ships the raw bytes over a **WebRTC DataChannel**. The Tesla side is almost embarrassingly simple: receive bytes, blob them, swap the `src` of an `<img>`. Ten to twenty frames a second, with quality and rate adapting to the car's connection. It's a video codec's dumbest cousin — no inter-frame compression at all — and for reading terminal output it's *fine*, because a Claude Code session is mostly static text that changes in bursts.
 
-The server never sees a frame. A little Hono + WebSocket service brokers the SDP/ICE handshake and gets out of the way; frames flow peer-to-peer, or through a TURN relay when the car's network demands it (it demands it — in-car connectivity is NAT all the way down).
+The signalling service does not receive decoded screen frames. A little Hono + WebSocket service brokers the SDP/ICE handshake and gets out of the way; frames flow peer-to-peer, or through a TURN relay when the car's network demands it (depending on network conditions).
 
 ## Closing the loop: talking back
 
 Watching your agent is half the job; the other half is answering it. The Tesla viewer has mic and send controls that travel *backwards* — Tesla touchscreen → DataChannel → the share page on the Mac → a small local daemon (`npx teslacode.dev`) that synthesises the actual keystrokes into whatever app you're sharing. Combined with Claude Code's voice mode, the loop closes completely: the agent asks, I answer out loud from the driver's seat, work continues.
 
-Note what's *not* in that path: the server. Keystrokes are peer-to-peer too. Given that this thing is typing into a terminal on my Mac, "the relay infrastructure cannot inject input even in principle" felt like a design requirement, not a feature.
+Note what's *not* in that path: the server. Keystrokes are peer-to-peer too. TURN can relay encrypted traffic without becoming an authorized sender of commands. That transport property matters, but trusted client code, session pairing and daemon authorization still determine who can type into the Mac.
 
 ## The unglamorous 80%
 

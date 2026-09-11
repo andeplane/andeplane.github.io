@@ -205,7 +205,7 @@ body {
   /* Leave the panel a little shorter than the viewport so the fade at its foot is
      visible whenever there is more below -- a list clipped flush at the edge reads as
      the end of the list, and the controls under the fold simply never get found. */
-  max-height: min(calc(100vh - 9rem), 42rem);
+  max-height: min(calc(100dvh - 15rem), 42rem);
   overflow-y: auto;
   overscroll-behavior: contain;
   padding: 0.85rem 0.95rem 1.1rem;
@@ -567,4 +567,9 @@ input[type='range']::-moz-range-thumb {
   #explainer h1 {
     font-size: 1.25rem;
   }
+}
+
+/* Leave room for the title and its theory button above mobile readouts. */
+@media (max-width: 760px) {
+  #readouts { top: 7rem; }
 }

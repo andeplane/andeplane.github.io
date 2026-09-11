@@ -23,7 +23,7 @@ The Three.js scene uses a custom lunar surface shader with:
 - Normal map derived from the heightfield gradient
 - Ambient occlusion baked per-vertex at generation time
 - Directional sunlight at a low angle to exaggerate surface relief
-- Atmospheric haze that matches the Moon's lack of atmosphere (the horizon darkens rather than brightens)
+- No Earth-like atmospheric haze: the terrain meets a black sky, with distance cues supplied by geometry and lighting
 
 ## Performance
 

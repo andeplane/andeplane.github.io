@@ -7,10 +7,10 @@
  *
  *     lambda = LAMBDA0 * f_root / f_note      and      f_vis = SPEED / lambda
  *
- * and the ratios are the real ones: a fifth's crests are spaced 2/3 of the root's, an
- * octave's half. That is the whole trick — because the ratios are exact, a 3:2 sums into
- * stationary interference fringes while 45:32 (the tritone) never repeats and shimmers.
- * Consonance becomes something you can see.
+ * The frequency ratios follow the equal-tempered notes: a fifth is close to 3:2,
+ * and an octave is 2:1. This slowed field illustrates wavelength and superposition;
+ * unequal-frequency sources do not form stationary fringes, and the image is not
+ * a measure of perceived consonance or a reconstruction of the piano's partials.
  *
  * Displacement of one source, at radius r and time t after its onset:
  *

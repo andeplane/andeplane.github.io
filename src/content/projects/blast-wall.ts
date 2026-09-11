@@ -4,7 +4,7 @@ const project: ProjectMeta = {
   slug: 'blast-wall',
   title: 'Blast Wall Lab',
   description:
-    'A 3D finite element simulation of masonry hit by a blast wave: four brick walls bonded at the corners, every mortar joint cracking, sliding, bearing and crushing for real.',
+    'A 3D finite element simulation of masonry hit by a blast wave: four brick walls bonded at the corners, every mortar joint cracking, sliding, bearing and crushing through constitutive laws.',
   tags: ['TypeScript', 'WebGPU', 'Physics', 'Simulation', 'Finite Elements', 'Masonry'],
   liveUrl: '/demos/blast-wall/',
   repoUrl: 'https://github.com/andeplane/andeplane.github.io/tree/main/demos/blast-wall',
@@ -19,6 +19,10 @@ come from the charge mass and the standoff. Twenty-eight thousand elements and f
 thousand joint node pairs, stepped on your GPU, in slow motion down to a thousandth of
 real time.
 
+Finite elements divide each brick into small boxes. Corner nodes carry displacement;
+interpolation fills in the motion between them. A material law turns deformation into
+forces, while separate joint laws decide when mortar opens, slides or crushes.
+
 The corners are the reason it is four walls and not one. A lone wall simply falls over,
 which is dramatic and says almost nothing. Tie it into return walls and you get the
 failure buildings actually have: the façade bulges inward, the corners split from top to
@@ -27,11 +31,10 @@ bottom, and what is left of the structure stands there.
 ## The thing worth seeing
 
 Switch the bond from **løperforband** — the half-brick offset every mason uses — to stack
-bond, where the head joints line up, and fire the same charge. The running-bonded wall
-holds together in a handful of large pieces: a crack has to staircase down through a bed
-joint, along a head joint, and work its way around every brick in its path. The
-stack-bonded wall unzips. Continuous vertical cracks run the full height of it and the
-wall falls into columns. Nothing in the code knows this is supposed to happen — the crack
+bond, where the head joints line up, and fire the same charge. Compare the damage pattern rather than just counting fragments.
+Running bond interrupts aligned vertical joints, so cracks must change direction or
+find another route. Stack bond provides continuous vertical paths; in the tested
+comparison, a larger fraction of its head joints crack. Nothing in the code knows this is supposed to happen — the crack
 path is wherever joints exceeded their strength. It is simply the reason the bond pattern
 exists, made visible.
 
@@ -49,7 +52,7 @@ fuger, or by speed to see what is actually flying.
 
 Every material number is a slider with its literature range behind it: the joint's tensile
 strength and cohesion, its friction coefficient, its fracture energy, its crushing
-strength, its stiffness, the brick's modulus and density. Drive the tensile strength to
+strength, its stiffness, the brick's modulus and density. Drive both tensile strength and cohesion to
 zero and you have a dry-stacked wall held up by nothing but friction and its own weight,
 which behaves completely differently. Turn strain-rate hardening off and watch the same
 charge do more damage, because masonry really is stronger when you load it fast.
@@ -71,7 +74,7 @@ its thrust onto a sliver of joint at each hinge, multiplying the stress by an or
 magnitude. Without the cap, such a wall turned out to be literally unbreakable. It just
 rang.
 
-## Why four walls cost nothing
+## Why four walls reuse the same mesh construction
 
 A room is not a special case anywhere in the solver, the mesher or the renderer. It falls
 out of one fact about masonry: the module. Two brick widths plus a joint make one brick
@@ -80,7 +83,7 @@ stretcher. Divide the stretcher into *n* lattice steps and the header into *n*/2
 lattice spacing comes out identical along the wall and through it. With a square plan
 lattice, a wall running the other way is just a brick elongated the other way: same
 lattice, same element, and the joint where a return wall meets a façade matches node for
-node like every other joint in the model. The mesher needed no changes at all.
+node like every other joint in the model. The same meshing rule applies. More walls still cost more elements, memory and computation.
 
 The corner itself alternates course by course — the walls one way run through the corner
 square, the walls the other way stop short, then they swap. That is how a mason turns a
@@ -95,14 +98,14 @@ whose area under the curve is the fracture energy by construction, and the stabi
 of the time integrator — it is in
 [A brick wall, from the weak form up](/blog/a-brick-wall-from-the-weak-form-up). That post
 also carries the honest list of what this is *not*: explicit only, corotational linear
-rather than large-strain, an interface integrated nodally rather than by quadrature, and
+rather than large-strain, an interface using nodal rather than interior Gauss quadrature, and
 bricks that cannot themselves break.
 
 ## Under the hood
 
 Explicit central-difference integration on a lumped mass — no linear solve, and it keeps
-running after elements lose all their stiffness, which is the entire reason blast codes are
-explicit. The elements are corotational, with the rotation pulled out of the deformation
+running after elements lose all their stiffness, which is useful for short fracture events. Implicit dynamics is also possible but
+requires effective-system solves and nonlinear convergence. The elements are corotational, with the rotation pulled out of the deformation
 gradient by an iterative polar decomposition warm-started from the previous step, so a
 brick tumbling through the air stays a brick instead of stretching into nonsense. The
 critical time step is measured by power iteration rather than estimated, and compared
@@ -122,8 +125,9 @@ rigid-body modes and its exact elastic response, that pulling a joint apart peak
 dissipates Gf, that a **simulated triplet shear test** recovers the cohesion and friction
 angle it was given from the fitted failure envelope, that linear momentum is conserved to a
 part in a million, that the measured critical time step really is critical — and, because
-it is the whole claim of the demo, that the same charge really does break a stack-bonded
-wall into more pieces than a running-bonded one.
+it is the whole claim of the demo, that the same charge damages a larger fraction of head joints in a stack-bonded
+wall than in a running-bonded one. Fragment count did not distinguish the tested cases.
+These checks establish controlled numerical behavior, not validation of real blast damage.
   `.trim(),
 }
 

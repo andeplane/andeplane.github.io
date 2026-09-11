@@ -37,9 +37,9 @@ $$
 
 *The two-parameter potential behind a shocking fraction of computational physics: σ sets the size, ε the stickiness.*
 
-The $r^{-12}$ term is electron clouds refusing to overlap; the $r^{-6}$ term is the van der Waals attraction. The minimum at $r_{\min} = 2^{1/6}\sigma$ with depth $-\varepsilon$ is where pairs of atoms want to sit — and it's why a box of Lennard-Jones atoms freezes into an FCC crystal if you cool it.
+Here $r$ is the pair separation, $\varepsilon$ sets the energy scale and $\sigma$ the distance scale. The steep $r^{-12}$ term models short-range repulsion; the $r^{-6}$ term is the van der Waals attraction. The minimum at $r_{\min} = 2^{1/6}\sigma$ with depth $-\varepsilon$ is where pairs of atoms want to sit — and it's why a box of Lennard-Jones atoms freezes into an FCC crystal if you cool it.
 
-The second ingredient is an integrator. Forces are the gradient of the potential, and velocity Verlet marches the system forward:
+The second ingredient is an integrator. Forces are the **negative gradient** of potential energy: they point downhill in energy. Acceleration is force divided by mass. Velocity Verlet advances position $\mathbf{r}$ and velocity $\mathbf{v}$ by a time step $\Delta t$, using acceleration $\mathbf{a}$:
 
 $$
 \mathbf{r}(t+\Delta t) = \mathbf{r}(t) + \mathbf{v}(t)\,\Delta t + \tfrac{1}{2}\mathbf{a}(t)\,\Delta t^2
@@ -49,7 +49,7 @@ $$
 \mathbf{v}(t+\Delta t) = \mathbf{v}(t) + \tfrac{1}{2}\left[\mathbf{a}(t) + \mathbf{a}(t+\Delta t)\right]\Delta t
 $$
 
-It's symplectic, so energy doesn't drift over millions of steps — which matters when your simulation *is* a long-running statistical-mechanics experiment.
+For smooth conservative forces and a sufficiently small fixed time step, velocity Verlet is symplectic and usually keeps energy error bounded and oscillatory over long runs. It does not guarantee exact energy conservation: timestep choice, cutoff treatment and thermostats all matter. Compare energy traces after halving the timestep before trusting long-run statistics.
 
 The point of Atomify was never to reimplement any of this — LAMMPS does it better than I ever will. The point was to make the loop from "I wonder what happens if..." to *watching it happen* as short as possible.
 

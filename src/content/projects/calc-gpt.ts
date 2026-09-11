@@ -19,8 +19,12 @@ and a plus sign.
 The blog post trains a two-layer GPT with about 27,000 parameters **live in your browser
 tab**: embeddings, causal self-attention, the backward pass, and Adam, all written from
 scratch in TypeScript on \`Float32Array\`s. No ML library, no autograd, no server. You watch
-the loss fall from ln(16) — uniform guessing — as the model discovers digits, then place
-value, then carrying, and you can query the live weights mid-training.
+the loss fall from ln(16), the next-character prediction loss for uniform guessing
+over sixteen tokens. A token is one character here; embeddings turn tokens into learned
+vectors, and causal self-attention combines earlier positions when predicting the next.
+Better accuracy on held-out sums is evidence of learned arithmetic behavior, but a
+falling loss alone does not reveal whether the model learned a carrying algorithm.
+You can query the live weights mid-training.
 
 ## The curriculum trick
 
@@ -36,8 +40,8 @@ recovers, while a subtraction curve climbs from zero — including negative answ
 The engine is dependency-injected throughout — RNG, data generators, optimizer, metrics
 sink, even the model behind an interface — and carries a 100% test-coverage gate in CI
 (statements, branches, functions, lines). The centerpiece test perturbs every parameter
-tensor and compares numerical gradients against the hand-derived backward pass, so if any
-equation in the post were coded wrong, CI would go red. A line-for-line numpy twin ships in
+tensor and compares numerical gradients against the hand-derived backward pass, to check the derivatives on tested inputs. Coverage and gradient checks help find
+implementation mistakes; they do not prove every equation or unseen answer correct. A line-for-line numpy twin ships in
 the repo for Python readers.
   `.trim(),
 }

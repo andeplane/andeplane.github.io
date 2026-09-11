@@ -13,6 +13,8 @@ const project: ProjectMeta = {
 Grover's algorithm is the cleanest demonstration of how quantum computation actually
 works — not "trying every answer at once," but hiding an answer in a *sign* and then
 using interference to convert that hidden phase into probability you can measure. The
+real-amplitude version shown here can be drawn as signed bars; general quantum
+amplitudes are complex. For N candidate answers and one marked answer, the
 whole algorithm is two reflections: an oracle that flips the marked amplitude's sign,
 and a "diffusion" step that reflects every amplitude about the mean. Reflection ∘
 reflection = rotation, by exactly $2\\theta$ per step with $\\sin\\theta = 1/\\sqrt{N}$
@@ -27,12 +29,12 @@ engine:
 - **Rotation plane:** the state as one arrow between "the marked one" and "everything
   else," with both mirrors drawn — and a synced view proving bars and arrow are the
   same state.
-- **Circuit:** real gates (H, X, CCZ) on three qubits, stepped column by column, with
+- **Circuit:** a classical simulation of quantum gates (H, X, CCZ) on three qubits, stepped column by column, with
   a live norm readout and an honest footnote about the global phase the textbook
   decomposition introduces.
 
-Then the reader gets to break it: hand Grover an oracle that marks nothing (it spins
-forever) or the wrong box (it amplifies the wrong box to near-certainty — garbage in,
+Then the reader gets to break it: hand Grover an oracle that marks nothing (the uniform
+state stays fixed) or the wrong box (it amplifies the wrong box to near-certainty — garbage in,
 loud garbage out), and dial in $k$ marked items to find the $N{=}16,\\,k{=}4$ party
 trick where one iteration succeeds with certainty.
 

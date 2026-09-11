@@ -4,14 +4,14 @@
 **First posted / published:** 2026/02/20
 **Last revision shown by source:** 2026/03/05
 **Publication status:** arXiv version collected; separate publication status not independently verified
-**Review depth:** targeted_full_text
+**Review depth:** targeted full text
 **Reading location:** Abstract, introduction and simulation/shape-control setup.
 
 Learns a differentiable actuation-to-shape operator and composes it with task maps for inverse kinematics.
 
 Direct route back to robotics. The inspected demonstrations are analytical/model-based; do not treat them as validated real-hardware generalization or a general-purpose world model.
 
-[Primary source](https://arxiv.org/abs/2602.18655) · [Local PDF](../soft-robot-2026.pdf)
+[Primary source](https://arxiv.org/abs/2602.18655)
 
 **Topics:** operator-learning, robotics, control
 

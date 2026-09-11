@@ -13,7 +13,8 @@ const project: ProjectMeta = {
 Why does the Moon always show us the same face? The usual explanation involves a tidal
 bulge, a phase lag and a torque, and it is correct — but stated that way it asserts
 everything interesting in it. So this simulation implements only the ingredients and
-watches what happens.
+watches what happens. Synchronous rotation means turning once per orbit: try walking
+around a chair while keeping your face toward it.
 
 There is no tidal-force term anywhere in the code, no torque term, and nothing that checks
 whether the moon is locked.
@@ -24,7 +25,8 @@ A point-mass planet, and a moon of about 200 point masses joined to their neighb
 roughly 1,200 springs with dashpots. Every particle feels ordinary inverse-square gravity
 toward the planet, and the planet feels every reaction, so it moves too. Each bond pulls
 with \`F = -k(|d| - L₀) - c(ḋ·d̂)\` — Hooke's law plus a dashpot on the rate of change of
-bond length, which is the only irreversibility in the whole model. Integration is velocity
+bond length. Here k is stiffness, c damping, d separation and L₀ resting length.
+The dashpot is the only irreversibility in the whole model. Integration is velocity
 Verlet with forces evaluated at the half-step velocity, since plain Verlet assumes forces
 depend only on position and a dashpot does not.
 
@@ -32,23 +34,24 @@ Because the moon's near side is closer to the planet than its far side it gets p
 harder and the body stretches. Because the springs are lossy the bulge cannot keep up, and
 on a moon spinning faster than it orbits it is dragged slightly ahead of the planet
 direction. Gravity then has something off-axis to pull on, and that pull is a brake. A
-thousand orbits later the moon is locked.
+run of thousands of orbits can bring it close to synchronous; the timescale depends on
+the parameters and the criterion for calling it locked.
 
 ## The part that makes it honest
 
 The dashpot acts strictly along the bond axis, which makes it a central force: equal and
 opposite, directed along the line joining the two particles. It therefore conserves
-angular momentum exactly. Damping with any component perpendicular to the bond would be
-friction against an absolute frame — it would slow the moon's rotation directly, and the
-simulation would "demonstrate" tidal locking by quietly applying a brake.
+angular momentum exactly. A noncentral pair damping force can create an internal torque, even when it uses only
+relative velocity. The axial choice prevents that artificial brake on rigid rotation.
 
-The check is on screen: **total angular momentum holds to about one part in 10¹⁴** over
+A recorded example run gives the check shown on screen: **total angular momentum holds to about one part in 10¹⁴** over
 tens of millions of steps, while the moon's spin angular momentum drains measurably into
-the orbit and the moon recedes. Energy is not conserved — it becomes heat inside the moon,
-which is exactly the point.
+the orbit and the moon recedes. Mechanical energy decreases as it becomes heat inside the moon. Total energy includes
+that heat; discrepancies in that total are numerical error.
 
 Slide the internal friction to zero and the locking very nearly stops, while the bulge
-stays exactly where it was.
+remains. Residual spin changes can include conservative exchanges as well as numerical
+error, so compare both energy and timestep sensitivity.
 
 ## Two things that were harder than expected
 

@@ -17,15 +17,17 @@ Stack them and you get something that felt faintly illegal the first time it wor
 
 ![The whole analytics stack, inside one browser tab](/blog/ai-data-analytics/architecture.svg)
 
-*The network is used exactly once: to download model weights and the Python runtime. After that you can go offline.*
+*The app, model weights, Python runtime and required packages must first download and remain cached. The intended analysis loop can then run locally; offline availability depends on those assets being present.*
 
 ## Why code generation is the right architecture
 
 There's a tempting shortcut: hand the data itself to the LLM and let it answer directly. It's a trap. Models are unreliable at arithmetic over long contexts, your data may not even fit, and you can't audit vibes.
 
-Generating *code* fixes all three at once. The model only sees the schema and a few sample rows — tiny context, no matter how big the file. The arithmetic is done by pandas, which does not hallucinate a groupby. And every answer ships with its own receipt: the code is right there, and a suspicious user can read it.
+Generating *code* addresses context size and makes arithmetic inspectable. The model only sees the schema and a few sample rows — tiny context, no matter how big the file. Pandas executes the requested operations, but the generated operations can still be wrong. And every answer ships with its own receipt: the code is right there, and a suspicious user can read it.
 
-The loop that makes it actually usable is the retry loop. Generated code fails sometimes — a misspelt column, a type error on a date column. The error message goes straight back to the model for another attempt, entirely client-side. An 8B model with an error-feedback loop lands correct analyses far more often than its raw first-shot rate suggests — asking again is nearly free when there's no API meter running.
+For “return rate,” check whether the denominator is units sold, orders, or customers; a perfectly runnable calculation can silently use the wrong one. Inspect missing values, filters and units, then reproduce a small group by hand.
+
+The loop that makes it actually usable is the retry loop. Generated code fails sometimes — a misspelt column, a type error on a date column. The error message goes straight back to the model for another attempt, entirely client-side. An 8B model with an error-feedback loop can recover from execution failures, although semantic mistakes still need checking — asking again is nearly free when there's no API meter running.
 
 Follow-up questions keep the conversation context, so *"now only for 2024"* composes on top of the previous analysis. Charts come back as images rendered from the generated matplotlib figure, tables are sortable, and multiple files can be loaded and joined.
 
@@ -37,7 +39,7 @@ Follow-up questions keep the conversation context, so *"now only for 2024"* comp
 
 ## Why bother?
 
-Privacy, mostly — and distribution. There is an entire class of tabular data that people rightly refuse to upload: patient lists, payroll, customer exports, anything under NDA. Here the property isn't a promise in a privacy policy, it's an architectural fact: **your data never leaves the device**, and you can verify it with the network tab open.
+Privacy, mostly — and distribution. There is an entire class of tabular data that people rightly refuse to upload: patient lists, payroll, customer exports, anything under NDA. The intended architecture keeps inference and analysis local. Inspecting network activity can check data flow during a session; local execution alone does not establish the security of every dependency or guarantee future app behavior.
 
 And because it's just static files, sharing the entire product is sending a URL. No account, no key provisioning, no per-token bill. Anyone with a decent laptop gets a private data analyst for free.
 

@@ -13,11 +13,16 @@ export function TwoMirrors() {
         <p>
           Time to climb to the second altitude. Sixteen bars are really only{' '}
           <em>two</em> numbers in disguise: the amplitude of the marked box, and the
-          amplitude shared by all the identical unmarked ones. So the entire state lives in
+          amplitude shared by all the unmarked ones. That equality is preserved by
+          these operations from a uniform start; an arbitrary state need not have it.
+          For this run, the entire state lives in
           a flat plane. Put the marked direction <M>{String.raw`|\alpha\rangle`}</M> on the
           vertical axis and the everything-else direction{' '}
           <M>{String.raw`|\beta\rangle`}</M> on the horizontal, and the state is a single
-          arrow of length one.
+          arrow of length one. The horizontal direction is the normalized equal sum
+          of the N−1 unmarked basis states. Its coordinate is √(N−1) times one unmarked
+          amplitude; the vertical coordinate is the marked amplitude. Their squared
+          coordinates therefore sum to the total probability, one.
         </p>
         <p>
           The uniform superposition <M>{String.raw`|s\rangle`}</M> starts almost
@@ -32,8 +37,8 @@ export function TwoMirrors() {
           <M>{String.raw`|s\rangle`}</M> itself: a <strong>reflection across the{' '}
           <M>{String.raw`|s\rangle`}</M> line</strong>. And a reflection followed by a
           reflection is — try it — a <strong>rotation</strong>, by twice the angle between
-          the mirrors: <M>{String.raw`2\theta`}</M> per iteration, always toward the
-          marked axis.
+          the mirrors: <M>{String.raw`2\theta`}</M> per iteration, initially toward the
+          marked axis and then past it if we continue.
         </p>
       </Prose>
       <WidgetFrame

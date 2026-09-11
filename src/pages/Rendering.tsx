@@ -108,10 +108,10 @@ export default function Rendering() {
       <section className="no-article mt-8" aria-labelledby="rendering-billboards">
         <h2 id="rendering-billboards">The sphere is two triangles</h2>
         <p>
-          One of my favourite tricks is billboarding. For each atom, draw a small quad that
+          One of my favourite tricks is billboarding. For each atom, draw a small quad — a flat rectangle made of two triangles — that
           faces the camera. It covers the part of the screen where the sphere will appear.
-          For each pixel in that quad, a fragment shader asks whether the viewing ray hits
-          the sphere. Misses are discarded; hits give a surface position and a normal for lighting.
+          For each pixel in that quad, a fragment shader — a small GPU program that computes the pixel’s appearance — asks whether the viewing ray hits
+          the sphere. Misses are discarded; hits give a surface position and a normal, the direction perpendicular to the surface, for lighting.
         </p>
         <p>
           The crucial detail is depth: write the depth of the sphere’s surface, rather than

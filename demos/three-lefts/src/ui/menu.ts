@@ -32,7 +32,7 @@ export function buildMenu(onPick: (level: LevelSpec) => void): HTMLElement {
 
   const sub = document.createElement('p')
   sub.className = 'menu__sub'
-  sub.textContent = 'Three houses that are honest about being impossible.'
+  sub.textContent = 'Eight houses with fixed rules and impossible geometry.'
 
   const cards = document.createElement('div')
   cards.className = 'cards'

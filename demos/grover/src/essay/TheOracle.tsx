@@ -26,13 +26,19 @@ export function TheOracle() {
         <p>
           First, what does "checking a box" even mean in superposition? The yes/no check
           is given to us as a circuit — the <strong>oracle</strong>. Fed a single box, it
-          answers yes or no, exactly like the classical check. Fed a superposition, it does
-          the only thing a quantum circuit can do with a yes: it{' '}
+          can reversibly write its answer into an extra qubit. Preparing that qubit in
+          the minus state — equal amplitudes for 0 and 1 with opposite signs — converts
+          a yes answer into a sign change. Flipping that extra qubit exchanges those
+          amplitudes, multiplying the branch by −1. This is phase kickback.
+          The resulting phase oracle{' '}
           <strong>flips the sign of the marked box's amplitude</strong> and leaves every
           other box alone.
         </p>
         <p>
           Click a bar below to choose where the prize hides, then apply the oracle.
+          We wire in the answer here to demonstrate the transformation. In a search
+          problem, the circuit instead tests a property — such as whether a candidate
+          satisfies some constraints — without needing the successful candidate in advance.
         </p>
       </Prose>
       <WidgetFrame
@@ -75,8 +81,9 @@ export function TheOracle() {
           Now the disappointment, which is really the plot. Look at the probabilities:{' '}
           <strong>nothing happened.</strong> Every box still measures at{' '}
           <M>1/8</M>, because squaring erases the sign. The oracle has secretly branded the
-          winner — its amplitude now points the other way — but no measurement can see a
-          lone sign. The information is in the state; it is just invisible.
+          winner — its amplitude now points the other way — but measuring the box label
+          in this basis cannot reveal that relative sign. Other measurement bases can;
+          diffusion makes the difference visible in the box probabilities.
         </p>
         <p>
           Invisible, that is, until something <em>compares amplitudes to each other</em>.

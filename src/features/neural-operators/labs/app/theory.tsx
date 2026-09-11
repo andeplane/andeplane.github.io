@@ -56,7 +56,7 @@ export default function Theory() {
         </span>
         <h2>One mathematical story, from pixels to a learned operator.</h2>
         <p>
-          The live lab is deliberately small: a zero-mean scalar field, periodic
+          The live lab is deliberately small: a scalar field with a separately preserved mean, a periodic
           square domain, and linear heat diffusion. Here is the notation behind
           its calculations, followed by the changes needed for a full neural
           operator.
