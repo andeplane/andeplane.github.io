@@ -1,7 +1,7 @@
 ---
 title: "A perfect fifth you can see"
 date: "2026-08-17"
-description: "An ear trainer where the background is not decoration: every note becomes a point source whose crest spacing is its real frequency, so a fifth locks into standing fringes and a tritone churns. Consonance stops being a word and becomes a picture."
+description: "An ear trainer that connects scale degrees to sound, with a wave illustration whose spacing follows the played notes’ frequency ratios."
 tags: ["Web Audio", "WebGL", "Music", "Physics", "TypeScript", "Game"]
 ---
 
@@ -10,6 +10,17 @@ Recognising an interval by ear is not knowledge. You cannot read your way to it.
 So I built one, and then I could not resist making the background do some physics.
 
 **[Try it](/demos/interval-trainer/)** — a chord, a note, ten buttons.
+
+## Before the buttons: what is an interval?
+
+An **interval** is a distance in pitch. The **root** is our reference note. In C major,
+C–D–E–F–G–A–B are degrees 1–7: E is degree 3 and G is degree 5. A degree number is
+not a count of semitones. A **semitone** is the step to the adjacent piano key,
+including black keys; C to E spans four, while C to G spans seven.
+
+Here `3b` means lower degree 3 by one semitone: E-flat when C is home. `4#` means
+raise degree 4: F-sharp. The octave is the next C, twelve semitones above the root.
+Try singing C–D–E, then compare C–E with C–E-flat before using the keypad.
 
 ## Two sounds, not three
 
@@ -54,15 +65,33 @@ $$
 u(\mathbf{r}, t) \;=\; \sum_i \operatorname{env}\!\left(t - \frac{r_i}{c}\right)\, s(r_i)\, \sin\!\left(\frac{2\pi\,(c\,t - r_i)}{\lambda_i}\right)
 $$
 
-One propagation speed $c$ for every ripple, exactly as in air. Pitch therefore changes *only* the crest spacing:
+Here $u$ is the displayed signed field, $i$ labels a sounding note, $r_i$ is distance
+from its source, $t$ is time since that note began, and $\lambda_i$ is crest spacing.
+The envelope $\operatorname{env}$ sets the note’s rise and decay; $s(r_i)$ fades it
+with distance. The displayed speed $c$ is in pixels per second, not metres per second.
+With one shared speed, higher pitch gives closer crests:
 
 $$
 \lambda_i \;=\; \lambda_0 \cdot \frac{f_\text{root}}{f_i}
 $$
 
-An octave's crests sit at half the root's. A fifth's sit at two thirds. And because those ratios are the real ones, the interference is the real thing too: a 3:2 pair sums into fringes that barely move, while a tritone never settles.
+An octave’s wavelength is half the root’s. The trainer uses twelve-tone equal temperament:
+seven semitones give a frequency ratio $2^{7/12}\approx1.4983$, close to a just fifth’s
+$3/2$. Its wavelength is therefore approximately, rather than exactly, two thirds of the
+root’s. A tritone spans six semitones and has ratio $\sqrt2$ in this tuning.
+[UNSW’s acoustics explanation](https://newt.phys.unsw.edu.au/jw/notes.html) connects these
+ratios to note names.
 
-That last contrast is sharper than I expected, and the reason is a nice piece of tuning arithmetic. Equal temperament's fifth is $2^{7/12} = 1.4983$, about two cents flat of a true $3{:}2$ — so the fringes do not stand perfectly still, they *drift*, slowly, like a beat you can watch. The tritone is $2^{1/2}$, which has no low-order rational neighbour worth the name; its pattern churns and never repeats. You can see the difference between the interval your ear finds restful and the one it finds restless, on the same screen, in the same second.
+The animation preserves these ratios at a slowed visual scale. It illustrates
+**superposition**: add the signed disturbances from the sources at each location.
+Two different frequencies do not form a stationary standing-wave pattern simply because
+their ratio is 3:2. Ideal sustained tones at a rational ratio repeat together after a
+common period; the decaying, spatially separated sources here add further changes.
+
+Nor is the picture a meter of consonance. The synthesized piano has several partials,
+while each visual source shows one wavelength. Harmonic relationships, the sound’s
+spectrum and musical context all matter to listening. Use the waves to compare spacing
+and addition, then use your ears to learn the interval.
 
 The rest of the field function is just honesty about a real wavefront. The envelope is evaluated at *retarded* time $t - r/c$, because what you see at radius $r$ left the source $r/c$ ago; amplitude falls as $\exp(-r/R)/\sqrt{1 + r/a}$, cylindrical spreading with a soft horizon so nothing ever reaches the far corner and sits there.
 
@@ -92,4 +121,4 @@ The answer clock starts when the target note *sounds*, and replaying does not re
 
 The pieces that decide whether it is any good — the interval table, question generation, the scoring constants, the highscore boards, the field function — are pure functions with tests that run as part of the build. Everything else is a canvas, an `AudioContext`, and ten buttons.
 
-Which is the whole pitch, really: the thing your ear is reaching for is drawn on the screen behind it, at the right wavelength, the whole time.
+The useful loop is simple: listen, choose, hear the answer, and try again. The waves make the frequency ratios visible; recognising the interval remains a listening skill.

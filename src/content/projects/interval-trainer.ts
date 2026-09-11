@@ -4,7 +4,7 @@ const project: ProjectMeta = {
   slug: 'interval-trainer',
   title: 'Interval Trainer',
   description:
-    'Ear training that shows its physics. Hear the root and fifth together, name the note that follows — while every note you hear ripples across the page at its own wavelength, and consonance becomes something you can see.',
+    'Ear training that shows its physics. Hear the root and fifth together, name the note that follows — while every note you hear ripples across the page at its own wavelength, in a slowed illustration of wave superposition.',
   tags: ['TypeScript', 'Web Audio', 'WebGL', 'Music', 'Game'],
   liveUrl: '/demos/interval-trainer/',
   repoUrl: 'https://github.com/andeplane/andeplane.github.io/tree/main/demos/interval-trainer',
@@ -37,15 +37,16 @@ best runs in the browser. There is a four-step tutorial for anyone who has never
 about intervals as numbers, and the key can be pinned to one note instead of drawn fresh
 each run.
 
-## Consonance you can see
+## Frequency ratios you can see
 
-The background is not decoration: it is the notes themselves, drawn. Each one becomes a
-point source, and the canvas shows their superposition, with a wavelength set by the note's
-own frequency — one speed for every ripple, exactly as in air, so pitch changes the spacing
-of the crests and nothing else. The fifth's crests sit at two thirds of the root's, an
-octave's at half. Because those ratios are the real ones, a simple interval sums into
-almost stationary interference fringes while the tritone's 45:32 never repeats and shimmers
-instead. The thing your ear is reaching for is on the screen behind it.
+Each sounding note creates a visual point source. Higher notes have shorter wavelengths,
+with spacing inversely proportional to frequency. An octave halves that spacing; the
+equal-tempered fifth is close to, but not exactly, a 3:2 frequency ratio.
+
+The sources add as signed waves at a slowed visual scale. This is an illustration of
+superposition, not a physical recording of the piano sound or a test of consonance.
+Start in Easy practice, keep one root, and compare a third with a fourth. Then try
+Medium to hear the major third (3) beside the minor third (3b).
 
 ## Under the hood
 
