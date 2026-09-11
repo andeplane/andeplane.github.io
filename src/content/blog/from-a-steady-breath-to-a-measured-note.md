@@ -39,7 +39,7 @@ $$
 
 to traverse its length $\ell$, where $c = 343\,\mathrm{m/s}$. Two fractional delay lines per segment carry the waves in opposite directions. This is a digital waveguide implementation of propagation in a narrow tube.
 
-At a hole, the incoming waves scatter between the two bore directions and an outward radiation load. With normalized bore admittances, incoming pressure waves $a$ and $b$, and hole admittance $Y_h$, the junction pressure is
+At a hole, the incoming waves scatter between the two bore directions and an outward radiation load. Admittance is the ratio of acoustic volume flow to pressure: a larger admittance lets more flow respond to the same pressure. With each bore branch’s admittance normalized to one, incoming pressure waves $a$ and $b$, and hole admittance $Y_h$, the junction pressure is
 
 $$
 p_j = \frac{2(a+b)}{2+Y_h}.
@@ -63,6 +63,8 @@ $$
 \frac{\partial p}{\partial t}=-\rho c^2\nabla\cdot\mathbf{u}.
 $$
 
+Here p is pressure relative to ambient, u is local air velocity, ρ is ambient density, and c is sound speed.
+
 This room has a 96 by 40 grid, 12 mm cells, rigid instrument geometry, and absorbing layers around its edges. The microphone samples one exterior pressure cell. Move it and you change the signal being measured. That raw signal feeds the Fourier analysis; the audio branch also applies DC filtering, gain, and soft limiting before reaching the speakers.
 
 There is an important limit: the coupling is **one-way**. The bore excites the room, but room reflections do not return to influence the bore. Fine openings are represented as radiation sources on the room grid. The colors inside the instrument show waveguide pressure; the exterior colors show the room solver's pressure. Source strength is normalized for the demonstration, so the pressure display is not an absolute sound-level prediction for a real recorder.
@@ -71,7 +73,7 @@ This is a different tradeoff from the original Tube Acoustics Lab, which resolve
 
 ## Let the measurement answer
 
-The Fourier plot sits beside the pressure field, where I can see it while playing. Its x-axis labels both frequency and musical note. A Hann-windowed FFT separates the microphone trace into spectral components, and a peak estimate with a lower-harmonic check marks a likely fundamental.
+The Fourier plot sits beside the pressure field, where I can see it while playing. Its x-axis labels both frequency and musical note. The fundamental is the base repetition frequency; harmonics are its integer multiples. A Hann window tapers the finite sample to reduce artificial spectral leakage at its edges. A fast Fourier transform (FFT) separates the microphone trace into spectral components, and a peak estimate with a lower-harmonic check marks a likely fundamental.
 
 In the browser, the default C fingering measured about **523.2 Hz**, D about **587.3 Hz**, and E about **659.3 Hz**. These readings come from the microphone history, independently of the selected fingering's name. During a transition the analysis window contains some of both notes, so the readout can briefly lag or become ambiguous.
 
