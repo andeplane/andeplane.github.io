@@ -12,10 +12,12 @@ const project: ProjectMeta = {
   longDescription: `
 Draw a part, give it a material, hold it somewhere, push on it, and read off where it
 bends and how much. That is what a finite element program does, and this is one that
-opens as a web page. The engine is Rust compiled to WebAssembly; the linear solves run
+opens as a web page. Finite elements divide the part into small connected pieces;
+their shared nodes carry displacement or temperature, and interpolation fills in the
+space between nodes. Refining this mesh lets you check whether the result is converging. The engine is Rust compiled to WebAssembly; the linear solves run
 either through a sparse Cholesky factorisation on the CPU or as a conjugate gradient on
-your GPU through WebGPU, with the answer refined in double precision either way. Nothing
-is uploaded. The same engine also builds natively for the command line, and a Journal
+your GPU through WebGPU, with the answer refined in double precision either way. The numerical solver runs locally. The optional AI assistant is a separate service
+interaction, so local computation alone is not a blanket claim about all data flows. The same engine also builds natively for the command line, and a Journal
 replayed on your laptop and in the browser hashes to the same bytes.
 
 ## Every action is a command

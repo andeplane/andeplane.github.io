@@ -11,6 +11,14 @@ It is the former, and the way to show that is not to say so but to write the cha
 
 **[Open the lab](/demos/blast-wall/)** if you want to watch while you read.
 
+## Before the equations
+
+Imagine pushing the middle of a brick while holding its ends. The unknown is its displacement: how far each location moves. A **mesh** divides the brick into small elements, with **nodes** at their corners. Shape functions interpolate the motion between those nodes. Changes in displacement give **strain** (relative stretching and shearing); a material law converts strain to **stress** (internal force per area). Surface force per area is called **traction**. Mortar is the layer joining bricks; here its opening and sliding are represented by interface laws.
+
+The finite element method (FEM) balances these forces through weighted integrals. A virtual displacement is a small imagined motion, compatible with the supports, used as a weight. Requiring balance for each independent nodal motion gives equations for the nodal displacements. This is the bridge from a continuous brick to numbers a computer can advance.
+
+Read the equations below as a map of that process. A dot over displacement means a time derivative; two dots mean acceleration. Ω denotes a volume, Γ a surface, and an integral adds contributions over it. A colon between stress and strain tensors sums their matching components.
+
 ## What is actually being solved
 
 Each brick is a continuum body $\Omega_b$ obeying momentum balance:
@@ -44,7 +52,7 @@ $$
 \;+\; \sum_b \int_{\Omega_b} \rho\,\delta\mathbf{u}\cdot\mathbf{b}\,d\Omega
 $$
 
-Four integrals: inertia, internal work, interface work, external work. Everything below is a decision about how to evaluate one of them.
+Five integrals in four groups: inertia, internal work, interface work, and external work from surface loading plus gravity. Everything below is a decision about how to evaluate one of them.
 
 ## Choosing the element
 
@@ -89,6 +97,8 @@ $$
 \lambda = \frac{E\nu}{(1+\nu)(1-2\nu)}, \qquad \mu = \frac{E}{2(1+\nu)}
 $$
 
+Here $E$ is Young’s modulus, measuring tensile stiffness, and $\nu$ is Poisson’s ratio, relating lateral contraction to axial extension. The constants $\lambda$ and $\mu$ parameterize the same isotropic elastic law.
+
 The consistent mass matrix would be $\mathbf{M}_e = \int_{\Omega_e}\rho\,\mathbf{N}^{\mathsf{T}}\mathbf{N}\,d\Omega$. It is row-summed to a diagonal instead, which for H8 gives exactly
 
 $$
@@ -111,10 +121,10 @@ $$
 \nabla_X N_a\big|_{\boldsymbol{\xi}=0} = \left(\frac{\xi_a}{4a},\ \frac{\eta_a}{4b},\ \frac{\zeta_a}{4c}\right)
 $$
 
-Polar-decompose $\mathbf{F} = \mathbf{R}\,\mathbf{U}$ and keep $\mathbf{R}$. The internal force becomes
+Polar-decompose $\mathbf{F} = \mathbf{R}\,\mathbf{U}$ and keep $\mathbf{R}$. Using the resisting-force convention (subtracted from external force in the acceleration update), the internal force becomes
 
 $$
-\mathbf{f}^{\,e}_{\text{int}} = -\,\mathbf{R}\,\mathbf{K}_e\Big(\mathbf{R}^{\mathsf{T}}(\mathbf{x}_e - \bar{\mathbf{x}}) - (\mathbf{X}_e - \bar{\mathbf{X}})\Big)
+\mathbf{f}^{\,e}_{\text{int}} = \mathbf{R}\,\mathbf{K}_e\Big(\mathbf{R}^{\mathsf{T}}(\mathbf{x}_e - \bar{\mathbf{x}}) - (\mathbf{X}_e - \bar{\mathbf{X}})\Big)
 $$
 
 which is exactly zero for any rigid motion and reduces to linear elasticity when $\mathbf{R} = \mathbf{I}$.
@@ -208,7 +218,7 @@ $$
 \mathbf{u}^{\,n+1} = \mathbf{u}^{\,n} + \Delta t\;\mathbf{v}^{\,n+1/2}
 $$
 
-Because $\mathbf{M}$ is diagonal there is no solve anywhere in the loop — and, more importantly for this problem, the scheme keeps running when elements lose all their stiffness. That is the reason blast and crash codes are explicit: an implicit solver needs a tangent stiffness matrix that stays invertible, and a wall coming apart does not oblige.
+Because $\mathbf{M}$ is diagonal there is no solve anywhere in the loop — and, more importantly for this problem, the scheme keeps running when elements lose all their stiffness. Explicit methods are common for short, violent events because they avoid costly nonlinear equilibrium solves as joints fail. Implicit dynamics can also handle lost stiffness: its effective system includes mass and damping as well as tangent stiffness. Convergence and cost are the tradeoff, not a requirement that material stiffness alone remain invertible.
 
 The scheme is conditionally stable:
 
@@ -224,7 +234,7 @@ $$
 
 — the time a dilatational wave takes to cross the smallest element — is the same statement, but it is only approximate for a hexahedron, and *which* mechanism governs changes the moment somebody drags the joint-stiffness slider. Getting this wrong does not degrade gracefully; it detonates.
 
-A small mass-proportional damping term $-\alpha\mathbf{M}\mathbf{v}$ uses the half-step velocity, which formally drops that term to first-order accuracy. It is standard practice in explicit codes and the damping is deliberately small — it exists to kill the highest-frequency ringing that lumping the mass introduces, not to model anything.
+A small mass-proportional damping term $-\alpha\mathbf{M}\mathbf{v}$ uses the half-step velocity, which formally drops that term to first-order accuracy. It is standard practice in explicit codes and the damping is deliberately small — it is numerical damping, not a calibrated material law. Its modal damping ratio is $\alpha/(2\omega)$, so it damps low-frequency modes more strongly in relative terms; it is not a selective high-frequency filter.
 
 ## The load
 
@@ -267,3 +277,5 @@ Every one of those claims is only worth as much as the checking behind it, so th
 The first of those is worth dwelling on, because the metric had to be replaced. The obvious measure — how many separate pieces the wall falls into — turned out not to discriminate at all: both bonds shed a couple of stragglers and land on the same number. What the bond decides is not how *much* cracks but *where*, and a test that had been quietly passing on a proxy is not the same as a test that passes on the claim.
 
 That last pair is the point. A simulation that has not been asked to predict something it could have got wrong has not been tested, only run.
+
+These checks verify implementation and controlled numerical behavior. They do not validate a particular real wall under a real blast. That would also require measured material properties, mesh and timestep convergence, and comparison with physical experiments.
