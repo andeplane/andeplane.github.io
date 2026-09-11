@@ -9,17 +9,24 @@ Deep inside every ray tracer — from a 1980s demo to a path tracer burning a re
 
 I built an [interactive explorer](https://andeplane.github.io/Raytracing/) for exactly that question, because the math deserves better than being scattered across textbook appendices. You pick a surface — sphere, cylinder, torus — and work through it in three tabs: the **Theory** derivation, an **Intuition** view where you drag the ray and watch the intersection polynomial deform live, and a **Code** tab with a live GLSL editor where your formulas render in real time. (The repo also ships a structured [student task](https://github.com/andeplane/Raytracing) — derive on paper, implement in GLSL, watch it appear.)
 
-This post is the theory tab, in blog form.
+This post develops the sphere first, then reuses the same substitution for a cylinder
+and a torus. You need vector dot products and the quadratic formula; the gradient
+below is a vector of partial derivatives, pointing perpendicular to a smooth surface.
+
+A **ray** starts at $\mathbf O$ and travels in direction $\mathbf D$. The parameter
+$t$ measures distance along it when $\mathbf D$ has unit length. An **implicit surface**
+is the set of points where a function $F$ is zero. The task is to find where the ray
+makes that function zero.
 
 ## The recipe
 
-Every analytic ray–surface intersection is the same three moves:
+For the polynomial surfaces used here, the recipe has three moves:
 
 1. **Write the surface implicitly:** $F(\mathbf{p}) = 0$.
 2. **Substitute the ray** $\mathbf{P}(t) = \mathbf{O} + t\mathbf{D}$ (with $\lVert\mathbf{D}\rVert = 1$) to get a 1D polynomial $f(t) = 0$.
 3. **Take the smallest positive root** $t^\ast$; the hit point is $\mathbf{P}(t^\ast)$ and the surface normal is the gradient, $\hat{\mathbf{N}} = \nabla F / \lVert\nabla F\rVert$, evaluated there.
 
-The *degree* of the polynomial is the geometry's personality: it's the maximum number of times a straight line can pierce the surface.
+A nonzero degree-$d$ polynomial has at most $d$ real roots, counting multiplicity. Some may lie behind the ray, and a tangent can touch without crossing. A line lying entirely in a surface is a separate, degenerate case.
 
 ## Warm-up: the sphere (degree 2)
 
@@ -34,6 +41,11 @@ A quadratic — a line can cross a sphere at most twice. The same result has a b
 ![Ray–sphere intersection, geometrically](/blog/raytracing/ray-sphere.svg)
 
 *Project the centre onto the ray to get $t_{ca}$, use Pythagoras to get the miss distance $d$, then Pythagoras again inside the sphere for the half-chord. The discriminant of the quadratic and the test $d > R$ are the same fact wearing different clothes.*
+
+For a worked check, take $R=1$, $\mathbf O=(0,0,-3)$ and $\mathbf D=(0,0,1)$.
+The equation becomes $t^2-6t+8=0$, giving $t=2$ and $t=4$: the front and back of
+the sphere. Choose $t=2$. If the camera starts inside, discard the negative root and
+keep the forward exit. A zero discriminant is a tangent, not a miss.
 
 The normal is $\nabla F = 2\mathbf{p}$ — pointing radially out, as it must.
 
@@ -78,10 +90,15 @@ No trigonometry, no parametrisation, no UV seams — one gradient evaluated at t
 
 Ferrari's closed-form quartic solution exists and is a numerical horror show in `float32` — catastrophic cancellation everywhere, exactly the precision GLSL gives you. The explorer takes the robust route instead, and makes it a lesson of its own:
 
-- **Scan + bisect:** march $t$ in small steps, watch for sign changes of $f$, then bisect each bracketing interval down to pixel precision. Boring, bulletproof, and easily good enough at fragment-shader rates.
+- **Scan + bisect:** march $t$ in small steps, watch for sign changes of $f$, then bisect each bracketing interval down to pixel precision. Bisection converges once a continuous function has been bracketed by opposite signs. The scan is the weak part: a tangent root need not change sign, and two crossings can hide inside one scan interval. A smaller step reduces that risk but does not certify all hits.
 - **Newton's method** as the comparison: $t_{n+1} = t_n - f(t_n)/f'(t_n)$ converges quadratically when it converges — and the explorer lets you watch it shoot off to the wrong root from an unlucky start, which teaches more about Newton than any theorem statement.
 
-The torus is the sweet spot of this whole topic: rich enough to need real care (four roots! numerical traps!), small enough to fit on a napkin. Past degree 4 the analytic road ends — Abel–Ruffini says quintics have no general closed form — and ray tracing switches to iterative machinery like sphere tracing over signed distance fields. The quartic torus is the last surface you can conquer *exactly*.
+The torus is the sweet spot of this whole topic: rich enough to need real care (four roots! numerical traps!), small enough to fit on a napkin. Some higher-degree special cases still have exact solutions. Abel–Ruffini rules out a general formula by radicals for arbitrary quintics; it does not set a universal boundary on ray tracing. Non-polynomial implicit surfaces need other methods, and sphere tracing needs a suitable distance function or conservative distance bound.
+
+Try a grazing ray, then a ray through both sides of the torus. Predict the number of
+forward intersections before looking at the graph. Ask whether the numerical search
+found every root you expected. [PBRT’s sphere derivation](https://pbr-book.org/4ed/Shapes/Spheres)
+shows how a production renderer turns the same mathematics into intersection tests.
 
 ## Full circle
 

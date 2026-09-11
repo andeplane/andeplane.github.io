@@ -19,9 +19,16 @@ Choose a geometry — **sphere**, **cylinder**, or **torus** — and explore ray
 
 ## The core idea
 
-Every analytic ray–surface intersection follows the same three steps: write the implicit surface equation F(**p**) = 0, substitute the ray **P**(t) = **O** + t**D** to get a polynomial f(t) = 0, then find the smallest positive root and evaluate the normal **N** = normalize(∇F) at the hit point.
+For the algebraic surfaces in this explorer, the intersection follows three steps: write the implicit surface equation F(**p**) = 0, substitute the ray **P**(t) = **O** + t**D** to get a polynomial f(t) = 0, then find the smallest positive root and evaluate the normal **N** = normalize(∇F) at the hit point.
 
 The torus is the centrepiece because it produces a **degree-4 (quartic)** polynomial — a ray can pierce it at up to four points — making it the richest analytic case before you reach general implicit surfaces. The sphere and cylinder (both quadratic) serve as warm-ups.
+
+Here **O** is the ray origin, **D** its direction, and t its forward distance when D is
+unit length. A root is a value of t that lands on the surface. The gradient ∇F points
+perpendicular to that surface; normalizing it gives a unit lighting direction.
+Start with a unit sphere viewed from (0, 0, −3) along +z: the hits are t = 2 and t = 4.
+Then move the ray until the two hits meet at a tangent. A sign-change scan can miss
+that tangent, so numerical root finding is part of the lesson too.
 
 ## For students
 

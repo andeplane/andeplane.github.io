@@ -25,6 +25,11 @@ That is the one decision everything else falls out of, and it is worth stating a
 
 What exists instead is a graph. Rooms are nodes, each with its own private copy of ℝ³ and its own origin. Doorways are edges, and each edge is labelled with a rigid transform. The player's position is always `(cell, local x, local z)` — a room, and where you are inside it. Walking through a door multiplies you by that door's transform and hands you a new room to be in.
 
+A **rigid transform** changes coordinates by a rotation and a translation, preserving
+local lengths and angles. Compose transforms by applying the rightmost one first.
+The **identity** transform means no change. These definitions let us compare a closed
+walk through the room graph with the position a flat map predicts.
+
 The transform itself is short. Give every doorway a frame `F` sitting at the opening's centre with `+Z` pointing into the room it belongs to. Then the coordinate change from room A to room B is
 
 ```
@@ -47,7 +52,7 @@ Make it anything other than the identity and the loop refuses to close.
 
 **Every impossibility in the game is that one statement and nothing else.** There is no second trick. A ring of three rooms, each of which you enter from the south and leave by the west — one left turn apiece — closes as a graph after 270° of turning, so three lefts bring you home and space is smaller than it should be. A ring of five closes after 450°, so four lefts are *not enough*, and hidden in that excess is a room Euclidean geometry has nowhere to put. That room is where the good stuff is.
 
-The quantity is the angle defect, `δ = 2π − nθ`, and it is the same object a cosmologist means by a cone point.
+The accumulated angular mismatch is `δ = 2π − nθ`, where n counts turns and θ is each turn’s angle. It resembles the angle deficit around a cone, but a doorway-connected loop does not by itself create a cone point you can stand on.
 
 ## The part I got wrong
 
@@ -71,7 +76,7 @@ The first three levels teach the vocabulary — angle defect, a corridor glued t
 
 In all three, the notebook is the tell. It draws what you believe — flat, Euclidean, dead-reckoned — and it visibly fails: it spirals into itself around a deficit, and leaves a wedge of blank paper around an excess.
 
-The later levels take that away. A ring of **eight** rooms turns 720°, so after four lefts your map has drawn a flawless square, closed it, and told you that you are exactly where you began. You are one room short of it, in a room you have never been in, and the map is not merely wrong — it is confidently, consistently, provably wrong, which is worse and far harder to catch. The only instrument that still works is chalk.
+The later levels take that away. A ring of **eight** rooms turns 720°, so after four lefts your map has drawn a flawless square, closed it, and told you that you are exactly where you began. You are halfway around the eight-room ring, in a different room, and the map is not merely wrong — it is confidently, consistently, provably wrong, which is worse and far harder to catch. The only instrument that still works is chalk.
 
 Then a single glasshouse whose four doorways lead back into itself. Four norths compose to precisely nothing; so do four wests. But north-then-west and west-then-north land 27 metres apart, and the commutator `n·w·n⁻¹·w⁻¹` comes out as a pure translation of about 28 metres with no rotation at all. Two loops that each close, and whose order matters. That one is not drawable.
 
@@ -79,9 +84,9 @@ Then a single glasshouse whose four doorways lead back into itself. Four norths 
 
 The renderer draws the world by recursive stencil passes — mark the doorway, reset the depth inside it, recurse with the transformed camera, stamp the depth back, unmark. Three levels deep, which on the busiest level is fourteen full renders of shaded geometry per frame.
 
-The constraint that shapes everything is that **no screen-space technique may sample across a portal boundary**. SSAO, SSR, TAA, screen-space shadows — all of them read neighbouring pixels, and across a doorway edge the neighbouring pixel is in a different room. They smear and ghost at exactly the seam the player is staring at, which is the one place the whole illusion has to hold. So the cheap route to looking good is closed, and the look has to come from baked vertex AO, a purpose-built environment map, and MSAA, the only anti-aliasing that qualifies.
+The constraint that shapes everything is that **no screen-space technique may sample across a portal boundary**. SSAO, SSR, TAA, screen-space shadows — all of them read neighbouring pixels, and across a doorway edge the neighbouring pixel is in a different room. They smear and ghost at exactly the seam the player is staring at, which is the one place the whole illusion has to hold. So the cheap route to looking good is closed, and the look has to come from baked vertex AO, a purpose-built environment map, and MSAA, which smooths geometry edges. Supersampling is another option; screen-space methods need explicit portal-boundary handling.
 
-Sound obeys the same graph. Audio travels the portal edges rather than any space the rooms sit in, so a lantern two rooms away arrives from the direction the *graph* says. The listener is nailed to the origin and every source is placed in head coordinates, because the vector from your head to a sound is the only frame a portal transform leaves unchanged: crossing a doorway rotates the source and the head by the same amount, and the difference is untouched. Measured across a real crossing, the apparent position moves 8 cm — against 17 cm for an ordinary walking frame. No seam.
+Sound obeys the same graph. Audio travels the portal edges rather than any space the rooms sit in, so a lantern two rooms away arrives from the direction the *graph* says. The listener is nailed to the origin and every source is placed in head coordinates, because the sound is expressed relative to the listener’s position and orientation: crossing a doorway transforms both source and listener; expressing the relative vector in the transformed head basis preserves its components. Measured across a real crossing, the apparent position moves 8 cm — against 17 cm for an ordinary walking frame. No seam.
 
 And it pays off in the shrine. From all three barred windows the lantern reads at the same distance and the same bearing — five metres, ninety degrees right, through one barred doorway. You can prove three windows look into one room with your ears, from inside a room you cannot leave.
 

@@ -17,8 +17,7 @@ island. No combat, no oxygen meter, no way to lose — the reward loop is discov
 
 The whole world is a single analytic function. \`field(x, y, z)\` returns signed density —
 positive inside rock — and it drives terrain meshing, player collision, prop scattering
-and cave validation alike. There is no collider mesh, so the visible world and the
-collidable world *cannot* drift apart. The Gerstner wave table is treated the same way:
+and cave validation alike. There is no collider mesh, so rendering and collision share the same underlying surface definition. The displayed mesh is still a finite-resolution approximation, so local differences need checking. The Gerstner wave table is treated the same way:
 one definition, evaluated in the shader for the surface and in JavaScript for boat
 buoyancy and the waterline test.
 
@@ -40,6 +39,10 @@ meshes it at 0.6 m across a worker pool, baking per-vertex sky visibility as it 
 which then does a surprising amount of work: caves go genuinely dark, caustics are masked
 so they cannot leak onto cave ceilings, and flora only grows where light reaches.
 
+A **signed density field** tells us which side of a surface a point is on. Marching
+cubes samples that field on a grid and builds triangles where its sign changes.
+Smaller grid cells capture finer caves but require more triangles and computation.
+
 ## Water
 
 Extinction is a vec3, not a scalar. Red dies in a few metres while blue survives tens, so
@@ -48,7 +51,7 @@ cannot do, and whose absence is why most underwater scenes just look blue-hazed.
 the green-to-blue ratio wrong is what makes water read as teal instead of ocean.
 
 Seen from below, the surface produces Snell's window: a 96° cone of refracted sky ringed
-by total internal reflection. Caustics are real — sunbeams refracted through the wave
+by total internal reflection. Caustics — the moving bright patterns on the seabed — are modeled as sunbeams refracted through the wave
 surface and projected down, with brightness from how much each beam's footprint
 compressed, measured with screen-space derivatives. The volumetric light shafts are
 modulated by that same caustic map, so the beams and the pattern they cast on the sand
@@ -58,11 +61,10 @@ come from one source and actually line up.
 
 Fish schools and gulls run one GPU flocking system on compute shaders, split into
 per-school buffers — six schools of five hundred interacting only within themselves rather
-than one flock of thousands, a roughly 45× reduction in the O(N²) inner loop. Crabs walk
+than one flock of thousands, a reduction in pair checks from roughly (6 × 500)² to 6 × 500² — about sixfold for those fish schools. Actual frame cost includes other work. Crabs walk
 the seabed as CPU agents with legs animated procedurally from baked vertex attributes, all
 in a single draw call. Some fifty thousand instanced corals, kelp and sponges sway in the
-surge, coloured by rotating each instance around the hue wheel rather than lerping between
-two colours — a lerp between crimson and gold passes through mud.
+surge, coloured by rotating each instance around the hue wheel rather than linearly interpolating between two colours. The hue rotation is an artistic choice that keeps the palette vivid.
 
 Somewhere in the deepest chamber there is a chest.
 
