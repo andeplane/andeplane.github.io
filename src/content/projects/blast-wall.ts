@@ -31,11 +31,10 @@ bottom, and what is left of the structure stands there.
 ## The thing worth seeing
 
 Switch the bond from **løperforband** — the half-brick offset every mason uses — to stack
-bond, where the head joints line up, and fire the same charge. The running-bonded wall
-holds together in a handful of large pieces: a crack has to staircase down through a bed
-joint, along a head joint, and work its way around every brick in its path. The
-stack-bonded wall unzips. Continuous vertical cracks run the full height of it and the
-wall falls into columns. Nothing in the code knows this is supposed to happen — the crack
+bond, where the head joints line up, and fire the same charge. Compare the damage pattern rather than just counting fragments.
+Running bond interrupts aligned vertical joints, so cracks must change direction or
+find another route. Stack bond provides continuous vertical paths; in the tested
+comparison, a larger fraction of its head joints crack. Nothing in the code knows this is supposed to happen — the crack
 path is wherever joints exceeded their strength. It is simply the reason the bond pattern
 exists, made visible.
 
@@ -99,7 +98,7 @@ whose area under the curve is the fracture energy by construction, and the stabi
 of the time integrator — it is in
 [A brick wall, from the weak form up](/blog/a-brick-wall-from-the-weak-form-up). That post
 also carries the honest list of what this is *not*: explicit only, corotational linear
-rather than large-strain, an interface integrated nodally rather than by quadrature, and
+rather than large-strain, an interface using nodal rather than interior Gauss quadrature, and
 bricks that cannot themselves break.
 
 ## Under the hood
