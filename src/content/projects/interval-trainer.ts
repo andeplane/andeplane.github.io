@@ -15,7 +15,7 @@ times, which means the practice has to be quick, honest, and pleasant enough to 
 to. Every question here opens the same way — the root and the fifth above it struck
 together, an open chord that tells your ear where *home* is — and then plays one more
 note. You say where it landed: **3** or
-**3b**, **7** or **7b**, ten buttons, ten keyboard shortcuts, no menus in between.
+**♭3**, **7** or **♭7**, ten buttons, ten keyboard shortcuts, no menus in between.
 
 ## What you can do
 
@@ -27,7 +27,7 @@ nothing carries over from the last one. Each keeps its own highscore board.
 Practice with no clock at all: replay a question as many times as you like, get the answer
 named the moment you commit to it, and hear a miss played back to you with the right
 answer on screen. A strip along the bottom keeps score per interval, so the vague feeling
-that you are bad at **6b** turns into a bar you can watch climb.
+that you are bad at **♭6** turns into a bar you can watch climb.
 
 Or play it as a game. Two minutes on the clock, six more seconds for every correct answer
 — you watch them fly up from the note that earned them — and a hundred points plus a
@@ -46,7 +46,7 @@ equal-tempered fifth is close to, but not exactly, a 3:2 frequency ratio.
 The sources add as signed waves at a slowed visual scale. This is an illustration of
 superposition, not a physical recording of the piano sound or a test of consonance.
 Start in Easy practice, keep one root, and compare a third with a fourth. Then try
-Medium to hear the major third (3) beside the minor third (3b).
+Medium to hear the major third (3) beside the minor third (♭3).
 
 ## Under the hood
 

@@ -84,7 +84,7 @@ export default function Music() {
           frequency doubles. A semitone is one step between adjacent piano keys,
           including the black keys, and twelve semitones make an octave.</p>
         <p>In the trainer, listen to C and G together, then compare E with E-flat.
-          E is the major third, labelled 3; E-flat is one semitone lower, labelled 3b.
+          E is the major third, labelled 3; E-flat is one semitone lower, labelled ♭3.
           Start in Easy practice, then switch to Medium to include altered notes such as E-flat. Replay before answering. The aim is to recognise
           each note’s relationship to home, even when home changes.</p>
         <p>In the tube lab, watch the pressure rather than a travelling parcel of air.
