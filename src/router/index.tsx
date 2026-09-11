@@ -11,6 +11,7 @@ import Music from '@/pages/Music'
 import Rendering from '@/pages/Rendering'
 
 const Interests = lazy(() => import('@/pages/Interests'))
+const Physics = lazy(() => import('@/pages/Physics'))
 const NeuralOperators = lazy(() => import('@/features/neural-operators/NeuralOperators'))
 
 export const router = createHashRouter([
@@ -21,6 +22,7 @@ export const router = createHashRouter([
       { index: true, element: <Home /> },
       { path: 'projects', element: <Projects /> },
       { path: 'interests', element: <Suspense fallback={<p>Loading interests…</p>}><Interests /></Suspense> },
+      { path: 'interests/physics', element: <Suspense fallback={<p>Loading physics…</p>}><Physics /></Suspense> },
       { path: 'interests/music', element: <Music /> },
       { path: 'interests/3d-rendering', element: <Rendering /> },
       { path: 'interests/neural-operators/:tab?', element: <Suspense fallback={<p>Loading research…</p>}><NeuralOperators /></Suspense> },

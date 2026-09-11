@@ -39,6 +39,21 @@ export default function Interests() {
           </div>
         </div>
       </Link>
+      <Link className="no-interest-card" to="/interests/physics">
+        <div className="no-card-art" aria-hidden="true">
+          <svg viewBox="0 0 600 180">
+            <path d="M30 90 Q60 10 90 90 T150 90 T210 90 T270 90 T330 90 T390 90 T450 90 T510 90 T570 90" fill="none" stroke="currentColor" strokeWidth="2" />
+            <path d="M260 28v124m28-124v124" stroke="currentColor" strokeWidth="5" opacity="0.6" />
+          </svg>
+          <span>FIELDS · RESONANCE · MEASUREMENT</span>
+        </div>
+        <div className="no-card-body">
+          <p className="no-eyebrow">From equations to experiments</p>
+          <h2>Physics <span>↗</span></h2>
+          <p>Tune an AM radio by moving capacitor plates, explore electromagnetic waves, and ask what the simulation really establishes.</p>
+          <div className="no-tags"><span>AM Radio Lab</span><span>Electromagnetism</span><span>Simulation</span></div>
+        </div>
+      </Link>
       <Link className="no-interest-card" to="/interests/music">
         <div className="no-card-art" aria-hidden="true">
           <svg viewBox="0 0 600 180">
