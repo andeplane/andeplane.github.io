@@ -67,9 +67,12 @@ export default function NeuralOperators() {
   const active = tabs.some((t) => t[0] === tab) ? tab : "overview";
   const [exportsOpen, setExportsOpen] = useState(false);
   useEffect(() => {
+    // Restore whatever title the page was served with; hard-coding one here
+    // would overwrite the per-route title build-seo.mjs bakes into each shell.
+    const previous = document.title;
     document.title = `${tabs.find((t) => t[0] === active)?.[1]} · Neural operators · andeplane`;
     return () => {
-      document.title = "andeplane";
+      document.title = previous;
     };
   }, [active]);
   return (

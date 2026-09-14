@@ -32,6 +32,9 @@ jobs:
       - name: Test neural operator numerics
         run: npm run test:neural-operators
 
+      - name: Test route/shell coverage
+        run: npm run test:seo
+
       - name: Test Gaussian quadrature numerics
         run: node --experimental-strip-types --test tests/gaussian-quadrature/*.test.ts
 

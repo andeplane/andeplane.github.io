@@ -1,6 +1,6 @@
 # Neural Operators interest
 
-Native React/TypeScript integration of the interactive Neural Operator Lab and its literature atlas. Routes live under `/#/interests/neural-operators/` so direct navigation works on GitHub Pages.
+Native React/TypeScript integration of the interactive Neural Operator Lab and its literature atlas. Routes live under `/interests/neural-operators/`; `scripts/build-seo.mjs` emits a real HTML file for each one so direct navigation works on GitHub Pages.
 
 - `NeuralOperators.tsx`: shared navigation and tab routes.
 - `Graph.tsx` / `model.ts`: field, paper, author and citation exploration.

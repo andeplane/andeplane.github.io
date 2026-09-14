@@ -5,7 +5,7 @@ description: "What happens when two tower-defence players attack each other with
 tags: ["Game", "Physics", "TypeScript", "Phaser", "AI"]
 ---
 
-I love tower defence games — always have. And I've spent a career loving particles (ask my [molecular dynamics simulations](#/blog/webgpu-md-two-million-atoms-in-a-browser-tab)). With Joachim, those two loves finally collided: [Particle Defence](https://andeplane.github.io/particle-defence/) is tower defence *inverted*. You don't place turrets to stop a scripted wave — you **are** the wave. Two bases on opposite sides of a procedurally generated maze, each spawning particles that stream toward the enemy base, in 2-player local or against an AI.
+I love tower defence games — always have. And I've spent a career loving particles (ask my [molecular dynamics simulations](/blog/webgpu-md-two-million-atoms-in-a-browser-tab)). With Joachim, those two loves finally collided: [Particle Defence](https://andeplane.github.io/particle-defence/) is tower defence *inverted*. You don't place turrets to stop a scripted wave — you **are** the wave. Two bases on opposite sides of a procedurally generated maze, each spawning particles that stream toward the enemy base, in 2-player local or against an AI.
 
 The design twist that makes it a real game: **walls are weapons**. You build obstacles to deflect the enemy swarm into dead ends while keeping open lanes for your own. Every wall is simultaneously defence and sabotage.
 

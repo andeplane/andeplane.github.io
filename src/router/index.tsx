@@ -1,5 +1,5 @@
 import { lazy, Suspense } from 'react'
-import { createHashRouter } from 'react-router-dom'
+import { createBrowserRouter } from 'react-router-dom'
 import Layout from '@/components/layout/Layout'
 import Home from '@/pages/Home'
 import Projects from '@/pages/Projects'
@@ -14,7 +14,7 @@ const Interests = lazy(() => import('@/pages/Interests'))
 const Physics = lazy(() => import('@/pages/Physics'))
 const NeuralOperators = lazy(() => import('@/features/neural-operators/NeuralOperators'))
 
-export const router = createHashRouter([
+export const router = createBrowserRouter([
   {
     path: '/',
     element: <Layout />,

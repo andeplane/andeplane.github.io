@@ -43,4 +43,4 @@ Privacy, mostly — and distribution. There is an entire class of tabular data t
 
 And because it's just static files, sharing the entire product is sending a URL. No account, no key provisioning, no per-token bill. Anyone with a decent laptop gets a private data analyst for free.
 
-The browser stopped being a thin client somewhere along the way. It has a GPU compute API, a real Python, and enough memory to hold a language model. This project is what happens when you take that literally — and it's the same conviction about browser-native compute that drives [my molecular dynamics experiments](#/blog/webgpu-md-two-million-atoms-in-a-browser-tab): the most interesting deployment target in computing is a tab.
+The browser stopped being a thin client somewhere along the way. It has a GPU compute API, a real Python, and enough memory to hold a language model. This project is what happens when you take that literally — and it's the same conviction about browser-native compute that drives [my molecular dynamics experiments](/blog/webgpu-md-two-million-atoms-in-a-browser-tab): the most interesting deployment target in computing is a tab.

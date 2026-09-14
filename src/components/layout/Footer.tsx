@@ -14,7 +14,7 @@ export default function Footer() {
         <span>© {new Date().getFullYear()} Anders Hafreager</span>
         <div style={{ display: 'flex', gap: '1.5rem' }}>
           <a href="https://github.com/andeplane" target="_blank" rel="noopener noreferrer" style={{ color: 'var(--color-text-muted)' }}>
-            GitHub
+            GitHub (andeplane)
           </a>
           <a href="https://linkedin.com/in/andershaf/" target="_blank" rel="noopener noreferrer" style={{ color: 'var(--color-text-muted)' }}>
             LinkedIn

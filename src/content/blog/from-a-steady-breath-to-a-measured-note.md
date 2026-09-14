@@ -5,9 +5,9 @@ description: "Building a playable recorder model: steady breath, acoustic feedba
 tags: ["Physics", "Music", "Acoustics", "Simulation", "TypeScript", "Web Audio"]
 ---
 
-After building the [Tube Acoustics Lab](/#/projects/tube-sim), I wanted to try something more musical. Could I give a tube a steady breath, cover its holes with the keyboard, and play a tune? And could the sound come from a microphone somewhere in the simulated room?
+After building the [Tube Acoustics Lab](/projects/tube-sim), I wanted to try something more musical. Could I give a tube a steady breath, cover its holes with the keyboard, and play a tune? And could the sound come from a microphone somewhere in the simulated room?
 
-That became **[Recorder Lab](/#/projects/flute-lab)**. Hold **Space** to blow, release it to stop, or toggle continuous airflow with the button. Keys **1–8** select fingerings for C5 through C6. Try **3 2 1 2 3 3 3** as a first melody. **QWERTYUIOP** lets you experiment with the individual holes.
+That became **[Recorder Lab](/projects/flute-lab)**. Hold **Space** to blow, release it to stop, or toggle continuous airflow with the button. Keys **1–8** select fingerings for C5 through C6. Try **3 2 1 2 3 3 3** as a first melody. **QWERTYUIOP** lets you experiment with the individual holes.
 
 ![An illustration of Recorder Lab, connecting a recorder bore to room radiation and a microphone spectrum](/blog/recorder-lab/preview.svg)
 
@@ -91,4 +91,4 @@ The tests cover silent air without excitation, stable time stepping, wave arriva
 
 Those checks establish useful behavior for this model. They do not establish that it sounds exactly like a particular wooden recorder, or that the simplified jet captures all the ways a real player can articulate and overblow.
 
-**[Play Recorder Lab](/#/projects/flute-lab)**, or find it alongside the interval trainer and the original tube experiment under **[Music](/#/interests/music)**. The prominent **How does it work?** button inside the app explains the controls and the model while you have the experiment in front of you.
+**[Play Recorder Lab](/projects/flute-lab)**, or find it alongside the interval trainer and the original tube experiment under **[Music](/interests/music)**. The prominent **How does it work?** button inside the app explains the controls and the model while you have the experiment in front of you.

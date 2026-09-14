@@ -5,7 +5,7 @@ description: "WebGPU finally gives the browser real compute shaders. So: neighbo
 tags: ["WebGPU", "Molecular Dynamics", "Simulation", "WGSL", "Performance"]
 ---
 
-Ever since I ported [Atomify](#/blog/atomify-molecular-dynamics-for-the-rest-of-us) to WebAssembly, one question kept nagging me. WASM gets you near-native *CPU* speed — but molecular dynamics is embarrassingly parallel, and the GPU sitting in every laptop was unreachable. WebGL could fake some compute with fragment-shader tricks, but no shared memory, no scattered writes, no atomics: no real MD.
+Ever since I ported [Atomify](/blog/atomify-molecular-dynamics-for-the-rest-of-us) to WebAssembly, one question kept nagging me. WASM gets you near-native *CPU* speed — but molecular dynamics is embarrassingly parallel, and the GPU sitting in every laptop was unreachable. WebGL could fake some compute with fragment-shader tricks, but no shared memory, no scattered writes, no atomics: no real MD.
 
 **WebGPU changes that.** It exposes actual compute pipelines — storage buffers, workgroups, atomics — through a browser API. So the obvious experiment: write a molecular dynamics engine where *every* step of the physics loop is a WGSL kernel, and see how many atoms a browser tab can honestly move. That became [webgpu-md](https://github.com/andeplane/webgpu-md).
 
