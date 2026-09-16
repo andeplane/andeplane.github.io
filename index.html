@@ -22,6 +22,13 @@
   </head>
   <body>
     <div id="root"></div>
+    <!-- Links shared before the move off the hash router: /#/blog/x -> /blog/x.
+         Runs before the app boots so the router only ever sees the real path. -->
+    <script>
+      if (location.hash.startsWith('#/')) {
+        history.replaceState(null, '', location.pathname.replace(/\/$/, '') + location.hash.slice(1))
+      }
+    </script>
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>

@@ -13,7 +13,7 @@ This is the story of why it exists.
 
 During my master's I was running molecular dynamics simulations, and like everyone else in the field I spent my days staring at numbers scrolling past in a terminal. The actual *physics* — atoms vibrating, crystals cracking, liquids wetting a surface — was invisible unless you exported trajectories and fired up a separate visualisation tool.
 
-So I did what any reasonable procrastinating student does: I spent way too much time on 3D rendering. Getting hundreds of thousands of spheres on screen at interactive framerates is a fun problem (spoiler: you don't draw spheres — you draw camera-facing quads and ray trace the sphere *inside the pixel shader*; I finally wrote that trick up properly in [a later post about ray–surface intersections](#/blog/raytracing-from-sphere-to-quartic-torus)). Watching your own simulation move in real time turned out to be more than eye candy. You *see* the vacuum bubble nucleate. You *see* the crack tip blunting. You form hypotheses faster.
+So I did what any reasonable procrastinating student does: I spent way too much time on 3D rendering. Getting hundreds of thousands of spheres on screen at interactive framerates is a fun problem (spoiler: you don't draw spheres — you draw camera-facing quads and ray trace the sphere *inside the pixel shader*; I finally wrote that trick up properly in [a later post about ray–surface intersections](/blog/raytracing-from-sphere-to-quartic-torus)). Watching your own simulation move in real time turned out to be more than eye candy. You *see* the vacuum bubble nucleate. You *see* the crack tip blunting. You form hypotheses faster.
 
 ## Then I met LAMMPS
 

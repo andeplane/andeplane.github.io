@@ -5,10 +5,12 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "npm run build:demos && tsc -b && vite build",
+    "build": "npm run build:demos && tsc -b && vite build && npm run build:seo",
     "preview": "vite preview",
     "build:demos": "node scripts/build-demos.mjs",
-    "test:neural-operators": "node --experimental-strip-types --test tests/neural-operators/*.test.ts"
+    "test:neural-operators": "node --experimental-strip-types --test tests/neural-operators/*.test.ts",
+    "build:seo": "node --experimental-strip-types scripts/build-seo.mjs",
+    "test:seo": "node --experimental-strip-types --test tests/seo/*.test.ts"
   },
   "dependencies": {
     "@base-ui/react": "^1.7.0",

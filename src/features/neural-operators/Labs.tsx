@@ -57,7 +57,7 @@ export default function Labs() {
       <Course chapter={chapter} step={stepIndex - 1} setStep={step => go(6, step + 1)} />
       <nav className="no-lesson-pager" aria-label="Lesson progression">
         {previous ? <button onClick={previous.go}><small>← Previous</small>{previous.label}</button> : <span />}
-        {next ? <button onClick={next.go}><small>{chapter === 6 && stepIndex < 5 ? 'Next step' : 'Next lesson'} →</small>{next.label}</button> : <a href="#/interests/neural-operators/graph"><small>Explore the research →</small>Literature graph</a>}
+        {next ? <button onClick={next.go}><small>{chapter === 6 && stepIndex < 5 ? 'Next step' : 'Next lesson'} →</small>{next.label}</button> : <a href="/interests/neural-operators/graph"><small>Explore the research →</small>Literature graph</a>}
       </nav>
     </div>
   </div>;

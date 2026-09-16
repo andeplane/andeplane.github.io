@@ -20,7 +20,7 @@ The narrow bore is a 96 kHz digital waveguide with left- and right-traveling pre
 
 Outgoing acoustic flows excite a separate 48 kHz, two-dimensional pressure–velocity room solver. Bore colors show waveguide pressure; room colors show the exterior solver's pressure. This coupling is one-way: exterior reflections do not affect the bore. The labium gain, tone-hole radiation loads, and losses are reduced models; this is not a full 3D turbulent-flow calculation.
 
-This is a new experiment, separate from the unchanged [Tube Acoustics Lab](/#/projects/tube-sim).
+This is a new experiment, separate from the unchanged [Tube Acoustics Lab](/projects/tube-sim).
 
 ### Sources
 

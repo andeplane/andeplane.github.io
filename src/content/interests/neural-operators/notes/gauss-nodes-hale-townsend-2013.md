@@ -12,6 +12,6 @@ Background for the Gaussian quadrature article. Fast construction of a rule is d
 
 The abstract reports linear construction cost and approximately double-precision accuracy for n ≥ 100. The blog's small-node implementation is pedagogical and does not reproduce that algorithm.
 
-[Author-hosted PDF](https://appliedmaths.sun.ac.za/~nhale/publications/HaleTownsend2013a.pdf) · [Interactive Gaussian quadrature article](#/blog/gaussian-quadrature-two-points-a-cubic)
+[Author-hosted PDF](https://appliedmaths.sun.ac.za/~nhale/publications/HaleTownsend2013a.pdf) · [Interactive Gaussian quadrature article](/blog/gaussian-quadrature-two-points-a-cubic)
 
 Reviewed abstract and introduction on 2026-09-11. PDF downloaded and verified. No unverified citation edges added.

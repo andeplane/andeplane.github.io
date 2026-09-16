@@ -193,7 +193,7 @@ The continuous density $\rho$ and the discrete weights $w_i$ are different thing
 
 ## 6. What this buys us in a neural operator
 
-This article grew out of the [neural-operators interest and learning labs](#/interests/neural-operators). Try the integral lesson there to see quadrature inside a learned map.
+This article grew out of the [neural-operators interest and learning labs](/interests/neural-operators). Try the integral lesson there to see quadrature inside a learned map.
 
 Fix one output coordinate $y$. The kernel and input field together form a function of $x$:
 

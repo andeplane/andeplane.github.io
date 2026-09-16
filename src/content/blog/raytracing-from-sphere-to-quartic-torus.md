@@ -102,4 +102,4 @@ shows how a production renderer turns the same mathematics into intersection tes
 
 ## Full circle
 
-The reason this math is close to my heart: it's how [Atomify](#/blog/atomify-molecular-dynamics-for-the-rest-of-us) draws millions of atoms. The renderer never tessellates a single sphere — each atom is a flat camera-facing quad, and the fragment shader runs exactly the ray–sphere intersection derived above, per pixel, shading a perfect sphere with exact normals and correct depth. What began as a master's-thesis rendering trick ended up, fifteen years later, as a teaching tool for the trick itself.
+The reason this math is close to my heart: it's how [Atomify](/blog/atomify-molecular-dynamics-for-the-rest-of-us) draws millions of atoms. The renderer never tessellates a single sphere — each atom is a flat camera-facing quad, and the fragment shader runs exactly the ray–sphere intersection derived above, per pixel, shading a perfect sphere with exact normals and correct depth. What began as a master's-thesis rendering trick ended up, fifteen years later, as a teaching tool for the trick itself.

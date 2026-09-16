@@ -28,11 +28,11 @@ export default function Reading() {
       const id = href.replace("../", "").replace(".pdf", "");
       return papers.find((p) => p.id === id)?.url ?? "https://arxiv.org";
     }
-    if (href.includes("graph/index")) return "#/interests/neural-operators/graph";
-    if (href.includes("concepts.html")) return "#/interests/neural-operators/concepts";
+    if (href.includes("graph/index")) return "/interests/neural-operators/graph";
+    if (href.includes("concepts.html")) return "/interests/neural-operators/concepts";
     if (href.endsWith(".md")) {
       const clean = href.replace(/^\.\.\//, "");
-      return "#/interests/neural-operators/reading?doc=" + encodeURIComponent(clean);
+      return "/interests/neural-operators/reading?doc=" + encodeURIComponent(clean);
     }
     if (href.includes("graph/")) return "/interests/neural-operators/" + href.split("/").pop();
     return href;
