@@ -1,19 +1,19 @@
 import { Color3 } from "@babylonjs/core/Maths/math.color.js";
 
-/** Sunset Cove art direction. Stylized, warm, high-contrast. */
+/** Moonlit pirate seas: cool water, amber lanterns and readable silhouettes. */
 export const PALETTE = {
-  deepWater: Color3.FromHexString("#086985"),
-  shallowWater: Color3.FromHexString("#39d9c7"),
-  foam: Color3.FromHexString("#f4fbf7"),
-  skyTop: Color3.FromHexString("#4c9cad"),
-  horizon: Color3.FromHexString("#e6f3d1"),
-  sun: Color3.FromHexString("#ffe0a8"),
-  fog: Color3.FromHexString("#c5e8e2"),
-  ambient: Color3.FromHexString("#5b6aa0"),
-  sand: Color3.FromHexString("#ecd39a"),
+  deepWater: Color3.FromHexString("#102d43"),
+  shallowWater: Color3.FromHexString("#2b777c"),
+  foam: Color3.FromHexString("#bbc9bf"),
+  skyTop: Color3.FromHexString("#233e54"),
+  horizon: Color3.FromHexString("#64868d"),
+  sun: Color3.FromHexString("#cbd8cf"),
+  fog: Color3.FromHexString("#233b4b"),
+  ambient: Color3.FromHexString("#36445c"),
+  sand: Color3.FromHexString("#bbab7f"),
   wetSand: Color3.FromHexString("#b9a06b"),
-  grass: Color3.FromHexString("#81b957"),
-  grassDark: Color3.FromHexString("#569f4e"),
+  grass: Color3.FromHexString("#4e8060"),
+  grassDark: Color3.FromHexString("#2e594a"),
   rock: Color3.FromHexString("#7d7268"),
   rockDark: Color3.FromHexString("#5a5049"),
   wood: Color3.FromHexString("#7a4a2a"),

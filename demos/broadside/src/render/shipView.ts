@@ -1,6 +1,7 @@
 import { Color3 } from "@babylonjs/core/Maths/math.color.js";
 import { Mesh } from "@babylonjs/core/Meshes/mesh.js";
 import { MeshBuilder } from "@babylonjs/core/Meshes/meshBuilder.js";
+import { DynamicTexture } from "@babylonjs/core/Materials/Textures/dynamicTexture.js";
 import { StandardMaterial } from "@babylonjs/core/Materials/standardMaterial.js";
 import { TransformNode } from "@babylonjs/core/Meshes/transformNode.js";
 import { Vector3 } from "@babylonjs/core/Maths/math.vector.js";
@@ -57,6 +58,68 @@ export class ShipView {
       .getChildMeshes(false)
       .filter((m) => m.name.toLowerCase().includes("sail"));
     for (const s of this.sails) this.sailBase.set(s, s.scaling.clone());
+
+    const flagMat = new StandardMaterial(`${name}-Jolly-Roger`, scene);
+    const texture = new DynamicTexture(
+      `${name}-pirate-flag`,
+      { width: 256, height: 160 },
+      scene,
+      false,
+    );
+    const c = texture.getContext() as CanvasRenderingContext2D;
+    c.fillStyle = livery === "boss" ? "#70272b" : "#171c26";
+    c.fillRect(0, 0, 256, 160);
+    c.strokeStyle = "#ede1bd";
+    c.lineWidth = 9;
+    c.lineCap = "round";
+    c.beginPath();
+    c.moveTo(91, 115);
+    c.lineTo(165, 143);
+    c.moveTo(91, 143);
+    c.lineTo(165, 115);
+    c.stroke();
+    c.fillStyle = "#ede1bd";
+    c.beginPath();
+    c.ellipse(128, 63, 34, 36, 0, 0, Math.PI * 2);
+    c.fill();
+    c.fillRect(111, 85, 34, 23);
+    c.fillStyle = "#171c26";
+    for (const x of [114, 142]) {
+      c.beginPath();
+      c.ellipse(x, 62, 9, 13, 0, 0, Math.PI * 2);
+      c.fill();
+    }
+    c.beginPath();
+    c.moveTo(128, 77);
+    c.lineTo(122, 88);
+    c.lineTo(134, 88);
+    c.fill();
+    texture.update();
+    flagMat.diffuseTexture = texture;
+    flagMat.emissiveColor = Color3.FromHexString("#615a48");
+    flagMat.backFaceCulling = false;
+    const pole = MeshBuilder.CreateCylinder(
+      `${name}-flagpole`,
+      { height: 7, diameter: 0.14, tessellation: 8 },
+      scene,
+    );
+    pole.parent = this.root;
+    pole.position.set(0, 5, -ship.spec.length * 0.32);
+    pole.material = flagMat;
+    const flag = MeshBuilder.CreatePlane(
+      `${name}-pirate-flag`,
+      {
+        width: ship.spec.beam * 0.8,
+        height: ship.spec.beam * 0.5,
+        sideOrientation: Mesh.DOUBLESIDE,
+      },
+      scene,
+    );
+    flag.parent = this.root;
+    flag.position.set(ship.spec.beam * 0.4, 8, -ship.spec.length * 0.32);
+    flag.rotation.y = -0.45;
+    flag.material = flagMat;
+    shadows.addShadowCaster(flag);
 
     const stern = new Mesh(`${name}-stern`, scene);
     stern.isVisible = false;
@@ -192,7 +255,9 @@ export class ShipView {
     this.root.rotation.set(pitch, heading, roll);
 
     // Sails: furl up to the yard, billow with the wind.
-    const target = ship.alive ? [0.12, 0.6, 1][ship.sail]! : 0.3;
+    const target = ship.alive
+      ? [ship.team === "player" ? 0.12 : 0.48, 0.6, 1][ship.sail]!
+      : 0.3;
     this.sailAmount += (target - this.sailAmount) * Math.min(1, dt * 3);
     for (const s of this.sails) {
       const base = this.sailBase.get(s)!;
@@ -206,7 +271,7 @@ export class ShipView {
 
     // Wake grows with speed; fire and smoke grow with damage.
     const damage = 1 - ship.hull / ship.spec.maxHull;
-    this.emitters.wake.emitRate = ship.alive ? ship.speed * 10 : 0;
+    this.emitters.wake.emitRate = ship.alive ? ship.speed * 6 : 0;
     this.emitters.fire.emitRate =
       ship.alive && damage > 0.45
         ? (damage - 0.45) * 160

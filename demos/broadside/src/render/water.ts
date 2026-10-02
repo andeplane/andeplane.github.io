@@ -103,10 +103,10 @@ void main() {
   }
   float shallow = 1.0 - smoothstep(1.0, 23.0, shoreDist);
   vec3 col = mix(deepColor, shallowColor, shallow);
-  col *= 0.9 + dot(N, sunDirection) * 0.13;
+  col *= (0.9 + dot(N, sunDirection) * 0.13) * (0.82 + noise(p * 0.022 + vec2(time * 0.012, -time * 0.008)) * 0.18);
   float rippleLine = smoothstep(0.96, 1.0, sin(p.y * 0.62 + sin(p.x * 0.18) - time * 0.8));
   float rippleBreak = smoothstep(0.55, 0.75, noise(p * vec2(0.09, 0.18)));
-  col = mix(col, shallowColor * 1.15, rippleLine * rippleBreak * 0.09);
+  col = mix(col, shallowColor * 1.15, rippleLine * rippleBreak * 0.045);
   // Delicate caustic threads are confined to the shallows.
   float thread = abs(sin(p.x * 0.72 + sin(p.y * 0.38) + time * 0.35) * sin(p.y * 0.7 - time * 0.22));
   col += shallowColor * smoothstep(0.88, 0.99, thread) * shallow * 0.09;
@@ -229,10 +229,10 @@ export class Ocean {
 
   setChapter(chapter: number): void {
     const colors = [
-      ["#055274", "#24cbb2", "#7dd4d9"],
-      ["#085c80", "#33d3c0", "#90d6dd"],
-      ["#0b597a", "#54cbb6", "#b4d4cb"],
-      ["#183c67", "#3aa6ba", "#6f90c0"],
+      ["#14364a", "#367f80", "#2c4858"],
+      ["#102e44", "#316c74", "#243d50"],
+      ["#142c42", "#396771", "#2d3a4c"],
+      ["#1b2440", "#435779", "#2a3048"],
     ][chapter]!;
     this.material.setColor3("deepColor", Color3.FromHexString(colors[0]!));
     this.material.setColor3("shallowColor", Color3.FromHexString(colors[1]!));

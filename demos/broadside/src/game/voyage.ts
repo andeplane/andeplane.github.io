@@ -21,7 +21,7 @@ export const PACKS = [
   },
   {
     name: "Pirate waters",
-    subtitle: "Your first cannons · cheeky rivals",
+    subtitle: "Broadside battles · cheeky rivals",
     color: "#ffc877",
   },
   {
@@ -157,7 +157,17 @@ export function generateVoyage(
   add(0, 185, 26, ["palms"]);
   const enemies: EnemyDef[] =
     pack === 0
-      ? []
+      ? [
+          {
+            ship: "brigantine",
+            pos: { x: 32, z: -65 },
+            heading: -0.6,
+            patrol: [
+              { x: 36, z: -55 },
+              { x: 38, z: 35 },
+            ],
+          },
+        ]
       : [
           {
             ship:
@@ -199,7 +209,7 @@ export function generateVoyage(
       name: NAMES[index] ?? `Voyage ${index + 1}`,
       intro:
         pack === 0
-          ? "Steer through the islands. Find the glowing treasure at the far sea."
+          ? "Steer through the islands. Sail past the pirates or tap BOOM to fight!"
           : pack === 1
             ? "Steer past the pirates. Turn your side toward them and tap BOOM!"
             : pack === 2
@@ -263,8 +273,11 @@ export class VoyageSession extends Session {
       const ship = this.world.addShip(
         {
           ...SHIP_SPECS[e.ship],
-          damage: 4,
-          maxHull: e.ship === "sloop" ? 100 : SHIP_SPECS[e.ship].maxHull,
+          damage: voyage.pack === 0 ? 2 : 4,
+          maxHull:
+            voyage.pack === 0 || e.ship === "sloop"
+              ? 100
+              : SHIP_SPECS[e.ship].maxHull,
         },
         "pirates",
         e.pos,
@@ -274,9 +287,9 @@ export class VoyageSession extends Session {
       this.brains.set(
         ship.id,
         createBrain(ship.id, e.patrol, {
-          detectRange: 65,
+          detectRange: voyage.pack === 0 ? 40 : 65,
           fleeAt: 0,
-          telegraph: 1.2,
+          telegraph: voyage.pack === 0 ? 2.4 : 1.2,
         }),
       );
     }
@@ -307,9 +320,7 @@ export class VoyageSession extends Session {
     this.simEvents = [];
     if (this.state === "won" || this.state === "lost") return;
     this.elapsed += dt;
-    if (this.voyage.pack === 0)
-      intent = { ...intent, firePort: false, fireStarboard: false };
-    else if (intent.firePort && intent.fireStarboard) {
+    if (intent.firePort && intent.fireStarboard) {
       const side = this.firingSide;
       intent = {
         ...intent,

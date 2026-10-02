@@ -10,6 +10,7 @@ import { angleDiff, clamp } from "./sim/math";
 import { VoyageHud } from "./ui/voyageHud";
 import { Sound } from "./audio/sound";
 import "./ui/voyage.css";
+import "./ui/menu.css";
 
 async function main() {
   const canvas = document.querySelector<HTMLCanvasElement>("#game")!;
@@ -34,7 +35,8 @@ async function main() {
     : null;
   const qa =
     qaQuery === "collection" ||
-    (qaQuery !== null && /^(?:[0-9]|1[01]|reveal-(?:[0-9]|1[01]))$/.test(qaQuery));
+    (qaQuery !== null &&
+      /^(?:[0-9]|1[01]|reveal-(?:[0-9]|1[01]))$/.test(qaQuery));
   if (qa) storage = undefined;
   const progress = readProgress(storage),
     controls = new Controls(),
@@ -51,7 +53,7 @@ async function main() {
   cave.refresh(progress.relics);
   let session = new VoyageSession(generateVoyage(0)),
     renderer: GameRenderer | null = null;
-  let mode: "cave" | "play" | "result" | "loading" = "cave",
+  let mode: "menu" | "cave" | "play" | "result" | "loading" = "menu",
     paused = false,
     heading: number | null = null,
     pendingFire = false,
@@ -70,7 +72,21 @@ async function main() {
     hud.paused(false);
     hud.home();
     cave.refresh(progress.relics);
-    cave.select(hud.selected);
+    cave.overview();
+    sound.pause(false);
+    stepper.reset();
+  };
+  const menu = () => {
+    loadId++;
+    mode = "menu";
+    cave.endReveal();
+    paused = false;
+    heading = tapHeading = null;
+    pendingFire = false;
+    controls.clear();
+    hud.paused(false);
+    hud.root.classList.remove("loading-voyage");
+    hud.showMenu();
     sound.pause(false);
     stepper.reset();
   };
@@ -90,6 +106,7 @@ async function main() {
     void sound.unlock();
     renderer?.scene.dispose();
     renderer = null;
+    sound.resetStorm();
     session = new VoyageSession(generateVoyage(index));
     session.sailColor = progress.paint;
     const next = new GameRenderer(engine, session);
@@ -107,7 +124,7 @@ async function main() {
     sound.pause(false);
     sound.say(
       index === 0
-        ? "Ahoy, Captain! Drag the wheel to steer. Find the golden treasure at the far sea."
+        ? "Ahoy, Captain! Drag the wheel to steer. Tap BOOM when a pirate is beside you. You can sail past or fight!"
         : session.level.intro,
     );
     canvas.focus();
@@ -124,6 +141,14 @@ async function main() {
   const hud = new VoyageHud(progress, controls, {
     start: (i) => void start(i),
     home,
+    menu,
+    overview: () => cave.overview(),
+    narration: () => {
+      progress.narration = !progress.narration;
+      sound.voice = progress.narration;
+      saveProgress(progress, storage);
+      return progress.narration;
+    },
     select: (i) => {
       cave.select(i);
       sound.click();
@@ -147,6 +172,9 @@ async function main() {
       saveProgress(progress, storage);
       return progress.muted;
     },
+  });
+  hud.root.addEventListener("click", () => {
+    void sound.unlock().then(() => sound.click());
   });
   const stepper = new FixedStepper(() => {
     if (mode !== "play" || paused) return;
@@ -215,7 +243,11 @@ async function main() {
         e.preventDefault();
         hud.select(hud.selected + (e.code === "ArrowLeft" ? -1 : 1));
       }
-      if (e.code === "Enter") void start(hud.selected);
+      if (e.code === "Escape") menu();
+      return;
+    }
+    if (mode === "menu") {
+      if (e.code === "Escape") hud.showMenu("main");
       return;
     }
     if (e.code === "Escape" || e.code === "KeyP") {
@@ -235,20 +267,28 @@ async function main() {
   document.addEventListener("visibilitychange", () => {
     if (document.hidden && mode === "play" && !paused) pause();
   });
-  let drag: { x: number; y: number; index: number } | null = null;
+  let drag: { x: number; y: number; moved: boolean } | null = null;
   canvas.addEventListener("pointerdown", (e) => {
     if (mode === "cave") {
-      drag = { x: e.clientX, y: e.clientY, index: hud.selected };
+      drag = { x: e.clientX, y: e.clientY, moved: false };
       canvas.setPointerCapture(e.pointerId);
     }
   });
   canvas.addEventListener("pointermove", (e) => {
     if (!drag) return;
-    const steps = Math.round((drag.x - e.clientX) / 100);
-    if (drag.index + steps !== hud.selected) hud.select(drag.index + steps);
+    const dx = e.clientX - drag.x,
+      dy = e.clientY - drag.y;
+    if (Math.abs(dx) + Math.abs(dy) > 3) drag.moved = true;
+    cave.look(dx, dy);
+    drag.x = e.clientX;
+    drag.y = e.clientY;
   });
   canvas.addEventListener("pointerup", (e) => {
     if (drag) {
+      if (!drag.moved) {
+        const i = cave.pick(e.clientX, e.clientY);
+        if (i !== null) hud.select(i);
+      }
       drag = null;
       return;
     }
@@ -272,17 +312,12 @@ async function main() {
     }
   });
   canvas.addEventListener("pointercancel", () => (drag = null));
-  let lastScroll = 0;
   canvas.addEventListener(
     "wheel",
     (e) => {
       e.preventDefault();
-      if (mode === "cave") {
-        if (performance.now() - lastScroll > 300) {
-          hud.select(hud.selected + (e.deltaY > 0 ? 1 : -1));
-          lastScroll = performance.now();
-        }
-      } else renderer?.zoomBy(e.deltaY * 0.035);
+      if (mode === "cave") cave.zoom(e.deltaY);
+      else if (mode === "play") renderer?.zoomBy(e.deltaY * 0.035);
     },
     { passive: false },
   );
@@ -301,20 +336,25 @@ async function main() {
       const alpha = paused ? 1 : stepper.advance(dt);
       if (mode === "play") {
         renderer!.render(session, alpha, dt);
+        if (!paused) sound.storm(session.chapter, session.elapsed);
         hud.update(session, (x, y, z) => renderer!.project(x, y, z));
       }
     } else if (mode === "loading" && renderer) {
       renderer.render(session, 1, dt);
-    } else {
+    } else if (mode !== "menu") {
       const before = cave.revealPose;
       cave.render(dt, mode === "result");
       if (mode === "result" && session.state === "won") {
         const p = cave.revealPose;
         hud.reveal(p.time, p.discovered, p.ready);
         if (p.opening && !before.opening) sound.chestOpen();
-        if (p.discovered && !before.discovered) { sound.cheer(); sound.say(`You found ${RELICS[session.voyage.index]!.name}!`); }
+        if (p.discovered && !before.discovered) {
+          sound.cheer();
+          sound.say(`You found ${RELICS[session.voyage.index]!.name}!`);
+        }
       }
     }
+    sound.ambience(mode, dt);
     canvas.dataset.fps = String(Math.round(engine.getFps()));
     canvas.dataset.state = mode === "play" ? session.state : mode;
     canvas.dataset.audio = sound.state;
@@ -331,7 +371,8 @@ async function main() {
     hud.result(session);
     cave.refresh(progress.relics);
     cave.beginReveal(index);
-  } else if (qa && qaQuery !== "collection") void start(Number(qaQuery));
+  } else if (qaQuery === "collection") home();
+  else if (qa) void start(Number(qaQuery));
 }
 void main().catch((err) => {
   console.error(err);

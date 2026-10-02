@@ -16,10 +16,10 @@ export function buildRelic(
     relic = RELICS[index]!;
   const mat = (name: string, hex: string, glow = 0, alpha = 1) => {
     const m = new StandardMaterial(name, scene);
-    m.diffuseColor = Color3.FromHexString(locked ? "#40586b" : hex);
+    m.diffuseColor = Color3.FromHexString(locked ? "#40586b" : hex).scale(0.8);
     m.specularColor = Color3.FromHexString(locked ? "#101924" : "#7b796e");
     m.specularPower = 80;
-    m.emissiveColor = m.diffuseColor.scale(locked ? 0.03 : glow);
+    m.emissiveColor = m.diffuseColor.scale(locked ? 0.03 : glow * 0.65);
     m.alpha = locked ? 0.28 : alpha;
     return m;
   };
@@ -48,7 +48,12 @@ export function buildRelic(
     b.parent = root;
     b.position.set(x, y, z);
     b.material = m;
-    if (shape === "cylinder" && "tessellation" in opts && Number(opts.tessellation) <= 8) b.convertToFlatShadedMesh();
+    if (
+      shape === "cylinder" &&
+      "tessellation" in opts &&
+      Number(opts.tessellation) <= 8
+    )
+      b.convertToFlatShadedMesh();
     return b;
   };
   const sphere = (d: number, m: StandardMaterial, x = 0, y = 0, z = 0) =>
@@ -62,35 +67,103 @@ export function buildRelic(
     case "coins": {
       const metal = relic.kind === "gold" ? gold : silver;
       for (let i = 0; i < 22; i++) {
-        const a = i * 2.4, radius = i < 12 ? 0.8 : 0.5;
-        const coin = mesh("cylinder", { height: 0.11, diameter: 0.55, tessellation: 48 }, metal, Math.sin(a) * radius, -0.45 + Math.floor(i / 6) * 0.12, Math.cos(a) * radius);
+        const a = i * 2.4,
+          radius = i < 12 ? 0.8 : 0.5;
+        const coin = mesh(
+          "cylinder",
+          { height: 0.11, diameter: 0.55, tessellation: 48 },
+          metal,
+          Math.sin(a) * radius,
+          -0.45 + Math.floor(i / 6) * 0.12,
+          Math.cos(a) * radius,
+        );
         coin.rotation.set(Math.sin(i) * 0.12, a, Math.cos(i) * 0.1);
-        const stamp = mesh("torus", { diameter: 0.38, thickness: 0.025, tessellation: 32 }, metal);
-        stamp.parent = coin; stamp.position.set(0, 0.062, 0);
+        const stamp = mesh(
+          "torus",
+          { diameter: 0.38, thickness: 0.025, tessellation: 32 },
+          metal,
+        );
+        stamp.parent = coin;
+        stamp.position.set(0, 0.062, 0);
       }
       if (relic.kind === "gold") {
         for (let i = 0; i < 3; i++) {
-          const bar = mesh("cylinder", { height: 0.4, diameterTop: 0.8, diameterBottom: 1.1, tessellation: 4 }, gold, (i - 1) * 0.68, 0.03 + (i === 1 ? 0.4 : 0), 0.1);
+          const bar = mesh(
+            "cylinder",
+            {
+              height: 0.4,
+              diameterTop: 0.8,
+              diameterBottom: 1.1,
+              tessellation: 4,
+            },
+            gold,
+            (i - 1) * 0.68,
+            0.03 + (i === 1 ? 0.4 : 0),
+            0.1,
+          );
           bar.rotation.y = Math.PI / 4;
           bar.scaling.set(0.78, 1, 1.75);
         }
       } else {
-        const coin = mesh("cylinder", { height: 0.18, diameter: 1.55, tessellation: 64 }, silver, 0, 0.55, 0);
+        const coin = mesh(
+          "cylinder",
+          { height: 0.18, diameter: 1.55, tessellation: 64 },
+          silver,
+          0,
+          0.55,
+          0,
+        );
         coin.rotation.x = 1.05;
-        const rim = ring(1.38, gold); rim.parent = coin; rim.position.set(0, 0.11, 0);
-        const moon = sphere(0.6, jewel); moon.parent = coin; moon.position.set(0, 0.15, 0); moon.scaling.y = 0.16;
-        for (let i=0;i<8;i++) {
-          const star = sphere(0.065, gold); star.parent = coin; star.position.set(Math.sin(i*Math.PI/4)*0.52, 0.14, Math.cos(i*Math.PI/4)*0.52);
+        const rim = ring(1.38, gold);
+        rim.parent = coin;
+        rim.position.set(0, 0.11, 0);
+        const moon = sphere(0.6, jewel);
+        moon.parent = coin;
+        moon.position.set(0, 0.15, 0);
+        moon.scaling.y = 0.16;
+        for (let i = 0; i < 8; i++) {
+          const star = sphere(0.065, gold);
+          star.parent = coin;
+          star.position.set(
+            Math.sin((i * Math.PI) / 4) * 0.52,
+            0.14,
+            Math.cos((i * Math.PI) / 4) * 0.52,
+          );
         }
       }
       break;
     }
     case "ring": {
-      const band = mesh("torus", { diameter: 1.85, thickness: 0.23, tessellation: 64 }, gold, 0, 0.05);
+      const band = mesh(
+        "torus",
+        { diameter: 1.85, thickness: 0.23, tessellation: 64 },
+        gold,
+        0,
+        0.05,
+      );
       band.rotation.x = Math.PI / 2;
-      mesh("cylinder", { height: 0.65, diameterTop: 0.45, diameterBottom: 1, tessellation: 8 }, jewel, 0, 1.02);
-      mesh("cylinder", { height: 0.4, diameterTop: 1, diameterBottom: 0, tessellation: 8 }, jewel, 0, 0.5);
-      for(const x of [-0.4,0.4]) mesh("box",{width:0.065,height:0.55,depth:0.065},gold,x,0.73);
+      mesh(
+        "cylinder",
+        { height: 0.65, diameterTop: 0.45, diameterBottom: 1, tessellation: 8 },
+        jewel,
+        0,
+        1.02,
+      );
+      mesh(
+        "cylinder",
+        { height: 0.4, diameterTop: 1, diameterBottom: 0, tessellation: 8 },
+        jewel,
+        0,
+        0.5,
+      );
+      for (const x of [-0.4, 0.4])
+        mesh(
+          "box",
+          { width: 0.065, height: 0.55, depth: 0.065 },
+          gold,
+          x,
+          0.73,
+        );
       break;
     }
     case "pearl": {
@@ -111,34 +184,34 @@ export function buildRelic(
       break;
     }
     case "gem": {
+      // A brilliant-cut crown and pointed pavilion share the same girdle.
       mesh(
         "cylinder",
-        {
-          height: 1.5,
-          diameterTop: 0.8,
-          diameterBottom: 1.65,
-          tessellation: 6,
-        },
+        { height: 0.6, diameterTop: 0.95, diameterBottom: 2, tessellation: 8 },
         jewel,
         0,
-        0.55,
+        0.65,
       );
       mesh(
         "cylinder",
-        { height: 0.8, diameterTop: 1.65, diameterBottom: 0, tessellation: 6 },
+        { height: 1.15, diameterTop: 2, diameterBottom: 0, tessellation: 8 },
         jewel,
         0,
-        -0.6,
+        -0.225,
       );
-      ring(1.8, gold, -0.1);
-      for (let i = 0; i < 4; i++)
-        sphere(
-          0.22,
+      ring(2.05, gold, 0.35);
+      for (let i = 0; i < 4; i++) {
+        const a = (i * Math.PI) / 2;
+        const prong = mesh(
+          "box",
+          { width: 0.09, height: 0.5, depth: 0.09 },
           gold,
-          Math.sin((i * Math.PI) / 2) * 0.88,
-          -0.1,
-          Math.cos((i * Math.PI) / 2) * 0.88,
+          Math.sin(a) * 0.96,
+          0.36,
+          Math.cos(a) * 0.96,
         );
+        prong.rotation.z = Math.cos(a) * 0.15;
+      }
       break;
     }
     case "compass": {
@@ -313,18 +386,61 @@ export function buildRelic(
       break;
     }
     case "ship": {
-      const bottle=sphere(1.85,glass);bottle.scaling.set(1.6,1,0.85);
-      const neck=mesh('cylinder',{height:0.7,diameter:0.6,tessellation:32},glass,1.7);neck.rotation.z=Math.PI/2;
-      const hull=sphere(1.3,dark,-0.15,-0.4);hull.scaling.set(1.7,0.3,0.6);
-      mesh('box',{width:1.9,height:0.1,depth:0.65},gold,-0.15,-0.2);
-      for(const x of [-0.7,-0.05,0.55]) {
-        mesh('box',{width:0.045,height:1.12,depth:0.045},dark,x,0.36);
-        mesh('box',{width:0.62,height:0.04,depth:0.04},dark,x,0.72);
-        const sail=MeshBuilder.CreateRibbon('tiny billowing sail',{pathArray:Array.from({length:4},(_,j)=>[new Vector3(x-0.28,0.1+j*0.2,0.05+Math.sin(j/3*Math.PI)*0.1),new Vector3(x+0.28,0.1+j*0.2,0.05+Math.sin(j/3*Math.PI)*0.1)]),sideOrientation:2},scene);sail.parent=root;sail.material=cream;
+      const bottle = sphere(1.85, glass);
+      bottle.scaling.set(1.6, 1, 0.85);
+      const neck = mesh(
+        "cylinder",
+        { height: 0.7, diameter: 0.6, tessellation: 32 },
+        glass,
+        1.7,
+      );
+      neck.rotation.z = Math.PI / 2;
+      const hull = sphere(1.3, dark, -0.15, -0.4);
+      hull.scaling.set(1.7, 0.3, 0.6);
+      mesh("box", { width: 1.9, height: 0.1, depth: 0.65 }, gold, -0.15, -0.2);
+      for (const x of [-0.7, -0.05, 0.55]) {
+        mesh(
+          "box",
+          { width: 0.045, height: 1.12, depth: 0.045 },
+          dark,
+          x,
+          0.36,
+        );
+        mesh("box", { width: 0.62, height: 0.04, depth: 0.04 }, dark, x, 0.72);
+        const sail = MeshBuilder.CreateRibbon(
+          "tiny billowing sail",
+          {
+            pathArray: Array.from({ length: 4 }, (_, j) => [
+              new Vector3(
+                x - 0.28,
+                0.1 + j * 0.2,
+                0.05 + Math.sin((j / 3) * Math.PI) * 0.1,
+              ),
+              new Vector3(
+                x + 0.28,
+                0.1 + j * 0.2,
+                0.05 + Math.sin((j / 3) * Math.PI) * 0.1,
+              ),
+            ]),
+            sideOrientation: 2,
+          },
+          scene,
+        );
+        sail.parent = root;
+        sail.material = cream;
       }
-      const cork=mesh('cylinder',{height:0.3,diameter:0.63,tessellation:24},dark,2.1);cork.rotation.z=Math.PI/2;
-      const neckRing=ring(0.66,gold);neckRing.position.set(1.93,0,0);neckRing.rotation.z=Math.PI/2;
-      for(const x of [-0.8,0.8])mesh('box',{width:0.28,height:0.2,depth:1.1},dark,x,-0.93);
+      const cork = mesh(
+        "cylinder",
+        { height: 0.3, diameter: 0.63, tessellation: 24 },
+        dark,
+        2.1,
+      );
+      cork.rotation.z = Math.PI / 2;
+      const neckRing = ring(0.66, gold);
+      neckRing.position.set(1.93, 0, 0);
+      neckRing.rotation.z = Math.PI / 2;
+      for (const x of [-0.8, 0.8])
+        mesh("box", { width: 0.28, height: 0.2, depth: 1.1 }, dark, x, -0.93);
       break;
     }
     case "orb": {

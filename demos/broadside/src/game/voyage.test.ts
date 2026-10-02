@@ -34,31 +34,39 @@ describe("treasure voyages", () => {
       expect(s.state).toBe("won");
     }
   });
-  it("introduces steering, pirates, forts, then kraken in four packs", () => {
+  it("starts with a gentle pirate encounter, then introduces stronger pirates, forts and kraken", () => {
     const s = new VoyageSession(generateVoyage(0));
-    expect(s.enemies).toHaveLength(0);
+    expect(s.enemies).toHaveLength(1);
+    expect(s.enemies[0]!.spec.damage).toBe(2);
     expect(s.autoFire).toBe(false);
     expect(generateVoyage(3).level.waves[0]!.enemies).toHaveLength(1);
     expect(generateVoyage(6).forts).not.toHaveLength(0);
     expect(generateVoyage(9).kraken).not.toBeNull();
     expect(RELICS).toHaveLength(12);
   });
-  it("never shoots without a player command and chooses one broadside for BOOM", () => {
-    const s = new VoyageSession(generateVoyage(3));
-    s.player.sail = 0;
-    s.enemies[0]!.pos = { x: 30, z: -90 };
-    s.enemies[0]!.sail = 0;
-    s.step();
-    expect(
-      s.simEvents.filter((e) => e.type === "fire" && e.shipId === s.player.id),
-    ).toHaveLength(0);
-    s.step({ ...IDLE_INTENT, firePort: true, fireStarboard: true });
-    expect(
-      s.simEvents.filter((e) => e.type === "fire" && e.shipId === s.player.id),
-    ).toMatchObject([{ side: "starboard" }]);
-    s.enemies[0]!.pos.x = -30;
-    expect(s.firingSide).toBe("port");
-  });
+  it.each([0, 3])(
+    "voyage %i never shoots without a player command and chooses one broadside for BOOM",
+    (index) => {
+      const s = new VoyageSession(generateVoyage(index));
+      s.player.sail = 0;
+      s.enemies[0]!.pos = { x: 30, z: -90 };
+      s.enemies[0]!.sail = 0;
+      s.step();
+      expect(
+        s.simEvents.filter(
+          (e) => e.type === "fire" && e.shipId === s.player.id,
+        ),
+      ).toHaveLength(0);
+      s.step({ ...IDLE_INTENT, firePort: true, fireStarboard: true });
+      expect(
+        s.simEvents.filter(
+          (e) => e.type === "fire" && e.shipId === s.player.id,
+        ),
+      ).toMatchObject([{ side: "starboard" }]);
+      s.enemies[0]!.pos.x = -30;
+      expect(s.firingSide).toBe("port");
+    },
+  );
   it("awards one to three stars from total damage before any rescue repairs", () => {
     for (const [damage, stars] of [
       [0, 3],

@@ -1,0 +1,1014 @@
+/* Moonlit wood, aged brass and a chart of dangerous seas. */
+.captain-menu {
+  position: absolute;
+  inset: 0;
+  pointer-events: auto;
+  background: radial-gradient(
+    ellipse at 65% 30%,
+    #254650 0,
+    #102938 38%,
+    #060f1c 85%
+  );
+  overflow: hidden;
+}
+.menu-atmosphere {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+  background: repeating-linear-gradient(
+    0deg,
+    transparent 0 28px,
+    #6296a507 29px 30px
+  );
+}
+.moon {
+  position: absolute;
+  right: 24%;
+  top: 11%;
+  width: 96px;
+  height: 96px;
+  border-radius: 50%;
+  background: #c9d4bd;
+  box-shadow:
+    0 0 100px 30px #85b5bd22,
+    inset -18px -8px 0 #8faaa088;
+  opacity: 0.7;
+}
+.distant-rocks {
+  position: absolute;
+  bottom: 15%;
+  right: 0;
+  width: 65%;
+  height: 34%;
+  background: #071620;
+  clip-path: polygon(
+    0 100%,
+    15% 65%,
+    22% 61%,
+    30% 0,
+    33% 45%,
+    37% 38%,
+    45% 82%,
+    70% 72%,
+    77% 8%,
+    86% 58%,
+    90% 41%,
+    100% 80%,
+    100% 100%
+  );
+}
+.hero-ship {
+  position: absolute;
+  width: min(52vw, 700px);
+  right: 5%;
+  top: 20%;
+  filter: drop-shadow(0 15px 20px #0007);
+  animation: ship-sway 7s ease-in-out infinite;
+}
+.hero-ship svg {
+  width: 100%;
+  height: auto;
+}
+.ocean-mist {
+  position: absolute;
+  left: -10%;
+  width: 120%;
+  bottom: 10%;
+  height: 18%;
+  background: radial-gradient(ellipse, #71939430, transparent 68%);
+  filter: blur(16px);
+  animation: mist-drift 18s ease-in-out infinite alternate;
+}
+.menu-embers {
+  position: absolute;
+  inset: 0;
+  background-image:
+    radial-gradient(circle, #e7be7355 0 1px, transparent 2px),
+    radial-gradient(circle, #9dc6be33 0 1px, transparent 2px);
+  background-size:
+    181px 219px,
+    277px 189px;
+  animation: mist-drift 24s linear infinite alternate;
+  opacity: 0.5;
+}
+.menu-page {
+  position: absolute;
+  inset: 75px 0 20px;
+  overflow: auto;
+  scrollbar-width: thin;
+  scrollbar-color: #a77c41 #122430;
+  pointer-events: auto;
+}
+#main-menu {
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  flex-direction: column;
+  padding: 30px max(8vw, 30px);
+  overflow: hidden;
+}
+#main-menu h1 {
+  font: clamp(74px, 10vw, 136px) / 0.9 "Pirata One";
+  color: #f8d69c;
+  margin: 12px 0 17px;
+  text-shadow:
+    0 4px 0 #3e2b22,
+    0 8px 30px #0008;
+}
+.title-crest > .icon {
+  width: 56px;
+  height: 56px;
+  stroke: #d5af6e;
+  margin-bottom: 14px;
+}
+.menu-tagline {
+  color: #b4c1bb;
+  font-size: 14px;
+  margin: 0 0 28px;
+  letter-spacing: 0.02em;
+}
+.main-actions {
+  width: 250px;
+  display: grid;
+  gap: 12px;
+}
+.wood-button {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  min-height: 58px;
+  padding: 10px 25px;
+  border: 1px solid #9d7a46;
+  border-radius: 9px;
+  box-shadow:
+    inset 0 1px 0 #c8a26d33,
+    0 4px 0 #050d16,
+    0 10px 20px #0003;
+  background:
+    repeating-linear-gradient(3deg, #382c28 0 7px, #3c2f2900 8px 10px),
+    linear-gradient(#4e3a2a, #2a2524);
+  font: 26px "Pirata One";
+  letter-spacing: 0.025em;
+  transition:
+    transform 0.15s,
+    filter 0.15s;
+}
+.wood-button.prominent {
+  background:
+    repeating-linear-gradient(3deg, #7b513022 0 8px, transparent 9px 12px),
+    linear-gradient(#c09853, #8e6234);
+  color: #161d23;
+  border-color: #e4c189;
+  font-size: 34px;
+  min-height: 68px;
+}
+.wood-button:hover {
+  filter: brightness(1.15);
+  transform: translateY(-2px);
+}
+.menu-back {
+  position: absolute;
+  left: 28px;
+  top: 22px;
+  z-index: 15;
+  border: 1px solid #ab885158;
+  background: #101d29cc;
+  border-radius: 9px;
+  min-width: 95px;
+  min-height: 44px;
+  font-size: 28px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 2px 15px;
+  pointer-events: auto;
+}
+.menu-back span {
+  font-size: 13px;
+  font-weight: 700;
+}
+#captain-menu > .menu-back {
+  top: auto;
+  bottom: 20px;
+}
+.menu-heading {
+  text-align: center;
+  padding: 15px 20px 0;
+  position: relative;
+  z-index: 2;
+}
+.menu-heading h1 {
+  font: clamp(35px, 5vw, 55px) / 1.1 "Pirata One";
+  margin: 6px 0;
+  color: #f4d5a6;
+  text-shadow: 0 3px 14px #000;
+}
+.menu-heading p {
+  margin: 8px 0;
+  color: #adc1c4;
+  font-size: 13px;
+}
+.world-map {
+  position: relative;
+  width: min(100%, 1080px);
+  height: calc(100% - 145px);
+  min-height: 390px;
+  margin: 0 auto;
+  background: radial-gradient(ellipse, #40677633, transparent 75%);
+}
+#world-packs {
+  position: absolute;
+  inset: 0;
+}
+.world-island {
+  position: absolute;
+  width: 27%;
+  max-width: 290px;
+  background: none;
+  border: 0;
+  padding: 0;
+  color: #eddec6;
+  text-align: center;
+  transition:
+    filter 0.2s,
+    transform 0.2s;
+}
+.world-island:hover {
+  filter: brightness(1.2);
+  transform: translateY(-4px);
+}
+.world-0 {
+  left: 7%;
+  top: 30%;
+}
+.world-1 {
+  left: 30%;
+  top: 1%;
+}
+.world-2 {
+  left: 54%;
+  top: 28%;
+}
+.world-3 {
+  left: 74%;
+  top: -4%;
+  width: 25%;
+}
+.world-art {
+  display: block;
+  width: 100%;
+  height: auto;
+  filter: drop-shadow(0 12px 10px #0005);
+}
+.world-label {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin: -9px auto 0;
+  width: 85%;
+  padding: 8px;
+  border: 1px solid #a1845144;
+  border-radius: 8px;
+  background: linear-gradient(#142733dd, #0c1725dd);
+  box-shadow: 0 4px 12px #0004;
+}
+.world-label small {
+  color: #b49d72;
+  letter-spacing: 0.15em;
+  font-size: 9px;
+}
+.world-label b {
+  font: 23px "Pirata One";
+}
+.world-label > span {
+  font-size: 11px;
+  color: #dfb877;
+}
+.world-label .icon {
+  width: 12px;
+  height: 12px;
+}
+.map-route {
+  position: absolute;
+  inset: 12% 8% 0;
+  width: 84%;
+  height: 78%;
+  opacity: 0.55;
+}
+.map-route path {
+  fill: none;
+  stroke: #c5ae7c;
+  stroke-width: 2;
+  stroke-dasharray: 6 9;
+}
+.map-cave {
+  position: absolute;
+  bottom: 7%;
+  left: 8%;
+  border: 0;
+  background: #0b1724c9;
+  border-radius: 50%;
+  width: 84px;
+  height: 84px;
+  border: 1px solid #b3935744;
+  z-index: 3;
+  box-shadow: 0 0 25px #daba5210;
+  display: grid;
+  justify-items: center;
+  align-content: center;
+  gap: 5px;
+}
+.map-cave .icon {
+  width: 32px;
+  height: 32px;
+  color: #e0b264;
+}
+.map-cave span {
+  font: 14px "Pirata One";
+}
+.map-compass {
+  position: absolute;
+  right: 8%;
+  bottom: 1%;
+  opacity: 0.35;
+  color: #dcb677;
+}
+.map-compass .icon {
+  width: 70px;
+  height: 70px;
+}
+.map-footnote {
+  text-align: center;
+  margin: 0;
+  font-size: 11px;
+  color: #9aaeb2;
+  letter-spacing: 0.04em;
+}
+.level-board {
+  width: min(90%, 630px);
+  margin: 0 auto;
+  text-align: center;
+}
+#level-world-art {
+  width: 235px;
+  height: 153px;
+  margin: 4px auto -4px;
+}
+#voyage-levels {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  gap: 22px;
+  padding: 18px 0 0;
+}
+.level-tile {
+  position: relative;
+  width: 125px;
+  height: 139px;
+  border: 2px solid #a37d43;
+  border-radius: 15px;
+  background:
+    repeating-linear-gradient(0deg, #5b443326 0 15px, transparent 16px 18px),
+    linear-gradient(135deg, #544335, #272c31);
+  box-shadow:
+    inset 0 2px 0 #efd6a33b,
+    0 6px 0 #070e17,
+    0 10px 22px #0005;
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+  justify-content: center;
+  color: #f8dfb7;
+  transition: transform 0.18s;
+}
+.level-tile:hover:not(:disabled) {
+  transform: translateY(-4px);
+}
+.level-tile.next-level {
+  border-color: #f0c67c;
+  box-shadow:
+    inset 0 1px 0 #ffecc77b,
+    0 6px 0 #070e17,
+    0 0 30px #c59d381a;
+}
+.tile-number {
+  font: 57px/1 "Pirata One";
+  text-shadow: 0 3px #0006;
+}
+.tile-stars {
+  display: flex;
+  gap: 4px;
+  margin-top: 9px;
+}
+.tile-stars i {
+  font-style: normal;
+  color: #927f5a6b;
+  font-size: 21px;
+  line-height: 1;
+}
+.tile-stars i.earned {
+  color: #ffce75;
+  filter: drop-shadow(0 0 5px #e8a63a44);
+}
+.tile-treasure {
+  position: absolute;
+  bottom: -29px;
+  color: #bead89;
+}
+.tile-treasure .icon {
+  width: 18px;
+  height: 18px;
+}
+.level-tile.locked {
+  opacity: 1;
+  filter: saturate(0.3);
+  border-color: #68727955;
+  background: linear-gradient(#24323c, #15222d);
+  color: #7c8c93;
+  box-shadow: 0 6px #08121c;
+}
+.tile-lock {
+  position: absolute;
+  width: 21px;
+  height: 21px;
+  right: 7px;
+  top: 7px;
+  color: #a6b2b4;
+}
+.level-note {
+  font-size: 11px;
+  color: #a9babb;
+  margin-top: 53px;
+}
+.settings-board {
+  width: min(85%, 430px);
+  margin: 40px auto;
+  padding: 20px;
+  background: #0b1825e8;
+  border: 1px solid #b79b5844;
+  border-radius: 16px;
+  box-shadow: 0 18px 40px #0003;
+}
+.setting-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  min-height: 65px;
+  background: none;
+  border: 0;
+  border-bottom: 1px solid #a68b4833;
+  font-size: 15px;
+}
+.setting-row .icon {
+  color: #d8b073;
+  margin-right: 9px;
+}
+.setting-row b {
+  border: 1px solid #8f774d;
+  background: #344543;
+  border-radius: 8px;
+  padding: 8px 12px;
+  color: #e3c68f;
+  min-width: 53px;
+}
+.settings-board p {
+  color: #a1afb4;
+  font-size: 12px;
+  line-height: 1.8;
+  margin: 20px 0 0;
+}
+#voyage-ui[data-screen="main"] .voyage-brand {
+  visibility: hidden;
+}
+#voyage-ui[data-screen="cave"] .voyage-brand {
+  visibility: hidden;
+}
+#cave-ui .cave-title {
+  top: 68px;
+}
+#cave-ui .cave-title h1 {
+  font-size: 38px;
+}
+#cave-ui .cave-title p {
+  font-size: 12px;
+}
+#cave-ui #relic-info {
+  bottom: 45px;
+  left: 50%;
+  width: min(90%, 480px);
+  padding: 14px 20px;
+  border-radius: 12px;
+  background: linear-gradient(#0b1524e8, #111a27f5);
+  border: 1px solid #b1955755;
+  box-shadow: 0 8px 30px #0006;
+}
+#cave-ui #relic-title {
+  font-size: 27px;
+  margin: 4px 0;
+}
+#cave-ui #relic-story {
+  font-size: 12px;
+  margin: 7px 0;
+  line-height: 1.5;
+}
+#cave-ui #relic-stars {
+  font-size: 16px;
+}
+#cave-ui #relic-number {
+  font-size: 8px;
+}
+#cave-ui .gallery-hint {
+  bottom: 15px;
+  font-size: 10px;
+}
+.cave-overview {
+  position: absolute;
+  right: 25px;
+  top: 80px;
+  border: 1px solid #a38e5955;
+  border-radius: 9px;
+  padding: 9px 13px;
+  background: #121d2ad9;
+  font-size: 12px;
+}
+.collection-confirmation {
+  color: #bdd5b4;
+  font-size: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 9px;
+  margin: 0 0 12px;
+}
+.collection-confirmation .icon {
+  width: 20px;
+  height: 20px;
+}
+.result-bottom {
+  background: linear-gradient(transparent, #080f1cba);
+  padding: 18px 22px;
+  border-radius: 16px;
+}
+.result-bottom .primary {
+  background: linear-gradient(#d4b176, #aa7a41);
+  border-color: #f0d4a0;
+  color: #15202a;
+  box-shadow: 0 4px #231d19;
+}
+.result-bottom .text-button {
+  font-size: 11px;
+  color: #b6bdbd;
+}
+@keyframes ship-sway {
+  0%,
+  100% {
+    transform: rotate(-2deg) translateY(0);
+  }
+  50% {
+    transform: rotate(2deg) translateY(9px);
+  }
+}
+@keyframes mist-drift {
+  to {
+    transform: translateX(4%);
+  }
+}
+@media (max-width: 650px) {
+  .menu-page {
+    inset: 65px 0 60px;
+  }
+  .hero-ship {
+    width: 390px;
+    right: -125px;
+    top: 3%;
+    opacity: 0.65;
+  }
+  .moon {
+    width: 65px;
+    height: 65px;
+    top: 8%;
+    right: 16%;
+  }
+  #main-menu {
+    align-items: center;
+    text-align: center;
+    padding: 20px;
+  }
+  .title-crest {
+    margin-top: 65px;
+  }
+  .title-crest > .icon {
+    width: 40px;
+    height: 40px;
+    margin-bottom: 7px;
+  }
+  #main-menu h1 {
+    font-size: 86px;
+  }
+  .main-actions {
+    width: 220px;
+  }
+  .menu-tagline {
+    font-size: 11px;
+  }
+  .wood-button {
+    min-height: 52px;
+    font-size: 24px;
+  }
+  .wood-button.prominent {
+    min-height: 60px;
+    font-size: 30px;
+  }
+  .menu-heading {
+    padding-top: 8px;
+  }
+  .menu-heading h1 {
+    font-size: 37px;
+  }
+  .world-map {
+    height: calc(100% - 137px);
+    min-height: 400px;
+    width: 100%;
+    max-width: 440px;
+  }
+  .world-island {
+    width: 48%;
+    max-width: none;
+  }
+  .world-0 {
+    left: 1%;
+    top: 48%;
+  }
+  .world-1 {
+    left: 47%;
+    top: 34%;
+  }
+  .world-2 {
+    left: 1%;
+    top: 0;
+  }
+  .world-3 {
+    left: 50%;
+    top: -9%;
+    width: 48%;
+  }
+  .world-label b {
+    font-size: 20px;
+  }
+  .world-label {
+    width: 91%;
+    padding: 7px;
+    gap: 3px;
+  }
+  .world-label small {
+    font-size: 8px;
+  }
+  .world-label > span {
+    font-size: 10px;
+  }
+  .map-cave {
+    width: 65px;
+    height: 65px;
+    left: 15%;
+    bottom: 0;
+  }
+  .map-cave .icon {
+    width: 23px;
+    height: 23px;
+  }
+  .map-route {
+    transform: rotate(-30deg);
+    opacity: 0.3;
+  }
+  .map-compass {
+    right: 10%;
+    bottom: 1%;
+  }
+  .map-compass .icon {
+    width: 45px;
+    height: 45px;
+  }
+  .map-footnote {
+    font-size: 9px;
+    margin: 9px 25px 0;
+  }
+  .menu-back {
+    left: 16px;
+    top: 17px;
+  }
+  #captain-menu > .menu-back {
+    bottom: 14px;
+  }
+  .level-tile {
+    width: 88px;
+    height: 104px;
+    border-radius: 12px;
+  }
+  .tile-number {
+    font-size: 43px;
+  }
+  .tile-stars {
+    gap: 3px;
+  }
+  .tile-stars i {
+    font-size: 16px;
+  }
+  #voyage-levels {
+    gap: 14px;
+  }
+  #level-world-art {
+    width: 230px;
+    height: 153px;
+    margin-top: 26px;
+  }
+  .level-note {
+    font-size: 10px;
+  }
+  .cave-overview {
+    top: 18px;
+    right: 70px;
+    padding: 9px;
+    font-size: 0;
+  }
+  .cave-overview .icon {
+    width: 20px;
+    height: 20px;
+  }
+  #cave-ui .cave-title {
+    top: 76px;
+  }
+  #cave-ui .cave-title h1 {
+    font-size: 30px;
+  }
+  #cave-ui #relic-info {
+    bottom: 43px;
+    padding: 12px;
+    width: calc(100% - 32px);
+  }
+  #cave-ui #relic-story {
+    font-size: 11px;
+  }
+  #cave-ui #relic-title {
+    font-size: 25px;
+  }
+}
+@media (max-height: 650px) and (max-width: 650px) {
+  .title-crest {
+    margin-top: 0;
+  }
+  .menu-tagline {
+    margin-bottom: 20px;
+  }
+  #main-menu h1 {
+    font-size: 74px;
+  }
+  .world-map {
+    min-height: 315px;
+  }
+  .world-label b {
+    font-size: 17px;
+  }
+  .world-label {
+    margin-top: -18px;
+  }
+  .world-island .world-art {
+    max-height: 109px;
+  }
+  .world-0 {
+    top: 45%;
+  }
+  .world-1 {
+    top: 32%;
+  }
+  .world-2 {
+    top: 0;
+  }
+  .world-3 {
+    top: -10%;
+  }
+  .menu-heading h1 {
+    font-size: 30px;
+  }
+  .map-footnote {
+    display: none;
+  }
+  #level-world-art {
+    margin-top: 8px;
+    width: 180px;
+    height: 118px;
+  }
+  #cave-ui #relic-story {
+    display: none;
+  }
+  #cave-ui .cave-title {
+    top: 65px;
+  }
+  #cave-ui .cave-title h1 {
+    font-size: 27px;
+  }
+}
+@media (max-height: 480px) and (min-width: 651px) {
+  .menu-page {
+    inset: 54px 0 17px;
+  }
+  #main-menu {
+    padding: 10px 10%;
+  }
+  .title-crest {
+    display: none;
+  }
+  #main-menu h1 {
+    font-size: 72px;
+  }
+  .menu-tagline {
+    margin-bottom: 14px;
+  }
+  .main-actions {
+    gap: 7px;
+    width: 210px;
+  }
+  .wood-button,
+  .wood-button.prominent {
+    min-height: 43px;
+    font-size: 24px;
+  }
+  .menu-heading {
+    padding: 0;
+  }
+  .menu-heading h1 {
+    font-size: 32px;
+  }
+  .menu-heading p {
+    margin: 4px;
+  }
+  .world-map {
+    min-height: 225px;
+    height: calc(100% - 93px);
+  }
+  .world-island {
+    width: 22%;
+  }
+  .world-label {
+    padding: 3px;
+    margin-top: -17px;
+  }
+  .world-label b {
+    font-size: 18px;
+  }
+  .world-label small {
+    font-size: 7px;
+  }
+  .world-0 {
+    top: 10%;
+  }
+  .world-1 {
+    top: -14%;
+  }
+  .world-2 {
+    top: 7%;
+  }
+  .world-3 {
+    top: -17%;
+  }
+  .map-cave {
+    width: 55px;
+    height: 55px;
+    bottom: 0;
+  }
+  .map-cave .icon {
+    width: 20px;
+    height: 20px;
+  }
+  .map-footnote {
+    display: none;
+  }
+  .level-board {
+    display: grid;
+    grid-template-columns: 180px 1fr;
+    align-items: center;
+    width: 570px;
+    margin-top: 10px;
+  }
+  #level-world-art {
+    width: 180px;
+    height: 120px;
+  }
+  #voyage-levels {
+    padding: 0;
+    gap: 16px;
+  }
+  .level-tile {
+    width: 95px;
+    height: 110px;
+  }
+  .tile-number {
+    font-size: 46px;
+  }
+  .level-note {
+    grid-column: 1/3;
+    margin-top: 28px;
+  }
+  .settings-board {
+    margin: 12px auto;
+    padding: 8px 20px;
+  }
+  .setting-row {
+    min-height: 48px;
+  }
+  #cave-ui .cave-title {
+    top: 55px;
+    left: 15%;
+    transform: none;
+    text-align: left;
+  }
+  #cave-ui .cave-title h1 {
+    font-size: 28px;
+  }
+  #cave-ui #relic-info {
+    left: auto;
+    right: 15px;
+    transform: none;
+    width: 270px;
+    bottom: 38px;
+  }
+  #cave-ui #relic-story {
+    display: none;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .hero-ship,
+  .ocean-mist,
+  .menu-embers {
+    animation: none;
+  }
+}
+#voyage-ui:not([data-screen="main"]) .hero-ship {
+  display: none;
+}
+#voyage-ui:not([data-screen="main"]) .moon {
+  opacity: 0.2;
+  width: 65px;
+  height: 65px;
+  right: 12%;
+  top: 16%;
+}
+#voyage-ui:not([data-screen="main"]) .distant-rocks {
+  opacity: 0.35;
+}
+#world-menu {
+  display: flex;
+  flex-direction: column;
+}
+#world-menu .world-map {
+  flex: 1;
+  height: auto;
+  min-height: 0;
+}
+#world-menu .map-footnote {
+  padding: 12px 20px 14px;
+}
+@media (max-width: 650px) {
+  #world-menu .world-map {
+    min-height: 350px;
+  }
+  #world-menu .map-footnote {
+    padding: 0;
+  }
+}
+@media (max-height: 650px) and (max-width: 650px) {
+  #world-menu .world-map {
+    min-height: 290px;
+  }
+}
+#cave-ui #relic-info {
+  left: 50%;
+  right: auto;
+  transform: translateX(-50%);
+}
+@media (max-height: 480px) and (min-width: 651px) {
+  #cave-ui #relic-info {
+    left: auto;
+    right: 15px;
+    transform: none;
+  }
+}
+@media (max-height: 650px) and (max-width: 650px) {
+  .world-0 {
+    top: 35%;
+  }
+  .world-1 {
+    top: 25%;
+  }
+  .world-2 {
+    top: -3%;
+  }
+}
+@media (max-height: 480px) and (min-width: 651px) {
+  .map-cave {
+    left: 28%;
+    bottom: 0;
+  }
+}

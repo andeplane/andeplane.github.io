@@ -159,9 +159,9 @@ export class GameRenderer {
     this.rig = new CameraRig(scene);
 
     const hemi = new HemisphericLight("sky", new Vector3(0.2, 1, -0.3), scene);
-    hemi.diffuse = Color3.FromHexString("#ffd7b8");
+    hemi.diffuse = Color3.FromHexString("#a8c1d7");
     hemi.groundColor = Color3.FromHexString("#3d5a80");
-    hemi.intensity = 1.2;
+    hemi.intensity = 0.9;
 
     this.sun = new DirectionalLight(
       "sun",
@@ -173,7 +173,7 @@ export class GameRenderer {
       scene,
     );
     this.sun.diffuse = PALETTE.sun;
-    this.sun.intensity = 1.8;
+    this.sun.intensity = 1.35;
     this.sun.shadowFrustumSize = 180;
     this.sun.shadowMinZ = 1;
     this.sun.shadowMaxZ = 500;
@@ -196,7 +196,8 @@ export class GameRenderer {
     );
     this.effects = new Effects(scene);
     this.adventure = new AdventureView(scene, session, this.shadows);
-    if(session instanceof VoyageSession) this.voyageView = new VoyageView(scene,session);
+    if (session instanceof VoyageSession)
+      this.voyageView = new VoyageView(scene, session);
 
     const ballMat = new StandardMaterial("ball", scene);
     ballMat.diffuseColor = Color3.FromHexString("#1b1b1f");
@@ -223,11 +224,11 @@ export class GameRenderer {
     pipeline.imageProcessing.toneMappingEnabled = true;
     pipeline.imageProcessing.toneMappingType =
       ImageProcessingConfiguration.TONEMAPPING_ACES;
-    pipeline.imageProcessing.exposure = 1.15;
+    pipeline.imageProcessing.exposure = 1.05;
     pipeline.imageProcessing.contrast = 1.05;
     pipeline.imageProcessing.vignetteEnabled = true;
     pipeline.imageProcessing.vignetteWeight = 0.65;
-    pipeline.imageProcessing.vignetteColor = new Color4(0.25, 0.1, 0.15, 0);
+    pipeline.imageProcessing.vignetteColor = new Color4(0.02, 0.05, 0.1, 0);
     pipeline.sharpenEnabled = true;
     pipeline.sharpen.edgeAmount = 0.25;
 
@@ -334,10 +335,28 @@ export class GameRenderer {
     this.time += dt;
     if (this.lastChapter !== session.chapter) {
       this.lastChapter = session.chapter;
-      this.ocean.setChapter(session.chapter);
+      this.ocean.setChapter(
+        session instanceof VoyageSession
+          ? session.voyage.pack
+          : session.chapter,
+      );
       this.sun.diffuse = Color3.FromHexString(
         ["#ffe8c9", "#e8ffec", "#ffd9a8", "#c9d2ff"][session.chapter]!,
       );
+    }
+    if (
+      session instanceof VoyageSession &&
+      session.voyage.pack >= 2 &&
+      !matchMedia("(prefers-reduced-motion: reduce)").matches
+    ) {
+      const storm = session.elapsed % 14;
+      this.sun.intensity =
+        1.35 +
+        (storm > 10 && storm < 10.12
+          ? 0.65
+          : storm > 10.3 && storm < 10.42
+            ? 0.35
+            : 0);
     }
     const world = session.world;
     const player = session.player;
@@ -374,7 +393,10 @@ export class GameRenderer {
         sailEfficiency(ship.heading, world.wind),
       );
       if (view && session instanceof VoyageSession) view.showRange = false;
-      if (ship.team === "player") view?.setSailColor(session.sailColor);
+      if (ship.team === "player")
+        view?.setSailColor(
+          session instanceof VoyageSession ? "#898278" : session.sailColor,
+        );
     }
 
     // Cannonballs.
@@ -423,7 +445,7 @@ export class GameRenderer {
     this.rig.title = title;
   }
   resize(): void {
-    this.rig.zoom = innerWidth < 600 ? 150 : innerHeight < 560 ? 98 : 92;
+    this.rig.zoom = innerWidth < 600 ? 112 : innerHeight < 560 ? 98 : 92;
   }
   showDestination(x: number, z: number): void {
     this.adventure.showDestination(x, z);

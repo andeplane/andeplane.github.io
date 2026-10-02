@@ -1,6 +1,17 @@
 # Broadside acceptance checks — 2 October 2026
 
-## Current campaign
+## Pirate menu and single-cave revision
+
+- Main menu is Play, Settings, Cave. Play opens the illustrated world map; the cave entrance is beside First sails. Each world opens three numbered tiles with stars, real lock symbols and treasure badges.
+- One continuous 3D cave contains all twelve permanent displays. Undiscovered treasures are opaque closed chests. Drag changes the view, tapping a display inspects it, mouse wheel zooms, and Whole cave resets the camera.
+- Collection saves automatically at level completion. Results confirm Added to your cave and offer Continue plus replay. Continue opens the level grid, or the world map after a pack; the last level returns to the cave.
+- Gentle pirate brigs now appear in the first world, and BOOM is available from the beginning. The first world still prioritizes steering; enemy volleys deal less damage and have a longer warning.
+- Darker water and cloud shadows, skull flags, swaying palms, timber docks, camp supplies, ruined gates, camps, watchtowers, torch lights and Skull Rock. Later worlds add restrained lightning and thunder. Chest planks, sparks and real lid movement are retained; gems have a brilliant-cut crown and pavilion.
+- Sound effects include clicks, cannons, splash, hits, ground collisions, gems, chest opening and discovery; quiet surf, creaking hulls, cave drips and thunder provide ambience. Sound and spoken hints can be toggled separately.
+
+Rechecked 1280×800, 390×740, 320×568 and 844×390 in the browser. A live first voyage fired manually, showed cannonballs and reload feedback, completed with three stars and 3% damage, and Continue displayed earned stars and unlocked Level 2. Settings toggles, world and level navigation, closed-chest cave, full collection fixture, tap-to-inspect and reward animations were checked. QA previews disable saves. A normal saved gold treasure survived reload. Tests and production build remain the automated checks below; physical phones remain unverified.
+
+## Previous campaign acceptance
 
 - Twelve deterministic courses in four packs: steering, pirates, island cannons, kraken.
 - Each course reaches a broad exit and unlocks one unique 3D treasure and the next voyage.
