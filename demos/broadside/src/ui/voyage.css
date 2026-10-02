@@ -1,0 +1,1110 @@
+@font-face {
+  font-family: "DM Sans";
+  font-weight: 400 700;
+  font-display: swap;
+  src: url("/assets/fonts/dm-sans.woff2");
+}
+@font-face {
+  font-family: "Pirata One";
+  font-display: swap;
+  src: url("/assets/fonts/pirata-one.woff2");
+}
+:root {
+  --cream: #fff1d5;
+  --gold: #ffd184;
+  --mint: #89e5ce;
+  --navy: #102e3b;
+  --safe: env(safe-area-inset-bottom, 0px);
+}
+* {
+  box-sizing: border-box;
+}
+html,
+body {
+  margin: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  background: #081724;
+  color: var(--cream);
+  font-family: "DM Sans", sans-serif;
+  overscroll-behavior: none;
+  user-select: none;
+}
+button {
+  font: inherit;
+  color: inherit;
+  cursor: pointer;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+}
+button:focus-visible {
+  outline: 3px solid var(--mint);
+  outline-offset: 4px;
+}
+button:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+[hidden] {
+  display: none !important;
+}
+.icon {
+  width: 24px;
+  height: 24px;
+  vertical-align: middle;
+  flex-shrink: 0;
+}
+#game {
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  outline: none;
+  touch-action: none;
+}
+#voyage-ui {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+}
+#voyage-ui button {
+  pointer-events: auto;
+}
+.voyage-header {
+  position: absolute;
+  top: calc(20px + env(safe-area-inset-top, 0px));
+  left: 28px;
+  right: 28px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  z-index: 12;
+}
+.voyage-brand {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  letter-spacing: 0.19em;
+  font-size: 16px;
+  text-shadow: 0 2px 8px #000;
+}
+.voyage-brand > .icon {
+  width: 38px;
+  height: 38px;
+  color: var(--gold);
+}
+.voyage-brand small {
+  display: block;
+  font-size: 8px;
+  letter-spacing: 0.16em;
+  margin-top: 4px;
+  font-weight: 400;
+}
+.voyage-header > div {
+  display: flex;
+  gap: 8px;
+}
+.round {
+  display: grid;
+  place-items: center;
+  border: 1px solid #fff3;
+  background: #0d2c39c9;
+  border-radius: 50%;
+  width: 46px;
+  height: 46px;
+}
+.eyebrow {
+  font-size: 10px;
+  letter-spacing: 0.17em;
+  font-weight: 700;
+  color: var(--gold);
+}
+h1,
+h2 {
+  font-family: "Pirata One", Georgia, serif;
+  font-weight: 400;
+  margin: 8px 0;
+}
+h1 {
+  font-size: 46px;
+}
+h2 {
+  font-size: 32px;
+}
+p {
+  font-size: 13px;
+  line-height: 1.5;
+  color: #bccecf;
+  margin: 8px 0;
+}
+.cave-title {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 90px;
+  text-align: center;
+  text-shadow: 0 3px 16px #000;
+}
+.cave-title h1 {
+  font-size: 48px;
+}
+.cave-title p {
+  font-size: 12px;
+}
+#relic-info {
+  position: absolute;
+  left: 20%;
+  right: 20%;
+  bottom: 250px;
+  text-align: center;
+  text-shadow: 0 2px 12px #000;
+}
+#relic-info h2 {
+  font-size: 34px;
+}
+#relic-info p {
+  max-width: 410px;
+  margin: 8px auto;
+}
+#relic-stars {
+  color: var(--gold);
+  letter-spacing: 8px;
+  font-size: 24px;
+}
+.gallery-arrow {
+  position: absolute;
+  top: 43%;
+  width: 50px;
+  height: 58px;
+  border: 1px solid #9ee3e13;
+  background: #0e243d9a;
+  border-radius: 16px;
+  font-size: 44px;
+  font-weight: 400;
+  line-height: 1;
+}
+.previous {
+  left: 8%;
+}
+.next {
+  right: 8%;
+}
+.gallery-hint {
+  position: absolute;
+  bottom: 220px;
+  text-align: center;
+  left: 0;
+  right: 0;
+  font-size: 10px;
+  color: #8bb8be;
+}
+.gallery-hint .icon {
+  width: 15px;
+  height: 15px;
+  margin-right: 5px;
+}
+#pack-browser {
+  position: absolute;
+  bottom: calc(18px + var(--safe));
+  left: 50%;
+  transform: translateX(-50%);
+  width: min(850px, calc(100% - 40px));
+  pointer-events: auto;
+  background: linear-gradient(135deg, #183547ed, #0b2233ed);
+  border: 1px solid #8cc8d035;
+  border-radius: 22px;
+  box-shadow: 0 16px 40px #0006;
+  padding: 14px 18px;
+}
+.pack-tabs {
+  display: flex;
+  gap: 5px;
+}
+.pack-tabs button {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  justify-content: center;
+  flex: 1;
+  white-space: nowrap;
+  border: 0;
+  background: transparent;
+  border-radius: 12px;
+  padding: 10px 5px;
+  color: #a2bbc4;
+  font-weight: 700;
+  font-size: 11px;
+}
+.pack-tabs button.selected {
+  background: #ffffff0c;
+  color: var(--pack);
+  box-shadow: inset 0 -2px var(--pack);
+}
+.pack-tabs button > span {
+  font-weight: 500;
+}
+#pack-caption {
+  text-align: center;
+  font-size: 10px;
+  color: #8db0ba;
+  margin: 8px 0 12px;
+}
+#voyage-levels {
+  display: flex;
+  gap: 10px;
+}
+.level-card {
+  display: flex;
+  align-items: center;
+  text-align: left;
+  gap: 10px;
+  padding: 12px;
+  flex: 1;
+  min-width: 0;
+  border: 1px solid #4c697a;
+  background: #142e40;
+  border-radius: 13px;
+}
+.level-card.next-level {
+  border-color: var(--gold);
+  background: linear-gradient(135deg, #38534e, #293b45);
+}
+.level-number {
+  display: grid;
+  place-items: center;
+  width: 33px;
+  height: 33px;
+  flex-shrink: 0;
+  background: #ffffff0c;
+  border-radius: 10px;
+  font-family: "Pirata One";
+  font-size: 24px;
+  color: var(--gold);
+}
+.level-card b {
+  display: block;
+  font-size: 12px;
+}
+.level-card small {
+  display: block;
+  font-size: 9px;
+  color: #a5bbbf;
+  margin-top: 4px;
+}
+.level-card > .icon {
+  width: 18px;
+  margin-left: auto;
+}
+.level-card:disabled > .icon {
+  opacity: 0.4;
+}
+.voyage-status {
+  position: absolute;
+  top: 90px;
+  left: 26px;
+  border: 1px solid #fff2;
+  background: #102f3bd6;
+  border-radius: 14px;
+  padding: 12px 14px;
+  display: flex;
+  gap: 22px;
+  align-items: center;
+  font-size: 12px;
+}
+.voyage-status > span {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+.voyage-status .icon {
+  width: 17px;
+  color: var(--mint);
+}
+.health-track {
+  width: 94px;
+  height: 7px;
+  background: #fff2;
+  border-radius: 5px;
+  overflow: hidden;
+}
+.health-track i {
+  display: block;
+  height: 100%;
+  width: 100%;
+  background: var(--mint);
+  transition: width 0.2s;
+}
+.gem-count {
+  color: #9de9ee;
+}
+.voyage-mission {
+  position: absolute;
+  top: 26px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 290px;
+  text-align: center;
+}
+.voyage-mission > small {
+  font-size: 9px;
+  letter-spacing: 0.1em;
+  text-shadow: 0 2px 5px #164653;
+}
+.voyage-mission > strong {
+  display: block;
+  font-family: "Pirata One";
+  font-weight: 400;
+  font-size: 28px;
+  text-shadow: 0 2px 8px #174858;
+}
+.voyage-track {
+  position: relative;
+  background: #102c3e88;
+  border-radius: 8px;
+  height: 5px;
+  margin: 10px 20px 0;
+}
+.voyage-track i {
+  display: block;
+  background: var(--gold);
+  height: 100%;
+  border-radius: 8px;
+}
+.voyage-track span {
+  position: absolute;
+  right: -5px;
+  top: -8px;
+  color: var(--gold);
+  font-size: 20px;
+}
+#v-wheel {
+  position: absolute;
+  left: 25px;
+  bottom: calc(26px + var(--safe));
+  width: 135px;
+  height: 135px;
+  pointer-events: auto;
+  touch-action: none;
+  background: #103c4c88;
+  border: 1px solid #adeae44d;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+}
+.wheel-ring {
+  position: absolute;
+  inset: 13px;
+  border: 1px dashed #c9eee64a;
+  border-radius: 50%;
+}
+#v-stick {
+  display: grid;
+  place-items: center;
+  width: 74px;
+  height: 74px;
+  border-radius: 50%;
+  background: #143c4de6;
+  border: 1px solid #f6c98790;
+  color: var(--gold);
+  box-shadow: 0 5px 18px #09272f55;
+}
+#v-stick > .icon {
+  width: 45px;
+  height: 45px;
+}
+#v-wheel small {
+  position: absolute;
+  bottom: -20px;
+  letter-spacing: 0.16em;
+  font-size: 9px;
+  color: var(--cream);
+}
+#v-anchor {
+  position: absolute;
+  left: 172px;
+  bottom: calc(46px + var(--safe));
+  width: 43px;
+  height: 43px;
+}
+#v-fire {
+  position: absolute;
+  right: 26px;
+  bottom: calc(24px + var(--safe));
+  width: 128px;
+  height: 128px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  background: radial-gradient(circle at 30% 20%, #ffe9aa, #eaa850);
+  border: 4px solid #ffd995;
+  border-radius: 50%;
+  box-shadow:
+    0 0 0 5px #fff4,
+    0 7px 20px #153a4750;
+  color: #14394a;
+}
+#v-fire .icon {
+  width: 36px;
+  height: 36px;
+}
+#v-fire b {
+  font-size: 21px;
+}
+#v-fire small {
+  font-size: 8px;
+  font-weight: 700;
+}
+#v-fire.pressed {
+  transform: scale(0.94);
+}
+#v-fire.ready-target {
+  box-shadow:
+    0 0 0 5px #fff7,
+    0 0 30px #ffe3989a;
+}
+#v-compass {
+  position: absolute;
+  bottom: calc(30px + var(--safe));
+  left: 50%;
+  transform: translateX(-50%);
+  text-align: center;
+  padding: 10px 20px;
+  border: 1px solid #ffe29b44;
+  background: #113749d9;
+  border-radius: 16px;
+}
+#v-arrow {
+  display: block;
+  color: var(--gold);
+  font-size: 30px;
+  line-height: 1.1;
+}
+#v-compass b {
+  display: block;
+  font-size: 9px;
+  letter-spacing: 0.13em;
+  margin-top: 5px;
+  color: var(--gold);
+}
+#v-distance {
+  font-size: 10px;
+  color: #c1dcdd;
+}
+#v-tip {
+  position: absolute;
+  top: 160px;
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 12px 18px;
+  border: 1px solid #9ae4dc33;
+  border-radius: 14px;
+  background: #103346ec;
+  color: #edf1df;
+  font-size: 13px;
+  text-align: center;
+  width: min(450px, calc(100% - 30px));
+  transition: opacity 1s;
+}
+#v-tip.fade {
+  opacity: 0;
+}
+.pirate-tag,
+.treasure-tag {
+  position: absolute;
+  transform: translate(-50%, -100%);
+  background: #233746d9;
+  border: 1px solid #ffac8570;
+  padding: 5px 8px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  color: #ffa183;
+  font-size: 9px;
+}
+.pirate-tag .icon {
+  width: 16px;
+  height: 16px;
+}
+.pirate-tag i {
+  display: block;
+  width: 40px;
+  height: 5px;
+  border-radius: 5px;
+  background: linear-gradient(to right, #ff9d78 var(--hp), #fff2 var(--hp));
+}
+.treasure-tag {
+  color: var(--gold);
+  border-color: #ffd89199;
+}
+.voyage-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 10;
+  text-align: center;
+  background: linear-gradient(
+    #081c30b5,
+    transparent 35%,
+    transparent 60%,
+    #081c30c0
+  );
+  pointer-events: auto;
+}
+.result-top {
+  position: absolute;
+  top: 110px;
+  left: 15px;
+  right: 15px;
+}
+.result-top h1 {
+  font-size: 44px;
+}
+.result-top p {
+  color: #c2dedb;
+}
+#result-stars {
+  font-size: 34px;
+  letter-spacing: 10px;
+  color: var(--gold);
+  text-shadow: 0 0 20px #ffc1644d;
+}
+.result-bottom {
+  position: absolute;
+  bottom: calc(30px + var(--safe));
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  width: 290px;
+}
+.primary,
+.secondary {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 12px;
+  border-radius: 14px;
+  font-weight: 700;
+  font-size: 14px;
+  padding: 16px 22px;
+  border: 1px solid #ffda9e99;
+  background: linear-gradient(135deg, #ffe4aa, #eeb869);
+  color: #183843;
+  box-shadow: 0 7px 20px #06111e45;
+}
+.secondary {
+  background: #17374ae8;
+  color: var(--cream);
+  border-color: #a6ced84a;
+}
+.text-button {
+  background: none;
+  border: 0;
+  font-size: 11px;
+  color: #b9cdd1;
+  padding: 8px;
+}
+.pause-screen {
+  background: #0b2236b5;
+  backdrop-filter: blur(8px);
+  display: grid;
+  place-items: center;
+}
+.pause-screen > div {
+  width: min(360px, calc(100% - 40px));
+}
+.pause-screen h1 {
+  font-size: 38px;
+  margin-bottom: 30px;
+}
+.pause-screen button {
+  width: 100%;
+  margin-top: 12px;
+}
+.loading-voyage:after {
+  content: "Hoisting the sails…";
+  position: absolute;
+  inset: 0;
+  z-index: 30;
+  display: grid;
+  place-items: center;
+  background: #102b3ac9;
+  color: var(--gold);
+  font-family: "Pirata One";
+  font-size: 32px;
+}
+@media (max-width: 650px) {
+  .voyage-header {
+    left: 16px;
+    right: 16px;
+    top: calc(15px + env(safe-area-inset-top, 0px));
+  }
+  .voyage-brand {
+    font-size: 12px;
+    gap: 8px;
+  }
+  .voyage-brand > .icon {
+    width: 29px;
+    height: 29px;
+  }
+  .voyage-brand small {
+    font-size: 6px;
+  }
+  .round {
+    width: 40px;
+    height: 40px;
+  }
+  .cave-title {
+    top: 78px;
+  }
+  .cave-title h1 {
+    font-size: 36px;
+  }
+  .cave-title p {
+    font-size: 10px;
+  }
+  .cave-title .eyebrow {
+    font-size: 8px;
+  }
+  .previous {
+    left: 12px;
+  }
+  .next {
+    right: 12px;
+  }
+  .gallery-arrow {
+    width: 38px;
+    height: 48px;
+    top: 36%;
+  }
+  #relic-info {
+    bottom: 274px;
+    left: 42px;
+    right: 42px;
+  }
+  #relic-info h2 {
+    font-size: 27px;
+    line-height: 1.1;
+  }
+  #relic-info p {
+    font-size: 10px;
+    max-width: 260px;
+  }
+  #relic-info .eyebrow {
+    font-size: 8px;
+  }
+  #relic-stars {
+    font-size: 20px;
+  }
+  .gallery-hint {
+    bottom: 250px;
+    font-size: 9px;
+  }
+  #pack-browser {
+    width: calc(100% - 24px);
+    bottom: calc(12px + var(--safe));
+    padding: 10px;
+    border-radius: 18px;
+  }
+  .pack-tabs {
+    gap: 0;
+  }
+  .pack-tabs button {
+    font-size: 11px;
+    gap: 4px;
+    padding: 8px 4px;
+    flex-direction: column;
+  }
+  .pack-tabs button > span {
+    font-size: 8px;
+    white-space: normal;
+  }
+  #pack-caption {
+    font-size: 9px;
+    margin: 8px 0;
+  }
+  #voyage-levels {
+    flex-direction: column;
+    gap: 6px;
+  }
+  .level-card {
+    padding: 7px 10px;
+    border-radius: 10px;
+    gap: 10px;
+  }
+  .level-number {
+    width: 27px;
+    height: 27px;
+    font-size: 21px;
+  }
+  .level-card b {
+    font-size: 11px;
+  }
+  .level-card small {
+    font-size: 8px;
+    margin-top: 2px;
+  }
+  .voyage-status {
+    top: 73px;
+    left: 15px;
+    right: 15px;
+    justify-content: space-between;
+    padding: 10px 12px;
+    font-size: 10px;
+  }
+  .health-track {
+    width: 105px;
+  }
+  .voyage-mission {
+    top: 123px;
+    width: 260px;
+  }
+  .voyage-mission > strong {
+    font-size: 26px;
+  }
+  .voyage-mission > small {
+    font-size: 8px;
+  }
+  .voyage-track {
+    margin-top: 7px;
+  }
+  #v-tip {
+    top: 186px;
+    font-size: 11px;
+    width: calc(100% - 36px);
+    padding: 10px 12px;
+  }
+  #v-wheel {
+    left: 14px;
+    bottom: calc(30px + var(--safe));
+    width: 110px;
+    height: 110px;
+  }
+  #v-stick {
+    width: 64px;
+    height: 64px;
+  }
+  #v-stick .icon {
+    width: 37px;
+    height: 37px;
+  }
+  #v-fire {
+    right: 15px;
+    bottom: calc(30px + var(--safe));
+    width: 108px;
+    height: 108px;
+  }
+  #v-fire b {
+    font-size: 19px;
+  }
+  #v-fire .icon {
+    width: 30px;
+    height: 30px;
+  }
+  #v-fire small {
+    font-size: 7px;
+  }
+  #v-anchor {
+    left: 47px;
+    bottom: calc(157px + var(--safe));
+    width: 38px;
+    height: 38px;
+  }
+  #v-compass {
+    padding: 8px 12px;
+    bottom: calc(37px + var(--safe));
+    border-radius: 12px;
+  }
+  #v-arrow {
+    font-size: 25px;
+  }
+  #v-compass b {
+    font-size: 7px;
+  }
+  .result-top {
+    top: 100px;
+  }
+  .result-top h1 {
+    font-size: 34px;
+  }
+  .result-top p {
+    font-size: 10px;
+  }
+  .result-top .eyebrow {
+    font-size: 8px;
+  }
+  .result-bottom {
+    bottom: calc(25px + var(--safe));
+    width: 270px;
+  }
+}
+@media (max-height: 650px) and (max-width: 650px) {
+  .cave-title {
+    top: 66px;
+  }
+  .cave-title h1 {
+    font-size: 29px;
+  }
+  .cave-title p {
+    display: none;
+  }
+  #relic-info {
+    bottom: 243px;
+  }
+  #relic-info h2 {
+    font-size: 22px;
+  }
+  #relic-info p {
+    display: none;
+  }
+  .gallery-hint {
+    bottom: 220px;
+  }
+  #relic-stars {
+    font-size: 16px;
+  }
+  #pack-browser {
+    padding: 7px 9px;
+  }
+  .pack-tabs button {
+    padding: 6px 3px;
+  }
+  .level-card {
+    padding: 5px 8px;
+  }
+  #pack-caption {
+    margin: 6px 0;
+  }
+  .result-top {
+    top: 78px;
+  }
+  .result-top h1 {
+    font-size: 28px;
+  }
+}
+@media (max-height: 480px) and (min-width: 651px) {
+  .voyage-header {
+    top: 13px;
+    left: 18px;
+    right: 18px;
+  }
+  .voyage-brand {
+    font-size: 12px;
+  }
+  .voyage-brand small {
+    display: none;
+  }
+  .voyage-brand > .icon {
+    width: 28px;
+    height: 28px;
+  }
+  .round {
+    width: 36px;
+    height: 36px;
+  }
+  .cave-title {
+    top: 60px;
+    left: 20px;
+    right: auto;
+    text-align: left;
+  }
+  .cave-title h1 {
+    font-size: 29px;
+  }
+  .cave-title p {
+    display: none;
+  }
+  #relic-info {
+    bottom: 110px;
+    left: 30%;
+    right: 25%;
+  }
+  #relic-info h2 {
+    font-size: 25px;
+  }
+  #relic-info p {
+    font-size: 10px;
+  }
+  #relic-info .eyebrow {
+    font-size: 8px;
+  }
+  .gallery-hint {
+    display: none;
+  }
+  #pack-browser {
+    bottom: 10px;
+    padding: 7px 12px;
+    width: calc(100% - 35px);
+  }
+  .pack-tabs {
+    position: absolute;
+    top: -36px;
+    left: 0;
+    right: 0;
+    background: #102d3bcc;
+    border-radius: 14px;
+  }
+  .pack-tabs button {
+    padding: 7px;
+    font-size: 9px;
+  }
+  #pack-caption {
+    display: none;
+  }
+  .level-card {
+    padding: 7px;
+  }
+  .level-card b {
+    font-size: 10px;
+  }
+  .level-card small {
+    font-size: 8px;
+  }
+  #relic-stars {
+    font-size: 18px;
+  }
+  .gallery-arrow {
+    top: 37%;
+  }
+  .voyage-mission {
+    top: 14px;
+  }
+  .voyage-mission > strong {
+    font-size: 23px;
+  }
+  .voyage-status {
+    top: 65px;
+    left: 18px;
+    padding: 8px 10px;
+    font-size: 10px;
+  }
+  #v-tip {
+    top: 90px;
+    width: 330px;
+    font-size: 10px;
+  }
+  #v-wheel {
+    width: 100px;
+    height: 100px;
+    bottom: 25px;
+    left: 18px;
+  }
+  #v-stick {
+    width: 60px;
+    height: 60px;
+  }
+  #v-stick .icon {
+    width: 35px;
+    height: 35px;
+  }
+  #v-fire {
+    width: 100px;
+    height: 100px;
+    bottom: 22px;
+    right: 18px;
+  }
+  #v-fire b {
+    font-size: 18px;
+  }
+  #v-fire .icon {
+    width: 28px;
+    height: 28px;
+  }
+  #v-fire small {
+    font-size: 7px;
+  }
+  #v-anchor {
+    left: 130px;
+    bottom: 35px;
+  }
+  #v-compass {
+    bottom: 20px;
+    padding: 6px 12px;
+  }
+  #v-arrow {
+    font-size: 22px;
+  }
+  .result-top {
+    top: 55px;
+    left: 30px;
+    right: auto;
+    width: 280px;
+  }
+  .result-top h1 {
+    font-size: 30px;
+  }
+  .result-top p {
+    font-size: 10px;
+  }
+  .result-top .eyebrow {
+    font-size: 8px;
+  }
+  #result-stars {
+    font-size: 24px;
+  }
+  .result-bottom {
+    left: auto;
+    right: 25px;
+    transform: none;
+    bottom: 35px;
+    width: 240px;
+  }
+  .primary,
+  .secondary {
+    font-size: 12px;
+    padding: 12px 15px;
+  }
+  .pause-screen h1 {
+    font-size: 32px;
+    margin-bottom: 10px;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  * {
+    scroll-behavior: auto;
+    transition: none !important;
+  }
+}
+
+.qa-badge {
+  position: absolute;
+  right: 12px;
+  bottom: 3px;
+  z-index: 40;
+  font-size: 8px;
+  color: #fff7b5;
+  background: #0b1b2bbb;
+  padding: 3px 7px;
+  border-radius: 5px;
+  pointer-events: none;
+}
+
+.sea-gem-tag {
+  position: absolute;
+  transform: translate(-50%, -100%);
+  color: #a1fff0;
+  font-size: 18px;
+  text-shadow:
+    0 0 12px #62efd5,
+    0 2px 3px #124659;
+  pointer-events: none;
+}
+
+/* The stars wait for the treasure to emerge from its chest. */
+.reward-star { display:inline-block; opacity:0; transform:translateY(15px) scale(.35); transition:opacity .3s, transform .55s cubic-bezier(.2,1.6,.4,1); }
+.reward-star.arrived { opacity:1; transform:translateY(0) scale(1); }
+.reward-star.empty { color:#83949f; text-shadow:none; }
+#v-result.unboxing .result-bottom { opacity:.35; }
+#v-result .result-bottom { transition:opacity .5s; }
+#v-result.unboxing #result-detail { opacity:0; }
+#result-detail { transition:opacity .6s; }
+#result-title { text-shadow:0 3px 20px #071421; }
+@media (max-height:650px) and (max-width:650px) {
+  #result-stars { font-size:26px; }
+  .result-bottom { width:calc(100% - 36px); gap:7px; bottom:16px; }
+  .result-bottom .primary, .result-bottom .secondary { padding:12px 16px; }
+}

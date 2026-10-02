@@ -1,0 +1,28 @@
+{
+  "name": "broadside",
+  "private": true,
+  "version": "0.1.0",
+  "description": "Top-down 3D pirate ship battles in the browser",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "npm run test && tsc --noEmit && vite build",
+    "preview": "vite preview",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "coverage": "vitest run --coverage",
+    "ships": "blender --background --python tools/blender/build_ships.py -- --all",
+    "check": "npm run typecheck && npm run coverage && vite build"
+  },
+  "devDependencies": {
+    "@vitest/coverage-v8": "^3.2.4",
+    "typescript": "^5.9.2",
+    "vite": "^7.1.5",
+    "vitest": "^3.2.4"
+  },
+  "dependencies": {
+    "@babylonjs/core": "^8.27.0",
+    "@babylonjs/loaders": "^8.27.0"
+  }
+}
