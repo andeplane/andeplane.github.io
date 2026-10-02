@@ -62,20 +62,24 @@ export class CaveWalkControls {
   read(): WalkIntent {
     const down = (...keys: string[]) => keys.some((k) => this.keys.has(k));
     const intent = {
-      forward:
-        Number(down("KeyW", "ArrowUp")) -
-        Number(down("KeyS", "ArrowDown")) +
-        this.touch.forward,
-      right:
-        Number(down("KeyD", "ArrowRight")) -
-        Number(down("KeyA", "ArrowLeft")) +
-        this.touch.right,
+      forward: Number(down("KeyW")) - Number(down("KeyS")) + this.touch.forward,
+      right: Number(down("KeyD")) - Number(down("KeyA")) + this.touch.right,
       crouch: down("ShiftLeft", "ShiftRight"),
       sprint: this.doubleSprint || down("ControlLeft", "ControlRight"),
       jump: this.jumpQueued,
     };
     this.jumpQueued = false;
     return intent;
+  }
+  /** Held arrows look independently of walking, including without mouse capture. */
+  readLook(): { right: number; down: number } {
+    return {
+      right:
+        Number(this.keys.has("ArrowRight")) -
+        Number(this.keys.has("ArrowLeft")),
+      down:
+        Number(this.keys.has("ArrowDown")) - Number(this.keys.has("ArrowUp")),
+    };
   }
   clear(): void {
     this.keys.clear();

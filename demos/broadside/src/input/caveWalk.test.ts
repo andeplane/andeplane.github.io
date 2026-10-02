@@ -49,6 +49,7 @@ describe("Minecraft cave controls", () => {
       crouch: true,
       sprint: true,
     });
+    expect(c.readLook()).toEqual({ right: 0, down: 0 });
     c.clear();
     c.keyDown("KeyW", 0);
     expect(c.read().sprint).toBe(false);
@@ -63,6 +64,25 @@ describe("Minecraft cave controls", () => {
     c.keyDown("ShiftLeft", 1000);
     c.keyDown("ControlRight", 1000);
     expect(c.read()).toMatchObject({ right: -1, crouch: true, sprint: true });
+  });
+  it("holds arrows to look without walking and releases them independently of WASD", () => {
+    const c = new CaveWalkControls();
+    c.keyDown("ArrowRight", 0);
+    c.keyDown("ArrowUp", 0);
+    expect(c.read()).toEqual(idle);
+    expect(c.readLook()).toEqual({ right: 1, down: -1 });
+    expect(c.readLook()).toEqual({ right: 1, down: -1 });
+    c.keyDown("KeyW", 0);
+    expect(c.read().forward).toBe(1);
+    c.keyUp("ArrowRight");
+    c.keyUp("ArrowUp");
+    c.keyDown("ArrowLeft", 100);
+    c.keyDown("ArrowDown", 100);
+    expect(c.readLook()).toEqual({ right: -1, down: 1 });
+    expect(c.read().forward).toBe(1);
+    c.clear();
+    expect(c.readLook()).toEqual({ right: 0, down: 0 });
+    expect(c.read()).toEqual(idle);
   });
 });
 describe("grounded cave walking", () => {

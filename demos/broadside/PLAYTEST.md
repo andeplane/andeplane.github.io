@@ -120,3 +120,10 @@ Retry restarts the completed voyage, Next level starts the following voyage imme
 - Muted browser checks cover 390×740, 320×568 and 844×390. A real first-level completion and replay reach the cave; captured arrival frames show opacity rising to 1 before the closed chest appears. Retry starts Level 1, Next level starts Level 2, and after world 1 it starts Pirate Waters Level 1. Back to menu opens the main menu. The final campaign reward has no invalid next-level action. Replay confirms gold already collected.
 - The packaged `/demos/broadside/` production build also completed Level 1 at 320×568, confirmed replay gold was not duplicated, and started Level 2 through Next level. Fresh development and production runs reported no browser warnings or errors and retained `data-audio="locked"`. All agent-created test tabs were closed.
 - Screenshots: `artifacts/qa/reward-actions-phone.png`, `reward-actions-production-320.png`, `arrival-0.png` through `arrival-19.png`. Physical-device multitouch and performance remain unverified.
+
+
+## Arrow-key cave looking — 2026-10-03
+
+Cave arrows now control the view: left/right turns, up/down tilts. WASD controls walking independently, and mouse/swipe looking remains available. Held look input runs per rendered frame, with the existing pitch limits; opposite arrows cancel. Key release, window blur and leaving the cave clear held input. Arrow looking also turns inspected treasures. Desktop help and README reflect the new mapping.
+
+Typecheck, production build and 159 tests pass. The added control test covers all four look directions, held look reads, release, simultaneous W movement, and clearing. A muted 1280×800 browser check changed camera yaw through arrow input while the character stayed at the same position, and showed the new control hint. No browser warnings or errors were captured. Screenshot: `artifacts/qa/cave-arrow-look-desktop.png`. The test tab was closed and the viewport restored.

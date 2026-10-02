@@ -335,7 +335,10 @@ async function main() {
   document.querySelector("#loading")?.remove();
   window.addEventListener("keydown", (e) => {
     if (mode === "cave") {
-      if (!cave.inspecting && walking.keyDown(e.code, performance.now()))
+      if (
+        (!cave.inspecting || e.code.startsWith("Arrow")) &&
+        walking.keyDown(e.code, performance.now())
+      )
         e.preventDefault();
       if (e.code === "KeyE" && !e.repeat) {
         e.preventDefault();
@@ -495,7 +498,11 @@ async function main() {
     } else if (mode === "loading" && renderer) {
       renderer.render(session, 1, dt);
     } else if (mode !== "menu") {
-      if (mode === "cave") cave.walk(walking.read(), dt);
+      if (mode === "cave") {
+        const look = walking.readLook();
+        cave.look(look.right * 500 * dt, look.down * 450 * dt);
+        cave.walk(walking.read(), dt);
+      }
       const before = cave.revealPose;
       cave.render(dt, mode === "result");
       if (mode === "cave") {
