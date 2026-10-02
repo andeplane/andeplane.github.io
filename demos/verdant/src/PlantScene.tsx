@@ -76,8 +76,8 @@ function buildPlant(species:Species,leaves:THREE.Object3D[],leafMats:THREE.MeshP
   }
   return group;
 }
-export function PlantScene({state,layer,world,onWorldClick,tool}:{state:GameState;layer:Layer;world:RootWorld;onWorldClick:(point:Point)=>void;tool:string}) {
-  const mount=useRef<HTMLDivElement>(null);const api=useRef<SceneAPI|null>(null);const live=useRef({state,layer,world,onWorldClick,tool});live.current={state,layer,world,onWorldClick,tool};const [error,setError]=useState(false);
+export function PlantScene({state,layer,world,onWorldClick,tool,tutorialMarker=null}:{state:GameState;layer:Layer;world:RootWorld;onWorldClick:(point:Point)=>void;tool:string;tutorialMarker?:{point:Point;label:string}|null}) {
+  const mount=useRef<HTMLDivElement>(null),beacon=useRef<HTMLButtonElement>(null);const api=useRef<SceneAPI|null>(null);const live=useRef({state,layer,world,onWorldClick,tool,tutorialMarker});live.current={state,layer,world,onWorldClick,tool,tutorialMarker};const [error,setError]=useState(false);
   useEffect(()=>{if(!mount.current)return;const container=mount.current;let renderer:THREE.WebGLRenderer;
     try{renderer=new THREE.WebGLRenderer({antialias:true,alpha:true,powerPreference:'high-performance'});}catch{setError(true);return;}
     setError(false);renderer.setPixelRatio(Math.min(window.devicePixelRatio,2));renderer.shadowMap.enabled=true;renderer.shadowMap.type=THREE.PCFSoftShadowMap;renderer.toneMapping=THREE.ACESFilmicToneMapping;renderer.toneMappingExposure=.82;container.appendChild(renderer.domElement);
@@ -138,7 +138,7 @@ export function PlantScene({state,layer,world,onWorldClick,tool}:{state:GameStat
     const updateWorld=(w:RootWorld)=>{const lengths=w.active+':'+w.paths.map(p=>p.length).join(',');if(lengths!==previousLengths){rootLines.forEach(l=>{rootNetwork.remove(l);l.geometry.dispose();});rootLines.length=0;w.paths.forEach((path,i)=>{const g=new THREE.BufferGeometry().setFromPoints(path.map(p=>v(p.x,p.y,0)));const line=new THREE.Line(g,i===w.active?activeRootMaterial:rootLineMaterial);rootNetwork.add(line);rootLines.push(line);});previousLengths=lengths;}
       const tip=w.paths[w.active].at(-1)!;tipMesh.position.set(tip.x,tip.y,.097);tipHalo.position.set(tip.x,tip.y,.10);
       targetMarker.visible=!!w.target;if(w.target)targetMarker.position.set(w.target.x,w.target.y,.11);
-      w.deposits.forEach((d,i)=>{depositMeshes[i].scale.setScalar(.5+.5*Math.sqrt(d.amount/d.initial));(depositMeshes[i].material as THREE.MeshBasicMaterial).opacity=d.amount>0?(d.connected?.45:.30):.035;(depositRings[i].material as THREE.MeshBasicMaterial).opacity=d.connected?.65:.25;});
+      w.deposits.forEach((d,i)=>{depositMeshes[i].scale.setScalar(.5+.5*Math.sqrt(d.amount/d.initial));(depositMeshes[i].material as THREE.MeshBasicMaterial).opacity=d.amount>0?(d.connected?.68:.55):.035;(depositRings[i].material as THREE.MeshBasicMaterial).opacity=d.connected?.75:.45;});
     };updateWorld(live.current.world);
     const raycaster=new THREE.Raycaster();let down: {x:number;y:number}|null=null;
     const onDown=(e:PointerEvent)=>{if(e.button===0)down={x:e.clientX,y:e.clientY};};
@@ -171,6 +171,7 @@ export function PlantScene({state,layer,world,onWorldClick,tool}:{state:GameStat
       leafNodes.forEach((l,i)=>{if(current.species==='tomato')l.rotation.z=(reduced?0:Math.sin(t*(.7+current.ventilation)+i)*(.013+current.ventilation*.025))+(1-current.health/100)*.5*(i%2?1:-1);});
       particles.forEach((p,i)=>{if(currentLayer==='water') {const point=rootCurves[i%rootCurves.length].getPoint(1-(t*.15+i*.071)%1);p.position.copy(point).applyMatrix4(assembly.matrixWorld);p.visible=c.waterAccess>.1;}else if(currentLayer==='carbon'){p.position.set(Math.sin(i*2.4)*.7, .6+(t*.18+i*.12)%2.8, Math.cos(i*2.4)*.4);p.visible=c.photo>.005;}else{p.position.set(Math.sin(i*7.1+t*.03)*2.2,.05+(t*.035+i*.11)%3.8,Math.cos(i*1.4)*1.8);p.visible=i<15&&!reduced;}});
       if(reduced&&currentLayer!=='natural')particles.forEach(p=>p.visible=false);controls.update();renderer.render(scene,camera);
+      const marker=live.current.tutorialMarker;if(marker&&beacon.current){const projected=assembly.localToWorld(v(marker.point.x,marker.point.y,.12)).project(camera);beacon.current.style.left=`${(projected.x+1)*.5*container.clientWidth}px`;beacon.current.style.top=`${(1-projected.y)*.5*container.clientHeight}px`;beacon.current.style.visibility='visible';}
     };render();
     return()=>{running=false;cancelAnimationFrame(frame);observer.disconnect();renderer.domElement.removeEventListener('pointerdown',onDown);renderer.domElement.removeEventListener('pointerup',onClick);controls.dispose();api.current=null;scene.traverse(o=>{if(o instanceof THREE.Line){o.geometry.dispose();const materials=Array.isArray(o.material)?o.material:[o.material];materials.forEach(m=>m.dispose());}if(o instanceof THREE.Sprite){o.material.map?.dispose();o.material.dispose();}if(o instanceof THREE.Mesh){o.geometry.dispose();const mats=Array.isArray(o.material)?o.material:[o.material];mats.forEach(m=>m.dispose());}});soilMap.dispose();env.dispose();renderer.dispose();container.removeChild(renderer.domElement);};
   },[state.species]);
@@ -178,6 +179,7 @@ export function PlantScene({state,layer,world,onWorldClick,tool}:{state:GameStat
   useEffect(()=>{api.current?.updateWorld(world);},[world]);
   return <div className={`scene scene-${state.species} tool-${tool}`}>
     <div className="scene-halo"/><div ref={mount} className="scene-canvas" aria-label={`Interactive ${state.species} habitat. Click soil to guide roots or apply the selected tool. WASD grows roots. Right drag or two fingers to orbit.`}/>
+    {tutorialMarker&&<button ref={beacon} className="tutorial-beacon" data-resource={tutorialMarker.label.toLowerCase().includes('water')?'water':tutorialMarker.label.toLowerCase().includes('nitrogen')?'nitrogen':'route'} style={{visibility:'hidden'}} onPointerDown={e=>e.stopPropagation()} onClick={e=>{e.stopPropagation();onWorldClick(tutorialMarker.point);}}><span aria-hidden="true">◎</span>{tutorialMarker.label}</button>}
     {error&&<div className="scene-error"><Sprout size={48}/><p>WebGL is unavailable in this browser.</p><span>Enable hardware acceleration to enter the habitat.</span></div>}
   </div>;
 }
