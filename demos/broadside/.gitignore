@@ -1,0 +1,7 @@
+node_modules/
+dist/
+coverage/
+*.blend1
+tools/blender/out/
+.DS_Store
+artifacts/

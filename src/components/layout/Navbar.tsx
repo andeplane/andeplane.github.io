@@ -3,6 +3,7 @@ import { NavLink } from 'react-router-dom'
 const links = [
   { to: '/', label: 'Home' },
   { to: '/projects', label: 'Projects' },
+  { to: '/games', label: 'Games' },
   { to: '/interests', label: 'Interests' },
   { to: '/blog', label: 'Blog' },
   { to: '/about', label: 'About' },
@@ -41,16 +42,16 @@ export default function Navbar() {
           andeplane
         </NavLink>
 
-        <ul style={{ display: 'flex', gap: '0.25rem', listStyle: 'none', margin: 0, padding: 0 }}>
+        <ul style={{ display: 'flex', gap: '0.25rem', flexWrap: 'wrap', listStyle: 'none', margin: 0, padding: 0 }}>
           {links.map(({ to, label }) => (
             <li key={to}>
               <NavLink
                 to={to}
                 end={to === '/'}
                 style={({ isActive }) => ({
-                  padding: '0.375rem clamp(0.4rem, 2vw, 0.875rem)',
+                  padding: '0.375rem clamp(0.25rem, 1.5vw, 0.875rem)',
                   borderRadius: '6px',
-                  fontSize: 'clamp(0.8rem, 2.3vw, 0.9rem)',
+                  fontSize: 'clamp(0.75rem, 2.1vw, 0.9rem)',
                   fontWeight: isActive ? 600 : 400,
                   color: isActive ? '#fff' : 'var(--color-text-muted)',
                   background: isActive ? 'var(--color-surface-2)' : 'transparent',

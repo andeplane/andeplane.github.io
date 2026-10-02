@@ -11,6 +11,12 @@ const CONTENT = new URL('../src/content/', import.meta.url)
 
 const STATIC_ROUTES = [
   {
+    path: '/games',
+    title: 'Games',
+    description: 'Play Broadside, Fuse Riders, and more browser games: pirate treasures, neon races, tower defence, and playful worlds.',
+    image: '/projects/broadside/preview.jpg',
+  },
+  {
     path: '/projects',
     title: 'Projects',
     description:
