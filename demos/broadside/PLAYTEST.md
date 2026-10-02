@@ -69,3 +69,21 @@ Desktop and small viewport checks: 390×740, 320×568, 844×390 and 1280×720.
 - QA URLs are development-only and do not read or write player progress. Public production ignores them.
 
 Physical iPhone/Android performance, Safari audio and simultaneous touch steering/fire remain unverified; the user requested browser-window testing for this delivery.
+
+## First-person deep cave revision
+
+The cave is now one connected environment with three chambers: the original skylit hideout, a lantern passage into the king’s vault, and a smuggler passage into a quartz-lit grotto. A turquoise canal splits the vault, with a real plank bridge and rope rails. Natural rock skins seal the ceiling seams. Gold banks and scattered coins fill all three chambers as voyages are cleared; each first clear now awards 1,000 gold. The four world keepsakes stay on permanent rock shelves in different chambers.
+
+Mobile exploration uses an independent left movement stick, swipe-to-look and a jump button. Desktop has WASD/arrow movement, Space to jump, Shift to crouch, Ctrl or double-tap W to sprint, and E/click to inspect a nearby treasure. Pointer lock is requested where supported; dragging provides mouse look in the in-app browser. Escape closes inspection or returns to the menu. Inspection frames the whole object at the current walking position, supports turning it, and returns to that same position. Blur and hidden tabs release movement. Audio remains opt-in and every agent browser URL used `mute=true`.
+
+The gold-heap rendering regression was visible from outside the heap: out-of-range clamped UVs stretched the coin texture into stripes and horizontal coins appeared to float off steep slopes. Repeating world-space UVs, a rounded bank profile, raised-rim normal detail and densely instanced engraved coins aligned to surface normals replace that surface. Walking uses the same gold-height profile as rendering, so the camera also stays above the pile.
+
+Validation:
+
+- 150 tests in 21 files passed with coverage (two workers); TypeScript and the production build passed. Overall line coverage 98.51%. A first unbounded coverage attempt timed out in the existing forty-course soak under workstation contention; the bounded full run passed.
+- Inspected 1280×800, 390×740, 320×568 and 844×390. Actual browser input moved the phone stick, turned the view and jumped. Crown inspection fits the portrait frame and returns to the identical walking position. Checked full collection and five-level hoard fixtures.
+- Simulated a continuous route using the actual rendered rock collider bounds and gold-bank heights: entrance, lantern passage, both sides of the canal bridge, side passage and grotto all reached. This complements the controller tests; it is not a physical-device test.
+- Latest packaged `/demos/broadside/` preview loads with no console warnings/errors, has first-person controls, preserves saved progress, and stays audio-locked. Phone stick movement also checked in that build.
+- Screenshots: `artifacts/qa/deep-cave-desktop.png`, `deep-cave-phone.png`, `deep-cave-gold-detail.png`. Physical multi-touch, physical phone GPU performance and desktop pointer lock outside the in-app browser remain unverified.
+
+Development-only fixtures: `?qa=collection&mute=true` enters the cave with all forty levels cleared. Add `room=vault`, `room=grotto`, `room=crown` or `room=coins` to inspect those areas; `cleared=5` shows the early hoard. These previews do not read or write a player's save and are disabled in production.

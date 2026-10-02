@@ -1,4 +1,8 @@
-import { TOTAL_LEVELS } from "../game/campaign";
+import "@babylonjs/core/Meshes/thinInstanceMesh.js";
+import { caveFloor } from "../input/caveLayout";
+import { hoardHeight, hoardGrowth } from "../input/caveHoard";
+import type { CaveObstacle } from "../input/caveWalk";
+import { buildDeepCave } from "./deepCave";
 import { Scene } from "@babylonjs/core/scene.js";
 import { Mesh } from "@babylonjs/core/Meshes/mesh.js";
 import { MeshBuilder } from "@babylonjs/core/Meshes/meshBuilder.js";
@@ -8,7 +12,11 @@ import { StandardMaterial } from "@babylonjs/core/Materials/standardMaterial.js"
 import { Texture } from "@babylonjs/core/Materials/Textures/texture.js";
 import { DynamicTexture } from "@babylonjs/core/Materials/Textures/dynamicTexture.js";
 import { Color3, Color4 } from "@babylonjs/core/Maths/math.color.js";
-import { Vector3 } from "@babylonjs/core/Maths/math.vector.js";
+import {
+  Matrix,
+  Quaternion,
+  Vector3,
+} from "@babylonjs/core/Maths/math.vector.js";
 import { PointLight } from "@babylonjs/core/Lights/pointLight.js";
 import { SpotLight } from "@babylonjs/core/Lights/spotLight.js";
 import { ShadowGenerator } from "@babylonjs/core/Lights/Shadows/shadowGenerator.js";
@@ -20,13 +28,23 @@ import { Rng } from "../sim/rng";
 export class Cavern {
   readonly stone: StandardMaterial;
   readonly ledge: StandardMaterial;
+  readonly floor: StandardMaterial;
+  private spill: Mesh;
   readonly gold: StandardMaterial;
   readonly wood: StandardMaterial;
   readonly iron: StandardMaterial;
   readonly shadow: ShadowGenerator;
   private lanterns: TransformNode[] = [];
-  private lamps: PointLight[] = [];
+  readonly lamps: PointLight[] = [];
   private hoards: TransformNode[] = [];
+  private heaps: {
+    x: number;
+    z: number;
+    r: number;
+    height: number;
+    root: TransformNode;
+  }[] = [];
+  readonly obstacles: CaveObstacle[] = [];
   private time = 0;
   constructor(
     private scene: Scene,
@@ -103,6 +121,7 @@ export class Cavern {
     );
     daylight.diffuse = Color3.FromHexString("#d9edff");
     daylight.intensity = 2.6;
+    daylight.renderPriority = 8;
     daylight.range = 44;
     daylight.shadowMinZ = 1;
     daylight.shadowMaxZ = 42;
@@ -135,6 +154,7 @@ export class Cavern {
     floor.bumpTexture = fn;
     floor.diffuseColor = Color3.FromHexString("#777f7c");
     floor.emissiveColor.set(0.055, 0.055, 0.05);
+    this.floor = floor;
     bed.material = floor;
     bed.receiveShadows = true;
     bed.isPickable = false;
@@ -168,12 +188,13 @@ export class Cavern {
     }
     for (let j = 0; j < 9; j++) {
       const x = -17 + j * 4.3;
-      this.rock(
-        "rugged back wall",
-        new Vector3(x, 3.9 + rng.range(-0.3, 0.3), 23 + rng.range(-1, 1)),
-        new Vector3(3.4, 6.4, 3.5),
-        j + 41,
-      );
+      if (Math.abs(x) > 6)
+        this.rock(
+          "rugged back wall",
+          new Vector3(x, 3.9 + rng.range(-0.3, 0.3), 23 + rng.range(-1, 1)),
+          new Vector3(3.4, 6.4, 3.5),
+          j + 41,
+        );
       this.rock(
         "rear cave roof",
         new Vector3(x, 10.2, 20),
@@ -430,40 +451,119 @@ export class Cavern {
     // Instanced doubloons give the hoard real silhouettes without thousands of draw calls.
     const coin = MeshBuilder.CreateCylinder(
       "doubloon source",
-      { height: 0.035, diameter: 0.22, tessellation: 12 },
+      { height: 0.028, diameter: 0.2, tessellation: 18 },
       s,
     );
-    coin.material = this.gold;
+    const face = new DynamicTexture("engraved doubloon faces", 256, s, true);
+    const coinFace = face.getContext() as CanvasRenderingContext2D;
+    coinFace.fillStyle = "#e7bc5b";
+    coinFace.fillRect(0, 0, 256, 256);
+    for (const r of [112, 102, 83]) {
+      coinFace.beginPath();
+      coinFace.arc(128, 128, r, 0, Math.PI * 2);
+      coinFace.strokeStyle = r === 102 ? "#725117" : "#f2d782";
+      coinFace.lineWidth = 5;
+      coinFace.stroke();
+    }
+    coinFace.strokeStyle = "#947128";
+    coinFace.lineWidth = 8;
+    coinFace.beginPath();
+    coinFace.moveTo(128, 57);
+    coinFace.lineTo(128, 199);
+    coinFace.moveTo(57, 128);
+    coinFace.lineTo(199, 128);
+    coinFace.stroke();
+    coinFace.fillStyle = "#ecoinFacea69";
+    coinFace.beginPath();
+    coinFace.moveTo(128, 73);
+    coinFace.lineTo(153, 128);
+    coinFace.lineTo(128, 183);
+    coinFace.lineTo(103, 128);
+    coinFace.closePath();
+    coinFace.fill();
+    face.update();
+    const coinMetal = this.gold.clone("engraved gold coin metal")!;
+    coinMetal.diffuseTexture = face;
+    coinMetal.diffuseColor = Color3.White();
+    coinMetal.specularPower = 45;
+    coinMetal.emissiveColor.set(0.07, 0.045, 0.005);
+    coin.material = coinMetal;
     coin.isVisible = false;
     coin.isPickable = false;
     const coinsTexture = new DynamicTexture(
       "dense doubloon mosaic",
       512,
       s,
-      false,
+      true,
     );
+    coinsTexture.wrapU = coinsTexture.wrapV = Texture.WRAP_ADDRESSMODE;
     const cc = coinsTexture.getContext() as CanvasRenderingContext2D;
-    cc.fillStyle = "#62502b";
+    cc.fillStyle = "#b48832";
     cc.fillRect(0, 0, 512, 512);
-    for (let j = 0; j < 1700; j++) {
-      const x = rng.range(0, 512),
-        y = rng.range(0, 512),
-        r = rng.range(3, 7);
-      cc.fillStyle =
-        j % 3 === 0 ? "#d4af55" : j % 3 === 1 ? "#9d7b33" : "#b99647";
-      cc.beginPath();
-      cc.ellipse(x, y, r, r * 0.7, rng.range(-1, 1), 0, Math.PI * 2);
-      cc.fill();
-      cc.strokeStyle = "#ebcf76";
-      cc.lineWidth = 0.5;
-      cc.stroke();
-    }
+    const normalCoins = new DynamicTexture("raised coin rims", 512, s, true);
+    normalCoins.wrapU = normalCoins.wrapV = Texture.WRAP_ADDRESSMODE;
+    const nc = normalCoins.getContext() as CanvasRenderingContext2D;
+    nc.fillStyle = "rgb(128,128,255)";
+    nc.fillRect(0, 0, 512, 512);
+    for (let row = 0; row < 53; row++)
+      for (let col = 0; col < 53; col++) {
+        const x = col * 10 + (row % 2 ? 5 : 0) + rng.range(-1.5, 1.5),
+          y = row * 10 + rng.range(-1.5, 1.5),
+          r = rng.range(6, 7.3);
+        const shine = cc.createLinearGradient(x - r, y - r, x + r, y + r);
+        shine.addColorStop(0, "#f0d27e");
+        shine.addColorStop(0.55, "#c79d48");
+        shine.addColorStop(1, "#a87c29");
+        cc.fillStyle = shine;
+        cc.beginPath();
+        cc.ellipse(x, y, r, r * 0.8, 0, 0, Math.PI * 2);
+        cc.fill();
+        cc.strokeStyle = "#866222";
+        cc.lineWidth = 1.1;
+        cc.stroke();
+        cc.beginPath();
+        cc.ellipse(x, y, r - 1.4, (r - 1.4) * 0.8, 0, Math.PI, Math.PI * 2);
+        cc.strokeStyle = "#f9dfa0";
+        cc.lineWidth = 0.8;
+        cc.stroke();
+        nc.fillStyle = "rgb(128,128,255)";
+        nc.beginPath();
+        nc.ellipse(x, y, r, r * 0.8, 0, 0, Math.PI * 2);
+        nc.fill();
+        for (let edge = 0; edge < 4; edge++) {
+          nc.beginPath();
+          nc.ellipse(
+            x,
+            y,
+            r,
+            r * 0.8,
+            0,
+            (edge * Math.PI) / 2,
+            ((edge + 1) * Math.PI) / 2,
+          );
+          nc.strokeStyle = [
+            "rgb(180,150,232)",
+            "rgb(105,180,232)",
+            "rgb(76,105,232)",
+            "rgb(150,76,232)",
+          ][edge]!;
+          nc.lineWidth = 1.5;
+          nc.stroke();
+        }
+      }
+    normalCoins.update();
+    normalCoins.level = 0.45;
     coinsTexture.update();
     const heapMaterial = this.gold.clone(
       "massed coins below the loose doubloons",
     )!;
     heapMaterial.diffuseTexture = coinsTexture;
-    heapMaterial.diffuseColor = Color3.FromHexString("#efd598");
+    heapMaterial.bumpTexture = normalCoins;
+    heapMaterial.diffuseColor = Color3.White();
+    heapMaterial.specularPower = 18;
+    heapMaterial.specularColor.set(0.45, 0.3, 0.08);
+    heapMaterial.emissiveColor.set(0.11, 0.065, 0.01);
+    buildDeepCave(this, s);
     const piles = [
       [-12, 11, 2.7],
       [-10, 18, 2.4],
@@ -471,33 +571,46 @@ export class Cavern {
       [12, -3, 2.3],
       [-12, -5, 2.1],
       [8, -8, 2.2],
+      [-7, -6, 2.8],
+      [8, 4, 3.0],
+      [-8, 32, 3.5],
+      [-8, 44, 4],
+      [8, 32, 3.2],
+      [8, 46, 3.8],
+      [-4, 46, 3.2],
+      [2, 46, 3.6],
+      [-8, 35, 3],
+      [24, 30, 2.6],
+      [32, 30, 2.8],
+      [32, 44, 3],
+      [24, 44, 2.7],
     ];
     for (let i = 0; i < piles.length; i++) {
       const [x, z, r] = piles[i]!,
         root = new TransformNode("growing treasure hoard " + i, s);
       this.hoards.push(root);
+      const peak = (i < 8 ? 2.3 : 3.5) * (0.88 + 0.16 * Math.sin(i * 1.7));
+      this.heaps.push({ x: x!, z: z!, r: r!, height: peak, root });
       const mound = new Mesh("continuous buried hoard", s),
         moundData = new VertexData();
       const mp: number[] = [],
         mi: number[] = [],
         mu: number[] = [];
-      for (let ring = 0; ring <= 10; ring++)
-        for (let k = 0; k <= 32; k++) {
-          const a = (k / 32) * Math.PI * 2,
-            distance = (ring / 10) * r!;
+      for (let ring = 0; ring <= 40; ring++)
+        for (let k = 0; k <= 64; k++) {
+          const a = (k / 64) * Math.PI * 2,
+            distance = (ring / 40) * r!;
           const cx = x! + Math.cos(a) * distance,
             cz = z! + Math.sin(a) * distance;
           mp.push(
             cx,
-            this.floorHeight(cx, cz) +
-              Math.pow(1 - distance / r!, 1.7) * 1.5 +
-              0.02,
+            this.floorHeight(cx, cz) + hoardHeight(distance, r!, peak) + 0.02,
             cz,
           );
-          mu.push((cx - x!) / r! + 0.5, (cz - z!) / r! + 0.5);
-          if (ring < 10 && k < 32) {
-            const n = ring * 33 + k;
-            mi.push(n, n + 33, n + 1, n + 1, n + 33, n + 34);
+          mu.push(cx * 0.6, cz * 0.6);
+          if (ring < 40 && k < 64) {
+            const n = ring * 65 + k;
+            mi.push(n, n + 65, n + 1, n + 1, n + 65, n + 66);
           }
         }
       const mn: number[] = [];
@@ -511,23 +624,51 @@ export class Cavern {
       mound.material = heapMaterial;
       mound.isPickable = false;
       mound.receiveShadows = true;
-      for (let j = 0; j < 210; j++) {
+      const loose = MeshBuilder.CreateCylinder(
+        "dense loose doubloons " + i,
+        { height: 0.028, diameter: 0.2, tessellation: 18 },
+        s,
+      );
+      loose.material = coinMetal;
+      loose.parent = root;
+      loose.isVisible = true;
+      loose.isPickable = false;
+      loose.receiveShadows = true;
+      const matrices = new Float32Array(1800 * 16),
+        coinColors = new Float32Array(1800 * 4);
+      for (let j = 0; j < 1800; j++) {
+        const shade = rng.range(0.88, 1.1);
+        coinColors.set(
+          [shade, shade * rng.range(0.95, 1), shade * 0.9, 1],
+          j * 4,
+        );
         const a = rng.range(0, Math.PI * 2),
           distance = Math.sqrt(rng.next()) * r!;
         const cx = x! + Math.cos(a) * distance,
           cz = z! + Math.sin(a) * distance;
-        const h = Math.pow(1 - distance / r!, 1.7) * 1.5;
-        const c = coin.createInstance("hoarded gold");
-        c.parent = root;
-        c.position.set(cx, this.floorHeight(cx, cz) + h + 0.07, cz);
-        c.rotation.set(
-          rng.range(-0.3, 0.3),
-          rng.range(0, 6),
-          rng.range(-0.25, 0.25),
-        );
-        c.scaling.setAll(rng.range(0.8, 1.5));
-        c.isPickable = false;
+        const h = hoardHeight(distance, r!, peak);
+        // Dense, almost touching coins sit on the terrain rather than hovering above it.
+        const slope = (px: number, pz: number) =>
+          this.floorHeight(px, pz) +
+          hoardHeight(Math.hypot(px - x!, pz - z!), r!, peak);
+        const normal = new Vector3(
+          -(slope(cx + 0.02, cz) - slope(cx - 0.02, cz)) / 0.04,
+          1,
+          -(slope(cx, cz + 0.02) - slope(cx, cz - 0.02)) / 0.04,
+        ).normalize();
+        const axis = new Vector3(normal.z, 0, -normal.x).normalize();
+        const rotation = Quaternion.RotationAxis(
+          axis,
+          Math.acos(normal.y),
+        ).multiply(Quaternion.RotationAxis(Vector3.Up(), rng.range(0, 6)));
+        Matrix.Compose(
+          new Vector3(1, 1, 1).scale(rng.range(0.85, 1.2)),
+          rotation,
+          new Vector3(cx, this.floorHeight(cx, cz) + h + 0.035, cz),
+        ).copyToArray(matrices, j * 16);
       }
+      loose.thinInstanceSetBuffer("matrix", matrices, 16, true);
+      loose.thinInstanceSetBuffer("color", coinColors, 4, true);
       // Canvas sacks are imperfect, bulging shapes with tied mouths.
       for (let j = 0; j < 2; j++) {
         const bx = x! + (j ? 0.8 : -0.8),
@@ -563,15 +704,37 @@ export class Cavern {
         tie.material = rope;
       }
     }
-    for (let i = 0; i < 150; i++) {
-      const x = rng.range(-12, 12),
-        z = rng.range(-10, 19);
-      if (spots.some((p) => Math.hypot(p.x - x, p.z - z) < 2)) continue;
-      const c = coin.createInstance("spilled coin in floor");
-      c.position.set(x, this.floorHeight(x, z) + 0.06, z);
-      c.rotation.y = rng.range(0, 6);
-      c.isPickable = false;
+    this.spill = MeshBuilder.CreateCylinder(
+      "coins spilling across the walking paths",
+      { height: 0.028, diameter: 0.2, tessellation: 12 },
+      s,
+    );
+    this.spill.material = coinMetal;
+    this.spill.isPickable = false;
+    this.spill.receiveShadows = true;
+    const spillMatrices = new Float32Array(6000 * 16);
+    for (let i = 0; i < 6000; i++) {
+      const room = i % 3;
+      const x =
+        room === 0
+          ? rng.range(-12, 12)
+          : room === 1
+            ? rng.range(-10, 10)
+            : rng.range(23, 34);
+      let z =
+        room === 0
+          ? rng.range(-10, 19)
+          : room === 1
+            ? rng.range(29, 47)
+            : rng.range(29, 46);
+      if (room === 1 && z > 37 && z < 40) z = 36.8;
+      Matrix.Compose(
+        new Vector3(1, 1, 1).scale(rng.range(0.8, 1.15)),
+        Quaternion.RotationAxis(Vector3.Up(), rng.range(0, 6)),
+        new Vector3(x, this.floorHeight(x, z) + 0.024, z),
+      ).copyToArray(spillMatrices, i * 16);
     }
+    this.spill.thinInstanceSetBuffer("matrix", spillMatrices, 16, true);
     // Salvaged supplies, rope coils and an old anchor make this a pirate's home.
     for (const [x, z] of [
       [-14, 1],
@@ -785,6 +948,10 @@ export class Cavern {
       web.alpha = 0.22;
       web.isPickable = false;
     }
+    for (const mesh of s.meshes) {
+      if (/barrel body|salvaged wooden crate|stalagmite/.test(mesh.name))
+        this.block(mesh as Mesh);
+    }
     this.mergeStaticGeometry();
   }
   private ceiling(): void {
@@ -894,6 +1061,7 @@ export class Cavern {
       if (
         !(mesh instanceof Mesh) ||
         mesh.instances.length ||
+        mesh.thinInstanceCount > 0 ||
         mesh.name === "visible skylight ray" ||
         mesh.name === "doubloon source" ||
         mesh.getChildMeshes().length
@@ -929,12 +1097,35 @@ export class Cavern {
     }
   }
 
+  get walkingGeometry() {
+    return {
+      obstacles: this.obstacles,
+      heaps: this.heaps.map((h) => ({
+        x: h.x,
+        z: h.z,
+        r: h.r,
+        peak: h.height,
+        scale: h.root.scaling.y,
+        enabled: h.root.isEnabled(),
+      })),
+    };
+  }
+  walkHeight(x: number, z: number): number {
+    let top = this.floorHeight(x, z);
+    for (const h of this.heaps) {
+      if (!h.root.isEnabled()) continue;
+      const d = Math.hypot(x - h.x, z - h.z);
+      if (d < h.r)
+        top = Math.max(
+          top,
+          (this.floorHeight(x, z) + hoardHeight(d, h.r, h.height) + 0.02) *
+            h.root.scaling.y,
+        );
+    }
+    return top;
+  }
   floorHeight(x: number, z: number): number {
-    return (
-      0.16 * Math.sin(x * 0.73 + z * 0.31) +
-      0.12 * Math.cos(z * 0.58 - x * 0.24) +
-      0.05 * Math.sin(x * 2.3 + z * 1.6)
-    );
+    return caveFloor(x, z);
   }
   rock(
     name: string,
@@ -969,9 +1160,25 @@ export class Cavern {
     r.material = this.stone;
     r.isPickable = false;
     r.receiveShadows = true;
+    if (/treasure rock ledge|fallen stone|ledge rubble|deep rubble/.test(name))
+      this.block(r);
     return r;
   }
-  private lantern(p: Vector3, glass: StandardMaterial): void {
+  block(mesh: Mesh): void {
+    mesh.computeWorldMatrix(true);
+    const box = mesh.getBoundingInfo().boundingBox;
+    const a = box.minimumWorld,
+      b = box.maximumWorld;
+    if (a.y > 1.8 || b.y < 0.35) return;
+    this.obstacles.push({
+      x: (a.x + b.x) / 2,
+      z: (a.z + b.z) / 2,
+      rx: (b.x - a.x) * 0.4,
+      rz: (b.z - a.z) * 0.4,
+      top: b.y,
+    });
+  }
+  lantern(p: Vector3, glass: StandardMaterial): void {
     const root = new TransformNode("hanging pirate lantern", this.scene);
     root.position.copyFrom(p);
     root.rotation.z = 0.1;
@@ -1064,11 +1271,15 @@ export class Cavern {
     }
   }
   refresh(count: number): void {
-    const perHeap = Math.ceil(TOTAL_LEVELS / this.hoards.length);
+    this.spill.setEnabled(count > 0);
+    this.spill.thinInstanceCount = Math.min(6000, 500 + count * 400);
+    // A single voyage spills coins into every chamber. The first five voyages grow broad
+    // banks of gold; later voyages raise them into towering, overlapping fortunes.
     this.hoards.forEach((h, i) => {
-      const levels = Math.max(0, Math.min(perHeap, count - i * perHeap));
-      h.setEnabled(levels > 0);
-      h.scaling.y = 0.4 + (0.6 * levels) / perHeap;
+      h.setEnabled(count > 0);
+      h.scaling.y = hoardGrowth(count);
+      // Deeper chambers start modestly but never remain empty after the first find.
+      if (i >= 8) h.scaling.y *= 0.85;
     });
   }
   animate(dt: number): void {
@@ -1076,10 +1287,22 @@ export class Cavern {
     this.lanterns.forEach(
       (l, i) => (l.rotation.z = Math.sin(this.time * 0.7 + i * 1.3) * 0.045),
     );
+    const camera = this.scene.activeCamera!;
+    const nearest = [...this.lamps]
+      .sort(
+        (a, b) =>
+          Vector3.DistanceSquared(a.position, camera.position) -
+          Vector3.DistanceSquared(b.position, camera.position),
+      )
+      .slice(0, 2);
+    this.lamps.forEach((l) => {
+      l.setEnabled(nearest.includes(l));
+      l.renderPriority = 1;
+    });
     this.lamps.forEach(
       (l, i) =>
         (l.intensity =
-          1.45 +
+          2.6 +
           Math.sin(this.time * 7 + i) * 0.04 +
           Math.sin(this.time * 13 + i) * 0.025),
     );

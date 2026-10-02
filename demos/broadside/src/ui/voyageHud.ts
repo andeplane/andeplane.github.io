@@ -26,6 +26,9 @@ interface Handlers {
   menu: () => void;
   narration: () => boolean;
   overview: () => void;
+  caveMove: (right: number, forward: number) => void;
+  caveJump: () => void;
+  caveInspect: () => void;
   select: (index: number) => void;
   pause: () => void;
   fire: () => void;
@@ -56,11 +59,11 @@ export class VoyageHud {
       <div class="menu-atmosphere" aria-hidden="true"><div class="moon"></div><div class="distant-rocks"></div><div class="hero-ship">${pirateShipArt()}</div><div class="ocean-mist"></div><div class="menu-embers"></div></div>
       <div id="main-menu" class="menu-page"><div class="title-crest">${icon("wheel")}</div><span class="eyebrow">A PIRATE’S TREASURE ADVENTURE</span><h1>Broadside</h1><p class="menu-tagline">Brave the seas. Bring home the treasure.</p><nav class="main-actions" aria-label="Main menu"><button id="menu-play" class="wood-button prominent">Play ${icon("play")}</button><button id="menu-settings" class="wood-button">Settings ${icon("wheel")}</button><button id="menu-cave" class="wood-button">Cave ${icon("chest")}</button></nav></div>
       <div id="world-menu" class="menu-page" hidden><div class="menu-heading"><span class="eyebrow">CHART YOUR COURSE</span><h1>The pirate seas</h1><p>Choose a world</p></div><div class="world-map"><svg class="map-route" viewBox="0 0 1000 500" preserveAspectRatio="none" aria-hidden="true"><path d="M120 390 C40 130 310 420 380 240 S480 50 610 215 S820 380 870 90"/></svg><button id="map-cave" class="map-cave" aria-label="Visit treasure cave">${icon("chest")}<span>Your cave</span></button><div id="world-packs"></div><span class="map-compass" aria-hidden="true">${icon("compass")}</span></div><p class="map-footnote">Gold in every level. A special treasure in every world.</p></div>
-      <div id="level-menu" class="menu-page" hidden><div class="menu-heading"><span class="eyebrow" id="world-number"></span><h1 id="world-name"></h1><p id="pack-caption"></p></div><div class="level-board"><div id="level-world-art"></div><div id="voyage-levels"></div><p class="level-note">100 gold per level · Complete the world for its special treasure.</p></div></div>
+      <div id="level-menu" class="menu-page" hidden><div class="menu-heading"><span class="eyebrow" id="world-number"></span><h1 id="world-name"></h1><p id="pack-caption"></p></div><div class="level-board"><div id="level-world-art"></div><div id="voyage-levels"></div><p class="level-note">1,000 gold per level · Complete the world for its special treasure.</p></div></div>
       <div id="settings-menu" class="menu-page" hidden><div class="menu-heading"><span class="eyebrow">THE CAPTAIN’S ORDERS</span><h1>Settings</h1></div><div class="settings-board"><button id="settings-sound" class="setting-row" role="switch" aria-checked="${!progress.muted}"><span>${icon("sound")} Sound effects</span><b>${progress.muted ? "Off" : "On"}</b></button><button id="settings-voice" class="setting-row" role="switch" aria-checked="${progress.narration}"><span>${icon("flag")} Spoken hints</span><b>${progress.narration ? "On" : "Off"}</b></button><p>Steer with the wheel. Tap BOOM to fire.<br>Your treasures and stars are saved automatically.</p><p class="art-credit">Black Pearl model by <a href="https://www.thingiverse.com/thing:4951578" target="_blank" rel="noopener">DeltaX_F</a> · <a href="https://creativecommons.org/licenses/by/4.0/" target="_blank" rel="noopener">CC BY 4.0</a><br>Adapted for Broadside.</p></div></div>
       <button id="menu-back" class="menu-back" hidden>‹ <span>Back</span></button>
     </section>
-    <section id="cave-ui" hidden><div class="cave-title"><span class="eyebrow">YOUR SECRET HIDEOUT</span><h1>The treasure cave</h1><p id="cave-count"></p></div><div id="relic-info"><span class="eyebrow" id="relic-number"></span><h2 id="relic-title"></h2><p id="relic-story"></p><div id="relic-stars"></div><button id="cave-sail" class="text-button">Find this treasure ${icon("arrow")}</button></div><div class="gallery-hint">Drag to explore · tap a treasure · spread fingers to pull back</div><button id="cave-overview" class="cave-overview">${icon("chest")} Whole cave</button><button id="cave-back" class="menu-back">‹ <span>Back</span></button></section>
+    <section id="cave-ui" hidden><div class="cave-title"><span class="eyebrow">YOUR SECRET HIDEOUT</span><h1>The treasure cave</h1><p id="cave-count"></p></div><div id="relic-info"><span class="eyebrow" id="relic-number"></span><h2 id="relic-title"></h2><p id="relic-story"></p><div id="relic-stars"></div><button id="cave-sail" class="text-button">Find this treasure ${icon("arrow")}</button></div><div class="gallery-hint">WASD to walk · click to look around · Space to jump</div><button id="cave-overview" class="cave-overview">‹ Keep exploring</button><div id="cave-crosshair" aria-hidden="true">+</div><div id="cave-pad" role="group" aria-label="Move around the cave"><span id="cave-thumb"></span><small>MOVE</small></div><button id="cave-jump" aria-label="Jump">↑<small>JUMP</small></button><button id="cave-inspect" hidden>Inspect treasure</button><button id="cave-back" class="menu-back">‹ <span>Back</span></button></section>
     <section id="voyage-play" hidden><div class="voyage-status"><span>${icon("heart")}<div class="health-track"><i id="v-hull"></i></div><b id="v-health">100%</b></span><span class="gem-count">◆ <b id="v-gems">0 / 3</b></span></div><div class="voyage-mission"><small id="v-level"></small><strong id="v-objective"></strong><div class="voyage-track"><i id="v-travel"></i><span>✦</span></div></div><div id="v-targets"></div><div id="v-wheel" aria-label="Drag the wheel to steer" role="group"><div class="wheel-ring"></div><span id="v-stick">${icon("wheel")}</span><small>STEER</small></div><button id="v-anchor" class="round" aria-label="Stop or start sailing">${icon("anchor")}</button><button id="v-fire" aria-label="Fire cannons"><span>${icon("cannon")}</span><b>BOOM!</b><small id="v-fire-label">TAP TO FIRE</small></button><div id="v-compass"><span id="v-arrow">↑</span><b>TREASURE</b><small id="v-distance"></small></div><div id="v-tip"></div></section>
     <section id="v-result" class="voyage-overlay" hidden role="dialog" aria-modal="true" aria-labelledby="result-title"><div class="result-top"><span class="eyebrow" id="result-eyebrow">A NEW TREASURE FOR YOUR CAVE</span><h1 id="result-title"></h1><div id="result-stars"></div><p id="result-detail"></p></div><div class="result-bottom"><p class="collection-confirmation">${icon("chest")} Added to your cave</p><button id="result-next" class="primary">Continue ${icon("arrow")}</button><button id="result-retry" class="text-button">Sail this level again</button></div></section>
     <section id="v-paused" class="voyage-overlay pause-screen" hidden role="dialog" aria-modal="true" aria-labelledby="pause-title"><div><span class="eyebrow">A LITTLE SHORE LEAVE</span><h1 id="pause-title">Ready when you are.</h1><button id="v-resume" class="primary">Keep sailing ${icon("play")}</button><button id="v-return" class="secondary">Choose levels</button></div></section>`;
@@ -92,6 +95,48 @@ export class VoyageHud {
       h.overview();
       this.overview();
     };
+    q("#cave-inspect").onclick = h.caveInspect;
+    q("#cave-jump").onpointerdown = (e) => {
+      e.preventDefault();
+      h.caveJump();
+    };
+    q("#cave-jump").onclick = (e) => {
+      if (e.detail === 0) h.caveJump();
+    };
+    const pad = q("#cave-pad");
+    let stickPointer: number | null = null;
+    const moveStick = (e: PointerEvent) => {
+      const rect = pad.getBoundingClientRect();
+      const x = (e.clientX - rect.left - rect.width / 2) / 34;
+      const y = (e.clientY - rect.top - rect.height / 2) / 34;
+      const length = Math.max(1, Math.hypot(x, y));
+      h.caveMove(x / length, -y / length);
+      q("#cave-thumb").style.transform =
+        `translate(${(x / length) * 34}px, ${(y / length) * 34}px)`;
+    };
+    pad.onpointerdown = (e) => {
+      if (stickPointer !== null) return;
+      e.preventDefault();
+      stickPointer = e.pointerId;
+      pad.setPointerCapture(e.pointerId);
+      moveStick(e);
+    };
+    pad.onpointermove = (e) => {
+      if (e.pointerId === stickPointer) moveStick(e);
+    };
+    const releaseStick = () => {
+      stickPointer = null;
+      h.caveMove(0, 0);
+      q("#cave-thumb").style.transform = "translate(0,0)";
+    };
+    pad.onpointerup =
+      pad.onpointercancel =
+      pad.onlostpointercapture =
+        releaseStick;
+    window.addEventListener("blur", releaseStick);
+    document.addEventListener("visibilitychange", () => {
+      if (document.hidden) releaseStick();
+    });
     q("#cave-sail").onclick = () => {
       h.menu();
       this.pack = Math.max(
@@ -194,6 +239,7 @@ export class VoyageHud {
       0,
       WORLD_RELICS.indexOf(this.selected as 2 | 5 | 8 | 11),
     );
+    this.root.dataset.caveView = "inspect";
     this.h.select(this.selected);
     this.renderRelic();
     this.renderLevels();
@@ -253,7 +299,28 @@ export class VoyageHud {
     this.overview();
   }
   overview(): void {
+    this.root.dataset.caveView = "walk";
     this.q("#relic-info").hidden = true;
+  }
+  caveWalk(
+    nearby: number | null,
+    locked: boolean,
+    inspecting: boolean,
+    room: string,
+  ): void {
+    this.root.dataset.caveView = inspecting ? "inspect" : "walk";
+    this.q("#cave-overview").hidden = !inspecting;
+    this.q("#cave-inspect").hidden = inspecting || nearby === null;
+    this.q("#cave-inspect").textContent =
+      nearby === null ? "" : `Inspect · ${RELICS[nearby]!.name}`;
+    this.q(".cave-title h1").textContent = room;
+    this.q(".gallery-hint").textContent = inspecting
+      ? "Drag to turn · spread fingers or Esc to return"
+      : innerWidth < 700 ||
+          (innerWidth < 1000 && innerHeight < 500) ||
+          matchMedia("(pointer: coarse)").matches
+        ? "Left stick to move · swipe to look · tap a treasure"
+        : `${locked ? "Mouse to look" : "Drag to look"} · WASD walk · Space jump · E inspect`;
   }
   private renderRelic(): void {
     this.q("#relic-info").hidden = false;
@@ -276,7 +343,7 @@ export class VoyageHud {
         ? relic.name
         : "A world’s secret treasure";
     this.q("#relic-story").textContent = gold
-      ? "Every new level brings home 100 gold. Watch your fortune grow around the cave."
+      ? "Every new level brings home 1,000 gold. Watch your fortune grow around the cave."
       : owned
         ? relic.story
         : `Complete all ten levels in ${PACKS[world]!.name} to open this chest.`;
@@ -301,7 +368,7 @@ export class VoyageHud {
     this.q("#world-name").textContent = pack.name;
     this.q("#pack-caption").textContent = pack.subtitle;
     this.q(".level-note").textContent =
-      `100 gold per level · World treasure: ${RELICS[WORLD_RELICS[this.pack]!]!.name}`;
+      `1,000 gold per level · World treasure: ${RELICS[WORLD_RELICS[this.pack]!]!.name}`;
     this.q("#level-world-art").innerHTML = worldArt(this.pack, "level");
     this.q("#voyage-levels").innerHTML = Array.from(
       { length: LEVELS_PER_WORLD },
@@ -309,7 +376,7 @@ export class VoyageHud {
         const i = this.pack * LEVELS_PER_WORLD + n,
           v = this.progress.voyages[i],
           locked = !levelUnlocked(this.progress.voyages, i);
-        return `<button data-level="${i}" ${locked ? "disabled" : ""} aria-label="Level ${n + 1}${locked ? ", locked" : v ? ", " + v.stars + " stars" : ", set sail"}" class="level-tile ${locked ? "locked" : ""} ${i === next ? "next-level" : ""}"><span class="tile-number">${n + 1}</span>${locked ? icon("lock", "tile-lock") : ""}<span class="tile-stars">${[0, 1, 2].map((s) => `<i class="${s < (v?.stars ?? 0) ? "earned" : ""}">★</i>`).join("")}</span><span class="tile-treasure" title="${n === LEVELS_PER_WORLD - 1 ? RELICS[WORLD_RELICS[this.pack]!]!.name : "100 gold"}">${icon(n === LEVELS_PER_WORLD - 1 ? "gem" : "chest")}</span></button>`;
+        return `<button data-level="${i}" ${locked ? "disabled" : ""} aria-label="Level ${n + 1}${locked ? ", locked" : v ? ", " + v.stars + " stars" : ", set sail"}" class="level-tile ${locked ? "locked" : ""} ${i === next ? "next-level" : ""}"><span class="tile-number">${n + 1}</span>${locked ? icon("lock", "tile-lock") : ""}<span class="tile-stars">${[0, 1, 2].map((s) => `<i class="${s < (v?.stars ?? 0) ? "earned" : ""}">★</i>`).join("")}</span><span class="tile-treasure" title="${n === LEVELS_PER_WORLD - 1 ? RELICS[WORLD_RELICS[this.pack]!]!.name : "1,000 gold"}">${icon(n === LEVELS_PER_WORLD - 1 ? "gem" : "chest")}</span></button>`;
       },
     ).join("");
   }

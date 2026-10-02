@@ -363,7 +363,7 @@ export class VoyageSession extends Session {
         id: 0,
         chapter: voyage.pack,
         name: "The far sea",
-        prize: "100 gold",
+        prize: "1,000 gold",
         icon: "✦",
         pos: { ...voyage.finish },
         island: voyage.level.islands.length - 1,

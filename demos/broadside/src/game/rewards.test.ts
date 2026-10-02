@@ -6,16 +6,16 @@ describe("voyage gold and world keepsakes", () => {
   it("adds gold for each first completion, preserving best stars on replay", () => {
     const p = readProgress();
     expect(awardVoyage(p, 0, 2, 1)).toEqual({
-      gold: 100,
-      totalGold: 100,
+      gold: 1000,
+      totalGold: 1000,
       special: null,
       model: 0,
     });
     expect(awardVoyage(p, 0, 3, 0).gold).toBe(0);
     expect(p.voyages[0]).toEqual({ stars: 3, gems: 1 });
-    expect(goldTotal(p)).toBe(100);
+    expect(goldTotal(p)).toBe(1000);
     expect(p.relics).toEqual([]);
-    expect(awardVoyage(p, 1, 1, 3).totalGold).toBe(200);
+    expect(awardVoyage(p, 1, 1, 3).totalGold).toBe(2000);
   });
   it("reveals a different special item only when all levels in each world are cleared", () => {
     const p = readProgress();
@@ -30,7 +30,7 @@ describe("voyage gold and world keepsakes", () => {
       expect(awardVoyage(p, w * 10 + 8, 3, 3).special).toBeNull();
     }
     expect(p.relics).toEqual([...WORLD_RELICS]);
-    expect(goldTotal(p)).toBe(4000);
+    expect(goldTotal(p)).toBe(40000);
   });
   it("converts old per-level treasure saves without losing completion or stars", () => {
     let raw = JSON.stringify({
@@ -53,7 +53,7 @@ describe("voyage gold and world keepsakes", () => {
     const p = readProgress(storage);
     syncRewards(p);
     expect(p.relics).toEqual([2]);
-    expect(goldTotal(p)).toBe(400);
+    expect(goldTotal(p)).toBe(4000);
     saveProgress(p, storage);
     expect(readProgress(storage)).toEqual(p);
   });

@@ -1,7 +1,7 @@
 import { worldOf, worldLevels } from "./campaign";
 import type { Progress } from "./progress";
 
-export const GOLD_PER_LEVEL = 100;
+export const GOLD_PER_LEVEL = 1000;
 /** One keepsake for each of the four worlds; IDs refer to sculpted relic models. */
 export const WORLD_RELICS = [2, 5, 8, 11] as const;
 export const CAVE_ITEMS = [0, ...WORLD_RELICS];

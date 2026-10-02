@@ -13,9 +13,15 @@ import { TransformNode } from "@babylonjs/core/Meshes/transformNode.js";
 import { DefaultRenderingPipeline } from "@babylonjs/core/PostProcesses/RenderPipeline/Pipelines/defaultRenderingPipeline.js";
 import { RewardChest, revealPose } from "./chest";
 import { buildRelic } from "./relics";
-import { caveCameraPosition } from "../input/caveView";
+import { CaveWalker, type WalkIntent } from "../input/caveWalk";
+import { caveRoom } from "../input/caveLayout";
 import type { Progress } from "../game/progress";
-import { goldTotal, WORLD_RELICS, CAVE_ITEMS } from "../game/rewards";
+import {
+  goldTotal,
+  GOLD_PER_LEVEL,
+  WORLD_RELICS,
+  CAVE_ITEMS,
+} from "../game/rewards";
 import { RELICS } from "../game/voyage";
 
 /** One continuous cavern. Gold and world keepsakes share a permanent place in the same room. */
@@ -28,33 +34,29 @@ export class TreasureCave {
   private closed: TransformNode[] = [];
   private lamps: PointLight[] = [];
   private chamber: Cavern;
+  readonly walker: CaveWalker;
   private revealLight: PointLight;
+  private walkingLight: PointLight;
   // Scattered ledges at different depths and heights, with a winding clear floor.
   private spots = [
     [-3.5, 0.9, 1.0],
-    [-2.1, 2.0, 14.0],
+    [-5.1, 2.0, 14.0],
     [6.8, 1.15, 12.0],
     [-10.3, 0.9, 4.2],
     [-4.7, 0.75, 6.8],
-    [2.0, 1.4, 8.4],
+    [-5.0, 1.4, 34.0],
     [9.1, 1.8, 5.0],
     [-7.3, 1.1, -2.0],
-    [-8.8, 1.35, 11.2],
+    [6.0, 1.35, 43.0],
     [5.7, 1.25, -0.6],
     [-3.9, 1.0, -6.0],
-    [5.0, 0.85, -5.5],
+    [29.0, 0.85, 39.0],
   ].map(([x, y, z]) => new Vector3(x!, y!, z!));
-  private relief: { lift: number; height: number }[] = [];
-  private viewDistance = 24;
+  private relief: { lift: number; height: number; width: number }[] = [];
   private owned = "initial";
-  private discovered: number[] = [];
   private chest: RewardChest;
   private revealDais: TransformNode;
   private focus: Vector3 | null = null;
-  private target = new Vector3(0, 1, 4);
-  private viewCenter = new Vector3(0, 1.2, 4);
-  private orbit = -Math.PI / 2;
-  private elevation = 0.14;
   private distance = 24;
   revealTime = 0;
   private revealing = false;
@@ -70,6 +72,15 @@ export class TreasureCave {
     this.camera.inputs.clear();
     this.camera.fov = 0.8;
     this.camera.minZ = 0.1;
+    this.walkingLight = new PointLight(
+      "the captain’s carried lantern",
+      new Vector3(0, 2, -10),
+      s,
+    );
+    this.walkingLight.diffuse = Color3.FromHexString("#ffe0a4");
+    this.walkingLight.intensity = 0.85;
+    this.walkingLight.range = 17;
+    this.walkingLight.renderPriority = 4;
     const hemi = new HemisphericLight(
       "moon through the cave mouth",
       new Vector3(-0.35, 0.9, -0.8),
@@ -77,8 +88,12 @@ export class TreasureCave {
     );
     hemi.diffuse = Color3.FromHexString("#91b8cd");
     hemi.groundColor = Color3.FromHexString("#16121a");
-    hemi.intensity = 0.45;
+    hemi.intensity = 0.58;
+    hemi.renderPriority = 7;
     this.chamber = new Cavern(s, this.spots);
+    this.walker = new CaveWalker(this.chamber.obstacles, (x, z) =>
+      this.chamber.walkHeight(x, z),
+    );
     const { stone, ledge: plinthMat, gold, wood, iron } = this.chamber;
     // Treasures rest on broad, broken rock shelves, not matching display stands.
     this.spots.forEach((p, i) => {
@@ -225,15 +240,13 @@ export class TreasureCave {
     this.revealLight.setEnabled(false);
     this.chest = new RewardChest(s);
     this.distance = this.overviewRadius();
-    this.viewDistance = this.distance;
   }
   refresh(progress: Progress): void {
-    const count = goldTotal(progress) / 100;
+    const count = goldTotal(progress) / GOLD_PER_LEVEL;
     const owned = [...(count ? [0] : []), ...progress.relics];
     const key = `${count}:${owned.join(",")}`;
     if (key === this.owned) return;
     this.owned = key;
-    this.discovered = [...owned];
     this.relics.forEach((r) => r?.dispose(false, true));
     this.chamber.refresh(count);
     this.relief = [];
@@ -242,7 +255,7 @@ export class TreasureCave {
         WORLD_RELICS.includes(i as 2 | 5 | 8 | 11) && !owned.includes(i),
       );
       if (!owned.includes(i)) {
-        this.relief[i] = { lift: 0, height: 1.3 };
+        this.relief[i] = { lift: 0, height: 1.3, width: 1.5 };
         return null;
       }
       const r = buildRelic(this.scene, i);
@@ -254,6 +267,10 @@ export class TreasureCave {
       this.relief[i] = {
         lift: -bounds.min.y + 0.025,
         height: bounds.max.y - bounds.min.y,
+        width: Math.max(
+          bounds.max.x - bounds.min.x,
+          bounds.max.z - bounds.min.z,
+        ),
       };
       r.getChildMeshes().forEach((m) => {
         m.metadata = { relicIndex: i };
@@ -262,58 +279,44 @@ export class TreasureCave {
       return r;
     });
   }
+  get walkingGeometry() {
+    return this.chamber.walkingGeometry;
+  }
+  get inspecting(): boolean {
+    return this.focus !== null;
+  }
+  get room(): string {
+    return caveRoom(this.walker.x, this.walker.z);
+  }
+  enter(): void {
+    this.walker.reset();
+    this.overview();
+  }
+  walk(intent: WalkIntent, dt: number): void {
+    if (!this.inspecting) this.walker.step(intent, dt);
+  }
   overview(): void {
     this.focus = null;
-    this.viewCenter.set(0, 1.2, 4);
-    // Keep early finds visible when the phone only shows part of the chamber.
-    if (
-      innerWidth < 600 &&
-      this.discovered.length > 0 &&
-      this.discovered.length < 6
-    ) {
-      const points = this.discovered.map((i) => this.spots[i]!);
-      this.viewCenter.x =
-        points.reduce((sum, p) => sum + p.x, 0) / points.length;
-      this.viewCenter.z = Math.min(
-        8,
-        Math.max(1, points.reduce((sum, p) => sum + p.z, 0) / points.length),
-      );
-    }
-    this.orbit = -Math.PI / 2;
-    this.elevation = 0.14;
-    this.distance = this.overviewRadius();
   }
   select(index: number, _snap = false): void {
     this.selected = Math.max(0, Math.min(11, index));
     this.focus = this.spots[this.selected]!.add(
       new Vector3(0, (this.relief[this.selected]?.height ?? 1.3) * 0.5, 0),
     );
-    this.distance = innerWidth < 600 ? 10 : 8;
+    this.distance = 8;
   }
   look(dx: number, dy: number): void {
-    if (!this.focus && innerWidth < 600) {
-      this.viewCenter.x = Math.max(
-        -9,
-        Math.min(9, this.viewCenter.x - dx * 0.055),
-      );
-      this.viewCenter.z = Math.max(
-        -3,
-        Math.min(13, this.viewCenter.z + dy * 0.05),
-      );
-      return;
+    if (!this.focus) this.walker.look(dx, dy);
+    else {
+      // Turn the keepsake in your hands without orbiting through a cave wall.
+      const relic = this.relics[this.selected];
+      if (relic) relic.rotation.y += dx * 0.008;
     }
-    this.orbit = Math.max(-1.95, Math.min(-1.2, this.orbit - dx * 0.005));
-    this.elevation = Math.max(
-      0.14,
-      Math.min(0.95, this.elevation + dy * 0.003),
-    );
   }
   private overviewRadius(): number {
     return innerWidth < 600 ? 34 : 28;
   }
-  resize(): void {
-    if (!this.focus) this.distance = this.overviewRadius();
-  }
+  resize(): void {}
   private pullBack(): boolean {
     if (this.focus && this.distance >= 17) {
       this.overview();
@@ -322,6 +325,7 @@ export class TreasureCave {
     return false;
   }
   zoom(dy: number): boolean {
+    if (!this.focus) return false;
     this.distance = Math.max(
       6,
       Math.min(this.overviewRadius(), this.distance + dy * 0.025),
@@ -330,6 +334,7 @@ export class TreasureCave {
   }
   // Spreading two fingers pulls back from a treasure, as requested.
   pinch(ratio: number): boolean {
+    if (!this.focus) return false;
     this.distance = Math.max(
       6,
       Math.min(this.overviewRadius(), this.distance * ratio * ratio),
@@ -339,7 +344,23 @@ export class TreasureCave {
   pick(x: number, y: number): number | null {
     const hit = this.scene.pick(x, y);
     const i = hit?.pickedMesh?.metadata?.relicIndex;
-    return typeof i === "number" && CAVE_ITEMS.includes(i) ? i : null;
+    return !this.inspecting &&
+      hit &&
+      hit.distance <= 5.5 &&
+      typeof i === "number" &&
+      CAVE_ITEMS.includes(i)
+      ? i
+      : null;
+  }
+  get nearby(): number | null {
+    const hit = this.scene.pickWithRay(this.camera.getForwardRay(5.5));
+    const i = hit?.pickedMesh?.metadata?.relicIndex;
+    return hit &&
+      hit.distance <= 5.5 &&
+      typeof i === "number" &&
+      CAVE_ITEMS.includes(i)
+      ? i
+      : null;
   }
   beginReveal(index: number): void {
     this.selected = index;
@@ -365,22 +386,41 @@ export class TreasureCave {
     } else this.chest.hide();
     const portrait = innerWidth < 600;
     if (reveal) {
+      this.camera.fov = 0.8;
       this.camera.position.set(0.4, 6.5, -(portrait ? 22 : 18));
       this.camera.setTarget(new Vector3(0, 3.3, -5));
     } else {
-      const dest = this.focus ?? this.viewCenter;
-      Vector3.LerpToRef(this.target, dest, Math.min(1, dt * 5), this.target);
-      this.viewDistance +=
-        (this.distance - this.viewDistance) * Math.min(1, dt * 5);
-      const d = this.viewDistance;
-      const position = caveCameraPosition(
-        this.target,
-        d,
-        this.orbit,
-        this.elevation,
+      const w = this.walker;
+      this.camera.position.set(
+        w.x,
+        w.eyeY + (this.reducedMotion ? 0 : w.bob),
+        w.z,
       );
-      this.camera.position.set(position.x, position.y, position.z);
-      this.camera.setTarget(this.target);
+      if (this.focus) {
+        const relief = this.relief[this.selected]!;
+        const span = Math.max(
+          relief.height,
+          relief.width / (innerWidth / innerHeight),
+        );
+        const distance = Vector3.Distance(this.camera.position, this.focus);
+        this.camera.fov = Math.max(
+          0.5,
+          Math.min(
+            1.8,
+            (2 * Math.atan((span * 0.65) / distance) * this.distance) / 8,
+          ),
+        );
+      } else this.camera.fov = 1.1;
+      this.camera.setTarget(
+        this.focus ??
+          this.camera.position.add(
+            new Vector3(
+              Math.sin(w.yaw) * Math.cos(w.pitch),
+              -Math.sin(w.pitch),
+              Math.cos(w.yaw) * Math.cos(w.pitch),
+            ),
+          ),
+      );
     }
     this.relics.forEach((r, i) => {
       this.closed[i]!.setEnabled(
@@ -404,13 +444,19 @@ export class TreasureCave {
         r.scaling.setAll(0.78);
         r.setEnabled(true);
       }
-      r.rotation.y = reveal ? this.time * 0.12 + i * 0.4 : i * 0.4;
+      if (reveal) r.rotation.y = this.time * 0.12 + i * 0.4;
     });
     this.lamps.forEach((l, i) => {
-      l.setEnabled(!reveal && i === this.selected);
+      l.setEnabled(
+        !reveal &&
+          i === this.selected &&
+          Vector3.Distance(l.position, this.camera.position) < 10,
+      );
       l.intensity =
         (this.relics[i] ? 1 : 0.4) + Math.sin(this.time * 1.3 + i) * 0.06;
     });
+    this.walkingLight.setEnabled(!reveal);
+    this.walkingLight.position.copyFrom(this.camera.position).y += 0.3;
     this.chamber.animate(dt);
     this.scene.render();
   }

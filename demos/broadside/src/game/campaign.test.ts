@@ -50,7 +50,7 @@ describe("four worlds of ten voyages", () => {
     expect(p.voyages[3]).toBeUndefined();
     syncRewards(p);
     expect(p.relics).toEqual([2]);
-    expect(goldTotal(p)).toBe(500);
+    expect(goldTotal(p)).toBe(5000);
     saveProgress(p, storage);
     expect(readProgress(storage)).toEqual(p);
   });

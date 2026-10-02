@@ -2,14 +2,10 @@ import "@babylonjs/core/Culling/ray.js";
 import { Engine } from "@babylonjs/core/Engines/engine.js";
 import { VoyageSession, generateVoyage, RELICS } from "./game/voyage";
 import { readProgress, saveProgress } from "./game/progress";
-import {
-  awardVoyage,
-  syncRewards,
-  CAVE_ITEMS,
-  type VoyageReward,
-} from "./game/rewards";
+import { awardVoyage, syncRewards, type VoyageReward } from "./game/rewards";
 import { TOTAL_LEVELS, levelUnlocked } from "./game/campaign";
 import { Controls } from "./input/controls";
+import { CaveWalkControls } from "./input/caveWalk";
 import { CaveGesture } from "./input/caveGesture";
 import { GameRenderer } from "./render/renderer";
 import { TreasureCave } from "./render/cave";
@@ -19,6 +15,7 @@ import { VoyageHud } from "./ui/voyageHud";
 import { Sound } from "./audio/sound";
 import "./ui/voyage.css";
 import "./ui/menu.css";
+import "./ui/caveWalk.css";
 
 async function main() {
   const canvas = document.querySelector<HTMLCanvasElement>("#game")!;
@@ -28,6 +25,8 @@ async function main() {
     { stencil: true, powerPreference: "high-performance" },
     false,
   );
+  engine.maxFPS = 60;
+  engine.renderEvenInBackground = false;
   const quality = () =>
     engine.setHardwareScalingLevel(
       Math.max(1, devicePixelRatio / (innerWidth < 700 ? 1.3 : 1.65)),
@@ -52,11 +51,13 @@ async function main() {
     controls = new Controls(),
     sound = new Sound(forceMute);
   if (qaQuery === "collection") {
+    const cleared = new URLSearchParams(location.search).get("cleared");
+    const count =
+      cleared !== null && /^\d+$/.test(cleared)
+        ? Math.min(TOTAL_LEVELS, Number(cleared))
+        : TOTAL_LEVELS;
     progress.voyages = Object.fromEntries(
-      Array.from({ length: TOTAL_LEVELS }, (_, i) => [
-        i,
-        { stars: 3, gems: 3 },
-      ]),
+      Array.from({ length: count }, (_, i) => [i, { stars: 3, gems: 3 }]),
     );
   }
   syncRewards(progress);
@@ -75,9 +76,22 @@ async function main() {
     pendingFire = false,
     loadId = 0,
     tapHeading: number | null = null;
-  const gesture = new CaveGesture();
+  const gesture = new CaveGesture(),
+    walking = new CaveWalkControls();
+  const releaseMouse = () => {
+    if (document.pointerLockElement === canvas) document.exitPointerLock();
+  };
+  const clearWalking = () => {
+    walking.clear();
+    releaseMouse();
+  };
+  const inspect = () => {
+    const i = cave.nearby;
+    if (i !== null) hud.select(i);
+  };
   const home = () => {
     gesture.clear();
+    clearWalking();
     loadId++;
     mode = "cave";
     cave.endReveal();
@@ -90,12 +104,35 @@ async function main() {
     hud.paused(false);
     hud.home();
     cave.refresh(progress);
-    cave.overview();
+    cave.enter();
+    if (import.meta.env.DEV && qaQuery === "collection") {
+      const room = new URLSearchParams(location.search).get("room");
+      if (room === "vault") {
+        cave.walker.x = 0;
+        cave.walker.z = 31;
+      }
+      if (room === "coins") {
+        cave.walker.x = -4;
+        cave.walker.z = 42.5;
+      }
+      if (room === "crown") {
+        cave.walker.x = -5;
+        cave.walker.z = 30;
+      }
+      if (room === "grotto") {
+        cave.walker.x = 27;
+        cave.walker.z = 34;
+      }
+      cave.walker.feet = 0;
+    }
+    if (import.meta.env.DEV && mode === "cave")
+      canvas.dataset.caveGeometry = JSON.stringify(cave.walkingGeometry);
     sound.pause(false);
     stepper.reset();
   };
   const menu = () => {
     gesture.clear();
+    clearWalking();
     loadId++;
     mode = "menu";
     cave.endReveal();
@@ -111,6 +148,7 @@ async function main() {
   };
   const start = async (index: number) => {
     gesture.clear();
+    clearWalking();
     reward = undefined;
     if (!qa && !levelUnlocked(progress.voyages, index)) return;
     const id = ++loadId;
@@ -162,7 +200,13 @@ async function main() {
     start: (i) => void start(i),
     home,
     menu,
-    overview: () => cave.overview(),
+    overview: () => {
+      walking.clear();
+      cave.overview();
+    },
+    caveMove: (r, f) => walking.move(r, f),
+    caveJump: () => walking.jump(),
+    caveInspect: inspect,
     narration: () => {
       progress.narration = !progress.narration;
       sound.voice = progress.narration;
@@ -170,6 +214,7 @@ async function main() {
       return progress.narration;
     },
     select: (i) => {
+      clearWalking();
       cave.select(i);
       sound.click();
     },
@@ -259,17 +304,19 @@ async function main() {
   document.querySelector("#loading")?.remove();
   window.addEventListener("keydown", (e) => {
     if (mode === "cave") {
-      if (e.code === "ArrowLeft" || e.code === "ArrowRight") {
+      if (!cave.inspecting && walking.keyDown(e.code, performance.now()))
         e.preventDefault();
-        const current = Math.max(0, CAVE_ITEMS.indexOf(hud.selected));
-        hud.select(
-          CAVE_ITEMS[
-            (current + (e.code === "ArrowLeft" ? -1 : 1) + CAVE_ITEMS.length) %
-              CAVE_ITEMS.length
-          ]!,
-        );
+      if (e.code === "KeyE" && !e.repeat) {
+        e.preventDefault();
+        inspect();
       }
-      if (e.code === "Escape") menu();
+      if (e.code === "Escape") {
+        if (cave.inspecting) {
+          cave.overview();
+          hud.overview();
+        } else if (document.pointerLockElement === canvas) releaseMouse();
+        else menu();
+      }
       return;
     }
     if (mode === "menu") {
@@ -284,34 +331,52 @@ async function main() {
     if (e.code === "Space" && !e.repeat) pendingFire = true;
     if (controls.keyDown(e.code)) e.preventDefault();
   });
-  window.addEventListener("keyup", (e) => controls.keyUp(e.code));
+  window.addEventListener("keyup", (e) => {
+    controls.keyUp(e.code);
+    walking.keyUp(e.code);
+  });
   window.addEventListener("blur", () => {
     gesture.clear();
+    clearWalking();
     controls.clear();
     heading = null;
     pendingFire = false;
   });
   document.addEventListener("visibilitychange", () => {
+    if (document.hidden) clearWalking();
     if (document.hidden && mode === "play" && !paused) pause();
   });
   canvas.addEventListener("pointerdown", (e) => {
     if (mode === "cave") {
+      canvas.focus();
+      if (document.pointerLockElement === canvas) {
+        inspect();
+        return;
+      }
       gesture.down(e.pointerId, e.clientX, e.clientY);
       canvas.setPointerCapture(e.pointerId);
     }
   });
   canvas.addEventListener("pointermove", (e) => {
     if (mode !== "cave") return;
+    if (document.pointerLockElement === canvas) {
+      cave.look(e.movementX, e.movementY);
+      return;
+    }
     const action = gesture.move(e.pointerId, e.clientX, e.clientY);
     if (action?.type === "look") cave.look(action.dx, action.dy);
     if (action?.type === "pinch" && cave.pinch(action.ratio)) hud.overview();
   });
   canvas.addEventListener("pointerup", (e) => {
     if (mode === "cave") {
+      if (document.pointerLockElement === canvas) return;
       const action = gesture.up(e.pointerId, e.clientX, e.clientY);
       if (action?.type === "tap") {
         const i = cave.pick(action.x, action.y);
         if (i !== null) hud.select(i);
+        else if (e.pointerType === "mouse" && !cave.inspecting) {
+          void canvas.requestPointerLock?.()?.catch(() => {});
+        }
       }
       return;
     }
@@ -333,6 +398,13 @@ async function main() {
         renderer!.showDestination(pos.x, pos.z);
       }
     }
+  });
+  document.addEventListener("pointerlockchange", () => {
+    gesture.clear();
+    walking.clear();
+  });
+  canvas.addEventListener("contextmenu", (e) => {
+    if (mode === "cave") e.preventDefault();
   });
   canvas.addEventListener("pointercancel", (e) => gesture.cancel(e.pointerId));
   canvas.addEventListener("lostpointercapture", (e) =>
@@ -369,8 +441,32 @@ async function main() {
     } else if (mode === "loading" && renderer) {
       renderer.render(session, 1, dt);
     } else if (mode !== "menu") {
+      if (mode === "cave") cave.walk(walking.read(), dt);
       const before = cave.revealPose;
       cave.render(dt, mode === "result");
+      if (mode === "cave") {
+        hud.caveWalk(
+          cave.nearby,
+          document.pointerLockElement === canvas,
+          cave.inspecting,
+          cave.room,
+        );
+        canvas.dataset.cavePosition = [
+          cave.walker.x,
+          cave.walker.eyeY,
+          cave.walker.z,
+        ]
+          .map((n) => n.toFixed(2))
+          .join(",");
+        if (import.meta.env.DEV)
+          canvas.dataset.caveGoldMeshes = cave.scene
+            .getActiveMeshes()
+            .data.filter((m) => m?.name.startsWith("dense loose"))
+            .map((m) => m.name)
+            .join(",");
+        canvas.dataset.caveYaw = cave.walker.yaw.toFixed(2);
+        canvas.dataset.caveView = cave.inspecting ? "inspect" : "walk";
+      }
       if (mode === "result" && session.state === "won") {
         const p = cave.revealPose;
         hud.reveal(p.time, p.discovered, p.ready);
