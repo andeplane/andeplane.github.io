@@ -87,3 +87,15 @@ Validation:
 - Screenshots: `artifacts/qa/deep-cave-desktop.png`, `deep-cave-phone.png`, `deep-cave-gold-detail.png`. Physical multi-touch, physical phone GPU performance and desktop pointer lock outside the in-app browser remain unverified.
 
 Development-only fixtures: `?qa=collection&mute=true` enters the cave with all forty levels cleared. Add `room=vault`, `room=grotto`, `room=crown` or `room=coins` to inspect those areas; `cleared=5` shows the early hoard. These previews do not read or write a player's save and are disabled in production.
+
+## Illustrated sea-chart world selector
+
+Play now opens an original aged nautical chart with four matching engraved watercolor island overlays. The islands show the starting cave, pirate harbor and black-sailed ship, whirlpool atoll, and kraken. Parchment annotations retain live world names, star totals and locks; the cave entrance sits near First sails. Desktop and portrait layouts have separate ink route paths. The same island illustrations appear on each world's numbered level page. Art was generated with the built-in ChatGPT imagegen tool; final prompts and provenance are in [docs/MAP_ART.md](docs/MAP_ART.md). Transparent WebP assets total approximately 3 MB.
+
+Validation on 2026-10-03:
+
+- TypeScript, all 150 tests in 21 files (two workers), and the `/demos/broadside/` production build passed.
+- Visually inspected desktop 1280×800, portrait 390×740 and 320×568, and landscape 844×390 and 568×320. Also checked control bounds at 320×520 and 650×740. Final world/cave/back hit areas have no overlaps or viewport clipping at these sizes.
+- Clicked all four islands and confirmed ten numbered levels in the correct world, with saved stars and progression locks. Entered the cave from the map and returned to the map. Checked the updated island artwork on the phone level board.
+- Packaged preview loaded all five assets under `/demos/broadside/assets/map/`, with no browser console warnings or errors. Every browser URL included `mute=true`; canvas audio remained `locked`.
+- Screenshots: `artifacts/qa/map-desktop.png`, `map-phone-390.png`, `map-phone-landscape.png`. Physical-phone testing remains unverified.

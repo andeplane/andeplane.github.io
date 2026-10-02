@@ -72,3 +72,5 @@ The maintained source is `demos/broadside/` in [andeplane.github.io](https://git
 Development-only visual fixtures use `?qa=collection` (the full collection), `?qa=6` (a particular voyage, zero based), and `?qa=reveal-4` (a chest reveal). A visible badge identifies these previews and player saves are disabled. Production ignores all QA parameters.
 
 Silent collection preview: http://localhost:5182/?qa=collection&mute=true (development only, player saves disabled).
+
+The Play world selector uses an antique illustrated sea chart and four matching transparent island paintings. Local assets are in `public/assets/map/`; the built-in imagegen prompts and provenance are in [docs/MAP_ART.md](docs/MAP_ART.md). World names, stars, locks and click targets remain live UI. Silent normal launch: http://localhost:5182/?mute=true — choose Play to open the chart.

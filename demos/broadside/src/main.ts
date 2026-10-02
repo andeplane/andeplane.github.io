@@ -16,6 +16,7 @@ import { Sound } from "./audio/sound";
 import "./ui/voyage.css";
 import "./ui/menu.css";
 import "./ui/caveWalk.css";
+import "./ui/chart.css";
 
 async function main() {
   const canvas = document.querySelector<HTMLCanvasElement>("#game")!;
