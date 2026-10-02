@@ -1,0 +1,254 @@
+{
+  "date": "2026-10-02T08:09:41.526Z",
+  "matrix": [
+    {
+      "level": "first-roots",
+      "policy": "expert",
+      "runs": 12,
+      "wins": 12,
+      "winRate": 1,
+      "rejected": 0
+    },
+    {
+      "level": "after-sunset",
+      "policy": "expert",
+      "runs": 12,
+      "wins": 12,
+      "winRate": 1,
+      "rejected": 0
+    },
+    {
+      "level": "hungry-bog",
+      "policy": "expert",
+      "runs": 12,
+      "wins": 12,
+      "winRate": 1,
+      "rejected": 0
+    },
+    {
+      "level": "under-glass",
+      "policy": "expert",
+      "runs": 12,
+      "wins": 12,
+      "winRate": 1,
+      "rejected": 0
+    },
+    {
+      "level": "warm-nights",
+      "policy": "expert",
+      "runs": 12,
+      "wins": 12,
+      "winRate": 1,
+      "rejected": 0
+    },
+    {
+      "level": "clouded-bog",
+      "policy": "expert",
+      "runs": 12,
+      "wins": 12,
+      "winRate": 1,
+      "rejected": 0
+    },
+    {
+      "level": "first-roots",
+      "policy": "no-equipment",
+      "runs": 12,
+      "wins": 12,
+      "winRate": 1,
+      "rejected": 0
+    },
+    {
+      "level": "after-sunset",
+      "policy": "no-equipment",
+      "runs": 12,
+      "wins": 12,
+      "winRate": 1,
+      "rejected": 0
+    },
+    {
+      "level": "hungry-bog",
+      "policy": "no-equipment",
+      "runs": 12,
+      "wins": 12,
+      "winRate": 1,
+      "rejected": 0
+    },
+    {
+      "level": "under-glass",
+      "policy": "no-equipment",
+      "runs": 12,
+      "wins": 0,
+      "winRate": 0,
+      "rejected": 0
+    },
+    {
+      "level": "warm-nights",
+      "policy": "no-equipment",
+      "runs": 12,
+      "wins": 0,
+      "winRate": 0,
+      "rejected": 0
+    },
+    {
+      "level": "clouded-bog",
+      "policy": "no-equipment",
+      "runs": 12,
+      "wins": 0,
+      "winRate": 0,
+      "rejected": 0
+    },
+    {
+      "level": "first-roots",
+      "policy": "overwater",
+      "runs": 12,
+      "wins": 0,
+      "winRate": 0,
+      "rejected": 48
+    },
+    {
+      "level": "after-sunset",
+      "policy": "overwater",
+      "runs": 12,
+      "wins": 0,
+      "winRate": 0,
+      "rejected": 132
+    },
+    {
+      "level": "hungry-bog",
+      "policy": "overwater",
+      "runs": 12,
+      "wins": 0,
+      "winRate": 0,
+      "rejected": 12
+    },
+    {
+      "level": "under-glass",
+      "policy": "overwater",
+      "runs": 12,
+      "wins": 0,
+      "winRate": 0,
+      "rejected": 108
+    },
+    {
+      "level": "warm-nights",
+      "policy": "overwater",
+      "runs": 12,
+      "wins": 0,
+      "winRate": 0,
+      "rejected": 84
+    },
+    {
+      "level": "clouded-bog",
+      "policy": "overwater",
+      "runs": 12,
+      "wins": 0,
+      "winRate": 0,
+      "rejected": 24
+    },
+    {
+      "level": "first-roots",
+      "policy": "shade",
+      "runs": 12,
+      "wins": 0,
+      "winRate": 0,
+      "rejected": 0
+    },
+    {
+      "level": "after-sunset",
+      "policy": "shade",
+      "runs": 12,
+      "wins": 0,
+      "winRate": 0,
+      "rejected": 0
+    },
+    {
+      "level": "hungry-bog",
+      "policy": "shade",
+      "runs": 12,
+      "wins": 0,
+      "winRate": 0,
+      "rejected": 0
+    },
+    {
+      "level": "under-glass",
+      "policy": "shade",
+      "runs": 12,
+      "wins": 0,
+      "winRate": 0,
+      "rejected": 0
+    },
+    {
+      "level": "warm-nights",
+      "policy": "shade",
+      "runs": 12,
+      "wins": 0,
+      "winRate": 0,
+      "rejected": 0
+    },
+    {
+      "level": "clouded-bog",
+      "policy": "shade",
+      "runs": 12,
+      "wins": 0,
+      "winRate": 0,
+      "rejected": 0
+    },
+    {
+      "level": "first-roots",
+      "policy": "neglect",
+      "runs": 12,
+      "wins": 0,
+      "winRate": 0,
+      "rejected": 0
+    },
+    {
+      "level": "after-sunset",
+      "policy": "neglect",
+      "runs": 12,
+      "wins": 0,
+      "winRate": 0,
+      "rejected": 0
+    },
+    {
+      "level": "hungry-bog",
+      "policy": "neglect",
+      "runs": 12,
+      "wins": 0,
+      "winRate": 0,
+      "rejected": 0
+    },
+    {
+      "level": "under-glass",
+      "policy": "neglect",
+      "runs": 12,
+      "wins": 0,
+      "winRate": 0,
+      "rejected": 0
+    },
+    {
+      "level": "warm-nights",
+      "policy": "neglect",
+      "runs": 12,
+      "wins": 0,
+      "winRate": 0,
+      "rejected": 0
+    },
+    {
+      "level": "clouded-bog",
+      "policy": "neglect",
+      "runs": 12,
+      "wins": 0,
+      "winRate": 0,
+      "rejected": 0
+    }
+  ],
+  "engineBenchmark": {
+    "episodes": 720,
+    "elapsedMs": 6944.090791999999,
+    "episodesPerSecond": 103.68528027160623,
+    "fixedTicksPerSecond": 152624.73255980437,
+    "medianEpisodeMs": 6.294417000000976,
+    "p95EpisodeMs": 29.964833,
+    "note": "Complete terminal games, replaying six real command sequences. Includes roots, physiology, resource rules, outcomes, and logs; excludes renderer and reference-agent path planning."
+  }
+}
