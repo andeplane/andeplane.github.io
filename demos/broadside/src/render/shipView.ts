@@ -246,7 +246,7 @@ export class ShipView {
 
     if (!ship.alive) {
       const t = Math.min(1, ship.sinkTime / SINK_DURATION);
-      y -= t * t * 9;
+      y -= t * t * ship.spec.length * 1.2;
       pitch += t * 0.35;
       roll += t * 0.6;
     }

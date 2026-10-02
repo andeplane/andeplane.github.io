@@ -17,7 +17,7 @@ describe("treasure voyages", () => {
       for (const seed of [1, 42, 8100]) {
         const a = generateVoyage(i, seed);
         expect(a).toEqual(generateVoyage(i, seed));
-        expect(a.level.islands.length).toBeLessThanOrEqual(8);
+        expect(a.level.islands.length).toBeLessThanOrEqual(11);
         for (const p of [a.finish, ...a.gems])
           for (const island of a.level.islands)
             expect(distance(p, island.pos)).toBeGreaterThan(island.radius + 4);
@@ -108,27 +108,68 @@ describe("treasure voyages", () => {
       expect(s.events.filter((e) => e.type === "treasure")).toHaveLength(0);
     }
   });
-  it("counts grounding damage and each gem once, with gentle rescue protection", () => {
+  it.each([true, false])(
+    "island contact sinks the ship even in junior=%s, with no rescue or treasure",
+    (junior) => {
+      const s = new VoyageSession(generateVoyage(1), junior);
+      const island = s.level.islands[0]!;
+      s.player.pos = { ...island.pos };
+      s.player.speed = 0;
+      s.player.sail = 0;
+      s.player.sinceBump = 0;
+      s.step();
+      expect(s.state).toBe("lost");
+      expect(s.failureReason).toBe("island");
+      expect(s.player.hull).toBe(0);
+      expect(s.player.alive).toBe(false);
+      expect(s.rescues).toBe(0);
+      expect(s.stars).toBe(0);
+      expect(s.treasures[0]!.found).toBe(false);
+      expect(s.simEvents).toContainEqual({ type: "sunk", shipId: s.player.id });
+      s.player.pos = { ...s.voyage.finish };
+      for (let n = 0; n < 360; n++) s.step();
+      expect(s.state).toBe("lost");
+      expect(s.player.sinkTime).toBeGreaterThan(5);
+      expect(s.events).toEqual([]);
+      expect(s.rescues).toBe(0);
+    },
+  );
+  it.each([0, Math.PI / 2, Math.PI])(
+    "detects the bow striking exposed rocks at heading %s before the hull center arrives",
+    (heading) => {
+      const s = new VoyageSession(generateVoyage(0));
+      const rock = s.level.islands.find((i) => i.kind === "sea-rock")!;
+      s.player.heading = heading;
+      s.player.sail = 0;
+      const reach =
+        rock.radius +
+        s.player.spec.beam * 0.6 +
+        s.player.spec.length * 0.4 +
+        0.1;
+      s.player.pos = {
+        x: rock.pos.x - Math.sin(heading) * reach,
+        z: rock.pos.z - Math.cos(heading) * reach,
+      };
+      s.step();
+      expect(s.state).toBe("exploring");
+      s.player.pos.x += Math.sin(heading) * 0.2;
+      s.player.pos.z += Math.cos(heading) * 0.2;
+      s.step();
+      expect(s.state).toBe("lost");
+      expect(s.failureReason).toBe("rocks");
+      expect(s.player.hull).toBe(0);
+      expect(s.rescues).toBe(0);
+    },
+  );
+  it("collects each hidden gem once without damaging a ship in clear water", () => {
     const s = new VoyageSession(generateVoyage(1));
-    s.player.pos = { x: -53, z: -25 };
-    s.player.speed = 0;
-    s.player.sail = 0;
-    s.step();
-    expect(s.damageTaken).toBe(10);
     s.player.pos = { ...s.voyage.gems[0]! };
+    s.player.sail = 0;
     s.step();
     s.step();
     expect(s.gemsFound).toBe(1);
-    s.player.hull = 1;
-    s.player.pos = { x: 0, z: -90 };
-    s.step();
-    s.player.sinceBump = 2;
-    s.player.pos = { x: -53, z: -25 };
-    s.step();
-    expect(s.rescues).toBe(1);
-    expect(s.player.alive).toBe(true);
-    settle(s);
-    expect(s.stars).toBe(1);
+    expect(s.damageTaken).toBe(0);
+    expect(s.state).toBe("exploring");
   });
   it("island cannons can hit a stationary ship in their range", () => {
     const s = new VoyageSession(generateVoyage(10));

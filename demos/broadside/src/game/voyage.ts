@@ -4,6 +4,7 @@ import { Session } from "./session";
 import {
   IDLE_INTENT,
   damageShip,
+  updateShip,
   SHIP_SPECS,
   type ShipIntent,
   type Side,
@@ -195,7 +196,7 @@ export function generateVoyage(
     z: number,
     radius: number,
     props: IslandDef["props"],
-    kind: "sand" | "rock" = "sand",
+    kind: IslandDef["kind"] = "sand",
   ) => islands.push({ pos: { x, z }, radius, props, kind });
   // Outlying islands frame a broad navigable channel. Seeded obstacles vary its bends.
   add(-53, -43, 18, ["palms"]);
@@ -217,6 +218,11 @@ export function generateVoyage(
   if (stage >= 5)
     add(stage % 2 ? -18 : 18, 100, 11 + (stage - 5) * 0.6, ["rocks"], "rock");
   if (stage >= 8) add(stage % 2 ? 54 : -54, 43, 12, ["rocks"], "rock");
+  // Exposed sea rocks leave broad passages; more appear as navigation gets harder.
+  add(24 + rng.range(-2, 2), -43, 4.5, [], "sea-rock");
+  if (stage >= 2) add(-28 + rng.range(-2, 2), 57, 4, [], "sea-rock");
+  if (stage >= 6) add(30 + rng.range(-2, 2), 126, 4.2, [], "sea-rock");
+  // The treasure island stays last so the destination landmark remains stable.
   add(0, 190, 26, ["palms"]);
   const enemies: EnemyDef[] = [];
   const combat = pack === 1 ? stage >= 4 : pack > 1 && stage >= 2;
@@ -302,7 +308,7 @@ export function generateVoyage(
       name: NAMES[pack]![stage]!,
       intro:
         pack === 0
-          ? "Drag the wheel to steer. Find a safe passage between the islands."
+          ? "Drag the wheel to steer. Avoid islands and sea rocks — a crash sinks your ship."
           : pack === 1 && stage < 4
             ? "Island cannons are firing! Keep moving and steer away from their shots."
             : pack === 1
@@ -338,7 +344,7 @@ export class VoyageSession extends Session {
   private fortClocks = new Map<number, number>();
   private krakenHit = -10;
   private whirlpoolHits = new Map<number, number>();
-  private grounded = new Set<number>();
+  failureReason: "island" | "rocks" | null = null;
   private fortTargets = new Map<
     number,
     { x: number; z: number; impactAt: number }
@@ -417,7 +423,12 @@ export class VoyageSession extends Session {
   override step(intent: ShipIntent = IDLE_INTENT, dt = SIM_DT): void {
     this.events = [];
     this.simEvents = [];
-    if (this.state === "won" || this.state === "lost") return;
+    if (this.state === "lost") {
+      // The level is over, but its dead ship still animates beneath the water.
+      updateShip(this.player, IDLE_INTENT, this.world.wind, dt);
+      return;
+    }
+    if (this.state === "won") return;
     this.elapsed += dt;
     if (this.voyage.pack === 0)
       intent = { ...intent, firePort: false, fireStarboard: false };
@@ -447,24 +458,41 @@ export class VoyageSession extends Session {
     }
     const before = this.player.hull;
     this.simEvents = this.world.step(dt);
-    for (const i of this.grounded)
-      if (
-        distance(this.player.pos, this.level.islands[i]!.pos) >
-        this.level.islands[i]!.radius + this.player.spec.beam * 0.6 + 2
-      )
-        this.grounded.delete(i);
-    for (const e of this.simEvents)
-      if (e.type === "bump" && e.shipId === this.player.id) {
-        const i = this.level.islands.findIndex(
-          (island) =>
-            distance(this.player.pos, island.pos) <
-            island.radius + this.player.spec.beam * 0.6 + 1,
+    const crashed = this.level.islands.find((island) => {
+      // Capsule hull: the bow/stern can strike before the ship's center arrives.
+      const dx = island.pos.x - this.player.pos.x,
+        dz = island.pos.z - this.player.pos.z,
+        fx = Math.sin(this.player.heading),
+        fz = Math.cos(this.player.heading),
+        halfLength = this.player.spec.length * 0.4,
+        along = Math.max(-halfLength, Math.min(halfLength, dx * fx + dz * fz));
+      return (
+        Math.hypot(dx - fx * along, dz - fz * along) <=
+        island.radius + this.player.spec.beam * 0.6 + 1e-6
+      );
+    });
+    if (crashed) {
+      this.failureReason = crashed.kind === "sand" ? "island" : "rocks";
+      const damage = this.player.hull;
+      if (damageShip(this.player, damage)) {
+        this.simEvents.push(
+          {
+            type: "hit",
+            shipId: this.player.id,
+            x: this.player.pos.x,
+            y: 1,
+            z: this.player.pos.z,
+            damage,
+          },
+          { type: "sunk", shipId: this.player.id },
         );
-        if (i >= 0 && !this.grounded.has(i)) {
-          this.grounded.add(i);
-          damageShip(this.player, this.options.junior ? 10 : 20);
-        }
       }
+      this.player.sail = 0;
+      this.damageTaken += Math.max(0, before - this.player.hull);
+      this.state = "lost";
+      this.events.push({ type: "state", state: "lost" });
+      return;
+    }
     for (const [i, clock] of this.fortClocks) {
       const next = clock - dt;
       this.fortClocks.set(i, next);

@@ -291,8 +291,7 @@ async function main() {
         cave.beginReveal(reward.model);
         sound.chest();
       } else {
-        cave.select(hud.selected, true);
-        sound.say("Pip brought you home. Your treasures are safe.");
+        sound.say("Your ship sank. Try again and steer clear of the danger.");
       }
       hud.result(session, reward);
     }
@@ -439,6 +438,11 @@ async function main() {
         if (!paused) sound.storm(session.chapter, session.elapsed);
         hud.update(session, (x, y, z) => renderer!.project(x, y, z));
       }
+    } else if (mode === "result" && session.state === "lost" && renderer) {
+      renderer.beforeStep(session);
+      session.step(undefined, dt);
+      renderer.afterStep(session);
+      renderer.render(session, 1, dt);
     } else if (mode === "loading" && renderer) {
       renderer.render(session, 1, dt);
     } else if (mode !== "menu") {

@@ -43,6 +43,7 @@ export class VoyageHud {
   private progress: Progress;
   private messageUntil = 0;
   private activeLevel = 0;
+  private resultLost = false;
   private revealName = "";
   private revealStars = 0;
   private revealCaption = "";
@@ -170,6 +171,10 @@ export class VoyageHud {
       if (b && !b.disabled) h.start(Number(b.dataset.level));
     };
     q("#result-next").onclick = () => {
+      if (this.resultLost) {
+        h.start(this.activeLevel);
+        return;
+      }
       if (this.activeLevel === TOTAL_LEVELS - 1) {
         h.home();
         return;
@@ -182,7 +187,12 @@ export class VoyageHud {
           : "levels",
       );
     };
-    q("#result-retry").onclick = () => h.start(this.activeLevel);
+    q("#result-retry").onclick = () => {
+      if (this.resultLost) {
+        h.menu();
+        this.showMenu("levels");
+      } else h.start(this.activeLevel);
+    };
     const fire = q("#v-fire");
     fire.onpointerdown = (e) => {
       e.preventDefault();
@@ -404,6 +414,12 @@ export class VoyageHud {
   }
   result(s: VoyageSession, reward?: VoyageReward): void {
     this.activeLevel = s.voyage.index;
+    this.resultLost = s.state === "lost";
+    this.q("#result-next").innerHTML =
+      `${this.resultLost ? "Try again" : "Continue"} ${icon("arrow")}`;
+    this.q("#result-retry").textContent = this.resultLost
+      ? "Choose levels"
+      : "Sail this level again";
     this.q("#captain-menu").hidden = true;
     this.root.dataset.screen = "result";
     this.q("#cave-ui").hidden = true;
@@ -427,7 +443,7 @@ export class VoyageHud {
       `${icon("chest")} ${reward?.gold ? `${reward.gold} gold added to your cave${reward.special !== null ? " · Special treasure collected" : ""}` : "Gold already collected · Best stars saved"}`;
     this.revealStars = s.stars;
     this.q("#result-title").textContent =
-      s.state === "won" ? "A chest full of wonder" : "Pip brought you home";
+      s.state === "won" ? "A chest full of wonder" : "Your ship sank";
     this.q("#v-result").classList.toggle("unboxing", s.state === "won");
     this.q("#v-result").classList.remove("revealed");
     for (const button of this.q(
@@ -435,9 +451,7 @@ export class VoyageHud {
     ).querySelectorAll<HTMLButtonElement>("button"))
       button.disabled = s.state === "won";
     this.q("#result-eyebrow").textContent =
-      s.state === "won"
-        ? "YOU REACHED THE TREASURE!"
-        : "ANOTHER ADVENTURE AWAITS";
+      s.state === "won" ? "YOU REACHED THE TREASURE!" : "SHIPWRECK";
     this.q("#result-stars").innerHTML =
       s.state === "won"
         ? Array.from(
@@ -445,11 +459,15 @@ export class VoyageHud {
             (_, i) =>
               `<span class="reward-star ${i < s.stars ? "earned" : "empty"}" style="--order:${i}">${i < s.stars ? "★" : "☆"}</span>`,
           ).join("")
-        : "♡";
+        : icon("anchor");
     this.q("#result-detail").textContent =
       s.state === "won"
         ? `${s.gemsFound} / 3 hidden gems · ${Math.round((100 * s.damageTaken) / s.player.spec.maxHull)}% hull damage${s.rescues ? " · Pip helped you home" : ""}`
-        : "Your treasures are safe. Try sailing around the danger.";
+        : s.failureReason === "rocks"
+          ? "You struck the rocks. Steer clear and try again!"
+          : s.failureReason === "island"
+            ? "You crashed into an island. Find a safe passage!"
+            : "Your ship took too much damage. Try again!";
     this.q(".collection-confirmation").hidden = s.state !== "won";
   }
   reveal(time: number, discovered: boolean, ready: boolean): void {
@@ -535,7 +553,9 @@ export class VoyageHud {
       this.q("#v-tip").classList.remove("fade");
     } else if (obstacle && s.voyage.pack === 0) {
       this.q("#v-tip").textContent =
-        "Island ahead! Turn the wheel left or right to go around.";
+        obstacle.kind === "sea-rock"
+          ? "Rocks ahead! Steer around them — a crash sinks your ship."
+          : "Island ahead! Steer around it — a crash sinks your ship.";
       this.q("#v-tip").classList.remove("fade");
     } else this.q("#v-tip").classList.toggle("fade", s.elapsed > 10);
     const targets = s.enemies

@@ -99,3 +99,12 @@ Validation on 2026-10-03:
 - Clicked all four islands and confirmed ten numbered levels in the correct world, with saved stars and progression locks. Entered the cave from the map and returned to the map. Checked the updated island artwork on the phone level board.
 - Packaged preview loaded all five assets under `/demos/broadside/assets/map/`, with no browser console warnings or errors. Every browser URL included `mute=true`; canvas audio remained `locked`.
 - Screenshots: `artifacts/qa/map-desktop.png`, `map-phone-390.png`, `map-phone-landscape.png`. Physical-phone testing remains unverified.
+
+## Fatal island and sea-rock crashes
+
+Touching an island or rock outcrop now immediately sinks the player and fails the voyage, including junior mode. Collision tests use the length and width of the hull so bow and stern strikes count. Exposed sea-rock clusters with animated breaking surf appear from the first level, with additional rocks later in each world; these use the same obstacles as navigation and gem placement. Failed runs receive no rewards or unlocks. The sea scene stays behind the failure screen while the ship rolls and sinks fully underwater. Try again restarts the same voyage; Choose levels returns to that pack. Junior rescue remains available for combat damage, not grounding.
+
+- TypeScript, all 155 tests in 21 files, and the packaged `/demos/broadside/` build passed. The coverage run passed its thresholds with 98.52% line coverage and 97.36% branch coverage.
+- Tests cover fatal island contact in junior and standard modes, contact at an island's exact center even during the bump cooldown, rock strikes from three headings, safe water just before contact, terminal failure with no treasure/rescue, and continuing the sinking animation. All forty generated courses still complete through steering with real ship physics.
+- Live muted 390×740 browser playtests sailed directly into an island and steered into the exposed rock cluster. Both produced the correct cause-specific shipwreck screen; the ship disappeared below the sea. Retry and level-menu return worked. The production build repeated the island crash at 320×568, with both actions inside the viewport and saved progress unchanged (level 3 stayed locked).
+- No console warnings/errors in either browser tab, and audio remained locked by `mute=true`. Screenshots: `artifacts/qa/island-shipwreck-phone.png`, `rocks-shipwreck-phone.png`, `island-shipwreck-production-320.png`.

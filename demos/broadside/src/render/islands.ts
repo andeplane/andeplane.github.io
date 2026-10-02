@@ -239,6 +239,53 @@ export const buildIslands = (
   const animators: ((time: number) => void)[] = [];
 
   for (const def of defs) {
+    if (def.kind === "sea-rock") {
+      // A visible, solid outcrop, rather than a tiny island with beach scenery.
+      const root = new TransformNode(
+        `sea-rock-${def.pos.x}-${def.pos.z}`,
+        scene,
+      );
+      root.position.set(def.pos.x, 0, def.pos.z);
+      for (let i = 0; i < 3; i++) {
+        const rock = rocks[i % rocks.length]!.createInstance(
+          `sea-rock-spire-${i}`,
+        );
+        rock.parent = root;
+        rock.position.set(
+          (i - 1) * def.radius * 0.3,
+          0.5,
+          (i % 2) * def.radius * 0.3,
+        );
+        rock.scaling.set(
+          def.radius * (i === 1 ? 0.7 : 0.48),
+          def.radius * (i === 1 ? 1.2 : 0.7),
+          def.radius * 0.6,
+        );
+        rock.rotation.y = rng.range(0, Math.PI * 2);
+        shadows.addShadowCaster(rock);
+      }
+      const foam = MeshBuilder.CreateTorus(
+        "sea-rock-breaking-surf",
+        {
+          diameter: def.radius * 2.05,
+          thickness: 0.3,
+          tessellation: 32,
+        },
+        scene,
+      );
+      foam.parent = root;
+      foam.position.y = 0.15;
+      foam.material = flatMaterial(
+        scene,
+        "sea-rock-foam",
+        Color3.FromHexString("#c2ddd6"),
+      );
+      animators.push((time) => {
+        const pulse = 1 + Math.sin(time * 1.6 + def.pos.x) * 0.04;
+        foam.scaling.set(pulse, 1, pulse);
+      });
+      continue;
+    }
     buildIslandMesh(scene, def, rng, vertexMat);
     const root = new TransformNode(`island-props-${def.pos.x}`, scene);
     root.position.set(def.pos.x, 0, def.pos.z);
