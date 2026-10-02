@@ -1,4 +1,6 @@
 import "@babylonjs/core/Culling/ray.js";
+import "@babylonjs/core/Shaders/color.vertex.js";
+import "@babylonjs/core/Shaders/color.fragment.js";
 import { Engine } from "@babylonjs/core/Engines/engine.js";
 import { VoyageSession, generateVoyage, RELICS } from "./game/voyage";
 import { readProgress, saveProgress } from "./game/progress";
@@ -12,11 +14,13 @@ import { TreasureCave } from "./render/cave";
 import { FixedStepper } from "./sim/world";
 import { angleDiff, clamp } from "./sim/math";
 import { VoyageHud } from "./ui/voyageHud";
+import { arrivalPose } from "./ui/arrival";
 import { Sound } from "./audio/sound";
 import "./ui/voyage.css";
 import "./ui/menu.css";
 import "./ui/caveWalk.css";
 import "./ui/chart.css";
+import "./ui/reward.css";
 
 async function main() {
   const canvas = document.querySelector<HTMLCanvasElement>("#game")!;
@@ -71,12 +75,37 @@ async function main() {
   cave.refresh(progress);
   let session = new VoyageSession(generateVoyage(0)),
     renderer: GameRenderer | null = null;
-  let mode: "menu" | "cave" | "play" | "result" | "loading" = "menu",
+  let mode: "menu" | "cave" | "play" | "arrival" | "result" | "loading" =
+      "menu",
     paused = false,
     heading: number | null = null,
     pendingFire = false,
     loadId = 0,
     tapHeading: number | null = null;
+  let arrivalTime = 0,
+    arrivalInCave = false;
+  const reducedMotion = matchMedia("(prefers-reduced-motion: reduce)");
+  const curtain = document.createElement("div");
+  curtain.className = "reward-curtain";
+  curtain.hidden = true;
+  curtain.setAttribute("aria-hidden", "true");
+  document.body.append(curtain);
+  const clearArrival = () => {
+    curtain.hidden = true;
+    hud.root.classList.remove("arriving");
+    hud.root.inert = false;
+    arrivalTime = 0;
+    arrivalInCave = false;
+  };
+  const arrive = () => {
+    mode = "arrival";
+    arrivalTime = 0;
+    arrivalInCave = false;
+    curtain.style.opacity = "0";
+    curtain.hidden = false;
+    hud.root.classList.add("arriving");
+    hud.root.inert = true;
+  };
   const gesture = new CaveGesture(),
     walking = new CaveWalkControls();
   const releaseMouse = () => {
@@ -91,6 +120,7 @@ async function main() {
     if (i !== null) hud.select(i);
   };
   const home = () => {
+    clearArrival();
     gesture.clear();
     clearWalking();
     loadId++;
@@ -132,6 +162,7 @@ async function main() {
     stepper.reset();
   };
   const menu = () => {
+    clearArrival();
     gesture.clear();
     clearWalking();
     loadId++;
@@ -148,6 +179,7 @@ async function main() {
     stepper.reset();
   };
   const start = async (index: number) => {
+    clearArrival();
     gesture.clear();
     clearWalking();
     reward = undefined;
@@ -288,12 +320,11 @@ async function main() {
         );
         saveProgress(progress, storage);
         cave.refresh(progress);
-        cave.beginReveal(reward.model);
-        sound.chest();
+        arrive();
       } else {
         sound.say("Your ship sank. Try again and steer clear of the danger.");
       }
-      hud.result(session, reward);
+      if (session.state === "lost") hud.result(session, reward);
     }
   });
   if (qa)
@@ -430,7 +461,25 @@ async function main() {
   });
   engine.runRenderLoop(() => {
     const dt = Math.min(0.1, engine.getDeltaTime() / 1000);
-    if (mode === "play") {
+    if (mode === "arrival") {
+      arrivalTime += dt;
+      const pose = arrivalPose(arrivalTime, reducedMotion.matches);
+      curtain.style.opacity = String(pose.opacity);
+      if (pose.inCave && !arrivalInCave) {
+        arrivalInCave = true;
+        cave.beginReveal(reward!.model);
+        hud.result(session, reward);
+        hud.root.classList.remove("arriving");
+        sound.chest();
+      }
+      // Keep the chest closed while the cave fades in: none of its reveal is lost.
+      if (arrivalInCave) cave.render(0, true);
+      else renderer?.render(session, 1, dt);
+      if (pose.ready) {
+        mode = "result";
+        clearArrival();
+      }
+    } else if (mode === "play") {
       controls.setPad(window.navigator.getGamepads?.().find((p) => p) ?? null);
       const alpha = paused ? 1 : stepper.advance(dt);
       if (mode === "play") {
@@ -482,7 +531,7 @@ async function main() {
         }
       }
     }
-    sound.ambience(mode, dt);
+    sound.ambience(mode === "arrival" ? "result" : mode, dt);
     canvas.dataset.fps = String(Math.round(engine.getFps()));
     canvas.dataset.state = mode === "play" ? session.state : mode;
     canvas.dataset.audio = sound.state;

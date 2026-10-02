@@ -66,7 +66,7 @@ export class VoyageHud {
     </section>
     <section id="cave-ui" hidden><div class="cave-title"><span class="eyebrow">YOUR SECRET HIDEOUT</span><h1>The treasure cave</h1><p id="cave-count"></p></div><div id="relic-info"><span class="eyebrow" id="relic-number"></span><h2 id="relic-title"></h2><p id="relic-story"></p><div id="relic-stars"></div><button id="cave-sail" class="text-button">Find this treasure ${icon("arrow")}</button></div><div class="gallery-hint">WASD to walk · click to look around · Space to jump</div><button id="cave-overview" class="cave-overview">‹ Keep exploring</button><div id="cave-crosshair" aria-hidden="true">+</div><div id="cave-pad" role="group" aria-label="Move around the cave"><span id="cave-thumb"></span><small>MOVE</small></div><button id="cave-jump" aria-label="Jump">↑<small>JUMP</small></button><button id="cave-inspect" hidden>Inspect treasure</button><button id="cave-back" class="menu-back">‹ <span>Back</span></button></section>
     <section id="voyage-play" hidden><div class="voyage-status"><span>${icon("heart")}<div class="health-track"><i id="v-hull"></i></div><b id="v-health">100%</b></span><span class="gem-count">◆ <b id="v-gems">0 / 3</b></span></div><div class="voyage-mission"><small id="v-level"></small><strong id="v-objective"></strong><div class="voyage-track"><i id="v-travel"></i><span>✦</span></div></div><div id="v-targets"></div><div id="v-wheel" aria-label="Drag the wheel to steer" role="group"><div class="wheel-ring"></div><span id="v-stick">${icon("wheel")}</span><small>STEER</small></div><button id="v-anchor" class="round" aria-label="Stop or start sailing">${icon("anchor")}</button><button id="v-fire" aria-label="Fire cannons"><span>${icon("cannon")}</span><b>BOOM!</b><small id="v-fire-label">TAP TO FIRE</small></button><div id="v-compass"><span id="v-arrow">↑</span><b>TREASURE</b><small id="v-distance"></small></div><div id="v-tip"></div></section>
-    <section id="v-result" class="voyage-overlay" hidden role="dialog" aria-modal="true" aria-labelledby="result-title"><div class="result-top"><span class="eyebrow" id="result-eyebrow">A NEW TREASURE FOR YOUR CAVE</span><h1 id="result-title"></h1><div id="result-stars"></div><p id="result-detail"></p></div><div class="result-bottom"><p class="collection-confirmation">${icon("chest")} Added to your cave</p><button id="result-next" class="primary">Continue ${icon("arrow")}</button><button id="result-retry" class="text-button">Sail this level again</button></div></section>
+    <section id="v-result" class="voyage-overlay" hidden role="dialog" aria-modal="true" aria-labelledby="result-title"><div class="result-top"><span class="eyebrow" id="result-eyebrow">A NEW TREASURE FOR YOUR CAVE</span><h1 id="result-title"></h1><div id="result-stars"></div><p id="result-detail"></p></div><div class="result-bottom"><p class="collection-confirmation">${icon("chest")} Added to your cave</p><div class="result-actions"><button id="result-retry" class="secondary">Retry</button><button id="result-next" class="primary">Next level ${icon("arrow")}</button><button id="result-menu" class="text-button">Back to menu</button></div></div></section>
     <section id="v-paused" class="voyage-overlay pause-screen" hidden role="dialog" aria-modal="true" aria-labelledby="pause-title"><div><span class="eyebrow">A LITTLE SHORE LEAVE</span><h1 id="pause-title">Ready when you are.</h1><button id="v-resume" class="primary">Keep sailing ${icon("play")}</button><button id="v-return" class="secondary">Choose levels</button></div></section>`;
     document.body.append(r);
     const q = (id: string) => r.querySelector<HTMLElement>(id)!;
@@ -170,29 +170,12 @@ export class VoyageHud {
       );
       if (b && !b.disabled) h.start(Number(b.dataset.level));
     };
+    q("#result-retry").onclick = () => h.start(this.activeLevel);
     q("#result-next").onclick = () => {
-      if (this.resultLost) {
-        h.start(this.activeLevel);
-        return;
-      }
-      if (this.activeLevel === TOTAL_LEVELS - 1) {
-        h.home();
-        return;
-      }
-      h.menu();
-      this.pack = worldOf(this.activeLevel);
-      this.showMenu(
-        stageOf(this.activeLevel) === LEVELS_PER_WORLD - 1
-          ? "worlds"
-          : "levels",
-      );
+      if (!this.resultLost && this.activeLevel + 1 < TOTAL_LEVELS)
+        h.start(this.activeLevel + 1);
     };
-    q("#result-retry").onclick = () => {
-      if (this.resultLost) {
-        h.menu();
-        this.showMenu("levels");
-      } else h.start(this.activeLevel);
-    };
+    q("#result-menu").onclick = () => h.menu();
     const fire = q("#v-fire");
     fire.onpointerdown = (e) => {
       e.preventDefault();
@@ -415,11 +398,12 @@ export class VoyageHud {
   result(s: VoyageSession, reward?: VoyageReward): void {
     this.activeLevel = s.voyage.index;
     this.resultLost = s.state === "lost";
-    this.q("#result-next").innerHTML =
-      `${this.resultLost ? "Try again" : "Continue"} ${icon("arrow")}`;
-    this.q("#result-retry").textContent = this.resultLost
-      ? "Choose levels"
-      : "Sail this level again";
+    this.q("#result-next").hidden =
+      this.resultLost || this.activeLevel === TOTAL_LEVELS - 1;
+    this.q(".result-actions").classList.toggle(
+      "last-result",
+      this.q("#result-next").hidden,
+    );
     this.q("#captain-menu").hidden = true;
     this.root.dataset.screen = "result";
     this.q("#cave-ui").hidden = true;
@@ -442,6 +426,7 @@ export class VoyageHud {
     this.q(".collection-confirmation").innerHTML =
       `${icon("chest")} ${reward?.gold ? `${reward.gold} gold added to your cave${reward.special !== null ? " · Special treasure collected" : ""}` : "Gold already collected · Best stars saved"}`;
     this.revealStars = s.stars;
+    this.q("#result-stars").removeAttribute("aria-label");
     this.q("#result-title").textContent =
       s.state === "won" ? "A chest full of wonder" : "Your ship sank";
     this.q("#v-result").classList.toggle("unboxing", s.state === "won");

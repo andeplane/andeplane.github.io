@@ -386,8 +386,10 @@ export class TreasureCave {
     } else this.chest.hide();
     const portrait = innerWidth < 600;
     if (reveal) {
-      this.camera.fov = 0.8;
-      this.camera.position.set(0.4, 6.5, -(portrait ? 22 : 18));
+      // The walking cave has a front wall and ceiling; keep the reward camera
+      // inside the chamber so neither can obscure the chest.
+      this.camera.fov = portrait ? (innerHeight < 650 ? 1.55 : 1.4) : 0.8;
+      this.camera.position.set(0.4, 4.8, -11.8);
       this.camera.setTarget(new Vector3(0, 3.3, -5));
     } else {
       const w = this.walker;

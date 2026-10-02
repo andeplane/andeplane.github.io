@@ -1,0 +1,55 @@
+.reward-curtain {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  background: #070a10;
+  pointer-events: auto;
+}
+.arriving #voyage-play,
+.arriving .voyage-header {
+  opacity: 0;
+  transition: opacity 0.4s;
+}
+#v-result .result-bottom {
+  width: min(360px, calc(100% - 32px));
+  padding: 14px 16px;
+  gap: 6px;
+}
+#v-result .collection-confirmation {
+  margin: 0 0 8px;
+  font-size: 11px;
+}
+.result-actions {
+  display: grid;
+  grid-template-columns: 1fr 1.2fr;
+  gap: 10px;
+}
+.result-actions .primary,
+.result-actions .secondary {
+  min-height: 48px;
+  padding: 12px 10px;
+  font-size: 14px;
+  white-space: nowrap;
+}
+#v-result #result-menu {
+  grid-column: 1 / -1;
+  min-height: 44px;
+  font-size: 13px;
+  color: #efe0c5;
+}
+.result-actions.last-result {
+  grid-template-columns: 1fr;
+}
+@media (max-height: 480px) and (min-width: 651px) {
+  #v-result .result-bottom {
+    width: 260px;
+    right: 20px;
+    bottom: 24px;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .arriving #voyage-play,
+  .arriving .voyage-header {
+    transition: none;
+  }
+}
