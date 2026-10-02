@@ -188,6 +188,8 @@ export class GameRenderer {
     this.shadows.darkness = 0.25;
 
     this.ocean = new Ocean(scene, session.level.islands, FOG_DENSITY);
+    if (session instanceof VoyageSession)
+      this.ocean.setWhirlpools(session.voyage.whirlpools);
     this.islands = buildIslands(
       scene,
       session.level.islands,
@@ -395,7 +397,7 @@ export class GameRenderer {
       if (view && session instanceof VoyageSession) view.showRange = false;
       if (ship.team === "player")
         view?.setSailColor(
-          session instanceof VoyageSession ? "#898278" : session.sailColor,
+          session instanceof VoyageSession ? "#191d1c" : session.sailColor,
         );
     }
 

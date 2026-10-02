@@ -9,6 +9,7 @@ export class VoyageView {
   private gems: Mesh[] = [];
   private tentacles: Mesh[] = [];
   private rings: Mesh[] = [];
+  private fortTargets: Mesh[] = [];
   constructor(
     scene: Scene,
     private session: VoyageSession,
@@ -70,6 +71,17 @@ export class VoyageView {
       m.position.set(f.x, 0.6, f.z);
       m.material = red;
     }
+    for (let i = 0; i < session.voyage.forts.length; i++) {
+      const target = MeshBuilder.CreateTorus(
+        "incoming island cannon shot",
+        { diameter: 10, thickness: 0.3, tessellation: 48 },
+        scene,
+      );
+      target.material = red;
+      target.isPickable = false;
+      target.setEnabled(false);
+      this.fortTargets.push(target);
+    }
     const k = session.voyage.kraken;
     if (k) {
       const ring = MeshBuilder.CreateTorus(
@@ -118,6 +130,14 @@ export class VoyageView {
     }
   }
   update(time: number): void {
+    const incoming = this.session.incomingFortShots;
+    this.fortTargets.forEach((mesh, i) => {
+      const shot = incoming[i];
+      mesh.setEnabled(!!shot);
+      if (!shot) return;
+      mesh.position.set(shot.x, 1.4, shot.z);
+      mesh.scaling.setAll(0.8 + 0.12 * Math.sin(time * 10));
+    });
     this.gems.forEach((m, i) => {
       m.setEnabled(!this.session.voyage.gems[i]!.found);
       m.position.y = 2.4 + Math.sin(time * 2 + i) * 0.5;

@@ -14,7 +14,7 @@ export function worldArt(i: number, prefix = "map"): string {
       : i === 1
         ? `<g transform="translate(39 2) scale(.48)">${pirateShipArt(prefix).replace(/<svg[^>]*>|<\/svg>/g, "")}</g>${palm(228, 135, 0.85)}`
         : i === 2
-          ? `<g fill="#536273" stroke="#bbc0ad" stroke-width="2"><path d="M102 129V69h20v10h14V68h24v15h15V68h23v65z"/><path d="M98 79V48h9v10h9V47h9v11h9V47h9v32M175 84V52h9v10h9V51h9v11h9V51h9v34"/></g><path d="M147 132V105q9-16 17 0v27" fill="#172837"/><path d="M158 71V19l38 10-38 14" stroke="#dec18e" stroke-width="2" fill="#823b36"/>`
+          ? `<ellipse cx="160" cy="139" rx="86" ry="44" fill="#183c54" stroke="#79bac7" stroke-width="3"/><path d="M86 137c0-35 147-39 147-2s-118 40-123 5 94-34 94-3-68 22-69 3 47-17 45-1-24 9-24 0" fill="none" stroke="#bdd7cc" stroke-width="6" stroke-linecap="round"/><ellipse cx="160" cy="137" rx="10" ry="5" fill="#081622"/>`
           : `<g fill="none" stroke="#75538c" stroke-width="14" stroke-linecap="round"><path d="M102 140q-45-54-19-76t20 31M139 141q-24-61 0-82t22 14M186 142q42-30 36-77t-18-18M226 146q35-3 45-36"/></g><path d="M124 132q-4-57 40-62t42 62z" fill="#5c4076"/><g fill="#ffc36f"><ellipse cx="148" cy="103" rx="6" ry="9"/><ellipse cx="183" cy="103" rx="6" ry="9"/></g><path d="M69 175q85-19 172 0" stroke="#ac87c9" stroke-width="3" fill="none"/>`;
   return `<svg class="world-art" viewBox="0 0 320 210" aria-hidden="true">${terrain}${content}<path d="M22 183q45-13 81 0M224 186q38-14 70-1" fill="none" stroke="#7dabb1" stroke-width="2" opacity=".5"/></svg>`;
 }

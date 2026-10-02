@@ -1,6 +1,18 @@
 # Broadside acceptance checks — 2 October 2026
 
-## Gold and world treasures revision
+## Forty-level campaign and Black Pearl revision
+
+Four worlds now contain ten levels each. First sails has navigation only, with firing disabled in the simulation as well as hidden in the HUD. Pirate waters starts with island guns and introduces attacking ships at level 5. Whirlpool straits adds animated water funnels that pull, twist and damage a ship in their core; full sail can escape. The glowing deep adds the kraken. Every first clear earns 100 gold, and all ten clears in a world unlock its keepsake. Existing three-level-world saves map into the first three levels of each expanded world, retaining stars, gold and already earned keepsakes.
+
+Island cannons now predict the position of a steadily moving target and commit the trajectory at launch. A red impact marker shows the landing point. Real projectile-physics tests cover stationary ships, forward travel, both lateral headings, and turning after launch to dodge. The in-session test verifies actual hits, hull damage and cleanup of expired markers.
+
+The player uses DeltaX_F's freely downloaded CC-BY Black Pearl from Thingiverse, converted to a 1.6 MB GLB with dark hull, separate canvas sails, iron rigging and amber stern details. The supplied Sketchfab `.binz` was not importable; that creator's standard formats were available through a paid CGTrader listing. The shipped asset comes from the openly licensed alternate model. Blender conversion code and source attribution are checked in. Loading-frame fallback ships are rebuilt after assets finish loading, so the actual imported models appear.
+
+`npm run check`: 141 tests in 20 files pass, TypeScript passes, coverage thresholds pass (98.5% lines, 97.16% branches), and the production build passes. Real sailing physics completes all forty default courses; separate checks validate course geometry across three seeds and broad finish entry from both sides. Reward tests cover all forty first clears, replay deduplication and completion of ten levels out of order.
+
+Silent browser checks at 320×568, 390×740, 844×390 and 1280×800 cover the ten-tile level grid, world locks, navigation-only controls, the actual Black Pearl, an attacking pirate with manual BOOM/reload feedback, live island impact markers, whirlpool water shaders and the tenth-level special-item chest reveal. Continue after the tenth level opens the world map, with world 2 unlocked. The packaged `/demos/broadside/` build loads the Black Pearl and all four enemy classes using the production base path. Forced mute remains audio-locked after pressing the sound button. No browser errors or warnings were captured during those checks. Physical phone performance and simultaneous multi-touch remain unverified.
+
+## Gold and world treasures revision (previous acceptance)
 
 Each newly cleared level awards 100 gold. Finishing all three levels in a world also discovers its special item: rose diamond, captain’s crown, tides-of-time hourglass or heart of the ocean. Replay keeps the best stars and gems without duplicating currency or keepsakes. Gold totals are derived from saved level completions, so older saves convert without losing progress. The cave displays a growing hoard and four keepsakes, with four unopened world chests instead of twelve level-specific displays. Every first completion either adds another heap or increases an existing heap. The reward chest reveals gold for a normal level, or the world item alongside the gold confirmation at world completion.
 

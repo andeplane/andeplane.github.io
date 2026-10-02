@@ -5,6 +5,16 @@ import {
   WORLD_RELICS,
   type VoyageReward,
 } from "../game/rewards";
+import {
+  LEVELS_PER_WORLD,
+  TOTAL_LEVELS,
+  worldOf,
+  stageOf,
+  worldLevels,
+  worldStars,
+  levelUnlocked,
+} from "../game/campaign";
+import { generateVoyage } from "../game/voyage";
 import type { Progress } from "../game/progress";
 import { icon } from "./icons";
 import { worldArt, pirateShipArt } from "./worldArt";
@@ -29,6 +39,7 @@ export class VoyageHud {
   pack = 0;
   private progress: Progress;
   private messageUntil = 0;
+  private activeLevel = 0;
   private revealName = "";
   private revealStars = 0;
   private revealCaption = "";
@@ -46,7 +57,7 @@ export class VoyageHud {
       <div id="main-menu" class="menu-page"><div class="title-crest">${icon("wheel")}</div><span class="eyebrow">A PIRATE’S TREASURE ADVENTURE</span><h1>Broadside</h1><p class="menu-tagline">Brave the seas. Bring home the treasure.</p><nav class="main-actions" aria-label="Main menu"><button id="menu-play" class="wood-button prominent">Play ${icon("play")}</button><button id="menu-settings" class="wood-button">Settings ${icon("wheel")}</button><button id="menu-cave" class="wood-button">Cave ${icon("chest")}</button></nav></div>
       <div id="world-menu" class="menu-page" hidden><div class="menu-heading"><span class="eyebrow">CHART YOUR COURSE</span><h1>The pirate seas</h1><p>Choose a world</p></div><div class="world-map"><svg class="map-route" viewBox="0 0 1000 500" preserveAspectRatio="none" aria-hidden="true"><path d="M120 390 C40 130 310 420 380 240 S480 50 610 215 S820 380 870 90"/></svg><button id="map-cave" class="map-cave" aria-label="Visit treasure cave">${icon("chest")}<span>Your cave</span></button><div id="world-packs"></div><span class="map-compass" aria-hidden="true">${icon("compass")}</span></div><p class="map-footnote">Gold in every level. A special treasure in every world.</p></div>
       <div id="level-menu" class="menu-page" hidden><div class="menu-heading"><span class="eyebrow" id="world-number"></span><h1 id="world-name"></h1><p id="pack-caption"></p></div><div class="level-board"><div id="level-world-art"></div><div id="voyage-levels"></div><p class="level-note">100 gold per level · Complete the world for its special treasure.</p></div></div>
-      <div id="settings-menu" class="menu-page" hidden><div class="menu-heading"><span class="eyebrow">THE CAPTAIN’S ORDERS</span><h1>Settings</h1></div><div class="settings-board"><button id="settings-sound" class="setting-row" role="switch" aria-checked="${!progress.muted}"><span>${icon("sound")} Sound effects</span><b>${progress.muted ? "Off" : "On"}</b></button><button id="settings-voice" class="setting-row" role="switch" aria-checked="${progress.narration}"><span>${icon("flag")} Spoken hints</span><b>${progress.narration ? "On" : "Off"}</b></button><p>Steer with the wheel. Tap BOOM to fire.<br>Your treasures and stars are saved automatically.</p></div></div>
+      <div id="settings-menu" class="menu-page" hidden><div class="menu-heading"><span class="eyebrow">THE CAPTAIN’S ORDERS</span><h1>Settings</h1></div><div class="settings-board"><button id="settings-sound" class="setting-row" role="switch" aria-checked="${!progress.muted}"><span>${icon("sound")} Sound effects</span><b>${progress.muted ? "Off" : "On"}</b></button><button id="settings-voice" class="setting-row" role="switch" aria-checked="${progress.narration}"><span>${icon("flag")} Spoken hints</span><b>${progress.narration ? "On" : "Off"}</b></button><p>Steer with the wheel. Tap BOOM to fire.<br>Your treasures and stars are saved automatically.</p><p class="art-credit">Black Pearl model by <a href="https://www.thingiverse.com/thing:4951578" target="_blank" rel="noopener">DeltaX_F</a> · <a href="https://creativecommons.org/licenses/by/4.0/" target="_blank" rel="noopener">CC BY 4.0</a><br>Adapted for Broadside.</p></div></div>
       <button id="menu-back" class="menu-back" hidden>‹ <span>Back</span></button>
     </section>
     <section id="cave-ui" hidden><div class="cave-title"><span class="eyebrow">YOUR SECRET HIDEOUT</span><h1>The treasure cave</h1><p id="cave-count"></p></div><div id="relic-info"><span class="eyebrow" id="relic-number"></span><h2 id="relic-title"></h2><p id="relic-story"></p><div id="relic-stars"></div><button id="cave-sail" class="text-button">Find this treasure ${icon("arrow")}</button></div><div class="gallery-hint">Drag to explore · tap a treasure · spread fingers to pull back</div><button id="cave-overview" class="cave-overview">${icon("chest")} Whole cave</button><button id="cave-back" class="menu-back">‹ <span>Back</span></button></section>
@@ -83,7 +94,10 @@ export class VoyageHud {
     };
     q("#cave-sail").onclick = () => {
       h.menu();
-      this.pack = Math.floor(this.selected / 3);
+      this.pack = Math.max(
+        0,
+        WORLD_RELICS.indexOf(this.selected as 2 | 5 | 8 | 11),
+      );
       this.showMenu("levels");
     };
     q("#settings-sound").onclick = () => {
@@ -111,15 +125,19 @@ export class VoyageHud {
       if (b && !b.disabled) h.start(Number(b.dataset.level));
     };
     q("#result-next").onclick = () => {
-      if (this.selected === 11) {
+      if (this.activeLevel === TOTAL_LEVELS - 1) {
         h.home();
         return;
       }
       h.menu();
-      this.pack = Math.floor(this.selected / 3);
-      this.showMenu(this.selected % 3 === 2 ? "worlds" : "levels");
+      this.pack = worldOf(this.activeLevel);
+      this.showMenu(
+        stageOf(this.activeLevel) === LEVELS_PER_WORLD - 1
+          ? "worlds"
+          : "levels",
+      );
     };
-    q("#result-retry").onclick = () => h.start(this.selected);
+    q("#result-retry").onclick = () => h.start(this.activeLevel);
     const fire = q("#v-fire");
     fire.onpointerdown = (e) => {
       e.preventDefault();
@@ -172,7 +190,10 @@ export class VoyageHud {
   }
   select(index: number): void {
     this.selected = Math.max(0, Math.min(11, index));
-    this.pack = Math.floor(this.selected / 3);
+    this.pack = Math.max(
+      0,
+      WORLD_RELICS.indexOf(this.selected as 2 | 5 | 8 | 11),
+    );
     this.h.select(this.selected);
     this.renderRelic();
     this.renderLevels();
@@ -216,7 +237,10 @@ export class VoyageHud {
     if (!CAVE_ITEMS.includes(this.selected)) this.selected = 0;
     this.q("#captain-menu").hidden = true;
     this.root.dataset.screen = "cave";
-    this.pack = Math.floor(this.selected / 3);
+    this.pack = Math.max(
+      0,
+      WORLD_RELICS.indexOf(this.selected as 2 | 5 | 8 | 11),
+    );
     this.q("#cave-ui").hidden = false;
     this.q("#voyage-play").hidden = true;
     this.q("#v-result").hidden = true;
@@ -255,27 +279,22 @@ export class VoyageHud {
       ? "Every new level brings home 100 gold. Watch your fortune grow around the cave."
       : owned
         ? relic.story
-        : `Complete all three levels in ${PACKS[world]!.name} to open this chest.`;
+        : `Complete all ten levels in ${PACKS[world]!.name} to open this chest.`;
     this.q("#relic-stars").textContent = gold
       ? ""
       : owned
-        ? `★ ${[0, 1, 2].reduce((sum, n) => sum + (this.progress.voyages[world * 3 + n]?.stars ?? 0), 0)} / 9 world stars`
+        ? `★ ${worldStars(this.progress.voyages, world)} / 30 world stars`
         : "✧ ✧ ✧";
     this.q("#cave-sail").hidden = owned;
   }
   private renderLevels(): void {
     const next =
-      Array.from({ length: 12 }, (_, i) => i).find(
-        (i) => !this.progress.voyages[i],
-      ) ?? 11;
-    const stars = (pack: number) =>
-      [0, 1, 2].reduce(
-        (total, n) => total + (this.progress.voyages[pack * 3 + n]?.stars ?? 0),
-        0,
-      );
+      worldLevels(this.pack).find((i) => !this.progress.voyages[i]) ??
+      (this.pack + 1) * LEVELS_PER_WORLD - 1;
+    const stars = (pack: number) => worldStars(this.progress.voyages, pack);
     this.q("#world-packs").innerHTML = PACKS.map(
       (p, i) =>
-        `<button data-pack="${i}" class="world-island world-${i}" aria-label="${p.name}, world ${i + 1}">${worldArt(i)}<span class="world-label"><small>WORLD ${i + 1}</small><b>${p.name}</b><span>${i * 3 > next ? icon("lock") + " Uncharted" : "★ " + stars(i) + " / 9"}</span></span></button>`,
+        `<button data-pack="${i}" class="world-island world-${i}" aria-label="${p.name}, world ${i + 1}">${worldArt(i)}<span class="world-label"><small>WORLD ${i + 1}</small><b>${p.name}</b><span>${!levelUnlocked(this.progress.voyages, i * LEVELS_PER_WORLD) ? icon("lock") + " Uncharted" : "★ " + stars(i) + " / 30"}</span></span></button>`,
     ).join("");
     const pack = PACKS[this.pack]!;
     this.q("#world-number").textContent = `WORLD ${this.pack + 1}`;
@@ -284,18 +303,22 @@ export class VoyageHud {
     this.q(".level-note").textContent =
       `100 gold per level · World treasure: ${RELICS[WORLD_RELICS[this.pack]!]!.name}`;
     this.q("#level-world-art").innerHTML = worldArt(this.pack, "level");
-    this.q("#voyage-levels").innerHTML = Array.from({ length: 3 }, (_, n) => {
-      const i = this.pack * 3 + n,
-        v = this.progress.voyages[i],
-        locked = i > next;
-      return `<button data-level="${i}" ${locked ? "disabled" : ""} aria-label="Level ${n + 1}${locked ? ", locked" : v ? ", " + v.stars + " stars" : ", set sail"}" class="level-tile ${locked ? "locked" : ""} ${i === next ? "next-level" : ""}"><span class="tile-number">${n + 1}</span>${locked ? icon("lock", "tile-lock") : ""}<span class="tile-stars">${[0, 1, 2].map((s) => `<i class="${s < (v?.stars ?? 0) ? "earned" : ""}">★</i>`).join("")}</span><span class="tile-treasure" title="${n === 2 ? RELICS[WORLD_RELICS[this.pack]!]!.name : "100 gold"}">${icon(n === 2 ? "gem" : "chest")}</span></button>`;
-    }).join("");
+    this.q("#voyage-levels").innerHTML = Array.from(
+      { length: LEVELS_PER_WORLD },
+      (_, n) => {
+        const i = this.pack * LEVELS_PER_WORLD + n,
+          v = this.progress.voyages[i],
+          locked = !levelUnlocked(this.progress.voyages, i);
+        return `<button data-level="${i}" ${locked ? "disabled" : ""} aria-label="Level ${n + 1}${locked ? ", locked" : v ? ", " + v.stars + " stars" : ", set sail"}" class="level-tile ${locked ? "locked" : ""} ${i === next ? "next-level" : ""}"><span class="tile-number">${n + 1}</span>${locked ? icon("lock", "tile-lock") : ""}<span class="tile-stars">${[0, 1, 2].map((s) => `<i class="${s < (v?.stars ?? 0) ? "earned" : ""}">★</i>`).join("")}</span><span class="tile-treasure" title="${n === LEVELS_PER_WORLD - 1 ? RELICS[WORLD_RELICS[this.pack]!]!.name : "100 gold"}">${icon(n === LEVELS_PER_WORLD - 1 ? "gem" : "chest")}</span></button>`;
+      },
+    ).join("");
   }
 
   play(index: number): void {
     this.q("#captain-menu").hidden = true;
     this.root.dataset.screen = "play";
-    this.selected = index;
+    this.activeLevel = index;
+    this.pack = worldOf(index);
     this.messageUntil = 0;
     this.q("#cave-ui").hidden = true;
     this.q("#v-result").hidden = true;
@@ -304,21 +327,16 @@ export class VoyageHud {
     this.q("#voyage-play").hidden = false;
     this.q("#v-pause").hidden = false;
     this.q("#v-home").hidden = false;
-    this.q("#v-fire").hidden = false;
-    this.q("#v-tip").textContent =
-      index === 0
-        ? "Drag the wheel to steer. Tap BOOM when a pirate is beside you!"
-        : index < 3
-          ? "Choose either side of the island. Blue gems are little secrets."
-          : index < 6
-            ? "Turn your ship sideways to a pirate, then tap BOOM!"
-            : "Stay clear of glowing danger rings. Keep your ship safe!";
+    const voyage = generateVoyage(index);
+    this.q("#v-fire").hidden = voyage.level.waves[0]!.enemies.length === 0;
+    this.q("#v-tip").textContent = voyage.level.intro;
   }
   paused(value: boolean): void {
     this.q("#v-paused").hidden = !value;
     this.q("#voyage-play").inert = value;
   }
   result(s: VoyageSession, reward?: VoyageReward): void {
+    this.activeLevel = s.voyage.index;
     this.q("#captain-menu").hidden = true;
     this.root.dataset.screen = "result";
     this.q("#cave-ui").hidden = true;
@@ -408,7 +426,7 @@ export class VoyageHud {
     this.q("#v-health").textContent = `${health}%`;
     this.q("#v-gems").textContent = `${s.gemsFound} / 3`;
     this.q("#v-level").textContent =
-      `${PACKS[s.voyage.pack]!.name.toUpperCase()} · LEVEL ${(s.voyage.index % 3) + 1}`;
+      `${PACKS[s.voyage.pack]!.name.toUpperCase()} · LEVEL ${stageOf(s.voyage.index) + 1}`;
     this.q("#v-objective").textContent = "Reach the treasure";
     this.q("#v-travel").style.width =
       `${Math.max(0, Math.min(100, ((s.player.pos.z + 90) / 238) * 100))}%`;
@@ -442,7 +460,13 @@ export class VoyageHud {
     );
     if (s.elapsed < this.messageUntil)
       this.q("#v-tip").classList.remove("fade");
-    else if (obstacle && s.voyage.pack === 0) {
+    else if (
+      s.voyage.whirlpools.some((w) => distance(w, s.player.pos) < w.radius + 13)
+    ) {
+      this.q("#v-tip").textContent =
+        "Whirlpool! Keep sailing and steer away from the dark center.";
+      this.q("#v-tip").classList.remove("fade");
+    } else if (obstacle && s.voyage.pack === 0) {
       this.q("#v-tip").textContent =
         "Island ahead! Turn the wheel left or right to go around.";
       this.q("#v-tip").classList.remove("fade");

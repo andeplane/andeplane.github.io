@@ -1,3 +1,4 @@
+import { TOTAL_LEVELS } from "../game/campaign";
 import { Scene } from "@babylonjs/core/scene.js";
 import { Mesh } from "@babylonjs/core/Meshes/mesh.js";
 import { MeshBuilder } from "@babylonjs/core/Meshes/meshBuilder.js";
@@ -1063,9 +1064,11 @@ export class Cavern {
     }
   }
   refresh(count: number): void {
+    const perHeap = Math.ceil(TOTAL_LEVELS / this.hoards.length);
     this.hoards.forEach((h, i) => {
-      h.setEnabled(count >= i * 2 + 1);
-      h.scaling.y = count > i * 2 + 1 ? 1 : 0.65;
+      const levels = Math.max(0, Math.min(perHeap, count - i * perHeap));
+      h.setEnabled(levels > 0);
+      h.scaling.y = 0.4 + (0.6 * levels) / perHeap;
     });
   }
   animate(dt: number): void {

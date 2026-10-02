@@ -35,10 +35,11 @@ const modelUrl = (cls: ShipClass) =>
  */
 export class ShipModels {
   private readonly containers = new Map<ShipClass, AssetContainer>();
+  private playerContainer: AssetContainer | null = null;
 
   constructor(private readonly scene: Scene) {}
 
-  async load(): Promise<{ loaded: ShipClass[]; missing: ShipClass[] }> {
+  async load(): Promise<{ loaded: ShipClass[]; missing: ShipClass[]; blackPearl: boolean }> {
     const loaded: ShipClass[] = [];
     const missing: ShipClass[] = [];
     await Promise.all(
@@ -59,13 +60,24 @@ export class ShipModels {
         }
       }),
     );
-    return { loaded, missing };
+    const pearlUrl = `${import.meta.env.BASE_URL}assets/ships/black-pearl.glb`;
+    try {
+      const head = await fetch(pearlUrl, { method: "HEAD" });
+      if (!head.ok || head.headers.get("content-type")?.includes("text/html"))
+        throw new Error("not found");
+      this.playerContainer = await LoadAssetContainerAsync(pearlUrl, this.scene);
+    } catch {
+      this.playerContainer = null;
+    }
+    return { loaded, missing, blackPearl: this.playerContainer !== null };
   }
 
   /** A fresh copy of the ship, bow pointing +Z, waterline at y = 0, scaled to spec length. */
   create(cls: ShipClass, livery: Livery, name: string): TransformNode {
     const holder = new TransformNode(`${name}-model`, this.scene);
-    const container = this.containers.get(cls);
+    const container = livery === "player" && this.playerContainer
+      ? this.playerContainer
+      : this.containers.get(cls);
     if (container) {
       const entries = container.instantiateModelsToScene(
         (n) => `${name}-${n}`,

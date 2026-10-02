@@ -1,3 +1,4 @@
+import { worldOf, worldLevels } from "./campaign";
 import type { Progress } from "./progress";
 
 export const GOLD_PER_LEVEL = 100;
@@ -14,12 +15,14 @@ export function goldTotal(progress: Progress): number {
   return Object.keys(progress.voyages).length * GOLD_PER_LEVEL;
 }
 export function worldComplete(progress: Progress, world: number): boolean {
-  return [0, 1, 2].every((n) => !!progress.voyages[world * 3 + n]);
+  return worldLevels(world).every((i) => !!progress.voyages[i]);
 }
 /** Older saves retain every completed level and convert them to gold and world prizes. */
 export function syncRewards(progress: Progress): void {
-  progress.relics = WORLD_RELICS.filter((_, world) =>
-    worldComplete(progress, world),
+  progress.relics = WORLD_RELICS.filter(
+    (_, world) =>
+      progress.relics.includes(WORLD_RELICS[world]!) ||
+      worldComplete(progress, world),
   );
 }
 export function awardVoyage(
@@ -29,8 +32,10 @@ export function awardVoyage(
   gems: number,
 ): VoyageReward {
   const previous = progress.voyages[index];
-  const world = Math.floor(index / 3);
-  const hadSpecial = worldComplete(progress, world);
+  const world = worldOf(index);
+  const hadSpecial =
+    progress.relics.includes(WORLD_RELICS[world]!) ||
+    worldComplete(progress, world);
   progress.voyages[index] = {
     stars: Math.max(previous?.stars ?? 0, stars),
     gems: Math.max(previous?.gems ?? 0, gems),

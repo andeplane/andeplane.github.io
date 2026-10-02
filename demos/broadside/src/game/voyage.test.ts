@@ -3,6 +3,7 @@ import { generateVoyage, VoyageSession, RELICS } from "./voyage";
 import { Navigator, planRoute } from "./navigation";
 import { IDLE_INTENT } from "../sim/ships";
 import { distance } from "../sim/math";
+import { TOTAL_LEVELS } from "./campaign";
 import { readProgress, saveProgress } from "./progress";
 const settle = (s: VoyageSession) => {
   s.player.pos = { ...s.voyage.finish };
@@ -12,7 +13,7 @@ const settle = (s: VoyageSession) => {
 };
 describe("treasure voyages", () => {
   it("generates reproducible courses with accessible treasures and hidden gems", () => {
-    for (let i = 0; i < 12; i++)
+    for (let i = 0; i < TOTAL_LEVELS; i++)
       for (const seed of [1, 42, 8100]) {
         const a = generateVoyage(i, seed);
         expect(a).toEqual(generateVoyage(i, seed));
@@ -34,17 +35,41 @@ describe("treasure voyages", () => {
       expect(s.state).toBe("won");
     }
   });
-  it("starts with a gentle pirate encounter, then introduces stronger pirates, forts and kraken", () => {
-    const s = new VoyageSession(generateVoyage(0));
-    expect(s.enemies).toHaveLength(1);
-    expect(s.enemies[0]!.spec.damage).toBe(2);
-    expect(s.autoFire).toBe(false);
-    expect(generateVoyage(3).level.waves[0]!.enemies).toHaveLength(1);
-    expect(generateVoyage(6).forts).not.toHaveLength(0);
-    expect(generateVoyage(9).kraken).not.toBeNull();
+  it("introduces hazards in the requested order across all ten levels of every world", () => {
+    for (let i = 0; i < TOTAL_LEVELS; i++) {
+      const v = generateVoyage(i),
+        s = new VoyageSession(v);
+      expect(s.autoFire).toBe(false);
+      if (i < 10) {
+        expect(s.enemies).toHaveLength(0);
+        expect(v.forts).toHaveLength(0);
+        expect(v.whirlpools).toHaveLength(0);
+        expect(v.kraken).toBeNull();
+        s.step({ ...IDLE_INTENT, firePort: true, fireStarboard: true });
+        expect(s.simEvents.filter((e) => e.type === "fire")).toHaveLength(0);
+      } else if (i < 20) {
+        expect(v.forts.length).toBeGreaterThan(0);
+        expect(v.whirlpools).toHaveLength(0);
+        expect(v.kraken).toBeNull();
+        expect(s.enemies.length > 0).toBe(i >= 14);
+      } else if (i < 30) {
+        expect(v.whirlpools.length).toBeGreaterThan(0);
+        expect(v.kraken).toBeNull();
+      } else {
+        expect(v.whirlpools.length).toBeGreaterThan(0);
+        expect(v.kraken).not.toBeNull();
+      }
+    }
     expect(RELICS).toHaveLength(12);
+    expect(
+      new Set(
+        Array.from({ length: 40 }, (_, i) => generateVoyage(i).level.name),
+      ).size,
+    ).toBe(40);
+    for (const id of [-1, 40, 1.5, NaN])
+      expect(() => generateVoyage(id)).toThrow();
   });
-  it.each([0, 3])(
+  it.each([14, 19])(
     "voyage %i never shoots without a player command and chooses one broadside for BOOM",
     (index) => {
       const s = new VoyageSession(generateVoyage(index));
@@ -106,16 +131,71 @@ describe("treasure voyages", () => {
     expect(s.stars).toBe(1);
   });
   it("island cannons can hit a stationary ship in their range", () => {
-    const s = new VoyageSession(generateVoyage(6));
+    const s = new VoyageSession(generateVoyage(10));
     s.world.ships.splice(1);
     s.brains.clear();
-    s.player.pos = { x: 54, z: 36 };
+    s.player.pos = { x: 54, z: 33 };
     s.player.sail = 0;
     for (let n = 0; n < 600; n++) s.step();
     expect(s.damageTaken).toBeGreaterThan(0);
   });
+  it("manual broadsides damage a pirate hull instead of firing harmlessly", () => {
+    const s = new VoyageSession(generateVoyage(14));
+    s.brains.clear();
+    s.player.sail = 0;
+    const enemy = s.enemies[0]!;
+    enemy.pos = { x: 30, z: -90 };
+    enemy.sail = 0;
+    for (let n = 0; n < 240; n++)
+      s.step(
+        n % 110 === 0
+          ? { ...IDLE_INTENT, firePort: true, fireStarboard: true }
+          : IDLE_INTENT,
+      );
+    expect(enemy.hull).toBeLessThan(enemy.spec.maxHull);
+  });
+  it("whirlpools pull and spin a ship, damage their core, and allow steering out", () => {
+    const s = new VoyageSession(generateVoyage(20));
+    s.brains.clear();
+    s.world.ships.splice(1);
+    const w = s.voyage.whirlpools[0]!;
+    s.player.pos = { x: w.x + 8, z: w.z };
+    s.player.sail = 0;
+    s.player.speed = 0;
+    const heading = s.player.heading;
+    for (let n = 0; n < 60; n++) s.step();
+    expect(distance(s.player.pos, w)).toBeLessThan(8);
+    expect(s.player.heading).not.toBe(heading);
+    s.player.pos = { x: w.x + 1, z: w.z };
+    s.player.sail = 0;
+    s.step();
+    expect(s.damageTaken).toBeGreaterThan(0);
+    s.player.pos = { x: w.x + 8, z: w.z };
+    s.player.heading = Math.PI / 2;
+    s.player.sail = 2;
+    s.player.speed = 10;
+    for (let n = 0; n < 180; n++) s.step({ ...IDLE_INTENT, turn: -0.1 });
+    expect(distance(s.player.pos, w)).toBeGreaterThan(w.radius);
+    const away = s.damageTaken;
+    s.player.pos = { x: 0, z: -90 };
+    s.player.sail = 0;
+    s.player.speed = 0;
+    for (let n = 0; n < 30; n++) s.step();
+    expect(s.damageTaken).toBe(away);
+  });
+  it("kraken strikes are real damage in the final world", () => {
+    const s = new VoyageSession(generateVoyage(30));
+    const k = s.voyage.kraken!;
+    s.player.sail = 0;
+    for (let n = 0; n < 180; n++) {
+      s.player.pos = { ...k };
+      s.player.speed = 0;
+      s.step();
+    }
+    expect(s.damageTaken).toBeGreaterThan(0);
+  });
   it("completes every generated course by steering with real ship physics", () => {
-    for (let i = 0; i < 12; i++) {
+    for (let i = 0; i < TOTAL_LEVELS; i++) {
       const s = new VoyageSession(generateVoyage(i)),
         nav = new Navigator();
       nav.setGoal(s.player, s.voyage.finish, s.world.islands);

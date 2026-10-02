@@ -1066,3 +1066,131 @@
     min-height: 44px;
   }
 }
+
+/* Ten numbered voyages, in two rows; every tile remains thumb-sized on a phone. */
+#voyage-levels {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 18px;
+  width: 100%;
+  padding: 14px 0 0;
+}
+.level-board {
+  width: min(90%, 650px);
+}
+.level-tile {
+  width: 100%;
+  height: 108px;
+}
+.tile-number {
+  font-size: 46px;
+}
+.tile-stars i {
+  font-size: 17px;
+}
+.tile-treasure {
+  top: 8px;
+  left: 8px;
+  bottom: auto;
+  right: auto;
+}
+.tile-treasure .icon {
+  width: 14px;
+  height: 14px;
+}
+.level-note {
+  margin-top: 22px;
+  line-height: 1.5;
+}
+#level-world-art {
+  width: 190px;
+  height: 125px;
+  margin: 0 auto;
+}
+@media (max-width: 650px) {
+  #voyage-levels {
+    gap: 10px;
+    padding-top: 14px;
+  }
+  .level-tile {
+    height: 86px;
+    border-radius: 10px;
+  }
+  .tile-number {
+    font-size: 35px;
+  }
+  .tile-stars {
+    gap: 1px;
+    margin-top: 7px;
+  }
+  .tile-stars i {
+    font-size: 12px;
+  }
+  .tile-treasure {
+    top: 5px;
+    left: 5px;
+  }
+  .tile-treasure .icon {
+    width: 10px;
+    height: 10px;
+  }
+  .tile-lock {
+    width: 13px;
+    height: 13px;
+    top: 4px;
+    right: 4px;
+  }
+  #level-world-art {
+    width: 165px;
+    height: 110px;
+    margin: 5px auto 0;
+  }
+  .level-note {
+    margin-top: 16px;
+  }
+}
+@media (max-width: 350px) {
+  #voyage-levels {
+    gap: 8px;
+  }
+  .level-tile {
+    height: 76px;
+  }
+  .tile-number {
+    font-size: 30px;
+  }
+  .tile-stars i {
+    font-size: 11px;
+  }
+}
+@media (max-height: 480px) and (min-width: 651px) {
+  .level-board {
+    width: min(90%, 700px);
+    grid-template-columns: 140px 1fr;
+    gap: 18px;
+    margin-top: 12px;
+  }
+  #voyage-levels {
+    gap: 10px;
+    padding: 0;
+  }
+  .level-tile {
+    height: 80px;
+  }
+  .tile-number {
+    font-size: 32px;
+  }
+  .tile-stars i {
+    font-size: 12px;
+  }
+  #level-world-art {
+    width: 140px;
+    height: 100px;
+  }
+  .level-note {
+    margin-top: 0;
+  }
+}
+
+.settings-board .art-credit { font-size: 11px; line-height: 1.7; opacity: .7; }
+.art-credit a { color: #edca8a; text-underline-offset: 3px; }

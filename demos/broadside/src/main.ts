@@ -8,6 +8,7 @@ import {
   CAVE_ITEMS,
   type VoyageReward,
 } from "./game/rewards";
+import { TOTAL_LEVELS, levelUnlocked } from "./game/campaign";
 import { Controls } from "./input/controls";
 import { CaveGesture } from "./input/caveGesture";
 import { GameRenderer } from "./render/renderer";
@@ -44,14 +45,18 @@ async function main() {
   const qa =
     qaQuery === "collection" ||
     (qaQuery !== null &&
-      /^(?:[0-9]|1[01]|reveal-(?:[0-9]|1[01]))$/.test(qaQuery));
+      /^(?:reveal-)?\d+$/.test(qaQuery) &&
+      Number(qaQuery.replace("reveal-", "")) < TOTAL_LEVELS);
   if (qa) storage = undefined;
   const progress = readProgress(storage),
     controls = new Controls(),
     sound = new Sound(forceMute);
   if (qaQuery === "collection") {
     progress.voyages = Object.fromEntries(
-      RELICS.map((_, i) => [i, { stars: 3, gems: 3 }]),
+      Array.from({ length: TOTAL_LEVELS }, (_, i) => [
+        i,
+        { stars: 3, gems: 3 },
+      ]),
     );
   }
   syncRewards(progress);
@@ -107,7 +112,7 @@ async function main() {
   const start = async (index: number) => {
     gesture.clear();
     reward = undefined;
-    if (!qa && index > 0 && !progress.voyages[index - 1]) return;
+    if (!qa && !levelUnlocked(progress.voyages, index)) return;
     const id = ++loadId;
     mode = "loading";
     cave.endReveal();
@@ -134,15 +139,14 @@ async function main() {
       return;
     }
     canvas.dataset.models = result.loaded.join(",");
+    canvas.dataset.playerModel = result.blackPearl ? "black-pearl" : "galleon";
+    // Loading frames may have created fallback views. Rebuild once assets exist.
+    next.reset(session);
     stepper.reset();
     mode = "play";
     hud.root.classList.remove("loading-voyage");
     sound.pause(false);
-    sound.say(
-      index === 0
-        ? "Ahoy, Captain! Drag the wheel to steer. Tap BOOM when a pirate is beside you. You can sail past or fight!"
-        : session.level.intro,
-    );
+    sound.say(session.level.intro);
     canvas.focus();
   };
   const pause = () => {
@@ -391,7 +395,7 @@ async function main() {
     for (let i = 0; i < index; i++) awardVoyage(progress, i, 3, 2);
     reward = awardVoyage(progress, index, 3, 2);
     mode = "result";
-    hud.selected = index;
+
     hud.result(session, reward);
     cave.refresh(progress);
     cave.beginReveal(reward.model);

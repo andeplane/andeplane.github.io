@@ -20,19 +20,22 @@ describe("voyage gold and world keepsakes", () => {
   it("reveals a different special item only when all levels in each world are cleared", () => {
     const p = readProgress();
     for (let w = 0; w < 4; w++) {
-      expect(awardVoyage(p, w * 3 + 2, 3, 3).special).toBeNull();
-      expect(awardVoyage(p, w * 3, 3, 3).special).toBeNull();
-      const reward = awardVoyage(p, w * 3 + 1, 3, 3);
+      expect(awardVoyage(p, w * 10 + 9, 3, 3).special).toBeNull();
+      expect(awardVoyage(p, w * 10, 3, 3).special).toBeNull();
+      for (let n = 1; n < 8; n++)
+        expect(awardVoyage(p, w * 10 + n, 3, 3).special).toBeNull();
+      const reward = awardVoyage(p, w * 10 + 8, 3, 3);
       expect(reward.special).toBe(WORLD_RELICS[w]);
       expect(reward.model).toBe(WORLD_RELICS[w]);
-      expect(awardVoyage(p, w * 3 + 1, 3, 3).special).toBeNull();
+      expect(awardVoyage(p, w * 10 + 8, 3, 3).special).toBeNull();
     }
     expect(p.relics).toEqual([...WORLD_RELICS]);
-    expect(goldTotal(p)).toBe(1200);
+    expect(goldTotal(p)).toBe(4000);
   });
   it("converts old per-level treasure saves without losing completion or stars", () => {
     let raw = JSON.stringify({
       ...readProgress(),
+      campaignVersion: undefined,
       relics: [0, 1, 2, 3],
       voyages: {
         0: { stars: 3, gems: 2 },
