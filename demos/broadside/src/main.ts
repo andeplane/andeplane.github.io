@@ -519,12 +519,14 @@ async function main() {
         ]
           .map((n) => n.toFixed(2))
           .join(",");
-        if (import.meta.env.DEV)
+        if (import.meta.env.DEV) {
+          canvas.dataset.caveLanterns = cave.activeLanterns;
           canvas.dataset.caveGoldMeshes = cave.scene
             .getActiveMeshes()
             .data.filter((m) => m?.name.startsWith("dense loose"))
             .map((m) => m.name)
             .join(",");
+        }
         canvas.dataset.caveYaw = cave.walker.yaw.toFixed(2);
         canvas.dataset.caveView = cave.inspecting ? "inspect" : "walk";
       }

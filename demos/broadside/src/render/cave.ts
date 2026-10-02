@@ -6,6 +6,7 @@ import { Vector3 } from "@babylonjs/core/Maths/math.vector.js";
 import { Color3, Color4 } from "@babylonjs/core/Maths/math.color.js";
 import { HemisphericLight } from "@babylonjs/core/Lights/hemisphericLight.js";
 import { PointLight } from "@babylonjs/core/Lights/pointLight.js";
+import { bindLocalLights } from "./localLights";
 import { Cavern } from "./cavern";
 import { StandardMaterial } from "@babylonjs/core/Materials/standardMaterial.js";
 import { MeshBuilder } from "@babylonjs/core/Meshes/meshBuilder.js";
@@ -272,12 +273,32 @@ export class TreasureCave {
           bounds.max.z - bounds.min.z,
         ),
       };
+      r.position.set(
+        this.spots[i]!.x,
+        this.spots[i]!.y + this.relief[i]!.lift,
+        this.spots[i]!.z,
+      );
       r.getChildMeshes().forEach((m) => {
         m.metadata = { relicIndex: i };
         this.chamber.shadow.addShadowCaster(m);
       });
       return r;
     });
+    // Stable assignments belong to geometry, not the visitor's current position.
+    // Two local lamps leave room for daylight, ambient and the carried lantern.
+    bindLocalLights(this.chamber.lamps, this.scene.meshes);
+    this.lamps.forEach((light, i) => {
+      light.includedOnlyMeshes = [
+        ...this.closed[i]!.getChildMeshes(),
+        ...(this.relics[i]?.getChildMeshes() ?? []),
+      ];
+    });
+  }
+  get activeLanterns(): string {
+    return this.chamber.lamps
+      .filter((light) => light.isEnabled())
+      .map((light) => `${light.position.x},${light.position.z}`)
+      .join(";");
   }
   get walkingGeometry() {
     return this.chamber.walkingGeometry;
@@ -449,11 +470,7 @@ export class TreasureCave {
       if (reveal) r.rotation.y = this.time * 0.12 + i * 0.4;
     });
     this.lamps.forEach((l, i) => {
-      l.setEnabled(
-        !reveal &&
-          i === this.selected &&
-          Vector3.Distance(l.position, this.camera.position) < 10,
-      );
+      l.setEnabled(!reveal && i === this.selected);
       l.intensity =
         (this.relics[i] ? 1 : 0.4) + Math.sin(this.time * 1.3 + i) * 0.06;
     });

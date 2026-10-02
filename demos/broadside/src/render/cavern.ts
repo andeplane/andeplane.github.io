@@ -46,6 +46,7 @@ export class Cavern {
   }[] = [];
   readonly obstacles: CaveObstacle[] = [];
   private time = 0;
+  private lampStrengths: number[] = [];
   constructor(
     private scene: Scene,
     spots: Vector3[],
@@ -1283,26 +1284,16 @@ export class Cavern {
     });
   }
   animate(dt: number): void {
+    if (!this.lampStrengths.length)
+      this.lampStrengths = this.lamps.map((light) => light.intensity);
     this.time += dt;
     this.lanterns.forEach(
       (l, i) => (l.rotation.z = Math.sin(this.time * 0.7 + i * 1.3) * 0.045),
     );
-    const camera = this.scene.activeCamera!;
-    const nearest = [...this.lamps]
-      .sort(
-        (a, b) =>
-          Vector3.DistanceSquared(a.position, camera.position) -
-          Vector3.DistanceSquared(b.position, camera.position),
-      )
-      .slice(0, 2);
-    this.lamps.forEach((l) => {
-      l.setEnabled(nearest.includes(l));
-      l.renderPriority = 1;
-    });
     this.lamps.forEach(
       (l, i) =>
         (l.intensity =
-          2.6 +
+          this.lampStrengths[i]! +
           Math.sin(this.time * 7 + i) * 0.04 +
           Math.sin(this.time * 13 + i) * 0.025),
     );
