@@ -1,6 +1,16 @@
 # Broadside acceptance checks — 2 October 2026
 
-## Rocky hoard cave revision
+## Gold and world treasures revision
+
+Each newly cleared level awards 100 gold. Finishing all three levels in a world also discovers its special item: rose diamond, captain’s crown, tides-of-time hourglass or heart of the ocean. Replay keeps the best stars and gems without duplicating currency or keepsakes. Gold totals are derived from saved level completions, so older saves convert without losing progress. The cave displays a growing hoard and four keepsakes, with four unopened world chests instead of twelve level-specific displays. Every first completion either adds another heap or increases an existing heap. The reward chest reveals gold for a normal level, or the world item alongside the gold confirmation at world completion.
+
+The roof is now a continuous vaulted rock surface with an irregular horizontal cutout and an eroded throat. Bright sky above the roof is visible through the opening; the shaft no longer blocks the sky with a black patch.
+
+Automated checks: 129 tests across 18 files; reward tests cover first-clear gold, replay, best stars/gems, all four world prizes, incomplete worlds and conversion of old saves. Reward logic has 100% coverage. TypeScript and the production build pass. Camera regression tests cover maximal tilt, side limits, all zoom distances and high focus targets.
+
+Silent browser checks at 1280×800, 390×740 and 320×568 covered the bright opening, gold inspection, world-item reveal, Continue unlocking Level 2, world completion returning to the map, and cave totals of 300 gold plus one keepsake. A live first voyage used manual cannons and completed with three stars, 3% damage and a 100-gold chest. Desktop stress checks dragged the overview upward, tilted a treasure close-up diagonally and pulled back with the mouse wheel. The camera now stays beneath the ceiling (7.5 units) and inside the side walls during those combinations. The packaged `/demos/broadside/` cave loaded local textures at 390×740, converted an existing saved first-level treasure into 100 gold, and kept audio locked after a sound-button press. No browser warnings or errors were captured. Phone multi-touch and physical GPU performance remain unverified. Screenshots: `artifacts/qa/world-hoard-desktop.png`, `world-hoard-phone.png`, `world-treasure-reveal.png`.
+
+## Rocky hoard cave revision (previous acceptance)
 
 The cave now follows the overhead-light reference: one continuous room with irregular rock shelves, fractured stone walls and roof opening, a visibly uneven stone floor, soft shafts of daylight and dust. Sparse lanterns, an anchor, a skull flag, barrels, crates, rope coils, sacks, growing coin heaps, quartz, puddles, stalactites, stalagmites and cobwebs fill the chamber. Collected relics rest on their rock surfaces; the circular floor and matching display stands are gone. Static scenery is merged by material, and loose coins use instances.
 

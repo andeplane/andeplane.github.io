@@ -1,4 +1,10 @@
 import { PACKS, RELICS, type VoyageSession } from "../game/voyage";
+import {
+  goldTotal,
+  CAVE_ITEMS,
+  WORLD_RELICS,
+  type VoyageReward,
+} from "../game/rewards";
 import type { Progress } from "../game/progress";
 import { icon } from "./icons";
 import { worldArt, pirateShipArt } from "./worldArt";
@@ -25,6 +31,7 @@ export class VoyageHud {
   private messageUntil = 0;
   private revealName = "";
   private revealStars = 0;
+  private revealCaption = "";
   constructor(
     progress: Progress,
     controls: Controls,
@@ -37,8 +44,8 @@ export class VoyageHud {
     <section id="captain-menu" class="captain-menu">
       <div class="menu-atmosphere" aria-hidden="true"><div class="moon"></div><div class="distant-rocks"></div><div class="hero-ship">${pirateShipArt()}</div><div class="ocean-mist"></div><div class="menu-embers"></div></div>
       <div id="main-menu" class="menu-page"><div class="title-crest">${icon("wheel")}</div><span class="eyebrow">A PIRATE’S TREASURE ADVENTURE</span><h1>Broadside</h1><p class="menu-tagline">Brave the seas. Bring home the treasure.</p><nav class="main-actions" aria-label="Main menu"><button id="menu-play" class="wood-button prominent">Play ${icon("play")}</button><button id="menu-settings" class="wood-button">Settings ${icon("wheel")}</button><button id="menu-cave" class="wood-button">Cave ${icon("chest")}</button></nav></div>
-      <div id="world-menu" class="menu-page" hidden><div class="menu-heading"><span class="eyebrow">CHART YOUR COURSE</span><h1>The pirate seas</h1><p>Choose a world</p></div><div class="world-map"><svg class="map-route" viewBox="0 0 1000 500" preserveAspectRatio="none" aria-hidden="true"><path d="M120 390 C40 130 310 420 380 240 S480 50 610 215 S820 380 870 90"/></svg><button id="map-cave" class="map-cave" aria-label="Visit treasure cave">${icon("chest")}<span>Your cave</span></button><div id="world-packs"></div><span class="map-compass" aria-hidden="true">${icon("compass")}</span></div><p class="map-footnote">A treasure in every level. A story in every chest.</p></div>
-      <div id="level-menu" class="menu-page" hidden><div class="menu-heading"><span class="eyebrow" id="world-number"></span><h1 id="world-name"></h1><p id="pack-caption"></p></div><div class="level-board"><div id="level-world-art"></div><div id="voyage-levels"></div><p class="level-note">Reach the treasure to unlock the next level.</p></div></div>
+      <div id="world-menu" class="menu-page" hidden><div class="menu-heading"><span class="eyebrow">CHART YOUR COURSE</span><h1>The pirate seas</h1><p>Choose a world</p></div><div class="world-map"><svg class="map-route" viewBox="0 0 1000 500" preserveAspectRatio="none" aria-hidden="true"><path d="M120 390 C40 130 310 420 380 240 S480 50 610 215 S820 380 870 90"/></svg><button id="map-cave" class="map-cave" aria-label="Visit treasure cave">${icon("chest")}<span>Your cave</span></button><div id="world-packs"></div><span class="map-compass" aria-hidden="true">${icon("compass")}</span></div><p class="map-footnote">Gold in every level. A special treasure in every world.</p></div>
+      <div id="level-menu" class="menu-page" hidden><div class="menu-heading"><span class="eyebrow" id="world-number"></span><h1 id="world-name"></h1><p id="pack-caption"></p></div><div class="level-board"><div id="level-world-art"></div><div id="voyage-levels"></div><p class="level-note">100 gold per level · Complete the world for its special treasure.</p></div></div>
       <div id="settings-menu" class="menu-page" hidden><div class="menu-heading"><span class="eyebrow">THE CAPTAIN’S ORDERS</span><h1>Settings</h1></div><div class="settings-board"><button id="settings-sound" class="setting-row" role="switch" aria-checked="${!progress.muted}"><span>${icon("sound")} Sound effects</span><b>${progress.muted ? "Off" : "On"}</b></button><button id="settings-voice" class="setting-row" role="switch" aria-checked="${progress.narration}"><span>${icon("flag")} Spoken hints</span><b>${progress.narration ? "On" : "Off"}</b></button><p>Steer with the wheel. Tap BOOM to fire.<br>Your treasures and stars are saved automatically.</p></div></div>
       <button id="menu-back" class="menu-back" hidden>‹ <span>Back</span></button>
     </section>
@@ -206,6 +213,7 @@ export class VoyageHud {
     this.root.dataset.screen = page;
   }
   home(): void {
+    if (!CAVE_ITEMS.includes(this.selected)) this.selected = 0;
     this.q("#captain-menu").hidden = true;
     this.root.dataset.screen = "cave";
     this.pack = Math.floor(this.selected / 3);
@@ -225,21 +233,34 @@ export class VoyageHud {
   }
   private renderRelic(): void {
     this.q("#relic-info").hidden = false;
-    const relic = RELICS[this.selected]!,
-      owned = this.progress.relics.includes(this.selected);
+    const gold = this.selected === 0;
+    const world = gold
+      ? 0
+      : WORLD_RELICS.indexOf(this.selected as 2 | 5 | 8 | 11);
+    const relic = RELICS[this.selected]!;
+    const owned = gold
+      ? goldTotal(this.progress) > 0
+      : this.progress.relics.includes(this.selected);
     this.q("#cave-count").textContent =
-      `${this.progress.relics.length} of 12 treasures found`;
-    this.q("#relic-number").textContent =
-      `${String(this.selected + 1).padStart(2, "0")} / 12 · ${owned ? "FOUND & FOREVER YOURS" : "WAITING TO BE DISCOVERED"}`;
-    this.q("#relic-title").textContent = owned
-      ? relic.name
-      : "An unopened treasure";
-    this.q("#relic-story").textContent = owned
-      ? relic.story
-      : `Find this treasure in ${PACKS[Math.floor(this.selected / 3)]!.name}, voyage ${(this.selected % 3) + 1}.`;
-    this.q("#relic-stars").textContent = owned
-      ? "★".repeat(this.progress.voyages[this.selected]?.stars ?? 1)
-      : "✧ ✧ ✧";
+      `${goldTotal(this.progress).toLocaleString()} gold · ${this.progress.relics.length} / 4 world treasures`;
+    this.q("#relic-number").textContent = gold
+      ? "THE CAPTAIN’S GROWING HOARD"
+      : `WORLD ${world + 1} · ${owned ? "FOUND & FOREVER YOURS" : "WAITING TO BE DISCOVERED"}`;
+    this.q("#relic-title").textContent = gold
+      ? `${goldTotal(this.progress).toLocaleString()} gold`
+      : owned
+        ? relic.name
+        : "A world’s secret treasure";
+    this.q("#relic-story").textContent = gold
+      ? "Every new level brings home 100 gold. Watch your fortune grow around the cave."
+      : owned
+        ? relic.story
+        : `Complete all three levels in ${PACKS[world]!.name} to open this chest.`;
+    this.q("#relic-stars").textContent = gold
+      ? ""
+      : owned
+        ? `★ ${[0, 1, 2].reduce((sum, n) => sum + (this.progress.voyages[world * 3 + n]?.stars ?? 0), 0)} / 9 world stars`
+        : "✧ ✧ ✧";
     this.q("#cave-sail").hidden = owned;
   }
   private renderLevels(): void {
@@ -260,12 +281,14 @@ export class VoyageHud {
     this.q("#world-number").textContent = `WORLD ${this.pack + 1}`;
     this.q("#world-name").textContent = pack.name;
     this.q("#pack-caption").textContent = pack.subtitle;
+    this.q(".level-note").textContent =
+      `100 gold per level · World treasure: ${RELICS[WORLD_RELICS[this.pack]!]!.name}`;
     this.q("#level-world-art").innerHTML = worldArt(this.pack, "level");
     this.q("#voyage-levels").innerHTML = Array.from({ length: 3 }, (_, n) => {
       const i = this.pack * 3 + n,
         v = this.progress.voyages[i],
         locked = i > next;
-      return `<button data-level="${i}" ${locked ? "disabled" : ""} aria-label="Level ${n + 1}${locked ? ", locked" : v ? ", " + v.stars + " stars" : ", set sail"}" class="level-tile ${locked ? "locked" : ""} ${i === next ? "next-level" : ""}"><span class="tile-number">${n + 1}</span>${locked ? icon("lock", "tile-lock") : ""}<span class="tile-stars">${[0, 1, 2].map((s) => `<i class="${s < (v?.stars ?? 0) ? "earned" : ""}">★</i>`).join("")}</span><span class="tile-treasure" title="${v ? RELICS[i]!.name : "A treasure awaits"}">${icon(v ? "gem" : "chest")}</span></button>`;
+      return `<button data-level="${i}" ${locked ? "disabled" : ""} aria-label="Level ${n + 1}${locked ? ", locked" : v ? ", " + v.stars + " stars" : ", set sail"}" class="level-tile ${locked ? "locked" : ""} ${i === next ? "next-level" : ""}"><span class="tile-number">${n + 1}</span>${locked ? icon("lock", "tile-lock") : ""}<span class="tile-stars">${[0, 1, 2].map((s) => `<i class="${s < (v?.stars ?? 0) ? "earned" : ""}">★</i>`).join("")}</span><span class="tile-treasure" title="${n === 2 ? RELICS[WORLD_RELICS[this.pack]!]!.name : "100 gold"}">${icon(n === 2 ? "gem" : "chest")}</span></button>`;
     }).join("");
   }
 
@@ -295,7 +318,7 @@ export class VoyageHud {
     this.q("#v-paused").hidden = !value;
     this.q("#voyage-play").inert = value;
   }
-  result(s: VoyageSession): void {
+  result(s: VoyageSession, reward?: VoyageReward): void {
     this.q("#captain-menu").hidden = true;
     this.root.dataset.screen = "result";
     this.q("#cave-ui").hidden = true;
@@ -303,7 +326,20 @@ export class VoyageHud {
     this.q("#v-result").hidden = false;
     this.q("#v-pause").hidden = true;
     this.q("#v-home").hidden = false;
-    this.revealName = RELICS[s.voyage.index]!.name;
+    this.revealName =
+      reward?.special !== null && reward?.special !== undefined
+        ? RELICS[reward.special]!.name
+        : reward?.gold
+          ? `+${reward.gold} gold`
+          : "The captain’s gold";
+    this.revealCaption =
+      reward?.special !== null && reward?.special !== undefined
+        ? "WORLD COMPLETE · A SPECIAL TREASURE"
+        : reward?.gold
+          ? "YOUR HOARD IS GROWING"
+          : "VOYAGE COMPLETE";
+    this.q(".collection-confirmation").innerHTML =
+      `${icon("chest")} ${reward?.gold ? `${reward.gold} gold added to your cave${reward.special !== null ? " · Special treasure collected" : ""}` : "Gold already collected · Best stars saved"}`;
     this.revealStars = s.stars;
     this.q("#result-title").textContent =
       s.state === "won" ? "A chest full of wonder" : "Pip brought you home";
@@ -335,7 +371,7 @@ export class VoyageHud {
     if (!this.q("#v-result").classList.contains("unboxing")) return;
     if (discovered) {
       this.q("#result-title").textContent = this.revealName;
-      this.q("#result-eyebrow").textContent = "A NEW TREASURE FOR YOUR CAVE";
+      this.q("#result-eyebrow").textContent = this.revealCaption;
       this.q("#v-result").classList.add("revealed");
     }
     for (const [i, star] of Array.from(

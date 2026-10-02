@@ -94,7 +94,7 @@ export class Cavern {
     // The only shadow-casting light is the broken skylight; lamps use cheap local light.
     const daylight = new SpotLight(
       "daylight through roof opening",
-      new Vector3(1, 14, 9),
+      new Vector3(1, 18, 9),
       new Vector3(-0.12, -1, -0.24),
       1.2,
       2,
@@ -180,21 +180,8 @@ export class Cavern {
         j + 60,
       );
     }
-    // Jagged roof lip surrounding an actual gap above the central illuminated floor.
-    for (let i = 0; i < 13; i++) {
-      const a = (i / 13) * Math.PI * 2;
-      const roof = this.rock(
-        "broken skylight rim",
-        new Vector3(
-          1 + Math.cos(a) * 6.2,
-          10.3 + Math.sin(a) * 3.2 + rng.range(-0.3, 0.3),
-          10 + Math.sin(a) * 2.0,
-        ),
-        new Vector3(1.7, rng.range(0.8, 1.3), 1.3),
-        i + 81,
-      );
-      roof.rotation.y = -a;
-    }
+    // Continuous vaulted bedrock, with a horizontal skylight cut through its thickness.
+    this.ceiling();
     const sky = material("pale sky through the broken roof", "#e0efff", 1.8);
     const skyTexture = new DynamicTexture(
       "daylit clouds beyond the hole",
@@ -217,35 +204,18 @@ export class Cavern {
     }
     skyTexture.update();
     sky.emissiveTexture = skyTexture;
-    sky.emissiveColor.set(0.85, 0.85, 0.85);
+    sky.emissiveColor.set(2.8, 2.9, 3.0);
+    sky.fogEnabled = false;
     sky.disableLighting = true;
     sky.backFaceCulling = false;
-    const aperture = new Mesh("irregular opening to the sky", s),
-      opening = new VertexData();
-    const positions = [1, 10.3, 10],
-      indices: number[] = [];
-    for (let i = 0; i <= 24; i++) {
-      const a = (i / 24) * Math.PI * 2,
-        r = 1 + 0.12 * Math.sin(a * 5) + 0.07 * Math.cos(a * 3);
-      positions.push(
-        1 + Math.cos(a) * 4.6 * r,
-        10.3 + Math.sin(a) * 2.3 * r,
-        10 + Math.sin(a) * 1.45 * r,
-      );
-      if (i > 0) indices.push(0, i, i + 1);
-    }
-    opening.uvs = positions.flatMap((_, i) =>
-      i % 3 === 0
-        ? [(positions[i]! - 1) / 10 + 0.5, (positions[i + 1]! - 10.3) / 5 + 0.5]
-        : [],
+    const skyBeyondRoof = MeshBuilder.CreateGround(
+      "sky above the roof",
+      { width: 80, height: 100 },
+      s,
     );
-    opening.positions = positions;
-    opening.indices = indices;
-    opening.normals = positions.map((_, i) => (i % 3 === 1 ? -1 : 0));
-    opening.applyToMesh(aperture);
-    aperture.material = sky;
-    aperture.isPickable = false;
-    // The middle of the roof is left open in the overview, like a scenic cutaway.
+    skyBeyondRoof.position.set(1, 20, 45);
+    skyBeyondRoof.material = sky;
+    skyBeyondRoof.isPickable = false;
     // Hanging limestone teeth and floor stalagmites are clustered along the sides.
     for (let i = 0; i < 36; i++) {
       const side = i % 2 ? 1 : -1,
@@ -390,8 +360,8 @@ export class Cavern {
     for (let i = 0; i < 6; i++) {
       const top =
           i === 0
-            ? new Vector3(1, 10.25, 10)
-            : new Vector3(-0.4 + i * 0.75, 10.25, 9 + i * 0.16),
+            ? new Vector3(1, 12.1, 9)
+            : new Vector3(-0.4 + i * 0.75, 12.1, 8.5 + i * 0.16),
         bottom =
           i === 0
             ? new Vector3(-0.5, 0.1, 5)
@@ -816,6 +786,107 @@ export class Cavern {
     }
     this.mergeStaticGeometry();
   }
+  private ceiling(): void {
+    const segments = 64,
+      bands = 9,
+      cx = 1,
+      cz = 9;
+    const edge = (angle: number) => {
+      const rough = 1 + 0.1 * Math.sin(angle * 5) + 0.065 * Math.cos(angle * 9);
+      return {
+        x: cx + Math.cos(angle) * 3.9 * rough,
+        z: cz + Math.sin(angle) * 3.1 * rough,
+      };
+    };
+    const roofHeight = (x: number, z: number) =>
+      12.65 -
+      3.8 * Math.pow(x / 18, 2) -
+      0.3 * Math.pow((z - 8) / 25, 2) +
+      0.17 * Math.sin(x * 0.8 + z * 0.35) +
+      0.09 * Math.cos(z * 1.7 - x * 0.4);
+    const positions: number[] = [],
+      indices: number[] = [],
+      uvs: number[] = [];
+    for (let band = 0; band <= bands; band++)
+      for (let i = 0; i <= segments; i++) {
+        const a = (i / segments) * Math.PI * 2,
+          dx = Math.cos(a),
+          dz = Math.sin(a),
+          inner = edge(a);
+        const tx = dx > 0 ? (18 - cx) / dx : (-18 - cx) / dx,
+          tz = dz > 0 ? (26 - cz) / dz : (-12 - cz) / dz;
+        const reach = Math.min(tx, tz),
+          t = band / bands;
+        const x = inner.x * (1 - t) + (cx + dx * reach) * t,
+          z = inner.z * (1 - t) + (cz + dz * reach) * t;
+        positions.push(x, roofHeight(x, z), z);
+        uvs.push(x / 6, z / 6);
+        if (band < bands && i < segments) {
+          const n = band * (segments + 1) + i;
+          indices.push(
+            n,
+            n + 1,
+            n + segments + 1,
+            n + 1,
+            n + segments + 2,
+            n + segments + 1,
+          );
+        }
+      }
+    const normals: number[] = [];
+    VertexData.ComputeNormals(positions, indices, normals);
+    const data = new VertexData();
+    data.positions = positions;
+    data.indices = indices;
+    data.normals = normals;
+    data.uvs = uvs;
+    const roof = new Mesh("vaulted ceiling with an open skylight", this.scene);
+    data.applyToMesh(roof);
+    roof.convertToFlatShadedMesh();
+    const roofMaterial = this.stone.clone("fractured ceiling underside")!;
+    roofMaterial.backFaceCulling = false;
+    roof.material = roofMaterial;
+    roof.isPickable = false;
+    roof.receiveShadows = true;
+    // The eroded shaft exposes real thickness; the bright sky sits well above it.
+    const throatPositions: number[] = [],
+      throatUV: number[] = [],
+      throatIndices: number[] = [];
+    for (let layer = 0; layer <= 3; layer++)
+      for (let i = 0; i <= segments; i++) {
+        const a = (i / segments) * Math.PI * 2,
+          p = edge(a),
+          t = layer / 3;
+        const x = cx + (p.x - cx) * (1 + 0.1 * t),
+          z = cz + (p.z - cz) * (1 + 0.1 * t) + t * 2.6;
+        throatPositions.push(x, roofHeight(p.x, p.z) + t * 0.7, z);
+        throatUV.push((i / segments) * 5, t);
+        if (layer < 3 && i < segments) {
+          const n = layer * (segments + 1) + i;
+          throatIndices.push(
+            n,
+            n + 1,
+            n + segments + 1,
+            n + 1,
+            n + segments + 2,
+            n + segments + 1,
+          );
+        }
+      }
+    const tn: number[] = [];
+    VertexData.ComputeNormals(throatPositions, throatIndices, tn);
+    const td = new VertexData();
+    td.positions = throatPositions;
+    td.indices = throatIndices;
+    td.normals = tn;
+    td.uvs = throatUV;
+    const throat = new Mesh("broken roof throat", this.scene);
+    td.applyToMesh(throat);
+    throat.convertToFlatShadedMesh();
+    throat.material = roofMaterial;
+    throat.isPickable = false;
+    throat.receiveShadows = true;
+  }
   private mergeStaticGeometry(): void {
     const groups = new Map<string, Mesh[]>();
     for (const mesh of [...this.scene.meshes]) {
@@ -838,7 +909,9 @@ export class Cavern {
         parent = parent.parent;
       }
       if (dynamic) continue;
-      const caster = /barrel|crate|anchor|stalagmite/.test(mesh.name);
+      const caster = /barrel|crate|anchor|stalagmite|ceiling|roof throat/.test(
+        mesh.name,
+      );
       const key = mesh.material!.uniqueId + ":" + caster;
       const group = groups.get(key) ?? [];
       group.push(mesh);
@@ -990,7 +1063,10 @@ export class Cavern {
     }
   }
   refresh(count: number): void {
-    this.hoards.forEach((h, i) => h.setEnabled(count >= i * 2 + 1));
+    this.hoards.forEach((h, i) => {
+      h.setEnabled(count >= i * 2 + 1);
+      h.scaling.y = count > i * 2 + 1 ? 1 : 0.65;
+    });
   }
   animate(dt: number): void {
     this.time += dt;

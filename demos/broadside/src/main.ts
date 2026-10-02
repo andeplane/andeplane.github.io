@@ -2,6 +2,12 @@ import "@babylonjs/core/Culling/ray.js";
 import { Engine } from "@babylonjs/core/Engines/engine.js";
 import { VoyageSession, generateVoyage, RELICS } from "./game/voyage";
 import { readProgress, saveProgress } from "./game/progress";
+import {
+  awardVoyage,
+  syncRewards,
+  CAVE_ITEMS,
+  type VoyageReward,
+} from "./game/rewards";
 import { Controls } from "./input/controls";
 import { CaveGesture } from "./input/caveGesture";
 import { GameRenderer } from "./render/renderer";
@@ -44,17 +50,18 @@ async function main() {
     controls = new Controls(),
     sound = new Sound(forceMute);
   if (qaQuery === "collection") {
-    progress.relics = RELICS.map((_, i) => i);
     progress.voyages = Object.fromEntries(
       RELICS.map((_, i) => [i, { stars: 3, gems: 3 }]),
     );
   }
+  syncRewards(progress);
+  let reward: VoyageReward | undefined;
   // Audio is explicitly opt-in on every launch, including development reloads.
   progress.muted = true;
   sound.muted = true;
   sound.voice = progress.narration;
   const cave = new TreasureCave(engine);
-  cave.refresh(progress.relics);
+  cave.refresh(progress);
   let session = new VoyageSession(generateVoyage(0)),
     renderer: GameRenderer | null = null;
   let mode: "menu" | "cave" | "play" | "result" | "loading" = "menu",
@@ -77,7 +84,7 @@ async function main() {
     pendingFire = false;
     hud.paused(false);
     hud.home();
-    cave.refresh(progress.relics);
+    cave.refresh(progress);
     cave.overview();
     sound.pause(false);
     stepper.reset();
@@ -99,6 +106,7 @@ async function main() {
   };
   const start = async (index: number) => {
     gesture.clear();
+    reward = undefined;
     if (!qa && index > 0 && !progress.voyages[index - 1]) return;
     const id = ++loadId;
     mode = "loading";
@@ -222,22 +230,21 @@ async function main() {
       heading = null;
       mode = "result";
       if (session.state === "won") {
-        const i = session.voyage.index,
-          previous = progress.voyages[i];
-        progress.voyages[i] = {
-          stars: Math.max(previous?.stars ?? 0, session.stars),
-          gems: Math.max(previous?.gems ?? 0, session.gemsFound),
-        };
-        progress.relics = [...new Set([...progress.relics, i])];
+        reward = awardVoyage(
+          progress,
+          session.voyage.index,
+          session.stars,
+          session.gemsFound,
+        );
         saveProgress(progress, storage);
-        cave.refresh(progress.relics);
-        cave.beginReveal(i);
+        cave.refresh(progress);
+        cave.beginReveal(reward.model);
         sound.chest();
       } else {
         cave.select(hud.selected, true);
         sound.say("Pip brought you home. Your treasures are safe.");
       }
-      hud.result(session);
+      hud.result(session, reward);
     }
   });
   if (qa)
@@ -250,7 +257,13 @@ async function main() {
     if (mode === "cave") {
       if (e.code === "ArrowLeft" || e.code === "ArrowRight") {
         e.preventDefault();
-        hud.select(hud.selected + (e.code === "ArrowLeft" ? -1 : 1));
+        const current = Math.max(0, CAVE_ITEMS.indexOf(hud.selected));
+        hud.select(
+          CAVE_ITEMS[
+            (current + (e.code === "ArrowLeft" ? -1 : 1) + CAVE_ITEMS.length) %
+              CAVE_ITEMS.length
+          ]!,
+        );
       }
       if (e.code === "Escape") menu();
       return;
@@ -360,7 +373,7 @@ async function main() {
         if (p.opening && !before.opening) sound.chestOpen();
         if (p.discovered && !before.discovered) {
           sound.cheer();
-          sound.say(`You found ${RELICS[session.voyage.index]!.name}!`);
+          sound.say(`You found ${RELICS[reward?.model ?? 0]!.name}!`);
         }
       }
     }
@@ -375,12 +388,13 @@ async function main() {
     session.state = "won";
     session.stars = 3;
     session.gemsFound = 2;
-    progress.relics = [index];
+    for (let i = 0; i < index; i++) awardVoyage(progress, i, 3, 2);
+    reward = awardVoyage(progress, index, 3, 2);
     mode = "result";
     hud.selected = index;
-    hud.result(session);
-    cave.refresh(progress.relics);
-    cave.beginReveal(index);
+    hud.result(session, reward);
+    cave.refresh(progress);
+    cave.beginReveal(reward.model);
   } else if (qaQuery === "collection") home();
   else if (qa) void start(Number(qaQuery));
 }

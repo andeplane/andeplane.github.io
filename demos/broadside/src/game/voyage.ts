@@ -40,7 +40,7 @@ export const RELICS = [
     name: "The captain’s gold",
     kind: "gold",
     color: "#ffce77",
-    story: "Your very first chest of shining gold. A fortune in adventures.",
+    story: "A growing fortune brought home from your voyages.",
   },
   {
     name: "Moonlit silver",
@@ -261,7 +261,7 @@ export class VoyageSession extends Session {
         id: 0,
         chapter: voyage.pack,
         name: "The far sea",
-        prize: RELICS[voyage.index]!.name,
+        prize: "100 gold",
         icon: "✦",
         pos: { ...voyage.finish },
         island: voyage.level.islands.length - 1,
