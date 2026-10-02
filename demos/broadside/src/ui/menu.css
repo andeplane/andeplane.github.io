@@ -1012,3 +1012,57 @@
     bottom: 0;
   }
 }
+
+/* Keep the skylight visible, with compact controls above the chamber. */
+#cave-ui .cave-title {
+  top: max(20px, env(safe-area-inset-top));
+  left: 144px;
+  right: auto;
+  transform: none;
+  text-align: left;
+  width: 300px;
+}
+#cave-ui .cave-title .eyebrow {
+  display: none;
+}
+#cave-ui .cave-title h1 {
+  margin: 0 0 4px;
+  font-size: 30px;
+}
+#cave-ui .cave-title p {
+  margin: 0;
+  font-size: 11px;
+}
+@media (max-width: 600px) {
+  #cave-ui .cave-title {
+    top: 22px;
+    left: 50%;
+    transform: translateX(-50%);
+    text-align: center;
+    width: calc(100% - 150px);
+  }
+  #cave-ui .cave-title h1 {
+    font-size: clamp(18px, 5vw, 21px);
+    white-space: nowrap;
+  }
+  #cave-ui .cave-title p {
+    font-size: 10px;
+    line-height: 1.35;
+  }
+  #cave-ui .menu-back {
+    padding: 10px;
+    font-size: 11px;
+    min-width: 62px;
+  }
+  #cave-ui .gallery-hint {
+    bottom: 28px;
+    padding: 0 16px;
+    line-height: 1.4;
+  }
+  #cave-ui .cave-overview {
+    top: 80px;
+    right: 16px;
+    min-width: 44px;
+    min-height: 44px;
+  }
+}

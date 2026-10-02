@@ -7,17 +7,19 @@ export class Sound {
   private master: GainNode | null = null;
   private noise: AudioBuffer | null = null;
   private surf: AudioBufferSourceNode | null = null;
-  muted = false;
+  muted = true;
   voice = true;
   private suspended = false;
   private surfGain: GainNode | null = null;
   private ambienceClock = 0;
   private lastThunder = -1;
   private pauseTimer: ReturnType<typeof setTimeout> | null = null;
+  constructor(private readonly forceMute = false) {}
   get state(): string {
     return this.context?.state ?? "locked";
   }
   async unlock(): Promise<void> {
+    if (this.muted || this.forceMute) return;
     try {
       if (!this.context) {
         this.context = new AudioContext();
@@ -55,6 +57,7 @@ export class Sound {
   }
   say(text: string): void {
     if (
+      this.forceMute ||
       !this.voice ||
       this.muted ||
       typeof window === "undefined" ||
@@ -78,6 +81,7 @@ export class Sound {
     }
   }
   toggle(): boolean {
+    if (this.forceMute) return (this.muted = true);
     this.muted = !this.muted;
     if (this.muted && "speechSynthesis" in window) speechSynthesis.cancel();
     this.master?.gain.setTargetAtTime(

@@ -1,9 +1,19 @@
 # Broadside acceptance checks — 2 October 2026
 
+## Rocky hoard cave revision
+
+The cave now follows the overhead-light reference: one continuous room with irregular rock shelves, fractured stone walls and roof opening, a visibly uneven stone floor, soft shafts of daylight and dust. Sparse lanterns, an anchor, a skull flag, barrels, crates, rope coils, sacks, growing coin heaps, quartz, puddles, stalactites, stalagmites and cobwebs fill the chamber. Collected relics rest on their rock surfaces; the circular floor and matching display stands are gone. Static scenery is merged by material, and loose coins use instances.
+
+Browser checks use `?mute=true`, which prevents creating an audio context and survives reloads and sound-button presses. The normal game also starts with sound off; the player enables sound explicitly. Automated sound tests verify silent startup, forced mute and explicit opt-in. All agent test tabs are closed after verification.
+
+Rechecked at 1280×800, 390×740, 320×568 and 844×390: room framing, readable controls, shelf picking, smoothly animated close-ups, panning to side treasures, wheel pullback and Whole cave reset. Two-pointer gesture tests cover spreading and closing fingers, cancellation, small jitter, slow drags, and prevention of accidental selection after lifting one finger. Physical multi-touch and phone GPU performance remain unverified.
+
+`npm run check`: 124 tests in 16 files passed; TypeScript and the production build passed. Input code has 100% coverage. The packaged cave loaded its textures correctly under `/demos/broadside/`; the closed chest and completed sapphire-ring reveal were checked silently at phone size. Reward lighting preserves the chest’s wood and brass detail in the darker room. Screenshots: `artifacts/qa/rocky-cave-desktop.png`, `rocky-cave-phone.png`.
+
 ## Pirate menu and single-cave revision
 
 - Main menu is Play, Settings, Cave. Play opens the illustrated world map; the cave entrance is beside First sails. Each world opens three numbered tiles with stars, real lock symbols and treasure badges.
-- One continuous 3D cave contains all twelve permanent displays. Undiscovered treasures are opaque closed chests. Drag changes the view, tapping a display inspects it, mouse wheel zooms, and Whole cave resets the camera.
+- One continuous 3D cave contains all twelve treasures. Undiscovered treasures are opaque closed chests. Drag changes the view, tapping a display inspects it, mouse wheel zooms, and Whole cave resets the camera.
 - Collection saves automatically at level completion. Results confirm Added to your cave and offer Continue plus replay. Continue opens the level grid, or the world map after a pack; the last level returns to the cave.
 - Gentle pirate brigs now appear in the first world, and BOOM is available from the beginning. The first world still prioritizes steering; enemy volleys deal less damage and have a longer warning.
 - Darker water and cloud shadows, skull flags, swaying palms, timber docks, camp supplies, ruined gates, camps, watchtowers, torch lights and Skull Rock. Later worlds add restrained lightning and thunder. Chest planks, sparks and real lid movement are retained; gems have a brilliant-cut crown and pavilion.

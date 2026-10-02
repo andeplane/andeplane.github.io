@@ -19,6 +19,7 @@ export function buildRelic(
     m.diffuseColor = Color3.FromHexString(locked ? "#40586b" : hex).scale(0.8);
     m.specularColor = Color3.FromHexString(locked ? "#101924" : "#7b796e");
     m.specularPower = 80;
+    m.maxSimultaneousLights = 6;
     m.emissiveColor = m.diffuseColor.scale(locked ? 0.03 : glow * 0.65);
     m.alpha = locked ? 0.28 : alpha;
     return m;

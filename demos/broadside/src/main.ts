@@ -3,6 +3,7 @@ import { Engine } from "@babylonjs/core/Engines/engine.js";
 import { VoyageSession, generateVoyage, RELICS } from "./game/voyage";
 import { readProgress, saveProgress } from "./game/progress";
 import { Controls } from "./input/controls";
+import { CaveGesture } from "./input/caveGesture";
 import { GameRenderer } from "./render/renderer";
 import { TreasureCave } from "./render/cave";
 import { FixedStepper } from "./sim/world";
@@ -30,6 +31,7 @@ async function main() {
     storage = localStorage;
   } catch {}
   // Development-only visual fixtures. They never read or write the player's save.
+  const forceMute = new URLSearchParams(location.search).get("mute") === "true";
   const qaQuery = import.meta.env.DEV
     ? new URLSearchParams(location.search).get("qa")
     : null;
@@ -40,14 +42,16 @@ async function main() {
   if (qa) storage = undefined;
   const progress = readProgress(storage),
     controls = new Controls(),
-    sound = new Sound();
+    sound = new Sound(forceMute);
   if (qaQuery === "collection") {
     progress.relics = RELICS.map((_, i) => i);
     progress.voyages = Object.fromEntries(
       RELICS.map((_, i) => [i, { stars: 3, gems: 3 }]),
     );
   }
-  sound.muted = progress.muted;
+  // Audio is explicitly opt-in on every launch, including development reloads.
+  progress.muted = true;
+  sound.muted = true;
   sound.voice = progress.narration;
   const cave = new TreasureCave(engine);
   cave.refresh(progress.relics);
@@ -59,7 +63,9 @@ async function main() {
     pendingFire = false,
     loadId = 0,
     tapHeading: number | null = null;
+  const gesture = new CaveGesture();
   const home = () => {
+    gesture.clear();
     loadId++;
     mode = "cave";
     cave.endReveal();
@@ -77,6 +83,7 @@ async function main() {
     stepper.reset();
   };
   const menu = () => {
+    gesture.clear();
     loadId++;
     mode = "menu";
     cave.endReveal();
@@ -91,6 +98,7 @@ async function main() {
     stepper.reset();
   };
   const start = async (index: number) => {
+    gesture.clear();
     if (!qa && index > 0 && !progress.voyages[index - 1]) return;
     const id = ++loadId;
     mode = "loading";
@@ -167,6 +175,7 @@ async function main() {
       sound.click();
     },
     mute: () => {
+      if (forceMute) return true;
       void sound.unlock();
       progress.muted = sound.toggle();
       saveProgress(progress, storage);
@@ -260,6 +269,7 @@ async function main() {
   });
   window.addEventListener("keyup", (e) => controls.keyUp(e.code));
   window.addEventListener("blur", () => {
+    gesture.clear();
     controls.clear();
     heading = null;
     pendingFire = false;
@@ -267,29 +277,25 @@ async function main() {
   document.addEventListener("visibilitychange", () => {
     if (document.hidden && mode === "play" && !paused) pause();
   });
-  let drag: { x: number; y: number; moved: boolean } | null = null;
   canvas.addEventListener("pointerdown", (e) => {
     if (mode === "cave") {
-      drag = { x: e.clientX, y: e.clientY, moved: false };
+      gesture.down(e.pointerId, e.clientX, e.clientY);
       canvas.setPointerCapture(e.pointerId);
     }
   });
   canvas.addEventListener("pointermove", (e) => {
-    if (!drag) return;
-    const dx = e.clientX - drag.x,
-      dy = e.clientY - drag.y;
-    if (Math.abs(dx) + Math.abs(dy) > 3) drag.moved = true;
-    cave.look(dx, dy);
-    drag.x = e.clientX;
-    drag.y = e.clientY;
+    if (mode !== "cave") return;
+    const action = gesture.move(e.pointerId, e.clientX, e.clientY);
+    if (action?.type === "look") cave.look(action.dx, action.dy);
+    if (action?.type === "pinch" && cave.pinch(action.ratio)) hud.overview();
   });
   canvas.addEventListener("pointerup", (e) => {
-    if (drag) {
-      if (!drag.moved) {
-        const i = cave.pick(e.clientX, e.clientY);
+    if (mode === "cave") {
+      const action = gesture.up(e.pointerId, e.clientX, e.clientY);
+      if (action?.type === "tap") {
+        const i = cave.pick(action.x, action.y);
         if (i !== null) hud.select(i);
       }
-      drag = null;
       return;
     }
     if (mode === "play" && !paused) {
@@ -311,12 +317,15 @@ async function main() {
       }
     }
   });
-  canvas.addEventListener("pointercancel", () => (drag = null));
+  canvas.addEventListener("pointercancel", (e) => gesture.cancel(e.pointerId));
+  canvas.addEventListener("lostpointercapture", (e) =>
+    gesture.cancel(e.pointerId),
+  );
   canvas.addEventListener(
     "wheel",
     (e) => {
       e.preventDefault();
-      if (mode === "cave") cave.zoom(e.deltaY);
+      if (mode === "cave" && cave.zoom(e.deltaY)) hud.overview();
       else if (mode === "play") renderer?.zoomBy(e.deltaY * 0.035);
     },
     { passive: false },
@@ -325,6 +334,7 @@ async function main() {
     quality();
     engine.resize();
     renderer?.resize();
+    cave.resize();
   });
   engine.onContextLostObservable.add(() => {
     if (mode === "play" && !paused) pause();
