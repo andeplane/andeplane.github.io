@@ -24,7 +24,6 @@ interface Handlers {
   start: (index: number) => void;
   home: () => void;
   menu: () => void;
-  narration: () => boolean;
   overview: () => void;
   caveMove: (right: number, forward: number) => void;
   caveJump: () => void;
@@ -61,7 +60,7 @@ export class VoyageHud {
       <div id="main-menu" class="menu-page"><div class="title-crest">${icon("wheel")}</div><span class="eyebrow">A PIRATE’S TREASURE ADVENTURE</span><h1>Broadside</h1><p class="menu-tagline">Brave the seas. Bring home the treasure.</p><nav class="main-actions" aria-label="Main menu"><button id="menu-play" class="wood-button prominent">Play ${icon("play")}</button><button id="menu-settings" class="wood-button">Settings ${icon("wheel")}</button><button id="menu-cave" class="wood-button">Cave ${icon("chest")}</button></nav></div>
       <div id="world-menu" class="menu-page" hidden><div class="menu-heading"><span class="eyebrow">CHART YOUR COURSE</span><h1>The pirate seas</h1><p>Choose an island. Chart your adventure.</p></div><div class="world-map" role="group" aria-label="Pirate sea chart"><svg class="map-route" viewBox="0 0 1000 1000" preserveAspectRatio="none" aria-hidden="true"><path class="route-wide" d="M180 930 C125 820 90 720 170 520 S250 90 410 190 S440 650 650 480 S735 90 865 135"/><path class="route-tall" d="M170 930 C110 810 110 710 245 635 S815 810 755 545 S80 525 245 185 S570 290 755 150"/></svg><button id="map-cave" class="map-cave" aria-label="Visit treasure cave">${icon("chest")}<span>Your cave</span></button><div id="world-packs"></div></div><p class="map-footnote">Gold in every level. A special treasure in every world.</p></div>
       <div id="level-menu" class="menu-page" hidden><div class="menu-heading"><span class="eyebrow" id="world-number"></span><h1 id="world-name"></h1><p id="pack-caption"></p></div><div class="level-board"><div id="level-world-art"></div><div id="voyage-levels"></div><p class="level-note">1,000 gold per level · Complete the world for its special treasure.</p></div></div>
-      <div id="settings-menu" class="menu-page" hidden><div class="menu-heading"><span class="eyebrow">THE CAPTAIN’S ORDERS</span><h1>Settings</h1></div><div class="settings-board"><button id="settings-sound" class="setting-row" role="switch" aria-checked="${!progress.muted}"><span>${icon("sound")} Sound effects</span><b>${progress.muted ? "Off" : "On"}</b></button><button id="settings-voice" class="setting-row" role="switch" aria-checked="${progress.narration}"><span>${icon("flag")} Spoken hints</span><b>${progress.narration ? "On" : "Off"}</b></button><p>Steer with the wheel. Tap BOOM to fire.<br>Your treasures and stars are saved automatically.</p><p class="art-credit">Black Pearl model by <a href="https://www.thingiverse.com/thing:4951578" target="_blank" rel="noopener">DeltaX_F</a> · <a href="https://creativecommons.org/licenses/by/4.0/" target="_blank" rel="noopener">CC BY 4.0</a><br>Adapted for Broadside.</p></div></div>
+      <div id="settings-menu" class="menu-page" hidden><div class="menu-heading"><span class="eyebrow">THE CAPTAIN’S ORDERS</span><h1>Settings</h1></div><div class="settings-board"><button id="settings-sound" class="setting-row" role="switch" aria-checked="${!progress.muted}"><span>${icon("sound")} Sound effects</span><b>${progress.muted ? "Off" : "On"}</b></button><p>Steer with the wheel. Tap BOOM to fire.<br>Your treasures and stars are saved automatically.</p><p class="art-credit">Black Pearl model by <a href="https://www.thingiverse.com/thing:4951578" target="_blank" rel="noopener">DeltaX_F</a> · <a href="https://creativecommons.org/licenses/by/4.0/" target="_blank" rel="noopener">CC BY 4.0</a><br>Adapted for Broadside.</p></div></div>
       <button id="menu-back" class="menu-back" hidden>‹ <span>Back</span></button>
     </section>
     <section id="cave-ui" hidden><div class="cave-title"><span class="eyebrow">YOUR SECRET HIDEOUT</span><h1>The treasure cave</h1><p id="cave-count"></p></div><div id="relic-info"><span class="eyebrow" id="relic-number"></span><h2 id="relic-title"></h2><p id="relic-story"></p><div id="relic-stars"></div><button id="cave-sail" class="text-button">Find this treasure ${icon("arrow")}</button></div><div class="gallery-hint">WASD walk · Arrows look · Space jump</div><button id="cave-overview" class="cave-overview">‹ Keep exploring</button><div id="cave-crosshair" aria-hidden="true">+</div><div id="cave-pad" role="group" aria-label="Move around the cave"><span id="cave-thumb"></span><small>MOVE</small></div><button id="cave-jump" aria-label="Jump">↑<small>JUMP</small></button><button id="cave-inspect" hidden>Inspect treasure</button><button id="cave-back" class="menu-back">‹ <span>Back</span></button></section>
@@ -151,11 +150,6 @@ export class VoyageHud {
       q("#v-sound").innerHTML = icon(muted ? "mute" : "sound");
       q("#settings-sound").setAttribute("aria-checked", String(!muted));
       q("#settings-sound b").textContent = muted ? "Off" : "On";
-    };
-    q("#settings-voice").onclick = () => {
-      const enabled = h.narration();
-      q("#settings-voice").setAttribute("aria-checked", String(enabled));
-      q("#settings-voice b").textContent = enabled ? "On" : "Off";
     };
     q("#world-packs").onclick = (e) => {
       const b = (e.target as HTMLElement).closest<HTMLElement>("[data-pack]");
@@ -247,13 +241,6 @@ export class VoyageHud {
     this.q("#settings-sound b").textContent = this.progress.muted
       ? "Off"
       : "On";
-    this.q("#settings-voice").setAttribute(
-      "aria-checked",
-      String(this.progress.narration),
-    );
-    this.q("#settings-voice b").textContent = this.progress.narration
-      ? "On"
-      : "Off";
     this.q("#captain-menu").hidden = false;
     this.q("#cave-ui").hidden =
       this.q("#voyage-play").hidden =
@@ -497,9 +484,9 @@ export class VoyageHud {
     this.q("#v-gems").textContent = `${s.gemsFound} / 3`;
     this.q("#v-level").textContent =
       `${PACKS[s.voyage.pack]!.name.toUpperCase()} · LEVEL ${stageOf(s.voyage.index) + 1}`;
-    this.q("#v-objective").textContent = "Reach the treasure";
+    this.q("#v-objective").textContent = s.level.name;
     this.q("#v-travel").style.width =
-      `${Math.max(0, Math.min(100, ((s.player.pos.z + 90) / 238) * 100))}%`;
+      `${Math.max(0, Math.min(100, ((s.player.pos.z - s.level.player.pos.z) / (s.voyage.finish.z - s.level.player.pos.z)) * 100))}%`;
     const angle = angleDiff(0, headingTo(s.player.pos, s.voyage.finish));
     this.q("#v-arrow").style.transform = `rotate(${angle}rad)`;
     this.q("#v-distance").textContent =

@@ -20,7 +20,6 @@ describe("silent game startup", () => {
     expect(s.toggle()).toBe(true);
     await s.unlock();
     s.pause(false);
-    s.say("This must never speak");
     expect(create).not.toHaveBeenCalled();
     expect(s.state).toBe("locked");
   });
@@ -33,5 +32,23 @@ describe("silent game startup", () => {
     expect(s.toggle()).toBe(false);
     await s.unlock();
     expect(create).toHaveBeenCalledOnce();
+  });
+  it("plays game events without requesting a browser voice even when sound is enabled", () => {
+    const speak = vi.fn(),
+      utterance = vi.fn();
+    vi.stubGlobal("speechSynthesis", { speak });
+    vi.stubGlobal("SpeechSynthesisUtterance", utterance);
+    const s = new Sound();
+    s.toggle();
+    s.handle(
+      [],
+      [
+        { type: "banner", title: "Sails ahead", subtitle: "Keep turning" },
+        { type: "reward", chapter: 0 },
+      ],
+      1,
+    );
+    expect(speak).not.toHaveBeenCalled();
+    expect(utterance).not.toHaveBeenCalled();
   });
 });

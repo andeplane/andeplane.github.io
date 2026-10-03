@@ -143,3 +143,13 @@ The cave previously enabled only the two lantern lights closest to the camera. C
 The previous lantern fix left a broad point light attached to the walking camera. That invisible flashlight still moved the rock's diffuse shading and normal-map highlights with every step. It has now been removed. The cave uses fixed skylight, fixed local lanterns, and a slightly stronger constant ambient fill. Rock/floor specular response and normal-map strength are reduced; gold keeps its metallic shine.
 
 At 390×740, the actual look gesture turned back toward the lantern passage; joystick walking moved from (0,31) to approximately (-0.02,30.28) without changing yaw. The paired screenshots show consistent rock and floor shading across that roughly 72 cm step: `artifacts/qa/fixed-room-lighting-before.png` and `fixed-room-lighting-after.png`. Development and packaged production rendering produced no captured browser warnings/errors and remained audio-locked. All 160 tests, typecheck and production build pass. Test tabs were closed; the user's tab was only inspected and left open. Physical-phone GPU performance remains unverified.
+
+
+## Remove narration and rebuild First sails — 2026-10-03
+
+Browser speech synthesis and every spoken-hint setting/call have been removed. Sound effects remain opt-in and `mute=true` still locks the audio device. Old saves containing the narration field are read without bringing it back.
+
+First sails now uses ten authored layouts with different starts, lengths, landmarks, gem routes and steering patterns: short open water, palm gates, a headland turn, rocky slalom, two branches, a hidden lagoon, a long coast bend, reef gates, a secret western passage and four-headland finale. Eight courses require a turn on their shortest safe route. The HUD shows the course name and computes travel progress against that course's own start/finish. Later worlds retain their requested hazard progression.
+
+- All 163 tests, typecheck and Vite production build pass. Real-physics steering completes all forty voyages and reaches all thirty optional gems in the navigation pack. The voice regression checks enabled sound with banner/reward events never requests a browser utterance.
+- A muted 390×740 browser completed the shorter first voyage with three stars, two gems and its gold reveal, then Next level loaded the separate palm-gate layout. Reef-gate and branching-course rendering were also inspected. No browser warnings/errors; audio remained locked. Screenshots: `navigation-reef-phone.png` and `navigation-palms-phone.png` in `artifacts/qa`. Physical-phone testing remains unverified.

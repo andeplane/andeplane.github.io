@@ -1729,20 +1729,6 @@ h2 {
   }
 }
 
-.narration-setting {
-  display: flex;
-  align-items: center;
-  gap: 9px;
-  justify-content: center;
-  margin: 16px 0;
-  font-size: 11px;
-  color: #bdd7d1;
-}
-.narration-setting input {
-  accent-color: #ffd17c;
-  width: 18px;
-  height: 18px;
-}
 #map-stops {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));

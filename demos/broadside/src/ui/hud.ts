@@ -11,7 +11,6 @@ type Projector = (
   z: number,
 ) => { x: number; y: number; visible: boolean };
 interface Handlers {
-  onNarration: (value: boolean) => void;
   onCruise: () => void;
   onStart: (junior: boolean) => void;
   onRestart: () => void;
@@ -76,7 +75,7 @@ export class Hud {
       <section id="reward" class="screen modal"><div class="card"><div class="medallion">${icon("star")}</div><span class="eyebrow">ADVENTURE COMPLETE</span><h2 id="reward-title"></h2><p id="reward-text"></p><div id="reward-loot" class="loot"></div><button id="continue" class="btn">Next adventure ${icon("arrow")}</button></div></section>
       <section id="end" class="screen modal"><div class="card"><div class="medallion">${icon("wheel")}</div><span class="eyebrow" id="end-eyebrow"></span><h2 id="end-title"></h2><p id="end-text"></p><div id="end-loot" class="loot"></div><div id="end-gold"></div><button id="again" class="btn">Sail again ${icon("arrow")}</button><button id="cruise" class="text-btn">A peaceful treasure cruise</button></div></section>
       <section id="chart" class="screen modal"><div class="card chart-card"><button id="close-chart" class="close" aria-label="Close treasure map">×</button><span class="eyebrow">X MARKS THE SPOT</span><h2>Your treasure map</h2><svg id="big-map" viewBox="-310 -310 620 620" role="img" aria-label="Island map showing your ship, pirates and treasures"></svg><div id="map-stops"></div><small class="map-legend"><i></i> You <i></i> Treasure <i></i> Pirates</small></div></section>
-      <section id="how" class="screen modal"><div class="card"><button id="close-help" class="close" aria-label="Close instructions">×</button><div class="medallion">${icon("compass")}</div><span class="eyebrow">WELCOME ABOARD, CAPTAIN</span><h2>Ready for adventure?</h2><div class="instructions"><div>${icon("wheel")}<span><b>Steer your ship</b>Drag the wheel, use ← →, or tap the sea.</span></div><div>${icon("chest")}<span><b>Find the treasure</b>Follow the gold compass. Stop by a chest to open it.</span></div><div>${icon("cannon")}<span><b>Make a little BOOM!</b>Get close to pirates. Your crew aims and fires for you!</span></div><div>${icon("map")}<span><b>A helping hand</b>Tap a treasure on your map and your crew sails there.</span></div></div><label class="narration-setting"><input id="narration" type="checkbox" ${progress.narration ? "checked" : ""}> Pip reads hints aloud</label><button id="help-go" class="btn">Aye aye! ${icon("arrow")}</button></div></section>`;
+      <section id="how" class="screen modal"><div class="card"><button id="close-help" class="close" aria-label="Close instructions">×</button><div class="medallion">${icon("compass")}</div><span class="eyebrow">WELCOME ABOARD, CAPTAIN</span><h2>Ready for adventure?</h2><div class="instructions"><div>${icon("wheel")}<span><b>Steer your ship</b>Drag the wheel, use ← →, or tap the sea.</span></div><div>${icon("chest")}<span><b>Find the treasure</b>Follow the gold compass. Stop by a chest to open it.</span></div><div>${icon("cannon")}<span><b>Make a little BOOM!</b>Get close to pirates. Your crew aims and fires for you!</span></div><div>${icon("map")}<span><b>A helping hand</b>Tap a treasure on your map and your crew sails there.</span></div></div><button id="help-go" class="btn">Aye aye! ${icon("arrow")}</button></div></section>`;
     for (const modal of this.root.querySelectorAll<HTMLElement>(".modal")) {
       modal.setAttribute("role", "dialog");
       modal.setAttribute("aria-modal", "true");
@@ -147,9 +146,6 @@ export class Hud {
       $(r, "#how").classList.remove("on");
       if (this.started && $(r, "#pause").classList.contains("on")) h.onPause();
     };
-    $(r, "#narration").addEventListener("change", () =>
-      h.onNarration($(r, "#narration").matches(":checked")),
-    );
     click("#close-help", closeHelp);
     click("#help-go", closeHelp);
     for (const p of r.querySelectorAll<HTMLButtonElement>("[data-paint]"))

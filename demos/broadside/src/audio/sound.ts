@@ -8,7 +8,6 @@ export class Sound {
   private noise: AudioBuffer | null = null;
   private surf: AudioBufferSourceNode | null = null;
   muted = true;
-  voice = true;
   private suspended = false;
   private surfGain: GainNode | null = null;
   private ambienceClock = 0;
@@ -55,35 +54,9 @@ export class Sound {
       /* Sailing still works if a browser or device cannot create audio. */
     }
   }
-  say(text: string): void {
-    if (
-      this.forceMute ||
-      !this.voice ||
-      this.muted ||
-      typeof window === "undefined" ||
-      !("speechSynthesis" in window)
-    )
-      return;
-    try {
-      const utterance = new SpeechSynthesisUtterance(text);
-      utterance.lang = "en-GB";
-      utterance.rate = 0.95;
-      utterance.pitch = 1.15;
-      utterance.volume = 0.65;
-      const localEnglish = speechSynthesis
-        .getVoices()
-        .find((v) => v.localService && v.lang.startsWith("en"));
-      if (localEnglish) utterance.voice = localEnglish;
-      speechSynthesis.cancel();
-      speechSynthesis.speak(utterance);
-    } catch {
-      /* Optional spoken hints never block the game. */
-    }
-  }
   toggle(): boolean {
     if (this.forceMute) return (this.muted = true);
     this.muted = !this.muted;
-    if (this.muted && "speechSynthesis" in window) speechSynthesis.cancel();
     this.master?.gain.setTargetAtTime(
       this.muted ? 0 : 0.48,
       this.context!.currentTime,
@@ -215,7 +188,7 @@ export class Sound {
     events: readonly GameEvent[],
     playerId: number,
   ): void {
-    // One voice per category per step, even when a volley has six hits.
+    // One sound per category per step, even when a volley has six hits.
     if (sim.some((e) => e.type === "fire")) {
       this.tone(140, 0.32, 0.4, 0, 35, "triangle");
       this.puff(0.3, 1200, 0.5);
@@ -235,12 +208,6 @@ export class Sound {
     }
     for (const e of events) {
       if (e.type === "reward") this.cheer();
-      if (e.type === "reward")
-        this.say(
-          "Well done, Captain! Your ship got an upgrade. Your next adventure is waiting.",
-        );
-      if (e.type === "banner" && e.title !== "Sunset Cove")
-        this.say(`${e.title} ${e.subtitle}`);
       if (e.type === "rescue") {
         this.tone(1300, 0.18, 0.08, 0, 2000);
         this.tone(1600, 0.2, 0.08, 0.2, 1100);
