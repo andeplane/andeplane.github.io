@@ -168,11 +168,12 @@ export class TreasureCave {
       );
       const lid = MeshBuilder.CreateCylinder(
         "arched chest lid",
-        { height: 2, diameter: 1.3, tessellation: 16, arc: 0.5 },
+        { height: 2, diameter: 1.3, tessellation: 24, arc: 0.5, enclose: true },
         s,
       );
-      lid.rotation.z = Math.PI / 2;
-      lid.rotation.y = Math.PI;
+      // The cylinder's half arc starts below Z=0. Rotate it into an upward
+      // dome along the chest's width, rather than a vertical half-tube.
+      lid.rotation.set(Math.PI / 2, Math.PI / 2, 0);
       lid.parent = root;
       lid.position.y = 0.8;
       lid.material = wood;
