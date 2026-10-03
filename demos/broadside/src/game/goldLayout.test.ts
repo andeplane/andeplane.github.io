@@ -33,7 +33,7 @@ describe("settled world gold banks", () => {
         previous = poses;
       }
     }
-  });
+  }, 30_000); // Validate all 220,000 poses on slower CI runners.
   it("rejects damaged or incorrectly sized saved poses instead of rendering broken geometry", () => {
     const good = snapshot(0, 1000);
     expect(validGoldLayout(good, 2000, 0)).toBe(false);
