@@ -11,6 +11,10 @@ npm run dev -- --port 5173
 
 Open http://127.0.0.1:5173/. `npm test` checks physiology, resource accounting, root exploration, replay, saves, and viable limited-resource strategies. `npm run build` type-checks and builds both the browser game and the standalone engine.
 
+## Guided tutorial
+
+First-time visitors automatically enter a separate practice session. Twelve short, action-driven steps teach root steering, obstacle avoidance, water and nitrogen patches, vitality and carbon reserves, watering, shade, grants and equipment, branching, and pause. Glowing world markers follow the 3D camera. Each practical step checks real engine state before advancing. Time stops while reading and while waiting to begin root growth. Training never overwrites the campaign save or spends its supplies. Skip restores the saved plant; T restarts training from any screen. Completed training is remembered locally.
+
 ## Play
 
 Enter or click to begin. Guide the root tip with WASD, arrow keys, or a destination click in the soil. Rocks block extension. Reaching a blue moisture patch or gold nitrogen patch establishes gradual uptake; patches contain finite resources. Extension consumes carbohydrate reserves. B branches from an existing root; Tab switches active tips.
@@ -69,11 +73,11 @@ Time is accumulated into quarter-hour ticks, with four geometric subdivisions pe
 
 ## Validation
 
-36 tests cover the rules, six winning command replays, invalid actions, resource conservation, checkpoint corruption, and campaign progression. The recorded 360-episode policy matrix spans six levels, five policies, and twelve seeds: the reference player won all 72 runs without rejected commands; neglect, repeated flooding, and persistent shade lost all their runs; the policy without equipment lost all three advanced levels.
+38 tests cover the rules, six winning command replays, invalid actions, resource conservation, checkpoint corruption, and campaign progression. The recorded 360-episode policy matrix spans six levels, five policies, and twelve seeds: the reference player won all 72 runs without rejected commands; neglect, repeated flooding, and persistent shade lost all their runs; the policy without equipment lost all three advanced levels.
 
 The engine-only benchmark replayed 720 complete games at approximately 104 games/second on the development machine. That includes roots, resources, physiology, and outcomes, and excludes rendering and reference-player pathfinding. Timing depends on hardware and process load. Full policy outcomes, rejection counts, and timing are in `artifacts/headless-validation.json`. These checks demonstrate solvability and consequences for bad decisions; human difficulty still depends on player experience.
 
-Browser verification imported a headless checkpoint, played the remaining hour to a three-star win, unlocked and selected the cactus level, restored it after reload, and bought equipment through keyboard controls. A browser-exported JSON checkpoint also passed the standalone engine's save validator. The live 3D habitat was checked at the normal window size and at 390 × 844; portrait framing retains the full soil cutaway. Production build and all 36 tests passed.
+Browser verification imported a headless checkpoint, played the remaining hour to a three-star win, unlocked and selected the cactus level, restored it after reload, and bought equipment through keyboard controls. A browser-exported JSON checkpoint also passed the standalone engine's save validator. The live 3D habitat was checked at the normal window size and at 390 × 844; portrait framing retains the full soil cutaway. Production build and all 38 tests passed.
 
 ## Scientific model
 
