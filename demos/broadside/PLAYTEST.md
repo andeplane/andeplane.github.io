@@ -136,3 +136,10 @@ The cave previously enabled only the two lantern lights closest to the camera. C
 - All 160 tests in 23 files, typecheck and production build pass. The renderer regression uses Babylon's actual mesh/light associations to check both chambers, bounded light counts, unused lamps, and rebinding after geometry replacement.
 - Muted 390×740 browser walking used the real cave joystick to cross the former boundary at z=32.5: screenshots at z=32.22 and z=32.78 show continuous lighting and rock detail. All fourteen local lamp identities remained stable, with approximately 60 FPS on this computer and no captured browser errors or warnings. This does not establish physical-phone performance.
 - Screenshots: `artifacts/qa/stable-lighting-before-phone.png` and `stable-lighting-after-phone.png`. Packaged production cave rendering and the world-treasure reveal were also checked with forced mute. Test tabs were closed and the viewport restored.
+
+
+## Remove the hidden camera light — 2026-10-03
+
+The previous lantern fix left a broad point light attached to the walking camera. That invisible flashlight still moved the rock's diffuse shading and normal-map highlights with every step. It has now been removed. The cave uses fixed skylight, fixed local lanterns, and a slightly stronger constant ambient fill. Rock/floor specular response and normal-map strength are reduced; gold keeps its metallic shine.
+
+At 390×740, the actual look gesture turned back toward the lantern passage; joystick walking moved from (0,31) to approximately (-0.02,30.28) without changing yaw. The paired screenshots show consistent rock and floor shading across that roughly 72 cm step: `artifacts/qa/fixed-room-lighting-before.png` and `fixed-room-lighting-after.png`. Development and packaged production rendering produced no captured browser warnings/errors and remained audio-locked. All 160 tests, typecheck and production build pass. Test tabs were closed; the user's tab was only inspected and left open. Physical-phone GPU performance remains unverified.

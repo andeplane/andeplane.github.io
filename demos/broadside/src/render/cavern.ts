@@ -57,7 +57,7 @@ export class Cavern {
       const m = new StandardMaterial(name, s);
       m.diffuseColor = Color3.FromHexString(color);
       m.emissiveColor = m.diffuseColor.scale(glow);
-      m.specularColor.set(0.1, 0.09, 0.07);
+      m.specularColor.set(0.035, 0.03, 0.025);
       m.maxSimultaneousLights = 6;
       return m;
     };
@@ -69,7 +69,7 @@ export class Cavern {
       `${import.meta.env.BASE_URL}textures/cave/rock-normal.jpg`,
       s,
     );
-    normal.level = 0.75;
+    normal.level = 0.5;
     this.stone = material("ancient fractured cavern stone", "#ac9a86", 0.06);
     this.stone.diffuseTexture = albedo;
     this.stone.bumpTexture = normal;
@@ -78,7 +78,7 @@ export class Cavern {
     this.ledge.diffuseColor = Color3.FromHexString("#c1ad96");
     const damp = this.stone.clone("damp dark rock")!;
     damp.diffuseColor = Color3.FromHexString("#657375");
-    damp.specularColor.set(0.22, 0.26, 0.26);
+    damp.specularColor.set(0.07, 0.08, 0.08);
     this.gold = material("tarnished pirate gold", "#bc8b3e", 0.03);
     this.gold.specularColor = Color3.FromHexString("#ffe6aa");
     this.gold.specularPower = 80;
@@ -154,6 +154,7 @@ export class Cavern {
     floor.diffuseTexture = ft;
     floor.bumpTexture = fn;
     floor.diffuseColor = Color3.FromHexString("#777f7c");
+    floor.specularColor.set(0.035, 0.035, 0.03);
     floor.emissiveColor.set(0.055, 0.055, 0.05);
     this.floor = floor;
     bed.material = floor;

@@ -37,7 +37,6 @@ export class TreasureCave {
   private chamber: Cavern;
   readonly walker: CaveWalker;
   private revealLight: PointLight;
-  private walkingLight: PointLight;
   // Scattered ledges at different depths and heights, with a winding clear floor.
   private spots = [
     [-3.5, 0.9, 1.0],
@@ -73,15 +72,6 @@ export class TreasureCave {
     this.camera.inputs.clear();
     this.camera.fov = 0.8;
     this.camera.minZ = 0.1;
-    this.walkingLight = new PointLight(
-      "the captain’s carried lantern",
-      new Vector3(0, 2, -10),
-      s,
-    );
-    this.walkingLight.diffuse = Color3.FromHexString("#ffe0a4");
-    this.walkingLight.intensity = 0.85;
-    this.walkingLight.range = 17;
-    this.walkingLight.renderPriority = 4;
     const hemi = new HemisphericLight(
       "moon through the cave mouth",
       new Vector3(-0.35, 0.9, -0.8),
@@ -89,7 +79,7 @@ export class TreasureCave {
     );
     hemi.diffuse = Color3.FromHexString("#91b8cd");
     hemi.groundColor = Color3.FromHexString("#16121a");
-    hemi.intensity = 0.58;
+    hemi.intensity = 0.62;
     hemi.renderPriority = 7;
     this.chamber = new Cavern(s, this.spots);
     this.walker = new CaveWalker(this.chamber.obstacles, (x, z) =>
@@ -285,7 +275,7 @@ export class TreasureCave {
       return r;
     });
     // Stable assignments belong to geometry, not the visitor's current position.
-    // Two local lamps leave room for daylight, ambient and the carried lantern.
+    // Local lanterns and the skylight stay fixed as the visitor walks around.
     bindLocalLights(this.chamber.lamps, this.scene.meshes);
     this.lamps.forEach((light, i) => {
       light.includedOnlyMeshes = [
@@ -474,8 +464,6 @@ export class TreasureCave {
       l.intensity =
         (this.relics[i] ? 1 : 0.4) + Math.sin(this.time * 1.3 + i) * 0.06;
     });
-    this.walkingLight.setEnabled(!reveal);
-    this.walkingLight.position.copyFrom(this.camera.position).y += 0.3;
     this.chamber.animate(dt);
     this.scene.render();
   }
