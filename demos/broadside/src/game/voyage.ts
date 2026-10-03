@@ -4,13 +4,17 @@ import { Session } from "./session";
 import {
   IDLE_INTENT,
   damageShip,
+  updateShip,
   SHIP_SPECS,
   type ShipIntent,
   type Side,
 } from "../sim/ships";
 import { distance, angleDiff, headingTo } from "../sim/math";
-import { elevationForTarget, findAim } from "../sim/cannons";
+import { findAim } from "../sim/cannons";
+import { aimFortShot } from "./forts";
 import { thinkAi, createBrain } from "./ai";
+import { TOTAL_LEVELS, worldOf, stageOf } from "./campaign";
+import { wrapAngle } from "../sim/math";
 import { SIM_DT } from "../sim/world";
 
 export const PACKS = [
@@ -21,12 +25,12 @@ export const PACKS = [
   },
   {
     name: "Pirate waters",
-    subtitle: "Your first cannons · cheeky rivals",
+    subtitle: "Island cannons · learn to fight back",
     color: "#ffc877",
   },
   {
-    name: "Fortress coast",
-    subtitle: "Island cannons · narrow escapes",
+    name: "Whirlpool straits",
+    subtitle: "Swirling currents · dangerous crossings",
     color: "#ffa28e",
   },
   {
@@ -40,7 +44,7 @@ export const RELICS = [
     name: "The captain’s gold",
     kind: "gold",
     color: "#ffce77",
-    story: "Your very first chest of shining gold. A fortune in adventures.",
+    story: "A growing fortune brought home from your voyages.",
   },
   {
     name: "Moonlit silver",
@@ -110,19 +114,62 @@ export const RELICS = [
   },
 ] as const;
 const NAMES = [
-  "A little captain",
-  "Between the palms",
-  "The secret passage",
-  "Hello, pirates!",
-  "Two ways home",
-  "Captain’s crossing",
-  "The watchful island",
-  "Through the crossfire",
-  "The fortress escape",
-  "Something below",
-  "The purple passage",
-  "The last horizon",
+  [
+    "A little captain",
+    "Between the palms",
+    "The first turn",
+    "Rocky passage",
+    "Two ways home",
+    "Hidden lagoon",
+    "The long bend",
+    "Between the reefs",
+    "The secret passage",
+    "The captain’s trial",
+  ],
+  [
+    "The watchful island",
+    "Cannon alley",
+    "Across the crossfire",
+    "The fortress escape",
+    "Hello, pirates!",
+    "Your first broadside",
+    "Two rival captains",
+    "The pirate patrol",
+    "Battle at the bay",
+    "Captain’s crossing",
+  ],
+  [
+    "The swirling sea",
+    "Follow the current",
+    "The whirlpool passage",
+    "A narrow escape",
+    "Two spinning tides",
+    "Cannons and currents",
+    "The broken channel",
+    "Eye of the maelstrom",
+    "The spinning gauntlet",
+    "The tides of time",
+  ],
+  [
+    "Something below",
+    "The waking deep",
+    "Tentacle crossing",
+    "The purple passage",
+    "Kraken’s cove",
+    "The haunted channel",
+    "The deepwater patrol",
+    "Into the abyss",
+    "The final storm",
+    "The last horizon",
+  ],
 ];
+export interface WhirlpoolDef {
+  x: number;
+  z: number;
+  radius: number;
+  strength: number;
+  spin: number;
+}
 export interface VoyageDef {
   index: number;
   pack: number;
@@ -130,6 +177,7 @@ export interface VoyageDef {
   finish: { x: number; z: number };
   gems: { x: number; z: number; found: boolean }[];
   forts: number[];
+  whirlpools: WhirlpoolDef[];
   kraken: { x: number; z: number } | null;
 }
 /** Seeded templates keep a wide, tested route on both sides of every obstacle. */
@@ -137,8 +185,10 @@ export function generateVoyage(
   index: number,
   seed = 4100 + index * 137,
 ): VoyageDef {
-  const pack = Math.floor(index / 3),
-    stage = index % 3,
+  if (!Number.isInteger(index) || index < 0 || index >= TOTAL_LEVELS)
+    throw new RangeError("Unknown voyage");
+  const pack = worldOf(index),
+    stage = stageOf(index),
     rng = new Rng(seed);
   const islands: IslandDef[] = [];
   const add = (
@@ -146,74 +196,137 @@ export function generateVoyage(
     z: number,
     radius: number,
     props: IslandDef["props"],
-    kind: "sand" | "rock" = "sand",
+    kind: IslandDef["kind"] = "sand",
   ) => islands.push({ pos: { x, z }, radius, props, kind });
+  // Outlying islands frame a broad navigable channel. Seeded obstacles vary its bends.
   add(-53, -43, 18, ["palms"]);
-  add(54, 0, 18, pack === 2 ? ["fort"] : ["lighthouse", "palms"]);
-  if (index > 0)
-    add(rng.range(-4, 4), 35, stage === 2 ? 19 : 14, ["rocks", "palms"]);
-  add(-58, 79, 20, pack >= 2 ? ["fort", "palms"] : ["palms"]);
-  if (stage > 0) add(57, 110, 15, ["rocks"], "rock");
-  add(0, 185, 26, ["palms"]);
-  const enemies: EnemyDef[] =
-    pack === 0
-      ? []
-      : [
-          {
-            ship:
-              index === 11 ? "warship" : stage === 2 ? "brigantine" : "sloop",
-            pos: { x: 32, z: pack === 1 ? -75 : 12 },
-            heading: -Math.PI / 2,
-            patrol: [
-              { x: 30, z: 12 },
-              { x: -25, z: 80 },
-            ],
-          },
-        ];
-  if (pack > 0 && stage > 0)
+  add(54, -5, 18, pack > 0 ? ["fort", "palms"] : ["lighthouse", "palms"]);
+  if (stage > 0 || pack > 0)
+    add(rng.range(-9, 9), 30 + stage * 1.5, 12 + stage * 0.7, [
+      "rocks",
+      "palms",
+    ]);
+  add(-58, 80, 19, pack > 0 && stage > 0 ? ["fort", "palms"] : ["palms"]);
+  if (stage >= 3)
+    add(
+      57,
+      112,
+      15 + stage * 0.3,
+      stage >= 7 && pack > 0 ? ["fort", "rocks"] : ["rocks"],
+      "rock",
+    );
+  if (stage >= 5)
+    add(stage % 2 ? -18 : 18, 100, 11 + (stage - 5) * 0.6, ["rocks"], "rock");
+  if (stage >= 8) add(stage % 2 ? 54 : -54, 43, 12, ["rocks"], "rock");
+  // Exposed sea rocks leave broad passages; more appear as navigation gets harder.
+  add(24 + rng.range(-2, 2), -43, 4.5, [], "sea-rock");
+  if (stage >= 2) add(-28 + rng.range(-2, 2), 57, 4, [], "sea-rock");
+  if (stage >= 6) add(30 + rng.range(-2, 2), 126, 4.2, [], "sea-rock");
+  // The treasure island stays last so the destination landmark remains stable.
+  add(0, 190, 26, ["palms"]);
+  const enemies: EnemyDef[] = [];
+  const combat = pack === 1 ? stage >= 4 : pack > 1 && stage >= 2;
+  if (combat) {
     enemies.push({
-      ship: "sloop",
-      pos: { x: -28, z: 100 },
-      heading: Math.PI / 2,
+      ship: stage >= 7 ? "brigantine" : "sloop",
+      pos: { x: 30, z: -50 },
+      heading: -Math.PI / 2,
       patrol: [
-        { x: -28, z: 100 },
-        { x: 22, z: 65 },
+        { x: 30, z: -45 },
+        { x: 32, z: 55 },
       ],
     });
+    if (stage >= 6)
+      enemies.push({
+        ship: "sloop",
+        pos: { x: -30, z: 92 },
+        heading: Math.PI / 2,
+        patrol: [
+          { x: -30, z: 92 },
+          { x: 22, z: 65 },
+        ],
+      });
+    if (stage === 9 && pack > 1)
+      enemies.push({
+        ship: pack === 3 ? "warship" : "brigantine",
+        pos: { x: 38, z: 105 },
+        heading: -Math.PI / 2,
+        patrol: [
+          { x: 38, z: 105 },
+          { x: -30, z: 112 },
+        ],
+      });
+  }
+  const whirlpools: WhirlpoolDef[] = [];
+  if (pack >= 2) {
+    whirlpools.push({
+      x: stage % 2 ? -29 : 29,
+      z: 48,
+      radius: 18 + stage * 0.25,
+      strength: 4 + stage * 0.2,
+      spin: 1,
+    });
+    if (stage >= 4)
+      whirlpools.push({
+        x: stage % 2 ? 30 : -30,
+        z: 100,
+        radius: 18,
+        strength: 5,
+        spin: -1,
+      });
+    if (stage >= 8)
+      whirlpools.push({ x: 0, z: -30, radius: 16, strength: 5.5, spin: 1 });
+  }
+  const gems = [
+    { x: index === 0 ? 0 : -32, z: 18, found: false },
+    { x: 32, z: 82, found: false },
+    { x: -28, z: 130, found: false },
+  ];
+  // Hidden routes never ask the player to collect a gem inside solid rock.
+  for (const gem of gems) {
+    for (const island of islands) {
+      const d = distance(gem, island.pos),
+        margin = island.radius + 9;
+      if (d < margin) {
+        const dx = gem.x - island.pos.x,
+          dz = gem.z - island.pos.z;
+        gem.x = island.pos.x + (dx / Math.max(d, 0.01)) * margin;
+        gem.z = island.pos.z + (dz / Math.max(d, 0.01)) * margin;
+      }
+    }
+  }
   return {
     index,
     pack,
     finish: { x: 0, z: 148 },
-    gems: [
-      { x: index === 0 ? 0 : -29, z: 20, found: false },
-      { x: 30, z: 85, found: false },
-      { x: -25, z: 126, found: false },
-    ],
-    forts:
-      pack >= 2
-        ? islands.flatMap((i, n) => (i.props.includes("fort") ? [n] : []))
-        : [],
-    kraken: pack === 3 ? { x: stage === 1 ? -25 : 25, z: 70 } : null,
+    gems,
+    forts: islands.flatMap((i, n) => (i.props.includes("fort") ? [n] : [])),
+    whirlpools,
+    kraken: pack === 3 ? { x: stage % 2 ? -26 : 26, z: 78 } : null,
     level: {
       id: `voyage-${index}`,
-      name: NAMES[index] ?? `Voyage ${index + 1}`,
+      name: NAMES[pack]![stage]!,
       intro:
         pack === 0
-          ? "Steer through the islands. Find the glowing treasure at the far sea."
-          : pack === 1
-            ? "Steer past the pirates. Turn your side toward them and tap BOOM!"
-            : pack === 2
-              ? "Watch the red warning rings. Island cannons guard these waters!"
-              : "Purple ripples warn you: the kraken is waking!",
+          ? "Drag the wheel to steer. Avoid islands and sea rocks — a crash sinks your ship."
+          : pack === 1 && stage < 4
+            ? "Island cannons are firing! Keep moving and steer away from their shots."
+            : pack === 1
+              ? "Pirates ahead! Turn your broadside toward them and tap BOOM to fight back."
+              : pack === 2
+                ? "Whirlpools pull and spin your ship. Keep sailing and steer away from the dark center."
+                : "The kraken is waking. Avoid the purple ripples and watch for swirling currents!",
       seed,
-      wind: { direction: 1.3, strength: 0.9 },
+      wind: { direction: 1.3 + stage * 0.025, strength: 0.9 },
       bounds: 260,
       islands,
       player: { ship: "galleon", pos: { x: 0, z: -90 }, heading: 0 },
       waves: [
         {
-          title: "Pirate waters",
-          subtitle: "You can sail past or fight!",
+          title: PACKS[pack]!.name,
+          subtitle: combat
+            ? "Turn your side and fight back!"
+            : "Find a safe passage.",
           enemies,
         },
       ],
@@ -230,7 +343,12 @@ export class VoyageSession extends Session {
   stars = 0;
   private fortClocks = new Map<number, number>();
   private krakenHit = -10;
-  private grounded = new Set<number>();
+  private whirlpoolHits = new Map<number, number>();
+  failureReason: "island" | "rocks" | null = null;
+  private fortTargets = new Map<
+    number,
+    { x: number; z: number; impactAt: number }
+  >();
   constructor(voyage: VoyageDef, junior = true) {
     super(voyage.level, { junior });
     this.voyage = voyage;
@@ -251,7 +369,7 @@ export class VoyageSession extends Session {
         id: 0,
         chapter: voyage.pack,
         name: "The far sea",
-        prize: RELICS[voyage.index]!.name,
+        prize: "1,000 gold",
         icon: "✦",
         pos: { ...voyage.finish },
         island: voyage.level.islands.length - 1,
@@ -263,7 +381,7 @@ export class VoyageSession extends Session {
       const ship = this.world.addShip(
         {
           ...SHIP_SPECS[e.ship],
-          damage: 4,
+          damage: 4 + Math.floor(stageOf(voyage.index) / 4),
           maxHull: e.ship === "sloop" ? 100 : SHIP_SPECS[e.ship].maxHull,
         },
         "pirates",
@@ -274,9 +392,9 @@ export class VoyageSession extends Session {
       this.brains.set(
         ship.id,
         createBrain(ship.id, e.patrol, {
-          detectRange: 65,
+          detectRange: 80,
           fleeAt: 0,
-          telegraph: 1.2,
+          telegraph: stageOf(voyage.index) < 6 ? 1.8 : 1.2,
         }),
       );
     }
@@ -305,11 +423,16 @@ export class VoyageSession extends Session {
   override step(intent: ShipIntent = IDLE_INTENT, dt = SIM_DT): void {
     this.events = [];
     this.simEvents = [];
-    if (this.state === "won" || this.state === "lost") return;
+    if (this.state === "lost") {
+      // The level is over, but its dead ship still animates beneath the water.
+      updateShip(this.player, IDLE_INTENT, this.world.wind, dt);
+      return;
+    }
+    if (this.state === "won") return;
     this.elapsed += dt;
     if (this.voyage.pack === 0)
       intent = { ...intent, firePort: false, fireStarboard: false };
-    else if (intent.firePort && intent.fireStarboard) {
+    if (intent.firePort && intent.fireStarboard) {
       const side = this.firingSide;
       intent = {
         ...intent,
@@ -335,24 +458,41 @@ export class VoyageSession extends Session {
     }
     const before = this.player.hull;
     this.simEvents = this.world.step(dt);
-    for (const i of this.grounded)
-      if (
-        distance(this.player.pos, this.level.islands[i]!.pos) >
-        this.level.islands[i]!.radius + this.player.spec.beam * 0.6 + 2
-      )
-        this.grounded.delete(i);
-    for (const e of this.simEvents)
-      if (e.type === "bump" && e.shipId === this.player.id) {
-        const i = this.level.islands.findIndex(
-          (island) =>
-            distance(this.player.pos, island.pos) <
-            island.radius + this.player.spec.beam * 0.6 + 1,
+    const crashed = this.level.islands.find((island) => {
+      // Capsule hull: the bow/stern can strike before the ship's center arrives.
+      const dx = island.pos.x - this.player.pos.x,
+        dz = island.pos.z - this.player.pos.z,
+        fx = Math.sin(this.player.heading),
+        fz = Math.cos(this.player.heading),
+        halfLength = this.player.spec.length * 0.4,
+        along = Math.max(-halfLength, Math.min(halfLength, dx * fx + dz * fz));
+      return (
+        Math.hypot(dx - fx * along, dz - fz * along) <=
+        island.radius + this.player.spec.beam * 0.6 + 1e-6
+      );
+    });
+    if (crashed) {
+      this.failureReason = crashed.kind === "sand" ? "island" : "rocks";
+      const damage = this.player.hull;
+      if (damageShip(this.player, damage)) {
+        this.simEvents.push(
+          {
+            type: "hit",
+            shipId: this.player.id,
+            x: this.player.pos.x,
+            y: 1,
+            z: this.player.pos.z,
+            damage,
+          },
+          { type: "sunk", shipId: this.player.id },
         );
-        if (i >= 0 && !this.grounded.has(i)) {
-          this.grounded.add(i);
-          damageShip(this.player, this.options.junior ? 10 : 20);
-        }
       }
+      this.player.sail = 0;
+      this.damageTaken += Math.max(0, before - this.player.hull);
+      this.state = "lost";
+      this.events.push({ type: "state", state: "lost" });
+      return;
+    }
     for (const [i, clock] of this.fortClocks) {
       const next = clock - dt;
       this.fortClocks.set(i, next);
@@ -360,22 +500,24 @@ export class VoyageSession extends Session {
         this.fortClocks.set(i, 4.5);
         const p = this.level.islands[i]!.pos;
         if (distance(p, this.player.pos) < 92) {
-          const dx = this.player.pos.x - p.x,
-            dz = this.player.pos.z - p.z,
-            d = Math.hypot(dx, dz),
-            speed = 25;
+          const aim = aimFortShot(p, this.player);
+          const id = -Math.round(this.elapsed * 1000) - i;
           this.world.balls.push({
-            id: -Math.round(this.elapsed * 1000) - i,
+            id,
             ownerId: -i - 1,
             team: "pirates",
             pos: { x: p.x, y: 12, z: p.z },
-            vel: {
-              x: (dx / d) * speed * Math.cos(elevationForTarget(d, speed, 12)),
-              y: speed * Math.sin(elevationForTarget(d, speed, 12)),
-              z: (dz / d) * speed * Math.cos(elevationForTarget(d, speed, 12)),
-            },
-            damage: 18,
+            vel: aim.velocity,
+            damage:
+              this.voyage.pack === 1 && stageOf(this.voyage.index) < 4
+                ? 12
+                : 18,
             alive: true,
+          });
+          this.fortTargets.set(id, {
+            x: aim.x,
+            z: aim.z,
+            impactAt: this.elapsed + aim.flight,
           });
           this.simEvents.push({
             type: "fire",
@@ -386,6 +528,38 @@ export class VoyageSession extends Session {
         }
       }
     }
+    // Currents blend smoothly at the rim. Full sail and deliberate steering can escape.
+    this.voyage.whirlpools.forEach((w, i) => {
+      const dx = this.player.pos.x - w.x,
+        dz = this.player.pos.z - w.z;
+      const d = Math.hypot(dx, dz);
+      if (d >= w.radius) return;
+      const nx = d > 0.01 ? dx / d : 1,
+        nz = d > 0.01 ? dz / d : 0;
+      const influence = (1 - d / w.radius) ** 2;
+      const pull = w.strength * influence,
+        swirl = pull * 1.2 * w.spin;
+      this.player.pos.x += (-nx * pull - nz * swirl) * dt;
+      this.player.pos.z += (-nz * pull + nx * swirl) * dt;
+      this.player.heading = wrapAngle(
+        this.player.heading + w.spin * influence * 0.55 * dt,
+      );
+      if (
+        d < w.radius * 0.3 &&
+        this.elapsed - (this.whirlpoolHits.get(i) ?? -10) >= 1.5
+      ) {
+        this.whirlpoolHits.set(i, this.elapsed);
+        damageShip(this.player, 8);
+        this.simEvents.push({
+          type: "hit",
+          shipId: this.player.id,
+          x: this.player.pos.x,
+          y: 1,
+          z: this.player.pos.z,
+          damage: 8,
+        });
+      }
+    });
     const k = this.voyage.kraken;
     if (
       k &&
@@ -449,6 +623,16 @@ export class VoyageSession extends Session {
         );
       }
     } else t.progress = 0;
+  }
+  get incomingFortShots(): { x: number; z: number; remaining: number }[] {
+    for (const id of this.fortTargets.keys())
+      if (!this.world.balls.some((b) => b.id === id && b.alive))
+        this.fortTargets.delete(id);
+    return [...this.fortTargets.values()].map((t) => ({
+      x: t.x,
+      z: t.z,
+      remaining: Math.max(0, t.impactAt - this.elapsed),
+    }));
   }
   get fortWarnings(): { x: number; z: number; ready: number }[] {
     return [...this.fortClocks].map(([i, time]) => ({

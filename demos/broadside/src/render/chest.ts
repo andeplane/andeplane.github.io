@@ -43,6 +43,7 @@ export class RewardChest {
       m.emissiveColor = m.diffuseColor.scale(emission);
       m.specularColor = Color3.FromHexString("#ae8b56");
       m.specularPower = 64;
+      m.maxSimultaneousLights = 6;
       return m;
     };
     const wood = mat("aged mahogany", "#593322"),
@@ -128,6 +129,7 @@ export class RewardChest {
       p.parent = this.root; p.material = this.glow; this.sparkles.push(p);
     }
     this.light = new PointLight("chest's hidden glow", new Vector3(0, 2, -0.4), scene);
+    this.light.renderPriority = 4;
     this.light.parent = this.root; this.light.diffuse = Color3.FromHexString("#ffcc75"); this.light.range = 8;
     this.root.setEnabled(false); this.light.setEnabled(false);
   }

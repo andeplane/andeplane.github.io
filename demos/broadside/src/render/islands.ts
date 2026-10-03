@@ -10,6 +10,7 @@ import { type Scene } from "@babylonjs/core/scene.js";
 import { type ShadowGenerator } from "@babylonjs/core/Lights/Shadows/shadowGenerator.js";
 import type { IslandDef } from "../game/levels";
 import { Rng } from "../sim/rng";
+import { buildPirateScenery } from "./pirateScenery";
 import { PALETTE } from "./palette";
 
 const flatMaterial = (
@@ -238,6 +239,53 @@ export const buildIslands = (
   const animators: ((time: number) => void)[] = [];
 
   for (const def of defs) {
+    if (def.kind === "sea-rock") {
+      // A visible, solid outcrop, rather than a tiny island with beach scenery.
+      const root = new TransformNode(
+        `sea-rock-${def.pos.x}-${def.pos.z}`,
+        scene,
+      );
+      root.position.set(def.pos.x, 0, def.pos.z);
+      for (let i = 0; i < 3; i++) {
+        const rock = rocks[i % rocks.length]!.createInstance(
+          `sea-rock-spire-${i}`,
+        );
+        rock.parent = root;
+        rock.position.set(
+          (i - 1) * def.radius * 0.3,
+          0.5,
+          (i % 2) * def.radius * 0.3,
+        );
+        rock.scaling.set(
+          def.radius * (i === 1 ? 0.7 : 0.48),
+          def.radius * (i === 1 ? 1.2 : 0.7),
+          def.radius * 0.6,
+        );
+        rock.rotation.y = rng.range(0, Math.PI * 2);
+        shadows.addShadowCaster(rock);
+      }
+      const foam = MeshBuilder.CreateTorus(
+        "sea-rock-breaking-surf",
+        {
+          diameter: def.radius * 2.05,
+          thickness: 0.3,
+          tessellation: 32,
+        },
+        scene,
+      );
+      foam.parent = root;
+      foam.position.y = 0.15;
+      foam.material = flatMaterial(
+        scene,
+        "sea-rock-foam",
+        Color3.FromHexString("#c2ddd6"),
+      );
+      animators.push((time) => {
+        const pulse = 1 + Math.sin(time * 1.6 + def.pos.x) * 0.04;
+        foam.scaling.set(pulse, 1, pulse);
+      });
+      continue;
+    }
     buildIslandMesh(scene, def, rng, vertexMat);
     const root = new TransformNode(`island-props-${def.pos.x}`, scene);
     root.position.set(def.pos.x, 0, def.pos.z);
@@ -259,6 +307,10 @@ export const buildIslands = (
         p.rotation.y = rng.range(0, Math.PI * 2);
         p.scaling.setAll(rng.range(0.8, 1.2));
         shadows.addShadowCaster(p);
+        animators.push((time) => {
+          p.rotation.z = Math.sin(time * 0.8 + i) * 0.025;
+          p.rotation.x = Math.cos(time * 0.6 + i) * 0.015;
+        });
       }
     }
     if (def.props.includes("rocks") || def.kind === "rock") {
@@ -273,6 +325,16 @@ export const buildIslands = (
         shadows.addShadowCaster(r);
       }
     }
+    animators.push(
+      buildPirateScenery(
+        scene,
+        root,
+        def,
+        groundHeight(def, 0, 0),
+        shadows,
+        rng,
+      ),
+    );
     if (def.props.includes("lighthouse"))
       animators.push(
         buildLighthouse(scene, root, groundHeight(def, 0, 0), shadows),
@@ -280,7 +342,28 @@ export const buildIslands = (
     if (def.props.includes("fort")) buildFort(scene, root, def, shadows);
     if (def.props.includes("wreck")) buildWreck(scene, root, shadows);
   }
-  return { update: (time) => animators.forEach((a) => a(time)) };
+  const lamps = scene.lights.filter(
+    (l) => l.name === "island amber torch" || l.name === "lh-light",
+  );
+  return {
+    update: (time) => {
+      const camera = scene.activeCamera!;
+      const near = new Set(
+        [...lamps]
+          .sort(
+            (a, b) =>
+              Vector3.DistanceSquared(
+                a.getAbsolutePosition(),
+                camera.position,
+              ) -
+              Vector3.DistanceSquared(b.getAbsolutePosition(), camera.position),
+          )
+          .slice(0, 2),
+      );
+      lamps.forEach((l) => l.setEnabled(near.has(l)));
+      animators.forEach((a) => a(time));
+    },
+  };
 };
 
 const buildLighthouse = (
@@ -292,9 +375,9 @@ const buildLighthouse = (
   const white = flatMaterial(
     scene,
     "lh-white",
-    Color3.FromHexString("#f2ece0"),
+    Color3.FromHexString("#a7a99b"),
   );
-  const red = flatMaterial(scene, "lh-red", Color3.FromHexString("#c23b2e"));
+  const red = flatMaterial(scene, "lh-red", Color3.FromHexString("#59453b"));
   const dark = flatMaterial(scene, "lh-dark", Color3.FromHexString("#2b2a2e"));
   const glow = flatMaterial(
     scene,
@@ -360,7 +443,7 @@ const buildLighthouse = (
   const beamMat = new StandardMaterial("lh-beam", scene);
   beamMat.emissiveColor = Color3.FromHexString("#ffe6a0");
   beamMat.diffuseColor = Color3.Black();
-  beamMat.alpha = 0.025;
+  beamMat.alpha = 0.009;
   beamMat.disableLighting = true;
   beamMat.backFaceCulling = false;
   const beamPivot = new TransformNode("lh-beam-pivot", scene);

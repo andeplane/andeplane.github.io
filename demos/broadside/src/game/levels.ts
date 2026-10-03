@@ -7,8 +7,8 @@ export type PropKind = "lighthouse" | "palms" | "rocks" | "fort" | "wreck";
 export interface IslandDef extends Island {
   /** Decorative props the renderer places on this island. */
   props: PropKind[];
-  /** Sand vs rocky outcrop. */
-  kind: "sand" | "rock";
+  /** Beaches, rocky islands, or small exposed hazards in open water. */
+  kind: "sand" | "rock" | "sea-rock";
 }
 
 export interface EnemyDef {

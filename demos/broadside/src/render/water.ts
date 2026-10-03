@@ -10,6 +10,7 @@ import { PALETTE, SUN_DIRECTION } from "./palette";
 
 export const MAX_ISLANDS = 8;
 export const MAX_SHIPS = 8;
+const MAX_WHIRLPOOLS = 3;
 const GRID_SIZE = 420;
 const GRID_SUBDIVISIONS = matchMedia("(pointer: coarse)").matches ? 100 : 160;
 
@@ -20,6 +21,7 @@ uniform mat4 world;
 uniform mat4 viewProjection;
 uniform float time;
 uniform float amplitude;
+uniform vec4 whirlpools[3]; // x, z, radius, spin
 uniform vec4 waves[4]; // dirX, dirZ, wavelength, steepness
 varying vec3 vWorld;
 varying vec3 vNormal;
@@ -46,6 +48,13 @@ void main() {
     crest += max(0.0, sin(f)) * w.w;
   }
   p += disp;
+  for (int i=0; i<3; i++) {
+    vec4 w = whirlpools[i];
+    if (w.z <= 0.0) continue;
+    float r = length(p.xz-w.xy)/w.z;
+    float dip = 1.0-smoothstep(0.0,1.0,r);
+    p.y -= dip*dip*1.25;
+  }
   vWorld = p;
   vNormal = normalize(vec3(-sx, 1.0, -sz));
   vCrest = crest;
@@ -69,6 +78,7 @@ uniform vec3 sunColor;
 uniform vec3 fogColor;
 uniform float fogDensity;
 uniform float time;
+uniform vec4 whirlpools[3]; // x, z, radius, spin
 uniform vec4 islands[${MAX_ISLANDS}]; // x, z, radius, -
 uniform vec4 ships[${MAX_SHIPS}];     // x, z, heading, length (length 0 = unused)
 
@@ -103,10 +113,10 @@ void main() {
   }
   float shallow = 1.0 - smoothstep(1.0, 23.0, shoreDist);
   vec3 col = mix(deepColor, shallowColor, shallow);
-  col *= 0.9 + dot(N, sunDirection) * 0.13;
+  col *= (0.9 + dot(N, sunDirection) * 0.13) * (0.82 + noise(p * 0.022 + vec2(time * 0.012, -time * 0.008)) * 0.18);
   float rippleLine = smoothstep(0.96, 1.0, sin(p.y * 0.62 + sin(p.x * 0.18) - time * 0.8));
   float rippleBreak = smoothstep(0.55, 0.75, noise(p * vec2(0.09, 0.18)));
-  col = mix(col, shallowColor * 1.15, rippleLine * rippleBreak * 0.09);
+  col = mix(col, shallowColor * 1.15, rippleLine * rippleBreak * 0.045);
   // Delicate caustic threads are confined to the shallows.
   float thread = abs(sin(p.x * 0.72 + sin(p.y * 0.38) + time * 0.35) * sin(p.y * 0.7 - time * 0.22));
   col += shallowColor * smoothstep(0.88, 0.99, thread) * shallow * 0.09;
@@ -133,6 +143,25 @@ void main() {
   }
   col = mix(col, foamColor, clamp(max(shoreFoam * 0.65, hullFoam), 0.0, 0.75));
 
+  // Spiral foam and a dark eye are part of the water itself, with no overlay planes.
+  for (int i=0; i<3; i++) {
+    vec4 w = whirlpools[i];
+    if (w.z <= 0.0) continue;
+    vec2 d = p-w.xy;
+    float r = length(d)/w.z;
+    float mask = 1.0-smoothstep(0.78,1.12,r);
+    float a = atan(d.y,d.x);
+    float phase = a*3.0 + r*19.0 - time*w.w*2.7;
+    float churn = noise(vec2(a*8.0-time*w.w, r*38.0+time*.7));
+    float spiral = sin(phase + (churn-.5)*.7);
+    float brokenFoam = smoothstep(.28,.7,churn);
+    float foam = smoothstep(0.86,0.99,spiral) * smoothstep(0.12,0.38,r) * mask * brokenFoam;
+    vec3 swirlingWater = mix(vec3(0.012,0.032,0.055), deepColor*0.8, smoothstep(0.05,0.5,r));
+    swirlingWater *= .85 + .15*sin(phase)*mask;
+    col = mix(col,swirlingWater,mask*0.88);
+    col = mix(col,foamColor,foam*0.58);
+    col += shallowColor * (1.0-smoothstep(0.025,0.075,abs(r-0.94))) * churn * 0.18;
+  }
   float dist = length(cameraPosition - vWorld);
   float fog = 1.0 - exp(-pow(dist * fogDensity, 2.0));
   col = mix(col, fogColor, clamp(fog, 0.0, 1.0));
@@ -189,6 +218,7 @@ export class Ocean {
           "fogDensity",
           "islands",
           "ships",
+          "whirlpools",
         ],
       },
     );
@@ -224,15 +254,30 @@ export class Ocean {
       .forEach((i, n) => isl.set([i.pos.x, i.pos.z, i.radius, 0], n * 4));
     m.setArray4("islands", Array.from(isl));
     m.setArray4("ships", Array.from(this.shipData));
+    this.setWhirlpools([]);
     this.mesh.material = m;
   }
 
+  setWhirlpools(
+    whirlpools: readonly {
+      x: number;
+      z: number;
+      radius: number;
+      spin: number;
+    }[],
+  ): void {
+    const data = new Float32Array(MAX_WHIRLPOOLS * 4);
+    whirlpools
+      .slice(0, MAX_WHIRLPOOLS)
+      .forEach((w, i) => data.set([w.x, w.z, w.radius, w.spin], i * 4));
+    this.material.setArray4("whirlpools", Array.from(data));
+  }
   setChapter(chapter: number): void {
     const colors = [
-      ["#055274", "#24cbb2", "#7dd4d9"],
-      ["#085c80", "#33d3c0", "#90d6dd"],
-      ["#0b597a", "#54cbb6", "#b4d4cb"],
-      ["#183c67", "#3aa6ba", "#6f90c0"],
+      ["#14364a", "#367f80", "#2c4858"],
+      ["#102e44", "#316c74", "#243d50"],
+      ["#142c42", "#396771", "#2d3a4c"],
+      ["#1b2440", "#435779", "#2a3048"],
     ][chapter]!;
     this.material.setColor3("deepColor", Color3.FromHexString(colors[0]!));
     this.material.setColor3("shallowColor", Color3.FromHexString(colors[1]!));

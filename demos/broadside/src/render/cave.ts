@@ -1,257 +1,470 @@
 import { ImageProcessingConfiguration } from "@babylonjs/core/Materials/imageProcessingConfiguration.js";
 import { Scene } from "@babylonjs/core/scene.js";
-import { Engine } from "@babylonjs/core/Engines/engine.js";
+import type { Engine } from "@babylonjs/core/Engines/engine.js";
 import { FreeCamera } from "@babylonjs/core/Cameras/freeCamera.js";
 import { Vector3 } from "@babylonjs/core/Maths/math.vector.js";
 import { Color3, Color4 } from "@babylonjs/core/Maths/math.color.js";
 import { HemisphericLight } from "@babylonjs/core/Lights/hemisphericLight.js";
 import { PointLight } from "@babylonjs/core/Lights/pointLight.js";
+import { bindLocalLights } from "./localLights";
+import { Cavern } from "./cavern";
 import { StandardMaterial } from "@babylonjs/core/Materials/standardMaterial.js";
 import { MeshBuilder } from "@babylonjs/core/Meshes/meshBuilder.js";
+import { TransformNode } from "@babylonjs/core/Meshes/transformNode.js";
 import { DefaultRenderingPipeline } from "@babylonjs/core/PostProcesses/RenderPipeline/Pipelines/defaultRenderingPipeline.js";
 import { RewardChest, revealPose } from "./chest";
 import { buildRelic } from "./relics";
+import { CaveWalker, type WalkIntent } from "../input/caveWalk";
+import { caveRoom } from "../input/caveLayout";
+import type { Progress } from "../game/progress";
+import {
+  goldTotal,
+  GOLD_PER_LEVEL,
+  WORLD_RELICS,
+  CAVE_ITEMS,
+} from "../game/rewards";
 import { RELICS } from "../game/voyage";
-import { Rng } from "../sim/rng";
-import type { TransformNode } from "@babylonjs/core/Meshes/transformNode.js";
 
+/** One continuous cavern. Gold and world keepsakes share a permanent place in the same room. */
 export class TreasureCave {
   readonly scene: Scene;
   readonly camera: FreeCamera;
   selected = 0;
-  private x = 0;
   private time = 0;
-  private relics: TransformNode[] = [];
+  private relics: (TransformNode | null)[] = [];
+  private closed: TransformNode[] = [];
   private lamps: PointLight[] = [];
-  private motes: {
-    node: TransformNode;
-    x: number;
-    y: number;
-    z: number;
-    phase: number;
-  }[] = [];
-  private owned: string = "";
+  private chamber: Cavern;
+  readonly walker: CaveWalker;
+  private revealLight: PointLight;
+  // Scattered ledges at different depths and heights, with a winding clear floor.
+  private spots = [
+    [-3.5, 0.9, 1.0],
+    [-5.1, 2.0, 14.0],
+    [6.8, 1.15, 12.0],
+    [-10.3, 0.9, 4.2],
+    [-4.7, 0.75, 6.8],
+    [-5.0, 1.4, 34.0],
+    [9.1, 1.8, 5.0],
+    [-7.3, 1.1, -2.0],
+    [6.0, 1.35, 43.0],
+    [5.7, 1.25, -0.6],
+    [-3.9, 1.0, -6.0],
+    [29.0, 0.85, 39.0],
+  ].map(([x, y, z]) => new Vector3(x!, y!, z!));
+  private relief: { lift: number; height: number; width: number }[] = [];
+  private owned = "initial";
   private chest: RewardChest;
+  private revealDais: TransformNode;
+  private focus: Vector3 | null = null;
+  private distance = 24;
   revealTime = 0;
   private revealing = false;
-  private reducedMotion = matchMedia("(prefers-reduced-motion: reduce)").matches;
+  private reducedMotion = matchMedia("(prefers-reduced-motion: reduce)")
+    .matches;
   constructor(engine: Engine) {
     const s = (this.scene = new Scene(engine));
-    s.clearColor = new Color4(0.018, 0.038, 0.065, 1);
+    s.clearColor = new Color4(0.012, 0.02, 0.035, 1);
     s.fogMode = Scene.FOGMODE_EXP2;
-    s.fogDensity = 0.014;
-    s.fogColor = Color3.FromHexString("#081b2b");
-    this.camera = new FreeCamera("cave camera", new Vector3(0, 6, -13), s);
+    s.fogDensity = 0.009;
+    s.fogColor = Color3.FromHexString("#07111c");
+    this.camera = new FreeCamera("cave camera", new Vector3(0, 14, -22), s);
     this.camera.inputs.clear();
-    this.camera.fov = 0.72;
+    this.camera.fov = 0.8;
     this.camera.minZ = 0.1;
-    const hemi = new HemisphericLight("cave skylight", new Vector3(0, 1, 0), s);
-    hemi.diffuse = Color3.FromHexString("#98ccec");
-    hemi.groundColor = Color3.FromHexString("#192332");
-    hemi.intensity = 0.6;
-    const mat = (name: string, hex: string, glow = 0) => {
-      const m = new StandardMaterial(name, s);
-      m.diffuseColor = Color3.FromHexString(hex);
-      m.emissiveColor = m.diffuseColor.scale(glow);
-      m.specularColor.set(0.02, 0.03, 0.04);
-      return m;
-    };
-    const stone = mat("ancient blue slate", "#233d50"),
-      edge = mat("pedestal stone", "#426070"),
-      gold = mat("gold inlay", "#bd9459", 0.2),
-      cyan = mat("luminous crystal", "#42d9d1", 0.8),
-      purple = mat("amethyst", "#9270db", 0.7);
-    const floor = MeshBuilder.CreateGround(
-      "cavern floor",
-      { width: 140, height: 35 },
+    const hemi = new HemisphericLight(
+      "moon through the cave mouth",
+      new Vector3(-0.35, 0.9, -0.8),
       s,
     );
-    floor.position.set(49, -0.3, 0);
-    floor.material = stone;
-    const rng = new Rng(9124);
-    for (let i = 0; i < 12; i++) {
-      const x = i * 9;
-      const plinth = MeshBuilder.CreateCylinder(
-        "treasure pedestal",
-        { height: 1.1, diameterTop: 3.5, diameterBottom: 4, tessellation: 12 },
-        s,
+    hemi.diffuse = Color3.FromHexString("#91b8cd");
+    hemi.groundColor = Color3.FromHexString("#16121a");
+    hemi.intensity = 0.62;
+    hemi.renderPriority = 7;
+    this.chamber = new Cavern(s, this.spots);
+    this.walker = new CaveWalker(this.chamber.obstacles, (x, z) =>
+      this.chamber.walkHeight(x, z),
+    );
+    const { stone, ledge: plinthMat, gold, wood, iron } = this.chamber;
+    // Treasures rest on broad, broken rock shelves, not matching display stands.
+    this.spots.forEach((p, i) => {
+      const height = p.y + 0.15,
+        sy = height / 1.25;
+      const rock = this.chamber.rock(
+        "treasure rock ledge " + i,
+        new Vector3(p.x, p.y - 0.55 * sy, p.z),
+        new Vector3(
+          [2.7, 1.8, 1.9, 2.3, 2.8, 2.1, 1.7, 2.45, 2.6, 1.85, 2.5, 2.25][i]!,
+          sy,
+          [1.6, 2.05, 1.55, 1.85, 1.5, 1.9, 1.65, 2.1, 1.55, 1.7, 1.8, 2.15][
+            i
+          ]!,
+        ),
+        i,
+        true,
       );
-      plinth.position.set(x, 0.4, 0);
-      plinth.material = edge;
-      for (const y of [0.02, 0.93]) {
-        const rim = MeshBuilder.CreateTorus(
-          "gold pedestal inlay",
-          { diameter: 3.5, thickness: 0.07, tessellation: 48 },
-          s,
+      rock.material = i % 3 === 0 ? stone : plinthMat;
+      rock.metadata = { relicIndex: i };
+      rock.isPickable = CAVE_ITEMS.includes(i);
+      this.chamber.shadow.addShadowCaster(rock);
+      for (let j = 0; j < 2; j++)
+        this.chamber.rock(
+          "ledge rubble",
+          new Vector3(p.x + (j ? 1.4 : -1.3), 0.15, p.z + 0.5),
+          new Vector3(0.8, 0.45, 0.7),
+          i + j,
         );
-        rim.position.set(x, y, 0);
-        rim.material = gold;
-      }
-      const glow = MeshBuilder.CreateTorus(
-        "pool of starlight",
-        { diameter: 4.4, thickness: 0.04, tessellation: 48 },
+      const light = new PointLight(
+        "treasure glow " + i,
+        new Vector3(p.x, p.y + 2.5, p.z - 0.8),
         s,
       );
-      glow.position.set(x, -0.15, 0);
-      glow.material = i % 2 ? purple : cyan;
-      const light = new PointLight("treasure light", new Vector3(x, 5, -3), s);
+      light.renderPriority = 2;
       light.diffuse = Color3.FromHexString(RELICS[i]!.color);
-      light.intensity = 1.8;
-      light.range = 11;
+      light.range = 5;
+      light.intensity = 0.65;
+      light.setEnabled(false);
       this.lamps.push(light);
-      for (let j = 0; j < 7; j++) {
-        const rock = MeshBuilder.CreateSphere(
-          "cavern column",
-          { diameter: 1, segments: 5 },
-          s,
-        );
-        rock.position.set(
-          x - 4 + j * 1.4,
-          rng.range(0, 3),
-          5 + rng.range(-0.8, 0.8),
-        );
-        rock.scaling.set(
-          rng.range(1.2, 2.3),
-          rng.range(4, 8),
-          rng.range(1.5, 3),
-        );
-        rock.rotation.set(
-          rng.range(-0.15, 0.15),
-          rng.range(0, 6),
-          rng.range(-0.2, 0.2),
-        );
-        rock.material = stone;
-      }
-      for (let j = 0; j < 4; j++) {
-        const c = MeshBuilder.CreateCylinder(
-          "cave crystal",
-          {
-            height: rng.range(1, 2.7),
-            diameterTop: 0,
-            diameterBottom: 0.5,
-            tessellation: 5,
-          },
-          s,
-        );
-        c.position.set(x - 3 + rng.range(0, 1), 0.4, 1.5 + rng.range(0, 2));
-        c.rotation.z = rng.range(-0.4, 0.4);
-        c.material = j % 2 ? cyan : purple;
-        const m = MeshBuilder.CreateSphere(
-          "floating firefly",
-          { diameter: 0.065, segments: 6 },
-          s,
-        );
-        m.position.set(x + rng.range(-3, 3), rng.range(1, 6), rng.range(-2, 3));
-        m.material = cyan;
-        this.motes.push({
-          node: m,
-          x: m.position.x,
-          y: m.position.y,
-          z: m.position.z,
-          phase: rng.range(0, 6),
-        });
-      }
-      const arch = MeshBuilder.CreateTorus(
-        "cavern arch",
-        { diameter: 9, thickness: 0.75, tessellation: 24 },
+      const root = new TransformNode("unopened chest " + i, s);
+      root.position.set(p.x, p.y + 0.04, p.z);
+      root.scaling.setAll(0.75);
+      this.closed.push(root);
+      const part = (
+        name: string,
+        opts: object,
+        m: StandardMaterial,
+        x = 0,
+        y = 0,
+        z = 0,
+      ) => {
+        const b = MeshBuilder.CreateBox(name, opts, s);
+        b.parent = root;
+        b.position.set(x, y, z);
+        b.material = m;
+        b.metadata = { relicIndex: i };
+        return b;
+      };
+      part(
+        "solid closed chest",
+        { width: 2, height: 0.85, depth: 1.3 },
+        wood,
+        0,
+        0.4,
+      );
+      const lid = MeshBuilder.CreateCylinder(
+        "arched chest lid",
+        { height: 2, diameter: 1.3, tessellation: 16, arc: 0.5 },
         s,
       );
-      arch.position.set(x, 3, 4);
-      arch.rotation.x = Math.PI / 2;
-      arch.scaling.y = 1.3;
-      arch.material = stone;
-    }
-    const pipeline = new DefaultRenderingPipeline("cave bloom", true, s, [
+      lid.rotation.z = Math.PI / 2;
+      lid.rotation.y = Math.PI;
+      lid.parent = root;
+      lid.position.y = 0.8;
+      lid.material = wood;
+      lid.metadata = { relicIndex: i };
+      for (const x of [-0.72, 0.72]) {
+        part(
+          "iron chest binding",
+          { width: 0.12, height: 0.95, depth: 1.34 },
+          iron,
+          x,
+          0.48,
+        );
+        const band = MeshBuilder.CreateTorus(
+          "arched brass strap",
+          { diameter: 1.34, thickness: 0.07, tessellation: 24 },
+          s,
+        );
+        band.parent = root;
+        band.rotation.z = Math.PI / 2;
+        band.position.set(x, 0.82, 0);
+        band.material = gold;
+        band.metadata = { relicIndex: i };
+      }
+      part(
+        "brass chest lock",
+        { width: 0.25, height: 0.32, depth: 0.1 },
+        gold,
+        0,
+        0.76,
+        -0.7,
+      );
+    });
+    const pipeline = new DefaultRenderingPipeline("torch glow", true, s, [
       this.camera,
     ]);
     pipeline.fxaaEnabled = true;
     pipeline.bloomEnabled = true;
-    pipeline.bloomThreshold = 0.65;
+    pipeline.bloomThreshold = 0.7;
     pipeline.bloomWeight = 0.22;
     pipeline.bloomKernel = 64;
     pipeline.imageProcessingEnabled = true;
-    pipeline.imageProcessing.toneMappingEnabled=true;
-    pipeline.imageProcessing.toneMappingType=ImageProcessingConfiguration.TONEMAPPING_ACES;
-    pipeline.imageProcessing.exposure=1.0;
+    pipeline.imageProcessing.toneMappingEnabled = true;
+    pipeline.imageProcessing.toneMappingType =
+      ImageProcessingConfiguration.TONEMAPPING_ACES;
+    pipeline.imageProcessing.exposure = 1.05;
+    pipeline.imageProcessing.vignetteEnabled = true;
+    pipeline.imageProcessing.vignetteWeight = 1.3;
+    const dais = (this.revealDais = MeshBuilder.CreateIcoSphere(
+      "chest opening rock",
+      { radius: 1, subdivisions: 2, updatable: true },
+      s,
+    ));
+    const rockVertices = dais.getVerticesData("position")!;
+    for (let i = 1; i < rockVertices.length; i += 3)
+      if (rockVertices[i]! > 0.1) rockVertices[i] = 0.45;
+    dais.updateVerticesData("position", rockVertices);
+    dais.convertToFlatShadedMesh();
+    dais.scaling.set(3.3, 1.4, 2.4);
+    dais.position.set(0, 0.35, -5);
+    dais.material = stone;
+    dais.isPickable = false;
+    this.revealLight = new PointLight(
+      "warm light on the reward chest",
+      new Vector3(-2, 5, -10),
+      s,
+    );
+    this.revealLight.diffuse = Color3.FromHexString("#ffe0a0");
+    this.revealLight.intensity = 2.4;
+    this.revealLight.range = 16;
+    this.revealLight.renderPriority = 3;
+    this.revealLight.setEnabled(false);
     this.chest = new RewardChest(s);
+    this.distance = this.overviewRadius();
   }
-  refresh(owned: number[]): void {
-    const key = owned.join(",");
-    if (key === this.owned && this.relics.length) return;
+  refresh(progress: Progress): void {
+    const count = goldTotal(progress) / GOLD_PER_LEVEL;
+    const owned = [...(count ? [0] : []), ...progress.relics];
+    const key = `${count}:${owned.join(",")}`;
+    if (key === this.owned) return;
     this.owned = key;
-    for (const r of this.relics) r.dispose(false, true);
-    this.relics = [];
-    for (let i = 0; i < 12; i++) {
-      const r = buildRelic(this.scene, i, !owned.includes(i));
-      r.position.set(i * 9, 2.3, 0);
-      this.relics.push(r);
+    this.relics.forEach((r) => r?.dispose(false, true));
+    this.chamber.refresh(count);
+    this.relief = [];
+    this.relics = RELICS.map((_, i) => {
+      this.closed[i]!.setEnabled(
+        WORLD_RELICS.includes(i as 2 | 5 | 8 | 11) && !owned.includes(i),
+      );
+      if (!owned.includes(i)) {
+        this.relief[i] = { lift: 0, height: 1.3, width: 1.5 };
+        return null;
+      }
+      const r = buildRelic(this.scene, i);
+      r.scaling.setAll(0.78);
+      r.rotation.y = i * 0.4;
+      r.computeWorldMatrix(true);
+      r.getChildMeshes().forEach((m) => m.computeWorldMatrix(true));
+      const bounds = r.getHierarchyBoundingVectors(true);
+      this.relief[i] = {
+        lift: -bounds.min.y + 0.025,
+        height: bounds.max.y - bounds.min.y,
+        width: Math.max(
+          bounds.max.x - bounds.min.x,
+          bounds.max.z - bounds.min.z,
+        ),
+      };
+      r.position.set(
+        this.spots[i]!.x,
+        this.spots[i]!.y + this.relief[i]!.lift,
+        this.spots[i]!.z,
+      );
+      r.getChildMeshes().forEach((m) => {
+        m.metadata = { relicIndex: i };
+        this.chamber.shadow.addShadowCaster(m);
+      });
+      return r;
+    });
+    // Stable assignments belong to geometry, not the visitor's current position.
+    // Local lanterns and the skylight stay fixed as the visitor walks around.
+    bindLocalLights(this.chamber.lamps, this.scene.meshes);
+    this.lamps.forEach((light, i) => {
+      light.includedOnlyMeshes = [
+        ...this.closed[i]!.getChildMeshes(),
+        ...(this.relics[i]?.getChildMeshes() ?? []),
+      ];
+    });
+  }
+  get activeLanterns(): string {
+    return this.chamber.lamps
+      .filter((light) => light.isEnabled())
+      .map((light) => `${light.position.x},${light.position.z}`)
+      .join(";");
+  }
+  get walkingGeometry() {
+    return this.chamber.walkingGeometry;
+  }
+  get inspecting(): boolean {
+    return this.focus !== null;
+  }
+  get room(): string {
+    return caveRoom(this.walker.x, this.walker.z);
+  }
+  enter(): void {
+    this.walker.reset();
+    this.overview();
+  }
+  walk(intent: WalkIntent, dt: number): void {
+    if (!this.inspecting) this.walker.step(intent, dt);
+  }
+  overview(): void {
+    this.focus = null;
+  }
+  select(index: number, _snap = false): void {
+    this.selected = Math.max(0, Math.min(11, index));
+    this.focus = this.spots[this.selected]!.add(
+      new Vector3(0, (this.relief[this.selected]?.height ?? 1.3) * 0.5, 0),
+    );
+    this.distance = 8;
+  }
+  look(dx: number, dy: number): void {
+    if (!this.focus) this.walker.look(dx, dy);
+    else {
+      // Turn the keepsake in your hands without orbiting through a cave wall.
+      const relic = this.relics[this.selected];
+      if (relic) relic.rotation.y += dx * 0.008;
     }
   }
-  select(index: number, snap = false): void {
-    this.selected = Math.max(0, Math.min(11, index));
-    if (snap) this.x = this.selected * 9;
+  private overviewRadius(): number {
+    return innerWidth < 600 ? 34 : 28;
+  }
+  resize(): void {}
+  private pullBack(): boolean {
+    if (this.focus && this.distance >= 17) {
+      this.overview();
+      return true;
+    }
+    return false;
+  }
+  zoom(dy: number): boolean {
+    if (!this.focus) return false;
+    this.distance = Math.max(
+      6,
+      Math.min(this.overviewRadius(), this.distance + dy * 0.025),
+    );
+    return this.pullBack();
+  }
+  // Spreading two fingers pulls back from a treasure, as requested.
+  pinch(ratio: number): boolean {
+    if (!this.focus) return false;
+    this.distance = Math.max(
+      6,
+      Math.min(this.overviewRadius(), this.distance * ratio * ratio),
+    );
+    return this.pullBack();
+  }
+  pick(x: number, y: number): number | null {
+    const hit = this.scene.pick(x, y);
+    const i = hit?.pickedMesh?.metadata?.relicIndex;
+    return !this.inspecting &&
+      hit &&
+      hit.distance <= 5.5 &&
+      typeof i === "number" &&
+      CAVE_ITEMS.includes(i)
+      ? i
+      : null;
+  }
+  get nearby(): number | null {
+    const hit = this.scene.pickWithRay(this.camera.getForwardRay(5.5));
+    const i = hit?.pickedMesh?.metadata?.relicIndex;
+    return hit &&
+      hit.distance <= 5.5 &&
+      typeof i === "number" &&
+      CAVE_ITEMS.includes(i)
+      ? i
+      : null;
   }
   beginReveal(index: number): void {
-    this.select(index, true);
+    this.selected = index;
     this.revealTime = 0;
     this.revealing = true;
   }
-  endReveal(): void { this.revealing = false; this.chest.hide(); }
-  get revealPose() { return revealPose(this.revealTime, this.reducedMotion); }
+  endReveal(): void {
+    this.revealing = false;
+    this.chest.hide();
+  }
+  get revealPose() {
+    return revealPose(this.revealTime, this.reducedMotion);
+  }
   render(dt: number, reveal = false): void {
     this.time += dt;
     const unboxing = reveal && this.revealing;
-    if (unboxing) this.revealTime += dt;
-    if (unboxing) this.chest.animate(this.revealTime, this.x, this.reducedMotion);
-    else this.chest.hide();
-    this.x += (this.selected * 9 - this.x) * Math.min(1, dt * 6);
-    const portrait = innerWidth < 600,
-      distance = reveal ? (innerHeight < 650 && portrait ? 19 : portrait ? 16.5 : innerHeight < 480 ? 16 : 17) : portrait ? 14.5 : 12;
-    this.camera.position.set(this.x + 0.4, 5.7, -distance);
-    this.camera.setTarget(
-      new Vector3(
-        this.x,
-        reveal ? 3.4 : portrait && innerHeight < 650 ? 1.1 : 2.5,
-        0,
-      ),
-    );
-    this.relics.forEach((r, i) => {
-      const short = portrait && innerHeight < 650,
-        scale = short ? 0.85 : 1;
-      r.scaling.setAll(scale * (unboxing ? 0.18 + this.revealPose.rise * 0.67 : 1));
-      const offset = {
-        gold: 0.1,
-        coins: 0.2,
-        ring: 0.6,
-        pearl: 0.55,
-        gem: 0.2,
-        compass: 0.2,
-        shell: 0.3,
-        crown: 0.35,
-        lantern: 0.5,
-        hourglass: 0,
-        egg: 0.3,
-        turtle: 0.1,
-        ship: 0.05,
-        orb: 0.2,
-      }[RELICS[i]!.kind];
-      const height = unboxing ? 1.7 + this.revealPose.rise * (short ? 1.8 : 2.4) - offset * 0.6 : reveal ? 2.35 : (short ? 2.95 : 3.8) - offset * scale;
-      r.rotation.y = this.time * 0.22 + (i === 1 ? 0.5 : 0);
-      r.position.y = height + Math.sin(this.time * 1.4 + i) * 0.12;
-      r.setEnabled(
-        reveal ? i === this.selected && (!unboxing || this.revealPose.rise > 0.08) : Math.abs(i * 9 - this.x) < 24,
+    this.revealDais.setEnabled(reveal);
+    this.revealLight.setEnabled(reveal);
+    if (unboxing) {
+      this.revealTime += dt;
+      this.chest.animate(this.revealTime, 0, this.reducedMotion);
+      this.chest.root.position.z = -5;
+    } else this.chest.hide();
+    const portrait = innerWidth < 600;
+    if (reveal) {
+      // The walking cave has a front wall and ceiling; keep the reward camera
+      // inside the chamber so neither can obscure the chest.
+      this.camera.fov = portrait ? (innerHeight < 650 ? 1.55 : 1.4) : 0.8;
+      this.camera.position.set(0.4, 4.8, -11.8);
+      this.camera.setTarget(new Vector3(0, 3.3, -5));
+    } else {
+      const w = this.walker;
+      this.camera.position.set(
+        w.x,
+        w.eyeY + (this.reducedMotion ? 0 : w.bob),
+        w.z,
       );
+      if (this.focus) {
+        const relief = this.relief[this.selected]!;
+        const span = Math.max(
+          relief.height,
+          relief.width / (innerWidth / innerHeight),
+        );
+        const distance = Vector3.Distance(this.camera.position, this.focus);
+        this.camera.fov = Math.max(
+          0.5,
+          Math.min(
+            1.8,
+            (2 * Math.atan((span * 0.65) / distance) * this.distance) / 8,
+          ),
+        );
+      } else this.camera.fov = 1.1;
+      this.camera.setTarget(
+        this.focus ??
+          this.camera.position.add(
+            new Vector3(
+              Math.sin(w.yaw) * Math.cos(w.pitch),
+              -Math.sin(w.pitch),
+              Math.cos(w.yaw) * Math.cos(w.pitch),
+            ),
+          ),
+      );
+    }
+    this.relics.forEach((r, i) => {
+      this.closed[i]!.setEnabled(
+        WORLD_RELICS.includes(i as 2 | 5 | 8 | 11) && !r && !reveal,
+      );
+      if (!r) return;
+      if (reveal) {
+        r.position.set(
+          0,
+          unboxing ? 1.7 + this.revealPose.rise * 2.4 : 3.6,
+          -5,
+        );
+        r.scaling.setAll(0.18 + this.revealPose.rise * 0.67);
+        r.setEnabled(i === this.selected && this.revealPose.rise > 0.08);
+      } else {
+        r.position.set(
+          this.spots[i]!.x,
+          this.spots[i]!.y + this.relief[i]!.lift,
+          this.spots[i]!.z,
+        );
+        r.scaling.setAll(0.78);
+        r.setEnabled(true);
+      }
+      if (reveal) r.rotation.y = this.time * 0.12 + i * 0.4;
     });
     this.lamps.forEach((l, i) => {
-      l.setEnabled(Math.abs(i * 9 - this.x) < 13);
-      l.intensity = 1.5 + Math.sin(this.time * 1.3 + i) * 0.15;
+      l.setEnabled(!reveal && i === this.selected);
+      l.intensity =
+        (this.relics[i] ? 1 : 0.4) + Math.sin(this.time * 1.3 + i) * 0.06;
     });
-    for (const m of this.motes)
-      m.node.position.set(
-        m.x + Math.sin(this.time * 0.3 + m.phase) * 0.3,
-        m.y + Math.sin(this.time * 0.65 + m.phase) * 0.3,
-        m.z,
-      );
+    this.chamber.animate(dt);
     this.scene.render();
   }
 }
