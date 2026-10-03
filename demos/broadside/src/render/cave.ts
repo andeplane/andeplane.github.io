@@ -1,3 +1,4 @@
+import { antialiasSamples } from "./quality";
 import { ImageProcessingConfiguration } from "@babylonjs/core/Materials/imageProcessingConfiguration.js";
 import { Scene } from "@babylonjs/core/scene.js";
 import type { Engine } from "@babylonjs/core/Engines/engine.js";
@@ -8,6 +9,8 @@ import { HemisphericLight } from "@babylonjs/core/Lights/hemisphericLight.js";
 import { PointLight } from "@babylonjs/core/Lights/pointLight.js";
 import { bindLocalLights } from "./localLights";
 import { Cavern } from "./cavern";
+import { CoinHoard } from "./coinHoard";
+import { GOLD_AREAS } from "../game/goldAreas";
 import { StandardMaterial } from "@babylonjs/core/Materials/standardMaterial.js";
 import { MeshBuilder } from "@babylonjs/core/Meshes/meshBuilder.js";
 import { TransformNode } from "@babylonjs/core/Meshes/transformNode.js";
@@ -35,22 +38,27 @@ export class TreasureCave {
   private closed: TransformNode[] = [];
   private lamps: PointLight[] = [];
   private chamber: Cavern;
+  private coins: CoinHoard;
+  selectedGoldWorld = 0;
+  private depositWorld: number | null = null;
+  private pourStarted = false;
+  private depositFinishedAt: number | null = null;
   readonly walker: CaveWalker;
   private revealLight: PointLight;
   // Scattered ledges at different depths and heights, with a winding clear floor.
   private spots = [
     [-3.5, 0.9, 1.0],
     [-5.1, 2.0, 14.0],
-    [6.8, 1.15, 12.0],
+    [-9.0, 0.85, 12.0],
     [-10.3, 0.9, 4.2],
     [-4.7, 0.75, 6.8],
-    [-5.0, 1.4, 34.0],
+    [9.0, 1.1, 18.0],
     [9.1, 1.8, 5.0],
     [-7.3, 1.1, -2.0],
     [6.0, 1.35, 43.0],
     [5.7, 1.25, -0.6],
     [-3.9, 1.0, -6.0],
-    [29.0, 0.85, 39.0],
+    [29.0, 0.85, 34.0],
   ].map(([x, y, z]) => new Vector3(x!, y!, z!));
   private relief: { lift: number; height: number; width: number }[] = [];
   private owned = "initial";
@@ -62,7 +70,7 @@ export class TreasureCave {
   private revealing = false;
   private reducedMotion = matchMedia("(prefers-reduced-motion: reduce)")
     .matches;
-  constructor(engine: Engine) {
+  constructor(engine: Engine, persistent = true) {
     const s = (this.scene = new Scene(engine));
     s.clearColor = new Color4(0.012, 0.02, 0.035, 1);
     s.fogMode = Scene.FOGMODE_EXP2;
@@ -82,14 +90,17 @@ export class TreasureCave {
     hemi.intensity = 0.62;
     hemi.renderPriority = 7;
     this.chamber = new Cavern(s, this.spots);
+    this.coins = new CoinHoard(s, persistent, () => bindLocalLights(this.chamber.lamps, this.scene.meshes));
     this.walker = new CaveWalker(this.chamber.obstacles, (x, z) =>
-      this.chamber.walkHeight(x, z),
+      Math.max(this.chamber.walkHeight(x, z), this.coins.walkHeight(x, z)),
     );
     const { stone, ledge: plinthMat, gold, wood, iron } = this.chamber;
     // Treasures rest on broad, broken rock shelves, not matching display stands.
     this.spots.forEach((p, i) => {
+      const displayed = WORLD_RELICS.includes(i as 2 | 5 | 8 | 11);
       const height = p.y + 0.15,
         sy = height / 1.25;
+      const obstacleCount = this.chamber.obstacles.length;
       const rock = this.chamber.rock(
         "treasure rock ledge " + i,
         new Vector3(p.x, p.y - 0.55 * sy, p.z),
@@ -103,11 +114,15 @@ export class TreasureCave {
         i,
         true,
       );
+      if (!displayed) {
+        rock.setEnabled(false);
+        this.chamber.obstacles.length = obstacleCount;
+      }
       rock.material = i % 3 === 0 ? stone : plinthMat;
       rock.metadata = { relicIndex: i };
-      rock.isPickable = CAVE_ITEMS.includes(i);
+      rock.isPickable = displayed;
       this.chamber.shadow.addShadowCaster(rock);
-      for (let j = 0; j < 2; j++)
+      for (let j = 0; displayed && j < 2; j++)
         this.chamber.rock(
           "ledge rubble",
           new Vector3(p.x + (j ? 1.4 : -1.3), 0.15, p.z + 0.5),
@@ -193,6 +208,7 @@ export class TreasureCave {
     const pipeline = new DefaultRenderingPipeline("torch glow", true, s, [
       this.camera,
     ]);
+    pipeline.samples = antialiasSamples(engine);
     pipeline.fxaaEnabled = true;
     pipeline.bloomEnabled = true;
     pipeline.bloomThreshold = 0.7;
@@ -232,14 +248,14 @@ export class TreasureCave {
     this.chest = new RewardChest(s);
     this.distance = this.overviewRadius();
   }
-  refresh(progress: Progress): void {
+  refresh(progress: Progress, depositWorld: number | null = null): void {
     const count = goldTotal(progress) / GOLD_PER_LEVEL;
     const owned = [...(count ? [0] : []), ...progress.relics];
-    const key = `${count}:${owned.join(",")}`;
+    this.coins.refresh(progress, depositWorld);
+    const key = `${Object.keys(progress.voyages).sort().join(",")}:${owned.join(",")}`;
     if (key === this.owned) return;
     this.owned = key;
     this.relics.forEach((r) => r?.dispose(false, true));
-    this.chamber.refresh(count);
     this.relief = [];
     this.relics = RELICS.map((_, i) => {
       this.closed[i]!.setEnabled(
@@ -284,12 +300,19 @@ export class TreasureCave {
       ];
     });
   }
+  private bankView(world: number): Vector3 {
+    const a = GOLD_AREAS[world]!, span = this.coins.span(world);
+    return new Vector3(world === 3 ? 28 : 0, Math.min(6.1, span.height + 2.7), a.z - (world === 3 ? 9 : 8));
+  }
   get activeLanterns(): string {
     return this.chamber.lamps
       .filter((light) => light.isEnabled())
       .map((light) => `${light.position.x},${light.position.z}`)
       .join(";");
   }
+  get coinCounts(): number[] { return this.coins.counts; }
+  get restingCoinCounts(): number[] { return this.coins.restingCounts; }
+  get goldPhysicsActive(): boolean { return this.coins.physicsActive; }
   get walkingGeometry() {
     return this.chamber.walkingGeometry;
   }
@@ -300,6 +323,7 @@ export class TreasureCave {
     return caveRoom(this.walker.x, this.walker.z);
   }
   enter(): void {
+    this.coins.finishPours();
     this.walker.reset();
     this.overview();
   }
@@ -311,6 +335,11 @@ export class TreasureCave {
   }
   select(index: number, _snap = false): void {
     this.selected = Math.max(0, Math.min(11, index));
+    if (this.selected === 0) {
+      this.focus = this.coins.center(this.selectedGoldWorld);
+      this.distance = 8;
+      return;
+    }
     this.focus = this.spots[this.selected]!.add(
       new Vector3(0, (this.relief[this.selected]?.height ?? 1.3) * 0.5, 0),
     );
@@ -321,7 +350,7 @@ export class TreasureCave {
     else {
       // Turn the keepsake in your hands without orbiting through a cave wall.
       const relic = this.relics[this.selected];
-      if (relic) relic.rotation.y += dx * 0.008;
+      if (relic && this.selected !== 0) relic.rotation.y += dx * 0.008;
     }
   }
   private overviewRadius(): number {
@@ -355,6 +384,7 @@ export class TreasureCave {
   pick(x: number, y: number): number | null {
     const hit = this.scene.pick(x, y);
     const i = hit?.pickedMesh?.metadata?.relicIndex;
+    if (i === 0) this.selectedGoldWorld = hit!.pickedMesh!.metadata.goldWorld ?? 0;
     return !this.inspecting &&
       hit &&
       hit.distance <= 5.5 &&
@@ -366,6 +396,7 @@ export class TreasureCave {
   get nearby(): number | null {
     const hit = this.scene.pickWithRay(this.camera.getForwardRay(5.5));
     const i = hit?.pickedMesh?.metadata?.relicIndex;
+    if (i === 0) this.selectedGoldWorld = hit!.pickedMesh!.metadata.goldWorld ?? 0;
     return hit &&
       hit.distance <= 5.5 &&
       typeof i === "number" &&
@@ -373,13 +404,18 @@ export class TreasureCave {
       ? i
       : null;
   }
-  beginReveal(index: number): void {
+  beginReveal(index: number, depositWorld: number | null = null): void {
+    this.depositWorld = depositWorld;
+    this.pourStarted = false;
+    this.depositFinishedAt = null;
     this.selected = index;
     this.revealTime = 0;
     this.revealing = true;
   }
   endReveal(): void {
     this.revealing = false;
+    this.coins.finishPours();
+    this.depositWorld = null;
     this.chest.hide();
   }
   get revealPose() {
@@ -396,12 +432,41 @@ export class TreasureCave {
       this.chest.root.position.z = -5;
     } else this.chest.hide();
     const portrait = innerWidth < 600;
+    const showDeposit = unboxing && this.depositWorld !== null && this.revealTime > (this.reducedMotion ? 1.4 : 5.3);
+    const depositAge = this.revealTime - (this.reducedMotion ? 1.4 : 5.3);
+    if (showDeposit && depositAge > (this.reducedMotion ? .1 : 2.6) && !this.pourStarted && this.coins.pouring(this.depositWorld!).ready) {
+      this.coins.startPour(this.depositWorld!);
+      this.pourStarted = true;
+    }
     if (reveal) {
       // The walking cave has a front wall and ceiling; keep the reward camera
       // inside the chamber so neither can obscure the chest.
       this.camera.fov = portrait ? (innerHeight < 650 ? 1.55 : 1.4) : 0.8;
       this.camera.position.set(0.4, 4.8, -11.8);
       this.camera.setTarget(new Vector3(0, 3.3, -5));
+      if (showDeposit) {
+        const world = this.depositWorld!, center = this.coins.center(world), span = this.coins.span(world);
+        const elapsed = this.revealTime - (this.reducedMotion ? 1.4 : 5.3);
+        const t = this.reducedMotion ? 1 : Math.min(1, elapsed / 1.4), blend = t * t * (3 - 2 * t);
+        this.camera.position.copyFrom(Vector3.Lerp(this.camera.position, this.bankView(world), blend));
+        this.camera.fov += ((portrait ? 1.35 : .9) - this.camera.fov) * blend;
+        this.camera.setTarget(Vector3.Lerp(new Vector3(0, 3.3, -5), center.add(new Vector3(0, span.height * .1, 0)), blend));
+        const area = GOLD_AREAS[world]!, pour = this.coins.pouring(world);
+        const travel = this.reducedMotion ? 1 : Math.min(1, elapsed / 1.4), lift = travel * travel * (3 - 2 * travel);
+        this.chest.root.position.copyFrom(Vector3.Lerp(new Vector3(0, 1.05, -5), new Vector3(area.x, pour.chestY, area.z), lift));
+        const turn = this.reducedMotion ? 1 : Math.max(0, Math.min(1, (elapsed - 1.4) / 1.2));
+        this.chest.root.rotation.set(0, -.16 * (1 - lift), -Math.PI * turn * turn * (3 - 2 * turn));
+        this.chest.setCoinCount(1000 - pour.spawned);
+        if (pour.done) {
+          this.depositFinishedAt ??= this.revealTime;
+          const fade = Math.min(1, (this.revealTime - this.depositFinishedAt) / .7);
+          this.chest.root.position.y += fade * .35;
+          this.chest.fade(1 - fade);
+          if (fade === 1) this.chest.hide();
+        }
+        this.revealDais.setEnabled(false);
+        this.revealLight.setEnabled(false);
+      }
     } else {
       const w = this.walker;
       this.camera.position.set(
@@ -410,7 +475,8 @@ export class TreasureCave {
         w.z,
       );
       if (this.focus) {
-        const relief = this.relief[this.selected]!;
+        const relief = this.selected === 0 ? this.coins.span(this.selectedGoldWorld) : this.relief[this.selected]!;
+        if (this.selected === 0) this.camera.position.copyFrom(this.bankView(this.selectedGoldWorld));
         const span = Math.max(
           relief.height,
           relief.width / (innerWidth / innerHeight),
@@ -447,7 +513,7 @@ export class TreasureCave {
           -5,
         );
         r.scaling.setAll(0.18 + this.revealPose.rise * 0.67);
-        r.setEnabled(i === this.selected && this.revealPose.rise > 0.08);
+        r.setEnabled(!showDeposit && i === this.selected && this.revealPose.rise > 0.08);
       } else {
         r.position.set(
           this.spots[i]!.x,
@@ -455,7 +521,7 @@ export class TreasureCave {
           this.spots[i]!.z,
         );
         r.scaling.setAll(0.78);
-        r.setEnabled(true);
+        r.setEnabled(i !== 0);
       }
       if (reveal) r.rotation.y = this.time * 0.12 + i * 0.4;
     });
@@ -464,6 +530,7 @@ export class TreasureCave {
       l.intensity =
         (this.relics[i] ? 1 : 0.4) + Math.sin(this.time * 1.3 + i) * 0.06;
     });
+    this.coins.animate(dt, this.reducedMotion);
     this.chamber.animate(dt);
     this.scene.render();
   }

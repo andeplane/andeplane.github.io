@@ -18,6 +18,8 @@ npm run preview -- --host 0.0.0.0 --port 5181
 
 Built game: http://localhost:5181/
 
+Use the corner fullscreen button to enter or leave fullscreen on supported browsers. It includes the canvas and every game control, and preserves native rendering resolution when the screen size changes. On iPhone, use Safari’s **Share → Add to Home Screen** (leave **Open as Web App** enabled when offered), then launch Broadside from its Home Screen icon to hide Safari’s bars. Browser fullscreen support varies; an unsupported request shows instructions instead. Phone Home Screen launching still needs physical-device verification.
+
 ## The campaign
 
 Four packs of ten voyages introduce mechanics in order:
@@ -41,11 +43,11 @@ Three stars require at most 15% cumulative hull damage; two allow up to 55%; oth
 | Pause        | Pause button                                                                                                                  | Escape/P                                                                                                                                          |
 | Explore cave | Left stick to walk; swipe to look; Jump button; tap a nearby treasure to inspect. Keep exploring or spread fingers to return. | WASD moves, mouse or arrows look, Space jumps, Shift crouches, Ctrl or double-tap W sprints, E inspects. Escape releases mouse / closes inspection. |
 
-Cannons are **manual**. A BOOM press chooses the broadside facing the nearest pirate, then the gun crew aims within its side arc. Turn sideways to line up a target. The button reports which side is ready and its reload time. Island cannons lead a steadily moving ship; red impact markers show the committed landing point so turning after launch can dodge a shot. Fast taps are queued, so they reliably fire even between simulation frames. There is no auto-fire switch. Colliding with an island or exposed sea rock immediately sinks the ship and fails the level, even in junior mode. The bow and stern count as part of the hull. The sinking ship stays visible at the wreck site; Retry restarts that level, and failed runs award no gold, stars or unlocks. Young captains still get Pip’s rescue for combat damage; every newly cleared voyage earns 1,000 gold. Replays improve stars and gems without duplicating gold.
+Cannons are **manual**. A BOOM press chooses the broadside facing the nearest pirate, then the gun crew aims within its side arc. Turn sideways to line up a target. The button reports which side is ready and its reload time. Island cannons lead a steadily moving ship; red impact markers show the committed landing point so turning after launch can dodge a shot. Fast taps are queued, so they reliably fire even between simulation frames. There is no auto-fire switch. Colliding with an island or exposed sea rock immediately sinks the ship and fails the level, even in junior mode. The bow and stern count as part of the hull. The sinking ship stays visible at the wreck site; Retry restarts that level, and failed runs award no gold, stars or unlocks. Young captains still get crew repairs for combat damage; every newly cleared voyage earns 1,000 gold. Replays improve stars and gems without duplicating gold.
 
 ## Art and sound
 
-The growing gold hoard and four world treasures are actual 3D models made from sculpted geometry: gold bars and coins, a rose diamond, a captain’s crown, a magical hourglass and the heart of the ocean. Each reward has a five-second chest reveal: glowing seams, a hinged planked lid, rising treasure, light rays, sparks and staggered stars. Reduced-motion preferences shorten the sequence. Gold and special items rest on irregular, separated rock shelves in one continuous cave. A fractured horizontal opening through the vaulted rock ceiling exposes bright sky and sends soft daylight through drifting dust onto the rough stone floor. The room contains worn, textured walls, stalactites and stalagmites, shallow puddles, sparse hanging lanterns, barrels, crates, rope coils, an anchor, a faded pirate flag, quartz and cobwebs. Coin heaps and canvas sacks grow with every newly completed level. Existing three-level-world saves migrate to the first three levels of each expanded world without losing stars or previously earned keepsakes. Static scenery is merged and loose coins are instanced to reduce draw calls. On narrow screens, dragging pans through the chamber; tapping a treasure smoothly brings it closer, and spreading two fingers or scrolling outward returns to the wider view. The four unfound world treasures are opaque closed chests. The darker seas use animated waves, moving cloud shadows, shoreline gradients and restrained surf. Islands feature docks, pirate supplies, ruined gates, camps, lookouts and Skull Rock. Palm trees sway and lanterns flicker; later worlds add restrained lightning and thunder. The player and enemies fly skull flags. The player sails DeltaX_F’s CC-BY Black Pearl model, converted in Blender to a 1.6 MB GLB with separate black canvas sails, weathered hull, rigging and amber stern details. Enemy ships and Pip use original Blender assets; fonts are local and licensed under OFL. Cannon, splash, impact, grounding, gem, chest and reward sounds are synthesized with Web Audio, with quiet surf, hull creaks and cave drips. Hints appear as text; there is no spoken narration. Sound starts off on every launch and is enabled explicitly with the sound button or Settings. Add `?mute=true` to force silence, including reloads and sound-button presses; this works in both development and production.
+The growing gold hoard and four world treasures are actual 3D models made from sculpted geometry: gold bars and coins, a rose diamond, a captain’s crown, a magical hourglass and the heart of the ocean. Each reward has a five-second chest reveal: glowing seams, a hinged planked lid, rising treasure, light rays, sparks and staggered stars. Reduced-motion preferences shorten the sequence. Gold and special items rest on irregular, separated rock shelves in one continuous cave. A fractured horizontal opening through the vaulted rock ceiling exposes bright sky and sends soft daylight through drifting dust onto the rough stone floor. The room contains worn, textured walls, stalactites and stalagmites, shallow puddles, sparse hanging lanterns, barrels, crates, rope coils, an anchor, a faded pirate flag, quartz and cobwebs. Coin heaps and canvas sacks grow with every newly completed level. Existing three-level-world saves migrate to the first three levels of each expanded world without losing stars or previously earned keepsakes. Static scenery is merged and loose coins are instanced to reduce draw calls. On narrow screens, dragging pans through the chamber; tapping a treasure smoothly brings it closer, and spreading two fingers or scrolling outward returns to the wider view. The four unfound world treasures are opaque closed chests. The darker seas use animated waves, moving cloud shadows, shoreline gradients and restrained surf. Islands feature docks, pirate supplies, ruined gates, camps, lookouts and Skull Rock. Palm trees sway and lanterns flicker; later worlds alternate clouded seas, rain squalls and thunderstorms. The navigation world stays bright and calm. Rain slants with the wind, water shows raindrop rings and wind-torn whitecaps, and occasional branching lightning briefly illuminates the islands. Seeded gusts drift and turn both player and pirate ships; counter-steer to hold course, or lower sails to reduce wind exposure. The HUD shows weather and wind direction. Storm wave height is shared by the water and ship animation, and reduced-motion preferences disable lightning. The player and enemies fly skull flags. The player sails DeltaX_F’s CC-BY Black Pearl model, converted in Blender to a 1.6 MB GLB with separate black canvas sails, weathered hull, rigging and amber stern details. Enemy ships use original Blender assets; fonts are local and licensed under OFL. The game is silent: no ambience, music, narration, or sound effects. Hints appear as text. Existing `?mute=true` links remain valid, but silence no longer depends on a query or setting.
 
 ## Extend
 
@@ -77,3 +79,55 @@ The Play world selector uses an antique illustrated sea chart and four matching 
 
 
 First sails uses ten separate authored courses: a short open-water lesson, palm-island gates, a headland turn, rocky slalom, a branching island, a hidden lagoon, a long coastal bend, reef gates, a secret western passage, and a final four-headland trial. Starts, distances, landmarks, gems, and steering patterns differ. World one stays navigation-only; cannons begin in world two.
+
+### Individual gold banks
+
+Each world has a separate bank in the walking cave. First completions award 1,000
+actual doubloons; a full world contains 10,000 thin-instanced coins. Coins have
+bevelled edges, raised rims, and engraved faces. The standing eye height is 2.25m.
+
+`npm run gold:bake -- WORLD` bakes that world's ten deposits with Rapier rigid-body
+physics at a fixed time step. Settled coins become fixed between deposits, so
+all earlier positions and rotations remain unchanged. Float32 XYZ/quaternions
+are stored in `public/assets/hoard/`, validated when loaded, and cached in IndexedDB.
+For new rewards, the chest tips over above its world bank. A Web Worker runs
+Rapier for the new 1,000 coins, against the rough floor, retaining rocks and all
+previous coins. Resting poses are cached; static GPU instance buffers stop all
+per-frame coin updates after settling. Existing gold is fixed collision geometry,
+not an active physics simulation. Offline poses support immediate collection
+loading and provide a fallback if workers are unavailable. Private
+browsing can load the same poses without persistent storage. QA previews never
+read or write the player's pose cache.
+
+Muted fixtures: `?qa=collection&cleared=8&bank=0&mute=true` shows the first bank;
+`?qa=collection&bank=3&mute=true` shows the final bank with the full collection.
+`?qa=reveal-7&mute=true` previews a chest and deposit.
+
+### Visit the docked ship
+
+Choose **Visit your ship** below the main menu to explore Port Blackwater. The
+Black Pearl has a continuous walking deck, raised quarterdeck and forecastle,
+stairs, helm, rigging and cannons. Cross the gangplank to the lantern quay and
+walk between the town's tavern, chandlery, stores and shipwright. This is a
+purpose-built walking version of the ship; sailing continues to use the adapted
+Black Pearl GLB. Deck edges, buildings and fittings have grounded collisions.
+
+Use WASD to walk, mouse drag or arrow keys to look, Space to jump, and E near
+the helm to open the sea chart. On phones, use the left stick, swipe to look,
+and tap Jump. **Set sail** opens the world map, and Back returns to the menu.
+The harbour shares the game's silence and does not change campaign progress.
+Development preview: http://localhost:5182/?qa=harbour&mute=true (saves disabled).
+
+### Display resolution
+
+The 3D canvas uses the display's device pixel ratio, including on phones. A
+390×844 view at 3× renders at 1170×2532; rotating the phone preserves that pixel
+density. The buffer is bounded to eight million pixels and the GPU's maximum
+render-target dimension for unusually large screens. Touch input never selects
+a lower rendering preset. Supported GPUs use 4× MSAA, with FXAA as a fallback;
+sea and cave shadows use 2048px maps, and textures use up to 16× anisotropic
+filtering for sharp detail on angled surfaces.
+
+To verify a 3× canvas in a desktop-sized phone viewport, append `renderDpr=3` to
+an existing development QA URL. This fixture is ignored in production. The
+canvas's `data-render-resolution` attribute reports its actual drawing buffer.

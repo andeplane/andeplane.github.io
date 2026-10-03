@@ -284,9 +284,9 @@ describe("treasure voyages", () => {
     for (let i = 0; i < TOTAL_LEVELS; i++) {
       const s = new VoyageSession(generateVoyage(i)),
         nav = new Navigator();
-      nav.setGoal(s.player, s.voyage.finish, s.world.islands);
+      nav.setGoal(s.player, s.voyage.finish, s.world.islands, s.world.wind);
       for (let n = 0; n < 150 * 60 && s.state !== "won"; n++)
-        s.step(nav.read(s.player));
+        s.step(nav.read(s.player, s.world.wind));
       expect(
         s.state,
         `voyage ${i + 1} at ${JSON.stringify(s.player.pos)}`,

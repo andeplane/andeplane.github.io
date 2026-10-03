@@ -1,0 +1,67 @@
+#game-fullscreen {
+  position: fixed;
+  top: calc(20px + env(safe-area-inset-top, 0px));
+  right: calc(20px + env(safe-area-inset-right, 0px));
+  z-index: 60;
+  color: #ffe1a5;
+  border-color: #d4b37a77;
+  background: #101b24dc;
+  box-shadow: 0 2px 12px #0005;
+}
+#game-fullscreen .icon { width: 22px; height: 22px; }
+#game-fullscreen[hidden] { display: none; }
+#voyage-ui:has(#game-fullscreen:not([hidden])) .voyage-header {
+  right: calc(78px + env(safe-area-inset-right, 0px));
+}
+#voyage-ui .harbour-chart {
+  top: calc(80px + env(safe-area-inset-top, 0px));
+  right: calc(20px + env(safe-area-inset-right, 0px));
+}
+#voyage-ui #cave-back {
+  top: calc(20px + env(safe-area-inset-top, 0px));
+  left: calc(20px + env(safe-area-inset-left, 0px));
+}
+#voyage-ui #cave-ui .cave-title { top: calc(22px + env(safe-area-inset-top, 0px)); }
+#voyage-ui #cave-pad { left: calc(24px + env(safe-area-inset-left, 0px)); }
+#voyage-ui #cave-jump { right: calc(24px + env(safe-area-inset-right, 0px)); }
+#fullscreen-help {
+  pointer-events: auto;
+  width: min(370px, calc(100vw - 40px));
+  max-height: calc(100dvh - 40px);
+  overflow: auto;
+  padding: 28px;
+  border: 1px solid #b89a61;
+  border-radius: 16px;
+  background: #101c25;
+  color: #f4dfb8;
+  box-shadow: 0 12px 80px #0009;
+  font: 15px/1.6 "DM Sans", sans-serif;
+  touch-action: pan-y;
+}
+#fullscreen-help::backdrop { background: #02080ed9; }
+#fullscreen-help h2 { margin: 0; font: 30px/1.2 "Pirata One", Georgia, serif; }
+#fullscreen-help ol { padding-left: 22px; }
+#fullscreen-help li { margin: 10px 0; }
+#fullscreen-help button { width: 100%; margin-top: 8px; }
+@media (max-width: 650px), (max-height: 480px) {
+  #game-fullscreen {
+    width: 40px;
+    height: 40px;
+    top: calc(15px + env(safe-area-inset-top, 0px));
+    right: calc(12px + env(safe-area-inset-right, 0px));
+  }
+  #voyage-ui:has(#game-fullscreen:not([hidden])) .voyage-header {
+    right: calc(60px + env(safe-area-inset-right, 0px));
+  }
+  #voyage-ui #cave-back {
+    top: calc(15px + env(safe-area-inset-top, 0px));
+    left: calc(12px + env(safe-area-inset-left, 0px));
+  }
+  #voyage-ui .harbour-chart {
+    top: calc(72px + env(safe-area-inset-top, 0px));
+    right: calc(12px + env(safe-area-inset-right, 0px));
+  }
+  #voyage-ui .voyage-brand small { display: none; }
+  #voyage-ui .voyage-brand { font-size: 11px; gap: 6px; }
+  #fullscreen-help { padding: 22px; }
+}

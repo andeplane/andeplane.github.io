@@ -17,6 +17,7 @@ import { TOTAL_LEVELS, worldOf, stageOf } from "./campaign";
 import { wrapAngle } from "../sim/math";
 import { SIM_DT } from "../sim/world";
 import { navigationCourse } from "./navigationCourses";
+import { voyageWeather, weatherWind, type VoyageWeather } from "./weather";
 
 export const PACKS = [
   {
@@ -174,6 +175,7 @@ export interface WhirlpoolDef {
 export interface VoyageDef {
   index: number;
   pack: number;
+  weather: VoyageWeather;
   level: LevelDef;
   finish: { x: number; z: number };
   gems: { x: number; z: number; found: boolean }[];
@@ -204,6 +206,7 @@ export function generateVoyage(
     return {
       index,
       pack,
+      weather: voyageWeather(index),
       finish: course.finish,
       gems: course.gems.map((p) => ({ ...p, found: false })),
       forts: [],
@@ -337,6 +340,7 @@ export function generateVoyage(
   return {
     index,
     pack,
+    weather: voyageWeather(index),
     finish: { x: 0, z: 148 },
     gems,
     forts: islands.flatMap((i, n) => (i.props.includes("fort") ? [n] : [])),
@@ -389,6 +393,10 @@ export class VoyageSession extends Session {
   constructor(voyage: VoyageDef, junior = true) {
     super(voyage.level, { junior });
     this.voyage = voyage;
+    if (voyage.weather.drift) {
+      this.world.windField = (time) => weatherWind(voyage.weather, time);
+      this.world.wind = this.world.windField(0);
+    }
     this.chapter = voyage.pack;
     this.state = "exploring";
     this.autoFire = false;

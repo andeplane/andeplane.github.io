@@ -1,3 +1,4 @@
+import { antialiasSamples } from "./quality";
 import "@babylonjs/core/Shaders/postprocess.vertex.js";
 import "@babylonjs/core/Shaders/imageProcessing.fragment.js";
 import "@babylonjs/core/Shaders/rgbdDecode.fragment.js";
@@ -43,6 +44,7 @@ import { AdventureView } from "./adventureView";
 import { Effects } from "./effects";
 import { buildIslands, type IslandsView } from "./islands";
 import { Ocean } from "./water";
+import { WeatherView } from "./weather";
 import { PALETTE, SUN_DIRECTION } from "./palette";
 import { ShipView } from "./shipView";
 import { ShipModels } from "./shipModels";
@@ -134,6 +136,10 @@ export class GameRenderer {
   private readonly effects: Effects;
   private readonly shadows: ShadowGenerator;
   private readonly sun: DirectionalLight;
+  private readonly sky: HemisphericLight;
+  private weatherView?: WeatherView;
+  private sunStrength = 1.35;
+  private skyStrength = 0.9;
   private readonly views = new Map<number, ShipView>();
   private readonly ballTemplate: Mesh;
   private readonly ballPool: InstancedMesh[] = [];
@@ -158,7 +164,7 @@ export class GameRenderer {
 
     this.rig = new CameraRig(scene);
 
-    const hemi = new HemisphericLight("sky", new Vector3(0.2, 1, -0.3), scene);
+    const hemi = this.sky = new HemisphericLight("sky", new Vector3(0.2, 1, -0.3), scene);
     hemi.diffuse = Color3.FromHexString("#a8c1d7");
     hemi.groundColor = Color3.FromHexString("#3d5a80");
     hemi.intensity = 0.9;
@@ -178,7 +184,7 @@ export class GameRenderer {
     this.sun.shadowMinZ = 1;
     this.sun.shadowMaxZ = 500;
     this.shadows = new ShadowGenerator(
-      matchMedia("(pointer: coarse)").matches ? 1024 : 2048,
+      2048,
       this.sun,
     );
     this.shadows.usePercentageCloserFiltering = true;
@@ -198,8 +204,10 @@ export class GameRenderer {
     );
     this.effects = new Effects(scene);
     this.adventure = new AdventureView(scene, session, this.shadows);
-    if (session instanceof VoyageSession)
+    if (session instanceof VoyageSession) {
       this.voyageView = new VoyageView(scene, session);
+      this.weatherView = new WeatherView(scene, session.voyage.weather, session.level.seed);
+    }
 
     const ballMat = new StandardMaterial("ball", scene);
     ballMat.diffuseColor = Color3.FromHexString("#1b1b1f");
@@ -215,7 +223,7 @@ export class GameRenderer {
     const pipeline = new DefaultRenderingPipeline("post", true, scene, [
       this.rig.camera,
     ]);
-    pipeline.samples = matchMedia("(pointer: coarse)").matches ? 1 : 2;
+    pipeline.samples = antialiasSamples(engine);
     pipeline.fxaaEnabled = true;
     pipeline.bloomEnabled = true;
     pipeline.bloomThreshold = 0.82;
@@ -240,9 +248,7 @@ export class GameRenderer {
 
   /** Load Blender ship models; classes without a .glb use the procedural fallback. */
   loadModels() {
-    return Promise.all([this.models.load(), this.adventure.loadPip()]).then(
-      ([ships]) => ships,
-    );
+    return this.models.load();
   }
 
   /** Rebuild ship views after a restart. */
@@ -337,28 +343,20 @@ export class GameRenderer {
     this.time += dt;
     if (this.lastChapter !== session.chapter) {
       this.lastChapter = session.chapter;
-      this.ocean.setChapter(
-        session instanceof VoyageSession
-          ? session.voyage.pack
-          : session.chapter,
-      );
-      this.sun.diffuse = Color3.FromHexString(
-        ["#ffe8c9", "#e8ffec", "#ffd9a8", "#c9d2ff"][session.chapter]!,
-      );
-    }
-    if (
-      session instanceof VoyageSession &&
-      session.voyage.pack >= 2 &&
-      !matchMedia("(prefers-reduced-motion: reduce)").matches
-    ) {
-      const storm = session.elapsed % 14;
-      this.sun.intensity =
-        1.35 +
-        (storm > 10 && storm < 10.12
-          ? 0.65
-          : storm > 10.3 && storm < 10.42
-            ? 0.35
-            : 0);
+      const pack = session instanceof VoyageSession ? session.voyage.pack : session.chapter;
+      this.ocean.setChapter(pack);
+      const weather = session instanceof VoyageSession ? session.voyage.weather : undefined;
+      const raining = !!weather?.rain;
+      this.sunStrength = pack === 0 ? 1.35 : raining ? 0.48 : pack === 3 ? 0.6 : 0.78;
+      this.skyStrength = pack === 0 ? 0.9 : raining ? 0.65 : 0.62;
+      this.sun.diffuse = Color3.FromHexString(pack === 0 ? "#ffe8c9" : raining ? "#a9c2d4" : pack === 3 ? "#a4b2ec" : "#b5c5d0");
+      this.sky.diffuse = Color3.FromHexString(pack === 0 ? "#a8c1d7" : "#859bad");
+      this.sky.groundColor = Color3.FromHexString(pack === 0 ? "#3d5a80" : "#1c293b");
+      this.scene.ambientColor = Color3.FromHexString(pack === 0 ? "#36445c" : "#1c2938");
+      this.scene.fogColor = Color3.FromHexString(pack === 0 ? "#355363" : raining ? "#283a46" : pack === 3 ? "#1c2234" : "#1b2c3a");
+      this.scene.clearColor = Color4.FromColor3(this.scene.fogColor, 1);
+      this.scene.fogDensity = raining ? 0.0024 : FOG_DENSITY;
+      if (weather) this.ocean.setWeather(weather);
     }
     const world = session.world;
     const player = session.player;
@@ -393,6 +391,7 @@ export class GameRenderer {
         dt,
         aiming,
         sailEfficiency(ship.heading, world.wind),
+        session instanceof VoyageSession ? session.voyage.weather.waves : 1,
       );
       if (view && session instanceof VoyageSession) view.showRange = false;
       if (ship.team === "player")
@@ -424,6 +423,11 @@ export class GameRenderer {
     // Keep the shadow frustum centred on the action.
     const focus = this.rig.focus;
     this.sun.position = focus.subtract(this.sun.direction.scale(200));
+
+    const flash = this.weatherView?.update(this.time, focus, world.wind) ?? 0;
+    this.sun.intensity = this.sunStrength + flash * 1.1;
+    this.sky.intensity = this.skyStrength + flash * 0.6;
+    this.ocean.setFlash(flash);
 
     this.ocean.update(
       this.time,

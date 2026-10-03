@@ -14,6 +14,9 @@ export interface VoyageReward {
 export function goldTotal(progress: Progress): number {
   return Object.keys(progress.voyages).length * GOLD_PER_LEVEL;
 }
+export function worldGold(progress: Progress, world: number): number {
+  return worldLevels(world).filter((level) => !!progress.voyages[level]).length * GOLD_PER_LEVEL;
+}
 export function worldComplete(progress: Progress, world: number): boolean {
   return worldLevels(world).every((i) => !!progress.voyages[i]);
 }

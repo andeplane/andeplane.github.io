@@ -4,6 +4,7 @@ import { StandardMaterial } from "@babylonjs/core/Materials/standardMaterial.js"
 import { Color3 } from "@babylonjs/core/Maths/math.color.js";
 import { Vector3 } from "@babylonjs/core/Maths/math.vector.js";
 import type { Scene } from "@babylonjs/core/scene.js";
+import { doubloonMaterial, doubloonMesh } from "./coin";
 import { RELICS } from "../game/voyage";
 
 /** Sculpted, lit 3D keepsakes: no flat artwork or emoji stand-ins. */
@@ -64,9 +65,20 @@ export function buildRelic(
   const ring = (d: number, m: StandardMaterial, y = 0) =>
     mesh("torus", { diameter: d, thickness: 0.09, tessellation: 48 }, m, 0, y);
   switch (relic.kind as string) {
-    case "gold":
+    case "gold": {
+      const metal = doubloonMaterial(scene);
+      for (let i = 0; i < 90; i++) {
+        const coin = doubloonMesh(scene, "chest doubloon");
+        coin.parent = root; coin.material = metal;
+        const a = i * 2.39996, r = Math.sqrt(i % 30 / 30) * .7;
+        coin.position.set(Math.sin(a) * r, -.3 + Math.floor(i / 30) * .075, Math.cos(a) * r);
+        coin.rotation.set(Math.sin(i * 3.7) * .17, a, Math.cos(i * 4.3) * .15);
+        coin.scaling.setAll(1.5);
+      }
+      break;
+    }
     case "coins": {
-      const metal = relic.kind === "gold" ? gold : silver;
+      const metal = silver;
       for (let i = 0; i < 22; i++) {
         const a = i * 2.4,
           radius = i < 12 ? 0.8 : 0.5;
@@ -87,25 +99,7 @@ export function buildRelic(
         stamp.parent = coin;
         stamp.position.set(0, 0.062, 0);
       }
-      if (relic.kind === "gold") {
-        for (let i = 0; i < 3; i++) {
-          const bar = mesh(
-            "cylinder",
-            {
-              height: 0.4,
-              diameterTop: 0.8,
-              diameterBottom: 1.1,
-              tessellation: 4,
-            },
-            gold,
-            (i - 1) * 0.68,
-            0.03 + (i === 1 ? 0.4 : 0),
-            0.1,
-          );
-          bar.rotation.y = Math.PI / 4;
-          bar.scaling.set(0.78, 1, 1.75);
-        }
-      } else {
+      {
         const coin = mesh(
           "cylinder",
           { height: 0.18, diameter: 1.55, tessellation: 64 },

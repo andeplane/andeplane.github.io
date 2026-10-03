@@ -98,7 +98,7 @@ export class CaveWalker {
   pitch = -0.06;
   verticalSpeed = 0;
   grounded = true;
-  private eyeHeight = 1.7;
+  private eyeHeight = 2.25;
   private stride = 0;
   constructor(
     readonly obstacles: CaveObstacle[],
@@ -115,7 +115,7 @@ export class CaveWalker {
     this.pitch = -0.06;
     this.verticalSpeed = 0;
     this.grounded = true;
-    this.eyeHeight = 1.7;
+    this.eyeHeight = 2.25;
     this.stride = 0;
     this.resolve();
   }
@@ -174,7 +174,7 @@ export class CaveWalker {
       }
     }
     this.eyeHeight +=
-      ((intent.crouch ? 1.18 : 1.7) - this.eyeHeight) *
+      ((intent.crouch ? 1.18 : 2.25) - this.eyeHeight) *
       Math.min(1, duration * 14);
     this.stride += Math.hypot(dx, dz) * duration * 2.6;
   }

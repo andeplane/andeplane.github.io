@@ -940,3 +940,51 @@ p {
     padding: 12px 16px;
   }
 }
+
+/* Keep the storm readable without covering the steering or cannon controls. */
+#v-weather {
+  position: absolute;
+  top: 136px;
+  left: max(22px, env(safe-area-inset-left));
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 9px 13px;
+  color: #c2d5dc;
+  background: #071621c9;
+  border: 1px solid #64818a55;
+  border-radius: 10px;
+  font-size: 12px;
+  pointer-events: none;
+}
+#v-weather[hidden] { display: none; }
+#v-wind-arrow { display: inline-block; color: #e9c481; font-size: 21px; }
+#v-gust { color: #8ea8b5; font-size: 9px; letter-spacing: .04em; }
+@media (max-width: 600px) {
+  #v-weather { top: 180px; left: 15px; padding: 5px 9px; font-size: 10px; gap: 6px; }
+  #v-wind-arrow { font-size: 17px; }
+}
+@media (max-height: 560px) and (min-width: 601px) {
+  #v-weather { top: 107px; padding: 5px 9px; }
+}
+
+@media (max-width: 600px) {
+  #voyage-ui[data-weather="overcast"] #v-tip,
+  #voyage-ui[data-weather="rain"] #v-tip,
+  #voyage-ui[data-weather="storm"] #v-tip { top: 217px; }
+}
+
+/* Let the chest and physically falling coins occupy the middle of the view. */
+#v-result.pouring .result-top { top: 75px; left: 25px; right: auto; width: 235px; transition: top .7s, left .7s; }
+#v-result.pouring .result-top h1 { font-size: 32px; }
+#v-result.pouring #result-stars { font-size: 26px; }
+#v-result.pouring #result-detail { font-size: 11px; }
+#v-result.pouring .result-bottom { left: auto; right: 24px; bottom: 24px; transform: none; width: 240px; }
+@media (max-width: 600px) {
+  #v-result.pouring .result-top { top: 75px; left: 12px; right: 12px; width: auto; }
+  #v-result.pouring .result-top .eyebrow { font-size: 9px; }
+  #v-result.pouring .result-top h1 { font-size: 28px; margin: 4px 0; }
+  #v-result.pouring #result-stars { font-size: 23px; }
+  #v-result.pouring #result-detail { display: none; }
+  #v-result.pouring .result-bottom { left: 18px; right: 18px; bottom: calc(14px + var(--safe)); width: auto; }
+}

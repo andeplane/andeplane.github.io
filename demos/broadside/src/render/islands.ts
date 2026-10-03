@@ -6,12 +6,14 @@ import { StandardMaterial } from "@babylonjs/core/Materials/standardMaterial.js"
 import { TransformNode } from "@babylonjs/core/Meshes/transformNode.js";
 import { Vector3 } from "@babylonjs/core/Maths/math.vector.js";
 import { VertexData } from "@babylonjs/core/Meshes/mesh.vertexData.js";
+import { Ray } from "@babylonjs/core/Culling/ray.js";
 import { type Scene } from "@babylonjs/core/scene.js";
 import { type ShadowGenerator } from "@babylonjs/core/Lights/Shadows/shadowGenerator.js";
 import type { IslandDef } from "../game/levels";
 import { Rng } from "../sim/rng";
 import { buildPirateScenery } from "./pirateScenery";
 import { PALETTE } from "./palette";
+import { buildIslandDetails } from "./islandDetails";
 
 const flatMaterial = (
   scene: Scene,
@@ -38,8 +40,8 @@ const buildIslandMesh = (
   rng: Rng,
   material: StandardMaterial,
 ): Mesh => {
-  const rings = 14;
-  const segments = 40;
+  const rings = 24;
+  const segments = 72;
   const rock = def.kind === "rock";
   const phase = [rng.range(0, 6.28), rng.range(0, 6.28), rng.range(0, 6.28)];
   const peak = rock
@@ -152,6 +154,7 @@ const buildPalmTemplate = (scene: Scene, material: StandardMaterial): Mesh => {
     const side = new Vector3(dir.z, 0, -dir.x);
     const left: Vector3[] = [];
     const right: Vector3[] = [];
+    const spine: Vector3[] = [];
     for (let i = 0; i <= 6; i++) {
       const t = i / 6;
       const width = Math.sin(t * Math.PI) * 1.1 + 0.05;
@@ -163,6 +166,7 @@ const buildPalmTemplate = (scene: Scene, material: StandardMaterial): Mesh => {
       left.push(
         centre.add(side.scale(width)).add(new Vector3(0, -0.25 * width, 0)),
       );
+      spine.push(centre);
       right.push(
         centre
           .subtract(side.scale(width))
@@ -171,11 +175,19 @@ const buildPalmTemplate = (scene: Scene, material: StandardMaterial): Mesh => {
     }
     const leaf = MeshBuilder.CreateRibbon(
       "leaf",
-      { pathArray: [left, right], sideOrientation: Mesh.DOUBLESIDE },
+      { pathArray: [left, spine, right], sideOrientation: Mesh.DOUBLESIDE },
       scene,
     );
     paint(leaf, l % 2 === 0 ? PALETTE.grass : PALETTE.grassDark);
     parts.push(leaf);
+  }
+  for (let i = 0; i < 4; i++) {
+    const coconut = MeshBuilder.CreateSphere("coconut", { diameter: 0.6, segments: 6 }, scene);
+    coconut.position.copyFrom(top).addInPlace(new Vector3(
+      Math.sin(i * 1.8) * 0.5, -0.5, Math.cos(i * 1.8) * 0.5,
+    ));
+    paint(coconut, Color3.FromHexString("#584331"));
+    parts.push(coconut);
   }
   const palm = Mesh.MergeMeshes(parts, true, true)!;
   palm.convertToFlatShadedMesh();
@@ -193,7 +205,7 @@ const buildRockTemplate = (
   const rng = new Rng(seed);
   const rock = MeshBuilder.CreateIcoSphere(
     "rock",
-    { radius: 1, subdivisions: 1, updatable: true },
+    { radius: 1, subdivisions: 2, updatable: true },
     scene,
   );
   const pos = rock.getVerticesData("position")!;
@@ -204,6 +216,9 @@ const buildRockTemplate = (
     pos[i + 2]! *= j;
   }
   rock.updateVerticesData("position", pos);
+  const normals: number[] = [];
+  VertexData.ComputeNormals(pos, rock.getIndices()!, normals);
+  rock.updateVerticesData("normal", normals);
   paint(rock, PALETTE.rock);
   rock.convertToFlatShadedMesh();
   rock.material = material;
@@ -236,6 +251,7 @@ export const buildIslands = (
     buildRockTemplate(scene, vertexMat, seed + 1),
     buildRockTemplate(scene, vertexMat, seed + 2),
   ];
+  const details = buildIslandDetails(scene, vertexMat, rocks, shadows);
   const animators: ((time: number) => void)[] = [];
 
   for (const def of defs) {
@@ -286,7 +302,16 @@ export const buildIslands = (
       });
       continue;
     }
-    buildIslandMesh(scene, def, rng, vertexMat);
+    const terrain = buildIslandMesh(scene, def, rng, vertexMat);
+    terrain.computeWorldMatrix(true);
+    const surface = (x: number, z: number) => {
+      const hit = terrain.intersects(new Ray(
+        new Vector3(x, 180, z),
+        new Vector3(0, -1, 0),
+        220,
+      ));
+      return hit.pickedPoint?.y ?? groundHeight(def, x, z);
+    };
     const root = new TransformNode(`island-props-${def.pos.x}`, scene);
     root.position.set(def.pos.x, 0, def.pos.z);
 
@@ -295,17 +320,28 @@ export const buildIslands = (
       const d = rng.range(min, max) * def.radius;
       const x = Math.sin(a) * d;
       const z = Math.cos(a) * d;
-      return new Vector3(x, groundHeight(def, x, z) - 0.2, z);
+      return new Vector3(x, surface(x, z) - 0.08, z);
     };
 
     if (def.props.includes("palms")) {
-      const count = Math.round(def.radius / 4);
+      const count = Math.min(35, Math.round(def.radius * (def.props.includes("fort") ? 0.55 : 0.8)));
       for (let i = 0; i < count; i++) {
         const p = palm.createInstance(`palm-${def.pos.x}-${i}`);
         p.parent = root;
         p.position = place(0.15, 0.7);
+        // Keep the landing route and the central landmark legible.
+        if (Math.abs(p.position.x) < 3 && p.position.z < 2)
+          p.position.x += p.position.x < 0 ? -4 : 4;
+        if ((def.props.includes("fort") || def.props.includes("lighthouse")) &&
+            Math.hypot(p.position.x, p.position.z) < def.radius * (def.props.includes("fort") ? 0.7 : 0.48)) {
+          const a = rng.range(0, Math.PI * 2);
+          const d = def.radius * (def.props.includes("fort") ? 0.78 : 0.6);
+          p.position.x = Math.sin(a) * d;
+          p.position.z = Math.cos(a) * d;
+        }
+        p.position.y = surface(p.position.x, p.position.z) - 0.08;
         p.rotation.y = rng.range(0, Math.PI * 2);
-        p.scaling.setAll(rng.range(0.8, 1.2));
+        p.scaling.setAll(rng.range(0.55, 1.3));
         shadows.addShadowCaster(p);
         animators.push((time) => {
           p.rotation.z = Math.sin(time * 0.8 + i) * 0.025;
@@ -319,12 +355,13 @@ export const buildIslands = (
         const r = rng.pick(rocks).createInstance(`rock-${def.pos.x}-${i}`);
         r.parent = root;
         r.position = place(0.5, 1.05);
-        r.position.y = rng.range(-0.4, 0.6);
+        r.position.y -= 0.4;
         r.rotation.y = rng.range(0, Math.PI * 2);
         r.scaling.setAll(rng.range(1.2, 3.2));
         shadows.addShadowCaster(r);
       }
     }
+    details(root, def, rng, surface);
     animators.push(
       buildPirateScenery(
         scene,

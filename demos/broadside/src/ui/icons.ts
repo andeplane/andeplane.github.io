@@ -1,4 +1,6 @@
 const paths: Record<string, string> = {
+  fullscreen: '<path d="M8 3H3v5m13-5h5v5M3 16v5h5m13-5v5h-5"/>',
+  fullscreenExit: '<path d="M3 8h5V3m8 0v5h5M8 21v-5H3m18 0h-5v5"/>',
   skull:
     '<path d="M7 17v4h10v-4c7-4 6-14-5-14S0 13 7 17zM9 21v-4m6 4v-4"/><circle cx="8" cy="10" r="2"/><circle cx="16" cy="10" r="2"/><path d="m12 13-2 3h4z"/>',
   lock: '<rect x="5" y="10" width="14" height="11" rx="2"/><path d="M8 10V6a4 4 0 0 1 8 0v4M12 14v3"/>',
