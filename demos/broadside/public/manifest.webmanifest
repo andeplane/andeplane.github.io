@@ -1,0 +1,13 @@
+{
+  "id": "./",
+  "name": "Broadside — A Pirate’s Treasure Adventure",
+  "short_name": "Broadside",
+  "start_url": "./?mute=true",
+  "scope": "./",
+  "display": "fullscreen",
+  "background_color": "#102e36",
+  "theme_color": "#102e36",
+  "icons": [
+    { "src": "assets/app-icon.png", "sizes": "512x512", "type": "image/png", "purpose": "any" }
+  ]
+}

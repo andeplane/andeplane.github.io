@@ -1,3 +1,7 @@
+import "@babylonjs/core/Meshes/thinInstanceMesh.js";
+import { Mesh } from "@babylonjs/core/Meshes/mesh.js";
+import { Matrix, Quaternion } from "@babylonjs/core/Maths/math.vector.js";
+import { doubloonMaterial, doubloonMesh } from "./coin";
 import { MeshBuilder } from "@babylonjs/core/Meshes/meshBuilder.js";
 import { TransformNode } from "@babylonjs/core/Meshes/transformNode.js";
 import { StandardMaterial } from "@babylonjs/core/Materials/standardMaterial.js";
@@ -27,6 +31,7 @@ export function revealPose(seconds: number, reducedMotion = false) {
 export class RewardChest {
   readonly root: TransformNode;
   private lid: TransformNode;
+  private contents: Mesh;
   private light: PointLight;
   private rays: TransformNode[] = [];
   private sparkles: TransformNode[] = [];
@@ -113,12 +118,15 @@ export class RewardChest {
     seal.parent = this.lid; seal.position.set(0, -0.12, -1.98); seal.material = gem;
     for (const z of [-0.84,0.84]) box("light at lid seam", 3.26, 0.025, 0.025, 0, 1.43, z, this.glow);
     for (const x of [-1.63,1.63]) box("light at lid seam", 0.025, 0.025, 1.66, x, 1.43, 0, this.glow);
-    for (let i=0;i<28;i++) {
-      const coin = MeshBuilder.CreateCylinder("coins inside the chest",{height:0.075,diameter:0.42,tessellation:24},scene);
-      coin.parent=this.root; coin.material=gold;
-      coin.position.set(Math.sin(i*2.4)*1.2, 0.33+Math.floor(i/10)*0.08, Math.cos(i*2.4)*0.55);
-      coin.rotation.z=Math.sin(i)*0.16;
+    this.contents = doubloonMesh(scene, "one thousand doubloons inside the chest");
+    this.contents.parent = this.root; this.contents.material = doubloonMaterial(scene); this.contents.isPickable = false;
+    const coins = new Float32Array(1000 * 16);
+    for (let i = 0; i < 1000; i++) {
+      const col = i % 11, row = Math.floor(i / 11) % 6, layer = Math.floor(i / 66);
+      const position = new Vector3((col - 5) * .28, .34 + layer * .059, (row - 2.5) * .24);
+      Matrix.Compose(Vector3.One(), Quaternion.RotationYawPitchRoll(i * 2.4, .02 * Math.sin(i), .02 * Math.cos(i)), position).copyToArray(coins, i * 16);
     }
+    this.contents.thinInstanceSetBuffer("matrix", coins, 16, true);
     for (let i = 0; i < 7; i++) {
       const a = i * 2.4;
       const ray = MeshBuilder.CreateRibbon("treasure sunbeam", { pathArray: [[new Vector3(0, 0, 0), new Vector3(Math.sin(a) * 2.3 - 0.3, 5, Math.cos(a) * 1.4)], [new Vector3(0.09, 0, 0), new Vector3(Math.sin(a) * 2.3 + 0.3, 5, Math.cos(a) * 1.4)]], sideOrientation: 2 }, scene);
@@ -133,10 +141,20 @@ export class RewardChest {
     this.light.parent = this.root; this.light.diffuse = Color3.FromHexString("#ffcc75"); this.light.range = 8;
     this.root.setEnabled(false); this.light.setEnabled(false);
   }
+  fade(alpha: number) {
+    this.root.getChildMeshes().forEach(mesh => { mesh.visibility = alpha; });
+    this.light.intensity *= alpha;
+  }
+  setCoinCount(count: number) {
+    this.contents.thinInstanceCount = Math.max(0, Math.min(1000, count));
+    this.contents.setEnabled(count > 0);
+  }
   hide() { this.root.setEnabled(false); this.light.setEnabled(false); }
   animate(seconds: number, x: number, reduced: boolean) {
     const p = revealPose(seconds, reduced), t = p.time;
     this.root.setEnabled(true); this.light.setEnabled(true);
+    this.setCoinCount(1000);
+    this.fade(1);
     this.root.position.set(x, 1.05, 0);
     const tremble = t > 0.5 && t < 1.2 ? Math.sin(t * 43) * 0.018 : 0;
     this.root.rotation.set(0, -0.16, reduced ? 0 : tremble);

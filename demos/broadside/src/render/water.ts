@@ -7,12 +7,13 @@ import { type Scene } from "@babylonjs/core/scene.js";
 import { DEFAULT_WAVES } from "../sim/waves";
 import { Color3 } from "@babylonjs/core/Maths/math.color.js";
 import { PALETTE, SUN_DIRECTION } from "./palette";
+import type { VoyageWeather } from "../game/weather";
 
-export const MAX_ISLANDS = 8;
+export const MAX_ISLANDS = 12;
 export const MAX_SHIPS = 8;
 const MAX_WHIRLPOOLS = 3;
 const GRID_SIZE = 420;
-const GRID_SUBDIVISIONS = matchMedia("(pointer: coarse)").matches ? 100 : 160;
+const GRID_SUBDIVISIONS = 160;
 
 Effect.ShadersStore["oceanVertexShader"] = /* glsl */ `
 precision highp float;
@@ -67,6 +68,9 @@ precision highp float;
 varying vec3 vWorld;
 varying vec3 vNormal;
 varying float vCrest;
+uniform float storm;
+uniform float rain;
+uniform float flash;
 uniform vec3 cameraPosition;
 uniform vec3 sunDirection; // toward the sun
 uniform vec3 deepColor;
@@ -102,8 +106,8 @@ void main() {
   float r1 = noise(p * 0.2 + vec2(time * 0.07, 0.0));
   float r2 = noise(p * 0.26 - vec2(0.0, time * 0.08));
   // Broad, calm swells with fine animated ripples, not a field of white foam.
-  vec3 N = normalize(vec3(vNormal.x * 0.35 + sin(p.y * 1.2 + time) * 0.015, 1.0,
-    vNormal.z * 0.35 + sin(p.x * 1.5 - time * 0.8) * 0.015));
+  vec3 N = normalize(vec3(vNormal.x * (0.35 + storm * 0.55) + sin(p.y * 1.2 + time) * 0.015, 1.0,
+    vNormal.z * (0.35 + storm * 0.55) + sin(p.x * 1.5 - time * 0.8) * 0.015));
   vec3 V = normalize(cameraPosition - vWorld);
   float shoreDist = 1e5;
   for (int i = 0; i < ${MAX_ISLANDS}; i++) {
@@ -162,6 +166,15 @@ void main() {
     col = mix(col,foamColor,foam*0.58);
     col += shallowColor * (1.0-smoothstep(0.025,0.075,abs(r-0.94))) * churn * 0.18;
   }
+  // Wind-torn whitecaps and raindrop rings live on the sea, never on overlay planes.
+  float cap = smoothstep(0.28, 0.43, vCrest) * smoothstep(0.5, 0.72, noise(p * 0.32 - time * 0.6));
+  col = mix(col, foamColor, cap * storm * 0.25);
+  vec2 rainCell = floor(p * 0.45);
+  float dropAge = fract(time * 1.1 + hash(rainCell));
+  vec2 dropCenter = vec2(hash(rainCell + 3.1), hash(rainCell + 7.8)) * 0.6 + 0.2;
+  float ring = 1.0 - smoothstep(0.016, 0.05, abs(length(fract(p * 0.45) - dropCenter) - dropAge * 0.45));
+  col += foamColor * ring * (1.0 - dropAge) * rain * 0.06;
+  col += vec3(0.22, 0.29, 0.35) * flash;
   float dist = length(cameraPosition - vWorld);
   float fog = 1.0 - exp(-pow(dist * fogDensity, 2.0));
   col = mix(col, fogColor, clamp(fog, 0.0, 1.0));
@@ -205,6 +218,9 @@ export class Ocean {
           "viewProjection",
           "time",
           "amplitude",
+          "storm",
+          "rain",
+          "flash",
           "waves",
           "cameraPosition",
           "sunDirection",
@@ -234,6 +250,9 @@ export class Ocean {
       ]),
     );
     m.setFloat("amplitude", 1);
+    m.setFloat("storm", 0);
+    m.setFloat("rain", 0);
+    m.setFloat("flash", 0);
     const sun = new Vector3(
       -SUN_DIRECTION.x,
       -SUN_DIRECTION.y,
@@ -274,15 +293,32 @@ export class Ocean {
   }
   setChapter(chapter: number): void {
     const colors = [
-      ["#14364a", "#367f80", "#2c4858"],
-      ["#102e44", "#316c74", "#243d50"],
-      ["#142c42", "#396771", "#2d3a4c"],
-      ["#1b2440", "#435779", "#2a3048"],
+      ["#153d51", "#438c89", "#355363"],
+      ["#091f30", "#244b53", "#1b2c3a"],
+      ["#091b2a", "#23414c", "#172635"],
+      ["#11192c", "#344052", "#1c2234"],
     ][chapter]!;
     this.material.setColor3("deepColor", Color3.FromHexString(colors[0]!));
     this.material.setColor3("shallowColor", Color3.FromHexString(colors[1]!));
     this.material.setColor3("fogColor", Color3.FromHexString(colors[2]!));
+    this.material.setColor3("horizon", Color3.FromHexString(colors[2]!));
   }
+  setWeather(weather: VoyageWeather): void {
+    this.material.setFloat("amplitude", weather.waves);
+    this.material.setFloat("storm", weather.kind === "storm" ? 1 : weather.rain * 0.5);
+    this.material.setFloat("rain", weather.rain);
+    this.material.setFloat("fogDensity", weather.rain ? 0.0024 : 0.0014);
+    if (weather.rain) {
+      this.material.setColor3("deepColor", Color3.FromHexString("#0b1e2b"));
+      this.material.setColor3("shallowColor", Color3.FromHexString("#2c4b53"));
+      this.material.setColor3("fogColor", Color3.FromHexString("#283a46"));
+      this.material.setColor3("horizon", Color3.FromHexString("#344954"));
+    }
+  }
+  setFlash(flash: number): void {
+    this.material.setFloat("flash", flash * 0.45);
+  }
+
   update(
     time: number,
     camera: Vector3,

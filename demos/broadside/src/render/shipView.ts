@@ -218,6 +218,7 @@ export class ShipView {
     dt: number,
     aiming: Side | null,
     windEfficiency: number,
+    waveAmplitude = 1,
   ): void {
     const x = lerp(this.prev.x, this.curr.x, alpha);
     const z = lerp(this.prev.z, this.curr.z, alpha);
@@ -231,13 +232,17 @@ export class ShipView {
       x + f.x * L * 0.35,
       z + f.z * L * 0.35,
       time,
+      undefined,
+      waveAmplitude,
     ).height;
     const sternH = sampleWaves(
       x - f.x * L * 0.35,
       z - f.z * L * 0.35,
       time,
+      undefined,
+      waveAmplitude,
     ).height;
-    const centre = sampleWaves(x, z, time);
+    const centre = sampleWaves(x, z, time, undefined, waveAmplitude);
     const slopeR = centre.slopeX * r.x + centre.slopeZ * r.z;
     let y = (bow + sternH + centre.height * 2) / 4;
     let pitch = -Math.atan2(bow - sternH, L * 0.7) * 0.8;

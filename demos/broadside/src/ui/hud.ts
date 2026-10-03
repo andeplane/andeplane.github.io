@@ -16,7 +16,6 @@ interface Handlers {
   onRestart: () => void;
   onContinue: () => void;
   onPause: () => void;
-  onSound: () => boolean;
   onNavigate: (id?: number) => void;
   onAnchor: () => void;
   onSteer: (heading: number | null) => void;
@@ -49,7 +48,7 @@ export class Hud {
     this.root.id = "hud";
     this.root.innerHTML = `
       <header class="topbar"><div class="brand">${icon("wheel")}<span>BROADSIDE<small>A LITTLE CAPTAIN’S ADVENTURE</small></span></div>
-        <div class="tools"><button id="sound" class="tool" aria-label="Toggle sound">${icon(progress.muted ? "mute" : "sound")}</button><button id="help" class="tool" aria-label="How to play">?</button><button id="pause-btn" class="tool" aria-label="Pause game">${icon("pause")}</button></div></header>
+        <div class="tools"><button id="help" class="tool" aria-label="How to play">?</button><button id="pause-btn" class="tool" aria-label="Pause game">${icon("pause")}</button></div></header>
       <div id="sailing-ui" hidden>
         <div id="status" class="glass"><span class="ship-label">${icon("ship")} THE SEA LARK</span><div class="hull-row">${icon("heart")}<div id="hull" class="bar"><i></i></div><span id="health">100%</span></div><div class="wallet"><span class="coin"></span><b id="gold-value">0</b><span>gold</span><span id="keepsake-count">0 / 6 ${icon("chest")}</span></div></div>
         <div id="mission" class="glass"><span class="eyebrow" id="chapter-label"></span><strong id="mission-title"></strong><span id="mission-subtitle"></span><div id="chapter-pips">${CHAPTERS.map((_, i) => `<i data-chapter="${i}"></i>`).join("")}</div></div>
@@ -64,14 +63,14 @@ export class Hud {
       </div>
       <div id="banner" role="status" aria-hidden="true"><strong></strong><span></span></div><div id="toast" role="status" aria-hidden="true"></div>
       <section id="title" class="screen on"><div class="hero-copy"><div class="eyebrow hero-eyebrow"><span></span> THE TREASURE IS CALLING</div><h1>Little captain.<br><em>Big adventure.</em></h1><p>Set sail for sunlit islands, sparkling treasure<br class="desktop-break"> and a little pirate mischief.</p>
-        <div class="mode-picker"><button id="junior" class="mode selected" aria-pressed="true">${icon("star")}<span>Little Captain<small>Gentle seas · parrot rescues</small></span></button><button id="normal" class="mode" aria-pressed="false">${icon("flag")}<span>Sea Dog<small>A bigger challenge</small></span></button></div>
+        <div class="mode-picker"><button id="junior" class="mode selected" aria-pressed="true">${icon("star")}<span>Little Captain<small>Gentle seas · crew repairs</small></span></button><button id="normal" class="mode" aria-pressed="false">${icon("flag")}<span>Sea Dog<small>A bigger challenge</small></span></button></div>
         <button class="btn" id="start">Set sail ${icon("arrow")}</button><div class="paint-picker"><span>YOUR SAILS</span>${PAINTS.map((c, i) => `<button class="paint ${c === progress.paint ? "selected" : ""}" data-paint="${c}" aria-label="${["Pearl", "Lagoon", "Coral"][i]} sails" style="--paint:${c}"></button>`).join("")}</div>
         <div class="hero-notes"><span>${icon("compass")} 3 adventures</span><span>${icon("chest")} 6 treasures</span><span>${icon("heart")} Made for little captains</span></div></div>
         <div class="hero-caption"><span>01 / THE ARCHIPELAGO</span><b>A world of wonder awaits.</b><small>PALM BAY · CORAL COAST · SUNSET COVE</small></div>
         <div id="collection-home" class="collection-home"></div>
       </section>
       <section id="pause" class="screen modal"><div class="card"><div class="medallion">${icon("anchor")}</div><span class="eyebrow">A LITTLE SHORE LEAVE</span><h2>Rest your sea legs.</h2><p>Your adventure will be right here.</p><button id="resume" class="btn">Keep sailing ${icon("play")}</button><button id="restart-pause" class="text-btn">Start a new adventure</button></div></section>
-      <section id="treasure" class="screen modal"><div class="card"><img class="pip-celebration" src="/assets/pip/portrait.png" alt="Pip the friendly pirate parrot"><span class="eyebrow">X MARKED THE SPOT!</span><h2>A treasure for you!</h2><div id="treasure-prize"></div><p id="treasure-name"></p><div class="treasure-gold">+150 gold · ship patched up</div><button id="treasure-go" class="btn">Keep sailing ${icon("arrow")}</button></div></section>
+      <section id="treasure" class="screen modal"><div class="card"><span class="eyebrow">X MARKED THE SPOT!</span><h2>A treasure for you!</h2><div id="treasure-prize"></div><p id="treasure-name"></p><div class="treasure-gold">+150 gold · ship patched up</div><button id="treasure-go" class="btn">Keep sailing ${icon("arrow")}</button></div></section>
       <section id="reward" class="screen modal"><div class="card"><div class="medallion">${icon("star")}</div><span class="eyebrow">ADVENTURE COMPLETE</span><h2 id="reward-title"></h2><p id="reward-text"></p><div id="reward-loot" class="loot"></div><button id="continue" class="btn">Next adventure ${icon("arrow")}</button></div></section>
       <section id="end" class="screen modal"><div class="card"><div class="medallion">${icon("wheel")}</div><span class="eyebrow" id="end-eyebrow"></span><h2 id="end-title"></h2><p id="end-text"></p><div id="end-loot" class="loot"></div><div id="end-gold"></div><button id="again" class="btn">Sail again ${icon("arrow")}</button><button id="cruise" class="text-btn">A peaceful treasure cruise</button></div></section>
       <section id="chart" class="screen modal"><div class="card chart-card"><button id="close-chart" class="close" aria-label="Close treasure map">×</button><span class="eyebrow">X MARKS THE SPOT</span><h2>Your treasure map</h2><svg id="big-map" viewBox="-310 -310 620 620" role="img" aria-label="Island map showing your ship, pirates and treasures"></svg><div id="map-stops"></div><small class="map-legend"><i></i> You <i></i> Treasure <i></i> Pirates</small></div></section>
@@ -111,10 +110,6 @@ export class Hud {
     });
     click("#pause-btn", h.onPause);
     click("#resume", h.onPause);
-    click("#sound", () => {
-      const muted = h.onSound();
-      $(r, "#sound").innerHTML = icon(muted ? "mute" : "sound");
-    });
     click("#chart-btn", () => this.toggleChart(true));
     click("#close-chart", () => this.toggleChart(false));
     click("#navigate", () => {
@@ -294,7 +289,7 @@ export class Hud {
   }
   showToast(text: string): void {
     $(this.root, "#toast").innerHTML =
-      '<img src="/assets/pip/portrait.png" alt="Pip"><span></span>';
+      '<span></span>';
     $(this.root, "#toast span").textContent = text;
     $(this.root, "#toast").classList.add("on");
     $(this.root, "#toast").setAttribute("aria-hidden", "false");

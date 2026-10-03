@@ -5,7 +5,6 @@ export interface Progress {
   adventures: number;
   keepsakes: number[];
   paint: string;
-  muted: boolean;
   voyages: Record<string, { stars: number; gems: number }>;
   relics: number[];
 }
@@ -16,7 +15,6 @@ const defaults = (): Progress => ({
   adventures: 0,
   keepsakes: [],
   paint: PAINTS[0]!,
-  muted: false,
   voyages: {},
   relics: [],
 });
@@ -81,7 +79,6 @@ export function readProgress(storage?: Pick<Storage, "getItem">): Progress {
           ]
         : [],
       paint: PAINTS.includes(p.paint ?? "") ? p.paint! : PAINTS[0]!,
-      muted: p.muted === true,
       voyages: mappedVoyages,
       relics,
     };

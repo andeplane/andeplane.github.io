@@ -160,8 +160,8 @@ describe("treasure shelf storage", () => {
       adventures: 3,
       keepsakes: [0, 5],
       paint: "#fff3d0",
-      muted: true,
     });
+    expect(p).not.toHaveProperty("muted");
     expect(() =>
       saveProgress(p, {
         setItem: () => {

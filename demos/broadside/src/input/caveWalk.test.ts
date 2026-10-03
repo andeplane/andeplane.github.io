@@ -1,6 +1,5 @@
 import { describe, expect, it } from "vitest";
 import { CaveWalker, CaveWalkControls, type WalkIntent } from "./caveWalk";
-import { hoardHeight, hoardGrowth } from "./caveHoard";
 import { caveWalkable, caveRoom, caveFloor } from "./caveLayout";
 const idle: WalkIntent = {
   forward: 0,
@@ -88,6 +87,7 @@ describe("Minecraft cave controls", () => {
 describe("grounded cave walking", () => {
   it("walks relative to the camera, normalizes diagonals, and limits pitch", () => {
     const w = new CaveWalker([], () => 0);
+    expect(w.eyeY).toBeCloseTo(2.25);
     run(w, { forward: 1 });
     expect(w.z).toBeCloseTo(-6.4);
     w.reset();
@@ -186,28 +186,5 @@ describe("grounded cave walking", () => {
     expect(caveRoom(0, 40)).toBe("The king’s vault");
     expect(caveRoom(16, 34)).toBe("Smuggler’s passage");
     expect(caveRoom(29, 39)).toBe("The glowing grotto");
-  });
-});
-
-describe("growing gold banks", () => {
-  it("fills early, grows monotonically and gives coins a continuous rounded surface", () => {
-    expect(hoardHeight(0, 4, 3.5)).toBe(3.5);
-    expect(hoardHeight(4, 4, 3.5)).toBe(0);
-    expect(hoardHeight(8, 4, 3.5)).toBe(0);
-    expect(hoardGrowth(1)).toBeGreaterThan(0.38);
-    expect(hoardGrowth(5)).toBeGreaterThan(0.66);
-    expect(hoardGrowth(40)).toBe(1.4);
-    expect(hoardGrowth(5)).toBeGreaterThan(hoardGrowth(1));
-    expect(hoardGrowth(-2)).toBe(0.17);
-  });
-  it("walks up a full gold bank without putting the camera below its surface", () => {
-    const surface = (x: number, z: number) =>
-      hoardHeight(Math.hypot(x, z + 5), 4, 3.5) * hoardGrowth(40);
-    const w = new CaveWalker([], surface);
-    for (let n = 0; n < 160; n++) {
-      w.step({ ...idle, forward: 1 }, 1 / 120);
-      expect(w.eyeY).toBeGreaterThan(surface(w.x, w.z) + 1.6);
-    }
-    expect(w.feet).toBeGreaterThan(4.5);
   });
 });

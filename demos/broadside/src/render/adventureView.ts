@@ -6,7 +6,6 @@ import { Vector3 } from "@babylonjs/core/Maths/math.vector.js";
 import { type Mesh } from "@babylonjs/core/Meshes/mesh.js";
 import { type Scene } from "@babylonjs/core/scene.js";
 import { type ShadowGenerator } from "@babylonjs/core/Lights/Shadows/shadowGenerator.js";
-import { LoadAssetContainerAsync } from "@babylonjs/core/Loading/sceneLoader.js";
 import type { Session } from "../game/session";
 
 /** Beach treasure chests, golden docking rings and a flock of tiny gulls. */
@@ -19,8 +18,6 @@ export class AdventureView {
     gems: Mesh[];
   }[] = [];
   private birds: TransformNode[] = [];
-  private pip: TransformNode | null = null;
-  private pipWings: TransformNode[] = [];
   private destination: Mesh;
   private destinationTime = 0;
   constructor(
@@ -183,26 +180,6 @@ export class AdventureView {
       this.birds.push(bird);
     }
   }
-  async loadPip(): Promise<void> {
-    try {
-      const container = await LoadAssetContainerAsync(
-        `${import.meta.env.BASE_URL}assets/pip/pip.glb`,
-        this.scene,
-      );
-      this.pip = new TransformNode("Pip the companion", this.scene);
-      const entries = container.instantiateModelsToScene(
-        (n) => `companion-${n}`,
-        true,
-      );
-      for (const r of entries.rootNodes) r.parent = this.pip;
-      this.pip.scaling.setAll(1.8);
-      this.pipWings = this.pip
-        .getDescendants()
-        .filter((n) => n.name.includes("wing")) as TransformNode[];
-    } catch {
-      /* The portrait and parrot rescues still work if the optional model fails. */
-    }
-  }
   showDestination(x: number, z: number): void {
     this.destination.position.set(x, 0.9, z);
     this.destinationTime = 3;
@@ -232,19 +209,6 @@ export class AdventureView {
     this.destinationTime -= dt;
     this.destination.isVisible = this.destinationTime > 0;
     this.destination.scaling.setAll(1 + (3 - this.destinationTime) * 0.15);
-    if (this.pip) {
-      const unlocked = s.cruising || (s.treasures[0]?.found ?? false);
-      this.pip.setEnabled(unlocked);
-      this.pip.position.set(
-        s.player.pos.x + Math.cos(time * 0.9) * 6,
-        10 + Math.sin(time * 2) * 1.2,
-        s.player.pos.z + Math.sin(time * 0.9) * 5,
-      );
-      this.pip.rotation.y = -time * 0.9;
-      this.pipWings.forEach((w, i) => {
-        w.rotation.z = Math.sin(time * 9) * 0.5 * (i % 2 ? 1 : -1);
-      });
-    }
     this.birds.forEach((b, i) => {
       const a = time * 0.08 + i * 0.8,
         r = 34 + i * 7;

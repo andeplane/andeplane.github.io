@@ -142,6 +142,15 @@ export const updateShip = (ship: Ship, intent: ShipIntent, wind: Wind, dt: numbe
   ship.pos.x += f.x * ship.speed * dt;
   ship.pos.z += f.z * ship.speed * dt;
 
+  // Furling the sails reduces storm exposure; the rudder still counters gusts.
+  const exposure = 0.2 + ship.sail * 0.4;
+  if (wind.drift) {
+    ship.pos.x += Math.sin(wind.direction) * wind.drift * exposure * dt;
+    ship.pos.z += Math.cos(wind.direction) * wind.drift * exposure * dt;
+  }
+  if (wind.turbulence)
+    ship.heading = wrapAngle(ship.heading + Math.sin(wind.direction - ship.heading) * wind.turbulence * exposure * dt);
+
   ship.reload.port = Math.max(0, ship.reload.port - dt);
   ship.reload.starboard = Math.max(0, ship.reload.starboard - dt);
 };

@@ -1,0 +1,38 @@
+/* Explicit descendants matter for iOS buttons, SVG labels and image callouts. */
+html,
+body,
+#loading,
+#game,
+#voyage-ui,
+#voyage-ui * {
+  -webkit-user-select: none;
+  user-select: none;
+  -webkit-touch-callout: none;
+  -webkit-tap-highlight-color: transparent;
+}
+html {
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}
+html,
+body {
+  overscroll-behavior: none;
+  touch-action: manipulation;
+}
+#game,
+#voyage-ui[data-screen="play"],
+#voyage-ui[data-screen="cave"],
+#voyage-ui[data-screen="result"] {
+  /* Gestures belong to the ship/cave, never browser panning or pinch zoom. */
+  touch-action: none;
+}
+#captain-menu .menu-page {
+  /* Small menus can still scroll vertically without browser zoom gestures. */
+  touch-action: pan-y;
+}
+#game,
+#voyage-ui img,
+#voyage-ui svg,
+#voyage-ui a {
+  -webkit-user-drag: none;
+}

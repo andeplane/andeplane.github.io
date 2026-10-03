@@ -1,6 +1,7 @@
 import { angleDiff, clamp, distance, headingTo, type Vec2 } from "../sim/math";
 import { IDLE_INTENT, type Ship, type ShipIntent } from "../sim/ships";
 import type { Island } from "../sim/world";
+import type { Wind } from "../sim/wind";
 
 const segmentClear = (
   a: Vec2,
@@ -87,21 +88,24 @@ export function planRoute(
 export class Navigator {
   route: Vec2[] = [];
   target: Vec2 | null = null;
-  setGoal(ship: Ship, goal: Vec2, islands: readonly Island[]): void {
+  setGoal(ship: Ship, goal: Vec2, islands: readonly Island[], wind?: Wind): void {
     this.target = { ...goal };
-    this.route = planRoute(ship.pos, goal, islands, ship.spec.beam * 0.6 + 3);
+    this.route = planRoute(ship.pos, goal, islands, ship.spec.beam * 0.6 + 3 + (wind?.drift ? 9 : 0));
   }
   clear(): void {
     this.target = null;
     this.route = [];
   }
-  read(ship: Ship): ShipIntent {
+  read(ship: Ship, wind?: Wind): ShipIntent {
     if (!this.target) return { ...IDLE_INTENT };
-    while (this.route.length > 1 && distance(ship.pos, this.route[0]!) < 9)
+    while (this.route.length > 1 && distance(ship.pos, this.route[0]!) < (wind?.drift ? 4 : 9))
       this.route.shift();
     const wp = this.route[0] ?? this.target;
     const d = distance(ship.pos, this.target);
-    const angle = angleDiff(ship.heading, headingTo(ship.pos, wp));
+    const course = headingTo(ship.pos, wp);
+    const crosswind = wind?.drift ? Math.sin(wind.direction - course) * wind.drift * (0.2 + ship.sail * 0.4) : 0;
+    const correction = Math.asin(clamp(crosswind / Math.max(3, ship.speed), -0.6, 0.6));
+    const angle = angleDiff(ship.heading, course - correction);
     const desiredSail = d < 13 ? 0 : Math.abs(angle) > 0.9 || d < 28 ? 1 : 2;
     return {
       ...IDLE_INTENT,

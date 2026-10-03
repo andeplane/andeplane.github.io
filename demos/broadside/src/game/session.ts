@@ -183,7 +183,7 @@ export class Session {
         { type: "rescue" },
         {
           type: "banner",
-          title: "Pip to the rescue!",
+          title: "Crew to the rescue!",
           subtitle: "Your parrot patched the ship. Let's keep going!",
         },
       );

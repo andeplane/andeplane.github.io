@@ -5,6 +5,9 @@ export interface Wind {
   direction: number;
   /** 0..1 multiplier on sailing speed. */
   strength: number;
+  /** Optional storm forces, absent in ordinary sailing. */
+  drift?: number;
+  turbulence?: number;
 }
 
 /**

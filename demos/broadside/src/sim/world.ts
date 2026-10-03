@@ -68,6 +68,7 @@ export class World {
   readonly bounds: number;
   readonly rng: Rng;
   wind: Wind;
+  windField?: (time: number) => Wind;
   time = 0;
   /** Events produced by the most recent step. */
   events: SimEvent[] = [];
@@ -107,7 +108,7 @@ export class World {
   step(dt: number = SIM_DT): SimEvent[] {
     this.events = [];
     this.time += dt;
-    this.wind = shiftWind(this.wind, this.time, this.baseWind);
+    this.wind = this.windField?.(this.time) ?? shiftWind(this.wind, this.time, this.baseWind);
 
     for (const ship of this.ships) {
       const intent = this.intents.get(ship.id) ?? IDLE_INTENT;
