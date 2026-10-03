@@ -3,6 +3,8 @@ import "@babylonjs/core/Culling/ray.js";
 import "@babylonjs/core/Shaders/color.vertex.js";
 import "@babylonjs/core/Shaders/color.fragment.js";
 import { Engine } from "@babylonjs/core/Engines/engine.js";
+import { Capacitor } from "@capacitor/core";
+import { App } from "@capacitor/app";
 import { VoyageSession, generateVoyage, RELICS } from "./game/voyage";
 import { readProgress, saveProgress } from "./game/progress";
 import { awardVoyage, syncRewards, type VoyageReward } from "./game/rewards";
@@ -419,6 +421,17 @@ async function main() {
     if (document.hidden) clearWalking();
     if (document.hidden && mode === "play" && !paused) pause();
   });
+  if (Capacitor.isNativePlatform()) {
+    await App.addListener("appStateChange", ({ isActive }) => {
+      if (isActive) return;
+      gesture.clear();
+      clearWalking();
+      controls.clear();
+      heading = null;
+      pendingFire = false;
+      if (mode === "play" && !paused) pause();
+    });
+  }
   canvas.addEventListener("pointerdown", (e) => {
     if (mode === "cave" || mode === "harbour") {
       canvas.focus();
