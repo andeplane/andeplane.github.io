@@ -16,6 +16,7 @@ import { thinkAi, createBrain } from "./ai";
 import { TOTAL_LEVELS, worldOf, stageOf } from "./campaign";
 import { wrapAngle } from "../sim/math";
 import { SIM_DT } from "../sim/world";
+import { navigationCourse } from "./navigationCourses";
 
 export const PACKS = [
   {
@@ -190,6 +191,44 @@ export function generateVoyage(
   const pack = worldOf(index),
     stage = stageOf(index),
     rng = new Rng(seed);
+  if (pack === 0) {
+    const course = navigationCourse(stage);
+    const islands = course.islands;
+    // The treasure landmark is always last, beyond a safe, broad finish line.
+    islands.push({
+      pos: { x: course.finish.x, z: course.finish.z + 42 },
+      radius: 26,
+      kind: "sand",
+      props: ["palms"],
+    });
+    return {
+      index,
+      pack,
+      finish: course.finish,
+      gems: course.gems.map((p) => ({ ...p, found: false })),
+      forts: [],
+      whirlpools: [],
+      kraken: null,
+      level: {
+        id: `voyage-${index}`,
+        name: NAMES[pack]![stage]!,
+        intro: course.intro,
+        seed,
+        wind: { direction: 1.3 + stage * 0.025, strength: 0.9 },
+        bounds: 320,
+        islands,
+        player: { ship: "galleon", pos: course.start, heading: course.heading },
+        waves: [
+          {
+            title: PACKS[pack]!.name,
+            subtitle: "Find a safe passage.",
+            enemies: [],
+          },
+        ],
+        repairBetweenWaves: 0,
+      },
+    };
+  }
   const islands: IslandDef[] = [];
   const add = (
     x: number,
@@ -307,15 +346,13 @@ export function generateVoyage(
       id: `voyage-${index}`,
       name: NAMES[pack]![stage]!,
       intro:
-        pack === 0
-          ? "Drag the wheel to steer. Avoid islands and sea rocks — a crash sinks your ship."
-          : pack === 1 && stage < 4
-            ? "Island cannons are firing! Keep moving and steer away from their shots."
-            : pack === 1
-              ? "Pirates ahead! Turn your broadside toward them and tap BOOM to fight back."
-              : pack === 2
-                ? "Whirlpools pull and spin your ship. Keep sailing and steer away from the dark center."
-                : "The kraken is waking. Avoid the purple ripples and watch for swirling currents!",
+        pack === 1 && stage < 4
+          ? "Island cannons are firing! Keep moving and steer away from their shots."
+          : pack === 1
+            ? "Pirates ahead! Turn your broadside toward them and tap BOOM to fight back."
+            : pack === 2
+              ? "Whirlpools pull and spin your ship. Keep sailing and steer away from the dark center."
+              : "The kraken is waking. Avoid the purple ripples and watch for swirling currents!",
       seed,
       wind: { direction: 1.3 + stage * 0.025, strength: 0.9 },
       bounds: 260,

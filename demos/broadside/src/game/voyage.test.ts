@@ -12,6 +12,51 @@ const settle = (s: VoyageSession) => {
   for (let n = 0; n < 60; n++) s.step();
 };
 describe("treasure voyages", () => {
+  it("teaches steering with different courses instead of one repeated channel", () => {
+    const courses = Array.from({ length: 10 }, (_, i) => generateVoyage(i));
+    const shapes = courses.map((v) =>
+      JSON.stringify(v.level.islands.map((i) => [i.pos, i.radius, i.kind])),
+    );
+    expect(new Set(shapes).size).toBe(10);
+    const lengths = courses.map((v) => distance(v.level.player.pos, v.finish));
+    expect(Math.max(...lengths)).toBeGreaterThan(Math.min(...lengths) * 2);
+    // Most courses require actual turns, rather than sailing straight to win.
+    expect(
+      courses.filter(
+        (v) =>
+          planRoute(v.level.player.pos, v.finish, v.level.islands).length > 1,
+      ).length,
+    ).toBeGreaterThanOrEqual(8);
+    expect(new Set(courses.map((v) => v.level.intro)).size).toBe(10);
+  });
+  it("lets a real ship reach every optional gem in the navigation pack", () => {
+    for (let i = 0; i < 10; i++) {
+      for (let gemIndex = 0; gemIndex < 3; gemIndex++) {
+        const s = new VoyageSession(generateVoyage(i)),
+          nav = new Navigator();
+        const gem = s.voyage.gems[gemIndex]!;
+        nav.setGoal(s.player, gem, s.world.islands);
+        for (
+          let n = 0;
+          n < 120 * 60 && !gem.found && s.state === "exploring";
+          n++
+        ) {
+          const intent = nav.read(s.player);
+          // Navigation's docking stop is wider than the gem pickup radius.
+          if (distance(s.player.pos, gem) < 18) {
+            intent.sailDown = false;
+            intent.sailUp = true;
+          }
+          s.step(intent);
+        }
+        expect(
+          gem.found,
+          `level ${i + 1} gem ${gemIndex + 1} at ${JSON.stringify(s.player.pos)}`,
+        ).toBe(true);
+        expect(s.state).toBe("exploring");
+      }
+    }
+  });
   it("generates reproducible courses with accessible treasures and hidden gems", () => {
     for (let i = 0; i < TOTAL_LEVELS; i++)
       for (const seed of [1, 42, 8100]) {

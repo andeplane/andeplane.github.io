@@ -70,7 +70,6 @@ async function main() {
   // Audio is explicitly opt-in on every launch, including development reloads.
   progress.muted = true;
   sound.muted = true;
-  sound.voice = progress.narration;
   const cave = new TreasureCave(engine);
   cave.refresh(progress);
   let session = new VoyageSession(generateVoyage(0)),
@@ -217,7 +216,6 @@ async function main() {
     mode = "play";
     hud.root.classList.remove("loading-voyage");
     sound.pause(false);
-    sound.say(session.level.intro);
     canvas.focus();
   };
   const pause = () => {
@@ -240,12 +238,6 @@ async function main() {
     caveMove: (r, f) => walking.move(r, f),
     caveJump: () => walking.jump(),
     caveInspect: inspect,
-    narration: () => {
-      progress.narration = !progress.narration;
-      sound.voice = progress.narration;
-      saveProgress(progress, storage);
-      return progress.narration;
-    },
     select: (i) => {
       clearWalking();
       cave.select(i);
@@ -305,7 +297,6 @@ async function main() {
         "Pip patched your ship! Keep sailing, Captain!",
         session.elapsed + 6,
       );
-      sound.say("Pip patched your ship! Keep sailing, Captain!");
     }
     if (session.state === "won" || session.state === "lost") {
       controls.clear();
@@ -321,8 +312,6 @@ async function main() {
         saveProgress(progress, storage);
         cave.refresh(progress);
         arrive();
-      } else {
-        sound.say("Your ship sank. Try again and steer clear of the danger.");
       }
       if (session.state === "lost") hud.result(session, reward);
     }
@@ -536,7 +525,6 @@ async function main() {
         if (p.opening && !before.opening) sound.chestOpen();
         if (p.discovered && !before.discovered) {
           sound.cheer();
-          sound.say(`You found ${RELICS[reward?.model ?? 0]!.name}!`);
         }
       }
     }
