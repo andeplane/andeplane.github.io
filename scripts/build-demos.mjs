@@ -38,7 +38,7 @@ for (const name of names) {
       cwd: dir,
       stdio: 'inherit',
       // Vite reads this to prefix asset URLs; the demo lives under a subpath.
-      env: { ...process.env, BASE_PATH: `/demos/${name}/` },
+      env: { ...process.env, BASE_PATH: `/demos/${name}/`, BROADSIDE_PUBLIC_BUILD: '1' },
     });
 
   console.log(`\n=== demos/${name} ===`);

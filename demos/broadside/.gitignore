@@ -5,6 +5,8 @@ coverage/
 tools/blender/out/
 .DS_Store
 artifacts/
+.private/
+dist-private/
 
 # Native web bundles are generated from the same TypeScript source.
 dist-ios/

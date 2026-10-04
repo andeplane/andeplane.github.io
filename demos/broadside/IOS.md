@@ -4,6 +4,8 @@ The iOS app embeds the same TypeScript/Babylon.js game in Capacitor 8’s WKWebV
 
 The app opens fullscreen, hides the status bar, lets the home indicator fade, supports portrait and landscape, and pauses voyages when the app becomes inactive. It stays silent. Safe areas and native rendering resolution use the existing game code. Saves remain on the device; browser saves and native-app saves are separate.
 
+The optional purchased Black Pearl is detected automatically during local and iOS builds when its ignored `.private/` export is present. It adds a walkable ship and connected treasure room. See [PRIVATE_SHIP.md](PRIVATE_SHIP.md) for the one-time import and public-build exclusions. No special iOS build command is needed.
+
 ## Open in Xcode
 
 From `demos/broadside`:
