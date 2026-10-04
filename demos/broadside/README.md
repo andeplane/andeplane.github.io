@@ -180,3 +180,23 @@ details are batched by material and distant islands are unloaded.
 To verify a 3× canvas in a desktop-sized phone viewport, append `renderDpr=3` to
 an existing development QA URL. This fixture is ignored in production. The
 canvas's `data-render-resolution` attribute reports its actual drawing buffer.
+
+### Coin dropping sandbox
+
+Open `?debugcoins&mute=true` (cave) or `?debugcoins=ship&mute=true` (ship hold).
+This also works in the published web build. It bypasses player storage entirely;
+coin poses are kept in memory and are discarded on reload or Reset.
+
+- Tap **Add 1,000 coins** repeatedly. Chests queue and pour one at a time, using
+  the game's Rapier WASM worker, actual coin meshes and permanent pile collisions.
+- Switch between the cave's four banks and the ship hold after queued pours finish.
+  Both places retain their temporary piles until reset. Ship coins land on the deck.
+- Compare visible/resting/moving coins, rolling FPS, frame interval p95, CPU render
+  time, draw calls and the actual drawing-buffer resolution. CPU render time is
+  not GPU execution time. Pour duration includes the chest animation and settling.
+- **Export measurements** downloads a CSV with a row for each completed chest.
+  A bank accepts up to 100,000 coins including queued chests. Worker failures are
+  shown explicitly; this mode does not substitute pre-baked layouts for failed pours.
+
+The ship-floor pour is a sandbox preview; normal rewards still use the existing
+ship cargo and optional cave-unloading flow.

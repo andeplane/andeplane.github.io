@@ -70,7 +70,7 @@ export class TreasureCave {
   private revealing = false;
   private reducedMotion = matchMedia("(prefers-reduced-motion: reduce)")
     .matches;
-  constructor(engine: Engine, persistent = true) {
+  constructor(engine: Engine, persistent = true, strictPhysics = false) {
     const s = (this.scene = new Scene(engine));
     s.clearColor = new Color4(0.012, 0.02, 0.035, 1);
     s.fogMode = Scene.FOGMODE_EXP2;
@@ -90,7 +90,7 @@ export class TreasureCave {
     hemi.intensity = 0.62;
     hemi.renderPriority = 7;
     this.chamber = new Cavern(s, this.spots);
-    this.coins = new CoinHoard(s, persistent, () => bindLocalLights(this.chamber.lamps, this.scene.meshes));
+    this.coins = new CoinHoard(s, persistent, () => bindLocalLights(this.chamber.lamps, this.scene.meshes), { strictPhysics });
     this.walker = new CaveWalker(this.chamber.obstacles, (x, z) =>
       Math.max(this.chamber.walkHeight(x, z), this.coins.walkHeight(x, z)),
     );
@@ -314,6 +314,12 @@ export class TreasureCave {
   get coinCounts(): number[] { return this.coins.counts; }
   get restingCoinCounts(): number[] { return this.coins.restingCounts; }
   get goldPhysicsActive(): boolean { return this.coins.physicsActive; }
+  /** Debug-only controller supplies temporary banks, never player progress. */
+  debugCoinBank(world: number, add = false): void {
+    if (add) this.coins.addBatch(world);
+    this.beginUnload(world);
+  }
+  get coinError(): string | null { return this.depositWorld === null ? null : this.coins.pouring(this.depositWorld).error; }
   get walkingGeometry() {
     return this.chamber.walkingGeometry;
   }

@@ -18,6 +18,14 @@ interface Bank {
   requested: boolean; depositing: boolean; ready: boolean; spawned: number; resting: number;
   worker: Worker | null; previousFrame: Float32Array; frameAge: number;
   frameUploaded: boolean;
+  error: string | null;
+}
+export interface CoinBankArea { world: number; name: string; x: number; z: number; radius: number; }
+export interface CoinHoardOptions {
+  areas?: readonly CoinBankArea[];
+  /** Ship holds use a flat deck; the cave retains its actual rocky floor. */
+  floorY?: number;
+  strictPhysics?: boolean;
 }
 const GRID = .22;
 export class CoinHoard {
@@ -27,14 +35,16 @@ export class CoinHoard {
   private lastRotation = Quaternion.Identity();
   private position = Vector3.Zero();
   private matrix = Matrix.Identity();
-  constructor(scene: Scene, private persistent = true, private changed: () => void = () => {}) {
+  private areas: readonly CoinBankArea[];
+  constructor(scene: Scene, private persistent = true, private changed: () => void = () => {}, private options: CoinHoardOptions = {}) {
+    this.areas = options.areas ?? GOLD_AREAS;
     const material = doubloonMaterial(scene);
-    this.banks = GOLD_AREAS.map((area) => {
+    this.banks = this.areas.map((area) => {
       const mesh = doubloonMesh(scene, `${area.name} settled gold coins`);
       mesh.material = material; mesh.position.set(area.x, 0, area.z); mesh.isPickable = false; mesh.setEnabled(false);
       const proxy = MeshBuilder.CreateSphere(`${area.name} gold bank inspection`, { diameter: 2, segments: 12 }, scene);
       proxy.visibility = 0; proxy.metadata = { relicIndex: 0, goldWorld: area.world }; proxy.setEnabled(false);
-      return { mesh, proxy, count: 0, loaded: 0, poses: new Float32Array(), matrices: new Float32Array(), heights: new Map(), peak: 0, basePeak: 0, version: 0, depositFrom: 0, requested: false, depositing: false, ready: false, spawned: 0, resting: 0, worker: null, previousFrame: new Float32Array(), frameAge: 0, frameUploaded: false };
+      return { mesh, proxy, count: 0, loaded: 0, poses: new Float32Array(), matrices: new Float32Array(), heights: new Map(), peak: 0, basePeak: 0, version: 0, depositFrom: 0, requested: false, depositing: false, ready: false, spawned: 0, resting: 0, worker: null, previousFrame: new Float32Array(), frameAge: 0, frameUploaded: false, error: null };
     });
     scene.onDisposeObservable.add(() => {
       for (const bank of this.banks) {
@@ -50,9 +60,19 @@ export class CoinHoard {
       // Keep the in-memory settled bank too: private browsing may block the cache.
       const carry = depositWorld === world && bank.ready && !bank.worker && bank.loaded === count - 1000
         ? bank.poses.slice() : null;
+      this.loadBank(bank, world, count, depositWorld === world, carry);
+    });
+  }
+  /** Sandbox deposits retain their real settled poses entirely in memory. */
+  addBatch(world: number): void {
+    const bank = this.banks[world]!;
+    if (bank.depositing || bank.worker) throw new Error("A coin deposit is already running");
+    this.loadBank(bank, world, bank.count + 1000, true, bank.poses.slice());
+  }
+  private loadBank(bank: Bank, world: number, count: number, depositing: boolean, carry: Float32Array | null): void {
       const version = ++bank.version;
       bank.worker?.terminate(); bank.worker = null;
-      bank.count = count; bank.depositing = depositWorld === world; bank.ready = false; bank.requested = false; bank.spawned = 0;
+      bank.count = count; bank.depositing = depositing; bank.ready = false; bank.requested = false; bank.spawned = 0; bank.resting = 0; bank.error = null;
       bank.depositFrom = bank.depositing ? count - 1000 : count;
       if (!count) { bank.mesh.setEnabled(false); bank.proxy.setEnabled(false); bank.loaded = 0; bank.heights.clear(); return; }
       void (carry ? Promise.resolve(carry) : loadGoldLayout(world, bank.depositFrom, this.persistent)).then((poses) => {
@@ -73,11 +93,10 @@ export class CoinHoard {
         bank.basePeak = bank.peak; bank.ready = true;
         this.changed();
         if (bank.requested) this.runPhysics(bank, world);
-      }).catch((error) => console.error("Gold bank:", error));
-    });
+      }).catch((error) => { bank.error = String(error); console.error("Gold bank:", error); });
   }
   private rebuildHeight(bank: Bank, world: number, count: number): void {
-    const area = GOLD_AREAS[world]!, poses = bank.poses;
+    const area = this.areas[world]!, poses = bank.poses;
     bank.peak = 0; bank.heights.clear();
     for (let i = 0; i < count; i++) {
       const p = i * COIN_POSE_STRIDE, x = poses[p]!, y = poses[p + 1]!, z = poses[p + 2]!;
@@ -104,7 +123,9 @@ export class CoinHoard {
   private runPhysics(bank: Bank, world: number): void {
     if (bank.worker || !bank.depositing) return;
     const version = bank.version;
-    const worker = new Worker(new URL("../game/goldPhysics.worker.ts", import.meta.url), { type: "module" });
+    let worker: Worker;
+    try { worker = new Worker(new URL("../game/goldPhysics.worker.ts", import.meta.url), { type: "module" }); }
+    catch (error) { bank.error = `Coin worker could not start: ${String(error)}`; return; }
     bank.worker = worker; bank.mesh.alwaysSelectAsActiveMesh = true;
     const finish = async () => {
       bank.depositing = false; bank.requested = false;
@@ -120,6 +141,7 @@ export class CoinHoard {
     const fail = () => {
       if (bank.worker !== worker) return;
       worker.terminate(); bank.worker = null;
+      if (this.options.strictPhysics) { bank.error = "Coin physics failed. Reset this area to try again."; return; }
       // Offline physics poses also make the collection available if a worker cannot start.
       void loadGoldLayout(world, bank.count, this.persistent).then(poses => {
         if (bank.version !== version) return;
@@ -142,7 +164,7 @@ export class CoinHoard {
       }
     };
     void chestCoinPoses().then(chest => {
-      if (bank.worker === worker) worker.postMessage({world, previous: bank.poses.slice(0, bank.depositFrom * COIN_POSE_STRIDE), chest});
+      if (bank.worker === worker) worker.postMessage({world, previous: bank.poses.slice(0, bank.depositFrom * COIN_POSE_STRIDE), chest, floorY: this.options.floorY, area: this.areas[world]});
     }).catch(fail);
   }
   private compose(bank: Bank, coin: number, blend = 1): void {
@@ -171,16 +193,16 @@ export class CoinHoard {
   }
   /** Leaving the reward screen never loses its deposit; the worker finishes in the background. */
   finishPours(): void { this.banks.forEach((bank, world) => { if (bank.depositing) this.startPour(world); }); }
-  pouring(world: number) { const bank = this.banks[world]!; return { ready: bank.ready, spawned: bank.spawned, done: !bank.depositing, chestY: bank.basePeak + 3.8, active: !!bank.worker }; }
-  center(world: number): Vector3 { const a = GOLD_AREAS[world]!; return new Vector3(a.x, this.banks[world]!.peak * .45 + .2, a.z); }
-  span(world: number) { return { height: Math.max(.8, this.banks[world]!.peak), width: GOLD_AREAS[world]!.radius * 2 }; }
+  pouring(world: number) { const bank = this.banks[world]!; return { ready: bank.ready, spawned: bank.spawned, done: !bank.depositing, chestY: bank.basePeak + 3.8, active: !!bank.worker, error: bank.error }; }
+  center(world: number): Vector3 { const a = this.areas[world]!; return new Vector3(a.x, this.banks[world]!.peak * .45 + .2, a.z); }
+  span(world: number) { return { height: Math.max(.8, this.banks[world]!.peak), width: this.areas[world]!.radius * 2 }; }
   get counts(): number[] { return this.banks.map((b) => b.mesh.isEnabled() ? b.mesh.thinInstanceCount : 0); }
   get restingCounts(): number[] { return this.banks.map(b => b.depositing ? b.depositFrom + b.resting : b.loaded); }
   get physicsActive(): boolean { return this.banks.some(b => !!b.worker); }
   walkHeight(x: number, z: number): number {
     let height = caveFloor(x, z);
     this.banks.forEach((bank, world) => {
-      const a = GOLD_AREAS[world]!, gx = Math.round((x - a.x) / GRID), gz = Math.round((z - a.z) / GRID);
+      const a = this.areas[world]!, gx = Math.round((x - a.x) / GRID), gz = Math.round((z - a.z) / GRID);
       height = Math.max(height, bank.heights.get(`${gx}:${gz}`) ?? -1);
     });
     return height;
