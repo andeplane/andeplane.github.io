@@ -10,6 +10,7 @@ export class CaptainCamera {
   yaw = 0;
   pitch = .03;
   private blend = 0;
+  deckEye: Vector3 | null = null;
   look(dx: number, dy: number): void {
     this.yaw = wrapAngle(this.yaw + dx * .003);
     this.pitch = clamp(this.pitch + dy * .003, -1.1, 1.1);
@@ -19,7 +20,7 @@ export class CaptainCamera {
     this.blend += ((this.enabled ? 1 : 0) - this.blend) * (1 - Math.exp(-dt * 5));
     if (this.blend < .0001) { camera.rotation.z = 0; return; }
     view.root.computeWorldMatrix(true);
-    const seat = Vector3.TransformCoordinates(view.captainSeat, view.root.getWorldMatrix());
+    const seat = Vector3.TransformCoordinates(this.deckEye ?? view.captainSeat, view.root.getWorldMatrix());
     const yaw = view.root.rotation.y + this.yaw;
     const pitch = this.pitch + view.root.rotation.x * .18;
     const target = seat.add(new Vector3(Math.sin(yaw) * Math.cos(pitch), -Math.sin(pitch),

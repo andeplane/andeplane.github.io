@@ -140,6 +140,8 @@ export class GameRenderer {
   readonly scene: Scene;
   readonly rig: CameraRig;
   readonly captainCamera = new CaptainCamera();
+  get playerView() { return this.views.get(this.playerShipId); }
+  private playerShipId = -1;
   private readonly ocean: Ocean;
   private readonly islands: IslandsView;
   private readonly effects: Effects;
@@ -432,6 +434,7 @@ export class GameRenderer {
     this.rig.camera.fovMode = Camera.FOVMODE_VERTICAL_FIXED;
     this.rig.camera.fov = .78;
     this.rig.camera.minZ = 1;
+    this.playerShipId = player.id;
     const playerView = this.views.get(player.id);
     if (playerView) this.captainCamera.apply(this.rig.camera, playerView, dt);
     if (this.inspectionIsland && !this.captainCamera.enabled) {

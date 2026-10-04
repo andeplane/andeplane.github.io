@@ -1,5 +1,7 @@
 import { CAMPAIGN_VERSION, TOTAL_LEVELS, LEVELS_PER_WORLD } from "./campaign";
+export interface FishingChest { world: number; delivered: boolean; }
 export interface Progress {
+  fishing: { fish: number; chests: FishingChest[] };
   campaignVersion: number;
   best: number;
   adventures: number;
@@ -14,6 +16,7 @@ export interface Progress {
 }
 export const PAINTS = ["#fff3d0", "#75ddd4", "#ffad8d"];
 const defaults = (): Progress => ({
+  fishing: { fish: 0, chests: [] },
   campaignVersion: CAMPAIGN_VERSION,
   best: 0,
   adventures: 0,
@@ -68,7 +71,14 @@ export function readProgress(storage?: Pick<Storage, "getItem">): Progress {
           if (!relics.includes(id)) relics.push(id);
         }
     const cargo = Array.isArray(p.cargo) ? [...new Set(p.cargo.filter(i => Number.isInteger(i) && !!mappedVoyages[i]))] : [];
+    const fishing = p.fishing;
     return {
+      fishing: {
+        fish: Number.isSafeInteger(fishing?.fish) && fishing!.fish >= 0 ? fishing!.fish : 0,
+        chests: Array.isArray(fishing?.chests) ? fishing.chests.filter(c => c &&
+          Number.isInteger(c.world) && c.world >= 0 && c.world < 4 && typeof c.delivered === 'boolean')
+          .map(c => ({world:c.world, delivered:c.delivered})) : [],
+      },
       campaignVersion: CAMPAIGN_VERSION,
       best:
         typeof p.best === "number" && Number.isFinite(p.best)

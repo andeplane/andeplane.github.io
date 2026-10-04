@@ -86,3 +86,18 @@ describe("persistent coin poses", () => {
     finally { vi.unstubAllGlobals(); }
   });
 });
+
+
+describe('fishing gold beyond a completed world',()=>{
+  it('extends the existing hoard without fetching nonexistent assets when storage is unavailable',async()=>{
+    const bytes=snapshot(0,10000),fetch=vi.fn().mockResolvedValue({ok:true,arrayBuffer:async()=>bytes});
+    vi.stubGlobal('fetch',fetch);
+    try {
+      const poses=await loadGoldLayout(0,11000,false);
+      expect(poses.subarray(0,10000*COIN_POSE_STRIDE)).toEqual(new Float32Array(bytes));
+      expect(validGoldLayout(poses.slice().buffer,11000,0)).toBe(true);
+      expect(poses[10000*COIN_POSE_STRIDE+1]).toBeGreaterThan(poses[1]!);
+      expect(fetch).toHaveBeenCalledTimes(1);expect(fetch.mock.calls[0]![0]).toContain('/10000.bin');
+    } finally {vi.unstubAllGlobals();}
+  });
+});
