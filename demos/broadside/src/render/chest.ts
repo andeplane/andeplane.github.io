@@ -35,7 +35,6 @@ export class RewardChest {
   private contents: Mesh;
   private light: PointLight;
   private glow: StandardMaterial;
-  private hands: TransformNode;
   private coinsReady = false;
   private coinCount = 1000;
   constructor(scene: Scene) {
@@ -131,25 +130,6 @@ export class RewardChest {
       this.contents.thinInstanceSetBuffer("matrix", coins, 16, true);
       this.coinsReady = true; this.setCoinCount(this.coinCount);
     }).catch(error => console.error("Chest contents:", error));
-    this.hands = new TransformNode("captain carrying the chest", scene); this.hands.parent = this.root;
-    const leather = mat("worn leather gloves", "#735039"), cuff = mat("captain's coat cuffs", "#19282f");
-    for (const sign of [-1, 1]) {
-      const arm = MeshBuilder.CreateTube("captain's rounded coat sleeve",{path:[new Vector3(sign*3.8,-.2,-6),new Vector3(sign*2.3,.65,-2.15),new Vector3(sign*2.08,.85,-.75),new Vector3(sign*2.07,.9,-.36)],radius:.22,tessellation:16,cap:Mesh.CAP_ALL},scene);
-      arm.parent=this.hands;arm.material=cuff;
-      const wrist = MeshBuilder.CreateTube("leather glove wrist",{path:[new Vector3(sign*2.07,.9,-.37),new Vector3(sign*2.07,.9,-.18)],radius:.19,tessellation:16,cap:Mesh.CAP_ALL},scene);
-      wrist.parent=this.hands;wrist.material=leather;
-      const edging=MeshBuilder.CreateTorus("brass embroidery at coat cuff",{diameter:.44,thickness:.025,tessellation:20},scene);
-      edging.parent=this.hands;edging.position.set(sign*2.07,.9,-.39);edging.rotation.x=Math.PI/2;edging.material=gold;
-      const palm = MeshBuilder.CreateSphere("gloved palm gripping carrying ring", {diameter:1,segments:12}, scene);
-      palm.parent=this.hands;palm.material=leather;palm.position.set(sign*2.05,.94,-.18);palm.scaling.set(.38,.4,.32);
-      for (let f=0;f<4;f++) {
-        const finger = MeshBuilder.CreateTube("curled glove finger", {path:[new Vector3(sign*2.1,.82+f*.07,-.16),new Vector3(sign*1.89,.82+f*.07,-.12),new Vector3(sign*1.87,.82+f*.07,.08),new Vector3(sign*2.02,.82+f*.07,.12)],radius:.04,tessellation:8,cap:Mesh.CAP_ALL},scene);
-        finger.parent=this.hands;finger.material=leather;
-      }
-      const thumb=MeshBuilder.CreateTube("gloved thumb around the ring",{path:[new Vector3(sign*2.12,1.09,-.2),new Vector3(sign*1.94,1.15,-.07),new Vector3(sign*1.86,1.07,.02)],radius:.065,tessellation:10,cap:Mesh.CAP_ALL},scene);
-      thumb.parent=this.hands;thumb.material=leather;
-    }
-    this.hands.setEnabled(false);
     this.light = new PointLight("chest's hidden glow", new Vector3(0, 2, -0.4), scene);
     this.light.renderPriority = 4;
     this.light.parent = this.root; this.light.diffuse = Color3.FromHexString("#ffcc75"); this.light.range = 8;
@@ -166,10 +146,6 @@ export class RewardChest {
     this.contents.setEnabled(count > 0);
   }
   hide() { this.root.setEnabled(false); this.light.setEnabled(false); }
-  carry(active: boolean, alpha = 1): void {
-    this.hands.setEnabled(active);
-    if (active) this.hands.getChildMeshes().forEach(mesh => { mesh.visibility = alpha; });
-  }
   open(amount: number): void { this.lid.rotation.x = Math.max(0, Math.min(1, amount)) * 1.96; }
   animate(seconds: number, x: number, reduced: boolean) {
     const p = revealPose(seconds, reduced);
@@ -178,7 +154,7 @@ export class RewardChest {
     this.fade(1);
     this.root.position.set(x, 1.05, 0);
     this.root.rotation.set(0, -0.16, 0);
-    this.open(p.lid); this.carry(false);
+    this.open(p.lid);
     this.glow.emissiveColor = Color3.FromHexString("#ffcc75").scale(.08 + p.glow * .15);
     this.light.intensity = .4 + p.lid * .9;
     return p;
