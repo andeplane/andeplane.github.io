@@ -3,6 +3,7 @@ import { useProject } from '@/hooks/useProjects'
 import MarkdownRenderer from '@/components/blog/MarkdownRenderer'
 import Tag from '@/components/ui/Tag'
 import RecorderEmbed from '@/components/demos/RecorderEmbed'
+import './project-detail.css'
 
 export default function ProjectDetail() {
   const { slug } = useParams<{ slug: string }>()
@@ -52,7 +53,7 @@ export default function ProjectDetail() {
         }}>
           <img
             src={project.screenshot}
-            alt={`${project.title} screenshot`}
+            alt={project.screenshotAlt ?? `${project.title} screenshot`}
             style={{
               display: 'block',
               maxWidth: project.portrait ? '320px' : '100%',
@@ -119,6 +120,23 @@ export default function ProjectDetail() {
           </a>
         )}
       </div>
+
+      {!!project.screenshots?.length && (
+        <section className="project-screenshots" aria-labelledby="screenshots-title">
+          <h2 id="screenshots-title">From sea to secret hideout</h2>
+          {project.screenshotsNote && <p className="project-screenshots-note">{project.screenshotsNote}</p>}
+          <div className="project-screenshots-grid">
+            {project.screenshots.map((shot) => (
+              <figure key={shot.src} className={shot.width > shot.height ? 'project-screenshot-wide' : undefined}>
+                <a href={shot.src} target="_blank" rel="noopener noreferrer" aria-label={`Enlarge: ${shot.alt}`}>
+                  <img src={shot.src} alt={shot.alt} width={shot.width} height={shot.height} loading="lazy" decoding="async" />
+                </a>
+                <figcaption>{shot.caption}</figcaption>
+              </figure>
+            ))}
+          </div>
+        </section>
+      )}
 
       <hr style={{ border: 'none', borderTop: '1px solid var(--color-border)', marginBottom: '3rem' }} />
 
