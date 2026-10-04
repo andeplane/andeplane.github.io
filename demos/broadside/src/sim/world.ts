@@ -7,7 +7,7 @@ import {
   type Cannonball,
   type Vec3,
 } from "./cannons";
-import { distance, length, type Vec2 } from "./math";
+import { distance, length, wrapCoordinate, type Vec2 } from "./math";
 import { Rng } from "./rng";
 import {
   createShip,
@@ -62,6 +62,7 @@ export const DEFAULT_GUNNERY: Readonly<Record<Team, number>> = {
 export const SIM_DT = 1 / 60;
 
 export class World {
+  periodic = false;
   readonly ships: Ship[] = [];
   readonly balls: Cannonball[] = [];
   readonly islands: Island[];
@@ -153,12 +154,14 @@ export class World {
     for (const ship of this.ships) {
       for (const island of this.islands) {
         const reach = island.radius + ship.spec.beam * 0.6;
-        const d = distance(ship.pos, island.pos);
+        const ix = this.periodic ? ship.pos.x - wrapCoordinate(ship.pos.x - island.pos.x, this.bounds) : island.pos.x;
+        const iz = this.periodic ? ship.pos.z - wrapCoordinate(ship.pos.z - island.pos.z, this.bounds) : island.pos.z;
+        const d = Math.hypot(ship.pos.x - ix, ship.pos.z - iz);
         if (d >= reach || d === 0) continue;
-        const nx = (ship.pos.x - island.pos.x) / d;
-        const nz = (ship.pos.z - island.pos.z) / d;
-        ship.pos.x = island.pos.x + nx * reach;
-        ship.pos.z = island.pos.z + nz * reach;
+        const nx = (ship.pos.x - ix) / d;
+        const nz = (ship.pos.z - iz) / d;
+        ship.pos.x = ix + nx * reach;
+        ship.pos.z = iz + nz * reach;
         ship.speed = Math.min(ship.speed, 1.5);
         if (ship.sinceBump > 1) {
           ship.sinceBump = 0;
@@ -197,6 +200,11 @@ export class World {
 
   private resolveBounds(): void {
     for (const ship of this.ships) {
+      if (this.periodic) {
+        ship.pos.x = wrapCoordinate(ship.pos.x, this.bounds);
+        ship.pos.z = wrapCoordinate(ship.pos.z, this.bounds);
+        continue;
+      }
       const d = length(ship.pos);
       if (d <= this.bounds) continue;
       ship.pos.x *= this.bounds / d;
@@ -208,6 +216,10 @@ export class World {
   private stepBalls(dt: number): void {
     for (const ball of this.balls) {
       stepBall(ball, dt);
+      if (this.periodic) {
+        ball.pos.x = wrapCoordinate(ball.pos.x, this.bounds);
+        ball.pos.z = wrapCoordinate(ball.pos.z, this.bounds);
+      }
       for (const ship of this.ships) {
         if (!ballHitsShip(ball, ship)) continue;
         ball.alive = false;

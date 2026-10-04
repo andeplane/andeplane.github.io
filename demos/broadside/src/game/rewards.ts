@@ -46,10 +46,31 @@ export function awardVoyage(
   syncRewards(progress);
   const special =
     !hadSpecial && worldComplete(progress, world) ? WORLD_RELICS[world]! : null;
+  if (!previous) progress.cargo.push(index);
+  if (special !== null) progress.cargoRelics.push(special);
   return {
     gold: previous ? 0 : GOLD_PER_LEVEL,
     totalGold: goldTotal(progress),
     special,
     model: special ?? 0,
   };
+}
+
+/** Completion and total wealth include cargo. The cave shows only delivered chests. */
+export function caveProgress(progress: Progress): Progress {
+  const pending = new Set(progress.cargo);
+  return {
+    ...progress,
+    voyages: Object.fromEntries(Object.entries(progress.voyages).filter(([i]) => !pending.has(Number(i)))),
+    relics: progress.relics.filter(id => !progress.cargoRelics.includes(id)),
+    cargo: [],
+    cargoRelics: [],
+  };
+}
+export function deliverChest(progress: Progress, level: number): boolean {
+  const i = progress.cargo.indexOf(level);
+  if (i < 0) return false;
+  progress.cargo.splice(i, 1);
+  progress.cargoRelics = progress.cargoRelics.filter(id => progress.cargo.some(level => WORLD_RELICS[worldOf(level)] === id));
+  return true;
 }

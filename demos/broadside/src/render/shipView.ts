@@ -5,6 +5,9 @@ import { DynamicTexture } from "@babylonjs/core/Materials/Textures/dynamicTextur
 import { StandardMaterial } from "@babylonjs/core/Materials/standardMaterial.js";
 import { TransformNode } from "@babylonjs/core/Meshes/transformNode.js";
 import { Vector3 } from "@babylonjs/core/Maths/math.vector.js";
+import { VertexBuffer } from "@babylonjs/core/Buffers/buffer.js";
+import { VertexData } from "@babylonjs/core/Meshes/mesh.vertexData.js";
+import { Ray } from "@babylonjs/core/Culling/ray.js";
 import { type AbstractMesh } from "@babylonjs/core/Meshes/abstractMesh.js";
 import { type ParticleSystem } from "@babylonjs/core/Particles/particleSystem.js";
 import { type Scene } from "@babylonjs/core/scene.js";
@@ -22,6 +25,11 @@ const lerpAngle = (a: number, b: number, t: number) => a + wrapAngle(b - a) * t;
 /** Visual representation of one ship: bobbing, heeling, sails, damage FX, sinking. */
 export class ShipView {
   readonly root: TransformNode;
+  readonly captainSeat: Vector3;
+  private helm?: TransformNode;
+  private captainView = false;
+  private readonly length: number;
+  private readonly fullCanvas = new Map<Mesh, { positions: number[]; normals: number[] }>();
   private readonly sails: AbstractMesh[];
   private readonly sailBase = new Map<AbstractMesh, Vector3>();
   private sailAmount = 1;
@@ -47,9 +55,21 @@ export class ShipView {
     livery: Livery,
   ) {
     const name = `ship-${shipId}`;
+    this.length = ship.spec.length;
     this.root = new TransformNode(name, scene);
     const model = models.create(ship.spec.class, livery, name);
     model.parent = this.root;
+    const seatZ = -ship.spec.length * .34;
+    const helmX = ship.spec.beam * .28;
+    model.computeWorldMatrix(true);
+    // Model alignment changes its parent's scale. Refresh child bounds before
+    // ray picking; the loaded GLB otherwise still has its export-space bounds.
+    for (const mesh of model.getChildMeshes(false)) mesh.computeWorldMatrix(true);
+    const deck = scene.pickWithRay(new Ray(new Vector3(helmX, ship.spec.length, seatZ), new Vector3(0, -1, 0)),
+      mesh => mesh.isDescendantOf(model) && /deck|teak|hull/i.test(mesh.material?.name ?? ""));
+    const deckY = Math.max(1.35, deck?.pickedPoint?.y ?? 2.7);
+    this.captainSeat = new Vector3(helmX, deckY + 1.65, seatZ - 1.35);
+    if (ship.team === "player") this.helm = this.buildHelm(scene, deckY, helmX, seatZ + .3);
     for (const m of model.getChildMeshes(false)) {
       shadows.addShadowCaster(m, false);
       m.receiveShadows = true;
@@ -140,6 +160,70 @@ export class ShipView {
         : null;
     this.capture(ship);
     this.capture(ship);
+  }
+
+  /** Furl the low canvas above the quarterdeck, opening the helm's sightline. */
+  setCaptainView(enabled: boolean): void {
+    if (enabled === this.captainView) return;
+    this.captainView = enabled;
+    this.root.computeWorldMatrix(true);
+    for (const sail of this.sails) {
+      if (!(sail instanceof Mesh) || !sail.material?.name.includes("black_canvas")) continue;
+      let original = this.fullCanvas.get(sail);
+      if (!original) {
+        sail.makeGeometryUnique();
+        original = { positions: Array.from(sail.getVerticesData(VertexBuffer.PositionKind)!),
+          normals: Array.from(sail.getVerticesData(VertexBuffer.NormalKind)!) };
+        this.fullCanvas.set(sail, original);
+      }
+      if (!enabled) {
+        sail.setVerticesData(VertexBuffer.PositionKind, original.positions);
+        sail.setVerticesData(VertexBuffer.NormalKind, original.normals);
+        continue;
+      }
+      sail.computeWorldMatrix(true);
+      const toDeck = sail.getWorldMatrix().multiply(this.root.getWorldMatrix().clone().invert());
+      const fromDeck = toDeck.clone().invert(), positions = [...original.positions];
+      const furledHeight = this.length * .48;
+      for (let i = 0; i < positions.length; i += 3) {
+        const p = Vector3.TransformCoordinates(Vector3.FromArray(positions, i), toDeck);
+        if (p.y > this.length * .08 && p.y < furledHeight) {
+          p.y = furledHeight - (furledHeight - p.y) * .08;
+          const folded = Vector3.TransformCoordinates(p, fromDeck);
+          positions[i] = folded.x; positions[i + 1] = folded.y; positions[i + 2] = folded.z;
+        }
+      }
+      const normals: number[] = [];
+      VertexData.ComputeNormals(positions, sail.getIndices()!, normals);
+      sail.setVerticesData(VertexBuffer.PositionKind, positions);
+      sail.setVerticesData(VertexBuffer.NormalKind, normals);
+    }
+  }
+
+  private buildHelm(scene: Scene, deckY: number, x: number, z: number): TransformNode {
+    const wood = new StandardMaterial("captain's polished wheel", scene);
+    wood.diffuseColor = Color3.FromHexString("#96653d");
+    wood.specularColor.set(.18, .13, .08);
+    const brass = new StandardMaterial("wheel brass fittings", scene);
+    brass.diffuseColor = PALETTE.brass;
+    brass.specularColor.set(.5, .4, .2);
+    const post = MeshBuilder.CreateBox("helm pedestal", { width: .25, height: .9, depth: .28 }, scene);
+    post.parent = this.root; post.position.set(x, deckY + .45, z); post.material = wood;
+    const pivot = new TransformNode("turning ship's wheel", scene);
+    pivot.parent = this.root; pivot.position.set(x, deckY + 1.02, z - .12);
+    const rim = MeshBuilder.CreateTorus("smooth wheel rim", { diameter: .9, thickness: .075, tessellation: 40 }, scene);
+    rim.parent = pivot; rim.rotation.x = Math.PI / 2; rim.material = wood;
+    for (let i = 0; i < 8; i++) {
+      const a = i * Math.PI / 4;
+      const spoke = MeshBuilder.CreateCylinder("wheel spoke and handle", { height: .62, diameter: .047, tessellation: 10 }, scene);
+      spoke.parent = pivot; spoke.position.set(Math.sin(a) * .23, Math.cos(a) * .23, 0);
+      spoke.rotation.z = -a; spoke.material = wood;
+      const tip = MeshBuilder.CreateSphere("rounded wheel grip", { diameter: .08, segments: 8 }, scene);
+      tip.parent = pivot; tip.position.set(Math.sin(a) * .54, Math.cos(a) * .54, 0); tip.material = wood;
+    }
+    const hub = MeshBuilder.CreateSphere("brass wheel hub", { diameter: .16, segments: 12 }, scene);
+    hub.parent = pivot; hub.scaling.z = .6; hub.material = brass;
+    return pivot;
   }
 
   /** Red glowing gunports: the enemy is about to fire this side. */
@@ -258,6 +342,7 @@ export class ShipView {
 
     this.root.position.set(x, y, z);
     this.root.rotation.set(pitch, heading, roll);
+    if (this.helm) this.helm.rotation.z = -ship.angularVelocity * .9 + Math.sin(time * .9) * .025;
 
     // Sails: furl up to the yard, billow with the wind.
     const target = ship.alive
@@ -267,10 +352,13 @@ export class ShipView {
     for (const s of this.sails) {
       const base = this.sailBase.get(s)!;
       const flutter = 1 + Math.sin(time * 7 + s.uniqueId) * 0.02;
+      // The Pearl's STL has all its sails in one mesh with a waterline pivot.
+      // Shrinking it vertically pulls every sail through the deck and the helm.
+      const pearlCanvas = s.material?.name.includes("black_canvas") ?? false;
       s.scaling.set(
         base.x,
-        base.y * this.sailAmount,
-        base.z * (0.6 + 0.5 * windEfficiency) * flutter,
+        base.y * (pearlCanvas ? 1 : this.sailAmount),
+        base.z * (pearlCanvas ? 1 + (flutter - 1) * .15 : (0.6 + 0.5 * windEfficiency) * flutter),
       );
     }
 

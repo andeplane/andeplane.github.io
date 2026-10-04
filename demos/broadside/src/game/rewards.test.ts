@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { readProgress, saveProgress } from "./progress";
-import { awardVoyage, goldTotal, syncRewards, WORLD_RELICS } from "./rewards";
+import { awardVoyage, goldTotal, syncRewards, WORLD_RELICS, caveProgress, deliverChest } from "./rewards";
 
 describe("voyage gold and world keepsakes", () => {
   it("adds gold for each first completion, preserving best stars on replay", () => {
@@ -56,5 +56,35 @@ describe("voyage gold and world keepsakes", () => {
     expect(goldTotal(p)).toBe(4000);
     saveProgress(p, storage);
     expect(readProgress(storage)).toEqual(p);
+  });
+  it("keeps new rewards aboard across reloads and unloads each chest only once", () => {
+    const p=readProgress();awardVoyage(p,0,3,2);awardVoyage(p,1,2,1);
+    expect(goldTotal(p)).toBe(2000);expect(goldTotal(caveProgress(p))).toBe(0);
+    let saved="";saveProgress(p,{setItem:(_k,v)=>{saved=v;}});
+    const restored=readProgress({getItem:()=>saved});expect(restored.cargo).toEqual([0,1]);
+    awardVoyage(restored,0,3,3);expect(restored.cargo).toEqual([0,1]);
+    expect(deliverChest(restored,0)).toBe(true);expect(deliverChest(restored,0)).toBe(false);
+    expect(goldTotal(caveProgress(restored))).toBe(1000);expect(goldTotal(restored)).toBe(2000);
+    expect(restored.cargo).toEqual([1]);
+  });
+  it("brings a world's special treasure into the cave with its final cargo chest", () => {
+    const p=readProgress();for(let i=0;i<10;i++)awardVoyage(p,i,3,3);
+    expect(p.relics).toEqual([WORLD_RELICS[0]]);expect(caveProgress(p).relics).toEqual([]);
+    for(let i=0;i<9;i++)deliverChest(p,i);
+    expect(caveProgress(p).relics).toEqual([]);
+    deliverChest(p,9);expect(caveProgress(p).relics).toEqual([WORLD_RELICS[0]]);
+  });
+  it("leaves old saves already banked and drops invalid cargo entries", () => {
+    const raw={...readProgress(),voyages:{0:{stars:3,gems:2}}};
+    const old=readProgress({getItem:()=>JSON.stringify({...raw,cargo:undefined})});
+    expect(old.cargo).toEqual([]);expect(goldTotal(caveProgress(old))).toBe(1000);
+    const repaired=readProgress({getItem:()=>JSON.stringify({...raw,cargo:[0,0,-1,999,"0"]})});
+    expect(repaired.cargo).toEqual([0]);
+  });
+  it("leaves an older world keepsake in the cave while new gold is aboard", () => {
+    const p=readProgress();p.relics=[WORLD_RELICS[0]];
+    awardVoyage(p,0,3,3);
+    expect(caveProgress(p).relics).toEqual([WORLD_RELICS[0]]);
+    expect(p.cargoRelics).toEqual([]);
   });
 });

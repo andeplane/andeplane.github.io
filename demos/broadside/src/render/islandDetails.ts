@@ -2,12 +2,13 @@ import { Color3 } from "@babylonjs/core/Maths/math.color.js";
 import { Vector3 } from "@babylonjs/core/Maths/math.vector.js";
 import { Mesh } from "@babylonjs/core/Meshes/mesh.js";
 import { MeshBuilder } from "@babylonjs/core/Meshes/meshBuilder.js";
-import type { StandardMaterial } from "@babylonjs/core/Materials/standardMaterial.js";
 import type { TransformNode } from "@babylonjs/core/Meshes/transformNode.js";
 import type { ShadowGenerator } from "@babylonjs/core/Lights/Shadows/shadowGenerator.js";
 import type { Scene } from "@babylonjs/core/scene.js";
 import type { IslandDef } from "../game/levels";
 import type { Rng } from "../sim/rng";
+import type { WorldStyle } from "./worldStyle";
+import { StandardMaterial } from "@babylonjs/core/Materials/standardMaterial.js";
 
 /** Shared geometry keeps a lush shoreline affordable on phones. */
 export function buildIslandDetails(
@@ -15,6 +16,8 @@ export function buildIslandDetails(
   material: StandardMaterial,
   rocks: Mesh[],
   shadows: ShadowGenerator,
+  style: WorldStyle,
+  pack: number,
 ) {
   const paint = (mesh: Mesh, hex: string) => {
     const c = Color3.FromHexString(hex);
@@ -25,25 +28,24 @@ export function buildIslandDetails(
   const template = (parts: Mesh[], name: string) => {
     const mesh = Mesh.MergeMeshes(parts, true, true)!;
     mesh.name = name;
-    mesh.convertToFlatShadedMesh();
     mesh.material = material;
     mesh.isVisible = false;
     mesh.isPickable = false;
     return mesh;
   };
   const bush = template([0, 1, 2, 3, 4].map((i) => {
-    const m = MeshBuilder.CreateIcoSphere("jungle canopy", { radius: 1, subdivisions: 1 }, scene);
+    const m = MeshBuilder.CreateIcoSphere("jungle canopy", { radius: 1, subdivisions: 3, flat: false }, scene);
     m.position.set(Math.sin(i * 2.4) * 0.7, 0.65 + i % 2 * 0.3, Math.cos(i * 2.4) * 0.6);
     m.scaling.set(1, 0.75, 0.9);
-    return paint(m, i % 2 ? "#365d43" : "#527747");
+    return paint(m, i % 2 ? style.grassDark : style.grass);
   }), "island shrub template");
 
   // Curved leaves with a raised central vein, rather than flat triangles.
   const fern = template(Array.from({ length: 9 }, (_, i) => {
     const a = i * Math.PI * 2 / 9;
     const left: Vector3[] = [], middle: Vector3[] = [], right: Vector3[] = [];
-    for (let j = 0; j <= 6; j++) {
-      const t = j / 6;
+    for (let j = 0; j <= 12; j++) {
+      const t = j / 12;
       const width = Math.sin(Math.PI * t) * 0.28;
       const centre = new Vector3(Math.sin(a) * t * 2,
         Math.sin(t * Math.PI) * 0.95 + 0.12, Math.cos(a) * t * 2);
@@ -53,7 +55,7 @@ export function buildIslandDetails(
     }
     return paint(MeshBuilder.CreateRibbon("fern frond", {
       pathArray: [left, middle, right], sideOrientation: Mesh.DOUBLESIDE,
-    }, scene), i % 2 ? "#497546" : "#73934e");
+    }, scene), i % 2 ? style.leaf : style.leafLight);
   }), "island fern template");
 
   const grass = template(Array.from({ length: 7 }, (_, i) => {
@@ -76,23 +78,44 @@ export function buildIslandDetails(
     return paint(m, "#a09579");
   }), "driftwood template");
 
+  // The deep has luminous mineral outcrops, distinct from the tropical coast.
+  const crystal = pack === 3 ? template([0, 1, 2].map((i) => {
+    const m = MeshBuilder.CreateCylinder("moonlit mineral shard", {
+      height: 1.3 + i * .45, diameterBottom: .38, diameterTop: 0, tessellation: 6,
+    }, scene);
+    m.position.set((i - 1) * .35, .5 + i * .15, i % 2 * .22);
+    m.rotation.z = (i - 1) * .25;
+    return paint(m, i % 2 ? "#b3b3ed" : "#7eede0");
+  }), "glowing deep crystals") : undefined;
+  if (crystal) {
+    const glow = new StandardMaterial("bioluminescent sea minerals", scene);
+    glow.diffuseColor.set(.3, .5, .6);
+    glow.emissiveColor.set(.42, .74, .8);
+    glow.specularColor.set(.4, .6, .8);
+    crystal.material = glow;
+  }
+
   let serial = 0;
   return (root: TransformNode, def: IslandDef, rng: Rng,
     surface: (x: number, z: number) => number) => {
     const instance = (source: Mesh, name: string, x: number, z: number,
       sx: number, sy = sx, sz = sx, shadow = true) => {
+      source.receiveShadows = true;
       const mesh = source.createInstance(`${name}-${serial++}`);
       mesh.parent = root;
       mesh.position.set(x, surface(x, z) - 0.06, z);
       mesh.scaling.set(sx, sy, sz);
       mesh.rotation.y = rng.range(0, Math.PI * 2);
       mesh.isPickable = false;
-      mesh.receiveShadows = true;
       if (shadow) shadows.addShadowCaster(mesh);
       return mesh;
     };
     const polar = (a: number, distance: number) =>
       [Math.sin(a) * def.radius * distance, Math.cos(a) * def.radius * distance] as const;
+    if (crystal) for (let i = 0; i < 14; i++) {
+      const [x, z] = polar(rng.range(0, Math.PI * 2), rng.range(.4, .82));
+      instance(crystal, "luminous shore minerals", x, z, rng.range(.7, 1.8), undefined, undefined, false);
+    }
 
     // A broken inland ridge gives each island a distinctive, layered silhouette.
     const ridgeAngle = rng.range(-0.55, 0.55);

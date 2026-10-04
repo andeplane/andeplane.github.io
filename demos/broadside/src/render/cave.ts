@@ -168,11 +168,12 @@ export class TreasureCave {
       );
       const lid = MeshBuilder.CreateCylinder(
         "arched chest lid",
-        { height: 2, diameter: 1.3, tessellation: 16, arc: 0.5 },
+        { height: 2, diameter: 1.3, tessellation: 24, arc: 0.5, enclose: true },
         s,
       );
-      lid.rotation.z = Math.PI / 2;
-      lid.rotation.y = Math.PI;
+      // The cylinder's half arc starts below Z=0. Rotate it into an upward
+      // dome along the chest's width, rather than a vertical half-tube.
+      lid.rotation.set(Math.PI / 2, Math.PI / 2, 0);
       lid.parent = root;
       lid.position.y = 0.8;
       lid.material = wood;
@@ -412,6 +413,8 @@ export class TreasureCave {
     this.revealTime = 0;
     this.revealing = true;
   }
+  beginUnload(world: number): void { this.beginReveal(0, world); this.revealTime = this.reducedMotion ? 1.4 : 5.3; }
+  get depositComplete(): boolean { return this.depositFinishedAt !== null && this.revealTime - this.depositFinishedAt > 1; }
   endReveal(): void {
     this.revealing = false;
     this.coins.finishPours();
@@ -432,9 +435,9 @@ export class TreasureCave {
       this.chest.root.position.z = -5;
     } else this.chest.hide();
     const portrait = innerWidth < 600;
-    const showDeposit = unboxing && this.depositWorld !== null && this.revealTime > (this.reducedMotion ? 1.4 : 5.3);
+    const showDeposit = unboxing && this.depositWorld !== null && this.revealTime >= (this.reducedMotion ? 1.4 : 5.3);
     const depositAge = this.revealTime - (this.reducedMotion ? 1.4 : 5.3);
-    if (showDeposit && depositAge > (this.reducedMotion ? .1 : 2.6) && !this.pourStarted && this.coins.pouring(this.depositWorld!).ready) {
+    if (showDeposit && depositAge > (this.reducedMotion ? .1 : 4.8) && !this.pourStarted && this.coins.pouring(this.depositWorld!).ready) {
       this.coins.startPour(this.depositWorld!);
       this.pourStarted = true;
     }
@@ -447,15 +450,24 @@ export class TreasureCave {
       if (showDeposit) {
         const world = this.depositWorld!, center = this.coins.center(world), span = this.coins.span(world);
         const elapsed = this.revealTime - (this.reducedMotion ? 1.4 : 5.3);
-        const t = this.reducedMotion ? 1 : Math.min(1, elapsed / 1.4), blend = t * t * (3 - 2 * t);
-        this.camera.position.copyFrom(Vector3.Lerp(this.camera.position, this.bankView(world), blend));
-        this.camera.fov += ((portrait ? 1.35 : .9) - this.camera.fov) * blend;
-        this.camera.setTarget(Vector3.Lerp(new Vector3(0, 3.3, -5), center.add(new Vector3(0, span.height * .1, 0)), blend));
+        const t = this.reducedMotion ? 1 : Math.min(1, elapsed / 3.8), blend = t * t * (3 - 2 * t);
         const area = GOLD_AREAS[world]!, pour = this.coins.pouring(world);
-        const travel = this.reducedMotion ? 1 : Math.min(1, elapsed / 1.4), lift = travel * travel * (3 - 2 * travel);
-        this.chest.root.position.copyFrom(Vector3.Lerp(new Vector3(0, 1.05, -5), new Vector3(area.x, pour.chestY, area.z), lift));
-        const turn = this.reducedMotion ? 1 : Math.max(0, Math.min(1, (elapsed - 1.4) / 1.2));
-        this.chest.root.rotation.set(0, -.16 * (1 - lift), -Math.PI * turn * turn * (3 - 2 * turn));
+        // Arrive in the correct room. Carry a chest from its walking path to
+        // the bank, rather than flying through walls to a deeper chamber.
+        const approach = world === 2 ? new Vector3(0,.5,43) : world === 3 ? new Vector3(28,.5,35) : new Vector3(0,.5,area.z-5);
+        const direction = new Vector3(area.x-approach.x,0,area.z-approach.z).normalize();
+        const carryCamera = approach.subtract(direction.scale(4.8)).add(new Vector3(0,2.7,0));
+        this.camera.position.copyFrom(Vector3.Lerp(carryCamera, this.bankView(world).add(new Vector3(0,1.2,0)), blend));
+        this.camera.fov = (portrait ? 1.6 : .95) + ((portrait ? 1.35 : .9) - (portrait ? 1.6 : .95)) * blend;
+        this.camera.setTarget(Vector3.Lerp(approach.add(new Vector3(0,1.25,0)), center.add(new Vector3(0, span.height * .1, 0)), blend));
+        const travel = this.reducedMotion ? 1 : Math.min(1, elapsed / 3.8), lift = travel * travel * (3 - 2 * travel);
+        this.chest.root.position.copyFrom(Vector3.Lerp(approach, new Vector3(area.x, pour.chestY, area.z), lift));
+        if (!this.reducedMotion && travel < 1) this.chest.root.position.y += Math.sin(elapsed*8)*.035*Math.sin(travel*Math.PI);
+        this.chest.root.scaling.setAll(1);
+        const turn = this.reducedMotion ? 1 : Math.max(0, Math.min(1, (elapsed - 3.8) / 1));
+        this.chest.root.rotation.set(0, Math.atan2(direction.x,direction.z) * (1 - lift), -Math.PI * turn * turn * (3 - 2 * turn));
+        this.chest.carry(!this.reducedMotion && elapsed < 4.2,Math.max(0,Math.min(1,(4.2-elapsed)/.4)));
+        this.chest.open(this.reducedMotion ? 1 : Math.max(0, Math.min(1, (elapsed-3.4)/.6)));
         this.chest.setCoinCount(1000 - pour.spawned);
         if (pour.done) {
           this.depositFinishedAt ??= this.revealTime;
@@ -513,7 +525,7 @@ export class TreasureCave {
           -5,
         );
         r.scaling.setAll(0.18 + this.revealPose.rise * 0.67);
-        r.setEnabled(!showDeposit && i === this.selected && this.revealPose.rise > 0.08);
+        r.setEnabled(!showDeposit && i !== 0 && i === this.selected && this.revealPose.discovered);
       } else {
         r.position.set(
           this.spots[i]!.x,

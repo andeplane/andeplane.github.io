@@ -18,6 +18,8 @@ npm run preview -- --host 0.0.0.0 --port 5181
 
 Built game: http://localhost:5181/
 
+An iPhone/iPad app embeds this same game with Capacitor and bundled offline assets. Run `npm run ios:open` to build and open the native project. See [IOS.md](IOS.md) for simulator, device signing and update instructions.
+
 Use the corner fullscreen button to enter or leave fullscreen on supported browsers. It includes the canvas and every game control, and preserves native rendering resolution when the screen size changes. On iPhone, use Safari’s **Share → Add to Home Screen** (leave **Open as Web App** enabled when offered), then launch Broadside from its Home Screen icon to hide Safari’s bars. Browser fullscreen support varies; an unsupported request shows instructions instead. Phone Home Screen launching still needs physical-device verification.
 
 ## The campaign
@@ -29,9 +31,39 @@ Four packs of ten voyages introduce mechanics in order:
 3. **Whirlpool straits:** swirling currents pull and turn the ship; keep full sail and steer away from the damaging center.
 4. **The glowing deep:** animated kraken tentacles and purple warning rings.
 
-Every voyage ends at the golden opening into the far sea. Sail through it to earn 1,000 gold on your first completion. Complete all ten voyages in a world to discover its special 3D keepsake. Explore one connected cave with a skylit entrance, a lantern passage, a bridged canal in the king’s vault, and a glowing side grotto. Gold banks grow throughout after the first level; special keepsakes rest on natural rock shelves in different rooms. Gold and keepsakes are saved to the cave automatically; the sea fades into the cave before the chest opens. The results screen confirms the collection and offers Retry, Next level, and Back to menu. Next level launches the following voyage directly, including across world boundaries; after the final voyage only Retry and Back to menu remain. No requirement to sink every pirate. The next level unlocks when the previous treasure is found.
+Every voyage ends at the golden opening into the far sea. Sail through it to earn 1,000 gold on your first completion. Complete all ten voyages in a world to discover its special 3D keepsake. Explore one connected cave with a skylit entrance, a lantern passage, a bridged canal in the king’s vault, and a glowing side grotto. Gold banks grow throughout after the first level; special keepsakes rest on natural rock shelves in different rooms. Gold and keepsakes stay safely aboard the Black Pearl after discovery. The sea fades into the ship’s treasure hold, with the island visible through its stern windows. The chest opens to reveal a physically settled pile of coins. The results screen offers Retry, Next level, Back to menu, and optional Return to cave. Return to cave carries and tips each chest into its world’s gold bank, one chest at a time; delivery is saved after that deposit finishes. Leaving early keeps unopened chests aboard. Next level launches the following voyage directly, including across world boundaries; after the final voyage only Retry and Back to menu remain. No requirement to sink every pirate. The next level unlocks when the previous treasure is found.
 
 Three stars require at most 15% cumulative hull damage; two allow up to 55%; otherwise completion earns one. A rescue earns one star. Damage counts before rescue repairs, so repaired ships cannot earn a misleading perfect score. Gems are optional and recorded separately. Replays preserve the best stars and gem count. Collection and settings save in local browser storage, without accounts or external services. Private browsing may not retain saves.
+
+## Open-world sailing and captain view
+
+The existing Play / Settings / Cave menu and walking treasure cave are retained.
+Under Play, **Open world** resumes one permanent 3.2 km sea chart: Blackwater Bay,
+Smuggler’s Coast, Stormbreak Isles, the Lost Isles and Moonstone Reach. Islands,
+reefs and gems stay at fixed coordinates. Position, heading, look direction and
+found gems save separately from campaign progress. Wrecking returns the ship to
+Blackwater Bay while preserving discoveries. There is no New Sea button.
+
+The square map has periodic boundaries: east joins west, north joins south.
+The camera, shores, collision geometry and nearby chart use the same wrapping;
+crossing an edge preserves speed and heading. Scenery loads ahead of the ship
+and unloads far behind it, with deterministic per-island props on return.
+Campaign levels remain their separate forty generated courses.
+
+Overhead steering is the default in both campaign levels and the open world.
+The eye button or **C** switches the current sailing camera between overhead and
+first-person captain view at the Black Pearl’s helm. Mouse drag, swiping or arrows
+look independently of steering. In captain view the touch wheel turns left/right,
+A/D steer, W/S control sails, and Space or BOOM fires a manual broadside. R or
+Ahead centres the view. Free sailing starts anchored; Set sail begins
+moving. **M**, the map button or Sea chart opens the full world map and pauses
+sailing while it is open.
+
+Smooth shared terrain normals, textured shores, curved feathered palm leaves
+and rounded rocks replace the visibly faceted island surfaces. The four campaign
+worlds have separate palettes: warm tropical daylight, amber pirate dusk, cold
+storm straits and haunted moonlight. Later levels have slanting rain, moving clouds,
+whitecaps, lightning and wind-driven drift.
 
 ## Controls
 
@@ -65,13 +97,13 @@ The growing gold hoard and four world treasures are actual 3D models made from s
 npm run check # TypeScript, tests with coverage thresholds, production build
 ```
 
-Desktop browser viewport testing covers responsive layout and interactions. Physical phone performance remains unverified. QA notes: [PLAYTEST.md](PLAYTEST.md).
+Desktop browser viewport testing covers responsive layout and interactions. Latest changes were checked at phone-sized browser viewports; this does not verify physical-phone performance. QA notes: [PLAYTEST.md](PLAYTEST.md).
 
 ## Site integration
 
 The maintained source is `demos/broadside/` in [andeplane.github.io](https://github.com/andeplane/andeplane.github.io/tree/main/demos/broadside). The site builds this app with `BASE_PATH=/demos/broadside/`. All ship, parrot, font and rock-texture assets are local and follow that base path. The rock surfaces use [Rock Face 03 by Poly Haven](https://polyhaven.com/a/rock_face_03) under CC0; attribution and original-file details are in `public/textures/cave/CREDITS.md`. The Black Pearl source and conversion details are in `public/assets/ships/CREDITS.md`.
 
-Development-only visual fixtures use `?qa=collection` (the full collection), `?qa=6` (a particular voyage, zero based), and `?qa=reveal-4` (a chest reveal). A visible badge identifies these previews and player saves are disabled. Production ignores all QA parameters.
+Development-only visual fixtures use `?qa=collection` (the full collection), `?qa=6` (a particular voyage, zero based), `?qa=reveal-4` (a chest reveal), and `?qa=free&seed=81723` (the open world). A visible badge identifies these previews and player saves are disabled. Production ignores all QA parameters.
 
 Silent collection preview: http://localhost:5182/?qa=collection&mute=true (development only, player saves disabled).
 

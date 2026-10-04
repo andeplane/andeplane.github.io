@@ -1,4 +1,5 @@
 import { icon } from "./icons";
+import { Capacitor } from "@capacitor/core";
 
 type FullscreenDocument = Document & {
   webkitFullscreenElement?: Element;
@@ -13,7 +14,7 @@ export function installFullscreen(ui: HTMLElement, resize: () => void) {
   const doc = document as FullscreenDocument;
   const root = document.documentElement as FullscreenRoot;
   const appMode = matchMedia("(display-mode: standalone), (display-mode: fullscreen)");
-  const standalone = () => appMode.matches ||
+  const standalone = () => Capacitor.isNativePlatform() || appMode.matches ||
     (navigator as Navigator & { standalone?: boolean }).standalone === true;
   const active = () => Boolean(doc.fullscreenElement || doc.webkitFullscreenElement);
   const button = document.createElement("button");

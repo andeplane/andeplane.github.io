@@ -5,3 +5,14 @@ coverage/
 tools/blender/out/
 .DS_Store
 artifacts/
+
+# Native web bundles are generated from the same TypeScript source.
+dist-ios/
+ios/App/App/public/
+ios/App/App/capacitor.config.json
+ios/App/App/config.xml
+ios/App/CapApp-SPM/.build/
+ios/App/App.xcodeproj/xcuserdata/
+ios/App/App.xcodeproj/project.xcworkspace/xcuserdata/
+ios/DerivedData/
+ios/build/

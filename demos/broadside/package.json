@@ -14,9 +14,15 @@
     "coverage": "vitest run --coverage",
     "gold:bake": "node --experimental-strip-types tools/hoard/bake.mjs",
     "ships": "blender --background --python tools/blender/build_ships.py -- --all",
-    "check": "npm run typecheck && npm run coverage && vite build"
+    "check": "npm run typecheck && npm run coverage && vite build",
+    "build:ios": "tsc --noEmit && vite build --base / --outDir dist-ios",
+    "ios:sync": "npm run build:ios && cap sync ios",
+    "ios:open": "npm run ios:sync && cap open ios",
+    "ios:sim": "npm run ios:sync && cap run ios --no-sync",
+    "ios:build:sim": "npm run ios:sync && xcodebuild -project ios/App/App.xcodeproj -scheme App -configuration Debug -sdk iphonesimulator -destination \"generic/platform=iOS Simulator\" -derivedDataPath ios/DerivedData -packageAuthorizationProvider netrc CODE_SIGNING_ALLOWED=NO build"
   },
   "devDependencies": {
+    "@capacitor/cli": "8.5.2",
     "@dimforge/rapier3d-compat": "^0.21.0",
     "@vitest/coverage-v8": "^3.2.4",
     "typescript": "^5.9.2",
@@ -25,6 +31,9 @@
   },
   "dependencies": {
     "@babylonjs/core": "^8.27.0",
-    "@babylonjs/loaders": "^8.27.0"
+    "@babylonjs/loaders": "^8.27.0",
+    "@capacitor/app": "8.1.2",
+    "@capacitor/core": "8.5.2",
+    "@capacitor/ios": "8.5.2"
   }
 }
