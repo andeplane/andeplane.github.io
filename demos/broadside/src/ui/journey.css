@@ -1,0 +1,155 @@
+/* The chart owns ship destinations; the main menu stays Play / Settings / Cave. */
+.chart-ship {
+  position: absolute;
+  z-index: 5;
+  width: 82px;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: #342717;
+  transform: translate(-50%, -50%);
+  filter: drop-shadow(0 3px 3px #152e2c80);
+}
+.chart-ship > svg { filter: sepia(.65) saturate(.7); display: block; width: 100%; height: 68px; }
+.chart-ship > span {
+  display: inline-block;
+  padding: 2px 7px;
+  background: #eddbab;
+  border: 1px solid #765c35;
+  font-size: 12px;
+  white-space: nowrap;
+}
+.chart-ship:focus-visible { outline: 3px solid #ad6429; outline-offset: 4px; }
+#ship-panel {
+  position: absolute;
+  z-index: 20;
+  right: 5%;
+  bottom: 90px;
+  width: min(280px, calc(100% - 36px));
+  padding: 22px;
+  color: #382916;
+  background: #e9d7aa;
+  border: 2px solid #79603a;
+  box-shadow: 0 12px 45px #081c22a0, inset 0 0 24px #9d784a40;
+  text-align: center;
+}
+#ship-panel .eyebrow { color: #765632; }
+#ship-panel h2 { margin: 9px 0; font: 32px "Pirata One", Georgia, serif; }
+#ship-panel p { margin: 0 0 16px; font-size: 13px; }
+#ship-panel button {
+  width: 100%; min-height: 44px; margin-top: 7px; padding: 10px;
+  border: 1px solid #80633b; border-radius: 4px;
+  background: #d6be88; color: #382916; font-weight: 700;
+}
+#ship-panel .text-button { background: transparent; border: 0; font-size: 12px; }
+#chart-travel {
+  position: absolute; z-index: 30; bottom: 22px; left: 50%;
+  transform: translateX(-50%); padding: 12px 22px;
+  background: #263b35f5; color: #ffe5aa; border: 1px solid #bfa46e;
+  text-align: center; white-space: nowrap; font-size: 14px;
+}
+.chart-sailing .chart-ship > svg { animation: chart-bob .6s ease-in-out infinite alternate; }
+.chart-sailing #menu-free, .chart-sailing .map-footnote { visibility: hidden; }
+@keyframes chart-bob { to { transform: translateY(-3px) rotate(2deg); } }
+
+/* A regional chart: ten islands joined by a winding navigable route. */
+#voyage-ui[data-screen="levels"] #captain-menu {
+  background: #839786 url('/assets/map/nautical-chart.webp') center / cover;
+}
+#voyage-ui[data-screen="levels"] .menu-atmosphere { display: none; }
+#level-menu { inset: 0; overflow: hidden; }
+#voyage-ui[data-screen="levels"] .menu-heading { position: absolute; inset: 64px 10% auto; color: #332715; }
+#voyage-ui[data-screen="levels"] .menu-heading h1 { color: #332715; text-shadow: 0 1px #ecddb8; }
+#voyage-ui[data-screen="levels"] .voyage-brand { color: #342b20; }
+#voyage-ui[data-screen="levels"] .voyage-brand > .icon { color: #604325; }
+#voyage-ui[data-screen="levels"] #menu-back { background: #e4cda6e8; color: #382717; border-color: #725836; }
+#voyage-ui[data-screen="levels"] .menu-heading .eyebrow,
+#voyage-ui[data-screen="levels"] .menu-heading p { color: #57482d; }
+#level-menu .level-board {
+  position: absolute; inset: 160px 5% 72px;
+  width: auto; height: auto; min-height: 0; max-width: 1000px;
+  margin: 0 auto; padding: 0; display: block; border: 0; background: none;
+  animation: chart-zoom .35s ease-out both;
+}
+#level-menu #level-world-art { display: none; }
+#level-menu #voyage-levels { position: absolute; inset: 0; display: block; padding: 0; }
+.level-route { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
+.level-route polyline {
+  fill: none; stroke: #704b2b; stroke-width: 3;
+  stroke-dasharray: 7 9; vector-effect: non-scaling-stroke; opacity: .7;
+}
+#level-menu .level-tile {
+  position: absolute; left: var(--stop-x); top: var(--stop-y);
+  transform: translate(-50%, -50%);
+  width: 54px; height: 54px; min-height: 0;
+  display: block; padding: 0; overflow: visible;
+  border: 0; border-radius: 0; background: none; box-shadow: none;
+  color: #352917; isolation: isolate;
+}
+#level-menu .route-island {
+  position: absolute; z-index: -1; left: 50%; bottom: 5px;
+  width: 145px; height: 125px; transform: translateX(-50%);
+  pointer-events: none;
+}
+#level-menu .route-island .world-art {
+  width: 100%; height: 100%; min-height: 0; max-height: none;
+  object-fit: contain; margin: 0; filter: drop-shadow(0 3px 2px #23463950);
+}
+#level-menu .tile-number {
+  display: grid; place-items: center; position: relative;
+  width: 100%; height: 100%; color: #352917;
+  text-shadow: none; border: 2px solid #69502b; border-radius: 50%;
+  background: #efddb0; box-shadow: 0 3px 5px #2d302e70;
+  font: 32px "Pirata One", Georgia, serif;
+}
+#level-menu .next-level .tile-number { border-color: #8c4622; outline: 3px solid #e8bd62; outline-offset: 2px; }
+#level-menu .locked { opacity: 1; }
+#level-menu .locked .tile-number { background: #b3ac8d; color: #645942; border-color: #74684e; }
+#level-menu .tile-stars {
+  position: absolute; left: 50%; bottom: -23px; top: auto;
+  transform: translateX(-50%); display: flex; gap: 2px;
+  width: auto; padding: 1px 5px; background: #e9d6a4e8;
+  border-radius: 6px; color: #8f7c55; font-size: 16px; margin: 0;
+}
+#level-menu .tile-stars i { font-size: inherit; font-style: normal; color: #a08e68; }
+#level-menu .tile-stars .earned { color: #955313; text-shadow: 0 1px #fce7ac; }
+#level-menu .tile-lock { position: absolute; top: -9px; right: -9px; width: 20px; height: 20px; color: #473e2a; }
+#level-menu .tile-treasure { display: none; }
+#level-menu .level-tile:last-child .tile-treasure {
+  display: block; position: absolute; right: -30px; top: 12px;
+  left: auto; bottom: auto; color: #9e5124; width: 24px; height: 24px;
+}
+#level-menu .level-note {
+  position: absolute; left: 15%; right: 15%; bottom: -46px; margin: 0;
+  text-align: center; font-size: 12px; color: #46391f;
+}
+@keyframes chart-zoom { from { opacity: 0; transform: scale(.82); } to { opacity: 1; transform: scale(1); } }
+@media (max-width: 650px) {
+  .chart-ship { width: 58px; }
+  .chart-ship > svg { height: 48px; }
+  .chart-ship > span { font-size: 10px; padding: 2px 5px; }
+  #ship-panel { right: 18px; bottom: 84px; padding: 16px; }
+  #voyage-ui[data-screen="levels"] .menu-heading h1 { font-size: 32px; }
+  #voyage-ui[data-screen="levels"] .menu-heading p { font-size: 11px; }
+  #level-menu .level-board { inset: 174px 12px 82px; }
+  #level-menu .level-tile { width: 44px; height: 44px; }
+  #level-menu .tile-number { font-size: 27px; }
+  #level-menu .route-island { width: 100px; height: 86px; bottom: 4px; }
+  #level-menu .tile-stars { bottom: -20px; font-size: 13px; }
+  #level-menu .level-tile:last-child .tile-treasure { right: -24px; width: 20px; height: 20px; }
+  #level-menu .level-note { left: 22%; right: 0; bottom: -52px; font-size: 10px; }
+}
+@media (max-height: 650px) and (min-aspect-ratio: 4/3) {
+  #voyage-ui[data-screen="levels"] .menu-heading { top: 20px; left: 26%; right: 15%; padding: 0; }
+  #voyage-ui[data-screen="levels"] .menu-heading h1 { font-size: 30px; margin: 3px 0; }
+  #voyage-ui[data-screen="levels"] .menu-heading p { font-size: 11px; }
+  #level-menu .level-board { inset: 112px 4% 62px; }
+  #level-menu .level-tile { width: 36px; height: 36px; }
+  #level-menu .tile-number { font-size: 25px; }
+  #level-menu .route-island { width: 88px; height: 76px; }
+  #level-menu .tile-stars { font-size: 11px; bottom: -17px; }
+  #ship-panel { bottom: 14px; padding: 12px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  #level-menu .level-board, .chart-sailing .chart-ship > svg { animation: none; }
+}

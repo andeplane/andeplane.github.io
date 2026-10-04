@@ -10,6 +10,7 @@ import { newOpenSea, readOpenSea, openSeaVoyage, recordOpenSea, saveOpenSea } fr
 import { readProgress, saveProgress } from "./game/progress";
 import { awardVoyage, syncRewards, caveProgress, deliverChest, type VoyageReward } from "./game/rewards";
 import { ShipHold } from "./render/shipHold";
+import { WorldJourney, nearestRegion, readJourney, saveJourney } from "./game/journey";
 import { TOTAL_LEVELS, levelUnlocked } from "./game/campaign";
 import { Controls } from "./input/controls";
 import { CaveWalkControls } from "./input/caveWalk";
@@ -35,6 +36,7 @@ import "./ui/reward.css";
 import "./ui/gameSurface.css";
 import "./ui/fullscreen.css";
 import "./ui/sailing.css";
+import "./ui/journey.css";
 
 installGameSurface();
 
@@ -90,6 +92,8 @@ async function main() {
     controls = new Controls();
   const freeParams = new URLSearchParams(location.search);
   const openSea = qa ? newOpenSea(freeParams.has("seed") ? Number(freeParams.get("seed")) : undefined) : readOpenSea(storage);
+  const journey = new WorldJourney(readJourney(storage));
+  let travelAction: "cave" | "ship" | "hold" | "unload" | number | null = null;
   const freePack = qa ? Number(freeParams.get("pack") ?? 0) : 0;
   if (qaQuery === "collection") {
     const cleared = new URLSearchParams(location.search).get("cleared");
@@ -119,7 +123,7 @@ async function main() {
   let holdShowingResult = false;
   let unloadQueue: number[] = [], unloadingIndex: number | null = null, unloadTotal = 0;
   let arrivalDestination: "hold" | "unload" = "hold", arrivalFromHold = false;
-  let mode: "menu" | "cave" | "harbour" | "hold" | "unloading" | "play" | "arrival" | "result" | "loading" =
+  let mode: "menu" | "cave" | "harbour" | "hold" | "unloading" | "play" | "arrival" | "result" | "loading" | "travel" =
       "menu",
     paused = false,
     heading: number | null = null,
@@ -134,6 +138,9 @@ async function main() {
     if (!renderer || !session.voyage.freeSailing || (mode !== "play" && mode !== "result")) return;
     recordOpenSea(openSea, session, renderer.captainCamera.yaw, renderer.captainCamera.pitch);
     saveOpenSea(openSea, storage);
+    journey.location = { kind: "sea", world: nearestRegion(openSea.position) };
+    saveJourney(journey.location, storage);
+    hud.location(journey.location);
   };
   const reducedMotion = matchMedia("(prefers-reduced-motion: reduce)");
   const curtain = document.createElement("div");
@@ -186,7 +193,7 @@ async function main() {
     getCave().refresh(banked, world); getCave().beginUnload(world);
     hud.unloading(unloadTotal - unloadQueue.length, unloadTotal);
   };
-  const unload = () => {
+  const unloadAtCave = () => {
     if (!progress.cargo.length) { home(); return; }
     unloadQueue = [...progress.cargo].sort((a,b)=>a-b); unloadTotal=unloadQueue.length;
     arrive("unload");
@@ -223,6 +230,9 @@ async function main() {
     hold?.scene.dispose(); hold = null;
     harbour?.scene.dispose(); harbour = null;
     mode = "cave";
+    journey.location = { kind: "cave" };
+    saveJourney(journey.location, storage);
+    hud.location(journey.location);
     cave?.endReveal();
     paused = false;
     hud.root.classList.remove("loading-voyage");
@@ -267,6 +277,8 @@ async function main() {
   };
   const menu = () => {
     stashSea();
+    journey.cancel(); travelAction = null;
+    hud.endTravel(journey.location);
     seaChartOpen = false; hud.seaChart(false);
     lastSeaSave = 0;
     cancelUnloading();
@@ -403,6 +415,9 @@ async function main() {
     next.reset(session);
     stepper.reset();
     mode = "play";
+    journey.location = freeMode ? { kind: "sea", world: nearestRegion(openSea.position) } : { kind: "course", index };
+    saveJourney(journey.location, storage);
+    hud.location(journey.location);
     hud.root.classList.remove("loading-voyage");
     canvas.focus();
   };
@@ -434,6 +449,22 @@ async function main() {
     heading = null;
     pendingFire = false;
   };
+  const travelTo = (action: "cave" | "ship" | "hold" | "unload" | number) => {
+    if (journey.trip || (typeof action === "number" && !levelUnlocked(progress.voyages, action))) return;
+    // Save open-sea position before choosing the chart origin. Nothing moves until arrival.
+    menu();
+    const destination = typeof action === "number" ? { kind: "course" as const, index: action } :
+      action === "cave" || action === "unload" ? { kind: "cave" as const } : journey.location;
+    if (action === "ship" || action === "hold") {
+      if (action === "ship") void visitShip(); else visitHold();
+      return;
+    }
+    if (!journey.depart(destination, progress.voyages, reducedMotion.matches)) return;
+    travelAction = action; mode = "travel";
+    hud.beginTravel(journey.trip!.from, destination,
+      typeof action === "number" ? `Setting sail for island ${action % 10 + 1}…` : "Sailing home to your cave…");
+    hud.root.inert = true;
+  };
   const hud = new VoyageHud(progress, controls, {
     start: (i) => void start(i),
     freeSail,
@@ -443,7 +474,8 @@ async function main() {
     home,
     harbour: () => void visitShip(),
     hold: visitHold,
-    unload,
+    unload: () => travelTo("unload"),
+    travel: travelTo,
     menu,
     overview: () => {
       walking.clear();
@@ -529,6 +561,7 @@ async function main() {
       }
     }
   });
+  hud.location(journey.location);
   if (qa)
     hud.root.insertAdjacentHTML(
       "beforeend",
@@ -536,6 +569,10 @@ async function main() {
     );
   document.querySelector("#loading")?.remove();
   window.addEventListener("keydown", (e) => {
+    if (mode === "travel") {
+      if (e.code === "Escape") { menu(); hud.showMenu("worlds"); e.preventDefault(); }
+      return;
+    }
     if (mode === "cave" || mode === "harbour") {
       if (
         (mode === "harbour" || !getCave().inspecting || e.code.startsWith("Arrow")) &&
@@ -718,6 +755,7 @@ async function main() {
     renderer?.resize();
     if (mode === "play" && renderer) hud.camera(renderer.captainCamera.enabled);
     cave?.resize();
+    hud.resizeChart();
   };
   window.addEventListener("resize", resizeGame);
   window.visualViewport?.addEventListener("resize", resizeGame);
@@ -727,7 +765,24 @@ async function main() {
   });
   engine.runRenderLoop(() => {
     const dt = Math.min(0.1, engine.getDeltaTime() / 1000);
-    if (mode === "arrival") {
+    if (mode === "travel") {
+      const trip = journey.trip;
+      const arrived = journey.step(dt);
+      if (trip) hud.travelPose(trip.from, trip.to, arrived ? 1 : journey.fraction);
+      if (arrived) {
+        const action = travelAction; travelAction = null;
+        saveJourney(arrived, storage);
+        hud.root.inert = false; hud.endTravel(arrived); mode = "menu";
+        if (arrived.kind === "cave") {
+          // The cave is at the home anchorage in the same persistent open sea.
+          openSea.position = { x: 0, z: 0 }; openSea.heading = openSea.yaw = 0; openSea.pitch = .03;
+          saveOpenSea(openSea, storage);
+        }
+        if (typeof action === "number") void start(action);
+        else if (action === "unload") unloadAtCave();
+        else if (action === "cave") home();
+      }
+    } else if (mode === "arrival") {
       arrivalTime += dt;
       const pose = arrivalPose(arrivalTime, reducedMotion.matches);
       curtain.style.opacity = String(pose.opacity);
@@ -865,7 +920,7 @@ async function main() {
     for (let i = 0; i < index; i++) { awardVoyage(progress, i, 3, 2); if (!qaQuery!.startsWith("hold-") && !qaQuery!.startsWith("unload-")) deliverChest(progress,i); }
     reward = awardVoyage(progress, index, 3, 2);
     getCave().refresh(caveProgress(progress));
-    if(qaQuery!.startsWith("unload-")) { unload(); }
+    if(qaQuery!.startsWith("unload-")) { unloadAtCave(); }
     else { hold = new ShipHold(engine,session.voyage);hold.open(progress,reward.special);holdShowingResult=true;mode="hold";hud.result(session,reward); }
   } else if (qaQuery === "collection") home();
   else if (qaQuery === "harbour") void visitShip();
