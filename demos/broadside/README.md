@@ -44,6 +44,15 @@ reefs and gems stay at fixed coordinates. Position, heading, look direction and
 found gems save separately from campaign progress. Wrecking returns the ship to
 Blackwater Bay while preserving discoveries. There is no New Sea button.
 
+The five named islands have distinct permanent scenery: Blackwater's lantern-lit
+port and lighthouse, Smuggler's warehouses and cliff cave, Stormbreak's coastal
+fort, the Lost Isles' broken temple arches, and Moonstone's crystal sanctuary.
+The charts mark each with its matching ink silhouette. Buildings have foundations,
+timber frames, shutters, tiled roofs and docks with mooring ropes and rowboats.
+Vegetation leaves the buildings and approach trails clear. These are landmarks to
+sail around; the existing separate walking harbour and treasure cave still open
+from the menu. Adding the scenery preserves all released shore and gem positions.
+
 The square map has periodic boundaries: east joins west, north joins south.
 The camera, shores, collision geometry and nearby chart use the same wrapping;
 crossing an edge preserves speed and heading. Scenery loads ahead of the ship
@@ -152,13 +161,13 @@ Development preview: http://localhost:5182/?qa=harbour&mute=true (saves disabled
 
 ### Display resolution
 
-The 3D canvas uses the display's device pixel ratio, including on phones. A
-390×844 view at 3× renders at 1170×2532; rotating the phone preserves that pixel
-density. The buffer is bounded to eight million pixels and the GPU's maximum
-render-target dimension for unusually large screens. Touch input never selects
-a lower rendering preset. Supported GPUs use 4× MSAA, with FXAA as a fallback;
-sea and cave shadows use 2048px maps, and textures use up to 16× anisotropic
-filtering for sharp detail on angled surfaces.
+Desktop rendering follows the display's device pixel ratio, bounded to eight
+million pixels and the GPU's maximum render-target dimension. Phone rendering
+uses up to 1.5× pixel density and a one-million-pixel drawing buffer, with FXAA
+and smaller shadow/bloom buffers to stay within WKWebView's memory limits.
+DOM controls remain at native resolution. Desktop GPUs use up to 4× MSAA;
+texture anisotropy is bounded to 16× on desktop and 4× on phones. Static scenery
+details are batched by material and distant islands are unloaded.
 
 To verify a 3× canvas in a desktop-sized phone viewport, append `renderDpr=3` to
 an existing development QA URL. This fixture is ignored in production. The

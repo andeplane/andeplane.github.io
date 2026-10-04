@@ -195,3 +195,34 @@ Validation:
   the ignored purchased model is skipped in this checkout.
 - This follow-up was checked without opening another browser or starting a preview
   server. Chart layout and physical-phone rendering have not been rechecked on screen.
+
+## Permanent open-sea settlements — 2026-10-04
+
+The five named islands now have distinct scenery: a timber harbour town with a
+lighthouse, a smugglers' cave and warehouses, a coastal sea fort, a ruined temple,
+and a moonstone sanctuary. Buildings sit on foundations sampled from the actual
+terrain. Dock planks, mooring ropes, rowboats, lanterns, shutters, tiled roofs,
+cargo and moving pirate flags add detail. Shared clearing footprints keep trees
+and ridge boulders out of the buildings and approach paths. Both sea charts use
+matching ink symbols. The existing menu, cave, campaign courses and camera defaults
+remain in place. These new settlements are sailing scenery; walking still uses
+the existing dedicated harbour and cave.
+
+Validation:
+
+- All 218 available tests pass; the purchased-model fixture is skipped in this
+  checkout. Covered statements/lines are 95.04%, branches 96.71%, functions 95.09%.
+  Typecheck and public production build pass.
+- Regression hashes from the released generator verify identical island radii,
+  positions, reef types and indexed gem coordinates for four seeds. Saved voyages
+  and discovery indices retain their meaning. Snapshots round at 0.0000001 m to
+  tolerate the final trigonometric digits varying between JS runtimes.
+- Real Babylon tests check finite geometry, outward roof normals, a maximum of
+  eight new settlement meshes and two lights per landmark, stable streaming
+  resource counts, identical props on return, and settlement movement across a
+  periodic world seam. Static pieces are merged by material.
+- Offline Blender renders of the actual exported Babylon geometry were inspected
+  for all five sites. This caught and corrected roof winding and the jagged joints
+  of the stone arches. Offline lighting is approximate; these are model previews,
+  not browser or physical-phone performance evidence.
+- No browser or preview server was started for this follow-up. Audio remains absent.

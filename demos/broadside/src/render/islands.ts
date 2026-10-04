@@ -19,6 +19,8 @@ import { worldStyle, type WorldStyle } from "./worldStyle";
 import { islandStreamingPlan } from "../game/islandStreaming";
 import { wrapCoordinate } from "../sim/math";
 import type { Wind } from "../sim/wind";
+import { inLandmarkClearing } from "../game/landmarkLayout";
+import { buildSeaLandmarks } from "./seaLandmarks";
 
 const flatMaterial = (
   scene: Scene,
@@ -294,6 +296,7 @@ export const buildIslands = (
     buildRockTemplate(scene, rockMat, seed + 2, style),
   ];
   const details = buildIslandDetails(scene, vertexMat, rocks, shadows, style, pack);
+  const landmark = defs.some(def => def.landmark) ? buildSeaLandmarks(scene, shadows, rockMat) : undefined;
   let animators: ((time: number) => void)[] = [];
   let palms: { mesh: ReturnType<Mesh["createInstance"]>; phase: number }[] = [];
   type Group = {
@@ -395,6 +398,9 @@ export const buildIslands = (
             p.position.z = Math.cos(a) * d;
           }
           p.position.y = surface(p.position.x, p.position.z) - 0.08;
+          for (let attempt = 0; attempt < 10 && inLandmarkClearing(def, p.position.x, p.position.z, 2.4); attempt++)
+            p.position = place(.65, .84);
+          if (inLandmarkClearing(def, p.position.x, p.position.z, 2.4)) { p.dispose(); continue; }
           p.rotation.y = rng.range(0, Math.PI * 2);
           p.scaling.setAll(rng.range(0.55, 1.3));
           shadows.addShadowCaster(p);
@@ -410,11 +416,13 @@ export const buildIslands = (
           r.position.y -= 0.4;
           r.rotation.y = rng.range(0, Math.PI * 2);
           r.scaling.setAll(rng.range(1.2, 3.2));
+          if (inLandmarkClearing(def, r.position.x, r.position.z, r.scaling.x)) { r.dispose(); continue; }
           shadows.addShadowCaster(r);
         }
       }
       details(root, def, rng, surface);
-      animators.push(
+      if (def.landmark) animators.push(landmark!(root, def, surface));
+      else animators.push(
         buildPirateScenery(
           scene,
           root,

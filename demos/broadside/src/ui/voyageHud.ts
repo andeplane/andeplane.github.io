@@ -24,6 +24,7 @@ import { worldArt, pirateShipArt } from "./worldArt";
 import { Controls } from "../input/controls";
 import { angleDiff, headingTo, distance, seaDistance, wrapCoordinate } from "../sim/math";
 import { SEA_LANDMARKS } from "../game/freeSailing";
+import { drawLandmarkSymbol } from "./seaChartSymbols";
 interface Handlers {
   start: (index: number) => void;
   freeSail: (respawn?: boolean) => void;
@@ -712,6 +713,7 @@ export class VoyageHud {
       const [x, y] = plot(i.pos.x, i.pos.z);
       ctx.fillStyle = i.kind === "sand" ? "#acb387" : "#858a81";
       ctx.strokeStyle = "#d5c994"; ctx.beginPath(); ctx.arc(x!, y!, Math.max(2, i.radius * .55), 0, Math.PI * 2); ctx.fill(); ctx.stroke();
+      if (i.landmark) drawLandmarkSymbol(ctx, i.landmark, x!, y!);
     }
     for (const g of s.voyage.gems) if (!g.found) {
       const [x, y] = plot(g.x, g.z); ctx.fillStyle = "#89e5ce"; ctx.fillRect(x! - 2, y! - 2, 4, 4);
@@ -757,9 +759,10 @@ export class VoyageHud {
     ctx.textAlign = "center";
     for (const p of SEA_LANDMARKS) {
       const [x, y] = plot(p.x, p.z);
+      drawLandmarkSymbol(ctx, p.landmark, x, y);
       ctx.font = "26px 'Pirata One', Georgia, serif";
-      ctx.lineWidth = 6; ctx.strokeStyle = "#d5c49b"; ctx.strokeText(p.name, x, y - 22);
-      ctx.fillStyle = "#352f22"; ctx.fillText(p.name, x, y - 22);
+      ctx.lineWidth = 6; ctx.strokeStyle = "#d5c49b"; ctx.strokeText(p.name, x, y - 35);
+      ctx.fillStyle = "#352f22"; ctx.fillText(p.name, x, y - 35);
     }
     const [px, py] = plot(s.player.pos.x, s.player.pos.z);
     ctx.save(); ctx.translate(px, py); ctx.rotate(s.player.heading);
