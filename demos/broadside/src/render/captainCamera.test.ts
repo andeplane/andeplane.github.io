@@ -33,7 +33,7 @@ describe("captain view", () => {
     const camera = new FreeCamera("test", Vector3.Zero(), scene);
     const root = new TransformNode("ship", scene);
     root.position.set(80, .3, 24); root.rotation.y = Math.PI / 2;
-    const seat = new Vector3(1.8, 5, -8);
+    const seat = new Vector3(0, 5, -8);
     const captain = new CaptainCamera(); captain.enabled = true;
     const view = { root, captainSeat: seat } as ShipView;
     const settle = () => { for (let i = 0; i < 160; i++) { camera.position.set(80, 80, -50); camera.setTarget(new Vector3(80, 0, 24)); captain.apply(camera, view, 1 / 60); } };

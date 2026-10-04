@@ -62,7 +62,8 @@ export class ShipView {
     const model = models.create(ship.spec.class, livery, name);
     model.parent = this.root;
     const seatZ = -ship.spec.length * .34;
-    const helmX = ship.spec.beam * .28;
+    // Keep the wheel, standing captain and walking interaction on the centreline.
+    const helmX = 0;
     model.computeWorldMatrix(true);
     // Model alignment changes its parent's scale. Refresh child bounds before
     // ray picking; the loaded GLB otherwise still has its export-space bounds.
