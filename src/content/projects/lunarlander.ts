@@ -8,6 +8,20 @@ const project: ProjectMeta = {
   liveUrl: 'https://andeplane.github.io/LunarLander/',
   repoUrl: 'https://github.com/andeplane/LunarLander',
   screenshot: '/projects/lunarlander/preview.png',
+  screenshots: [
+    {
+      src: '/projects/lunarlander/lunar-surface.jpg',
+      alt: 'A gray procedural lunar landscape stretches under a black starry sky.',
+      caption: 'Explore the moon’s procedural terrain in free flight.',
+      width: 1280, height: 720,
+    },
+    {
+      src: '/projects/lunarlander/lander-cockpit.jpg',
+      alt: 'Lunar terrain is visible through a lander cockpit with altitude, velocity and hover-assist gauges.',
+      caption: 'Descend toward the surface from the cockpit, watching altitude, velocity and drift.',
+      width: 1280, height: 720,
+    },
+  ],
   longDescription: `
 Lunar Explorer is a browser-based Moon flyover experience built with TypeScript and Three.js. Soar over procedurally generated lunar terrain — craters, ridges, and vast flat plains — rendered at stable 60fps through a chunk-based LOD system.
 

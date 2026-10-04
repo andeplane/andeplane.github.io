@@ -16,6 +16,7 @@ export interface ProjectMeta {
     height: number
   }[]
   screenshotsNote?: string
+  screenshotsTitle?: string
   portrait?: boolean
 }
 

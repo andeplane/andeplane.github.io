@@ -8,6 +8,20 @@ const project: ProjectMeta = {
   liveUrl: 'https://andeplane.github.io/particle-defence/',
   repoUrl: 'https://github.com/andeplane/particle-defence',
   screenshot: '/projects/particle-defence/preview.png',
+  screenshots: [
+    {
+      src: '/projects/particle-defence/maze-battle.jpg',
+      alt: 'Cyan and red particles navigate a procedurally generated maze between opposing bases.',
+      caption: 'A maze battle — particles find routes through the corridors toward the opposing base.',
+      width: 1280, height: 720,
+    },
+    {
+      src: '/projects/particle-defence/upgrades-and-swarms.jpg',
+      alt: 'A dense swarm of red particles fills maze corridors beside the upgrade controls.',
+      caption: 'Upgrade your colony as particle swarms spread through the maze.',
+      width: 1280, height: 720,
+    },
+  ],
   longDescription: `
 A competitive tower defence game where instead of placing turrets, you spawn particles from your base that autonomously navigate a procedurally generated maze toward the enemy base. Supports 1-player vs AI and 2-player local modes.
 

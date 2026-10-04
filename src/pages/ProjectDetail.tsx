@@ -1,13 +1,17 @@
 import { useParams, Link } from 'react-router-dom'
+import { useRef, useState } from 'react'
 import { useProject } from '@/hooks/useProjects'
 import MarkdownRenderer from '@/components/blog/MarkdownRenderer'
 import Tag from '@/components/ui/Tag'
 import RecorderEmbed from '@/components/demos/RecorderEmbed'
 import './project-detail.css'
+import ScreenshotLightbox from '@/components/projects/ScreenshotLightbox'
 
 export default function ProjectDetail() {
   const { slug } = useParams<{ slug: string }>()
   const project = useProject(slug ?? '')
+  const [openScreenshot, setOpenScreenshot] = useState<{ slug: string; index: number } | null>(null)
+  const screenshotTrigger = useRef<HTMLButtonElement | null>(null)
 
   if (!project) {
     return (
@@ -30,6 +34,15 @@ export default function ProjectDetail() {
     )
   }
 
+  const images = [
+    ...(project.screenshot ? [{ src: project.screenshot, alt: project.screenshotAlt ?? `${project.title} screenshot`, caption: project.title }] : []),
+    ...(project.screenshots ?? []),
+  ]
+  const showScreenshot = (index: number, trigger: HTMLButtonElement) => {
+    screenshotTrigger.current = trigger
+    setOpenScreenshot({ slug: project.slug, index })
+  }
+
   return (
     <div style={{ maxWidth: '800px' }}>
       <Link
@@ -42,7 +55,7 @@ export default function ProjectDetail() {
       </Link>
 
       {project.screenshot && (
-        <div style={{
+        <button type="button" className="project-screenshot-button project-screenshot-hero" aria-label={`View ${project.title} screenshots`} onClick={event => showScreenshot(0, event.currentTarget)} style={{
           borderRadius: '12px',
           overflow: 'hidden',
           marginBottom: '2rem',
@@ -60,7 +73,7 @@ export default function ProjectDetail() {
               width: '100%',
             }}
           />
-        </div>
+        </button>
       )}
 
       <h1 style={{ fontSize: '2.25rem', fontWeight: 800, color: '#fff', margin: '0 0 0.75rem', letterSpacing: '-0.02em' }}>
@@ -123,14 +136,14 @@ export default function ProjectDetail() {
 
       {!!project.screenshots?.length && (
         <section className="project-screenshots" aria-labelledby="screenshots-title">
-          <h2 id="screenshots-title">From sea to secret hideout</h2>
+          <h2 id="screenshots-title">{project.screenshotsTitle ?? 'Game screenshots'}</h2>
           {project.screenshotsNote && <p className="project-screenshots-note">{project.screenshotsNote}</p>}
           <div className="project-screenshots-grid">
-            {project.screenshots.map((shot) => (
+            {project.screenshots.map((shot, index) => (
               <figure key={shot.src} className={shot.width > shot.height ? 'project-screenshot-wide' : undefined}>
-                <a href={shot.src} target="_blank" rel="noopener noreferrer" aria-label={`Enlarge: ${shot.alt}`}>
+                <button type="button" className="project-screenshot-button" onClick={event => showScreenshot(index + (project.screenshot ? 1 : 0), event.currentTarget)} aria-label={`Enlarge: ${shot.alt}`}>
                   <img src={shot.src} alt={shot.alt} width={shot.width} height={shot.height} loading="lazy" decoding="async" />
-                </a>
+                </button>
                 <figcaption>{shot.caption}</figcaption>
               </figure>
             ))}
@@ -141,6 +154,11 @@ export default function ProjectDetail() {
       <hr style={{ border: 'none', borderTop: '1px solid var(--color-border)', marginBottom: '3rem' }} />
 
       <MarkdownRenderer content={project.longDescription} />
+      {openScreenshot?.slug === project.slug && <ScreenshotLightbox
+        images={images} index={openScreenshot.index} title={project.title}
+        returnFocus={screenshotTrigger.current}
+        onChange={index => setOpenScreenshot({ slug: project.slug, index })} onClose={() => setOpenScreenshot(null)}
+      />}
     </div>
   )
 }

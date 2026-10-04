@@ -9,6 +9,20 @@ const project: ProjectMeta = {
   liveUrl: '/demos/three-lefts/',
   repoUrl: 'https://github.com/andeplane/andeplane.github.io/tree/main/demos/three-lefts',
   screenshot: '/projects/three-lefts/preview.png',
+  screenshots: [
+    {
+      src: '/projects/three-lefts/orangery-colonnade.jpg',
+      alt: 'Warmly lit columns and a barred doorway frame a room in The Orangery.',
+      caption: 'The Orangery — explore a colonnade where the architecture bends the route.',
+      width: 1280, height: 720,
+    },
+    {
+      src: '/projects/three-lefts/cathedral-nave.jpg',
+      alt: 'Tall cathedral columns, bright windows and warm lamps line The Nave.',
+      caption: 'The Nave — tall windows and columns frame another impossible interior.',
+      width: 1280, height: 720,
+    },
+  ],
   longDescription: `
 You walk around a corner, and around again, and around again, and you are back where you
 started having turned only three times. Nothing warps, nothing moves when you look away,

@@ -7,6 +7,7 @@ const project: ProjectMeta = {
   repoUrl: 'https://github.com/andeplane/andeplane.github.io/tree/main/demos/broadside',
   screenshot: '/projects/broadside/storm-battle.jpg',
   screenshotAlt: 'The Black Pearl fires a broadside beside an island fortress as rain falls over pirate ships and whirlpools.',
+  screenshotsTitle: 'From sea to secret hideout',
   screenshotsNote: 'Real screenshots from the latest development build. Ship exploration and the treasure hold are previews of features coming to the live demo. Click any image for a closer look.',
   screenshots: [
     {
