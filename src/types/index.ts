@@ -7,6 +7,16 @@ export interface ProjectMeta {
   liveUrl?: string
   repoUrl?: string
   screenshot?: string
+  screenshotAlt?: string
+  screenshots?: {
+    src: string
+    alt: string
+    caption: string
+    width: number
+    height: number
+  }[]
+  screenshotsNote?: string
+  screenshotsTitle?: string
   portrait?: boolean
 }
 

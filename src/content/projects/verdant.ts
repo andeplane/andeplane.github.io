@@ -10,6 +10,20 @@ const project: ProjectMeta = {
   repoUrl: 'https://github.com/andeplane/andeplane.github.io/tree/main/demos/verdant',
   screenshot: '/projects/verdant/preview.jpg',
   portrait: true,
+  screenshots: [
+    {
+      src: '/projects/verdant/tomato-habitat.jpg',
+      alt: 'A tomato plant grows above a soil cutaway containing water, minerals and rocks.',
+      caption: 'Grow a tomato plant while managing its light, water and mineral supply.',
+      width: 1280, height: 720,
+    },
+    {
+      src: '/projects/verdant/science-guide.jpg',
+      alt: 'Verdant’s science guide explains carbon, water and minerals over the plant habitat.',
+      caption: 'The science guide connects the plant’s growth to carbon, water and minerals.',
+      width: 1280, height: 720,
+    },
+  ],
   longDescription: `
 Roots spend carbon to reach water and minerals. Above the soil, light builds new
 carbohydrates while respiration consumes reserves. The plant has to balance both

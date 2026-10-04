@@ -9,6 +9,20 @@ const project: ProjectMeta = {
   liveUrl: '/demos/flow-defence/',
   repoUrl: 'https://github.com/andeplane/andeplane.github.io/tree/main/demos/flow-defence',
   screenshot: '/projects/flow-defence/preview.png',
+  screenshots: [
+    {
+      src: '/projects/flow-defence/river-gauntlet.jpg',
+      alt: 'Glowing pink spores move through a blue river redirected by walls and defenses.',
+      caption: 'Shape the river with walls and place defenses along the spores’ route.',
+      width: 1280, height: 720,
+    },
+    {
+      src: '/projects/flow-defence/vortex-arena.jpg',
+      alt: 'Pink spores drift between rock pillars, two neutralizers, a vortex and a depth charge.',
+      caption: 'A vortex and neutralizers defend a narrow channel against the first spore wave.',
+      width: 1280, height: 720,
+    },
+  ],
   longDescription: `
 Tower defence has a maze, a path, and enemies that walk it. This has a river. A
 lattice-Boltzmann fluid solver runs on your GPU at 512×256 cells, three substeps per

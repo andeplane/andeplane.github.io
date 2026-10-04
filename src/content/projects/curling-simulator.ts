@@ -8,6 +8,20 @@ const project: ProjectMeta = {
   liveUrl: 'https://andeplane.github.io/curling-simulator/',
   repoUrl: 'https://github.com/andeplane/curling-simulator',
   screenshot: '/projects/curling-simulator/preview.png',
+  screenshots: [
+    {
+      src: '/projects/curling-simulator/stone-delivery.jpg',
+      alt: 'A red curling stone travels down a long ice sheet toward the house.',
+      caption: 'Deliver a stone down the ice and sweep to guide its travel.',
+      width: 1280, height: 720,
+    },
+    {
+      src: '/projects/curling-simulator/aiming-line.jpg',
+      alt: 'A yellow stone is lined up along a projected aiming path toward the curling house.',
+      caption: 'Line up the next throw, choosing its aim, power and curl.',
+      width: 1280, height: 720,
+    },
+  ],
   longDescription: `
 A full-featured curling game that runs in the browser, built with Three.js and TypeScript. Its phenomenological physics model is tuned to reproduce recognizable shots: it models observed behavior without claiming to settle the microscopic cause of curl. In curling, players slide stones toward a circular target, the house; weight means how far a shot travels, and line means its path.
 
