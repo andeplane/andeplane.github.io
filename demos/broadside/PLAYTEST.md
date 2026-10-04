@@ -153,3 +153,17 @@ First sails now uses ten authored layouts with different starts, lengths, landma
 
 - All 163 tests, typecheck and Vite production build pass. Real-physics steering completes all forty voyages and reaches all thirty optional gems in the navigation pack. The voice regression checks enabled sound with banner/reward events never requests a browser utterance.
 - A muted 390×740 browser completed the shorter first voyage with three stars, two gems and its gold reveal, then Next level loaded the separate palm-gate layout. Reef-gate and branching-course rendering were also inspected. No browser warnings/errors; audio remained locked. Screenshots: `navigation-reef-phone.png` and `navigation-palms-phone.png` in `artifacts/qa`. Physical-phone testing remains unverified.
+
+## Permanent open sea, camera modes and island detail — 2026-10-04
+
+Play / Settings / Cave and the textured walking cave remain in place. The Open world button under Play resumes one fixed 3.2 km archipelago with five named regions. Islands, reefs and gems keep the same coordinates; a separate save records position, heading and discoveries. East/west and north/south join periodically. Campaign levels keep their existing forty courses. Overhead steering is the default in both modes; the eye button or C selects the optional captain camera.
+
+Shared terrain normals and shore grain replace the triangulated surfaces. Palm fronds have curved leaflets, rocks have welded smooth normals, and each campaign world has its own lighting and material palette. Rain, moving clouds, wind, whitecaps and lightning remain tied to later-world weather. Nearby island meshes stream with deterministic props; collision geometry and the map remain fixed.
+
+Validation:
+
+- All 196 tests in 31 files, typecheck and production build pass. Covered line/statement coverage is 94.96%, branches 96.91%, functions 94.94%; open-sea persistence, noise, streaming decisions and captain camera have 100% coverage.
+- Periodic simulation tests cross all four boundaries while preserving heading/speed, collect gems and collide with reefs across seams, and wrap cannonballs. Save tests cover reload, safe respawn, malformed/private storage and independent campaign progress.
+- Real Babylon NullEngine rendering tests repeatedly unload/reload islands, compare identical terrain and prop transforms, check stable mesh/material/light/shadow counts, and move shore/props across a periodic seam. The overhead-default regression leaves the camera unchanged until captain view is enabled.
+- Before preview shutdown, live muted browser checks at 390×844 and 1280×720 exercised captain/overhead switching, independent swipe/arrow looking, mobile steering, manual cannon controls, reef shipwreck/retry, the permanent sea chart, rain and cloud rendering. The current walking cave was captured at `artifacts/qa/current-cave-portrait.png`. The final default-camera correction was checked in the common startup path and regression test without restarting a preview.
+- The Capacitor web bundle and signed Release iPhone build also pass. Browser checks do not establish physical iPhone GPU performance. All test URLs used `mute=true`; the canonical game contains no audio generation. Preview servers were stopped at the user's request.

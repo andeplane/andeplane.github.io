@@ -1,0 +1,135 @@
+.free-chart-button {
+  position: absolute;
+  right: 7%;
+  bottom: 14%;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 20px;
+  border: 2px solid #725530;
+  border-radius: 5px;
+  color: #38291a;
+  background: #ddc595;
+  box-shadow: 0 4px 15px #34250d55;
+  transform: rotate(-3deg);
+  font-family: "Pirata One", Georgia, serif;
+  font-size: 26px;
+}
+.free-chart-button .icon { width: 35px; height: 35px; }
+.free-chart-button small {
+  display: block;
+  font: 10px/1.4 "DM Sans", sans-serif;
+  letter-spacing: .07em;
+}
+#v-camera[aria-pressed="true"] { color: #ffdc97; border-color: #eac080; }
+#v-captain-help {
+  position: absolute;
+  bottom: calc(166px + var(--safe));
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  width: max-content;
+  max-width: 60%;
+  text-align: center;
+  text-shadow: 0 2px 6px #000;
+  color: #eee1c6;
+  font-size: 10px;
+}
+#v-look-centre, #v-chart-open {
+  border: 1px solid #cfa96d66;
+  border-radius: 8px;
+  padding: 6px 10px;
+  background: #0d1e2ae6;
+  color: #f3d9a8;
+  font-size: 10px;
+}
+#v-look-centre .icon { width: 15px; height: 15px; margin-right: 4px; }
+#v-sea-chart {
+  position: absolute;
+  bottom: calc(24px + var(--safe));
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+  gap: 5px;
+}
+#v-sea-chart canvas {
+  width: 112px;
+  height: 112px;
+  border: 2px solid #b59965;
+  border-radius: 50%;
+  box-shadow: 0 4px 12px #0008, 0 0 0 4px #1c262ab3;
+}
+#voyage-ui[data-camera="captain"] #v-tip { max-width: 540px; }
+@media (max-width: 650px) {
+  .free-chart-button { right: 7%; bottom: 11%; padding: 9px 13px; font-size: 23px; }
+  .free-chart-button .icon { width: 28px; height: 28px; }
+  #voyage-ui[data-screen="play"] .voyage-brand { font-size: 9px; letter-spacing: .1em; }
+  #voyage-ui[data-screen="play"] .voyage-brand > .icon { width: 25px; height: 25px; }
+  #voyage-ui[data-screen="play"] .voyage-header > div { gap: 5px; }
+  #v-captain-help { bottom: calc(171px + var(--safe)); max-width: 68%; font-size: 9px; }
+  #v-sea-chart { bottom: calc(32px + var(--safe)); }
+  #v-sea-chart canvas { width: 92px; height: 92px; }
+  #voyage-ui[data-free-sailing="true"] .voyage-mission { top: 120px; }
+  #voyage-ui[data-free-sailing="true"] .voyage-mission > strong { font-size: 23px; }
+  #voyage-ui[data-free-sailing="true"] #v-weather { top: 162px; }
+  #voyage-ui[data-free-sailing="true"] #v-tip { top: 214px; }
+}
+@media (max-height: 480px) and (min-width: 651px) {
+  #v-captain-help { bottom: 140px; }
+  #v-sea-chart canvas { width: 90px; height: 90px; }
+  #v-sea-chart { bottom: 16px; }
+}
+
+#sea-chart-menu {
+  position: absolute;
+  inset: 0;
+  z-index: 80;
+  background: radial-gradient(ellipse at center, #d7c496, #baa47a);
+  color: #382c1b;
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+  justify-content: center;
+  padding: max(12px, env(safe-area-inset-top)) 16px max(14px, env(safe-area-inset-bottom));
+  gap: 10px;
+  overflow: hidden;
+  box-shadow: inset 0 0 90px #65482788;
+}
+.sea-chart-heading { text-align: center; }
+.sea-chart-heading .eyebrow { color: #694b24; font-size: 10px; }
+.sea-chart-heading h1 { font: 44px/1.1 "Pirata One", Georgia, serif; margin: 5px 0; }
+.sea-chart-heading p { margin: 0; font-size: 12px; color: #594725; }
+#sea-chart-menu canvas {
+  width: min(76vh, 90vw, 730px);
+  height: min(76vh, 90vw, 730px);
+  min-height: 0;
+  object-fit: contain;
+  border: 4px double #71603d;
+  border-radius: 4px;
+  box-shadow: 0 8px 28px #3d2c2855, inset 0 0 24px #4d402b66;
+}
+.sea-chart-note { margin: 2px 0; font-size: 11px; text-align: center; max-width: 400px; color: #594725; }
+.sea-chart-actions { display: flex; gap: 18px; align-items: center; }
+.sea-chart-actions .primary {
+  min-height: 42px;
+  border: 1px solid #79613c;
+  border-radius: 6px;
+  color: #352513;
+  background: #ecd5a4;
+  padding: 8px 24px;
+  font-size: 14px;
+}
+.sea-chart-actions .text-button { color: #4b361e; font-size: 12px; }
+@media (max-height: 480px) and (min-width: 651px) {
+  #sea-chart-menu { flex-direction: row; flex-wrap: wrap; gap: 10px 26px; }
+  #sea-chart-menu canvas { width: 76vh; height: 76vh; }
+  .sea-chart-heading { width: 24%; }
+  .sea-chart-heading h1 { font-size: 34px; }
+  .sea-chart-note { display: none; }
+  .sea-chart-actions { width: 20%; flex-direction: column; gap: 10px; }
+}

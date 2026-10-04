@@ -1,4 +1,4 @@
-import { PACKS, RELICS, type VoyageSession } from "../game/voyage";
+import { PACKS, RELICS, type VoyageSession, type VoyageDef } from "../game/voyage";
 import {
   goldTotal,
   worldGold,
@@ -22,9 +22,14 @@ import { icon } from "./icons";
 import { PRIVATE_PEARL } from "../privatePearl";
 import { worldArt, pirateShipArt } from "./worldArt";
 import { Controls } from "../input/controls";
-import { angleDiff, headingTo, distance } from "../sim/math";
+import { angleDiff, headingTo, distance, seaDistance, wrapCoordinate } from "../sim/math";
+import { SEA_LANDMARKS } from "../game/freeSailing";
 interface Handlers {
   start: (index: number) => void;
+  freeSail: (respawn?: boolean) => void;
+  seaChart: (open: boolean) => void;
+  camera: () => void;
+  centreLook: () => void;
   home: () => void;
   harbour: () => void;
   hold: () => void;
@@ -48,6 +53,8 @@ export class VoyageHud {
   private progress: Progress;
   private messageUntil = 0;
   private activeLevel = 0;
+  private freeSeed: number | null = null;
+  private chartTime = 0;
   private resultLost = false;
   private revealName = "";
   private revealStars = 0;
@@ -75,6 +82,16 @@ export class VoyageHud {
     <section id="v-paused" class="voyage-overlay pause-screen" hidden role="dialog" aria-modal="true" aria-labelledby="pause-title"><div><span class="eyebrow">A LITTLE SHORE LEAVE</span><h1 id="pause-title">Ready when you are.</h1><button id="v-resume" class="primary">Keep sailing ${icon("play")}</button><button id="v-return" class="secondary">Choose levels</button></div></section>`;
     document.body.append(r);
     const q = (id: string) => r.querySelector<HTMLElement>(id)!;
+    q(".voyage-header > div").insertAdjacentHTML("afterbegin", `<button id="v-camera" class="round" aria-label="Switch to captain view" title="Captain view · C" hidden>${icon("ship")}</button>`);
+    q("#world-menu").insertAdjacentHTML("beforeend", `<button id="menu-free" class="free-chart-button">${icon("compass")} <span>Open world<small>Resume your voyage</small></span></button>`);
+    q("#voyage-play").insertAdjacentHTML("beforeend", `<div id="v-captain-help" hidden><span id="v-look-hint"></span><button id="v-look-centre" aria-label="Look ahead">${icon("compass")} Ahead</button></div><div id="v-sea-chart" hidden><canvas width="240" height="240" aria-label="Nearby islands navigation chart"></canvas><button id="v-chart-open">Sea chart</button></div>`);
+    r.insertAdjacentHTML("beforeend", `<section id="sea-chart-menu" hidden role="dialog" aria-modal="true" aria-labelledby="sea-chart-title"><div class="sea-chart-heading"><span class="eyebrow">THE CAPTAIN’S CHART</span><h1 id="sea-chart-title">The open sea</h1><p>One world. Your own adventure.</p></div><canvas width="1024" height="1024" aria-label="Full open world sea chart"></canvas><p class="sea-chart-note">East meets west. North meets south. Keep sailing to circle the world.</p><div class="sea-chart-actions"><button id="sea-chart-close" class="primary">Keep sailing ${icon("ship")}</button><button id="sea-chart-back" class="text-button">Back to menu</button></div></section>`);
+    q("#menu-free").onclick = () => h.freeSail();
+    q("#v-camera").onclick = h.camera;
+    q("#v-look-centre").onclick = h.centreLook;
+    q("#v-chart-open").onclick = () => h.seaChart(true);
+    q("#sea-chart-close").onclick = () => h.seaChart(false);
+    q("#sea-chart-back").onclick = h.menu;
     q("#main-menu").insertAdjacentHTML("beforeend", '<button id="menu-hold" class="text-button">Treasure hold</button>');
     q(".result-actions").insertAdjacentHTML("beforeend", '<button id="result-unload" class="hold-unload primary" hidden>Return to cave</button>');
     r.insertAdjacentHTML("beforeend", `<section id="hold-ui" hidden><div class="hold-heading"><span class="eyebrow">ABOARD THE BLACK PEARL</span><h1>The treasure hold</h1><p id="hold-count"></p></div><div class="hold-actions"><button id="hold-unload" class="primary">Return to cave ${icon("chest")}</button><button id="hold-sail" class="secondary">Keep sailing ${icon("map")}</button><button id="hold-back" class="text-button">Back to menu</button></div></section><section id="unload-ui" hidden><div class="hold-heading"><span class="eyebrow">BRINGING YOUR FORTUNE HOME</span><h1 id="unload-title">Unloading the ship</h1><p id="unload-count"></p></div><div class="hold-actions"><button id="unload-explore" class="primary" hidden>Explore your cave</button><button id="unload-menu" class="text-button">Back to menu</button><small id="unload-safe">Any unopened chests stay safely aboard.</small></div></section>`);
@@ -95,12 +112,13 @@ export class VoyageHud {
     }
     q("#unload-explore").onclick = h.home;
     q("#v-home").onclick = () => {
+      if (this.freeSeed !== null) { h.seaChart(true); return; }
       h.menu();
       this.showMenu("levels");
     };
     q("#v-return").onclick = () => {
       h.menu();
-      this.showMenu("levels");
+      this.showMenu(this.freeSeed === null ? "levels" : "worlds");
     };
     q("#v-pause").onclick = h.pause;
     q("#v-resume").onclick = h.pause;
@@ -184,7 +202,8 @@ export class VoyageHud {
       );
       if (b && !b.disabled) h.start(Number(b.dataset.level));
     };
-    q("#result-retry").onclick = () => h.start(this.activeLevel);
+    q("#result-retry").onclick = () => this.freeSeed === null
+      ? h.start(this.activeLevel) : h.freeSail(true);
     q("#result-next").onclick = () => {
       if (!this.resultLost && this.activeLevel + 1 < TOTAL_LEVELS)
         h.start(this.activeLevel + 1);
@@ -254,6 +273,7 @@ export class VoyageHud {
   }
   private menuPage: "main" | "worlds" | "levels" | "settings" = "main";
   showMenu(page: "main" | "worlds" | "levels" | "settings" = "main"): void {
+    this.q("#v-camera").hidden = true;
     this.q("#hold-ui").hidden = this.q("#unload-ui").hidden = true;
     this.q("#menu-hold").textContent = `Treasure hold${this.progress.cargo.length ? ` · ${(this.progress.cargo.length * 1000).toLocaleString()} gold aboard` : ""}`;
     this.menuPage = page;
@@ -276,6 +296,7 @@ export class VoyageHud {
     this.root.dataset.screen = page;
   }
   home(): void {
+    this.q("#v-camera").hidden = true;
     this.q("#hold-ui").hidden = this.q("#unload-ui").hidden = true;
     this.root.dataset.walkPlace = "cave";
     this.q(".cave-title .eyebrow").textContent = "YOUR SECRET HIDEOUT";
@@ -406,11 +427,15 @@ export class VoyageHud {
     ).join("");
   }
 
-  play(index: number): void {
+  play(index: number, voyage: VoyageDef = generateVoyage(index)): void {
+    this.q("#hold-ui").hidden = this.q("#unload-ui").hidden = true;
     this.q("#captain-menu").hidden = true;
     this.root.dataset.screen = "play";
     this.activeLevel = index;
-    this.pack = worldOf(index);
+    this.freeSeed = voyage.freeSailing ? voyage.level.seed : null;
+    this.chartTime = -Infinity;
+    this.root.dataset.freeSailing = String(!!voyage.freeSailing);
+    this.pack = voyage.pack;
     this.messageUntil = 0;
     this.q("#cave-ui").hidden = true;
     this.q("#v-result").hidden = true;
@@ -419,24 +444,46 @@ export class VoyageHud {
     this.q("#voyage-play").hidden = false;
     this.q("#v-pause").hidden = false;
     this.q("#v-home").hidden = false;
-    const voyage = generateVoyage(index);
-    this.q("#v-fire").hidden = voyage.level.waves[0]!.enemies.length === 0;
+    this.q("#v-home").setAttribute("aria-label", voyage.freeSailing ? "Open sea chart" : "Choose levels");
+    this.q("#v-camera").hidden = false;
+    this.q("#v-fire").hidden = !voyage.freeSailing && voyage.level.waves[0]!.enemies.length === 0 && !voyage.forts.length;
     this.q("#v-tip").textContent = voyage.level.intro + (voyage.weather.drift ? " Gusts push your ship — steer into the wind to hold your course." : "");
-    this.q("#v-weather").hidden = voyage.pack === 0;
+    this.q("#v-weather").hidden = voyage.pack === 0 && !voyage.freeSailing;
+    this.q("#v-compass").hidden = !!voyage.freeSailing;
+    this.q("#v-sea-chart").hidden = !voyage.freeSailing;
+    this.q(".voyage-track").hidden = !!voyage.freeSailing;
     this.q("#v-weather-name").textContent = voyage.weather.name;
     this.root.dataset.weather = voyage.weather.kind;
+  }
+  camera(captain: boolean): void {
+    this.root.dataset.camera = captain ? "captain" : "overview";
+    const b = this.q("#v-camera");
+    b.setAttribute("aria-pressed", String(captain));
+    b.setAttribute("aria-label", captain ? "Switch to overhead view" : "Switch to captain view");
+    b.innerHTML = icon("eye");
+    b.title = `${captain ? "Overhead" : "Captain"} view · C`;
+    this.q("#v-captain-help").hidden = !captain;
+    this.q("#v-look-hint").textContent = innerWidth < 700 || matchMedia("(pointer: coarse)").matches
+      ? "Swipe to look · wheel to steer"
+      : "Drag / arrows look · A D steer · W S sails · Space fire · C view";
   }
   paused(value: boolean): void {
     this.q("#v-paused").hidden = !value;
     this.q("#voyage-play").inert = value;
   }
+  seaChart(open: boolean, session?: VoyageSession): void {
+    this.q("#sea-chart-menu").hidden = !open;
+    this.q("#voyage-play").inert = open;
+    if (open && session) this.drawWorldChart(session);
+  }
   result(s: VoyageSession, reward?: VoyageReward): void {
+    this.q("#v-camera").hidden = true;
     this.q("#hold-ui").hidden = this.q("#unload-ui").hidden = true;
     this.q("#result-unload").hidden = s.state !== "won" || !this.progress.cargo.length;
     this.activeLevel = s.voyage.index;
     this.resultLost = s.state === "lost";
     this.q("#result-next").hidden =
-      this.resultLost || this.activeLevel === TOTAL_LEVELS - 1;
+      !!s.voyage.freeSailing || this.resultLost || this.activeLevel === TOTAL_LEVELS - 1;
     this.q(".result-actions").classList.toggle(
       "last-result",
       this.q("#result-next").hidden,
@@ -499,6 +546,7 @@ export class VoyageHud {
     this.q("#hold-unload").hidden=!this.progress.cargo.length;this.root.dataset.screen="hold";
   }
   unloading(chest:number,total:number,done=false):void {
+    this.q("#v-camera").hidden = true;
     this.q("#captain-menu").hidden=this.q("#v-result").hidden=this.q("#hold-ui").hidden=this.q("#cave-ui").hidden=this.q("#voyage-play").hidden=true;
     this.q("#unload-ui").hidden=false;this.q("#v-pause").hidden=this.q("#v-home").hidden=true;
     this.q("#unload-title").textContent=done?"Welcome home, Captain":"Unloading the ship";
@@ -540,21 +588,30 @@ export class VoyageHud {
       y: number,
       z: number,
     ) => { x: number; y: number; visible: boolean },
+    viewHeading = 0,
   ): void {
     const health = Math.round((s.player.hull / s.player.spec.maxHull) * 100);
     this.q("#v-hull").style.width = `${health}%`;
     this.q("#v-health").textContent = `${health}%`;
-    this.q("#v-gems").textContent = `${s.gemsFound} / 3`;
+    const anchor = this.q("#v-anchor"), sailing = String(s.player.sail > 0);
+    if (anchor.dataset.sailing !== sailing) {
+      anchor.dataset.sailing = sailing;
+      anchor.setAttribute("aria-label", s.player.sail ? "Drop anchor" : "Set sail");
+      anchor.innerHTML = icon(s.player.sail ? "anchor" : "ship");
+    }
+    this.q("#v-gems").textContent = `${s.gemsFound} / ${s.voyage.gems.length}`;
     this.q("#v-level").textContent =
-      `${PACKS[s.voyage.pack]!.name.toUpperCase()} · LEVEL ${stageOf(s.voyage.index) + 1}`;
-    this.q("#v-objective").textContent = s.level.name;
+      s.voyage.freeSailing ? "OPEN WORLD · FREE SAILING"
+        : `${PACKS[s.voyage.pack]!.name.toUpperCase()} · LEVEL ${stageOf(s.voyage.index) + 1}`;
+    this.q("#v-objective").textContent = s.voyage.freeSailing
+      ? SEA_LANDMARKS.find(p => seaDistance(p, s.player.pos, s.level.bounds) < 220)?.name ?? s.level.name : s.level.name;
     this.q("#v-travel").style.width =
       `${Math.max(0, Math.min(100, ((s.player.pos.z - s.level.player.pos.z) / (s.voyage.finish.z - s.level.player.pos.z)) * 100))}%`;
-    const angle = angleDiff(0, headingTo(s.player.pos, s.voyage.finish));
+    const angle = angleDiff(viewHeading, headingTo(s.player.pos, s.voyage.finish));
     this.q("#v-arrow").style.transform = `rotate(${angle}rad)`;
     this.q("#v-distance").textContent =
       `${Math.round(distance(s.player.pos, s.voyage.finish))} m`;
-    this.q("#v-wind-arrow").style.transform = `rotate(${s.world.wind.direction}rad)`;
+    this.q("#v-wind-arrow").style.transform = `rotate(${s.world.wind.direction - viewHeading}rad)`;
     this.q("#v-gust").textContent = s.voyage.weather.drift ? `WIND ${(s.world.wind.drift ?? 0).toFixed(1)} m/s` : "";
     const cooldown = s.player.reload[s.firingSide];
     this.q("#v-fire-label").textContent =
@@ -576,9 +633,8 @@ export class VoyageHud {
     );
     const obstacle = s.level.islands.find(
       (island, i) =>
-        i > 0 &&
-        i < s.level.islands.length - 1 &&
-        distance(island.pos, s.player.pos) < island.radius + 32,
+        (s.voyage.freeSailing || (i > 0 && i < s.level.islands.length - 1)) &&
+        seaDistance(island.pos, s.player.pos, s.world.periodic ? s.level.bounds : undefined) < island.radius + 32,
     );
     if (s.elapsed < this.messageUntil)
       this.q("#v-tip").classList.remove("fade");
@@ -588,7 +644,7 @@ export class VoyageHud {
       this.q("#v-tip").textContent =
         "Whirlpool! Keep sailing and steer away from the dark center.";
       this.q("#v-tip").classList.remove("fade");
-    } else if (obstacle && s.voyage.pack === 0) {
+    } else if (obstacle && (s.voyage.pack === 0 || s.voyage.freeSailing)) {
       this.q("#v-tip").textContent =
         obstacle.kind === "sea-rock"
           ? "Rocks ahead! Steer around them — a crash sinks your ship."
@@ -610,8 +666,10 @@ export class VoyageHud {
           : [];
       });
     for (const gem of s.voyage.gems)
-      if (!gem.found) {
-        const p = project(gem.x, 5, gem.z);
+      if (!gem.found && (!s.voyage.freeSailing || seaDistance(gem, s.player.pos, s.level.bounds) < 160)) {
+        const x = s.world.periodic ? s.player.pos.x + wrapCoordinate(gem.x - s.player.pos.x, s.level.bounds) : gem.x;
+        const z = s.world.periodic ? s.player.pos.z + wrapCoordinate(gem.z - s.player.pos.z, s.level.bounds) : gem.z;
+        const p = project(x, 5, z);
         if (
           p.visible &&
           p.x > 20 &&
@@ -625,6 +683,7 @@ export class VoyageHud {
       }
     const end = project(s.voyage.finish.x, 7, s.voyage.finish.z);
     if (
+      !s.voyage.freeSailing &&
       end.visible &&
       end.x > 10 &&
       end.x < innerWidth - 10 &&
@@ -635,5 +694,84 @@ export class VoyageHud {
         `<span class="treasure-tag" style="left:${end.x}px;top:${end.y}px">${icon("chest")} TREASURE</span>`,
       );
     this.q("#v-targets").innerHTML = targets.join("");
+    if (s.voyage.freeSailing && s.elapsed - this.chartTime > .1) {
+      this.chartTime = s.elapsed;
+      this.drawSeaChart(s, viewHeading);
+    }
+  }
+  private drawSeaChart(s: VoyageSession, yaw: number): void {
+    const c = this.q("#v-sea-chart canvas") as HTMLCanvasElement;
+    const ctx = c.getContext("2d")!;
+    ctx.clearRect(0, 0, 240, 240);
+    ctx.fillStyle = "#183d42"; ctx.beginPath(); ctx.arc(120, 120, 114, 0, Math.PI * 2); ctx.fill();
+    ctx.save(); ctx.beginPath(); ctx.arc(120, 120, 111, 0, Math.PI * 2); ctx.clip();
+    const plot = (x: number, z: number) => {
+      const dx = wrapCoordinate(x - s.player.pos.x, s.level.bounds), dz = wrapCoordinate(z - s.player.pos.z, s.level.bounds);
+      return [120 + (dx * Math.cos(yaw) - dz * Math.sin(yaw)) * .55,
+        120 - (dx * Math.sin(yaw) + dz * Math.cos(yaw)) * .55];
+    };
+    ctx.strokeStyle = "#71908d44"; ctx.lineWidth = 1;
+    for (const r of [40, 80, 110]) { ctx.beginPath(); ctx.arc(120, 120, r, 0, Math.PI * 2); ctx.stroke(); }
+    for (const i of s.level.islands) {
+      const [x, y] = plot(i.pos.x, i.pos.z);
+      ctx.fillStyle = i.kind === "sand" ? "#acb387" : "#858a81";
+      ctx.strokeStyle = "#d5c994"; ctx.beginPath(); ctx.arc(x!, y!, Math.max(2, i.radius * .55), 0, Math.PI * 2); ctx.fill(); ctx.stroke();
+    }
+    for (const g of s.voyage.gems) if (!g.found) {
+      const [x, y] = plot(g.x, g.z); ctx.fillStyle = "#89e5ce"; ctx.fillRect(x! - 2, y! - 2, 4, 4);
+    }
+    ctx.translate(120, 120); ctx.rotate(s.player.heading - yaw);
+    ctx.fillStyle = "#ffdb8b"; ctx.beginPath(); ctx.moveTo(0, -11); ctx.lineTo(6, 8); ctx.lineTo(0, 4); ctx.lineTo(-6, 8); ctx.closePath(); ctx.fill();
+    ctx.restore();
+    ctx.fillStyle = "#e4d6ad"; ctx.font = "bold 15px sans-serif"; ctx.textAlign = "center";
+    ctx.fillText("N", 120 - Math.sin(yaw) * 100, 125 - Math.cos(yaw) * 100);
+  }
+  private drawWorldChart(s: VoyageSession): void {
+    const c = this.q("#sea-chart-menu canvas") as HTMLCanvasElement, ctx = c.getContext("2d")!;
+    const margin = 36, scale = (1024 - margin * 2) / (s.level.bounds * 2);
+    const plot = (x: number, z: number) => [512 + x * scale, 512 - z * scale] as const;
+    const sea = ctx.createLinearGradient(0, 0, 1024, 1024);
+    sea.addColorStop(0, "#afbdad"); sea.addColorStop(1, "#758f85");
+    ctx.fillStyle = sea; ctx.fillRect(0, 0, 1024, 1024);
+    ctx.strokeStyle = "#334d4930"; ctx.lineWidth = 1;
+    for (let n = 0; n < 16; n++) {
+      const a = n * Math.PI / 8;
+      ctx.beginPath(); ctx.moveTo(512, 512); ctx.lineTo(512 + Math.sin(a) * 800, 512 + Math.cos(a) * 800); ctx.stroke();
+    }
+    for (let r = 100; r < 700; r += 100) { ctx.beginPath(); ctx.arc(512, 512, r, 0, Math.PI * 2); ctx.stroke(); }
+    for (const [n, island] of s.level.islands.entries()) {
+      const [x, y] = plot(island.pos.x, island.pos.z), radius = Math.max(2, island.radius * scale);
+      ctx.fillStyle = island.kind === "sand" ? "#c7b280" : "#716e59";
+      ctx.strokeStyle = "#4d4934"; ctx.lineWidth = 1.2;
+      ctx.beginPath();
+      for (let v = 0; v <= 24; v++) {
+        const a = v * Math.PI / 12, r = radius * (1 + Math.sin(a * 3 + n) * .1 + Math.cos(a * 5 - n) * .07);
+        const px = x + Math.cos(a) * r, py = y + Math.sin(a) * r * .84;
+        if (!v) ctx.moveTo(px, py); else ctx.lineTo(px, py);
+      }
+      ctx.closePath(); ctx.fill(); ctx.stroke();
+      if (island.kind === "sand") {
+        ctx.fillStyle = "#597b52"; ctx.beginPath(); ctx.ellipse(x, y, radius * .72, radius * .52, .1, 0, Math.PI * 2); ctx.fill();
+      }
+    }
+    ctx.fillStyle = "#235948";
+    for (const g of s.voyage.gems) if (!g.found) {
+      const [x, y] = plot(g.x, g.z); ctx.beginPath(); ctx.arc(x, y, 2.2, 0, Math.PI * 2); ctx.fill();
+    }
+    ctx.textAlign = "center";
+    for (const p of SEA_LANDMARKS) {
+      const [x, y] = plot(p.x, p.z);
+      ctx.font = "26px 'Pirata One', Georgia, serif";
+      ctx.lineWidth = 6; ctx.strokeStyle = "#d5c49b"; ctx.strokeText(p.name, x, y - 22);
+      ctx.fillStyle = "#352f22"; ctx.fillText(p.name, x, y - 22);
+    }
+    const [px, py] = plot(s.player.pos.x, s.player.pos.z);
+    ctx.save(); ctx.translate(px, py); ctx.rotate(s.player.heading);
+    ctx.fillStyle = "#fce1a1"; ctx.strokeStyle = "#47331d"; ctx.lineWidth = 3;
+    ctx.shadowColor = "#fff8cd"; ctx.shadowBlur = 12;
+    ctx.beginPath(); ctx.moveTo(0, -17); ctx.lineTo(10, 12); ctx.lineTo(0, 7); ctx.lineTo(-10, 12); ctx.closePath(); ctx.fill(); ctx.stroke(); ctx.restore();
+    ctx.fillStyle = "#403a2b"; ctx.font = "bold 28px Georgia";
+    ctx.fillText("N", 512, 28); ctx.fillText("S", 512, 1016); ctx.fillText("W", 19, 523); ctx.fillText("E", 1003, 523);
+    ctx.strokeStyle = "#4c4935"; ctx.lineWidth = 2; ctx.strokeRect(margin, margin, 952, 952);
   }
 }

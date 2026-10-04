@@ -44,6 +44,14 @@ export const length = (v: Vec2): number => Math.hypot(v.x, v.z);
 
 export const distance = (a: Vec2, b: Vec2): number => Math.hypot(a.x - b.x, a.z - b.z);
 
+/** Square periodic sea: east joins west and north joins south. */
+export const wrapCoordinate = (value: number, bounds: number): number =>
+  ((value + bounds) % (bounds * 2) + bounds * 2) % (bounds * 2) - bounds;
+
+export const seaDistance = (a: Vec2, b: Vec2, bounds?: number): number => bounds
+  ? Math.hypot(wrapCoordinate(a.x - b.x, bounds), wrapCoordinate(a.z - b.z, bounds))
+  : distance(a, b);
+
 /** Heading that points from `from` toward `to`. */
 export const headingTo = (from: Vec2, to: Vec2): number => Math.atan2(to.x - from.x, to.z - from.z);
 

@@ -89,7 +89,7 @@ export class ShipHold {
     // The cabin is above the waterline, even at the crest of a swell.
     this.ocean.mesh.position.y=-3;
     const island = [...voyage.level.islands].filter(i=>i.kind==='sand').sort((a,b)=>Math.hypot(a.pos.x-voyage.finish.x,a.pos.z-voyage.finish.z)-Math.hypot(b.pos.x-voyage.finish.x,b.pos.z-voyage.finish.z))[0];
-    this.islands=buildIslands(s,island?[{...island,pos:{x:0,z:island.radius+29}}]:[],shadows,voyage.level.seed);
+    this.islands=buildIslands(s,island?[{...island,pos:{x:0,z:island.radius+29}}]:[],shadows,voyage.level.seed,voyage.pack);
     this.chest=new RewardChest(s);
     const pipeline=new DefaultRenderingPipeline('golden light in the treasure hold',true,s,[this.camera]);
     pipeline.bloomEnabled=true;pipeline.bloomThreshold=1.1;pipeline.bloomWeight=.1;pipeline.bloomKernel=24;

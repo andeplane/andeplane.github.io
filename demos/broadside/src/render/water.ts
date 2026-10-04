@@ -8,6 +8,8 @@ import { DEFAULT_WAVES } from "../sim/waves";
 import { Color3 } from "@babylonjs/core/Maths/math.color.js";
 import { PALETTE, SUN_DIRECTION } from "./palette";
 import type { VoyageWeather } from "../game/weather";
+import { wrapCoordinate } from "../sim/math";
+import { worldStyle } from "./worldStyle";
 
 export const MAX_ISLANDS = 12;
 export const MAX_SHIPS = 8;
@@ -70,6 +72,7 @@ varying vec3 vNormal;
 varying float vCrest;
 uniform float storm;
 uniform float rain;
+uniform float clouds;
 uniform float flash;
 uniform vec3 cameraPosition;
 uniform vec3 sunDirection; // toward the sun
@@ -118,6 +121,8 @@ void main() {
   float shallow = 1.0 - smoothstep(1.0, 23.0, shoreDist);
   vec3 col = mix(deepColor, shallowColor, shallow);
   col *= (0.9 + dot(N, sunDirection) * 0.13) * (0.82 + noise(p * 0.022 + vec2(time * 0.012, -time * 0.008)) * 0.18);
+  // Broad drifting cloud shadows give the squall depth without overlay planes.
+  col *= 1.0 - clouds * smoothstep(.25, .72, fbm(p * .017 + vec2(time * .027, -time * .015))) * .28;
   float rippleLine = smoothstep(0.96, 1.0, sin(p.y * 0.62 + sin(p.x * 0.18) - time * 0.8));
   float rippleBreak = smoothstep(0.55, 0.75, noise(p * vec2(0.09, 0.18)));
   col = mix(col, shallowColor * 1.15, rippleLine * rippleBreak * 0.045);
@@ -168,7 +173,7 @@ void main() {
   }
   // Wind-torn whitecaps and raindrop rings live on the sea, never on overlay planes.
   float cap = smoothstep(0.28, 0.43, vCrest) * smoothstep(0.5, 0.72, noise(p * 0.32 - time * 0.6));
-  col = mix(col, foamColor, cap * storm * 0.25);
+  col = mix(col, foamColor, cap * storm * 0.38);
   vec2 rainCell = floor(p * 0.45);
   float dropAge = fract(time * 1.1 + hash(rainCell));
   vec2 dropCenter = vec2(hash(rainCell + 3.1), hash(rainCell + 7.8)) * 0.6 + 0.2;
@@ -193,12 +198,17 @@ export class Ocean {
   readonly mesh: Mesh;
   readonly material: ShaderMaterial;
   private readonly shipData = new Float32Array(MAX_SHIPS * 4);
+  private chapter = 0;
+  private readonly shores: readonly { pos: { x: number; z: number }; radius: number }[];
+  private shoreFocus = { x: Infinity, z: Infinity };
 
   constructor(
     scene: Scene,
     islands: readonly { pos: { x: number; z: number }; radius: number }[],
     fogDensity: number,
+    private readonly periodicBounds?: number,
   ) {
+    this.shores = islands;
     this.mesh = MeshBuilder.CreateGround(
       "ocean",
       { width: GRID_SIZE, height: GRID_SIZE, subdivisions: GRID_SUBDIVISIONS },
@@ -220,6 +230,7 @@ export class Ocean {
           "amplitude",
           "storm",
           "rain",
+          "clouds",
           "flash",
           "waves",
           "cameraPosition",
@@ -252,6 +263,7 @@ export class Ocean {
     m.setFloat("amplitude", 1);
     m.setFloat("storm", 0);
     m.setFloat("rain", 0);
+    m.setFloat("clouds", 0);
     m.setFloat("flash", 0);
     const sun = new Vector3(
       -SUN_DIRECTION.x,
@@ -267,11 +279,7 @@ export class Ocean {
     m.setColor3("sunColor", PALETTE.sun);
     m.setColor3("fogColor", PALETTE.fog);
     m.setFloat("fogDensity", fogDensity);
-    const isl = new Float32Array(MAX_ISLANDS * 4);
-    islands
-      .slice(0, MAX_ISLANDS)
-      .forEach((i, n) => isl.set([i.pos.x, i.pos.z, i.radius, 0], n * 4));
-    m.setArray4("islands", Array.from(isl));
+    this.updateShores({ x: 0, z: 0 });
     m.setArray4("ships", Array.from(this.shipData));
     this.setWhirlpools([]);
     this.mesh.material = m;
@@ -292,31 +300,44 @@ export class Ocean {
     this.material.setArray4("whirlpools", Array.from(data));
   }
   setChapter(chapter: number): void {
-    const colors = [
-      ["#153d51", "#438c89", "#355363"],
-      ["#091f30", "#244b53", "#1b2c3a"],
-      ["#091b2a", "#23414c", "#172635"],
-      ["#11192c", "#344052", "#1c2234"],
-    ][chapter]!;
-    this.material.setColor3("deepColor", Color3.FromHexString(colors[0]!));
-    this.material.setColor3("shallowColor", Color3.FromHexString(colors[1]!));
-    this.material.setColor3("fogColor", Color3.FromHexString(colors[2]!));
-    this.material.setColor3("horizon", Color3.FromHexString(colors[2]!));
+    this.chapter = chapter;
+    const style = worldStyle(chapter);
+    this.material.setColor3("deepColor", Color3.FromHexString(style.deepWater));
+    this.material.setColor3("shallowColor", Color3.FromHexString(style.shallowWater));
+    this.material.setColor3("fogColor", Color3.FromHexString(style.fog));
+    this.material.setColor3("horizon", Color3.FromHexString(style.horizon));
+    this.material.setColor3("foamColor", Color3.FromHexString(style.foam));
+    this.material.setColor3("sunColor", Color3.FromHexString(style.sun));
   }
   setWeather(weather: VoyageWeather): void {
     this.material.setFloat("amplitude", weather.waves);
     this.material.setFloat("storm", weather.kind === "storm" ? 1 : weather.rain * 0.5);
     this.material.setFloat("rain", weather.rain);
-    this.material.setFloat("fogDensity", weather.rain ? 0.0024 : 0.0014);
+    this.material.setFloat("clouds", weather.kind === "clear" ? 0 : weather.kind === "storm" ? 1 : .65);
+    this.material.setFloat("fogDensity", weather.rain ? .0028 : .0014);
     if (weather.rain) {
-      this.material.setColor3("deepColor", Color3.FromHexString("#0b1e2b"));
-      this.material.setColor3("shallowColor", Color3.FromHexString("#2c4b53"));
-      this.material.setColor3("fogColor", Color3.FromHexString("#283a46"));
-      this.material.setColor3("horizon", Color3.FromHexString("#344954"));
+      const style = worldStyle(this.chapter), scale = weather.kind === "storm" ? .66 : .78;
+      this.material.setColor3("deepColor", Color3.FromHexString(style.deepWater).scale(scale));
+      this.material.setColor3("shallowColor", Color3.FromHexString(style.shallowWater).scale(scale));
+      this.material.setColor3("fogColor", Color3.FromHexString(style.fog).scale(weather.kind === "storm" ? .78 : 1));
+      this.material.setColor3("horizon", Color3.FromHexString(style.horizon).scale(.7));
     }
   }
   setFlash(flash: number): void {
     this.material.setFloat("flash", flash * 0.45);
+  }
+  private updateShores(focus: { x: number; z: number }): void {
+    if (Math.hypot(focus.x - this.shoreFocus.x, focus.z - this.shoreFocus.z) < 20) return;
+    this.shoreFocus = { ...focus };
+    const nearby = this.shores.map(i => this.periodicBounds ? {
+      ...i, pos: { x: focus.x + wrapCoordinate(i.pos.x - focus.x, this.periodicBounds),
+        z: focus.z + wrapCoordinate(i.pos.z - focus.z, this.periodicBounds) },
+    } : i).sort((a, b) =>
+      Math.hypot(a.pos.x - focus.x, a.pos.z - focus.z) - a.radius -
+      (Math.hypot(b.pos.x - focus.x, b.pos.z - focus.z) - b.radius));
+    const data = new Float32Array(MAX_ISLANDS * 4);
+    nearby.slice(0, MAX_ISLANDS).forEach((i, n) => data.set([i.pos.x, i.pos.z, i.radius, 0], n * 4));
+    this.material.setArray4("islands", Array.from(data));
   }
 
   update(
@@ -325,6 +346,7 @@ export class Ocean {
     focus: { x: number; z: number },
     ships: readonly OceanShip[],
   ): void {
+    this.updateShores(focus);
     // Follow the camera in whole grid cells so vertices never swim.
     const cell = GRID_SIZE / GRID_SUBDIVISIONS;
     this.mesh.position.x = Math.round(focus.x / cell) * cell;
