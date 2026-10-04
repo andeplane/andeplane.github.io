@@ -414,4 +414,9 @@
     left: 3%;
     width: clamp(92px, 26vw, 116px);
   }
+  #world-menu .map-cave span {
+    white-space: nowrap;
+    font-size: 18px;
+    padding: 4px 10px 6px;
+  }
 }
