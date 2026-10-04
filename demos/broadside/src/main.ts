@@ -19,6 +19,8 @@ import { installFullscreen } from "./ui/fullscreen";
 import { GameRenderer } from "./render/renderer";
 import { TreasureCave } from "./render/cave";
 import type { Harbour } from "./render/harbour";
+import type { PrivateShip } from "./render/privateShip";
+import { PRIVATE_PEARL } from "./privatePearl";
 import { displayRenderScale, configureTextureQuality } from "./render/quality";
 import { FixedStepper } from "./sim/world";
 import { angleDiff, clamp } from "./sim/math";
@@ -103,7 +105,7 @@ async function main() {
   cave.refresh(caveProgress(progress));
   let session = new VoyageSession(generateVoyage(0)),
     renderer: GameRenderer | null = null;
-  let harbour: Harbour | null = null;
+  let harbour: Harbour | PrivateShip | null = null;
   let hold: ShipHold | null = null;
   let holdShowingResult = false;
   let unloadQueue: number[] = [], unloadingIndex: number | null = null, unloadTotal = 0;
@@ -173,11 +175,17 @@ async function main() {
     hud.unloading(unloadTotal - unloadQueue.length, unloadTotal);
   };
   const unload = () => {
+    if (PRIVATE_PEARL) {
+      for (const index of [...progress.cargo]) deliverChest(progress,index);
+      saveProgress(progress,storage);
+      home(); return;
+    }
     if (!progress.cargo.length) { home(); return; }
     unloadQueue = [...progress.cargo].sort((a,b)=>a-b); unloadTotal=unloadQueue.length;
     arrive("unload");
   };
   const visitHold = () => {
+    if (PRIVATE_PEARL) { void visitShip(true); return; }
     cancelUnloading(); clearArrival(); clearWalking(); gesture.clear(); controls.clear();
     cave.endReveal();
     const index=progress.cargo.at(-1) ?? Math.max(0,...Object.keys(progress.voyages).map(Number));
@@ -196,6 +204,7 @@ async function main() {
   };
   const home = () => {
     stashSea();
+    if (PRIVATE_PEARL) { void visitShip(true); return; }
     cancelUnloading();
     clearArrival();
     gesture.clear();
@@ -264,34 +273,59 @@ async function main() {
     hud.showMenu();
     stepper.reset();
   };
-  const visitShip = async () => {
+  const visitShip = async (treasure = false) => {
+    stashSea();
     cancelUnloading();
     clearArrival(); gesture.clear(); clearWalking(); controls.clear();
     const id = ++loadId;
     heading = tapHeading = null; pendingFire = false; paused = false;
     cave.endReveal(); hud.paused(false);
     mode = "loading";
-    const { Harbour } = await import("./render/harbour");
-    if (id !== loadId) return;
-    harbour ??= new Harbour(engine);
-    harbour.enter();
-    if (qaQuery === "harbour") {
-      const spot = new URLSearchParams(location.search).get("spot");
-      if (spot === "quay") {
-        harbour.walker.x = 20; harbour.walker.z = -3; harbour.walker.feet = 2.4;
-        harbour.walker.yaw = -Math.PI / 2; harbour.walker.pitch = -.18;
+    hud.root.classList.add("loading-voyage");
+    try {
+      if (PRIVATE_PEARL) {
+        // Avoid retaining two copies of the purchased textures on an iPhone.
+        renderer?.scene.dispose(); renderer = null;
+        const { PrivateShip } = await import("./render/privateShip");
+        if (id !== loadId) return;
+        if (!harbour) {
+          const next = await PrivateShip.load(engine);
+          if (id !== loadId) { next.scene.dispose(); return; }
+          harbour = next;
+        }
+        if (harbour instanceof PrivateShip) {
+          harbour.refresh(progress);
+          harbour.enter(treasure || new URLSearchParams(location.search).get("spot") === "treasure");
+        }
+      } else {
+        const { Harbour } = await import("./render/harbour");
+        if (id !== loadId) return;
+        harbour ??= new Harbour(engine); harbour.enter();
+        if (qaQuery === "harbour") {
+          const spot = new URLSearchParams(location.search).get("spot");
+          if (spot === "quay") {
+            harbour.walker.x=20; harbour.walker.z=-3; harbour.walker.feet=2.4;
+            harbour.walker.yaw=-Math.PI/2; harbour.walker.pitch=-.18;
+          }
+          if (spot === "town") {
+            harbour.walker.x=41; harbour.walker.z=-34; harbour.walker.feet=2.4;
+            harbour.walker.yaw=0; harbour.walker.pitch=-.08;
+          }
+        }
       }
-      if (spot === "town") {
-        harbour.walker.x = 41; harbour.walker.z = -34; harbour.walker.feet = 2.4;
-        harbour.walker.yaw = 0; harbour.walker.pitch = -.08;
-      }
+    } catch (error) {
+      console.error("Could not visit the ship",error);
+      if (id === loadId) { menu(); hud.shipLoadFailed(); }
+      return;
     }
+    if (id !== loadId) return;
     mode = "harbour"; hud.harbour();
     hud.root.classList.remove("loading-voyage");
     stepper.reset(); canvas.focus();
   };
   const start = async (index: number, freeMode = false, pack = 0, respawn = false) => {
     stashSea();
+    if (PRIVATE_PEARL && harbour) { harbour.scene.dispose(); harbour = null; }
     if (respawn) {
       openSea.position = { x: 0, z: 0 }; openSea.heading = openSea.yaw = 0; openSea.pitch = .03;
       saveOpenSea(openSea, storage);

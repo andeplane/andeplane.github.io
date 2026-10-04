@@ -19,6 +19,7 @@ import {
 import { generateVoyage } from "../game/voyage";
 import type { Progress } from "../game/progress";
 import { icon } from "./icons";
+import { PRIVATE_PEARL } from "../privatePearl";
 import { worldArt, pirateShipArt } from "./worldArt";
 import { Controls } from "../input/controls";
 import { angleDiff, headingTo, distance, seaDistance, wrapCoordinate } from "../sim/math";
@@ -94,10 +95,21 @@ export class VoyageHud {
     q("#main-menu").insertAdjacentHTML("beforeend", '<button id="menu-hold" class="text-button">Treasure hold</button>');
     q(".result-actions").insertAdjacentHTML("beforeend", '<button id="result-unload" class="hold-unload primary" hidden>Return to cave</button>');
     r.insertAdjacentHTML("beforeend", `<section id="hold-ui" hidden><div class="hold-heading"><span class="eyebrow">ABOARD THE BLACK PEARL</span><h1>The treasure hold</h1><p id="hold-count"></p></div><div class="hold-actions"><button id="hold-unload" class="primary">Return to cave ${icon("chest")}</button><button id="hold-sail" class="secondary">Keep sailing ${icon("map")}</button><button id="hold-back" class="text-button">Back to menu</button></div></section><section id="unload-ui" hidden><div class="hold-heading"><span class="eyebrow">BRINGING YOUR FORTUNE HOME</span><h1 id="unload-title">Unloading the ship</h1><p id="unload-count"></p></div><div class="hold-actions"><button id="unload-explore" class="primary" hidden>Explore your cave</button><button id="unload-menu" class="text-button">Back to menu</button><small id="unload-safe">Any unopened chests stay safely aboard.</small></div></section>`);
+    if (PRIVATE_PEARL) {
+      q("#menu-cave").innerHTML = `Treasure room ${icon("chest")}`;
+      q("#map-cave span").textContent = "Your treasure room";
+      q("#map-cave").setAttribute("aria-label","Visit the ship's treasure room");
+      q("#menu-hold").hidden = true;
+      q(".art-credit").innerHTML = 'Black Pearl model by <a href="https://www.cgtrader.com/3d-models/watercraft/recreational-watercraft/black-pearl-pirate-ship" target="_blank" rel="noopener">CrispierCone</a> · purchased for private family use.<br>Cabin and treasure display adapted for Broadside.';
+    }
     q("#menu-hold").onclick = h.hold;
     q("#result-unload").onclick = q("#hold-unload").onclick = h.unload;
     q("#hold-sail").onclick = () => { h.menu(); this.showMenu("worlds"); };
     q("#hold-back").onclick = q("#unload-menu").onclick = h.menu;
+    if (PRIVATE_PEARL) {
+      q('#hold-unload').textContent = 'Visit your treasure room';
+      q('#result-unload').textContent = 'Visit your treasure room';
+    }
     q("#unload-explore").onclick = h.home;
     q("#v-home").onclick = () => {
       if (this.freeSeed !== null) { h.seaChart(true); return; }
@@ -308,14 +320,19 @@ export class VoyageHud {
     this.renderLevels();
     this.overview();
   }
+  shipLoadFailed(): void {
+    this.q('.menu-tagline').textContent = 'The ship could not load. Please try again.';
+  }
   harbour(): void {
     this.home();
     this.root.dataset.walkPlace = "harbour";
     this.q("#cave-overview").hidden = true;
     this.q("#harbour-chart").hidden = false;
-    this.q("#cave-pad").setAttribute("aria-label", "Walk on the ship and quay");
+    this.q("#cave-pad").setAttribute("aria-label", PRIVATE_PEARL ? "Walk on the Black Pearl" : "Walk on the ship and quay");
     this.q(".cave-title .eyebrow").textContent = "YOUR SHIP · PORT BLACKWATER";
-    this.q("#cave-count").textContent = "Explore the decks. Cross the gangplank to town.";
+    this.q("#cave-count").textContent = PRIVATE_PEARL
+      ? `${goldTotal(this.progress).toLocaleString()} gold · ${this.progress.relics.filter(id => WORLD_RELICS.includes(id as 2|5|8|11)).length} keepsakes · Treasure room under the quarterdeck`
+      : "Explore the decks. Cross the gangplank to town.";
     this.harbourWalk(false, "Aboard the Black Pearl", false);
   }
   harbourWalk(locked: boolean, room: string, helm: boolean): void {

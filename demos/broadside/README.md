@@ -18,7 +18,7 @@ npm run preview -- --host 0.0.0.0 --port 5181
 
 Built game: http://localhost:5181/
 
-An iPhone/iPad app embeds this same game with Capacitor and bundled offline assets. Run `npm run ios:open` to build and open the native project. See [IOS.md](IOS.md) for simulator, device signing and update instructions.
+An iPhone/iPad app embeds this same game with Capacitor and bundled offline assets. Run `npm run ios:open` to build and open the native project. See [IOS.md](IOS.md) for simulator, device signing and update instructions. Local and iOS builds automatically detect an optional purchased Black Pearl; see [PRIVATE_SHIP.md](PRIVATE_SHIP.md) for its import and walkable treasure room.
 
 Use the corner fullscreen button to enter or leave fullscreen on supported browsers. It includes the canvas and every game control, and preserves native rendering resolution when the screen size changes. On iPhone, use Safari’s **Share → Add to Home Screen** (leave **Open as Web App** enabled when offered), then launch Broadside from its Home Screen icon to hide Safari’s bars. Browser fullscreen support varies; an unsupported request shows instructions instead. Phone Home Screen launching still needs physical-device verification.
 
