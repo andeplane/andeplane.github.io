@@ -215,7 +215,8 @@ Validation:
   Typecheck and public production build pass.
 - Regression hashes from the released generator verify identical island radii,
   positions, reef types and indexed gem coordinates for four seeds. Saved voyages
-  and discovery indices retain their meaning.
+  and discovery indices retain their meaning. Snapshots round at 0.0000001 m to
+  tolerate the final trigonometric digits varying between JS runtimes.
 - Real Babylon tests check finite geometry, outward roof normals, a maximum of
   eight new settlement meshes and two lights per landmark, stable streaming
   resource counts, identical props on return, and settlement movement across a

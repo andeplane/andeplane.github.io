@@ -8,15 +8,19 @@ describe("permanent sea landmarks", () => {
     // Captured before scenery changes. Discovery IDs are array indices in saves,
     // so moving a gem or consuming an extra RNG value would corrupt a voyage.
     const released = new Map([
-      [1, "f626350c66393b5d8922d16e436c6ecc576096ccb52ce33a7c92b0726d2c1ff3"],
-      [42, "e278b27c6b309d2773d147ebe8a0e59f21c0a5a269880d0aaf6974db2a4a530c"],
-      [81723, "8d0402fd0cfbdab12d01d61584782a92d3392adece073857eb2b916b76b5e2b4"],
-      [0xffffffff, "053e67cc3cf1c37376bf69c5d5a676a8d37b04ad03d57524e5c3e269ea2e8f63"],
+      [1, "18ff63b7348615f565e82bfaced42700d25b4bdc479d1964c127f50560183c06"],
+      [42, "7dc5fb7b857c2a865b9c1b0ba6a274b01877b7e7c27fb76a5a359af3db407bf2"],
+      [81723, "672d8a60b40888834e0bf92e905707acc03ccd821b8dfe4573b7506702062572"],
+      [0xffffffff, "2032c2aee0bd9bb8e3fb67d4a8eb34a570d565206d230eb1e22fc6bae5e89e03"],
     ]);
     for (const [seed, hash] of released) {
       const v = generateFreeSea(seed);
       const coordinates = { islands: v.level.islands.map(i => [i.pos.x, i.pos.z, i.radius, i.kind]), gems: v.gems };
-      expect(createHash("sha256").update(JSON.stringify(coordinates)).digest("hex")).toBe(hash);
+      // Different JS runtimes can vary in the final digits of sin/cos. Preserve
+      // the array order and coordinates to 0.0000001 m, well below game precision.
+      const snapshot = JSON.stringify(coordinates, (_, value) =>
+        typeof value === "number" ? Math.round(value * 1e7) / 1e7 : value);
+      expect(createHash("sha256").update(snapshot).digest("hex")).toBe(hash);
     }
   });
 
