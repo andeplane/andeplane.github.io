@@ -177,6 +177,9 @@ async function main() {
   const prepareChest = () => {
     unloadingIndex = unloadQueue.shift() ?? null;
     if (unloadingIndex === null) { hud.unloading(unloadTotal,unloadTotal,true); return; }
+    // Arrival is fully covered here; release the ship before allocating the cave.
+    hold?.scene.dispose(); hold = null;
+    harbour?.scene.dispose(); harbour = null;
     const banked = caveProgress(progress);
     banked.voyages[unloadingIndex] = progress.voyages[unloadingIndex]!;
     const world = Math.floor(unloadingIndex/10);
@@ -184,11 +187,6 @@ async function main() {
     hud.unloading(unloadTotal - unloadQueue.length, unloadTotal);
   };
   const unload = () => {
-    if (PRIVATE_PEARL) {
-      for (const index of [...progress.cargo]) deliverChest(progress,index);
-      saveProgress(progress,storage);
-      home(); return;
-    }
     if (!progress.cargo.length) { home(); return; }
     unloadQueue = [...progress.cargo].sort((a,b)=>a-b); unloadTotal=unloadQueue.length;
     arrive("unload");
@@ -197,6 +195,9 @@ async function main() {
     if (PRIVATE_PEARL) { void visitShip(true); return; }
     cancelUnloading(); clearArrival(); clearWalking(); gesture.clear(); controls.clear();
     cave?.endReveal();
+    releaseCave();
+    renderer?.scene.dispose(); renderer = null;
+    harbour?.scene.dispose(); harbour = null;
     const index=progress.cargo.at(-1) ?? Math.max(0,...Object.keys(progress.voyages).map(Number));
     hold?.scene.dispose();hold = new ShipHold(engine, generateVoyage(index));
     const special = progress.relics.find(id => caveProgress(progress).relics.indexOf(id)<0) ?? null;
@@ -213,7 +214,6 @@ async function main() {
   };
   const home = () => {
     stashSea();
-    if (PRIVATE_PEARL) { void visitShip(true); return; }
     cancelUnloading();
     clearArrival();
     gesture.clear();
@@ -221,6 +221,7 @@ async function main() {
     loadId++;
     renderer?.scene.dispose(); renderer = null;
     hold?.scene.dispose(); hold = null;
+    harbour?.scene.dispose(); harbour = null;
     mode = "cave";
     cave?.endReveal();
     paused = false;

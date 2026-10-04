@@ -26,10 +26,12 @@
   font-size: 12px;
 }
 .harbour-chart .icon { width: 20px; height: 20px; }
+#voyage-ui #harbour-unload { top: calc(136px + env(safe-area-inset-top, 0px)); }
 [data-walk-place="harbour"] #cave-crosshair { opacity: 0.65; }
 @media (max-width: 700px) {
   .harbour-chart { top: 18px; right: 12px; padding: 12px 9px; font-size: 10px; gap: 4px; }
   .harbour-chart .icon { width: 15px; height: 15px; }
+  #voyage-ui #harbour-unload { top: calc(120px + env(safe-area-inset-top, 0px)); }
   [data-walk-place="harbour"] .cave-title { width: calc(100% - 190px); }
   [data-walk-place="harbour"] .cave-title .eyebrow { display: none; }
   [data-walk-place="harbour"] .gallery-hint { top: 84px; }
