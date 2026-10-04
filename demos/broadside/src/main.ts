@@ -435,6 +435,12 @@ async function main() {
     hud.location(journey.location);
     hud.root.classList.remove("loading-voyage");
     canvas.focus();
+    if (qa && new URLSearchParams(location.search).get("preview") === "sink") {
+      next.render(session,1,0);
+      session.player.alive=false;session.player.hull=0;session.player.sinkTime=0;
+      session.state="lost";mode="result";next.captainCamera.enabled=false;
+      hud.camera(false);hud.result(session);
+    }
   };
   const freeSail = (respawn = false) => void start(0, true, freePack, respawn);
   const seaChart = (open: boolean) => {

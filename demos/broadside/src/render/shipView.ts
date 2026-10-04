@@ -395,9 +395,9 @@ export class ShipView {
       ship.alive && damage > 0.45
         ? (damage - 0.45) * 160
         : !ship.alive
-          ? 40
+          ? (y > -.7 ? 40 : 0)
           : 0;
-    this.emitters.smoke.emitRate = damage > 0.3 ? damage * 40 : 0;
+    this.emitters.smoke.emitRate = damage > 0.3 && y > -1.2 ? damage * 40 : 0;
 
     for (const side of ["port", "starboard"] as const) {
       const mat = this.aimStrips[side].material as StandardMaterial;

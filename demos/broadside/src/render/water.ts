@@ -106,6 +106,21 @@ float fbm(vec2 p) {
 
 void main() {
   vec2 p = vWorld.xz;
+  // From below: refracted daylight through the wave ceiling and a soft Snell window.
+  // The surface must not look like the same opaque aerial ocean turned upside down.
+  if (cameraPosition.y < vWorld.y - .12) {
+    vec3 up = normalize(vWorld-cameraPosition);
+    float window = smoothstep(.62,.76,up.y);
+    float shimmer = noise(p*.3+vec2(time*.12,-time*.08));
+    vec3 ceiling = mix(deepColor*.7,shallowColor*.7,shimmer*.45);
+    vec3 daylight = mix(horizon,skyTop,smoothstep(.65,1.,up.y));
+    ceiling = mix(ceiling,daylight,window*(.65+.15*shimmer));
+    float sun = pow(max(0.,dot(up,sunDirection)),48.);
+    ceiling += sunColor*sun*(.65-storm*.4)+vec3(.09,.17,.19)*flash;
+    float haze = 1.-exp(-length(vWorld-cameraPosition)*.008);
+    gl_FragColor=vec4(mix(ceiling,vec3(.031,.282,.329),haze),1.);
+    return;
+  }
   float r1 = noise(p * 0.2 + vec2(time * 0.07, 0.0));
   float r2 = noise(p * 0.26 - vec2(0.0, time * 0.08));
   // Broad, calm swells with fine animated ripples, not a field of white foam.
