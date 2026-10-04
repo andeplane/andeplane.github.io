@@ -3,12 +3,15 @@ import type { ShipClass } from "../sim/ships";
 import type { Island } from "../sim/world";
 
 export type PropKind = "lighthouse" | "palms" | "rocks" | "fort" | "wreck";
+export type SeaLandmarkKind = "harbour" | "smugglers" | "stormkeep" | "ruins" | "moonstone";
 
 export interface IslandDef extends Island {
   /** Decorative props the renderer places on this island. */
   props: PropKind[];
   /** Beaches, rocky islands, or small exposed hazards in open water. */
   kind: "sand" | "rock" | "sea-rock";
+  /** Permanent open-sea settlement; scenery only, never a new generated world. */
+  landmark?: SeaLandmarkKind;
 }
 
 export interface EnemyDef {

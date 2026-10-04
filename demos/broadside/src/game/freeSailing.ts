@@ -8,20 +8,20 @@ import { voyageWeather } from "./weather";
 export const OPEN_SEA_SEED = 81723;
 export const OPEN_SEA_BOUNDS = 1600;
 export const SEA_LANDMARKS = [
-  { name: "Blackwater Bay", x: 53, z: 94 },
-  { name: "Smuggler’s Coast", x: -930, z: 300 },
-  { name: "Stormbreak Isles", x: 920, z: 430 },
-  { name: "The Lost Isles", x: -100, z: 1130 },
-  { name: "Moonstone Reach", x: 200, z: -1050 },
+  { name: "Blackwater Bay", x: 53, z: 94, landmark: "harbour" },
+  { name: "Smuggler’s Coast", x: -930, z: 300, landmark: "smugglers" },
+  { name: "Stormbreak Isles", x: 920, z: 430, landmark: "stormkeep" },
+  { name: "The Lost Isles", x: -100, z: 1130, landmark: "ruins" },
+  { name: "Moonstone Reach", x: 200, z: -1050, landmark: "moonstone" },
 ] as const;
 
 /** One fixed 3.2 km world. The seed belongs to the save, never to movement. */
 export function generateFreeSea(seed = OPEN_SEA_SEED, pack = 0): VoyageDef {
   const world = Math.max(0, Math.min(3, Math.floor(pack)));
   const rng = new Rng(seed), noise = new PerlinNoise(seed);
-  const islands: IslandDef[] = [{ pos: { x: 53, z: 94 }, radius: 25, kind: "sand", props: ["palms", "lighthouse", "rocks"] }];
+  const islands: IslandDef[] = [{ pos: { x: 53, z: 94 }, radius: 25, kind: "sand", props: ["palms", "rocks"], landmark: "harbour" }];
   for (const place of SEA_LANDMARKS.slice(1)) islands.push({
-    pos: { x: place.x, z: place.z }, radius: 36, kind: "sand", props: ["palms", "rocks", "lighthouse"],
+    pos: { x: place.x, z: place.z }, radius: 36, kind: "sand", props: ["palms", "rocks"], landmark: place.landmark,
   });
   for (let gz = -10; gz <= 10; gz++) for (let gx = -10; gx <= 10; gx++) {
     const pos = { x: gx * 148 + rng.range(-30, 30), z: gz * 148 + rng.range(-30, 30) };

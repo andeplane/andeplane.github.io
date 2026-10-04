@@ -9,6 +9,7 @@ import type { IslandDef } from "../game/levels";
 import type { Rng } from "../sim/rng";
 import type { WorldStyle } from "./worldStyle";
 import { StandardMaterial } from "@babylonjs/core/Materials/standardMaterial.js";
+import { inLandmarkClearing } from "../game/landmarkLayout";
 
 /** Shared geometry keeps a lush shoreline affordable on phones. */
 export function buildIslandDetails(
@@ -126,6 +127,7 @@ export function buildIslandDetails(
       const x = def.radius * (t * Math.cos(ridgeAngle) + ridgeOffset * Math.sin(ridgeAngle));
       const z = def.radius * (ridgeOffset * Math.cos(ridgeAngle) - t * Math.sin(ridgeAngle));
       const size = def.radius * rng.range(0.11, 0.18);
+      if (inLandmarkClearing(def, x, z, size * .85)) continue;
       const m = instance(rng.pick(rocks), "island ridge", x, z, size,
         size * rng.range(1.1, 2.3), size * rng.range(0.8, 1.4));
       m.position.y += size * 0.25;
@@ -137,6 +139,7 @@ export function buildIslandDetails(
       const [x, z] = polar(a, rng.range(0.72, 0.9));
       if (Math.abs(x) < 3.5 && z < 0) continue; // Keep landing stage open.
       const size = rng.range(0.3, 1.4);
+      if (inLandmarkClearing(def, x, z, size)) continue;
       const m = instance(rng.pick(rocks), "shore boulder", x, z, size * 1.4, size * 0.8, size, size > 0.8);
       m.position.y += size * 0.2;
     }
@@ -147,6 +150,7 @@ export function buildIslandDetails(
       const [x, z] = polar(rng.range(0, Math.PI * 2), rng.range(0.33, 0.78));
       if (Math.abs(x) < 3.2 && z < 3) continue;
       if (def.props.includes("fort") && Math.hypot(x, z) < def.radius * 0.5) continue;
+      if (inLandmarkClearing(def, x, z, 1.5)) continue;
       if (surface(x, z) < 1) continue;
       const source = i % 3 === 0 ? bush : fern;
       instance(source, source === bush ? "jungle shrub" : "jungle fern", x, z,
