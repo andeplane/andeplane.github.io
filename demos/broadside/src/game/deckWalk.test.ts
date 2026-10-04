@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { createShip, updateShip, SHIP_SPECS, IDLE_INTENT } from '../sim/ships';
 import { DeckWalk } from './deckWalk';
 const idle={forward:0,right:0,sprint:false,crouch:false,jump:false};
-const geometry={length:32,beam:9,helm:{x:2.52,y:3,z:-12.23},floor:()=>3};
+const geometry={length:32,beam:9,helm:{x:0,y:3,z:-12.23},floor:()=>3};
 describe('walking aboard a moving ship',()=>{
   it('starts at the wheel, walks away and requires physically returning before taking control',()=>{
     const d=new DeckWalk(geometry);expect(d.active).toBe(false);d.step({...idle,forward:1},1);expect(d.walker.z).toBe(geometry.helm.z);
