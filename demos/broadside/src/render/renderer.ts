@@ -48,6 +48,10 @@ import { WeatherView } from "./weather";
 import { PALETTE, SUN_DIRECTION } from "./palette";
 import { ShipView } from "./shipView";
 import { ShipModels } from "./shipModels";
+import { worldStyle } from "./worldStyle";
+import { VoyageSky } from "./voyageSky";
+import { CaptainCamera } from "./captainCamera";
+import { Camera } from "@babylonjs/core/Cameras/camera.js";
 
 const FOG_DENSITY = 0.0014;
 const CAMERA_PITCH = (49 * Math.PI) / 180;
@@ -76,6 +80,10 @@ class CameraRig {
 
   snap(x: number, z: number): void {
     this.target.set(x, 0, z);
+  }
+  shift(x: number, z: number): void {
+    this.target.x += x; this.target.z += z;
+    this.camera.position.x += x; this.camera.position.z += z;
   }
 
   update(dt: number, x: number, z: number, vx: number, vz: number): void {
@@ -131,6 +139,7 @@ class CameraRig {
 export class GameRenderer {
   readonly scene: Scene;
   readonly rig: CameraRig;
+  readonly captainCamera = new CaptainCamera();
   private readonly ocean: Ocean;
   private readonly islands: IslandsView;
   private readonly effects: Effects;
@@ -138,6 +147,8 @@ export class GameRenderer {
   private readonly sun: DirectionalLight;
   private readonly sky: HemisphericLight;
   private weatherView?: WeatherView;
+  private skyView?: VoyageSky;
+  private inspectionIsland?: { pos: { x: number; z: number }; radius: number };
   private sunStrength = 1.35;
   private skyStrength = 0.9;
   private readonly views = new Map<number, ShipView>();
@@ -145,6 +156,7 @@ export class GameRenderer {
   private readonly ballPool: InstancedMesh[] = [];
   private readonly activeBalls = new Map<number, InstancedMesh>();
   private time = 0;
+  private beforePosition = { x: 0, z: 0 };
   private lastChapter = -1;
   private readonly adventure: AdventureView;
   private readonly models: ShipModels;
@@ -193,7 +205,7 @@ export class GameRenderer {
     this.shadows.normalBias = 0.02;
     this.shadows.darkness = 0.25;
 
-    this.ocean = new Ocean(scene, session.level.islands, FOG_DENSITY);
+    this.ocean = new Ocean(scene, session.level.islands, FOG_DENSITY, session.world.periodic ? session.level.bounds : undefined);
     if (session instanceof VoyageSession)
       this.ocean.setWhirlpools(session.voyage.whirlpools);
     this.islands = buildIslands(
@@ -201,12 +213,21 @@ export class GameRenderer {
       session.level.islands,
       this.shadows,
       session.level.seed,
+      session instanceof VoyageSession ? session.voyage.pack : session.chapter,
+      session.world.periodic ? session.player.pos : undefined,
+      session.world.periodic ? session.level.bounds : undefined,
     );
     this.effects = new Effects(scene);
     this.adventure = new AdventureView(scene, session, this.shadows);
     if (session instanceof VoyageSession) {
       this.voyageView = new VoyageView(scene, session);
       this.weatherView = new WeatherView(scene, session.voyage.weather, session.level.seed);
+      this.skyView = new VoyageSky(scene, session.voyage.pack, session.voyage.weather);
+      if (import.meta.env.DEV) {
+        const params = new URLSearchParams(location.search);
+        if (params.has("qa") && params.get("preview") === "island")
+          this.inspectionIsland = session.level.islands[Number(params.get("island") ?? 0)];
+      }
     }
 
     const ballMat = new StandardMaterial("ball", scene);
@@ -287,6 +308,7 @@ export class GameRenderer {
 
   /** Must run before every sim step, for interpolation. */
   beforeStep(session: Session): void {
+    this.beforePosition = { ...session.player.pos };
     for (const ship of session.world.ships)
       this.viewFor(session, ship.id)?.capture(ship);
   }
@@ -294,6 +316,11 @@ export class GameRenderer {
   /** Must run after every sim step: react to what just happened. */
   afterStep(session: Session): void {
     const player = session.player;
+    if (session.world.periodic && Math.hypot(player.pos.x - this.beforePosition.x, player.pos.z - this.beforePosition.z) > session.level.bounds) {
+      this.rig.shift(player.pos.x - this.beforePosition.x, player.pos.z - this.beforePosition.z);
+      const view = this.viewFor(session, player.id);
+      view?.capture(player); view?.capture(player);
+    }
     for (const e of session.simEvents) {
       switch (e.type) {
         case "fire": {
@@ -346,16 +373,17 @@ export class GameRenderer {
       const pack = session instanceof VoyageSession ? session.voyage.pack : session.chapter;
       this.ocean.setChapter(pack);
       const weather = session instanceof VoyageSession ? session.voyage.weather : undefined;
-      const raining = !!weather?.rain;
-      this.sunStrength = pack === 0 ? 1.35 : raining ? 0.48 : pack === 3 ? 0.6 : 0.78;
-      this.skyStrength = pack === 0 ? 0.9 : raining ? 0.65 : 0.62;
-      this.sun.diffuse = Color3.FromHexString(pack === 0 ? "#ffe8c9" : raining ? "#a9c2d4" : pack === 3 ? "#a4b2ec" : "#b5c5d0");
-      this.sky.diffuse = Color3.FromHexString(pack === 0 ? "#a8c1d7" : "#859bad");
-      this.sky.groundColor = Color3.FromHexString(pack === 0 ? "#3d5a80" : "#1c293b");
-      this.scene.ambientColor = Color3.FromHexString(pack === 0 ? "#36445c" : "#1c2938");
-      this.scene.fogColor = Color3.FromHexString(pack === 0 ? "#355363" : raining ? "#283a46" : pack === 3 ? "#1c2234" : "#1b2c3a");
+      const style = worldStyle(pack), storm = weather?.kind === "storm";
+      const rain = weather?.rain ?? 0;
+      this.sunStrength = style.sunStrength * (storm ? .4 : rain ? .58 : 1);
+      this.skyStrength = style.skyStrength * (storm ? .9 : 1);
+      this.sun.diffuse = Color3.FromHexString(rain ? style.sky : style.sun);
+      this.sky.diffuse = Color3.FromHexString(style.sky);
+      this.sky.groundColor = Color3.FromHexString(style.ground);
+      this.scene.ambientColor = Color3.FromHexString(style.ambient);
+      this.scene.fogColor = Color3.FromHexString(style.fog).scale(storm ? .78 : 1);
       this.scene.clearColor = Color4.FromColor3(this.scene.fogColor, 1);
-      this.scene.fogDensity = raining ? 0.0024 : FOG_DENSITY;
+      this.scene.fogDensity = rain ? .0028 : FOG_DENSITY;
       if (weather) this.ocean.setWeather(weather);
     }
     const world = session.world;
@@ -383,6 +411,7 @@ export class GameRenderer {
 
     for (const ship of world.ships) {
       const view = this.viewFor(session, ship.id);
+      if (ship.team === "player") view?.setCaptainView(this.captainCamera.enabled);
       const aiming = session.brains.get(ship.id)?.aiming ?? null;
       view?.update(
         ship,
@@ -398,6 +427,17 @@ export class GameRenderer {
         view?.setSailColor(
           session instanceof VoyageSession ? "#191d1c" : session.sailColor,
         );
+    }
+
+    this.rig.camera.fovMode = Camera.FOVMODE_VERTICAL_FIXED;
+    this.rig.camera.fov = .78;
+    this.rig.camera.minZ = 1;
+    const playerView = this.views.get(player.id);
+    if (playerView) this.captainCamera.apply(this.rig.camera, playerView, dt);
+    if (this.inspectionIsland && !this.captainCamera.enabled) {
+      const island = this.inspectionIsland, r = island.radius;
+      this.rig.camera.position.set(island.pos.x + r * .25, r * 1.6 + 22, island.pos.z - r * 2.2 - 26);
+      this.rig.camera.setTarget(new Vector3(island.pos.x, 5, island.pos.z));
     }
 
     // Cannonballs.
@@ -428,6 +468,7 @@ export class GameRenderer {
     this.sun.intensity = this.sunStrength + flash * 1.1;
     this.sky.intensity = this.skyStrength + flash * 0.6;
     this.ocean.setFlash(flash);
+    this.skyView?.update(this.time, flash);
 
     this.ocean.update(
       this.time,
@@ -440,7 +481,8 @@ export class GameRenderer {
         length: s.alive ? s.spec.length : 0,
       })),
     );
-    this.islands.update(this.time);
+    this.islands.update(this.time, world.wind, session.player.pos);
+    if (import.meta.env.DEV) this.engine.getRenderingCanvas()!.dataset.activeIslands = String(this.islands.activeCount);
     this.effects.update(dt);
     this.adventure.update(session, this.time, dt);
     this.voyageView?.update(this.time);

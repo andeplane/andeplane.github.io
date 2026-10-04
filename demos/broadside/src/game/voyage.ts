@@ -9,7 +9,7 @@ import {
   type ShipIntent,
   type Side,
 } from "../sim/ships";
-import { distance, angleDiff, headingTo } from "../sim/math";
+import { distance, angleDiff, headingTo, wrapCoordinate, seaDistance } from "../sim/math";
 import { findAim } from "../sim/cannons";
 import { aimFortShot } from "./forts";
 import { thinkAi, createBrain } from "./ai";
@@ -173,6 +173,8 @@ export interface WhirlpoolDef {
   spin: number;
 }
 export interface VoyageDef {
+  /** Exploration has no finish line, stars or campaign rewards. */
+  freeSailing?: boolean;
   index: number;
   pack: number;
   weather: VoyageWeather;
@@ -393,6 +395,7 @@ export class VoyageSession extends Session {
   constructor(voyage: VoyageDef, junior = true) {
     super(voyage.level, { junior });
     this.voyage = voyage;
+    this.world.periodic = !!voyage.freeSailing;
     if (voyage.weather.drift) {
       this.world.windField = (time) => weatherWind(voyage.weather, time);
       this.world.wind = this.world.windField(0);
@@ -409,7 +412,7 @@ export class VoyageSession extends Session {
       cannonRange: 80,
     };
     this.player.sail = 2;
-    this.treasures = [
+    this.treasures = voyage.freeSailing ? [] : [
       {
         id: 0,
         chapter: voyage.pack,
@@ -475,7 +478,7 @@ export class VoyageSession extends Session {
     }
     if (this.state === "won") return;
     this.elapsed += dt;
-    if (this.voyage.pack === 0)
+    if (this.voyage.pack === 0 && !this.voyage.freeSailing)
       intent = { ...intent, firePort: false, fireStarboard: false };
     if (intent.firePort && intent.fireStarboard) {
       const side = this.firingSide;
@@ -505,8 +508,8 @@ export class VoyageSession extends Session {
     this.simEvents = this.world.step(dt);
     const crashed = this.level.islands.find((island) => {
       // Capsule hull: the bow/stern can strike before the ship's center arrives.
-      const dx = island.pos.x - this.player.pos.x,
-        dz = island.pos.z - this.player.pos.z,
+      const dx = this.world.periodic ? wrapCoordinate(island.pos.x - this.player.pos.x, this.level.bounds) : island.pos.x - this.player.pos.x,
+        dz = this.world.periodic ? wrapCoordinate(island.pos.z - this.player.pos.z, this.level.bounds) : island.pos.z - this.player.pos.z,
         fx = Math.sin(this.player.heading),
         fz = Math.cos(this.player.heading),
         halfLength = this.player.spec.length * 0.4,
@@ -638,11 +641,12 @@ export class VoyageSession extends Session {
       }
     }
     for (const gem of this.voyage.gems)
-      if (!gem.found && distance(gem, this.player.pos) < 10) {
+      if (!gem.found && seaDistance(gem, this.player.pos, this.world.periodic ? this.level.bounds : undefined) < 10) {
         gem.found = true;
         this.gemsFound++;
         this.events.push({ type: "gold", amount: 1, x: gem.x, z: gem.z });
       }
+    if (this.voyage.freeSailing) return;
     const t = this.treasures[0]!;
     // Both branches lead to a broad exit. Young captains need not hit a tiny point.
     const atExit =

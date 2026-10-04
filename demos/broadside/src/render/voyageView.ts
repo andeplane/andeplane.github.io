@@ -5,6 +5,7 @@ import { Vector3 } from "@babylonjs/core/Maths/math.vector.js";
 import type { Scene } from "@babylonjs/core/scene.js";
 import type { Mesh } from "@babylonjs/core/Meshes/mesh.js";
 import type { VoyageSession } from "../game/voyage";
+import { seaDistance, wrapCoordinate } from "../sim/math";
 export class VoyageView {
   private gems: Mesh[] = [];
   private tentacles: Mesh[] = [];
@@ -36,7 +37,7 @@ export class VoyageView {
       this.gems.push(m);
     }
     const end = session.voyage.finish;
-    for (let n = -4; n <= 4; n++) {
+    for (let n = -4; !session.voyage.freeSailing && n <= 4; n++) {
       const buoy = MeshBuilder.CreateCylinder(
         "golden exit buoy",
         { height: 1.2, diameterTop: 1.3, diameterBottom: 2, tessellation: 12 },
@@ -52,7 +53,7 @@ export class VoyageView {
       light.position.set(n * 17, 2, end.z);
       light.material = gold;
     }
-    for (let i = 0; i < 3; i++) {
+    for (let i = 0; !session.voyage.freeSailing && i < 3; i++) {
       const m = MeshBuilder.CreateTorus(
         "treasure finish glow",
         { diameter: 25 + i * 4, thickness: 0.13, tessellation: 64 },
@@ -139,7 +140,12 @@ export class VoyageView {
       mesh.scaling.setAll(0.8 + 0.12 * Math.sin(time * 10));
     });
     this.gems.forEach((m, i) => {
-      m.setEnabled(!this.session.voyage.gems[i]!.found);
+      const gem = this.session.voyage.gems[i]!, s = this.session;
+      m.setEnabled(!gem.found && (!s.world.periodic || seaDistance(gem, s.player.pos, s.level.bounds) < 240));
+      if (s.world.periodic) {
+        m.position.x = s.player.pos.x + wrapCoordinate(gem.x - s.player.pos.x, s.level.bounds);
+        m.position.z = s.player.pos.z + wrapCoordinate(gem.z - s.player.pos.z, s.level.bounds);
+      }
       m.position.y = 2.4 + Math.sin(time * 2 + i) * 0.5;
       m.rotation.y = time;
     });
