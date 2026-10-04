@@ -1,0 +1,21 @@
+#v-deck { min-height: 44px; padding: 7px 10px; border: 1px solid #b69a6666; border-radius: 10px; background: #112934e8; color: #ffe2ab; font-size: 11px; }
+#v-deck:disabled { opacity: .55; }
+[data-on-deck="true"] #v-wheel,
+[data-on-deck="true"] #v-anchor,
+[data-on-deck="true"] #v-captain-help { display: none; }
+#deck-crosshair { position: fixed; left: 50%; top: 50%; transform: translate(-50%,-50%); font: 24px monospace; color: #fff5d699; pointer-events: none; }
+#deck-pad { pointer-events: auto; position: absolute; left: 24px; bottom: calc(32px + var(--safe)); width: 108px; height: 108px; touch-action: none; border: 1px solid #d4b97b66; border-radius: 50%; background: radial-gradient(#111b2290,#12191d66); box-shadow: inset 0 0 0 13px #ffe3ad0c; }
+#deck-thumb { position: absolute; left: 32px; top: 32px; width: 42px; height: 42px; border: 2px solid #d3b47199; background: #a78f5a55; border-radius: 50%; pointer-events: none; }
+#deck-pad small { position: absolute; bottom: -21px; width: 100%; text-align: center; font-size: 9px; letter-spacing: 2px; }
+#deck-jump { position: absolute; left: 145px; bottom: calc(42px + var(--safe)); width: 48px; height: 54px; border: 1px solid #d4b97b88; border-radius: 12px; background: #111c25d0; font-size: 24px; }
+#deck-jump small { display: block; font-size: 8px; }
+#deck-helm { position: absolute; left: 50%; bottom: calc(160px + var(--safe)); transform: translateX(-50%); min-height: 44px; padding: 10px 16px; color: #332417; background: #ecd29a; border: 1px solid #9b7b3d; border-radius: 8px; font-weight: 700; }
+#fishing-ui { position: absolute; right: 18px; bottom: calc(178px + var(--safe)); width: min(210px,47vw); text-align: right; }
+#fishing-ui button { min-height: 44px; padding: 10px 15px; border: 1px solid #c2a478; border-radius: 10px; color: #ffe2ab; background: #102c38ef; font-weight: 700; }
+#fishing-ui button:disabled { opacity: .55; }
+#fish-status { font-size: 11px; line-height: 1.5; margin: 8px 0 0; padding: 5px 8px; background: #0c2331c0; border-radius: 5px; }
+#fish-cancel { display: block; margin: 6px 0 0 auto; font-size: 10px; }
+[data-fishing="bite"] #deck-fish { background: #f1c678; color: #332417; box-shadow: 0 0 20px #e5ad6366; }
+.deck-hint { position: absolute; bottom: 4px; width: 100%; text-align: center; font-size: 10px; text-shadow: 0 1px 4px #000; pointer-events: none; }
+@media (max-width:650px) { #v-deck { font-size: 9px; padding: 4px 6px; } #deck-jump { left: 138px; } .deck-hint { display: none; } }
+@media (max-height:480px) and (orientation:landscape) { #fishing-ui { bottom: 24px; right: 155px; width: 180px; } #deck-helm { bottom: 105px; } #deck-pad { width: 90px; height: 90px; } #deck-thumb { left:24px;top:24px; } #deck-jump { left:118px; } .deck-hint { display:none; } }

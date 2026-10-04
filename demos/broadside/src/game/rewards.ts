@@ -12,10 +12,10 @@ export interface VoyageReward {
   model: number;
 }
 export function goldTotal(progress: Progress): number {
-  return Object.keys(progress.voyages).length * GOLD_PER_LEVEL;
+  return (Object.keys(progress.voyages).length + progress.fishing.chests.length) * GOLD_PER_LEVEL;
 }
 export function worldGold(progress: Progress, world: number): number {
-  return worldLevels(world).filter((level) => !!progress.voyages[level]).length * GOLD_PER_LEVEL;
+  return (worldLevels(world).filter((level) => !!progress.voyages[level]).length + progress.fishing.chests.filter(c => c.world === world).length) * GOLD_PER_LEVEL;
 }
 export function worldComplete(progress: Progress, world: number): boolean {
   return worldLevels(world).every((i) => !!progress.voyages[i]);
@@ -65,12 +65,30 @@ export function caveProgress(progress: Progress): Progress {
     relics: progress.relics.filter(id => !progress.cargoRelics.includes(id)),
     cargo: [],
     cargoRelics: [],
+    fishing: { ...progress.fishing, chests: progress.fishing.chests.filter(c => c.delivered) },
   };
 }
 export function deliverChest(progress: Progress, level: number): boolean {
+  if (level < 0) {
+    const chest = progress.fishing.chests[-level-1];
+    if (!chest || chest.delivered) return false;
+    chest.delivered = true; return true;
+  }
   const i = progress.cargo.indexOf(level);
   if (i < 0) return false;
   progress.cargo.splice(i, 1);
   progress.cargoRelics = progress.cargoRelics.filter(id => progress.cargo.some(level => WORLD_RELICS[worldOf(level)] === id));
   return true;
+}
+
+/** Negative IDs refer to fishing chests; campaign level IDs retain their old meaning. */
+export function cargoChests(progress: Progress): number[] {
+  return [...progress.cargo, ...progress.fishing.chests.flatMap((c,i)=>c.delivered?[]:[-i-1])];
+}
+export function chestWorld(progress: Progress, id:number): number {
+  return id < 0 ? progress.fishing.chests[-id-1]!.world : worldOf(id);
+}
+export function awardCatch(progress: Progress, kind:'fish'|'chest', world:number): void {
+  if(kind==='fish') progress.fishing.fish++;
+  else progress.fishing.chests.push({world, delivered:false});
 }

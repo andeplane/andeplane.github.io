@@ -18,6 +18,7 @@ import { RewardChest, revealPose } from './chest';
 import { buildRelic } from './relics';
 import { antialiasSamples, isPhoneRendering } from './quality';
 import type { VoyageDef } from '../game/voyage';
+import { cargoChests } from '../game/rewards';
 import type { Progress } from '../game/progress';
 
 /** A shipboard cabin with an open stern window onto the island just reached. */
@@ -97,12 +98,12 @@ export class ShipHold {
   }
   open(progress: Progress, special: number | null, reveal = true): void {
     this.revealTime=0;this.revealing=reveal;
-    this.coins=progress.cargo.length ? 1000 : 0;
+    this.coins=cargoChests(progress).length ? 1000 : 0;
     this.special?.dispose(false,true);this.special=null;
     if(special!==null) {this.special=buildRelic(this.scene,special);this.special.parent=this.chest.root;this.special.scaling.setAll(.3);const b=this.special.getHierarchyBoundingVectors(true);this.special.position.set(.1,1.25-b.min.y,-.04);}
     this.cargoMeshes.forEach(m=>m.dispose());this.cargoMeshes=[];
     const timber:Mesh[]=[],fittings:Mesh[]=[];
-    for(let i=0;i<Math.max(0,progress.cargo.length-1);i++) {
+    for(let i=0;i<Math.max(0,cargoChests(progress).length-1);i++) {
       const side=i%2?-1:1, n=Math.floor(i/2),x=side*3.25,z=4.4-(n%7)*1.35,y=.78+Math.floor(n/7)*1.04;
       const crate=MeshBuilder.CreateBox('stowed chest of one thousand gold',{width:1.3,height:.74,depth:.92},this.scene);crate.position.set(x,y+.37,z);crate.material=this.wood;timber.push(crate);
       const lid=MeshBuilder.CreateCylinder('stowed rounded chest lid',{height:1.3,diameter:.92,arc:.5,enclose:true,tessellation:16},this.scene);lid.rotation.set(Math.PI/2,Math.PI/2,0);lid.position.set(x,y+.74,z);lid.material=this.wood;timber.push(lid);

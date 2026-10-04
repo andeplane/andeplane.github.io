@@ -22,6 +22,12 @@ An iPhone/iPad app embeds this same game with Capacitor and bundled offline asse
 
 Use the corner fullscreen button to enter or leave fullscreen on supported browsers. It includes the canvas and every game control, and preserves native rendering resolution when the screen size changes. On iPhone, use Safari’s **Share → Add to Home Screen** (leave **Open as Web App** enabled when offered), then launch Broadside from its Home Screen icon to hide Safari’s bars. Browser fullscreen support varies; an unsupported request shows instructions instead. Phone Home Screen launching still needs physical-device verification.
 
+## Walking and fishing while sailing
+
+Tap **Walk deck** (or press V) to leave the helm. The same ship keeps sailing through the same live world. Use the left stick / WASD to walk, swipe / drag / arrows to look and Jump / Space to jump. Rails and masts block movement. Steering and sail controls are disabled while away: walk back to the wheel and tap **Take the helm** / E. Overhead sailing remains the default camera and is restored when taking the helm, unless you were already using captain view.
+
+At either rail, tap **Cast line** / F. The crew furls the sails while you watch the float; the sea and its dangers continue. Tap **Reel in** / F within three seconds of the bite. Each successful reel has a 10% chance of a chest filled with 1,000 gold; otherwise it catches a silver fish. Chests are saved aboard as cargo and unload through **Return to cave**, with the same opening and pouring animations as level rewards. Fishing never changes level completion or unlocks. Fish counts and fishing chest delivery persist across reloads.
+
 ## The campaign
 
 Four packs of ten voyages introduce mechanics in order:

@@ -47,6 +47,23 @@ describe("captain view", () => {
     captain.centre(); expect(captain.yaw).toBe(0);
     scene.dispose(); engine.dispose();
   });
+  it("keeps a walking eye attached to the sailing, turning and rolling ship", () => {
+    vi.stubGlobal("innerWidth", 1280);
+    const engine=new NullEngine(),scene=new Scene(engine),camera=new FreeCamera("deck",Vector3.Zero(),scene);
+    const root=new TransformNode("ship",scene),seat=new Vector3(2,5,-10);
+    const captain=new CaptainCamera();captain.enabled=true;captain.deckEye=new Vector3(-2,4,7);
+    const view={root,captainSeat:seat} as ShipView;
+    for(let i=0;i<200;i++){
+      root.position.set(i*.2,Math.sin(i*.03)*.4,i*.1);root.rotation.set(.1,i*.005,.07);
+      camera.position.set(0,80,-60);captain.apply(camera,view,1/60);
+    }
+    expect(Vector3.Distance(camera.position,Vector3.TransformCoordinates(captain.deckEye,root.getWorldMatrix()))).toBeLessThan(.01);
+    expect(view.captainSeat.equals(seat)).toBe(true);
+    captain.deckEye=null;
+    for(let i=0;i<60;i++)captain.apply(camera,view,1/60);
+    expect(Vector3.Distance(camera.position,Vector3.TransformCoordinates(seat,root.getWorldMatrix()))).toBeLessThan(.01);
+    scene.dispose();engine.dispose();
+  });
   it("returns smoothly to the overhead camera and keeps look angles bounded", () => {
     vi.stubGlobal("innerWidth", 390);
     const engine = new NullEngine(), scene = new Scene(engine);

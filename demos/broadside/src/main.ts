@@ -1,3 +1,7 @@
+import { Vector3 } from "@babylonjs/core/Maths/math.vector.js";
+import { DeckWalk } from "./game/deckWalk";
+import { Fishing } from "./game/fishing";
+import { DeckFishing } from "./render/deckFishing";
 import { GOLD_AREAS } from "./game/goldAreas";
 import "@babylonjs/core/Culling/ray.js";
 import "@babylonjs/core/Shaders/color.vertex.js";
@@ -8,7 +12,7 @@ import { App } from "@capacitor/app";
 import { VoyageSession, generateVoyage, RELICS } from "./game/voyage";
 import { newOpenSea, readOpenSea, openSeaVoyage, recordOpenSea, saveOpenSea } from "./game/openSea";
 import { readProgress, saveProgress } from "./game/progress";
-import { awardVoyage, syncRewards, caveProgress, deliverChest, type VoyageReward } from "./game/rewards";
+import { awardVoyage, syncRewards, caveProgress, deliverChest, cargoChests, chestWorld, awardCatch, type VoyageReward } from "./game/rewards";
 import { ShipHold } from "./render/shipHold";
 import { WorldJourney, nearestRegion, readJourney, saveJourney } from "./game/journey";
 import { TOTAL_LEVELS, levelUnlocked } from "./game/campaign";
@@ -37,6 +41,7 @@ import "./ui/gameSurface.css";
 import "./ui/fullscreen.css";
 import "./ui/sailing.css";
 import "./ui/journey.css";
+import "./ui/deck.css";
 
 installGameSurface();
 
@@ -133,6 +138,15 @@ async function main() {
   let arrivalTime = 0,
     arrivalInCave = false;
   let captainPreferred = false, helmTurn = 0;
+  let deck: DeckWalk | null = null, tackle: DeckFishing | null = null, deckCamera = false;
+  const fishing = new Fishing();
+  const resetDeck = () => {
+    fishing.cancel(); tackle?.dispose(); tackle = null; deck = null;
+    if(renderer) renderer.captainCamera.deckEye = null;
+  };
+  const lookFromShip = (x:number,y:number) => {
+    if(deck?.active) deck.look(x,y); else renderer?.captainCamera.look(x,y);
+  };
   let seaChartOpen = false, lastSeaSave = 0;
   const stashSea = () => {
     if (!renderer || !session.voyage.freeSailing || (mode !== "play" && mode !== "result")) return;
@@ -188,14 +202,15 @@ async function main() {
     hold?.scene.dispose(); hold = null;
     harbour?.scene.dispose(); harbour = null;
     const banked = caveProgress(progress);
-    banked.voyages[unloadingIndex] = progress.voyages[unloadingIndex]!;
-    const world = Math.floor(unloadingIndex/10);
+    const world = chestWorld(progress,unloadingIndex);
+    if (unloadingIndex >= 0) banked.voyages[unloadingIndex] = progress.voyages[unloadingIndex]!;
+    else banked.fishing.chests.push({...progress.fishing.chests[-unloadingIndex-1]!,delivered:true});
     getCave().refresh(banked, world); getCave().beginUnload(world);
     hud.unloading(unloadTotal - unloadQueue.length, unloadTotal);
   };
   const unloadAtCave = () => {
-    if (!progress.cargo.length) { home(); return; }
-    unloadQueue = [...progress.cargo].sort((a,b)=>a-b); unloadTotal=unloadQueue.length;
+    if (!cargoChests(progress).length) { home(); return; }
+    unloadQueue = cargoChests(progress); unloadTotal=unloadQueue.length;
     arrive("unload");
   };
   const visitHold = () => {
@@ -220,7 +235,7 @@ async function main() {
     if (i !== null) hud.select(i, getCave().selectedGoldWorld);
   };
   const home = () => {
-    stashSea();
+    stashSea(); resetDeck();
     cancelUnloading();
     clearArrival();
     gesture.clear();
@@ -276,7 +291,7 @@ async function main() {
     stepper.reset();
   };
   const menu = () => {
-    stashSea();
+    stashSea(); resetDeck();
     journey.cancel(); travelAction = null;
     hud.endTravel(journey.location);
     seaChartOpen = false; hud.seaChart(false);
@@ -298,7 +313,7 @@ async function main() {
     stepper.reset();
   };
   const visitShip = async (treasure = false) => {
-    stashSea();
+    stashSea(); resetDeck();
     cancelUnloading();
     clearArrival(); gesture.clear(); clearWalking(); controls.clear();
     const id = ++loadId;
@@ -350,7 +365,7 @@ async function main() {
     stepper.reset(); canvas.focus();
   };
   const start = async (index: number, freeMode = false, pack = 0, respawn = false) => {
-    stashSea();
+    stashSea(); resetDeck();
     if (harbour) { harbour.scene.dispose(); harbour = null; }
     if (respawn) {
       openSea.position = { x: 0, z: 0 }; openSea.heading = openSea.yaw = 0; openSea.pitch = .03;
@@ -433,6 +448,7 @@ async function main() {
   };
   const toggleCamera = () => {
     if (mode !== "play" || !renderer) return;
+    if (deck?.active) { hud.help("Walk back to the wheel and take the helm first.",session.elapsed+4);return; }
     captainPreferred = renderer.captainCamera.enabled = !renderer.captainCamera.enabled;
     renderer.captainCamera.centre();
     heading = tapHeading = null; helmTurn = 0;
@@ -448,6 +464,33 @@ async function main() {
     clearWalking(); gesture.clear(); helmTurn = 0;
     heading = null;
     pendingFire = false;
+  };
+  const walkDeck = () => {
+    if(mode!=="play"||paused||!renderer?.playerView)return;
+    if(deck?.active) {
+      if(fishing.phase!=='idle'||!deck.takeHelm())return;
+      renderer.captainCamera.deckEye=null;renderer.captainCamera.enabled=deckCamera;
+      renderer.captainCamera.yaw=deck.walker.yaw;renderer.captainCamera.pitch=deck.walker.pitch;
+      tackle?.hide();
+    } else {
+      deck??=new DeckWalk(renderer.playerView.deckGeometry);
+      deckCamera=renderer.captainCamera.enabled;
+      deck.leave(renderer.captainCamera.yaw,renderer.captainCamera.pitch);
+      renderer.captainCamera.enabled=true;
+      hud.help("The ship keeps sailing. Walk back to the wheel to steer again.",session.elapsed+6);
+    }
+    controls.clear();clearWalking();gesture.clear();heading=tapHeading=null;helmTurn=0;pendingFire=false;
+    hud.camera(renderer.captainCamera.enabled);
+  };
+  const fishFromDeck = () => {
+    if(mode!=="play"||paused||!deck?.active||!renderer?.playerView)return;
+    if(fishing.phase==='bite'){fishing.reel();return;}
+    if(fishing.phase!=='idle'){fishing.cancel();tackle?.hide();return;}
+    if(!fishing.cast(deck.atRail&&deck.walker.grounded))return;
+    // The crew furls the sails for fishing; the world and its dangers keep running.
+    session.player.sail=0;clearWalking();
+    deck.walker.yaw=Math.sign(deck.walker.x)*Math.PI/2;deck.walker.pitch=.35;
+    tackle??=new DeckFishing(renderer.scene);tackle.begin(renderer.playerView,deck);
   };
   const travelTo = (action: "cave" | "ship" | "hold" | "unload" | number) => {
     if (journey.trip || (typeof action === "number" && !levelUnlocked(progress.voyages, action))) return;
@@ -470,6 +513,9 @@ async function main() {
     freeSail,
     seaChart,
     camera: toggleCamera,
+    deck: walkDeck,
+    fish: fishFromDeck,
+    cancelFish: () => {fishing.cancel();tackle?.hide();clearWalking();},
     centreLook: () => renderer?.captainCamera.centre(),
     home,
     harbour: () => void visitShip(),
@@ -494,6 +540,7 @@ async function main() {
       if (mode === "play" && !paused) pendingFire = true;
     },
     steer: (h) => {
+      if(deck?.active)return;
       if (renderer?.captainCamera.enabled) {
         helmTurn = h === null ? 0 : Math.sin(h);
         heading = tapHeading = null;
@@ -504,6 +551,7 @@ async function main() {
       if (h !== null) session.player.sail = 2;
     },
     anchor: () => {
+      if(deck?.active)return;
       session.player.sail = session.player.sail ? 0 : 2;
     },
   });
@@ -524,6 +572,7 @@ async function main() {
       Math.abs(angleDiff(session.player.heading, tapHeading)) < 0.04
     )
       tapHeading = null;
+    if (deck) intent=deck.helmIntent(intent);
     if (pendingFire) {
       intent.firePort = true;
       intent.fireStarboard = true;
@@ -540,6 +589,7 @@ async function main() {
     }
     if (session.state === "won" || session.state === "lost") {
       controls.clear();
+      resetDeck();
       clearWalking(); gesture.clear(); helmTurn = 0;
       heading = null;
       mode = "result";
@@ -607,6 +657,13 @@ async function main() {
       return;
     }
     if (mode !== "play" || paused) return;
+    if(deck?.active) {
+      if(e.code==='KeyE'&&!e.repeat){walkDeck();e.preventDefault();return;}
+      if(e.code==='KeyF'&&!e.repeat){fishFromDeck();e.preventDefault();return;}
+      if(walking.keyDown(e.code,performance.now()))e.preventDefault();
+      return;
+    }
+    if(e.code==='KeyV'&&!e.repeat){walkDeck();e.preventDefault();return;}
     if (e.code === "KeyC" && !e.repeat) { toggleCamera(); e.preventDefault(); return; }
     if (e.code === "KeyR" && !e.repeat) { renderer?.captainCamera.centre(); e.preventDefault(); return; }
     if (renderer?.captainCamera.enabled && e.code.startsWith("Arrow")) {
@@ -669,10 +726,10 @@ async function main() {
   });
   canvas.addEventListener("pointermove", (e) => {
     if (mode === "play" && !paused && renderer?.captainCamera.enabled) {
-      if (document.pointerLockElement === canvas) renderer.captainCamera.look(e.movementX, e.movementY);
+      if (document.pointerLockElement === canvas) lookFromShip(e.movementX, e.movementY);
       else {
         const action = gesture.move(e.pointerId, e.clientX, e.clientY);
-        if (action?.type === "look") renderer.captainCamera.look(action.dx, action.dy);
+        if (action?.type === "look") lookFromShip(action.dx, action.dy);
       }
       return;
     }
@@ -834,12 +891,34 @@ async function main() {
     } else if (mode === "play") {
       if (!paused && renderer!.captainCamera.enabled) {
         const look = walking.readLook();
-        renderer!.captainCamera.look(look.right * 500 * dt, look.down * 450 * dt);
+        lookFromShip(look.right * 500 * dt, look.down * 450 * dt);
+      }
+      if(deck?.active&&!paused) {
+        if(fishing.phase==='idle')deck.step(walking.read(),dt);
+        else {
+          walking.read(); // Consume jump edges while both hands are holding the rod.
+          fishing.step(dt);
+          if(fishing.phase==='reeling'||(fishing.phase==='caught'&&fishing.time<1.2)) {
+            const yaw=Math.atan2(-Math.sign(deck.walker.x)*.65,1.25);
+            deck.walker.yaw+=angleDiff(deck.walker.yaw,yaw)*Math.min(1,dt*3);
+            deck.walker.pitch+=(.55-deck.walker.pitch)*Math.min(1,dt*3);
+          }
+          const caught=fishing.collect();
+          if(caught){
+            awardCatch(progress,caught.kind,session.voyage.freeSailing?nearestRegion(session.player.pos):session.voyage.pack);
+            saveProgress(progress,storage);
+          }
+        }
+        renderer!.captainCamera.deckEye=Vector3.FromArray([deck.eye.x,deck.eye.y,deck.eye.z]);
+        renderer!.captainCamera.yaw=deck.walker.yaw;renderer!.captainCamera.pitch=deck.walker.pitch;
       }
       controls.setPad(window.navigator.getGamepads?.().find((p) => p) ?? null);
       const alpha = paused ? 1 : stepper.advance(dt);
       if (mode === "play") {
         renderer!.render(session, alpha, dt);
+        if(deck&&renderer!.playerView)tackle?.update(fishing,renderer!.playerView,session.elapsed,reducedMotion.matches);
+        hud.deck(!!deck?.active,!!deck?.nearHelm,!!deck?.atRail,fishing.phase,fishing.catch?.kind??null,progress.fishing.fish);
+        if(import.meta.env.DEV&&deck){canvas.dataset.deckPosition=[deck.walker.x,deck.walker.feet,deck.walker.z].join(',');canvas.dataset.deckHelm=String(deck.nearHelm);}
         hud.update(session, (x, y, z) => renderer!.project(x, y, z),
           renderer!.captainCamera.enabled ? session.player.heading + renderer!.captainCamera.yaw : 0);
         canvas.dataset.cameraView = renderer!.captainCamera.enabled ? "captain" : "overhead";

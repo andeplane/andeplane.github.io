@@ -18,6 +18,7 @@ import { SINK_DURATION, type Ship, type Side } from "../sim/ships";
 import { sampleWaves } from "../sim/waves";
 import type { Effects } from "./effects";
 import { PALETTE } from "./palette";
+import type { DeckGeometry } from "../game/deckWalk";
 import type { Livery, ShipModels } from "./shipModels";
 
 const lerpAngle = (a: number, b: number, t: number) => a + wrapAngle(b - a) * t;
@@ -26,6 +27,7 @@ const lerpAngle = (a: number, b: number, t: number) => a + wrapAngle(b - a) * t;
 export class ShipView {
   readonly root: TransformNode;
   readonly captainSeat: Vector3;
+  readonly deckGeometry: DeckGeometry;
   private helm?: TransformNode;
   private captainView = false;
   private readonly length: number;
@@ -69,6 +71,29 @@ export class ShipView {
       mesh => mesh.isDescendantOf(model) && /deck|teak|hull/i.test(mesh.material?.name ?? ""));
     const deckY = Math.max(1.35, deck?.pickedPoint?.y ?? 2.7);
     this.captainSeat = new Vector3(helmX, deckY + 1.65, seatZ - 1.35);
+    const floors = new Map<string, number>();
+    const sample = (x:number,z:number): number => {
+      const key = `${x},${z}`;
+      if (floors.has(key)) return floors.get(key)!;
+      this.root.computeWorldMatrix(true);
+      const matrix=this.root.getWorldMatrix(), inverse=matrix.clone().invert();
+      const origin=Vector3.TransformCoordinates(new Vector3(x,deckY+3,z),matrix);
+      const down=Vector3.TransformNormal(new Vector3(0,-1,0),matrix).normalize();
+      const hit=scene.pickWithRay(new Ray(origin,down,ship.spec.length*2),
+        mesh=>mesh.isDescendantOf(model)&&/deck|teak|hull/i.test(mesh.material?.name ?? ""));
+      const y=hit?.pickedPoint ? Vector3.TransformCoordinates(hit.pickedPoint,inverse).y : deckY;
+      const floor=Math.max(1.35,Math.min(deckY+2.5,y));floors.set(key,floor);return floor;
+    };
+    this.deckGeometry = {
+      length:ship.spec.length,beam:ship.spec.beam,
+      helm:{x:helmX,y:deckY,z:seatZ-1.35},
+      floor:(x,z)=>{
+        const cell=.6, x0=Math.floor(x/cell)*cell,z0=Math.floor(z/cell)*cell;
+        const u=(x-x0)/cell,v=(z-z0)/cell;
+        return lerp(lerp(sample(x0,z0),sample(x0+cell,z0),u),
+          lerp(sample(x0,z0+cell),sample(x0+cell,z0+cell),u),v);
+      },
+    };
     if (ship.team === "player") this.helm = this.buildHelm(scene, deckY, helmX, seatZ + .3);
     for (const m of model.getChildMeshes(false)) {
       shadows.addShadowCaster(m, false);

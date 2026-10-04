@@ -13,7 +13,7 @@ function setup(privateShip: boolean, cargo = false) {
   const progress = readProgress();
   if (cargo) awardVoyage(progress, 0, 3, 2);
   const handlers = {
-    start: vi.fn(), freeSail: vi.fn(), seaChart: vi.fn(), camera: vi.fn(),
+    deck: vi.fn(), fish: vi.fn(), cancelFish: vi.fn(), start: vi.fn(), freeSail: vi.fn(), seaChart: vi.fn(), camera: vi.fn(),
     travel: vi.fn(), centreLook: vi.fn(), home: vi.fn(), harbour: vi.fn(), hold: vi.fn(),
     unload: vi.fn(), menu: vi.fn(), overview: vi.fn(), caveMove: vi.fn(),
     caveJump: vi.fn(), caveInspect: vi.fn(), select: vi.fn(), pause: vi.fn(),
@@ -21,7 +21,7 @@ function setup(privateShip: boolean, cargo = false) {
   };
   const hud = new VoyageHud(progress, new Controls(), handlers);
   const button = (id: string) => hud.root.querySelector<HTMLButtonElement>(id)!;
-  return { hud, handlers, button };
+  return { hud, handlers, button, progress };
 }
 
 afterEach(() => { document.body.replaceChildren(); ship.private = false; });
@@ -126,5 +126,33 @@ describe("regional island journeys", () => {
     hud.endTravel({ kind: "cave" });
     hud.resizeChart(); hud.harbour(); button("#cave-back").click();
     expect(hud.root.dataset.screen).toBe("worlds");
+  });
+});
+
+describe('sailing deck controls',()=>{
+  it('offers walking while sailing and only allows returning at the real wheel',()=>{
+    const {hud,handlers,button}=setup(false);
+    hud.play(0);hud.deck(false,true,false,'idle',null,0);
+    expect(button('#v-deck').hidden).toBe(false);button('#v-deck').click();expect(handlers.deck).toHaveBeenCalledOnce();
+    hud.deck(true,false,false,'idle',null,0);
+    expect(button('#v-deck').disabled).toBe(true);expect(button('#deck-helm').hidden).toBe(true);
+    expect(button('#v-camera').disabled).toBe(true);expect(button('#deck-fish').disabled).toBe(true);
+    hud.deck(true,true,true,'idle',null,2);button('#deck-helm').click();expect(handlers.deck).toHaveBeenCalledTimes(2);
+    button('#deck-fish').click();expect(handlers.fish).toHaveBeenCalledOnce();
+    hud.deck(true,true,true,'waiting',null,2);expect(button('#deck-fish').disabled).toBe(true);
+    expect(button('#v-deck').disabled).toBe(true);expect(button('#fish-cancel').hidden).toBe(false);
+    hud.deck(true,true,true,'bite',null,2);expect(button('#deck-fish').textContent).toBe('Reel in!');
+    button('#fish-cancel').click();expect(handlers.cancelFish).toHaveBeenCalledOnce();
+    hud.deck(true,true,true,'caught','chest',2);expect(button('#fish-status').textContent).toContain('1,000 gold safely aboard');
+    hud.deck(true,true,true,'caught','fish',3);expect(button('#fish-status').textContent).toContain('silver fish');
+    hud.showMenu();expect(button('#v-deck').hidden).toBe(true);
+    hud.play(0);hud.deck(false,true,false,'idle',null,0);expect(button('#v-deck').hidden).toBe(false);
+  });
+  it('shows fishing cargo in the hold and offers the same cave unloading action',()=>{
+    const {hud,button,progress}=setup(false);
+    progress.fishing.chests.push({world:1,delivered:false});
+    hud.hold();expect(button('#hold-count').textContent).toContain('1,000 gold');
+    expect(button('#hold-unload').hidden).toBe(false);
+    hud.harbour();expect(button('#harbour-unload').hidden).toBe(false);
   });
 });

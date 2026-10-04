@@ -1,11 +1,11 @@
 import { GOLD_AREAS, COIN_POSE_STRIDE, GOLD_POSE_VERSION } from "./goldAreas";
 
 export function validGoldLayout(data: ArrayBuffer, count: number, world: number): boolean {
-  if (!GOLD_AREAS[world] || count < 0 || count > 10000 || count % 1000 || data.byteLength !== count * COIN_POSE_STRIDE * 4) return false;
+  if (!GOLD_AREAS[world] || count < 0 || count > 100000 || count % 1000 || data.byteLength !== count * COIN_POSE_STRIDE * 4) return false;
   const poses = new Float32Array(data);
   for (let i = 0; i < poses.length; i += COIN_POSE_STRIDE) {
     if (!Array.from(poses.subarray(i, i + COIN_POSE_STRIDE)).every(Number.isFinite)) return false;
-    if (Math.abs(poses[i]!) > 5 || Math.abs(poses[i + 2]!) > 5 || poses[i + 1]! < -0.6 || poses[i + 1]! > 8) return false;
+    if (Math.abs(poses[i]!) > 5 || Math.abs(poses[i + 2]!) > 5 || poses[i + 1]! < -0.6 || poses[i + 1]! > 32) return false;
     const norm = Math.hypot(poses[i + 3]!, poses[i + 4]!, poses[i + 5]!, poses[i + 6]!);
     if (Math.abs(norm - 1) > 0.01) return false;
   }
@@ -53,6 +53,19 @@ export async function loadGoldLayout(world: number, count: number, persistent = 
   const key = `${GOLD_POSE_VERSION}:${world}:${count}`;
   const saved = persistent ? await savedLayout(key) : null;
   if (saved && validGoldLayout(saved, count, world)) return new Float32Array(saved);
+  if(count > 10000) {
+    // Deposits normally reload their saved physics poses. With unavailable storage,
+    // extend the baked hoard in deterministic layers instead of requesting absent assets.
+    const base=await loadGoldLayout(world,10000,persistent),stride=COIN_POSE_STRIDE;
+    const peak=Math.max(...Array.from({length:10000},(_,i)=>base[i*stride+1]!));
+    const poses=new Float32Array(count*stride);
+    for(let i=0;i<count;i++) {
+      const src=(i%10000)*stride,dst=i*stride,layer=Math.floor(i/10000);
+      poses.set(base.subarray(src,src+stride),dst);poses[dst+1]!+=layer*(peak+.12);
+    }
+    if(persistent)await storeLayout(key,poses.slice().buffer);
+    return poses;
+  }
   const response = await fetch(`${import.meta.env.BASE_URL}assets/hoard/world-${world}/${count}.bin`);
   if (!response.ok) throw new Error("Could not load the gold bank");
   const data = await response.arrayBuffer();
