@@ -371,3 +371,47 @@
     font-size: 10px;
   }
 }
+
+/* Reserve the cave's own shoreline below the worlds on portrait phones.
+   Safari's changing toolbar height must not move it over a world's label. */
+@media (max-width: 650px) and (max-aspect-ratio: 4/3) {
+  #world-menu .world-map {
+    --cave-space: clamp(132px, calc(26vw + 48px), 164px);
+  }
+  #world-menu #world-packs {
+    bottom: var(--cave-space);
+    display: grid;
+    grid-template: repeat(2, minmax(0, 1fr)) / repeat(2, minmax(0, 1fr));
+    gap: 12px 8px;
+  }
+  #world-menu .world-island {
+    position: relative;
+    inset: auto;
+    width: 100%;
+    max-width: none;
+    min-width: 0;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  #world-menu .world-0 { grid-area: 2 / 1; }
+  #world-menu .world-1 { grid-area: 2 / 2; }
+  #world-menu .world-2 { grid-area: 1 / 1; }
+  #world-menu .world-3 { grid-area: 1 / 2; }
+  #world-menu .world-art {
+    flex: 1 1 0;
+    min-height: 0;
+    height: 0;
+    max-height: none;
+    aspect-ratio: auto;
+  }
+  #world-menu .world-label {
+    flex: none;
+    margin-top: 0;
+  }
+  #world-menu .map-cave {
+    left: 3%;
+    width: clamp(92px, 26vw, 116px);
+  }
+}
