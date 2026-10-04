@@ -87,4 +87,21 @@ describe("Controls", () => {
     c.clear();
     expect(c.readIntent()).toMatchObject({ turn: 0, firePort: false });
   });
+
+  it.each([
+    ["keyboard", (c: Controls) => c.keyDown("KeyW")],
+    ["touch", (c: Controls) => c.setVirtual("sailUp", true)],
+    ["gamepad", (c: Controls) => c.setPad(pad([0.8], [12]))],
+  ] as const)("discards queued %s sail commands when paused or switching cameras", (_, press) => {
+    const c = new Controls();
+    press(c); // The game can pause before its next simulation step consumes this edge.
+    c.clear();
+    expect(c.readIntent()).toEqual({
+      turn: 0, sailUp: false, sailDown: false, firePort: false, fireStarboard: false,
+    });
+    expect(c.isDown("sailUp")).toBe(false);
+    press(c);
+    expect(c.readIntent().sailUp).toBe(true);
+    expect(c.readIntent().sailUp).toBe(false);
+  });
 });

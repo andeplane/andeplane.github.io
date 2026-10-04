@@ -76,6 +76,7 @@ export class Controls {
     this.padActions.clear();
     this.padTurn = 0;
     this.refresh();
+    this.edges.clear();
   }
 
   isDown(action: Action): boolean {

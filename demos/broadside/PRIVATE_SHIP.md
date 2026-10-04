@@ -39,6 +39,11 @@ Walk through the central stern doorway, or climb the starboard staircase onto th
 quarterdeck. Earned gold and world keepsakes appear inside. Keyboard and touch
 walking, looking and jumping use the existing controls. Chart buttons start voyages.
 
+**Cave** in the main menu and on the world map still opens the treasure cave.
+It remains separate from the ship's treasure room. With chests aboard, **Return to cave**
+starts the existing chest-by-chest carrying and coin-pouring animation; gold is banked
+after each chest finishes unloading. Leaving early keeps the other chests aboard.
+
 `ios:open` builds and bundles the model inside the offline app. Follow [IOS.md](IOS.md)
 for signing and installing on a connected iPhone. A simulator build does not verify
 performance or installation on the physical phone.

@@ -86,6 +86,7 @@
 }
 
 #sea-chart-menu {
+  --chart-size: min(90vw, calc(100dvh - 230px - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px)), 730px);
   position: absolute;
   inset: 0;
   z-index: 80;
@@ -95,7 +96,7 @@
   align-items: center;
   flex-direction: column;
   justify-content: center;
-  padding: max(12px, env(safe-area-inset-top)) 16px max(14px, env(safe-area-inset-bottom));
+  padding: max(12px, env(safe-area-inset-top)) max(16px, env(safe-area-inset-right)) max(14px, env(safe-area-inset-bottom)) max(16px, env(safe-area-inset-left));
   gap: 10px;
   overflow: hidden;
   box-shadow: inset 0 0 90px #65482788;
@@ -105,8 +106,10 @@
 .sea-chart-heading h1 { font: 44px/1.1 "Pirata One", Georgia, serif; margin: 5px 0; }
 .sea-chart-heading p { margin: 0; font-size: 12px; color: #594725; }
 #sea-chart-menu canvas {
-  width: min(76vh, 90vw, 730px);
-  height: min(76vh, 90vw, 730px);
+  width: var(--chart-size);
+  height: var(--chart-size);
+  flex: none;
+  max-width: 100%;
   min-height: 0;
   object-fit: contain;
   border: 4px double #71603d;
@@ -125,11 +128,16 @@
   font-size: 14px;
 }
 .sea-chart-actions .text-button { color: #4b361e; font-size: 12px; }
-@media (max-height: 480px) and (min-width: 651px) {
-  #sea-chart-menu { flex-direction: row; flex-wrap: wrap; gap: 10px 26px; }
-  #sea-chart-menu canvas { width: 76vh; height: 76vh; }
-  .sea-chart-heading { width: 24%; }
-  .sea-chart-heading h1 { font-size: 34px; }
+@media (max-height: 480px) and (orientation: landscape) {
+  #sea-chart-menu {
+    --chart-size: min(76dvh, 45vw, 360px);
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+    gap: 12px;
+  }
+  .sea-chart-heading { min-width: 0; }
+  .sea-chart-heading h1 { font-size: clamp(26px, 4vw, 34px); }
   .sea-chart-note { display: none; }
-  .sea-chart-actions { width: 20%; flex-direction: column; gap: 10px; }
+  .sea-chart-actions { min-width: 0; flex-direction: column; gap: 10px; }
+  .sea-chart-actions .primary { max-width: 100%; padding: 8px 12px; }
 }

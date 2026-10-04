@@ -167,3 +167,31 @@ Validation:
 - Real Babylon NullEngine rendering tests repeatedly unload/reload islands, compare identical terrain and prop transforms, check stable mesh/material/light/shadow counts, and move shore/props across a periodic seam. The overhead-default regression leaves the camera unchanged until captain view is enabled.
 - Before preview shutdown, live muted browser checks at 390×844 and 1280×720 exercised captain/overhead switching, independent swipe/arrow looking, mobile steering, manual cannon controls, reef shipwreck/retry, the permanent sea chart, rain and cloud rendering. The current walking cave was captured at `artifacts/qa/current-cave-portrait.png`. The final default-camera correction was checked in the common startup path and regression test without restarting a preview.
 - The Capacitor web bundle and signed Release iPhone build also pass. Browser checks do not establish physical iPhone GPU performance. All test URLs used `mute=true`; the canonical game contains no audio generation. Preview servers were stopped at the user's request.
+
+## Cave access and sailing controls — 2026-10-04
+
+The optional purchased ship now keeps Play / Settings / Cave and the map's cave entrance.
+Its treasure room is a separate menu destination. Return to cave from the ship starts
+the existing unloading sequence rather than instantly banking every chest. The ship
+offers that action while cargo is aboard and hides it once inside the cave.
+Departure scenes are disposed before loading the cave or hold; the unloading handoff
+releases the ship only once the transition is fully covered. Lazy cave creation and
+the iPhone rendering limits from the performance release remain in place.
+
+Clearing sailing controls now also clears unconsumed keyboard, touch and gamepad sail
+commands. Pausing, opening the sea chart or switching cameras cannot replay an old sail
+command on the following simulation step. The full sea chart remains square and uses
+dynamic viewport height and safe insets; its compact landscape layout also applies
+to phone windows narrower than 651px.
+
+Validation:
+
+- DOM regression tests exercise public and private ship menus, the separate cave and
+  treasure-room actions, and the availability of unloading with and without cargo.
+- Input regressions queue a sail command from each input device, clear it before a
+  simulation step, then verify that a fresh press still changes the sails once.
+- All 214 available tests, typecheck and production build pass. Covered lines and
+  statements are 95.01%, branches 96.68%, and functions 95.04%. One test requiring
+  the ignored purchased model is skipped in this checkout.
+- This follow-up was checked without opening another browser or starting a preview
+  server. Chart layout and physical-phone rendering have not been rechecked on screen.
