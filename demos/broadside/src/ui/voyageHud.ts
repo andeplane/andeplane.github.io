@@ -2,6 +2,7 @@ import { PACKS, RELICS, type VoyageSession } from "../game/voyage";
 import {
   goldTotal,
   worldGold,
+  caveProgress,
   CAVE_ITEMS,
   WORLD_RELICS,
   type VoyageReward,
@@ -25,6 +26,8 @@ interface Handlers {
   start: (index: number) => void;
   home: () => void;
   harbour: () => void;
+  hold: () => void;
+  unload: () => void;
   menu: () => void;
   overview: () => void;
   caveMove: (right: number, forward: number) => void;
@@ -71,6 +74,14 @@ export class VoyageHud {
     <section id="v-paused" class="voyage-overlay pause-screen" hidden role="dialog" aria-modal="true" aria-labelledby="pause-title"><div><span class="eyebrow">A LITTLE SHORE LEAVE</span><h1 id="pause-title">Ready when you are.</h1><button id="v-resume" class="primary">Keep sailing ${icon("play")}</button><button id="v-return" class="secondary">Choose levels</button></div></section>`;
     document.body.append(r);
     const q = (id: string) => r.querySelector<HTMLElement>(id)!;
+    q("#main-menu").insertAdjacentHTML("beforeend", '<button id="menu-hold" class="text-button">Treasure hold</button>');
+    q(".result-actions").insertAdjacentHTML("beforeend", '<button id="result-unload" class="hold-unload primary" hidden>Return to cave</button>');
+    r.insertAdjacentHTML("beforeend", `<section id="hold-ui" hidden><div class="hold-heading"><span class="eyebrow">ABOARD THE BLACK PEARL</span><h1>The treasure hold</h1><p id="hold-count"></p></div><div class="hold-actions"><button id="hold-unload" class="primary">Return to cave ${icon("chest")}</button><button id="hold-sail" class="secondary">Keep sailing ${icon("map")}</button><button id="hold-back" class="text-button">Back to menu</button></div></section><section id="unload-ui" hidden><div class="hold-heading"><span class="eyebrow">BRINGING YOUR FORTUNE HOME</span><h1 id="unload-title">Unloading the ship</h1><p id="unload-count"></p></div><div class="hold-actions"><button id="unload-explore" class="primary" hidden>Explore your cave</button><button id="unload-menu" class="text-button">Back to menu</button><small id="unload-safe">Any unopened chests stay safely aboard.</small></div></section>`);
+    q("#menu-hold").onclick = h.hold;
+    q("#result-unload").onclick = q("#hold-unload").onclick = h.unload;
+    q("#hold-sail").onclick = () => { h.menu(); this.showMenu("worlds"); };
+    q("#hold-back").onclick = q("#unload-menu").onclick = h.menu;
+    q("#unload-explore").onclick = h.home;
     q("#v-home").onclick = () => {
       h.menu();
       this.showMenu("levels");
@@ -231,6 +242,8 @@ export class VoyageHud {
   }
   private menuPage: "main" | "worlds" | "levels" | "settings" = "main";
   showMenu(page: "main" | "worlds" | "levels" | "settings" = "main"): void {
+    this.q("#hold-ui").hidden = this.q("#unload-ui").hidden = true;
+    this.q("#menu-hold").textContent = `Treasure hold${this.progress.cargo.length ? ` · ${(this.progress.cargo.length * 1000).toLocaleString()} gold aboard` : ""}`;
     this.menuPage = page;
     this.q("#captain-menu").hidden = false;
     this.q("#cave-ui").hidden =
@@ -251,6 +264,7 @@ export class VoyageHud {
     this.root.dataset.screen = page;
   }
   home(): void {
+    this.q("#hold-ui").hidden = this.q("#unload-ui").hidden = true;
     this.root.dataset.walkPlace = "cave";
     this.q(".cave-title .eyebrow").textContent = "YOUR SECRET HIDEOUT";
     this.q("#harbour-chart").hidden = true;
@@ -316,6 +330,7 @@ export class VoyageHud {
         : `${locked ? "Mouse" : "Drag"} or arrows look · WASD walk · Space jump · E inspect`;
   }
   private renderRelic(): void {
+    const banked = caveProgress(this.progress);
     this.q("#relic-info").hidden = false;
     const gold = this.selected === 0;
     const world = gold
@@ -323,15 +338,15 @@ export class VoyageHud {
       : WORLD_RELICS.indexOf(this.selected as 2 | 5 | 8 | 11);
     const relic = RELICS[this.selected]!;
     const owned = gold
-      ? worldGold(this.progress, world) > 0
-      : this.progress.relics.includes(this.selected);
+      ? worldGold(banked, world) > 0
+      : banked.relics.includes(this.selected);
     this.q("#cave-count").textContent =
-      `${goldTotal(this.progress).toLocaleString()} gold · ${this.progress.relics.length} / 4 world treasures`;
+      `${goldTotal(banked).toLocaleString()} gold · ${banked.relics.length} / 4 world treasures${this.progress.cargo.length?` · ${(this.progress.cargo.length*1000).toLocaleString()} aboard`:""}`;
     this.q("#relic-number").textContent = gold
       ? `${PACKS[world]!.name.toUpperCase()} · GOLD BANK`
       : `WORLD ${world + 1} · ${owned ? "FOUND & FOREVER YOURS" : "WAITING TO BE DISCOVERED"}`;
     this.q("#relic-title").textContent = gold
-      ? `${worldGold(this.progress, world).toLocaleString()} gold`
+      ? `${worldGold(banked, world).toLocaleString()} gold`
       : owned
         ? relic.name
         : "A world’s secret treasure";
@@ -399,6 +414,8 @@ export class VoyageHud {
     this.q("#voyage-play").inert = value;
   }
   result(s: VoyageSession, reward?: VoyageReward): void {
+    this.q("#hold-ui").hidden = this.q("#unload-ui").hidden = true;
+    this.q("#result-unload").hidden = s.state !== "won" || !this.progress.cargo.length;
     this.activeLevel = s.voyage.index;
     this.resultLost = s.state === "lost";
     this.q("#result-next").hidden =
@@ -427,7 +444,7 @@ export class VoyageHud {
           ? "YOUR HOARD IS GROWING"
           : "VOYAGE COMPLETE";
     this.q(".collection-confirmation").innerHTML =
-      `${icon("chest")} ${reward?.gold ? `${reward.gold} gold added to your cave${reward.special !== null ? " · Special treasure collected" : ""}` : "Gold already collected · Best stars saved"}`;
+      `${icon("chest")} ${reward?.gold ? `${reward.gold.toLocaleString()} gold safely aboard${reward.special !== null ? " · Special treasure collected" : ""}` : "Gold already collected · Best stars saved"}${this.progress.cargo.length > 1 ? ` · ${(this.progress.cargo.length * 1000).toLocaleString()} aboard in total` : ""}`;
     this.revealStars = s.stars;
     this.q("#result-stars").removeAttribute("aria-label");
     this.q("#result-title").textContent =
@@ -459,6 +476,18 @@ export class VoyageHud {
     this.q(".collection-confirmation").hidden = s.state !== "won";
   }
   depositing(active: boolean): void { this.q("#v-result").classList.toggle("pouring", active); }
+  hold(): void {
+    this.showMenu(); this.q("#captain-menu").hidden=true;this.q("#hold-ui").hidden=false;
+    this.q("#hold-count").textContent=this.progress.cargo.length ? `${(this.progress.cargo.length*1000).toLocaleString()} gold · ${this.progress.cargo.length} chest${this.progress.cargo.length===1?"":"s"} safely aboard` : "Your hold is ready. Find gold on your next voyage.";
+    this.q("#hold-unload").hidden=!this.progress.cargo.length;this.root.dataset.screen="hold";
+  }
+  unloading(chest:number,total:number,done=false):void {
+    this.q("#captain-menu").hidden=this.q("#v-result").hidden=this.q("#hold-ui").hidden=this.q("#cave-ui").hidden=this.q("#voyage-play").hidden=true;
+    this.q("#unload-ui").hidden=false;this.q("#v-pause").hidden=this.q("#v-home").hidden=true;
+    this.q("#unload-title").textContent=done?"Welcome home, Captain":"Unloading the ship";
+    this.q("#unload-count").textContent=done?`${(total*1000).toLocaleString()} gold brought home`:`Chest ${chest} of ${total} · ${(total*1000).toLocaleString()} gold coming home`;
+    this.q("#unload-explore").hidden=!done;this.q("#unload-safe").hidden=done;this.root.dataset.screen="unloading";
+  }
   reveal(time: number, discovered: boolean, ready: boolean): void {
     if (!this.q("#v-result").classList.contains("unboxing")) return;
     if (discovered) {

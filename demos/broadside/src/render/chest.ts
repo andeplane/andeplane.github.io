@@ -9,6 +9,7 @@ import { Color3 } from "@babylonjs/core/Maths/math.color.js";
 import { Vector3 } from "@babylonjs/core/Maths/math.vector.js";
 import { PointLight } from "@babylonjs/core/Lights/pointLight.js";
 import type { Scene } from "@babylonjs/core/scene.js";
+import { chestCoinPoses, CHEST_COIN_SCALE } from "../game/chestCoins";
 
 const ease = (a: number, b: number, t: number) => {
   const u = Math.max(0, Math.min(1, (t - a) / (b - a)));
@@ -33,10 +34,10 @@ export class RewardChest {
   private lid: TransformNode;
   private contents: Mesh;
   private light: PointLight;
-  private rays: TransformNode[] = [];
-  private sparkles: TransformNode[] = [];
   private glow: StandardMaterial;
-  private rayMaterial: StandardMaterial;
+  private hands: TransformNode;
+  private coinsReady = false;
+  private coinCount = 1000;
   constructor(scene: Scene) {
     this.root = new TransformNode("captain's treasure chest", scene);
     this.lid = new TransformNode("rear hinge", scene);
@@ -57,9 +58,6 @@ export class RewardChest {
       interior = mat("velvet inside the chest", "#211b2b"),
       gem = mat("lock's ocean sapphire", "#69dedf", 0.5);
     this.glow = mat("treasure light spilling through seam", "#ffcd76", 1.4);
-    this.rayMaterial = mat("rays of treasure light", "#ffe3a1", 0.9);
-    this.rayMaterial.alpha = 0;
-    this.rayMaterial.backFaceCulling = false;
     const box = (name: string, w: number, h: number, d: number, x: number, y: number, z: number, material: StandardMaterial, parent = this.root) => {
       const m = MeshBuilder.CreateBox(name, { width: w, height: h, depth: d }, scene);
       m.parent = parent; m.position.set(x, y, z); m.material = material;
@@ -120,22 +118,38 @@ export class RewardChest {
     for (const x of [-1.63,1.63]) box("light at lid seam", 0.025, 0.025, 1.66, x, 1.43, 0, this.glow);
     this.contents = doubloonMesh(scene, "one thousand doubloons inside the chest");
     this.contents.parent = this.root; this.contents.material = doubloonMaterial(scene); this.contents.isPickable = false;
-    const coins = new Float32Array(1000 * 16);
-    for (let i = 0; i < 1000; i++) {
-      const col = i % 11, row = Math.floor(i / 11) % 6, layer = Math.floor(i / 66);
-      const position = new Vector3((col - 5) * .28, .34 + layer * .059, (row - 2.5) * .24);
-      Matrix.Compose(Vector3.One(), Quaternion.RotationYawPitchRoll(i * 2.4, .02 * Math.sin(i), .02 * Math.cos(i)), position).copyToArray(coins, i * 16);
+    this.contents.setEnabled(false);
+    void chestCoinPoses().then(poses => {
+      if (this.contents.isDisposed()) return;
+      const coins = new Float32Array(1000 * 16), m = Matrix.Identity(), q = Quaternion.Identity(), p = Vector3.Zero(), scale = Vector3.One().scale(CHEST_COIN_SCALE);
+      for (let i = 0; i < 1000; i++) {
+        const n = i * 7;
+        p.set(poses[n]!, poses[n + 1]!, poses[n + 2]!);
+        q.set(poses[n + 3]!, poses[n + 4]!, poses[n + 5]!, poses[n + 6]!);
+        Matrix.ComposeToRef(scale, q, p, m); m.copyToArray(coins, i * 16);
+      }
+      this.contents.thinInstanceSetBuffer("matrix", coins, 16, true);
+      this.coinsReady = true; this.setCoinCount(this.coinCount);
+    }).catch(error => console.error("Chest contents:", error));
+    this.hands = new TransformNode("captain carrying the chest", scene); this.hands.parent = this.root;
+    const leather = mat("worn leather gloves", "#735039"), cuff = mat("captain's coat cuffs", "#19282f");
+    for (const sign of [-1, 1]) {
+      const arm = MeshBuilder.CreateTube("captain's rounded coat sleeve",{path:[new Vector3(sign*3.8,-.2,-6),new Vector3(sign*2.3,.65,-2.15),new Vector3(sign*2.08,.85,-.75),new Vector3(sign*2.07,.9,-.36)],radius:.22,tessellation:16,cap:Mesh.CAP_ALL},scene);
+      arm.parent=this.hands;arm.material=cuff;
+      const wrist = MeshBuilder.CreateTube("leather glove wrist",{path:[new Vector3(sign*2.07,.9,-.37),new Vector3(sign*2.07,.9,-.18)],radius:.19,tessellation:16,cap:Mesh.CAP_ALL},scene);
+      wrist.parent=this.hands;wrist.material=leather;
+      const edging=MeshBuilder.CreateTorus("brass embroidery at coat cuff",{diameter:.44,thickness:.025,tessellation:20},scene);
+      edging.parent=this.hands;edging.position.set(sign*2.07,.9,-.39);edging.rotation.x=Math.PI/2;edging.material=gold;
+      const palm = MeshBuilder.CreateSphere("gloved palm gripping carrying ring", {diameter:1,segments:12}, scene);
+      palm.parent=this.hands;palm.material=leather;palm.position.set(sign*2.05,.94,-.18);palm.scaling.set(.38,.4,.32);
+      for (let f=0;f<4;f++) {
+        const finger = MeshBuilder.CreateTube("curled glove finger", {path:[new Vector3(sign*2.1,.82+f*.07,-.16),new Vector3(sign*1.89,.82+f*.07,-.12),new Vector3(sign*1.87,.82+f*.07,.08),new Vector3(sign*2.02,.82+f*.07,.12)],radius:.04,tessellation:8,cap:Mesh.CAP_ALL},scene);
+        finger.parent=this.hands;finger.material=leather;
+      }
+      const thumb=MeshBuilder.CreateTube("gloved thumb around the ring",{path:[new Vector3(sign*2.12,1.09,-.2),new Vector3(sign*1.94,1.15,-.07),new Vector3(sign*1.86,1.07,.02)],radius:.065,tessellation:10,cap:Mesh.CAP_ALL},scene);
+      thumb.parent=this.hands;thumb.material=leather;
     }
-    this.contents.thinInstanceSetBuffer("matrix", coins, 16, true);
-    for (let i = 0; i < 7; i++) {
-      const a = i * 2.4;
-      const ray = MeshBuilder.CreateRibbon("treasure sunbeam", { pathArray: [[new Vector3(0, 0, 0), new Vector3(Math.sin(a) * 2.3 - 0.3, 5, Math.cos(a) * 1.4)], [new Vector3(0.09, 0, 0), new Vector3(Math.sin(a) * 2.3 + 0.3, 5, Math.cos(a) * 1.4)]], sideOrientation: 2 }, scene);
-      ray.parent = this.root; ray.position.y = 1.3; ray.material = this.rayMaterial; this.rays.push(ray);
-    }
-    for (let i = 0; i < 48; i++) {
-      const p = MeshBuilder.CreateSphere("treasure spark", { diameter: i % 5 === 0 ? 0.085 : 0.045, segments: 6 }, scene);
-      p.parent = this.root; p.material = this.glow; this.sparkles.push(p);
-    }
+    this.hands.setEnabled(false);
     this.light = new PointLight("chest's hidden glow", new Vector3(0, 2, -0.4), scene);
     this.light.renderPriority = 4;
     this.light.parent = this.root; this.light.diffuse = Color3.FromHexString("#ffcc75"); this.light.range = 8;
@@ -146,31 +160,27 @@ export class RewardChest {
     this.light.intensity *= alpha;
   }
   setCoinCount(count: number) {
+    this.coinCount = count;
+    if (!this.coinsReady) return;
     this.contents.thinInstanceCount = Math.max(0, Math.min(1000, count));
     this.contents.setEnabled(count > 0);
   }
   hide() { this.root.setEnabled(false); this.light.setEnabled(false); }
+  carry(active: boolean, alpha = 1): void {
+    this.hands.setEnabled(active);
+    if (active) this.hands.getChildMeshes().forEach(mesh => { mesh.visibility = alpha; });
+  }
+  open(amount: number): void { this.lid.rotation.x = Math.max(0, Math.min(1, amount)) * 1.96; }
   animate(seconds: number, x: number, reduced: boolean) {
-    const p = revealPose(seconds, reduced), t = p.time;
+    const p = revealPose(seconds, reduced);
     this.root.setEnabled(true); this.light.setEnabled(true);
     this.setCoinCount(1000);
     this.fade(1);
     this.root.position.set(x, 1.05, 0);
-    const tremble = t > 0.5 && t < 1.2 ? Math.sin(t * 43) * 0.018 : 0;
-    this.root.rotation.set(0, -0.16, reduced ? 0 : tremble);
-    this.lid.rotation.x = p.lid * 1.96;
-    this.glow.emissiveColor = Color3.FromHexString("#ffcc75").scale(0.2 + p.glow * 1.15);
-    this.light.intensity = p.glow * (2.2 + Math.sin(t * 3) * 0.15);
-    const burst = ease(1.7, 2.35, t) * (1 - ease(3.3, 5.2, t));
-    this.rayMaterial.alpha = reduced ? 0 : burst * 0.095;
-    this.rays.forEach((r, i) => { r.rotation.y = Math.sin(t * 0.3 + i) * 0.15; });
-    this.sparkles.forEach((s, i) => {
-      s.setEnabled(p.discovered);
-      const age = (Math.max(0, t - 2.3) * 0.55 + i / 48) % 1;
-      const a = i * 2.399 + t * 0.12, radius = 0.4 + age * 2.7;
-      s.position.set(Math.sin(a) * radius, 1.3 + age * 4, Math.cos(a) * radius * 0.6);
-      s.scaling.setAll((1 - age) * (reduced ? 0.4 : 1));
-    });
+    this.root.rotation.set(0, -0.16, 0);
+    this.open(p.lid); this.carry(false);
+    this.glow.emissiveColor = Color3.FromHexString("#ffcc75").scale(.08 + p.glow * .15);
+    this.light.intensity = .4 + p.lid * .9;
     return p;
   }
 }

@@ -7,7 +7,8 @@ import { Capacitor } from "@capacitor/core";
 import { App } from "@capacitor/app";
 import { VoyageSession, generateVoyage, RELICS } from "./game/voyage";
 import { readProgress, saveProgress } from "./game/progress";
-import { awardVoyage, syncRewards, type VoyageReward } from "./game/rewards";
+import { awardVoyage, syncRewards, caveProgress, deliverChest, type VoyageReward } from "./game/rewards";
+import { ShipHold } from "./render/shipHold";
 import { TOTAL_LEVELS, levelUnlocked } from "./game/campaign";
 import { Controls } from "./input/controls";
 import { CaveWalkControls } from "./input/caveWalk";
@@ -75,9 +76,10 @@ async function main() {
   const qa =
     qaQuery === "collection" || qaQuery === "harbour" ||
     (qaQuery !== null &&
-      /^(?:reveal-)?\d+$/.test(qaQuery) &&
-      Number(qaQuery.replace("reveal-", "")) < TOTAL_LEVELS);
+      /^(?:(?:reveal|hold|unload)-)?\d+$/.test(qaQuery) &&
+      Number(qaQuery.replace(/^(reveal|hold|unload)-/, "")) < TOTAL_LEVELS);
   if (qa) storage = undefined;
+  const carryPreview = qa && new URLSearchParams(location.search).get("preview") === "carry";
   const progress = readProgress(storage),
     controls = new Controls();
   if (qaQuery === "collection") {
@@ -93,11 +95,15 @@ async function main() {
   syncRewards(progress);
   let reward: VoyageReward | undefined;
   const cave = new TreasureCave(engine, !qa);
-  cave.refresh(progress);
+  cave.refresh(caveProgress(progress));
   let session = new VoyageSession(generateVoyage(0)),
     renderer: GameRenderer | null = null;
   let harbour: Harbour | null = null;
-  let mode: "menu" | "cave" | "harbour" | "play" | "arrival" | "result" | "loading" =
+  let hold: ShipHold | null = null;
+  let holdShowingResult = false;
+  let unloadQueue: number[] = [], unloadingIndex: number | null = null, unloadTotal = 0;
+  let arrivalDestination: "hold" | "unload" = "hold", arrivalFromHold = false;
+  let mode: "menu" | "cave" | "harbour" | "hold" | "unloading" | "play" | "arrival" | "result" | "loading" =
       "menu",
     paused = false,
     heading: number | null = null,
@@ -119,7 +125,9 @@ async function main() {
     arrivalTime = 0;
     arrivalInCave = false;
   };
-  const arrive = () => {
+  const arrive = (destination: "hold" | "unload" = "hold") => {
+    arrivalFromHold = mode === "hold";
+    arrivalDestination = destination;
     mode = "arrival";
     arrivalTime = 0;
     arrivalInCave = false;
@@ -137,6 +145,35 @@ async function main() {
     walking.clear();
     releaseMouse();
   };
+  const cancelUnloading = () => {
+    if (unloadingIndex !== null) {
+      unloadingIndex = null; unloadQueue = [];
+      cave.refresh(caveProgress(progress));
+    }
+  };
+  const prepareChest = () => {
+    unloadingIndex = unloadQueue.shift() ?? null;
+    if (unloadingIndex === null) { hud.unloading(unloadTotal,unloadTotal,true); return; }
+    const banked = caveProgress(progress);
+    banked.voyages[unloadingIndex] = progress.voyages[unloadingIndex]!;
+    const world = Math.floor(unloadingIndex/10);
+    cave.refresh(banked, world); cave.beginUnload(world);
+    hud.unloading(unloadTotal - unloadQueue.length, unloadTotal);
+  };
+  const unload = () => {
+    if (!progress.cargo.length) { home(); return; }
+    unloadQueue = [...progress.cargo].sort((a,b)=>a-b); unloadTotal=unloadQueue.length;
+    arrive("unload");
+  };
+  const visitHold = () => {
+    cancelUnloading(); clearArrival(); clearWalking(); gesture.clear(); controls.clear();
+    cave.endReveal();
+    const index=progress.cargo.at(-1) ?? Math.max(0,...Object.keys(progress.voyages).map(Number));
+    hold?.scene.dispose();hold = new ShipHold(engine, generateVoyage(index));
+    const special = progress.relics.find(id => caveProgress(progress).relics.indexOf(id)<0) ?? null;
+    hold.open(progress,special,false);holdShowingResult=false;
+    mode="hold";hud.hold();
+  };
   const inspect = () => {
     if (mode === "harbour") {
       if (harbour?.atHelm) { menu(); hud.showMenu("worlds"); }
@@ -146,6 +183,7 @@ async function main() {
     if (i !== null) hud.select(i, cave.selectedGoldWorld);
   };
   const home = () => {
+    cancelUnloading();
     clearArrival();
     gesture.clear();
     clearWalking();
@@ -160,7 +198,7 @@ async function main() {
     pendingFire = false;
     hud.paused(false);
     hud.home();
-    cave.refresh(progress);
+    cave.refresh(caveProgress(progress));
     cave.enter();
     if (import.meta.env.DEV && qaQuery === "collection") {
       const room = new URLSearchParams(location.search).get("room");
@@ -194,6 +232,7 @@ async function main() {
     stepper.reset();
   };
   const menu = () => {
+    cancelUnloading();
     clearArrival();
     gesture.clear();
     clearWalking();
@@ -210,6 +249,7 @@ async function main() {
     stepper.reset();
   };
   const visitShip = async () => {
+    cancelUnloading();
     clearArrival(); gesture.clear(); clearWalking(); controls.clear();
     const id = ++loadId;
     heading = tapHeading = null; pendingFire = false; paused = false;
@@ -235,6 +275,8 @@ async function main() {
     stepper.reset(); canvas.focus();
   };
   const start = async (index: number) => {
+    cancelUnloading();
+    hold?.scene.dispose();hold=null;
     clearArrival();
     gesture.clear();
     clearWalking();
@@ -294,6 +336,8 @@ async function main() {
     start: (i) => void start(i),
     home,
     harbour: () => void visitShip(),
+    hold: visitHold,
+    unload,
     menu,
     overview: () => {
       walking.clear();
@@ -362,7 +406,7 @@ async function main() {
           session.gemsFound,
         );
         saveProgress(progress, storage);
-        cave.refresh(progress, reward.gold ? Math.floor(session.voyage.index / 10) : null);
+        cave.refresh(caveProgress(progress));
         arrive();
       }
       if (session.state === "lost") hud.result(session, reward);
@@ -530,16 +574,36 @@ async function main() {
       curtain.style.opacity = String(pose.opacity);
       if (pose.inCave && !arrivalInCave) {
         arrivalInCave = true;
-        cave.beginReveal(reward!.model, reward!.gold ? Math.floor(session.voyage.index / 10) : null);
-        hud.result(session, reward);
+        if (arrivalDestination === "hold") {
+          hold?.scene.dispose();hold=new ShipHold(engine,session.voyage);
+          hold.open(progress,reward?.special ?? null);holdShowingResult=true;
+          hud.result(session,reward);
+        } else prepareChest();
         hud.root.classList.remove("arriving");
       }
       // Keep the chest closed while the cave fades in: none of its reveal is lost.
-      if (arrivalInCave) cave.render(0, true);
+      if (arrivalInCave) {
+        if (arrivalDestination === "hold") hold?.render(0,reducedMotion.matches);
+        else cave.render(0,true);
+      } else if (arrivalFromHold) hold?.render(dt,reducedMotion.matches);
+      else if (unloadingIndex !== null) cave.render(dt,true);
       else renderer?.render(session, 1, dt);
       if (pose.ready) {
-        mode = "result";
+        mode = arrivalDestination === "hold" ? "hold" : "unloading";
         clearArrival();
+      }
+    } else if (mode === "hold" && hold) {
+      hold.render(dt,reducedMotion.matches);
+      if (holdShowingResult) {const p=hold.pose;hud.reveal(p.time,p.discovered,p.ready);}
+    } else if (mode === "unloading") {
+      // DEV-only still frame for inspecting the hands and cabin-to-bank carry.
+      if (carryPreview) cave.revealTime = reducedMotion.matches ? 1.4 : 6.7;
+      cave.render(carryPreview ? 0 : dt,true);
+      if (unloadingIndex !== null && cave.depositComplete) {
+        deliverChest(progress,unloadingIndex);saveProgress(progress,storage);
+        cave.refresh(caveProgress(progress));
+        if (unloadQueue.length) arrive("unload");
+        else {unloadingIndex=null;hud.unloading(unloadTotal,unloadTotal,true);}
       }
     } else if (mode === "harbour" && harbour) {
       const look = walking.readLook();
@@ -612,19 +676,17 @@ async function main() {
     canvas.dataset.state = mode === "play" ? session.state : mode;
     canvas.dataset.audio = "disabled";
   });
-  if (qa && qaQuery?.startsWith("reveal-")) {
-    const index = Number(qaQuery.slice(7));
+  if (qa && /^(reveal|hold|unload)-/.test(qaQuery!)) {
+    const index = Number(qaQuery!.split("-")[1]);
     session = new VoyageSession(generateVoyage(index));
     session.state = "won";
     session.stars = 3;
     session.gemsFound = 2;
-    for (let i = 0; i < index; i++) awardVoyage(progress, i, 3, 2);
+    for (let i = 0; i < index; i++) { awardVoyage(progress, i, 3, 2); if (!qaQuery!.startsWith("hold-") && !qaQuery!.startsWith("unload-")) deliverChest(progress,i); }
     reward = awardVoyage(progress, index, 3, 2);
-    mode = "result";
-
-    hud.result(session, reward);
-    cave.refresh(progress, Math.floor(index / 10));
-    cave.beginReveal(reward.model, Math.floor(index / 10));
+    cave.refresh(caveProgress(progress));
+    if(qaQuery!.startsWith("unload-")) { unload(); }
+    else { hold = new ShipHold(engine,session.voyage);hold.open(progress,reward.special);holdShowingResult=true;mode="hold";hud.result(session,reward); }
   } else if (qaQuery === "collection") home();
   else if (qaQuery === "harbour") void visitShip();
   else if (qa) void start(Number(qaQuery));

@@ -7,6 +7,10 @@ export interface Progress {
   paint: string;
   voyages: Record<string, { stars: number; gems: number }>;
   relics: number[];
+  /** First-clear chests still aboard. Older saves already delivered their gold. */
+  cargo: number[];
+  /** Newly discovered world keepsakes travelling with that world's chests. */
+  cargoRelics: number[];
 }
 export const PAINTS = ["#fff3d0", "#75ddd4", "#ffad8d"];
 const defaults = (): Progress => ({
@@ -17,6 +21,8 @@ const defaults = (): Progress => ({
   paint: PAINTS[0]!,
   voyages: {},
   relics: [],
+  cargo: [],
+  cargoRelics: [],
 });
 export function readProgress(storage?: Pick<Storage, "getItem">): Progress {
   try {
@@ -61,6 +67,7 @@ export function readProgress(storage?: Pick<Storage, "getItem">): Progress {
           const id = w * 3 + 2;
           if (!relics.includes(id)) relics.push(id);
         }
+    const cargo = Array.isArray(p.cargo) ? [...new Set(p.cargo.filter(i => Number.isInteger(i) && !!mappedVoyages[i]))] : [];
     return {
       campaignVersion: CAMPAIGN_VERSION,
       best:
@@ -81,6 +88,10 @@ export function readProgress(storage?: Pick<Storage, "getItem">): Progress {
       paint: PAINTS.includes(p.paint ?? "") ? p.paint! : PAINTS[0]!,
       voyages: mappedVoyages,
       relics,
+      cargo,
+      cargoRelics: Array.isArray(p.cargoRelics) ? [...new Set(p.cargoRelics.filter(id =>
+        Number.isInteger(id) && relics.includes(id) && cargo.some(i => Math.floor(i / LEVELS_PER_WORLD) === Math.floor(id / 3)),
+      ))] : [],
     };
   } catch {
     return defaults();
