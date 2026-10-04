@@ -9,6 +9,20 @@ const project: ProjectMeta = {
   liveUrl: '/demos/interval-trainer/',
   repoUrl: 'https://github.com/andeplane/andeplane.github.io/tree/main/demos/interval-trainer',
   screenshot: '/projects/interval-trainer/preview.png',
+  screenshots: [
+    {
+      src: '/projects/interval-trainer/interval-feedback.jpg',
+      alt: 'Interval Trainer reveals the major seventh answer after an ear-training question.',
+      caption: 'Answer feedback reveals the interval and records your accuracy.',
+      width: 1280, height: 720,
+    },
+    {
+      src: '/projects/interval-trainer/chromatic-practice.jpg',
+      alt: 'Hard practice mode offers ten interval answers against a blue and purple wave field.',
+      caption: 'Hard practice includes all ten intervals and changes the musical key for each question.',
+      width: 1280, height: 720,
+    },
+  ],
   longDescription: `
 Recognising an interval by ear is a skill you can only get by doing it a few thousand
 times, which means the practice has to be quick, honest, and pleasant enough to come back

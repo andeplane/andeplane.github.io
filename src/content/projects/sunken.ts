@@ -9,6 +9,20 @@ const project: ProjectMeta = {
   liveUrl: '/demos/sunken/',
   repoUrl: 'https://github.com/andeplane/andeplane.github.io/tree/main/demos/sunken',
   screenshot: '/projects/sunken/preview.png',
+  screenshots: [
+    {
+      src: '/projects/sunken/shallow-reef.jpg',
+      alt: 'Sunlight casts moving caustic patterns over shallow reef rocks and purple corals.',
+      caption: 'Just below the surface — sunlight paints the reef with caustic patterns.',
+      width: 1280, height: 720,
+    },
+    {
+      src: '/projects/sunken/coral-garden.jpg',
+      alt: 'A blue underwater landscape is filled with green and purple coral and schools of fish.',
+      caption: 'Swim above a coral garden beneath the rippling water surface.',
+      width: 1280, height: 720,
+    },
+  ],
   longDescription: `
 Swim a reef ten to thirty metres down, thread into caves, and surface to find waves and an
 island. No combat, no oxygen meter, no way to lose — the reward loop is discovery.
