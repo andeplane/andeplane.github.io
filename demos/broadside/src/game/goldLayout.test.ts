@@ -51,6 +51,35 @@ describe("settled world gold banks", () => {
 
 
 describe("persistent coin poses", () => {
+  it("keeps Captain Calculus deposits in a separate database from sailing gold", async () => {
+    vi.resetModules();
+    const { loadGoldLayout, saveGoldLayout } = await import("./goldLayout");
+    const databases = new Map<string, Map<string, ArrayBuffer>>();
+    const opened: string[] = [];
+    vi.stubGlobal("indexedDB", { open: (name: string) => {
+      opened.push(name);
+      const records = databases.get(name) ?? new Map<string, ArrayBuffer>();
+      databases.set(name, records);
+      const db = { transaction: () => {
+        const tx: any = { objectStore: () => ({
+          put: (data: ArrayBuffer, key: string) => { records.set(key, data.slice(0)); queueMicrotask(() => tx.oncomplete?.()); },
+          get: (key: string) => { const request: any = { result: records.get(key) }; queueMicrotask(() => request.onsuccess?.()); return request; },
+        }) }; return tx;
+      } };
+      const request: any = { result: db }; queueMicrotask(() => request.onsuccess?.()); return request;
+    } });
+    const fetch = vi.fn(); vi.stubGlobal("fetch", fetch);
+    try {
+      const sailing = new Float32Array(snapshot(0, 1000)), math = sailing.slice();
+      math[0] = math[0]! + .02;
+      await saveGoldLayout(0, sailing);
+      await saveGoldLayout(0, math, true, "captain-calculus.coin-poses");
+      expect(await loadGoldLayout(0, 1000)).toEqual(sailing);
+      expect(await loadGoldLayout(0, 1000, true, "captain-calculus.coin-poses")).toEqual(math);
+      expect(opened).toEqual(["broadside.coin-poses", "captain-calculus.coin-poses"]);
+      expect(fetch).not.toHaveBeenCalled();
+    } finally { vi.unstubAllGlobals(); }
+  });
   it("restores the exact simulated positions and rotations without fetching or moving them", async () => {
     const records = new Map<string, ArrayBuffer>();
     const db = { transaction: () => {

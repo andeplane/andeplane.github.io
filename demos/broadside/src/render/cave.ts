@@ -70,7 +70,7 @@ export class TreasureCave {
   private revealing = false;
   private reducedMotion = matchMedia("(prefers-reduced-motion: reduce)")
     .matches;
-  constructor(engine: Engine, persistent = true) {
+  constructor(engine: Engine, persistent = true, goldNamespace = "broadside.coin-poses", bankLabels?: readonly string[]) {
     const s = (this.scene = new Scene(engine));
     s.clearColor = new Color4(0.012, 0.02, 0.035, 1);
     s.fogMode = Scene.FOGMODE_EXP2;
@@ -89,8 +89,8 @@ export class TreasureCave {
     hemi.groundColor = Color3.FromHexString("#16121a");
     hemi.intensity = 0.62;
     hemi.renderPriority = 7;
-    this.chamber = new Cavern(s, this.spots);
-    this.coins = new CoinHoard(s, persistent, () => bindLocalLights(this.chamber.lamps, this.scene.meshes));
+    this.chamber = new Cavern(s, this.spots, bankLabels);
+    this.coins = new CoinHoard(s, persistent, () => bindLocalLights(this.chamber.lamps, this.scene.meshes), goldNamespace);
     this.walker = new CaveWalker(this.chamber.obstacles, (x, z) =>
       Math.max(this.chamber.walkHeight(x, z), this.coins.walkHeight(x, z)),
     );
@@ -249,11 +249,11 @@ export class TreasureCave {
     this.chest = new RewardChest(s);
     this.distance = this.overviewRadius();
   }
-  refresh(progress: Progress, depositWorld: number | null = null): void {
-    const count = goldTotal(progress) / GOLD_PER_LEVEL;
+  refresh(progress: Progress, depositWorld: number | null = null, bankGold?: readonly number[]): void {
+    const count = (bankGold ? bankGold.reduce((sum, value) => sum + value, 0) : goldTotal(progress)) / GOLD_PER_LEVEL;
     const owned = [...(count ? [0] : []), ...progress.relics];
-    this.coins.refresh(progress, depositWorld);
-    const key = `${Object.keys(progress.voyages).sort().join(",")}:${owned.join(",")}`;
+    this.coins.refresh(progress, depositWorld, bankGold);
+    const key = `${bankGold?.join(",") ?? Object.keys(progress.voyages).sort().join(",")}:${owned.join(",")}`;
     if (key === this.owned) return;
     this.owned = key;
     this.relics.forEach((r) => r?.dispose(false, true));

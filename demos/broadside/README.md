@@ -163,3 +163,44 @@ filtering for sharp detail on angled surfaces.
 To verify a 3× canvas in a desktop-sized phone viewport, append `renderDpr=3` to
 an existing development QA URL. This fixture is ignored in production. The
 canvas's `data-render-resolution` attribute reports its actual drawing buffer.
+
+## Captain Calculus
+
+The same app builds a separate, permanently silent pirate math game at **`/math/`**.
+Broadside remains at `/`; both follow `BASE_PATH` when hosted. Captain Calculus
+keeps the **Play / Settings / Cave** menu, illustrated sea map, and the current
+textured first-person `TreasureCave`. Its progress uses `broadside.math.v1` and
+its settled coin cache uses `captain-calculus.coin-poses`. Sailing progress and
+sailing coin layouts are independent.
+
+Choose an operator, then one of its five difficulty islands, then a level:
+
+| Operator | Difficulty islands |
+| --- | --- |
+| Addition | Totals up to 10, 20, 30, 40, or 50 |
+| Subtraction | Take away within 10; cross ten; two digits without borrowing; borrow within 100; three digits within 1,000 |
+| Multiplication | Twos; fives and tens; threes and fours; sixes to nines; mixed tables 1–12 |
+| Division | Share in twos; fives and tens; threes and fours; sixes to nines; all tables 1–12, with exact whole-number answers |
+
+Every island has an endless, sequential level trail. A level contains ten
+fresh problems; unfinished levels resume with the same questions. Correct
+answers count across operators and islands. Every ten awards a chest of
+1,000 gold, credited to the operator that earns the tenth answer. The chest
+opens and pours into that operator's area of the shared cave. Incorrect
+answers can be retried; hints are free, and there is no time limit. Replaying a
+level earns more gold and preserves its best stars.
+
+The gold ledger is unlimited. For sustained play, each cave area displays at
+most 10,000 coins; additional chests still pour their thousand coins and the
+ledger keeps their full value. This bounds GPU memory and deposit physics.
+
+In the cave, use WASD to walk, arrows or mouse drag to look, Space to jump,
+and E to inspect nearby treasure. Phones use a movement stick, swipe to look,
+and a Jump button. Walking, collisions, light, materials, and coin physics
+reuse Broadside's current implementation.
+
+Local math launch: http://localhost:5180/math/?mute=true (when Vite is running
+on port 5180). Development-only `?qa=true&mute=true` starts a temporary test
+session without reading or writing player progress or the coin pose cache.
+Production ignores the QA flag. `npm run check` covers both games and builds
+both entry points.

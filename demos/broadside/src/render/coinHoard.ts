@@ -27,7 +27,7 @@ export class CoinHoard {
   private lastRotation = Quaternion.Identity();
   private position = Vector3.Zero();
   private matrix = Matrix.Identity();
-  constructor(scene: Scene, private persistent = true, private changed: () => void = () => {}) {
+  constructor(scene: Scene, private persistent = true, private changed: () => void = () => {}, private goldNamespace = "broadside.coin-poses") {
     const material = doubloonMaterial(scene);
     this.banks = GOLD_AREAS.map((area) => {
       const mesh = doubloonMesh(scene, `${area.name} settled gold coins`);
@@ -37,10 +37,12 @@ export class CoinHoard {
       return { mesh, proxy, count: 0, loaded: 0, poses: new Float32Array(), matrices: new Float32Array(), heights: new Map(), peak: 0, basePeak: 0, version: 0, depositFrom: 0, requested: false, depositing: false, ready: false, spawned: 0, resting: 0, worker: null, previousFrame: new Float32Array(), frameAge: 0, frameUploaded: false };
     });
   }
-  refresh(progress: Progress, depositWorld: number | null = null): void {
+  refresh(progress: Progress, depositWorld: number | null = null, bankGold?: readonly number[]): void {
     this.banks.forEach((bank, world) => {
-      const count = worldGold(progress, world);
-      if (count === bank.count) return;
+      // Endless voyages keep an exact ledger with a bounded visible pile.
+      // Later chests still pour another thousand coins into that pile.
+      const count = Math.min(10000, bankGold?.[world] ?? worldGold(progress, world));
+      if (count === bank.count && !(bankGold && bankGold[world]! > 10000 && depositWorld === world && bank.ready && !bank.depositing)) return;
       // Keep the in-memory settled bank too: private browsing may block the cache.
       const carry = depositWorld === world && bank.ready && !bank.worker && bank.loaded === count - 1000
         ? bank.poses.slice() : null;
@@ -49,7 +51,7 @@ export class CoinHoard {
       bank.count = count; bank.depositing = depositWorld === world; bank.ready = false; bank.requested = false; bank.spawned = 0;
       bank.depositFrom = bank.depositing ? count - 1000 : count;
       if (!count) { bank.mesh.setEnabled(false); bank.proxy.setEnabled(false); bank.loaded = 0; bank.heights.clear(); return; }
-      void (carry ? Promise.resolve(carry) : loadGoldLayout(world, bank.depositFrom, this.persistent)).then((poses) => {
+      void (carry ? Promise.resolve(carry) : loadGoldLayout(world, bank.depositFrom, this.persistent, this.goldNamespace)).then((poses) => {
         if (version !== bank.version) return;
         bank.poses = new Float32Array(count * COIN_POSE_STRIDE); bank.poses.set(poses);
         bank.loaded = count; bank.matrices = new Float32Array(count * 16);
@@ -103,24 +105,25 @@ export class CoinHoard {
     const finish = async () => {
       bank.depositing = false; bank.requested = false;
       bank.mesh.thinInstanceCount = bank.count;
+      bank.mesh.setEnabled(bank.count > 0);
       for (let i = bank.depositFrom; i < bank.count; i++) this.compose(bank, i);
       // A static GPU instance buffer: no per-frame updates once the coins rest.
       bank.mesh.thinInstanceSetBuffer("matrix", bank.matrices, 16, true);
       bank.mesh.alwaysSelectAsActiveMesh = false;
       this.rebuildHeight(bank, world, bank.count);
       this.changed();
-      await saveGoldLayout(world, bank.poses, this.persistent);
+      await saveGoldLayout(world, bank.poses, this.persistent, this.goldNamespace);
     };
     const fail = () => {
       if (bank.worker !== worker) return;
       worker.terminate(); bank.worker = null;
       // Offline physics poses also make the collection available if a worker cannot start.
-      void loadGoldLayout(world, bank.count, this.persistent).then(poses => {
+      void loadGoldLayout(world, bank.count, this.persistent, this.goldNamespace).then(poses => {
         if (bank.version !== version) return;
         bank.poses = poses; return finish();
       }).catch(console.error);
     };
-    worker.onerror = fail;
+    worker.onerror = (event) => { console.error(`Gold bank worker: ${event.message} (${event.filename}:${event.lineno})`); fail(); };
     worker.onmessage = (event: MessageEvent<{ poses: Float32Array; done: boolean; resting: number; error?: string }>) => {
       if (bank.worker !== worker) return;
       if (event.data.error) { console.error(event.data.error); fail(); return; }

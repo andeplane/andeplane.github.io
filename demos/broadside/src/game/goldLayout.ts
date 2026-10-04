@@ -12,20 +12,24 @@ export function validGoldLayout(data: ArrayBuffer, count: number, world: number)
   return true;
 }
 
-let database: Promise<IDBDatabase | null> | undefined;
-function coinDatabase(): Promise<IDBDatabase | null> {
-  return database ??= new Promise((resolve) => {
+const databases = new Map<string, Promise<IDBDatabase | null>>();
+function coinDatabase(namespace: string): Promise<IDBDatabase | null> {
+  const existing = databases.get(namespace);
+  if (existing) return existing;
+  const database = new Promise<IDBDatabase | null>((resolve) => {
     try {
-      const request = indexedDB.open("broadside.coin-poses", 1);
+      const request = indexedDB.open(namespace, 1);
       request.onupgradeneeded = () => request.result.createObjectStore("banks");
       request.onsuccess = () => resolve(request.result);
       request.onerror = () => resolve(null);
       request.onblocked = () => resolve(null);
     } catch { resolve(null); }
   });
+  databases.set(namespace, database);
+  return database;
 }
-async function savedLayout(key: string): Promise<ArrayBuffer | null> {
-  const db = await coinDatabase();
+async function savedLayout(key: string, namespace: string): Promise<ArrayBuffer | null> {
+  const db = await coinDatabase(namespace);
   if (!db) return null;
   return new Promise((resolve) => {
     try {
@@ -35,8 +39,8 @@ async function savedLayout(key: string): Promise<ArrayBuffer | null> {
     } catch { resolve(null); }
   });
 }
-async function storeLayout(key: string, data: ArrayBuffer): Promise<void> {
-  const db = await coinDatabase();
+async function storeLayout(key: string, data: ArrayBuffer, namespace: string): Promise<void> {
+  const db = await coinDatabase(namespace);
   if (!db) return;
   await new Promise<void>((resolve) => {
     try {
@@ -48,22 +52,22 @@ async function storeLayout(key: string, data: ArrayBuffer): Promise<void> {
   });
 }
 /** Physics is baked once. Visitors load identical settled poses, never re-simulate their fortune. */
-export async function loadGoldLayout(world: number, count: number, persistent = true): Promise<Float32Array> {
+export async function loadGoldLayout(world: number, count: number, persistent = true, namespace = "broadside.coin-poses"): Promise<Float32Array> {
   if (!count) return new Float32Array();
   const key = `${GOLD_POSE_VERSION}:${world}:${count}`;
-  const saved = persistent ? await savedLayout(key) : null;
+  const saved = persistent ? await savedLayout(key, namespace) : null;
   if (saved && validGoldLayout(saved, count, world)) return new Float32Array(saved);
   const response = await fetch(`${import.meta.env.BASE_URL}assets/hoard/world-${world}/${count}.bin`);
   if (!response.ok) throw new Error("Could not load the gold bank");
   const data = await response.arrayBuffer();
   if (!validGoldLayout(data, count, world)) throw new Error("Invalid settled coin poses");
-  if (persistent) await storeLayout(key, data);
+  if (persistent) await storeLayout(key, data, namespace);
   return new Float32Array(data);
 }
 
-export async function saveGoldLayout(world: number, poses: Float32Array, persistent = true): Promise<void> {
+export async function saveGoldLayout(world: number, poses: Float32Array, persistent = true, namespace = "broadside.coin-poses"): Promise<void> {
   const data = poses.slice().buffer;
   const count = poses.length / COIN_POSE_STRIDE;
   if (!validGoldLayout(data, count, world)) throw new Error("Invalid resting coin deposit");
-  if (persistent) await storeLayout(`${GOLD_POSE_VERSION}:${world}:${count}`, data);
+  if (persistent) await storeLayout(`${GOLD_POSE_VERSION}:${world}:${count}`, data, namespace);
 }

@@ -39,6 +39,7 @@ export class Cavern {
   constructor(
     private scene: Scene,
     spots: Vector3[],
+    bankLabels?: readonly string[],
   ) {
     const s = scene,
       rng = new Rng(7164);
@@ -458,7 +459,7 @@ export class Cavern {
       const c = face.getContext() as CanvasRenderingContext2D;
       c.fillStyle="#39261b";c.fillRect(0,0,512,128);
       c.strokeStyle="#946e38";c.lineWidth=5;c.strokeRect(8,8,496,112);
-      c.fillStyle="#f0cf84";c.font="bold 35px Georgia";c.textAlign="center";c.fillText(area.name,256,76);
+      c.fillStyle="#f0cf84";c.font="bold 35px Georgia";c.textAlign="center";c.fillText(bankLabels?.[area.world] ?? area.name,256,76);
       face.update();
       const mat= new StandardMaterial("weathered bank sign",s);mat.diffuseTexture=face;mat.specularColor=Color3.Black();mat.maxSimultaneousLights=6;sign.material=mat;
       sign.isPickable=false;
