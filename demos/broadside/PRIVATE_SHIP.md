@@ -19,7 +19,10 @@ Keep the purchased archive outside the repository. With Blender installed:
 
 The script opens the native Blender source with scripts disabled, rebuilds portable
 PBR materials, reduces mesh density, exports 1K colour/512px surface textures, and
-extracts walking surfaces. It creates an ignored `.private/` folder. Copy that folder
+extracts walking surfaces. It also exports `black-pearl-mobile.glb` with lighter
+geometry and 512px colour/256px surface textures for phones. Re-run the importer
+to add it to an older export; phones automatically select it when present, while
+desktop keeps the detailed model. It creates an ignored `.private/` folder. Copy that folder
 to `demos/broadside/.private/` in another local checkout if you build there.
 The original archive and source remain untouched.
 

@@ -15,7 +15,8 @@ import { type Node } from "@babylonjs/core/node.js";
 import { type Scene } from "@babylonjs/core/scene.js";
 import { SHIP_SPECS, type ShipClass } from "../sim/ships";
 import { PALETTE } from "./palette";
-import { PRIVATE_PEARL, privatePearlUrl } from "../privatePearl";
+import { isPhoneRendering } from "./quality";
+import { PRIVATE_PEARL, privatePearlModelUrl } from "../privatePearl";
 
 export const SHIP_CLASSES: readonly ShipClass[] = [
   "sloop",
@@ -51,22 +52,24 @@ export class ShipModels {
           // Vite's dev server answers unknown paths with index.html.
           if (!head.ok || type.includes("text/html"))
             throw new Error("not found");
-          this.containers.set(
-            cls,
-            await LoadAssetContainerAsync(modelUrl(cls), this.scene),
-          );
+          const container = await LoadAssetContainerAsync(modelUrl(cls), this.scene);
+          if (this.scene.isDisposed) { container.dispose(); return; }
+          this.containers.set(cls, container);
           loaded.push(cls);
         } catch {
           missing.push(cls);
         }
       }),
     );
-    const pearlUrl = PRIVATE_PEARL ? privatePearlUrl : `${import.meta.env.BASE_URL}assets/ships/black-pearl.glb`;
+    if (this.scene.isDisposed) return { loaded, missing, blackPearl: false };
+    const pearlUrl = PRIVATE_PEARL ? privatePearlModelUrl(isPhoneRendering(this.scene.getEngine())) : `${import.meta.env.BASE_URL}assets/ships/black-pearl.glb`;
     try {
       const head = await fetch(pearlUrl, { method: "HEAD" });
       if (!head.ok || head.headers.get("content-type")?.includes("text/html"))
         throw new Error("not found");
-      this.playerContainer = await LoadAssetContainerAsync(pearlUrl, this.scene);
+      const container = await LoadAssetContainerAsync(pearlUrl, this.scene);
+      if (this.scene.isDisposed) container.dispose();
+      else this.playerContainer = container;
     } catch {
       this.playerContainer = null;
     }

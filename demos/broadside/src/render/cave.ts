@@ -1,4 +1,4 @@
-import { antialiasSamples } from "./quality";
+import { antialiasSamples, isPhoneRendering } from "./quality";
 import { ImageProcessingConfiguration } from "@babylonjs/core/Materials/imageProcessingConfiguration.js";
 import { Scene } from "@babylonjs/core/scene.js";
 import type { Engine } from "@babylonjs/core/Engines/engine.js";
@@ -206,7 +206,7 @@ export class TreasureCave {
         -0.7,
       );
     });
-    const pipeline = new DefaultRenderingPipeline("torch glow", true, s, [
+    const pipeline = new DefaultRenderingPipeline("torch glow", !isPhoneRendering(engine), s, [
       this.camera,
     ]);
     pipeline.samples = antialiasSamples(engine);

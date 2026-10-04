@@ -10,10 +10,12 @@ export function usePrivatePearl(mode: string, root: string, publicBuild = proces
 }
 /** Paid files live outside public/. Site builds explicitly disable this plugin. */
 export function privateAssets(enabled: boolean, root: string): Plugin {
-  const files = [
+  const files: [string, string][] = [
     ['assets/private/black-pearl.glb', 'model/gltf-binary'],
     ['assets/private/black-pearl.json', 'application/json'],
-  ] as const;
+    ...(existsSync(resolve(root, '.private', 'black-pearl-mobile.glb'))
+      ? [['assets/private/black-pearl-mobile.glb', 'model/gltf-binary'] as [string, string]] : []),
+  ];
   const filePath = (name: string) => resolve(root, '.private', name.split('/').at(-1)!);
   return {
     name: 'broadside-private-assets',

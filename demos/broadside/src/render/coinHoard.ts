@@ -36,6 +36,12 @@ export class CoinHoard {
       proxy.visibility = 0; proxy.metadata = { relicIndex: 0, goldWorld: area.world }; proxy.setEnabled(false);
       return { mesh, proxy, count: 0, loaded: 0, poses: new Float32Array(), matrices: new Float32Array(), heights: new Map(), peak: 0, basePeak: 0, version: 0, depositFrom: 0, requested: false, depositing: false, ready: false, spawned: 0, resting: 0, worker: null, previousFrame: new Float32Array(), frameAge: 0, frameUploaded: false };
     });
+    scene.onDisposeObservable.add(() => {
+      for (const bank of this.banks) {
+        bank.version++; // Ignore layout loads that finish after leaving the cave.
+        bank.worker?.terminate(); bank.worker = null;
+      }
+    });
   }
   refresh(progress: Progress, depositWorld: number | null = null): void {
     this.banks.forEach((bank, world) => {

@@ -21,7 +21,7 @@ import { TreasureCave } from "./render/cave";
 import type { Harbour } from "./render/harbour";
 import type { PrivateShip } from "./render/privateShip";
 import { PRIVATE_PEARL } from "./privatePearl";
-import { displayRenderScale, configureTextureQuality } from "./render/quality";
+import { displayRenderScale, configurePhoneRendering, configureTextureQuality } from "./render/quality";
 import { FixedStepper } from "./sim/world";
 import { angleDiff, clamp } from "./sim/math";
 import { VoyageHud } from "./ui/voyageHud";
@@ -46,14 +46,16 @@ window.addEventListener("pagehide", stopLegacySpeech);
 
 async function main() {
   const canvas = document.querySelector<HTMLCanvasElement>("#game")!;
+  const phone = Capacitor.isNativePlatform() || /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
   const engine = new Engine(
     canvas,
-    true,
+    !phone,
     { stencil: true, powerPreference: "high-performance" },
     false,
   );
   engine.maxFPS = 60;
   engine.renderEvenInBackground = false;
+  configurePhoneRendering(engine, phone);
   configureTextureQuality(engine);
   const quality = () => {
     const rect = canvas.getBoundingClientRect();
@@ -63,7 +65,7 @@ async function main() {
       ? Number(params.get("renderDpr")) : 0;
     const ratio = fixtureRatio >= 1 && fixtureRatio <= 4 ? fixtureRatio : devicePixelRatio;
     engine.setHardwareScalingLevel(displayRenderScale(
-      rect.width, rect.height, ratio, engine.getCaps().maxRenderTextureSize,
+      rect.width, rect.height, ratio, engine.getCaps().maxRenderTextureSize, phone,
     ));
     canvas.dataset.renderResolution = `${engine.getRenderWidth()}x${engine.getRenderHeight()}`;
     canvas.dataset.renderPixelRatio = (1 / engine.getHardwareScalingLevel()).toFixed(2);
@@ -101,8 +103,15 @@ async function main() {
   }
   syncRewards(progress);
   let reward: VoyageReward | undefined;
-  const cave = new TreasureCave(engine, !qa);
-  cave.refresh(caveProgress(progress));
+  let cave: TreasureCave | null = null;
+  const getCave = (): TreasureCave => {
+    if (!cave) {
+      cave = new TreasureCave(engine, !qa);
+      cave.refresh(caveProgress(progress));
+    }
+    return cave;
+  };
+  const releaseCave = () => { cave?.scene.dispose(); cave = null; };
   let session = new VoyageSession(generateVoyage(0)),
     renderer: GameRenderer | null = null;
   let harbour: Harbour | PrivateShip | null = null;
@@ -162,7 +171,7 @@ async function main() {
   const cancelUnloading = () => {
     if (unloadingIndex !== null) {
       unloadingIndex = null; unloadQueue = [];
-      cave.refresh(caveProgress(progress));
+      getCave().refresh(caveProgress(progress));
     }
   };
   const prepareChest = () => {
@@ -171,7 +180,7 @@ async function main() {
     const banked = caveProgress(progress);
     banked.voyages[unloadingIndex] = progress.voyages[unloadingIndex]!;
     const world = Math.floor(unloadingIndex/10);
-    cave.refresh(banked, world); cave.beginUnload(world);
+    getCave().refresh(banked, world); getCave().beginUnload(world);
     hud.unloading(unloadTotal - unloadQueue.length, unloadTotal);
   };
   const unload = () => {
@@ -187,7 +196,7 @@ async function main() {
   const visitHold = () => {
     if (PRIVATE_PEARL) { void visitShip(true); return; }
     cancelUnloading(); clearArrival(); clearWalking(); gesture.clear(); controls.clear();
-    cave.endReveal();
+    cave?.endReveal();
     const index=progress.cargo.at(-1) ?? Math.max(0,...Object.keys(progress.voyages).map(Number));
     hold?.scene.dispose();hold = new ShipHold(engine, generateVoyage(index));
     const special = progress.relics.find(id => caveProgress(progress).relics.indexOf(id)<0) ?? null;
@@ -199,8 +208,8 @@ async function main() {
       if (harbour?.atHelm) { menu(); hud.showMenu("worlds"); }
       return;
     }
-    const i = cave.nearby;
-    if (i !== null) hud.select(i, cave.selectedGoldWorld);
+    const i = getCave().nearby;
+    if (i !== null) hud.select(i, getCave().selectedGoldWorld);
   };
   const home = () => {
     stashSea();
@@ -210,8 +219,10 @@ async function main() {
     gesture.clear();
     clearWalking();
     loadId++;
+    renderer?.scene.dispose(); renderer = null;
+    hold?.scene.dispose(); hold = null;
     mode = "cave";
-    cave.endReveal();
+    cave?.endReveal();
     paused = false;
     hud.root.classList.remove("loading-voyage");
     tapHeading = null;
@@ -220,37 +231,37 @@ async function main() {
     pendingFire = false;
     hud.paused(false);
     hud.home();
-    cave.refresh(caveProgress(progress));
-    cave.enter();
+    getCave().refresh(caveProgress(progress));
+    getCave().enter();
     if (import.meta.env.DEV && qaQuery === "collection") {
       const room = new URLSearchParams(location.search).get("room");
       if (room === "vault") {
-        cave.walker.x = 0;
-        cave.walker.z = 31;
+        getCave().walker.x = 0;
+        getCave().walker.z = 31;
       }
       if (room === "coins") {
-        cave.walker.x = -4;
-        cave.walker.z = 42.5;
+        getCave().walker.x = -4;
+        getCave().walker.z = 42.5;
       }
       if (room === "crown") {
-        cave.walker.x = -5;
-        cave.walker.z = 30;
+        getCave().walker.x = -5;
+        getCave().walker.z = 30;
       }
       if (room === "grotto") {
-        cave.walker.x = 27;
-        cave.walker.z = 34;
+        getCave().walker.x = 27;
+        getCave().walker.z = 34;
       }
       const bank = Number(new URLSearchParams(location.search).get("bank") ?? -1);
       if (bank >= 0 && bank < 4) {
         const a = GOLD_AREAS[bank]!;
-        cave.walker.x = a.x;
-        cave.walker.z = a.z - 6.5;
-        cave.walker.pitch = -.05;
+        getCave().walker.x = a.x;
+        getCave().walker.z = a.z - 6.5;
+        getCave().walker.pitch = -.05;
       }
-      cave.walker.feet = 0;
+      getCave().walker.feet = 0;
     }
     if (import.meta.env.DEV && mode === "cave")
-      canvas.dataset.caveGeometry = JSON.stringify(cave.walkingGeometry);
+      canvas.dataset.caveGeometry = JSON.stringify(getCave().walkingGeometry);
     stepper.reset();
   };
   const menu = () => {
@@ -263,7 +274,7 @@ async function main() {
     clearWalking();
     loadId++;
     mode = "menu";
-    cave.endReveal();
+    cave?.endReveal();
     paused = false;
     heading = tapHeading = null;
     pendingFire = false;
@@ -279,7 +290,9 @@ async function main() {
     clearArrival(); gesture.clear(); clearWalking(); controls.clear();
     const id = ++loadId;
     heading = tapHeading = null; pendingFire = false; paused = false;
-    cave.endReveal(); hud.paused(false);
+    cave?.endReveal(); releaseCave();
+    hold?.scene.dispose(); hold = null;
+    hud.paused(false);
     mode = "loading";
     hud.root.classList.add("loading-voyage");
     try {
@@ -325,7 +338,7 @@ async function main() {
   };
   const start = async (index: number, freeMode = false, pack = 0, respawn = false) => {
     stashSea();
-    if (PRIVATE_PEARL && harbour) { harbour.scene.dispose(); harbour = null; }
+    if (harbour) { harbour.scene.dispose(); harbour = null; }
     if (respawn) {
       openSea.position = { x: 0, z: 0 }; openSea.heading = openSea.yaw = 0; openSea.pitch = .03;
       saveOpenSea(openSea, storage);
@@ -341,7 +354,8 @@ async function main() {
     if (!freeMode && !qa && !levelUnlocked(progress.voyages, index)) return;
     const id = ++loadId;
     mode = "loading";
-    cave.endReveal();
+    cave?.endReveal();
+    releaseCave();
     controls.clear();
     heading = null;
     tapHeading = null;
@@ -432,15 +446,15 @@ async function main() {
     menu,
     overview: () => {
       walking.clear();
-      cave.overview();
+      getCave().overview();
     },
     caveMove: (r, f) => walking.move(r, f),
     caveJump: () => walking.jump(),
     caveInspect: inspect,
     select: (i, world) => {
-      cave.selectedGoldWorld = world;
+      getCave().selectedGoldWorld = world;
       clearWalking();
-      cave.select(i);
+      getCave().select(i);
     },
     pause,
     fire: () => {
@@ -504,7 +518,6 @@ async function main() {
           session.gemsFound,
         );
         saveProgress(progress, storage);
-        cave.refresh(caveProgress(progress));
         arrive();
       }
       if (session.state === "lost") {
@@ -524,7 +537,7 @@ async function main() {
   window.addEventListener("keydown", (e) => {
     if (mode === "cave" || mode === "harbour") {
       if (
-        (mode === "harbour" || !cave.inspecting || e.code.startsWith("Arrow")) &&
+        (mode === "harbour" || !getCave().inspecting || e.code.startsWith("Arrow")) &&
         walking.keyDown(e.code, performance.now())
       )
         e.preventDefault();
@@ -533,8 +546,8 @@ async function main() {
         inspect();
       }
       if (e.code === "Escape") {
-        if (mode === "cave" && cave.inspecting) {
-          cave.overview();
+        if (mode === "cave" && getCave().inspecting) {
+          getCave().overview();
           hud.overview();
         } else if (document.pointerLockElement === canvas) releaseMouse();
         else menu();
@@ -626,14 +639,14 @@ async function main() {
       return;
     }
     if (mode !== "cave" && mode !== "harbour") return;
-    const place = mode === "harbour" ? harbour! : cave;
+    const place = mode === "harbour" ? harbour! : getCave();
     if (document.pointerLockElement === canvas) {
       place.look(e.movementX, e.movementY);
       return;
     }
     const action = gesture.move(e.pointerId, e.clientX, e.clientY);
     if (action?.type === "look") place.look(action.dx, action.dy);
-    if (mode === "cave" && action?.type === "pinch" && cave.pinch(action.ratio)) hud.overview();
+    if (mode === "cave" && action?.type === "pinch" && getCave().pinch(action.ratio)) hud.overview();
   });
   canvas.addEventListener("pointerup", (e) => {
     if (mode === "play" && !paused && renderer?.captainCamera.enabled) {
@@ -654,9 +667,9 @@ async function main() {
       if (document.pointerLockElement === canvas) return;
       const action = gesture.up(e.pointerId, e.clientX, e.clientY);
       if (action?.type === "tap") {
-        const i = cave.pick(action.x, action.y);
-        if (i !== null) hud.select(i, cave.selectedGoldWorld);
-        else if (e.pointerType === "mouse" && !cave.inspecting) {
+        const i = getCave().pick(action.x, action.y);
+        if (i !== null) hud.select(i, getCave().selectedGoldWorld);
+        else if (e.pointerType === "mouse" && !getCave().inspecting) {
           void canvas.requestPointerLock?.()?.catch(() => {});
         }
       }
@@ -693,7 +706,7 @@ async function main() {
     "wheel",
     (e) => {
       e.preventDefault();
-      if (mode === "cave" && cave.zoom(e.deltaY)) hud.overview();
+      if (mode === "cave" && getCave().zoom(e.deltaY)) hud.overview();
       else if (mode === "play" && !renderer?.captainCamera.enabled) renderer?.zoomBy(e.deltaY * 0.035);
     },
     { passive: false },
@@ -703,7 +716,7 @@ async function main() {
     engine.resize();
     renderer?.resize();
     if (mode === "play" && renderer) hud.camera(renderer.captainCamera.enabled);
-    cave.resize();
+    cave?.resize();
   };
   window.addEventListener("resize", resizeGame);
   window.visualViewport?.addEventListener("resize", resizeGame);
@@ -719,6 +732,7 @@ async function main() {
       curtain.style.opacity = String(pose.opacity);
       if (pose.inCave && !arrivalInCave) {
         arrivalInCave = true;
+        renderer?.scene.dispose(); renderer = null;
         if (arrivalDestination === "hold") {
           hold?.scene.dispose();hold=new ShipHold(engine,session.voyage);
           hold.open(progress,reward?.special ?? null);holdShowingResult=true;
@@ -729,9 +743,9 @@ async function main() {
       // Keep the chest closed while the cave fades in: none of its reveal is lost.
       if (arrivalInCave) {
         if (arrivalDestination === "hold") hold?.render(0,reducedMotion.matches);
-        else cave.render(0,true);
+        else getCave().render(0,true);
       } else if (arrivalFromHold) hold?.render(dt,reducedMotion.matches);
-      else if (unloadingIndex !== null) cave.render(dt,true);
+      else if (unloadingIndex !== null) getCave().render(dt,true);
       else renderer?.render(session, 1, dt);
       if (pose.ready) {
         mode = arrivalDestination === "hold" ? "hold" : "unloading";
@@ -742,11 +756,11 @@ async function main() {
       if (holdShowingResult) {const p=hold.pose;hud.reveal(p.time,p.discovered,p.ready);}
     } else if (mode === "unloading") {
       // DEV-only still frame for inspecting the hands and cabin-to-bank carry.
-      if (carryPreview) cave.revealTime = reducedMotion.matches ? 1.4 : 6.7;
-      cave.render(carryPreview ? 0 : dt,true);
-      if (unloadingIndex !== null && cave.depositComplete) {
+      if (carryPreview) getCave().revealTime = reducedMotion.matches ? 1.4 : 6.7;
+      getCave().render(carryPreview ? 0 : dt,true);
+      if (unloadingIndex !== null && getCave().depositComplete) {
         deliverChest(progress,unloadingIndex);saveProgress(progress,storage);
-        cave.refresh(caveProgress(progress));
+        getCave().refresh(caveProgress(progress));
         if (unloadQueue.length) arrive("unload");
         else {unloadingIndex=null;hud.unloading(unloadTotal,unloadTotal,true);}
       }
@@ -794,49 +808,50 @@ async function main() {
       renderer.render(session, 1, dt);
     } else if (mode === "loading" && renderer) {
       renderer.render(session, 1, dt);
-    } else if (mode !== "menu") {
+    } else if (mode !== "menu" && mode !== "loading") {
       if (mode === "cave") {
         const look = walking.readLook();
-        cave.look(look.right * 500 * dt, look.down * 450 * dt);
-        cave.walk(walking.read(), dt);
+        getCave().look(look.right * 500 * dt, look.down * 450 * dt);
+        getCave().walk(walking.read(), dt);
       }
-      cave.render(dt, mode === "result");
+      getCave().render(dt, mode === "result");
       if (mode === "cave") {
         hud.caveWalk(
-          cave.nearby,
+          getCave().nearby,
           document.pointerLockElement === canvas,
-          cave.inspecting,
-          cave.room,
+          getCave().inspecting,
+          getCave().room,
         );
-        canvas.dataset.caveCoinCounts = cave.coinCounts.join(",");
+        canvas.dataset.caveCoinCounts = getCave().coinCounts.join(",");
         canvas.dataset.cavePosition = [
-          cave.walker.x,
-          cave.walker.eyeY,
-          cave.walker.z,
+          getCave().walker.x,
+          getCave().walker.eyeY,
+          getCave().walker.z,
         ]
           .map((n) => n.toFixed(2))
           .join(",");
         if (import.meta.env.DEV) {
-          canvas.dataset.caveLanterns = cave.activeLanterns;
-          canvas.dataset.caveGoldMeshes = cave.scene
+          canvas.dataset.caveLanterns = getCave().activeLanterns;
+          canvas.dataset.caveGoldMeshes = getCave().scene
             .getActiveMeshes()
             .data.filter((m) => m?.name.endsWith("settled gold coins"))
             .map((m) => m.name)
             .join(",");
         }
-        canvas.dataset.caveYaw = cave.walker.yaw.toFixed(2);
-        canvas.dataset.caveView = cave.inspecting ? "inspect" : "walk";
+        canvas.dataset.caveYaw = getCave().walker.yaw.toFixed(2);
+        canvas.dataset.caveView = getCave().inspecting ? "inspect" : "walk";
       }
       if (mode === "result" && session.state === "won") {
-        const p = cave.revealPose;
+        const p = getCave().revealPose;
         hud.reveal(p.time, p.discovered, p.ready);
         hud.depositing(!!reward?.gold && p.time > 5.3);
       }
     }
-    canvas.dataset.goldPhysics = String(cave.goldPhysicsActive);
-    canvas.dataset.restingCoins = cave.restingCoinCounts.join(",");
-    canvas.dataset.coinCounts = cave.coinCounts.join(",");
+    canvas.dataset.goldPhysics = String(cave?.goldPhysicsActive ?? false);
+    canvas.dataset.restingCoins = cave?.restingCoinCounts.join(",") ?? "";
+    canvas.dataset.coinCounts = cave?.coinCounts.join(",") ?? "";
     canvas.dataset.fps = String(Math.round(engine.getFps()));
+    canvas.dataset.activeScenes = String(engine.scenes.length);
     canvas.dataset.state = mode === "play" ? session.state : mode;
     canvas.dataset.audio = "disabled";
   });
@@ -848,7 +863,7 @@ async function main() {
     session.gemsFound = 2;
     for (let i = 0; i < index; i++) { awardVoyage(progress, i, 3, 2); if (!qaQuery!.startsWith("hold-") && !qaQuery!.startsWith("unload-")) deliverChest(progress,i); }
     reward = awardVoyage(progress, index, 3, 2);
-    cave.refresh(caveProgress(progress));
+    getCave().refresh(caveProgress(progress));
     if(qaQuery!.startsWith("unload-")) { unload(); }
     else { hold = new ShipHold(engine,session.voyage);hold.open(progress,reward.special);holdShowingResult=true;mode="hold";hud.result(session,reward); }
   } else if (qaQuery === "collection") home();
