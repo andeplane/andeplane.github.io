@@ -20,6 +20,7 @@ import { antialiasSamples, isPhoneRendering } from './quality';
 import type { VoyageDef } from '../game/voyage';
 import { cargoChests } from '../game/rewards';
 import type { Progress } from '../game/progress';
+import { CoinHoard } from './coinHoard';
 
 /** A shipboard cabin with an open stern window onto the island just reached. */
 export class ShipHold {
@@ -37,6 +38,10 @@ export class ShipHold {
   private revealing = true;
   private coins = 0;
   private reducedMotion = false;
+  private debugHoard: CoinHoard | null = null;
+  private debugAge = 0;
+  private debugFinished: number | null = null;
+  private debugPour = false;
   constructor(engine: Engine, voyage: VoyageDef) {
     const s = this.scene = new Scene(engine);
     s.clearColor = Color4.FromHexString('#839aabff');
@@ -112,6 +117,18 @@ export class ShipHold {
     for(const meshes of [timber,fittings]) if(meshes.length) {const m=Mesh.MergeMeshes(meshes,true,true)!;m.receiveShadows=true;this.cargoMeshes.push(m);}
   }
   get pose() { return revealPose(this.revealTime,this.reducedMotion); }
+  debugCoinBank(_world = 0, add = false): void {
+    this.debugHoard ??= new CoinHoard(this.scene, false, undefined, {
+      areas: [{world:0,name:'Ship hold',x:0,z:0,radius:3.8}], floorY:.7, strictPhysics:true,
+    });
+    if (add) this.debugHoard.addBatch(0);
+    this.debugAge = 0; this.debugFinished = null; this.debugPour = add;
+  }
+  get coinCounts(): number[] { return this.debugHoard?.counts ?? [0]; }
+  get restingCoinCounts(): number[] { return this.debugHoard?.restingCounts ?? [0]; }
+  get goldPhysicsActive(): boolean { return this.debugHoard?.physicsActive ?? false; }
+  get coinError(): string | null { return this.debugHoard?.pouring(0).error ?? null; }
+  get depositComplete(): boolean { return this.debugFinished !== null && this.debugAge - this.debugFinished > .7; }
   render(dt:number,reduced=false):void {
     this.reducedMotion=reduced;
     this.time+=dt;if(this.revealing)this.revealTime+=dt;else this.revealTime=5;
@@ -120,6 +137,22 @@ export class ShipHold {
     const bob=reduced?0:Math.sin(this.time*.75)*.035;
     this.camera.position.set(.75+Math.sin(this.time*.35)*.015,5.4+bob,-6.8);
     this.camera.fov=innerWidth<600?1.25:.85;this.camera.setTarget(new Vector3(0,2.05,.55));
+    if (this.debugHoard) {
+      this.debugAge += dt;
+      const pour = this.debugHoard.pouring(0), height = this.debugHoard.span(0).height;
+      this.camera.position.set(.75,Math.min(5.5,height+3.2),-6.8);
+      this.camera.setTarget(new Vector3(0,Math.min(4,height*.5+1),0));
+      if (this.debugPour) {
+        this.chest.animate(5,0,reduced);
+        const lift=Math.min(1,this.debugAge), turn=Math.min(1,Math.max(0,this.debugAge-1));
+        this.chest.root.position.set(0,1.05+(pour.chestY-1.05)*lift,.8*(1-lift));
+        this.chest.root.rotation.set(0,0,-Math.PI*turn*turn*(3-2*turn));
+        this.chest.setCoinCount(1000-pour.spawned);
+        if(this.debugAge>=2&&pour.ready&&!pour.active&&!pour.done&&!pour.error) this.debugHoard.startPour(0);
+        if(pour.done){this.debugFinished??=this.debugAge;this.chest.hide();}
+      } else this.chest.hide();
+      this.debugHoard.animate(dt);
+    }
     this.ocean.update(this.time,this.camera.position,{x:0,z:0},[]);this.islands.update(this.time);
     this.scene.render();
   }

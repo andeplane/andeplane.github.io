@@ -4,11 +4,12 @@ import { caveFloor } from "../input/caveLayout";
 import { settledGoldCollision } from "./goldCollision";
 
 /** Only the new chest is dynamic. The earned hoard is permanent collision geometry. */
-self.onmessage = async (event: MessageEvent<{ world: number; previous: Float32Array; chest: Float32Array }>) => {
+self.onmessage = async (event: MessageEvent<{ world: number; previous: Float32Array; chest: Float32Array; floorY?: number; area?: {x:number;z:number;radius:number} }>) => {
   let physics: InstanceType<typeof RAPIER.World> | undefined;
   try {
     await RAPIER.init();
-    const { world, previous, chest } = event.data, area = GOLD_AREAS[world]!;
+    const { world, previous, chest, floorY } = event.data, area = event.data.area ?? GOLD_AREAS[world]!;
+    const floor = (x:number,z:number) => floorY ?? caveFloor(x + area.x, z + area.z);
     physics = new RAPIER.World({ x: 0, y: -9.81, z: 0 });
     // CCD still catches the thin coins, without four sweeps at 120 Hz.
     physics.timestep = 1 / 60;
@@ -19,11 +20,11 @@ self.onmessage = async (event: MessageEvent<{ world: number; previous: Float32Ar
     for (let j = 0; j < tiles; j++) for (let i = 0; i < tiles; i++) {
       const x = -extent + (i + .5) * width, z = -extent + (j + .5) * width;
       physics.createCollider(RAPIER.ColliderDesc.cuboid(width / 2 + .002, .4, width / 2 + .002)
-        .setTranslation(x, caveFloor(x + area.x, z + area.z) - .4, z).setFriction(.8));
+        .setTranslation(x, floor(x,z) - .4, z).setFriction(.8));
     }
     for (let i = 0; i < 20; i++) {
       const a = i * Math.PI * 2 / 20, r = area.radius + .15;
-      physics.createCollider(RAPIER.ColliderDesc.ball(.6).setTranslation(Math.sin(a) * r, .3, Math.cos(a) * r).setFriction(.85));
+      physics.createCollider(RAPIER.ColliderDesc.ball(.6).setTranslation(Math.sin(a) * r, floorY === undefined ? .3 : floorY - .5, Math.cos(a) * r).setFriction(.85));
     }
     for (const sign of [-1, 1]) {
       physics.createCollider(RAPIER.ColliderDesc.cuboid(.1, 6, extent).setTranslation(sign * extent, 5, 0));
@@ -31,7 +32,7 @@ self.onmessage = async (event: MessageEvent<{ world: number; previous: Float32Ar
     }
     const collider = () => RAPIER.ColliderDesc.roundCylinder(COIN_THICKNESS / 2 - .006, COIN_RADIUS - .006, .006)
       .setFriction(.7).setRestitution(.025).setDensity(8);
-    let peak = .1;
+    let peak = Math.max(.1, floorY ?? .1);
     for (let i = 1; i < previous.length; i += COIN_POSE_STRIDE) peak = Math.max(peak, previous[i]!);
     if (previous.length) {
       const { vertices, indices } = settledGoldCollision(previous);
@@ -76,7 +77,7 @@ self.onmessage = async (event: MessageEvent<{ world: number; previous: Float32Ar
         // A rare solver escape is dropped again; no lost coins or invented final poses.
         for (const b of moving.keys()) {
           const p = b.translation();
-          if (p.y < caveFloor(p.x + area.x, p.z + area.z) - .15) {
+          if (p.y < floor(p.x,p.z) - .15) {
             b.setTranslation({ x: 0, y: peak + 2, z: 0 }, true);
             b.setLinvel({ x: 0, y: 0, z: 0 }, true);
           }

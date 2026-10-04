@@ -1,0 +1,16 @@
+#coin-debug {position:fixed;z-index:20;left:max(12px,env(safe-area-inset-left));right:max(12px,env(safe-area-inset-right));top:max(12px,env(safe-area-inset-top));max-width:650px;padding:14px;border:1px solid #94764c;border-radius:12px;background:#0d1724e8;color:#ffe4ab;font:13px/1.4 system-ui;user-select:none;-webkit-user-select:none;-webkit-touch-callout:none;pointer-events:auto;}
+#coin-debug header {display:flex;flex-wrap:wrap;gap:6px 16px;padding-right:45px;}
+#coin-debug header b {font-size:18px;}
+#coin-debug header span {color:#c3baaa;}
+.coin-debug-controls {display:flex;flex-wrap:wrap;align-items:end;gap:8px;margin:12px 0;}
+#coin-debug label {display:grid;gap:3px;}
+#coin-debug button,#coin-debug select {min-height:44px;padding:8px 12px;border:1px solid #8d7652;border-radius:7px;background:#182735;color:#ffe4ab;font:inherit;cursor:pointer;}
+#coin-debug button.primary {background:#e6b86d;color:#261d16;font-weight:700;}
+#coin-debug button:disabled,#coin-debug select:disabled {opacity:.5;cursor:default;}
+#coin-debug-stats {display:block;white-space:pre-line;font-variant-numeric:tabular-nums;color:#e6e4de;}
+#coin-debug-status {margin:8px 0 0;color:#ffd68c;}
+#coin-debug details {margin-top:8px;}
+#coin-debug summary {cursor:pointer;}
+#coin-debug pre {max-height:100px;overflow:auto;font:11px/1.5 monospace;}
+#coin-debug #game-fullscreen {position:absolute;right:12px;top:12px;}
+@media(max-width:600px){#coin-debug {padding:10px;font-size:11px;}#coin-debug header b{font-size:15px;}.coin-debug-controls{gap:5px;margin:8px 0;}#coin-debug button,#coin-debug select{padding:6px 8px;}#coin-debug header span{font-size:10px;}#coin-debug details{display:none;}}

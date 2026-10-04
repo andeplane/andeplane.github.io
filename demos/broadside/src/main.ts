@@ -3,6 +3,7 @@ import { DeckWalk } from "./game/deckWalk";
 import { Fishing } from "./game/fishing";
 import { DeckFishing } from "./render/deckFishing";
 import { GOLD_AREAS } from "./game/goldAreas";
+import { coinDebugLocation } from "./game/debugCoins";
 import "@babylonjs/core/Culling/ray.js";
 import "@babylonjs/core/Shaders/color.vertex.js";
 import "@babylonjs/core/Shaders/color.fragment.js";
@@ -78,6 +79,12 @@ async function main() {
     canvas.dataset.renderPixelRatio = (1 / engine.getHardwareScalingLevel()).toFixed(2);
   };
   quality();
+  const coinSandbox = coinDebugLocation(new URLSearchParams(location.search));
+  if (coinSandbox) {
+    const { startCoinDebug } = await import("./ui/debugCoins");
+    startCoinDebug(engine, coinSandbox, quality);
+    return;
+  }
   let storage: Storage | undefined;
   try {
     storage = localStorage;
