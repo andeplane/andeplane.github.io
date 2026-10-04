@@ -118,7 +118,9 @@ Desktop browser viewport testing covers responsive layout and interactions. Late
 
 The maintained source is `demos/broadside/` in [andeplane.github.io](https://github.com/andeplane/andeplane.github.io/tree/main/demos/broadside). The site builds this app with `BASE_PATH=/demos/broadside/`. All ship, parrot, font and rock-texture assets are local and follow that base path. The rock surfaces use [Rock Face 03 by Poly Haven](https://polyhaven.com/a/rock_face_03) under CC0; attribution and original-file details are in `public/textures/cave/CREDITS.md`. The Black Pearl source and conversion details are in `public/assets/ships/CREDITS.md`.
 
-Development-only visual fixtures use `?qa=collection` (the full collection), `?qa=6` (a particular voyage, zero based), `?qa=reveal-4` (a chest reveal), and `?qa=free&seed=81723` (the open world). A visible badge identifies these previews and player saves are disabled. Production ignores all QA parameters.
+Development-only visual fixtures use `?qa=collection` (the full collection), `?qa=6` (a particular voyage, zero based), `?qa=reveal-4` (a chest reveal), and `?qa=free&seed=81723` (the open world). Add `&preview=sink&mute=true` to a voyage or open-world fixture to preview sinking. A visible badge identifies these previews and player saves are disabled. Production ignores all QA parameters.
+
+When the ship sinks, the camera follows it beneath the waves into a reef with a rippled sand floor, coral gardens, swaying kelp, three swimming fish schools and rising air bubbles. The underwater water surface shows refracted daylight; depth smoothly adds blue-green haze. Reef scenery is merged and fish/bubbles are instanced, with smaller geometry and animal counts on phones. This scenery is built only after the player sinks, and retrying removes it with the old scene. The normal sailing camera stays unchanged.
 
 Silent collection preview: http://localhost:5182/?qa=collection&mute=true (development only, player saves disabled).
 

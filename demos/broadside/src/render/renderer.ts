@@ -52,6 +52,9 @@ import { worldStyle } from "./worldStyle";
 import { VoyageSky } from "./voyageSky";
 import { CaptainCamera } from "./captainCamera";
 import { Camera } from "@babylonjs/core/Cameras/camera.js";
+import { SinkingCamera } from "./sinkingCamera";
+import { UNDERWATER_COLOR, UnderwaterView } from "./underwater";
+import { SINK_DURATION } from "../sim/ships";
 
 const FOG_DENSITY = 0.0014;
 const CAMERA_PITCH = (49 * Math.PI) / 180;
@@ -153,6 +156,11 @@ export class GameRenderer {
   private inspectionIsland?: { pos: { x: number; z: number }; radius: number };
   private sunStrength = 1.35;
   private skyStrength = 0.9;
+  private surfaceFog = PALETTE.fog.clone();
+  private surfaceFogDensity = FOG_DENSITY;
+  private underwater?: UnderwaterView;
+  private readonly sinkingCamera = new SinkingCamera();
+  private readonly reducedMotion = matchMedia("(prefers-reduced-motion: reduce)").matches;
   private readonly views = new Map<number, ShipView>();
   private readonly ballTemplate: Mesh;
   private readonly ballPool: InstancedMesh[] = [];
@@ -276,6 +284,7 @@ export class GameRenderer {
 
   /** Rebuild ship views after a restart. */
   reset(session: Session): void {
+    this.underwater?.dispose();this.underwater=undefined;this.sinkingCamera.reset();
     for (const v of this.views.values()) v.dispose();
     this.views.clear();
     for (const b of this.activeBalls.values()) this.releaseBall(b);
@@ -386,10 +395,16 @@ export class GameRenderer {
       this.scene.fogColor = Color3.FromHexString(style.fog).scale(storm ? .78 : 1);
       this.scene.clearColor = Color4.FromColor3(this.scene.fogColor, 1);
       this.scene.fogDensity = rain ? .0028 : FOG_DENSITY;
+      this.surfaceFog=this.scene.fogColor.clone();this.surfaceFogDensity=this.scene.fogDensity;
       if (weather) this.ocean.setWeather(weather);
     }
     const world = session.world;
     const player = session.player;
+    if (!player.alive && !this.underwater) {
+      this.sinkingCamera.start(this.rig.camera);
+      this.underwater=new UnderwaterView(this.scene,session.level.seed,player.spec.length,
+        player.pos.x,player.pos.z,player.heading,isPhoneRendering(this.engine));
+    }
     const enemy = session.enemies
       .filter((s) => s.alive)
       .sort(
@@ -436,12 +451,13 @@ export class GameRenderer {
     this.rig.camera.minZ = 1;
     this.playerShipId = player.id;
     const playerView = this.views.get(player.id);
-    if (playerView) this.captainCamera.apply(this.rig.camera, playerView, dt);
+    if (playerView && player.alive) this.captainCamera.apply(this.rig.camera, playerView, dt);
     if (this.inspectionIsland && !this.captainCamera.enabled) {
       const island = this.inspectionIsland, r = island.radius;
       this.rig.camera.position.set(island.pos.x + r * .25, r * 1.6 + 22, island.pos.z - r * 2.2 - 26);
       this.rig.camera.setTarget(new Vector3(island.pos.x, 5, island.pos.z));
     }
+    if (!player.alive) this.sinkingCamera.apply(this.rig.camera,player);
 
     // Cannonballs.
     const seen = new Set<number>();
@@ -470,6 +486,16 @@ export class GameRenderer {
     const flash = this.weatherView?.update(this.time, focus, world.wind) ?? 0;
     this.sun.intensity = this.sunStrength + flash * 1.1;
     this.sky.intensity = this.skyStrength + flash * 0.6;
+    const submerged=Math.max(0,Math.min(1,-this.rig.camera.position.y/3));
+    this.scene.fogColor=Color3.Lerp(this.surfaceFog,UNDERWATER_COLOR,submerged);
+    this.scene.fogDensity=this.surfaceFogDensity+(.019-this.surfaceFogDensity)*submerged;
+    this.scene.clearColor=Color4.FromColor3(this.scene.fogColor,1);
+    this.sun.intensity*=1-submerged*.28;
+    this.sky.intensity*=1-submerged*.15;
+    this.underwater?.update(this.time,this.rig.camera.position,this.sunStrength/1.5,this.reducedMotion,
+      player.sinkTime/SINK_DURATION);
+    if (import.meta.env.DEV && this.engine.getRenderingCanvas())
+      this.engine.getRenderingCanvas()!.dataset.underwater=String(submerged>0);
     this.ocean.setFlash(flash);
     this.skyView?.update(this.time, flash);
 
