@@ -51,3 +51,23 @@ The unsigned simulator app is generated at `ios/DerivedData/Build/Products/Debug
 Generated web bundles, DerivedData and personal Xcode settings are ignored by Git. The native project, app icon, launch screen and Swift package lockfile are tracked. There is no live-server URL, remote update service, microphone permission, or audio plugin.
 
 Reference: [Capacitor’s iOS workflow](https://capacitorjs.com/docs/ios).
+
+## Captain Calculus
+
+Captain Calculus has its own native project, icon and bundle identifier,
+`com.andeplane.captaincalculus`. It installs alongside Broadside and keeps its
+own on-device progress and cave. The native app bundles the math entry point at
+its root and works offline. Its build excludes the optional private ship.
+
+```sh
+npm run calculus:ios:open
+```
+
+This builds `dist-calculus-ios`, synchronizes `ios-calculus/App/App.xcodeproj`,
+and opens Xcode. Select the **App** scheme, your development team and the phone,
+then Run. Updates use `npm run calculus:ios:sync`. Unsigned simulator builds use
+`npm run calculus:ios:build:sim`; interactive simulator runs use
+`npm run calculus:ios:sim`.
+
+The default `ios:*` commands continue to build Broadside. The `calculus:ios:*`
+commands select the separate project with `CAPTAIN_CALCULUS=1`.

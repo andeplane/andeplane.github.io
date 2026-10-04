@@ -204,3 +204,8 @@ on port 5180). Development-only `?qa=true&mute=true` starts a temporary test
 session without reading or writing player progress or the coin pose cache.
 Production ignores the QA flag. `npm run check` covers both games and builds
 both entry points.
+
+Captain Calculus also has a separate offline iPhone/iPad app. Run
+`npm run calculus:ios:open` to open its native project; see [IOS.md](IOS.md#captain-calculus)
+for builds and updates. It uses `com.andeplane.captaincalculus`, its own Home
+Screen icon and on-device save, and can be installed alongside Broadside.

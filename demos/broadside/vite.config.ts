@@ -3,7 +3,11 @@ import { defineConfig } from "vitest/config";
 import { privateAssets, usePrivatePearl } from "./tools/privateAssets";
 
 export default defineConfig(({ mode }) => {
-  const pearl = usePrivatePearl(mode, process.cwd());
+  const calculusIos = mode === "calculus-ios";
+  const pearl = !calculusIos && usePrivatePearl(mode, process.cwd());
+  const input: Record<string, string> = calculusIos
+    ? { calculus: "math/index.html" }
+    : { broadside: "index.html", calculus: "math/index.html" };
   return {
     plugins: [privateAssets(pearl, process.cwd())],
     define: { "import.meta.env.PRIVATE_PEARL": JSON.stringify(pearl) },
@@ -14,7 +18,7 @@ export default defineConfig(({ mode }) => {
     build: {
       target: "es2022", chunkSizeWarningLimit: 7000, outDir: "dist",
       rollupOptions: {
-        input: { broadside: "index.html", calculus: "math/index.html" },
+        input,
         output: {
           // Separate entry points must not run one another's Babylon startup.
           manualChunks: (id) => id.includes("/node_modules/@babylonjs/") ? "babylon" : undefined,

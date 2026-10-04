@@ -19,3 +19,13 @@ ios/App/App.xcodeproj/xcuserdata/
 ios/App/App.xcodeproj/project.xcworkspace/xcuserdata/
 ios/DerivedData/
 ios/build/
+
+dist-calculus-ios/
+ios-calculus/App/App/public/
+ios-calculus/App/App/capacitor.config.json
+ios-calculus/App/App/config.xml
+ios-calculus/App/CapApp-SPM/.build/
+ios-calculus/App/App.xcodeproj/xcuserdata/
+ios-calculus/App/App.xcodeproj/project.xcworkspace/xcuserdata/
+ios-calculus/DerivedData/
+ios-calculus/build/
