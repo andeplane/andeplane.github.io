@@ -159,7 +159,7 @@ function beginLevel(n: number): void {
 }
 function nextProblem(): void {
   answer = ""; feedback = ""; hinted = false; accepted = false; outcome = null;
-  question = questionsFor(packId, voyage!.seed)[voyage!.solved]!;
+  question = questionsFor(packId, voyage!.seed, voyage!.questionSet)[voyage!.solved]!;
   show("question");
 }
 function enterKey(key: string): void {

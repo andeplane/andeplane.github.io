@@ -111,13 +111,84 @@ function makeQuestion(p: Pack, rng: Rng): Question {
   }
   return { operator: p.operator, left, right, answer };
 }
-/** Each voyage has fresh, reproducible questions and no repeated facts within it. */
-export function questionsFor(packId: string, seed: number): Question[] {
-  const p = getPack(packId), rng = new Rng(seed), questions: Question[] = [], seen = new Set<string>();
+/** Keep the original sequence for saved voyages started before the new mix. */
+function legacyQuestions(p: Pack, rng: Rng): Question[] {
+  const questions: Question[] = [], seen = new Set<string>();
   while (questions.length < QUESTIONS_PER_LEVEL) {
     const q = makeQuestion(p, rng), key = `${q.left}:${q.right}`;
     if (seen.has(key)) continue;
     seen.add(key); questions.push(q);
+  }
+  return questions;
+}
+
+const factKey = (q: Question): string => q.operator === "add" || q.operator === "multiply"
+  ? `${Math.min(q.left, q.right)}:${Math.max(q.left, q.right)}`
+  : `${q.left}:${q.right}`;
+function easyFact(q: Question): boolean {
+  if (q.operator === "add" || q.operator === "multiply") return Math.min(q.left, q.right) <= 1;
+  if (q.operator === "subtract") return q.right === 1 || q.answer === 0;
+  return q.right === 1 || q.answer === 1;
+}
+function factWeight(p: Pack, q: Question): number {
+  if (easyFact(q)) return 0.2;
+  if (q.operator === "add") {
+    const crossingTen = q.left % 10 + q.right % 10 >= 10;
+    return (1 + 3 * q.answer / p.limit! + Math.min(q.left, q.right) / p.limit!) * (crossingTen ? 2 : 1);
+  }
+  if (q.operator === "subtract") {
+    const roundNumber = q.right % 10 === 0;
+    return (1 + 2 * q.right / p.limit!) * (roundNumber ? 0.5 : 1);
+  }
+  // In mixed tables, sixes to nines need more practice than twos, fives or tens.
+  const tableWeight = (n: number) => [6, 7, 8, 9].includes(n) ? 3 : [3, 4, 11, 12].includes(n) ? 2 : 1;
+  return tableWeight(q.operator === "divide" ? q.right : q.left)
+    * tableWeight(q.operator === "divide" ? q.answer : q.right);
+}
+function questionBank(p: Pack, rng: Rng): Question[] {
+  const bank: Question[] = [], seen = new Set<string>();
+  const add = (q: Question) => {
+    const key = factKey(q);
+    if (!seen.has(key)) { seen.add(key); bank.push(q); }
+  };
+  if (p.operator === "add") {
+    // Enumerate actual facts: choosing a total first overrepresented tiny sums.
+    for (let left = 1; left <= p.limit! / 2; left++) for (let right = left; right <= p.limit! - left; right++) {
+      add({ operator: p.operator, left, right, answer: left + right });
+    }
+  } else if (p.operator === "subtract" && p.id !== "subtract-deep") {
+    for (let left = 2; left <= p.limit!; left++) for (let right = 1; right <= left; right++) {
+      const answer = left - right;
+      if (p.id === "subtract-ten" && (left < 11 || left > 18 || right > 9 || answer >= 10)) continue;
+      if (p.id === "subtract-twodigit" && (left < 12 || right < 10 || left % 10 < right % 10)) continue;
+      if (p.id === "subtract-borrow" && (left < 20 || left > 99 || left % 10 >= right % 10)) continue;
+      add({ operator: p.operator, left, right, answer });
+    }
+  } else if (p.operator === "subtract") {
+    // A bounded sample keeps three-digit borrowing quick without a huge bank.
+    while (bank.length < 128) add(makeQuestion(p, rng));
+  } else {
+    for (const table of p.tables!) for (let factor = 1; factor <= (p.tables!.length === 12 ? 12 : 10); factor++) {
+      add(p.operator === "multiply"
+        ? { operator: p.operator, left: table, right: factor, answer: table * factor }
+        : { operator: p.operator, left: table * factor, right: table, answer: factor });
+    }
+  }
+  return bank;
+}
+/** Seeded, weighted practice: ten distinct facts, with at most one easy review. */
+export function questionsFor(packId: string, seed: number, questionSet: 1 | 2 = 2): Question[] {
+  const p = getPack(packId), rng = new Rng(seed);
+  if (questionSet === 1) return legacyQuestions(p, rng);
+  let bank = questionBank(p, rng).map((question) => ({ question, weight: factWeight(p, question) }));
+  const questions: Question[] = [];
+  while (questions.length < QUESTIONS_PER_LEVEL) {
+    let ticket = rng.range(0, bank.reduce((sum, fact) => sum + fact.weight, 0));
+    const index = bank.findIndex((fact) => (ticket -= fact.weight) < 0);
+    const q = bank.splice(index, 1)[0]!.question;
+    if (q.operator === "add" && rng.next() < 0.5) [q.left, q.right] = [q.right, q.left];
+    questions.push(q);
+    if (easyFact(q)) bank = bank.filter((fact) => !easyFact(fact.question));
   }
   return questions;
 }
@@ -127,6 +198,7 @@ export interface Voyage {
   seed: number;
   solved: number;
   mistakes: number;
+  questionSet: 1 | 2;
 }
 export interface Track {
   cleared: number;
@@ -152,7 +224,7 @@ export function startVoyage(p: MathProgress, packId: string, level: number, seed
   if (!PACKS.some((pack) => pack.id === packId)) return null;
   const track = trackFor(p, packId);
   if (!Number.isSafeInteger(level) || level < 1 || level > track.cleared + 1) return null;
-  return track.runs[level] ??= { level, seed: seed >>> 0, solved: 0, mistakes: 0 };
+  return track.runs[level] ??= { level, seed: seed >>> 0, solved: 0, mistakes: 0, questionSet: 2 };
 }
 export interface AnswerResult {
   correct: boolean;
@@ -163,7 +235,7 @@ export interface AnswerResult {
 export function answerQuestion(p: MathProgress, packId: string, level: number, answer: number): AnswerResult | null {
   const track = p.tracks[packId], run = track?.runs[level];
   if (!run || !Number.isSafeInteger(answer) || answer < 0) return null;
-  const question = questionsFor(packId, run.seed)[run.solved]!;
+  const question = questionsFor(packId, run.seed, run.questionSet)[run.solved]!;
   if (answer !== question.answer) {
     run.mistakes++;
     return { correct: false, chestEarned: false, levelComplete: false, stars: 1 };
@@ -211,7 +283,10 @@ export function readMathProgress(storage?: Pick<Storage, "getItem">): MathProgre
       if (record(source.runs)) for (const [key, run] of Object.entries(source.runs)) {
         if (!/^[1-9]\d*$/.test(key) || !record(run) || !integer(Number(key), 1, track.cleared + 1) ||
           run.level !== Number(key) || !integer(run.seed, 0, 0xffffffff) || !integer(run.solved, 0, 9) || !integer(run.mistakes)) continue;
-        track.runs[key] = { level: Number(key), seed: run.seed, solved: run.solved, mistakes: run.mistakes };
+        track.runs[key] = {
+          level: Number(key), seed: run.seed, solved: run.solved, mistakes: run.mistakes,
+          questionSet: run.questionSet === 2 ? 2 : 1,
+        };
       }
       p.tracks[pack.id] = track;
     }

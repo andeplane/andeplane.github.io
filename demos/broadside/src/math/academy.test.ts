@@ -32,6 +32,51 @@ describe("Captain Calculus question tracks", () => {
     expect(questionsFor("divide-5", 91).some((q) => q.left > 50)).toBe(true);
     expect(questionsFor("add-10", 1)).not.toEqual(questionsFor("add-10", 2));
   });
+  it("removes zero addition and gives larger, crossing-ten sums more practice", () => {
+    for (const p of PACKS.filter((p) => p.operator === "add")) {
+      const sample = Array.from({ length: 500 }, (_, seed) => questionsFor(p.id, seed)).flat();
+      expect(sample.every((q) => q.left > 0 && q.right > 0)).toBe(true);
+      expect(sample.filter((q) => q.answer > p.limit! / 2).length / sample.length).toBeGreaterThan(0.8);
+      if (p.limit! > 10) {
+        expect(sample.filter((q) => q.left % 10 + q.right % 10 >= 10).length / sample.length).toBeGreaterThan(0.5);
+      }
+    }
+  });
+  it("caps easy identities at one review and avoids reversed copies of the same fact", () => {
+    for (const p of PACKS) for (let seed = 0; seed < 100; seed++) {
+      const questions = questionsFor(p.id, seed);
+      const easy = questions.filter((q) => {
+        if (q.operator === "add" || q.operator === "multiply") return Math.min(q.left, q.right) <= 1;
+        if (q.operator === "subtract") return q.right === 1 || q.answer === 0;
+        return q.right === 1 || q.answer === 1;
+      });
+      expect(easy.length).toBeLessThanOrEqual(1);
+      const facts = questions.map((q) => q.operator === "add" || q.operator === "multiply"
+        ? `${Math.min(q.left, q.right)}:${Math.max(q.left, q.right)}` : `${q.left}:${q.right}`);
+      expect(new Set(facts).size).toBe(10);
+    }
+  });
+  it("prioritizes sixes to nines in the mixed multiplication and division islands", () => {
+    for (const id of ["multiply-5", "divide-5"]) {
+      const sample = Array.from({ length: 500 }, (_, seed) => questionsFor(id, seed)).flat();
+      const challenging = sample.filter((q) => {
+        const factors = q.operator === "multiply" ? [q.left, q.right] : [q.right, q.answer];
+        return factors.some((n) => [6, 7, 8, 9].includes(n));
+      });
+      expect(challenging.length / sample.length).toBeGreaterThan(0.7);
+    }
+  });
+  it("retains the original seeded sequence for saved question sets", () => {
+    expect(questionsFor("add-10", 27, 1).map((q) => [q.left, q.right])).toEqual([
+      [0, 5], [0, 2], [2, 7], [0, 4], [3, 3], [3, 2], [2, 4], [0, 3], [2, 5], [7, 1],
+    ]);
+    for (const p of PACKS) for (let seed = 0; seed < 25; seed++) {
+      const old = questionsFor(p.id, seed, 1);
+      expect(old).toHaveLength(10);
+      expect(old).toEqual(questionsFor(p.id, seed, 1));
+      expect(new Set(old.map((q) => `${q.left}:${q.right}`)).size).toBe(10);
+    }
+  });
 });
 
 describe("endless voyages, rewards and isolated saves", () => {
@@ -41,7 +86,7 @@ describe("endless voyages, rewards and isolated saves", () => {
   };
   const solve = (p: ReturnType<typeof freshProgress>, pack: string, level: number, count = 10) => {
     const run = startVoyage(p, pack, level, 27)!;
-    const questions = questionsFor(pack, run.seed);
+    const questions = questionsFor(pack, run.seed, run.questionSet);
     let result;
     for (let i = 0; i < count; i++) result = answerQuestion(p, pack, level, questions[run.solved]!.answer);
     return result;
@@ -81,7 +126,23 @@ describe("endless voyages, rewards and isolated saves", () => {
     const run = startVoyage(loaded, "subtract-deep", 1, 999)!;
     expect(run.seed).toBe(27);
     expect(run.solved).toBe(4);
-    expect(questionsFor("subtract-deep", run.seed)[run.solved]).toEqual(questionsFor("subtract-deep", 27)[4]);
+    expect(run.questionSet).toBe(2);
+    expect(questionsFor("subtract-deep", run.seed, run.questionSet)[run.solved]).toEqual(questionsFor("subtract-deep", 27)[4]);
+  });
+  it("keeps an old unfinished voyage's question and switches new voyages to the improved mix", () => {
+    const s = storage();
+    s.setItem(SAVE_KEY, JSON.stringify({ version: 1, solved: 3, pack: "add-10", tracks: {
+      "add-10": { cleared: 0, stars: {}, runs: { "1": { level: 1, seed: 27, solved: 3, mistakes: 0 } } },
+    } }));
+    const p = readMathProgress(s), run = startVoyage(p, "add-10", 1, 999)!;
+    expect(run.questionSet).toBe(1);
+    expect(questionsFor("add-10", run.seed, run.questionSet)[run.solved]).toMatchObject({ left: 0, right: 4, answer: 4 });
+    expect(answerQuestion(p, "add-10", 1, 4)?.correct).toBe(true);
+    saveMathProgress(p, s);
+    expect(readMathProgress(s)).toEqual(p);
+    solve(p, "add-10", 1, 6);
+    expect(startVoyage(p, "add-10", 2, 27)?.questionSet).toBe(2);
+    expect(questionsFor("add-10", 27)[0]).not.toEqual(questionsFor("add-10", 27, 1)[0]);
   });
   it("unlocks sequentially, preserves best stars on replay, and continues beyond authored levels", () => {
     const p = freshProgress();

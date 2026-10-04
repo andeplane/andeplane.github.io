@@ -190,6 +190,14 @@ opens and pours into that operator's area of the shared cave. Incorrect
 answers can be retried; hints are free, and there is no time limit. Replaying a
 level earns more gold and preserves its best stars.
 
+New levels favor larger sums within the selected limit and crossing a ten.
+Addition uses positive numbers; zero-addition questions are excluded. Easy
+facts such as adding/subtracting one, subtracting a number from itself, or
+times/division by one appear at most once in a level. Mixed times and division
+tables favor sixes to nines. Reversed addition/multiplication facts count as
+the same fact, so a level does not repeat them. Unfinished voyages retain
+their original question set when the game is updated.
+
 The gold ledger is unlimited. For sustained play, each cave area displays at
 most 10,000 coins; additional chests still pour their thousand coins and the
 ledger keeps their full value. This bounds GPU memory and deposit physics.
