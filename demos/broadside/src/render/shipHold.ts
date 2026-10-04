@@ -16,7 +16,7 @@ import { Ocean } from './water';
 import { buildIslands, type IslandsView } from './islands';
 import { RewardChest, revealPose } from './chest';
 import { buildRelic } from './relics';
-import { antialiasSamples } from './quality';
+import { antialiasSamples, isPhoneRendering } from './quality';
 import type { VoyageDef } from '../game/voyage';
 import type { Progress } from '../game/progress';
 
@@ -91,7 +91,7 @@ export class ShipHold {
     const island = [...voyage.level.islands].filter(i=>i.kind==='sand').sort((a,b)=>Math.hypot(a.pos.x-voyage.finish.x,a.pos.z-voyage.finish.z)-Math.hypot(b.pos.x-voyage.finish.x,b.pos.z-voyage.finish.z))[0];
     this.islands=buildIslands(s,island?[{...island,pos:{x:0,z:island.radius+29}}]:[],shadows,voyage.level.seed,voyage.pack);
     this.chest=new RewardChest(s);
-    const pipeline=new DefaultRenderingPipeline('golden light in the treasure hold',true,s,[this.camera]);
+    const pipeline=new DefaultRenderingPipeline('golden light in the treasure hold', !isPhoneRendering(engine),s,[this.camera]);
     pipeline.bloomEnabled=true;pipeline.bloomThreshold=1.1;pipeline.bloomWeight=.1;pipeline.bloomKernel=24;
     pipeline.samples=antialiasSamples(engine);pipeline.fxaaEnabled=true;s.imageProcessingConfiguration.exposure=1.05;
   }

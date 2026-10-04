@@ -17,7 +17,8 @@ import { LoadAssetContainerAsync } from '@babylonjs/core/Loading/sceneLoader.js'
 import { TransformNode } from '@babylonjs/core/Meshes/transformNode.js';
 import { CaveWalker, type WalkIntent } from '../input/caveWalk';
 import { PearlDeck, type PearlManifest } from '../input/pearlDeck';
-import { privatePearlUrl } from '../privatePearl';
+import { isPhoneRendering } from './quality';
+import { privatePearlUrl, privatePearlModelUrl } from '../privatePearl';
 import type { Progress } from '../game/progress';
 import { goldTotal, WORLD_RELICS } from '../game/rewards';
 import { Ocean } from './water';
@@ -45,7 +46,7 @@ export class PrivateShip {
     const sun=new DirectionalLight('late afternoon',new Vector3(-.5,-.7,.3),s);
     sun.intensity=1.3; sun.diffuse=Color3.FromHexString('#ffd9a5');
     sun.position.set(30,65,-30); sun.shadowFrustumSize=100; sun.shadowMinZ=1; sun.shadowMaxZ=150;
-    this.shadows=new ShadowGenerator(2048,sun); this.shadows.usePercentageCloserFiltering=true;
+    this.shadows=new ShadowGenerator(isPhoneRendering(engine) ? 1024 : 2048,sun); this.shadows.usePercentageCloserFiltering=true;
     this.shadows.bias=.002; this.shadows.normalBias=.04;
     this.walker=new CaveWalker(
       [
@@ -65,7 +66,7 @@ export class PrivateShip {
     if (manifest.version!==1 || !manifest.floorTriangles?.length) throw new Error('Invalid Pearl deck manifest');
     const ship=new PrivateShip(engine,new PearlDeck(manifest));
     try {
-      const asset=await LoadAssetContainerAsync(privatePearlUrl,ship.scene);
+      const asset=await LoadAssetContainerAsync(privatePearlModelUrl(isPhoneRendering(engine)),ship.scene);
       asset.addAllToScene();
       for (const mesh of asset.meshes) { mesh.receiveShadows=true; mesh.isPickable=false; ship.shadows.addShadowCaster(mesh); }
       ship.shadows.getShadowMap()!.refreshRate=0;

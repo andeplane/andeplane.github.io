@@ -1,4 +1,4 @@
-import { antialiasSamples } from "./quality";
+import { antialiasSamples, isPhoneRendering } from "./quality";
 import { Scene } from "@babylonjs/core/scene.js";
 import type { Engine } from "@babylonjs/core/Engines/engine.js";
 import { FreeCamera } from "@babylonjs/core/Cameras/freeCamera.js";
@@ -42,7 +42,7 @@ export class Harbour {
     this.animate = buildHarbourScenery(s, shadows);
     // The harbour and sun are stationary. Keep a stable cached shadow map.
     shadows.getShadowMap()!.refreshRate = 0;
-    const pipeline = new DefaultRenderingPipeline("harbour lantern glow", true, s, [this.camera]);
+    const pipeline = new DefaultRenderingPipeline("harbour lantern glow", !isPhoneRendering(engine), s, [this.camera]);
     pipeline.bloomEnabled = true; pipeline.bloomThreshold = 0.8;
     pipeline.bloomWeight = 0.12; pipeline.bloomKernel = 32; pipeline.bloomScale = 0.5;
     pipeline.samples = antialiasSamples(engine);

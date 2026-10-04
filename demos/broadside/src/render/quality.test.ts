@@ -1,13 +1,27 @@
 import { describe, expect, it } from "vitest";
-import { displayRenderScale, antialiasSamples } from "./quality";
+import { displayRenderScale, antialiasSamples, configurePhoneRendering } from "./quality";
 import type { AbstractEngine } from "@babylonjs/core/Engines/abstractEngine.js";
 
-const buffer = (width: number, height: number, dpr: number, max = 16384) => {
-  const scale = displayRenderScale(width, height, dpr, max);
+const buffer = (width: number, height: number, dpr: number, max = 16384, phone = false) => {
+  const scale = displayRenderScale(width, height, dpr, max, phone);
   return [Math.floor(width / scale), Math.floor(height / scale)];
 };
 describe("display resolution", () => {
-  it("renders a 3x phone at its physical portrait and landscape resolution", () => {
+  it("bounds iPhone buffers in both orientations while keeping the same aspect ratio", () => {
+    expect(buffer(430, 932, 3, 16384, true)).toEqual([645, 1398]);
+    expect(buffer(932, 430, 3, 16384, true)).toEqual([1398, 645]);
+    const [w, h] = buffer(1024, 1366, 2, 16384, true);
+    expect(w! * h!).toBeLessThanOrEqual(1_000_000);
+    expect(w! / h!).toBeCloseTo(1024 / 1366, 2);
+  });
+  it("avoids multisample buffers only on the configured phone engine", () => {
+    const phone = {getCaps:()=>({maxMSAASamples:8})} as AbstractEngine;
+    const desktop = {getCaps:()=>({maxMSAASamples:8})} as AbstractEngine;
+    configurePhoneRendering(phone, true);
+    expect(antialiasSamples(phone)).toBe(1);
+    expect(antialiasSamples(desktop)).toBe(4);
+  });
+  it("keeps the uncapped desktop profile at native 3x resolution", () => {
     expect(buffer(390, 844, 3)).toEqual([1170, 2532]);
     expect(buffer(430, 932, 3)).toEqual([1290, 2796]);
     expect(buffer(932, 430, 3)).toEqual([2796, 1290]);

@@ -1,3 +1,5 @@
+import { existsSync } from 'node:fs';
+import { resolve } from 'node:path';
 import { loadEnv } from "vite";
 import { defineConfig } from "vitest/config";
 import { privateAssets, usePrivatePearl } from "./tools/privateAssets";
@@ -6,7 +8,10 @@ export default defineConfig(({ mode }) => {
   const pearl = usePrivatePearl(mode, process.cwd());
   return {
     plugins: [privateAssets(pearl, process.cwd())],
-    define: { "import.meta.env.PRIVATE_PEARL": JSON.stringify(pearl) },
+    define: {
+      "import.meta.env.PRIVATE_PEARL": JSON.stringify(pearl),
+      "import.meta.env.PRIVATE_PEARL_MOBILE": JSON.stringify(pearl && existsSync(resolve('.private/black-pearl-mobile.glb'))),
+    },
     base: loadEnv(mode, ".", "").BASE_PATH || "/",
     server: { port: 5173, open: false },
     build: { target: "es2022", chunkSizeWarningLimit: 7000, outDir: "dist" },

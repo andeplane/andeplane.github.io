@@ -110,8 +110,24 @@ with tempfile.TemporaryDirectory(prefix='broadside-pearl-') as tmp:
     bpy.ops.export_scene.gltf(filepath=str(output), export_format='GLB', export_yup=True,
         export_materials='EXPORT', export_apply=True, export_image_format='JPEG', export_jpeg_quality=82,
         export_cameras=False, export_lights=False)
+    # Keep the desktop export, and bake a smaller textured copy for WKWebView.
+    # Compressed file size hides the much larger decoded texture/vertex cost.
+    used_images = {node.image for material in bpy.data.materials if material.use_nodes
+                   for node in material.node_tree.nodes if node.type == 'TEX_IMAGE' and node.image}
+    for image in used_images:
+        limit = 512 if image.colorspace_settings.name == 'sRGB' else 256
+        if max(image.size) > limit:
+            image.scale(limit, limit); image.pack()
+    for o in objects:
+        for modifier in o.modifiers:
+            if modifier.type == 'DECIMATE': modifier.ratio *= .35
+    mobile = args.output / 'black-pearl-mobile.glb'
+    bpy.ops.export_scene.gltf(filepath=str(mobile), export_format='GLB', export_yup=True,
+        export_materials='EXPORT', export_apply=True, export_image_format='JPEG', export_jpeg_quality=82,
+        export_cameras=False, export_lights=False)
     manifest = dict(version=1, source='CrispierCone / CGTrader #4906094', sourceSha256=source_hash,
         waterline=0, bow='+Z', floorTriangles=floors, cabin=dict(floor=4.5, x=[-4.7,4.7], z=[-22,-11.5]),
         ramps=[dict(x=[2.8,3.8], stations=[[-15.6,10.6],[-11.5,7.58],[-11,7.58],[-10.5,7.18],[-4.8,4.5]])])
     (args.output / 'black-pearl.json').write_text(json.dumps(manifest, separators=(',',':')))
     print('PRIVATE_PEARL', output.stat().st_size, 'bytes;', len(floors), 'walkable floor triangles;', source_hash)
+    print('PRIVATE_PEARL_MOBILE', mobile.stat().st_size, 'bytes')

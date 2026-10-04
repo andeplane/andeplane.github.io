@@ -1,4 +1,4 @@
-import { antialiasSamples } from "./quality";
+import { antialiasSamples, isPhoneRendering } from "./quality";
 import "@babylonjs/core/Shaders/postprocess.vertex.js";
 import "@babylonjs/core/Shaders/imageProcessing.fragment.js";
 import "@babylonjs/core/Shaders/rgbdDecode.fragment.js";
@@ -196,11 +196,11 @@ export class GameRenderer {
     this.sun.shadowMinZ = 1;
     this.sun.shadowMaxZ = 500;
     this.shadows = new ShadowGenerator(
-      2048,
+      isPhoneRendering(engine) ? 1024 : 2048,
       this.sun,
     );
     this.shadows.usePercentageCloserFiltering = true;
-    this.shadows.filteringQuality = ShadowGenerator.QUALITY_MEDIUM;
+    this.shadows.filteringQuality = isPhoneRendering(engine) ? ShadowGenerator.QUALITY_LOW : ShadowGenerator.QUALITY_MEDIUM;
     this.shadows.bias = 0.0015;
     this.shadows.normalBias = 0.02;
     this.shadows.darkness = 0.25;
@@ -241,7 +241,7 @@ export class GameRenderer {
     this.ballTemplate.material = ballMat;
     this.ballTemplate.isVisible = false;
 
-    const pipeline = new DefaultRenderingPipeline("post", true, scene, [
+    const pipeline = new DefaultRenderingPipeline("post", !isPhoneRendering(engine), scene, [
       this.rig.camera,
     ]);
     pipeline.samples = antialiasSamples(engine);
@@ -249,8 +249,8 @@ export class GameRenderer {
     pipeline.bloomEnabled = true;
     pipeline.bloomThreshold = 0.82;
     pipeline.bloomWeight = 0.16;
-    pipeline.bloomKernel = 64;
-    pipeline.bloomScale = 0.5;
+    pipeline.bloomKernel = isPhoneRendering(engine) ? 32 : 64;
+    pipeline.bloomScale = isPhoneRendering(engine) ? 0.25 : 0.5;
     pipeline.imageProcessingEnabled = true;
     pipeline.imageProcessing.toneMappingEnabled = true;
     pipeline.imageProcessing.toneMappingType =
