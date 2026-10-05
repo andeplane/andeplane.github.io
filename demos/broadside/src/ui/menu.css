@@ -1194,3 +1194,6 @@
 
 .settings-board .art-credit { font-size: 11px; line-height: 1.7; opacity: .7; }
 .art-credit a { color: #edca8a; text-underline-offset: 3px; }
+
+.coin-sounds-choice { display:flex; align-items:center; justify-content:center; gap:12px; cursor:pointer; }
+.coin-sounds-choice input { width:24px; height:24px; accent-color:#d3a75e; }
