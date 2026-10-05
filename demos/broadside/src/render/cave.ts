@@ -68,6 +68,7 @@ export class TreasureCave {
   private distance = 24;
   revealTime = 0;
   private revealing = false;
+  private debugWorld: number | null = null;
   private reducedMotion = matchMedia("(prefers-reduced-motion: reduce)")
     .matches;
   constructor(engine: Engine, persistent = true, strictPhysics = false) {
@@ -143,6 +144,8 @@ export class TreasureCave {
       const root = new TransformNode("unopened chest " + i, s);
       root.position.set(p.x, p.y + 0.04, p.z);
       root.scaling.setAll(0.75);
+      // Keep unsupported, unused level placeholders hidden even before refresh.
+      root.setEnabled(false);
       this.closed.push(root);
       const part = (
         name: string,
@@ -205,6 +208,9 @@ export class TreasureCave {
         0.76,
         -0.7,
       );
+      root.computeWorldMatrix(true);
+      root.getChildMeshes().forEach(mesh => mesh.computeWorldMatrix(true));
+      root.position.y += p.y - root.getHierarchyBoundingVectors(true).min.y;
     });
     const pipeline = new DefaultRenderingPipeline("torch glow", !isPhoneRendering(engine), s, [
       this.camera,
@@ -316,8 +322,16 @@ export class TreasureCave {
   get goldPhysicsActive(): boolean { return this.coins.physicsActive; }
   /** Debug-only controller supplies temporary banks, never player progress. */
   debugCoinBank(world: number, add = false): void {
-    if (add) this.coins.addBatch(world);
-    this.beginUnload(world);
+    this.debugWorld = world;
+    if (add) {
+      this.coins.addBatch(world);
+      this.beginUnload(world);
+    } else {
+      this.revealing = false;
+      this.depositWorld = null;
+      this.depositFinishedAt = null;
+      this.chest.hide();
+    }
   }
   get coinError(): string | null { return this.depositWorld === null ? null : this.coins.pouring(this.depositWorld).error; }
   get walkingGeometry() {
@@ -433,8 +447,8 @@ export class TreasureCave {
   render(dt: number, reveal = false): void {
     this.time += dt;
     const unboxing = reveal && this.revealing;
-    this.revealDais.setEnabled(reveal);
-    this.revealLight.setEnabled(reveal);
+    this.revealDais.setEnabled(reveal && this.debugWorld === null);
+    this.revealLight.setEnabled(reveal && this.debugWorld === null);
     if (unboxing) {
       this.revealTime += dt;
       this.chest.animate(this.revealTime, 0, this.reducedMotion);
@@ -453,6 +467,12 @@ export class TreasureCave {
       this.camera.fov = portrait ? (innerHeight < 650 ? 1.55 : 1.4) : 0.8;
       this.camera.position.set(0.4, 4.8, -11.8);
       this.camera.setTarget(new Vector3(0, 3.3, -5));
+      if (this.debugWorld !== null && !unboxing) {
+        const world = this.debugWorld, center = this.coins.center(world), span = this.coins.span(world);
+        this.camera.position.copyFrom(this.bankView(world).add(new Vector3(0,1.2,0)));
+        this.camera.fov = portrait ? 1.35 : .9;
+        this.camera.setTarget(center.add(new Vector3(0,span.height*.1,0)));
+      }
       if (showDeposit) {
         const world = this.depositWorld!, center = this.coins.center(world), span = this.coins.span(world);
         const elapsed = this.revealTime - (this.reducedMotion ? 1.4 : 5.3);
@@ -466,13 +486,16 @@ export class TreasureCave {
         this.camera.position.copyFrom(Vector3.Lerp(carryCamera, this.bankView(world).add(new Vector3(0,1.2,0)), blend));
         this.camera.fov = (portrait ? 1.6 : .95) + ((portrait ? 1.35 : .9) - (portrait ? 1.6 : .95)) * blend;
         this.camera.setTarget(Vector3.Lerp(approach.add(new Vector3(0,1.25,0)), center.add(new Vector3(0, span.height * .1, 0)), blend));
-        const travel = this.reducedMotion ? 1 : Math.min(1, elapsed / 3.8), lift = travel * travel * (3 - 2 * travel);
-        this.chest.root.position.copyFrom(Vector3.Lerp(approach, new Vector3(area.x, pour.chestY, area.z), lift));
+        const travel = this.reducedMotion ? 1 : Math.min(1, elapsed / 3.8), carry = travel * travel * (3 - 2 * travel);
+        const raising = this.reducedMotion ? 1 : Math.max(0,Math.min(1,(elapsed-3.4)/.8));
+        const lift = raising * raising * (3 - 2 * raising);
+        // Carry at a steady height along the path, then lift at the bank to pour.
+        this.chest.root.position.copyFrom(Vector3.Lerp(approach, new Vector3(area.x, approach.y, area.z), carry));
+        this.chest.root.position.y += (pour.chestY - approach.y) * lift;
         if (!this.reducedMotion && travel < 1) this.chest.root.position.y += Math.sin(elapsed*8)*.035*Math.sin(travel*Math.PI);
         this.chest.root.scaling.setAll(1);
         const turn = this.reducedMotion ? 1 : Math.max(0, Math.min(1, (elapsed - 3.8) / 1));
-        this.chest.root.rotation.set(0, Math.atan2(direction.x,direction.z) * (1 - lift), -Math.PI * turn * turn * (3 - 2 * turn));
-        this.chest.carry(!this.reducedMotion && elapsed < 4.2,Math.max(0,Math.min(1,(4.2-elapsed)/.4)));
+        this.chest.root.rotation.set(0, Math.atan2(direction.x,direction.z) * (1 - carry), -Math.PI * turn * turn * (3 - 2 * turn));
         this.chest.open(this.reducedMotion ? 1 : Math.max(0, Math.min(1, (elapsed-3.4)/.6)));
         this.chest.setCoinCount(1000 - pour.spawned);
         if (pour.done) {
@@ -519,10 +542,11 @@ export class TreasureCave {
           ),
       );
     }
+    // Visibility must not depend on refresh having populated the relic array.
+    this.closed.forEach((root,i) => root.setEnabled(
+      WORLD_RELICS.includes(i as 2 | 5 | 8 | 11) && !this.relics[i] && !reveal,
+    ));
     this.relics.forEach((r, i) => {
-      this.closed[i]!.setEnabled(
-        WORLD_RELICS.includes(i as 2 | 5 | 8 | 11) && !r && !reveal,
-      );
       if (!r) return;
       if (reveal) {
         r.position.set(
