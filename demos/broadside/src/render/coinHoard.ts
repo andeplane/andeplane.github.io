@@ -10,6 +10,7 @@ import { loadGoldLayout, saveGoldLayout } from "../game/goldLayout";
 import { caveFloor } from "../input/caveLayout";
 import { doubloonMaterial, doubloonMesh } from "./coin";
 import { chestCoinPoses } from "../game/chestCoins";
+import { coinSounds } from "../game/coinSounds";
 import type { ChestPhysicsPose } from "../game/coinPour";
 
 interface Bank {
@@ -21,7 +22,7 @@ interface Bank {
   frameUploaded: boolean;
   error: string | null;
   preparing: boolean; physicsReady: boolean; duration: number; turn: number; previousTurn: number;
-  chestPose?: ChestPhysicsPose; poseAge: number;
+  chestPose?: ChestPhysicsPose; poseAge: number; impacts: number[];
 }
 export interface CoinBankArea { world: number; name: string; x: number; z: number; radius: number; }
 export interface CoinHoardOptions {
@@ -47,7 +48,7 @@ export class CoinHoard {
       mesh.material = material; mesh.position.set(area.x, 0, area.z); mesh.isPickable = false; mesh.setEnabled(false);
       const proxy = MeshBuilder.CreateSphere(`${area.name} gold bank inspection`, { diameter: 2, segments: 12 }, scene);
       proxy.visibility = 0; proxy.metadata = { relicIndex: 0, goldWorld: area.world }; proxy.setEnabled(false);
-      return { mesh, proxy, count: 0, loaded: 0, poses: new Float32Array(), matrices: new Float32Array(), heights: new Map(), peak: 0, basePeak: 0, version: 0, depositFrom: 0, requested: false, depositing: false, ready: false, spawned: 0, resting: 0, worker: null, previousFrame: new Float32Array(), frameAge: 0, frameUploaded: false, error: null, preparing:false, physicsReady:false, duration:0, turn:0, previousTurn:0, poseAge:1 };
+      return { mesh, proxy, count: 0, loaded: 0, poses: new Float32Array(), matrices: new Float32Array(), heights: new Map(), peak: 0, basePeak: 0, version: 0, depositFrom: 0, requested: false, depositing: false, ready: false, spawned: 0, resting: 0, worker: null, previousFrame: new Float32Array(), frameAge: 0, frameUploaded: false, error: null, preparing:false, physicsReady:false, duration:0, turn:0, previousTurn:0, poseAge:1, impacts:[] };
     });
     scene.onDisposeObservable.add(() => {
       for (const bank of this.banks) {
@@ -77,7 +78,7 @@ export class CoinHoard {
       bank.worker?.terminate(); bank.worker = null;
       bank.count = count; bank.depositing = depositing; bank.ready = false; bank.requested = false; bank.spawned = 0; bank.resting = 0; bank.error = null;
       bank.preparing=false;bank.physicsReady=false;bank.turn=bank.previousTurn=0;bank.duration=0;
-      bank.chestPose=undefined;bank.poseAge=1;
+      bank.chestPose=undefined;bank.poseAge=1;bank.impacts=[];
       bank.depositFrom = bank.depositing ? count - 1000 : count;
       if (!count) { bank.mesh.setEnabled(false); bank.proxy.setEnabled(false); bank.loaded = 0; bank.heights.clear(); return; }
       void (carry ? Promise.resolve(carry) : loadGoldLayout(world, bank.depositFrom, this.persistent)).then((poses) => {
@@ -170,13 +171,14 @@ export class CoinHoard {
       }).catch(console.error);
     };
     worker.onerror = fail;
-    worker.onmessage = (event: MessageEvent<{ poses?: Float32Array; ready?: boolean; done: boolean; resting: number; turn?: number; error?: string }>) => {
+    worker.onmessage = (event: MessageEvent<{ poses?: Float32Array; ready?: boolean; done: boolean; resting: number; turn?: number; impacts?: number[]; error?: string }>) => {
       if (bank.worker !== worker) return;
       if (event.data.error) { console.error(event.data.error); fail(); return; }
       if(event.data.ready){bank.physicsReady=true;if(bank.requested)worker.postMessage({start:true,duration:bank.duration});return;}
       const { poses, done, resting } = event.data;
       if(!poses)return;
       bank.previousTurn=bank.turn;bank.turn=event.data.turn??1;
+      bank.impacts=event.data.impacts??[];
       bank.resting = resting;
       bank.previousFrame = bank.poses.slice(bank.depositFrom * COIN_POSE_STRIDE, (bank.depositFrom + bank.spawned) * COIN_POSE_STRIDE);
       bank.poses.set(poses, bank.depositFrom * COIN_POSE_STRIDE);
@@ -205,7 +207,8 @@ export class CoinHoard {
   }
   animate(dt: number, _reduced = false): void {
     for (const bank of this.banks) {
-      if (!bank.worker || bank.frameUploaded) continue;
+      if (!bank.worker || bank.frameUploaded) { bank.impacts=[];continue; }
+      coinSounds.impacts(bank.impacts);bank.impacts=[];
       bank.frameAge += dt;
       const blend = Math.min(1, bank.frameAge * 30);
       for (let i = bank.depositFrom; i < bank.depositFrom + bank.spawned; i++) this.compose(bank, i, blend);

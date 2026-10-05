@@ -8,7 +8,7 @@ describe('live Rapier chest physics',()=>{
   it.each([1,0])('jostles carried coins and empties all coins with a %s second turn',async(duration)=>{
     vi.resetModules();
     vi.useFakeTimers({toFake:['setTimeout','clearTimeout']});
-    const frames:{poses?:Float32Array;ready?:boolean;turn?:number;error?:string;done?:boolean;resting?:number}[]=[];
+    const frames:{poses?:Float32Array;ready?:boolean;turn?:number;error?:string;done?:boolean;resting?:number;impacts?:number[]}[]=[];
     // Rapier obtains its WASM random seed from self.crypto in a worker.
     const worker=Object.assign(Object.create(globalThis),{onmessage:null as null|((event:{data:unknown})=>Promise<void>),postMessage:(data:typeof frames[number])=>frames.push(data)});
     vi.stubGlobal('self',worker);
@@ -44,6 +44,10 @@ describe('live Rapier chest physics',()=>{
     // Carrying does not lose the buried coins; all 1,000 become permanent poses.
     for(let i=0;i<2000&&!frames.at(-1)!.done;i++)await vi.advanceTimersByTimeAsync(34);
     expect(frames.some(f=>f.error)).toBe(false);
+    const sounds=frames.flatMap(f=>f.impacts??[]);
+    expect(sounds.length).toBeGreaterThan(0);
+    expect(sounds.every(s=>Number.isFinite(s)&&s>0&&s<=1)).toBe(true);
+    expect(frames.every(f=>(f.impacts?.length??0)<=3)).toBe(true);
     const final=frames.at(-1)!;
     expect(final.done).toBe(true);expect(final.resting).toBe(1000);
     expect(final.poses!.length).toBe(7000);expect(final.poses!.every(Number.isFinite)).toBe(true);

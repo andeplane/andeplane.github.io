@@ -1,3 +1,4 @@
+import { coinSounds } from '../game/coinSounds';
 import type { Engine } from '@babylonjs/core/Engines/engine.js';
 import { SceneInstrumentation } from '@babylonjs/core/Instrumentation/sceneInstrumentation.js';
 import { TreasureCave } from '../render/cave';
@@ -23,17 +24,24 @@ export function startCoinDebug(engine: Engine, initial: Location, quality: () =>
     return {view,queue:new CoinDebugQueue(),meter:new SceneInstrumentation(view.scene),frames:new CoinFrameSamples()};
   })();
   const root=document.createElement('section');root.id='coin-debug';
-  root.innerHTML=`<header><b>Coin dropping lab</b><span>Temporary piles · saves untouched · silent</span></header>
+  root.innerHTML=`<header><b>Coin dropping lab</b><span>Temporary piles · saves untouched</span></header>
     <div class="coin-debug-controls"><label>Place <select id="coin-debug-place"><option value="cave">Cave</option><option value="ship">Ship hold</option></select></label>
     <label id="coin-debug-area-label">Area <select id="coin-debug-area">${GOLD_AREAS.map((a,i)=>`<option value="${i}">${a.name}</option>`).join('')}</select></label>
     <button id="coin-debug-add" class="primary">Add 1,000 coins</button>
-    <button id="coin-debug-reset">Reset cave</button><button id="coin-debug-export">Export measurements</button></div>
+    <button id="coin-debug-sound"></button><button id="coin-debug-reset">Reset cave</button><button id="coin-debug-export">Export measurements</button></div>
     <output id="coin-debug-stats" aria-label="Live coin performance"></output><p id="coin-debug-status" role="status"></p>
     <details><summary>Completed pours</summary><pre id="coin-debug-history">No pours yet.</pre></details>`;
   document.body.append(root);
   const find=<T extends HTMLElement>(id:string)=>root.querySelector<T>(`#coin-debug-${id}`)!;
   const place=find<HTMLSelectElement>('place'), area=find<HTMLSelectElement>('area'), add=find<HTMLButtonElement>('add');
   const reset=find<HTMLButtonElement>('reset'), stats=find<HTMLOutputElement>('stats'), status=find<HTMLParagraphElement>('status');
+  const sound=find<HTMLButtonElement>('sound');
+  const soundLabel=()=>{
+    sound.textContent=coinSounds.locked?'Coin sounds: URL muted':`Coin sounds: ${coinSounds.enabled?'on':'off'}`;
+    sound.disabled=coinSounds.locked;sound.setAttribute('aria-pressed',String(coinSounds.enabled));
+  };
+  sound.onclick=()=>{coinSounds.setEnabled(!coinSounds.enabled);if(coinSounds.enabled)coinSounds.unlock();soundLabel();};
+  soundLabel();
   place.value=location;
   const update = () => {
     const s=get(), bank=location==='cave'?world:0, values=s.frames.values;

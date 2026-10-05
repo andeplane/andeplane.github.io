@@ -1,3 +1,4 @@
+import { coinSounds, installCoinSounds } from "./game/coinSounds";
 import { Vector3 } from "@babylonjs/core/Maths/math.vector.js";
 import { DeckWalk } from "./game/deckWalk";
 import { Fishing } from "./game/fishing";
@@ -45,6 +46,7 @@ import "./ui/journey.css";
 import "./ui/deck.css";
 
 installGameSurface();
+installCoinSounds(new URLSearchParams(location.search));
 
 // An utterance started by an older loaded copy can outlive its game state.
 // Stop it on reload and exit; this game never creates or queues speech.
@@ -568,6 +570,10 @@ async function main() {
       session.player.sail = session.player.sail ? 0 : 2;
     },
   });
+  const soundChoice=hud.root.querySelector<HTMLInputElement>('#coin-sounds')!;
+  soundChoice.checked=coinSounds.enabled;soundChoice.disabled=coinSounds.locked;
+  soundChoice.onchange=()=>{coinSounds.setEnabled(soundChoice.checked);if(soundChoice.checked)coinSounds.unlock();};
+  if(coinSounds.locked)hud.root.querySelector('#coin-sounds-note')!.textContent='Muted by this URL.';
   const stepper = new FixedStepper(() => {
     if (mode !== "play" || paused) return;
     let intent = controls.readIntent();
@@ -711,6 +717,7 @@ async function main() {
   if (Capacitor.isNativePlatform()) {
     await App.addListener("appStateChange", ({ isActive }) => {
       if (isActive) return;
+      coinSounds.pause();
       gesture.clear();
       clearWalking();
       controls.clear();
@@ -1001,7 +1008,7 @@ async function main() {
     canvas.dataset.fps = String(Math.round(engine.getFps()));
     canvas.dataset.activeScenes = String(engine.scenes.length);
     canvas.dataset.state = mode === "play" ? session.state : mode;
-    canvas.dataset.audio = "disabled";
+    canvas.dataset.audio = coinSounds.enabled ? "coin-effects" : "muted";
   });
   if (qa && /^(reveal|hold|unload)-/.test(qaQuery!)) {
     const index = Number(qaQuery!.split("-")[1]);

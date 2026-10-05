@@ -12,11 +12,13 @@ self.onmessage = async (event: MessageEvent<{ world: number; previous: Float32Ar
   if ('start' in event.data) { beginPour?.(event.data.duration); return; }
   if (!('world' in event.data)) { carryPose=event.data.pose;return; }
   let physics: InstanceType<typeof RAPIER.World> | undefined;
+  let events: RAPIER.EventQueue | undefined;
   try {
     await RAPIER.init();
     const { world, previous, chest, floorY, chestY } = event.data, area = event.data.area ?? GOLD_AREAS[world]!;
     carryPose ??= event.data.pose ?? {position:{x:0,y:chestY,z:0},rotation:{x:0,y:0,z:0,w:1},lid:0};
     const floor = (x:number,z:number) => floorY ?? caveFloor(x + area.x, z + area.z);
+    events = new RAPIER.EventQueue(true);
     physics = new RAPIER.World({ x: 0, y: -9.81, z: 0 });
     // CCD still catches the thin coins, without four sweeps at 120 Hz.
     physics.timestep = 1 / 60;
@@ -42,7 +44,8 @@ self.onmessage = async (event: MessageEvent<{ world: number; previous: Float32Ar
     // must only constrain coins after the chest has arrived above the bank.
     for (const boundary of boundaries) boundary.setEnabled(false);
     const collider = () => RAPIER.ColliderDesc.roundCylinder(COIN_THICKNESS / 2 - .006, COIN_RADIUS - .006, .006)
-      .setFriction(.7).setRestitution(.025).setDensity(8);
+      .setFriction(.7).setRestitution(.025).setDensity(8)
+      .setActiveEvents(RAPIER.ActiveEvents.CONTACT_FORCE_EVENTS).setContactForceEventThreshold(1);
     let peak = Math.max(.1, floorY ?? .1);
     for (let i = 1; i < previous.length; i += COIN_POSE_STRIDE) peak = Math.max(peak, previous[i]!);
     if (previous.length) {
@@ -67,6 +70,8 @@ self.onmessage = async (event: MessageEvent<{ world: number; previous: Float32Ar
     const random = () => { seed = (Math.imul(seed, 1664525) + 1013904223) >>> 0; return seed / 4294967296; };
     const bodies: RAPIER.RigidBody[] = [];
     const moving = new Map<RAPIER.RigidBody, number>();
+    const coinBodies = new Map<number, RAPIER.RigidBody>();
+    const speeds = new Map<number, number>(), lastImpact = new Map<number, number>();
     let buried: RAPIER.Collider | null = null;
     const updateBuried = () => {
       if(buried)physics!.removeCollider(buried,true);
@@ -98,14 +103,14 @@ self.onmessage = async (event: MessageEvent<{ world: number; previous: Float32Ar
         .setLinvel(started?(random() - .5) * .8:0, started?-.8:0, started?(random() - .5) * .8:0)
         .setAngvel(started?{x:(random()-.5)*5,y:(random()-.5)*5,z:(random()-.5)*5}:{x:0,y:0,z:0})
         .setLinearDamping(.4).setAngularDamping(2).setCcdEnabled(true));
-      physics!.createCollider(collider(), b);
+      coinBodies.set(physics!.createCollider(collider(), b).handle, b);
       moving.set(b, bodies.length); bodies.push(b);
     };
     let frame = 0;
     let polishing = false;
     const anchors = new Map<RAPIER.RigidBody, {x:number;y:number;z:number;nx:number;ny:number;nz:number;frames:number}>();
     const tick = () => {
-      const start = performance.now();
+      const start = performance.now(), impacts: number[] = [];
       if (!polishing && bodies.length === 1000 && moving.size < 24) {
         polishing = true;
         // Only a handful of contacts remain. Extra solver accuracy and damping
@@ -126,7 +131,17 @@ self.onmessage = async (event: MessageEvent<{ world: number; previous: Float32Ar
           // Withdraw the empty chest; coins on its back must fall into the bank.
           if(bodies.length===1000)hull.setEnabled(false);
         }
-        physics!.step();
+        for(const b of moving.keys()){
+          const v=b.linvel();speeds.set(b.handle,Math.hypot(v.x,v.y,v.z));
+        }
+        physics!.step(events);
+        events!.drainContactForceEvents(event=>{
+          const a=coinBodies.get(event.collider1()), b=coinBodies.get(event.collider2());
+          const hit=[a,b].find(body=>body&&moving.has(body)&&(speeds.get(body.handle)??0)>.35&&frame-(lastImpact.get(body.handle)??-100)>6);
+          if(!hit)return;
+          lastImpact.set(hit.handle,frame);
+          impacts.push(Math.min(1,Math.sqrt(event.totalForceMagnitude()/20)));
+        });
         // A rare solver escape is dropped again; no lost coins or invented final poses.
         for (const b of moving.keys()) {
           const p = b.translation();
@@ -163,8 +178,8 @@ self.onmessage = async (event: MessageEvent<{ world: number; previous: Float32Ar
       const poses = settledPoses.slice(0, bodies.length * COIN_POSE_STRIDE);
       moving.forEach((i, b) => { const p = b.translation(), q = b.rotation(); poses.set([p.x,p.y,p.z,q.x,q.y,q.z,q.w], i * COIN_POSE_STRIDE); });
       const done = bodies.length === 1000 && moving.size === 0;
-      self.postMessage({ poses, done, spawned: bodies.length, resting: bodies.length - moving.size, time: frame / 60, turn: progress() }, { transfer: [poses.buffer] });
-      if (done) { physics!.free(); physics = undefined; }
+      self.postMessage({ poses, done, spawned: bodies.length, resting: bodies.length - moving.size, time: frame / 60, turn: progress(), impacts: impacts.sort((a,b)=>b-a).slice(0,3) }, { transfer: [poses.buffer] });
+      if (done) { events!.free(); events=undefined; physics!.free(); physics = undefined; }
       else setTimeout(tick, Math.max(0, 1000 / 30 - (performance.now() - start)));
     };
     beginPour=(seconds)=>{
@@ -186,7 +201,7 @@ self.onmessage = async (event: MessageEvent<{ world: number; previous: Float32Ar
     self.postMessage({ready:true});
     tick();
   } catch (error) {
-    try { physics?.free(); } catch { /* A failed WASM step may invalidate its handles. */ }
+    try { events?.free(); physics?.free(); } catch { /* A failed WASM step may invalidate its handles. */ }
     self.postMessage({ error: String(error) });
   }
 };

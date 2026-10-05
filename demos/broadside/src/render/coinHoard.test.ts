@@ -11,6 +11,7 @@ vi.mock('./coin',async(importOriginal)=>{
 vi.mock('../game/goldLayout',()=>({loadGoldLayout:vi.fn(),saveGoldLayout:vi.fn().mockResolvedValue(undefined)}));
 vi.mock('../game/chestCoins',()=>({chestCoinPoses:vi.fn().mockResolvedValue(new Float32Array(7000))}));
 import {CoinHoard} from './coinHoard';
+import {coinSounds} from '../game/coinSounds';
 import {loadGoldLayout,saveGoldLayout} from '../game/goldLayout';
 class FakeWorker {
   static all:FakeWorker[]=[];
@@ -20,11 +21,11 @@ class FakeWorker {
   constructor(){FakeWorker.all.push(this);}
   postMessage(value:unknown){this.sent=value;this.messages.push(value);}
   terminate(){this.terminated=true;}
-  emit(poses:Float32Array,done:boolean){this.onmessage?.({data:{poses,done,resting:done?1000:0}});}
+  emit(poses:Float32Array,done:boolean,impacts:number[]=[]){this.onmessage?.({data:{poses,done,resting:done?1000:0,impacts}});}
 }
 const flush=async()=>{await Promise.resolve();await Promise.resolve();};
 const poses=()=>{const p=new Float32Array(7000);for(let i=0;i<1000;i++){p[i*7]=i%10*.1;p[i*7+1]=.75+Math.floor(i/100)*.055;p[i*7+6]=1;}return p;};
-afterEach(()=>{vi.unstubAllGlobals();vi.clearAllMocks();FakeWorker.all=[];});
+afterEach(()=>{vi.unstubAllGlobals();vi.clearAllMocks();if(vi.isMockFunction(coinSounds.impacts))vi.mocked(coinSounds.impacts).mockRestore();FakeWorker.all=[];});
 describe('real coin sandbox banks',()=>{
   it('retains frozen poses beyond 10k and sends them back as permanent collision geometry',async()=>{
     vi.stubGlobal('Worker',FakeWorker);
@@ -68,6 +69,18 @@ describe('real coin sandbox banks',()=>{
     const length=worker.messages.length;
     h.carryChest(0,Vector3.Zero(),Vector3.Zero(),1,1);
     expect(worker.messages).toHaveLength(length);
+    scene.dispose();engine.dispose();
+  });
+  it('plays impact messages only once when that bank is actively rendered',async()=>{
+    vi.stubGlobal('Worker',FakeWorker);
+    const engine=new NullEngine(),scene=new Scene(engine),h=new CoinHoard(scene,false,undefined,{strictPhysics:true});
+    const clink=vi.spyOn(coinSounds,'impacts');
+    h.addBatch(0);h.startPour(0);await flush();const worker=FakeWorker.all[0]!;
+    worker.emit(poses(),false,[1,.3]);expect(clink).not.toHaveBeenCalled();
+    h.animate(1/60);expect(clink).toHaveBeenCalledWith([1,.3]);
+    h.animate(1/60);expect(clink.mock.calls.filter(([v])=>v.length)).toHaveLength(1);
+    worker.emit(poses(),true,[1]);h.animate(1/60);
+    expect(clink.mock.calls.filter(([v])=>v.length)).toHaveLength(1);
     scene.dispose();engine.dispose();
   });
   it('reports failed physics without substituting baked results, and terminates workers on reset',async()=>{
