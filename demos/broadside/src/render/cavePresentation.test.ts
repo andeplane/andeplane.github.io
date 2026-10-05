@@ -13,10 +13,11 @@ vi.mock('./cavern',()=>({Cavern:class {
   animate(){}walkHeight(){return 0;}
 }}));
 vi.mock('@babylonjs/core/PostProcesses/RenderPipeline/Pipelines/defaultRenderingPipeline.js',()=>({DefaultRenderingPipeline:class {imageProcessing={};}}));
+const pourState=vi.hoisted(()=>({spawned:0,empty:false}));
 vi.mock('./coinHoard',()=>({CoinHoard:class {
   counts=[0,0,0,0];restingCounts=[0,0,0,0];physicsActive=false;
   addBatch(){}startPour(){}preparePour(){}carryChest(){}finishPours(){}animate(){}walkHeight(){return 0;}
-  pouring(){return {ready:true,physicsReady:true,turn:0,spawned:0,done:false,chestY:3.8,active:false,error:null};}
+  pouring(){return {ready:true,physicsReady:true,turn:0,...pourState,done:false,chestY:3.8,active:false,error:null};}
   center(world:number){return new Vector3(world===3?28:world===1?8:-8,.2,world>=2?43:6);}
   span(){return {height:.8,width:7.6};}
 }}));
@@ -28,7 +29,7 @@ vi.mock('./chest',()=>({revealPose:()=>({rise:0,discovered:false}),RewardChest:c
   setCoinCount(){}open(){}fade(){}
 }}));
 import {TreasureCave} from './cave';
-afterEach(()=>vi.unstubAllGlobals());
+afterEach(()=>{vi.unstubAllGlobals();pourState.spawned=0;pourState.empty=false;});
 const fixture=()=>{
   vi.stubGlobal('matchMedia',()=>({matches:false}));vi.stubGlobal('innerWidth',1440);vi.stubGlobal('innerHeight',900);
   const engine=new NullEngine(),cave=new TreasureCave(engine,false,true);
@@ -71,4 +72,11 @@ describe('cave chest presentation',()=>{
     cave.render(2.3,true);expect(chest.position.y).toBeCloseTo(3.8);
     cave.debugCoinBank(0);cave.render(.016,true);expect(chest.isEnabled()).toBe(false);close();
   });
+  it('keeps the chest visible while all 1,000 coins are dynamic and hides only after it empties',()=>{
+    const {cave,close}=fixture(),chest=cave.scene.getTransformNodeByName("captain's treasure chest")!;
+    cave.debugCoinBank(0,true);pourState.spawned=1000;cave.render(4.3,true);
+    expect(chest.isEnabled()).toBe(true);
+    pourState.empty=true;cave.render(.016,true);expect(chest.isEnabled()).toBe(false);close();
+  });
+
 });
