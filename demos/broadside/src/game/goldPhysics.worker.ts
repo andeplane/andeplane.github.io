@@ -1,3 +1,4 @@
+import { CoinRestWindow } from "./coinRest";
 import RAPIER from "@dimforge/rapier3d-compat";
 import { GOLD_AREAS, COIN_RADIUS, COIN_THICKNESS, COIN_POSE_STRIDE } from "./goldAreas";
 import { caveFloor } from "../input/caveLayout";
@@ -57,7 +58,7 @@ self.onmessage = async (event: MessageEvent<{ world: number; previous: Float32Ar
     const hull=physics.createRigidBody(RAPIER.RigidBodyDesc.kinematicPositionBased()
       .setTranslation(carryPose.position.x,carryPose.position.y,carryPose.position.z).setRotation(carryPose.rotation));
     const wall=(hx:number,hy:number,hz:number,x:number,y:number,z:number)=>
-      physics!.createCollider(RAPIER.ColliderDesc.cuboid(hx,hy,hz).setTranslation(x,y,z).setFriction(.15),hull);
+      physics!.createCollider(RAPIER.ColliderDesc.roundCuboid(hx-.025,hy-.025,hz-.025,.025).setTranslation(x,y,z).setFriction(.15),hull);
     wall(1.75,.09,.95,0,.16,0);
     for(const sign of [-1,1]){wall(1.75,.625,.085,0,.82,sign*.88);wall(.09,.625,.9,sign*1.7,.82,0);}
     const bodies: RAPIER.RigidBody[] = [];
@@ -65,12 +66,14 @@ self.onmessage = async (event: MessageEvent<{ world: number; previous: Float32Ar
     const coinBodies = new Map<number, RAPIER.RigidBody>();
     const speeds = new Map<number, number>(), lastImpact = new Map<number, number>();
     const settledPoses = new Float32Array(1000 * COIN_POSE_STRIDE);
-    let duration=0, started=false, turnFrame=0;
+    let duration=0, started=false, turnFrame=0, withdrawFrame:number|null=null;
+    const withdrawal=()=>withdrawFrame===null?0:Math.min(1,(frame-withdrawFrame)/42);
     const progress=()=>!started?0:duration>0?Math.min(1,(frame-turnFrame)/60/duration):1;
     const chestPose=():ChestPhysicsPose=>{
       if(!started)return carryPose!;
       const angle=pourTilt(progress());
-      return {position:{x:0,y:chestY,z:0},rotation:{x:0,y:0,z:Math.sin(angle/2),w:Math.cos(angle/2)},lid:1};
+      const retreat=withdrawal(),ease=retreat*retreat*(3-2*retreat);
+      return {position:{x:.45*ease,y:chestY+.7*ease,z:0},rotation:{x:0,y:0,z:Math.sin(angle/2),w:Math.cos(angle/2)},lid:1};
     };
     const spawn = () => {
       // Start from the same baked, irregular packing seen inside the chest.
@@ -85,19 +88,24 @@ self.onmessage = async (event: MessageEvent<{ world: number; previous: Float32Ar
     };
     let frame = 0;
     let polishing = false, empty = false;
-    const anchors = new Map<RAPIER.RigidBody, {x:number;y:number;z:number;nx:number;ny:number;nz:number;frames:number}>();
+    const restWindows = new Map<RAPIER.RigidBody,CoinRestWindow>();
     const tick = () => {
       const start = performance.now(), impacts: number[] = [];
-      if (!polishing && empty && moving.size < 24) {
+      if (!polishing && progress() === 1 && moving.size < 24) {
         polishing = true;
         // Only a handful of contacts remain. Extra solver accuracy and damping
         // stop a rim trapped between permanent coins from rattling forever.
         physics!.numSolverIterations = 12;
-        for (const b of moving.keys()) { b.setLinearDamping(2); b.setAngularDamping(12); }
+        for (const b of moving.keys()) { b.setLinearDamping(4); b.setAngularDamping(16); }
       }
       // Advance in real time throughout the spill, including after all coins exist.
       const steps = 2;
       for (let n = 0; n < steps; n++, frame++) {
+        // Once only a few coins remain, put the chest away instead of leaving
+        // a rim collider supporting one coin forever. The last coins then fall
+        // onto the bank and settle through the same physics as all the others.
+        if(withdrawFrame===null&&progress()===1&&moving.size<24&&frame-turnFrame>=duration*60+30)withdrawFrame=frame;
+        if(withdrawal()===1){empty=true;hull.setEnabled(false);}
         const pose=chestPose();
         hull.setNextKinematicTranslation(pose.position);hull.setNextKinematicRotation(pose.rotation);
         // Every coin exists from the moment tipping starts. There is no emission
@@ -127,36 +135,32 @@ self.onmessage = async (event: MessageEvent<{ world: number; previous: Float32Ar
             const p=b.translation(),x=p.x-pose.position.x,y=p.y-pose.position.y,z=p.z-pose.position.z;
             const tx=2*(-q.y*z+q.z*y),ty=2*(-q.z*x+q.x*z),tz=2*(-q.x*y+q.y*x);
             const lx=x+q.w*tx-q.y*tz+q.z*ty,ly=y+q.w*ty-q.z*tx+q.x*tz,lz=z+q.w*tz-q.x*ty+q.y*tx;
-            return Math.abs(lx)>1.9 || Math.abs(lz)>1.1 || ly<-.1 || ly>2.5;
+            return Math.abs(lx)>1.9 || Math.abs(lz)>1.1 || ly<-.1 || ly>1.6;
           });
           if(empty)hull.setEnabled(false);
         }
         for (const [b, index] of moving) {
-          const p = b.translation(), q = b.rotation(), a = anchors.get(b);
-          // Sleep by actual pose stability, so microscopic contact jitter cannot
-          // keep a visually stationary doubloon simulating forever.
-          // A last coin can rattle indefinitely between two frozen neighbours.
-          // After the pour, use a centimetre-sized settling window over a full
-          // second rather than keeping imperceptible contact jitter alive.
-          const finishedPour = empty;
-          // A round coin can spin about its own normal without changing any
-          // contacts. Judge its tilt, not quaternion yaw, when it comes to rest.
+          const p = b.translation(), q = b.rotation();
+          // Sum actual travel over a half-second window: jitter cannot endlessly
+          // reset a single anchor, and opposite movements cannot cancel out.
+          let window=restWindows.get(b);
+          if(!window){window=new CoinRestWindow();restWindows.set(b,window);}
+          // Rotation about a round coin's own normal does not change its contacts.
           const nx=2*(q.x*q.y-q.z*q.w),ny=1-2*(q.x*q.x+q.z*q.z),nz=2*(q.y*q.z+q.x*q.w);
-          const still = a && Math.hypot(p.x-a.x,p.y-a.y,p.z-a.z) < (finishedPour ? .03 : .005) && (polishing || 1-Math.abs(nx*a.nx+ny*a.ny+nz*a.nz) < (finishedPour ? .007 : .0006));
-          if (!still) anchors.set(b,{x:p.x,y:p.y,z:p.z,nx,ny,nz,frames:0});
-          else a.frames++;
+          const still=window.sample({x:p.x,y:p.y,z:p.z,nx:polishing?0:nx,ny:polishing?1:ny,nz:polishing?0:nz});
           // Never freeze a coin resting on the overturned chest itself.
-          if (progress() === 1 && p.y < chestY-1.5 && (b.isSleeping() || (still && a.frames >= (finishedPour ? 60 : 90)))) {
+          if (progress() === 1 && p.y < chestY-1.5 && (b.isSleeping() || still)) {
             b.setBodyType(RAPIER.RigidBodyType.Fixed, false);
             settledPoses.set([p.x,p.y,p.z,q.x,q.y,q.z,q.w], index * COIN_POSE_STRIDE);
-            moving.delete(b); anchors.delete(b);
+            moving.delete(b); restWindows.delete(b);
           }
         }
       }
       const poses = settledPoses.slice(0, bodies.length * COIN_POSE_STRIDE);
       moving.forEach((i, b) => { const p = b.translation(), q = b.rotation(); poses.set([p.x,p.y,p.z,q.x,q.y,q.z,q.w], i * COIN_POSE_STRIDE); });
-      const done = empty && moving.size === 0;
-      self.postMessage({ poses, done, spawned: bodies.length, resting: bodies.length - moving.size, empty, time: frame / 60, turn: progress(), impacts: impacts.sort((a,b)=>b-a).slice(0,3) }, { transfer: [poses.buffer] });
+      const done = moving.size === 0;
+      if(done)empty=true;
+      self.postMessage({ poses, done, spawned: bodies.length, resting: bodies.length - moving.size, empty, withdraw:withdrawal(), time: frame / 60, turn: progress(), impacts: impacts.sort((a,b)=>b-a).slice(0,3) }, { transfer: [poses.buffer] });
       if (done) { events!.free(); events=undefined; physics!.free(); physics = undefined; }
       else setTimeout(tick, Math.max(0, 1000 / 30 - (performance.now() - start)));
     };

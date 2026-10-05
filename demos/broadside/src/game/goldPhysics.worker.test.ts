@@ -39,4 +39,28 @@ describe('live Rapier chest physics',()=>{
     expect(final.poses!.length).toBe(7000);expect(final.poses!.every(Number.isFinite)).toBe(true);
     for(let i=1;i<final.poses!.length;i+=7)expect(final.poses![i]!).toBeLessThan(4);
   },60000);
+  it('finishes successive cave deposits without a last-coin stall',async()=>{
+    vi.useFakeTimers({toFake:['setTimeout','clearTimeout']});
+    const load=(name:string)=>{const b=readFileSync(new URL('../../public/assets/hoard/'+name,import.meta.url));return new Float32Array(b.buffer.slice(b.byteOffset,b.byteOffset+b.byteLength));};
+    const chest=load('chest.bin');let previous=load('world-0/1000.bin');
+    for(let batch=0;batch<2;batch++){
+      vi.resetModules();
+      const frames:{poses?:Float32Array;ready?:boolean;done?:boolean;resting?:number;time?:number;error?:string}[]=[];
+      const worker=Object.assign(Object.create(globalThis),{onmessage:null as null|((event:{data:unknown})=>Promise<void>),postMessage:(data:typeof frames[number])=>frames.push(data)});
+      vi.stubGlobal('self',worker);await import('./goldPhysics.worker');
+      let peak=0;for(let i=1;i<previous.length;i+=7)peak=Math.max(peak,previous[i]!);
+      await worker.onmessage!({data:{world:0,previous,chest,chestY:peak+3.8}});
+      await worker.onmessage!({data:{start:true,duration:2.2}});
+      for(let i=0;i<900&&!frames.at(-1)!.done;i++)await vi.advanceTimersByTimeAsync(34);
+      const final=frames.at(-1)!;
+      expect(frames.some(f=>f.error)).toBe(false);
+      expect(final.done,'successive pour '+batch+' with '+final.resting+' resting at '+final.time+' seconds').toBe(true);
+      expect(final.time).toBeLessThan(20);expect(final.resting).toBe(1000);
+      const tail=frames.find(f=>(f.resting??0)>=976)!;
+      expect(final.time!-tail.time!,'last few coins settle promptly').toBeLessThan(4);
+      const frameCount=frames.length;await vi.advanceTimersByTimeAsync(1000);expect(frames).toHaveLength(frameCount);
+      const next=new Float32Array(previous.length+7000);next.set(previous);next.set(final.poses!,previous.length);previous=next;
+    }
+  },60000);
+
 });
