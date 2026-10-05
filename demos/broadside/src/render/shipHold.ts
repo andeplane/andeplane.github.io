@@ -153,6 +153,9 @@ export class ShipHold {
         this.debugHoard.carryChest(0,this.chest.root.position,this.chest.root.rotation,lid,dt);
         this.debugHoard.preparePour(0);
         this.chest.setCoinCount(1000-pour.spawned);
+        const retreat=pour.withdraw, easeOut=retreat*retreat*(3-2*retreat);
+        this.chest.root.position.x+=.45*easeOut;this.chest.root.position.y+=.7*easeOut;
+        this.chest.fade(1-retreat);
         if(pour.empty)this.chest.hide();
         if(this.debugAge>=(reduced ? .1 : 1)&&pour.physicsReady&&!pour.started&&!pour.done&&!pour.error) this.debugHoard.startPour(0,reduced?0:2.2);
         if(pour.done){this.debugFinished??=this.debugAge;this.chest.hide();}

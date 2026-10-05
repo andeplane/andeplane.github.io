@@ -499,6 +499,9 @@ export class TreasureCave {
           this.coins.startPour(world,this.reducedMotion?0:2.2);this.pourStarted=true;
         }
         this.chest.setCoinCount(1000 - pour.spawned);
+        const retreat=pour.withdraw, easeOut=retreat*retreat*(3-2*retreat);
+        this.chest.root.position.x+=.45*easeOut;this.chest.root.position.y+=.7*easeOut;
+        this.chest.fade(1-retreat);
         if(pour.empty)this.chest.hide();
         if (pour.done) {
           this.depositFinishedAt ??= this.revealTime;
