@@ -154,7 +154,7 @@ export class ShipHold {
         this.debugHoard.preparePour(0);
         this.chest.setCoinCount(1000-pour.spawned);
         if(pour.empty)this.chest.hide();
-        if(this.debugAge>=(reduced ? .1 : 1)&&pour.physicsReady&&!pour.started&&!pour.done&&!pour.error) this.debugHoard.startPour(0,reduced?0:1);
+        if(this.debugAge>=(reduced ? .1 : 1)&&pour.physicsReady&&!pour.started&&!pour.done&&!pour.error) this.debugHoard.startPour(0,reduced?0:2.2);
         if(pour.done){this.debugFinished??=this.debugAge;this.chest.hide();}
       } else this.chest.hide();
       this.debugHoard.animate(dt);

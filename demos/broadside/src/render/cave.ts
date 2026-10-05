@@ -496,7 +496,7 @@ export class TreasureCave {
         this.coins.carryChest(world,this.chest.root.position,this.chest.root.rotation,lid,dt);
         this.coins.preparePour(world);
         if(elapsed >= (this.reducedMotion ? .1 : 4.2) && !this.pourStarted && pour.physicsReady && !pour.error){
-          this.coins.startPour(world,this.reducedMotion?0:1);this.pourStarted=true;
+          this.coins.startPour(world,this.reducedMotion?0:2.2);this.pourStarted=true;
         }
         this.chest.setCoinCount(1000 - pour.spawned);
         if(pour.empty)this.chest.hide();

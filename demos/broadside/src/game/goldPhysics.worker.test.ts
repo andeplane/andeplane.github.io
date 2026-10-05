@@ -4,7 +4,7 @@ afterEach(()=>{
   vi.clearAllTimers();vi.useRealTimers();vi.unstubAllGlobals();
 });
 describe('live Rapier chest physics',()=>{
-  it.each([1,0])('stays idle while closed then empties the full chest with a %s second turn',async(duration)=>{
+  it.each([2.2,0])('stays idle while closed then empties the full chest with a %s second turn',async(duration)=>{
     vi.resetModules();
     vi.useFakeTimers({toFake:['setTimeout','clearTimeout']});
     const frames:{poses?:Float32Array;ready?:boolean;turn?:number;error?:string;done?:boolean;resting?:number;empty?:boolean;time?:number;impacts?:number[]}[]=[];
