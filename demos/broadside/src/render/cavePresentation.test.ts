@@ -15,8 +15,8 @@ vi.mock('./cavern',()=>({Cavern:class {
 vi.mock('@babylonjs/core/PostProcesses/RenderPipeline/Pipelines/defaultRenderingPipeline.js',()=>({DefaultRenderingPipeline:class {imageProcessing={};}}));
 vi.mock('./coinHoard',()=>({CoinHoard:class {
   counts=[0,0,0,0];restingCounts=[0,0,0,0];physicsActive=false;
-  addBatch(){}startPour(){}finishPours(){}animate(){}walkHeight(){return 0;}
-  pouring(){return {ready:true,spawned:0,done:false,chestY:3.8,active:false,error:null};}
+  addBatch(){}startPour(){}preparePour(){}carryChest(){}finishPours(){}animate(){}walkHeight(){return 0;}
+  pouring(){return {ready:true,physicsReady:true,turn:0,spawned:0,done:false,chestY:3.8,active:false,error:null};}
   center(world:number){return new Vector3(world===3?28:world===1?8:-8,.2,world>=2?43:6);}
   span(){return {height:.8,width:7.6};}
 }}));

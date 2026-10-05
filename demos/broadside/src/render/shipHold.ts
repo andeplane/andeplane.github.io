@@ -21,6 +21,7 @@ import type { VoyageDef } from '../game/voyage';
 import { cargoChests } from '../game/rewards';
 import type { Progress } from '../game/progress';
 import { CoinHoard } from './coinHoard';
+import { pourTilt } from '../game/coinPour';
 
 /** A shipboard cabin with an open stern window onto the island just reached. */
 export class ShipHold {
@@ -144,11 +145,16 @@ export class ShipHold {
       this.camera.setTarget(new Vector3(0,Math.min(4,height*.5+1),0));
       if (this.debugPour) {
         this.chest.animate(5,0,reduced);
-        const lift=Math.min(1,this.debugAge), turn=Math.min(1,Math.max(0,this.debugAge-1));
+        const lift=reduced?1:Math.min(1,this.debugAge);
         this.chest.root.position.set(0,1.05+(pour.chestY-1.05)*lift,.8*(1-lift));
-        this.chest.root.rotation.set(0,0,-Math.PI*turn*turn*(3-2*turn));
+        this.chest.root.rotation.set(0,0,pourTilt(pour.turn));
+        const lid=reduced?1:Math.max(0,Math.min(1,(this.debugAge-.6)/.4));
+        this.chest.open(lid);
+        this.debugHoard.carryChest(0,this.chest.root.position,this.chest.root.rotation,lid,dt);
+        this.debugHoard.preparePour(0);
         this.chest.setCoinCount(1000-pour.spawned);
-        if(this.debugAge>=2&&pour.ready&&!pour.active&&!pour.done&&!pour.error) this.debugHoard.startPour(0);
+        if(pour.spawned===1000)this.chest.hide();
+        if(this.debugAge>=(reduced ? .1 : 1)&&pour.physicsReady&&!pour.started&&!pour.done&&!pour.error) this.debugHoard.startPour(0,reduced?0:1);
         if(pour.done){this.debugFinished??=this.debugAge;this.chest.hide();}
       } else this.chest.hide();
       this.debugHoard.animate(dt);

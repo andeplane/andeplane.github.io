@@ -11,6 +11,7 @@ import { bindLocalLights } from "./localLights";
 import { Cavern } from "./cavern";
 import { CoinHoard } from "./coinHoard";
 import { GOLD_AREAS } from "../game/goldAreas";
+import { pourTilt } from "../game/coinPour";
 import { StandardMaterial } from "@babylonjs/core/Materials/standardMaterial.js";
 import { MeshBuilder } from "@babylonjs/core/Meshes/meshBuilder.js";
 import { TransformNode } from "@babylonjs/core/Meshes/transformNode.js";
@@ -456,11 +457,6 @@ export class TreasureCave {
     } else this.chest.hide();
     const portrait = innerWidth < 600;
     const showDeposit = unboxing && this.depositWorld !== null && this.revealTime >= (this.reducedMotion ? 1.4 : 5.3);
-    const depositAge = this.revealTime - (this.reducedMotion ? 1.4 : 5.3);
-    if (showDeposit && depositAge > (this.reducedMotion ? .1 : 4.8) && !this.pourStarted && this.coins.pouring(this.depositWorld!).ready) {
-      this.coins.startPour(this.depositWorld!);
-      this.pourStarted = true;
-    }
     if (reveal) {
       // The walking cave has a front wall and ceiling; keep the reward camera
       // inside the chamber so neither can obscure the chest.
@@ -494,10 +490,16 @@ export class TreasureCave {
         this.chest.root.position.y += (pour.chestY - approach.y) * lift;
         if (!this.reducedMotion && travel < 1) this.chest.root.position.y += Math.sin(elapsed*8)*.035*Math.sin(travel*Math.PI);
         this.chest.root.scaling.setAll(1);
-        const turn = this.reducedMotion ? 1 : Math.max(0, Math.min(1, (elapsed - 3.8) / 1));
-        this.chest.root.rotation.set(0, Math.atan2(direction.x,direction.z) * (1 - carry), -Math.PI * turn * turn * (3 - 2 * turn));
-        this.chest.open(this.reducedMotion ? 1 : Math.max(0, Math.min(1, (elapsed-3.4)/.6)));
+        this.chest.root.rotation.set(0, Math.atan2(direction.x,direction.z) * (1 - carry), pourTilt(pour.turn));
+        const lid=this.reducedMotion ? 1 : Math.max(0, Math.min(1, (elapsed-3.4)/.6));
+        this.chest.open(lid);
+        this.coins.carryChest(world,this.chest.root.position,this.chest.root.rotation,lid,dt);
+        this.coins.preparePour(world);
+        if(elapsed >= (this.reducedMotion ? .1 : 4.2) && !this.pourStarted && pour.physicsReady && !pour.error){
+          this.coins.startPour(world,this.reducedMotion?0:1);this.pourStarted=true;
+        }
         this.chest.setCoinCount(1000 - pour.spawned);
+        if(pour.spawned===1000)this.chest.hide();
         if (pour.done) {
           this.depositFinishedAt ??= this.revealTime;
           const fade = Math.min(1, (this.revealTime - this.depositFinishedAt) / .7);

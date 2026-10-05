@@ -17,6 +17,8 @@ export default defineConfig(({ mode }) => {
     build: { target: "es2022", chunkSizeWarningLimit: 7000, outDir: "dist" },
     test: {
       environment: "node",
+      // Bound CPU contention between real WASM simulation and geometry tests.
+      maxWorkers: process.env.CI ? 2 : 4,
       include: ["src/**/*.test.ts"],
       coverage: {
         provider: "v8",
