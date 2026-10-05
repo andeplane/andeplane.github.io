@@ -499,7 +499,7 @@ export class TreasureCave {
           this.coins.startPour(world,this.reducedMotion?0:1);this.pourStarted=true;
         }
         this.chest.setCoinCount(1000 - pour.spawned);
-        if(pour.spawned===1000)this.chest.hide();
+        if(pour.empty)this.chest.hide();
         if (pour.done) {
           this.depositFinishedAt ??= this.revealTime;
           const fade = Math.min(1, (this.revealTime - this.depositFinishedAt) / .7);

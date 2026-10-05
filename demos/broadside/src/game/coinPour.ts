@@ -1,7 +1,8 @@
 /** One tilt curve shared by the visible chest and its kinematic physics hull. */
 export function pourTilt(progress: number): number {
   const t = Math.max(0, Math.min(1, progress));
-  return -Math.PI * t * t * (3 - 2 * t);
+  // Tip slightly beyond vertical so coins cannot balance on a horizontal rim.
+  return -Math.PI * 1.08 * t * t * (3 - 2 * t);
 }
 export function canSpill(progress: number): boolean { return pourTilt(progress) <= -Math.PI / 3; }
 export interface ChestPhysicsPose {
@@ -9,7 +10,6 @@ export interface ChestPhysicsPose {
   rotation: {x:number;y:number;z:number;w:number};
   lid: number;
 }
-export const CARRY_COINS = 80;
 
 export function carriedCoin(poses:Float32Array,coin:number,pose:ChestPhysicsPose) {
   const i=coin*7,x=poses[i]!,y=poses[i+1]!,z=poses[i+2]!,q=pose.rotation;
