@@ -18,7 +18,7 @@ export default defineConfig(({ mode }) => {
     test: {
       environment: "node",
       // Bound CPU contention between real WASM simulation and geometry tests.
-      maxWorkers: 4,
+      maxWorkers: process.env.CI ? 2 : 4,
       include: ["src/**/*.test.ts"],
       coverage: {
         provider: "v8",
