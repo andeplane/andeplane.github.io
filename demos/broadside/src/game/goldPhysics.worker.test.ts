@@ -1,7 +1,8 @@
 import {afterEach,describe,expect,it,vi} from 'vitest';
 import {readFileSync} from 'node:fs';
+import RAPIER from '@dimforge/rapier3d-compat';
 afterEach(()=>{
-  vi.clearAllTimers();vi.useRealTimers();vi.unstubAllGlobals();
+  vi.clearAllTimers();vi.useRealTimers();vi.unstubAllGlobals();vi.restoreAllMocks();
 });
 describe('live Rapier chest physics',()=>{
   it.each([2.2,0])('stays idle while closed then empties the full chest with a %s second turn',async(duration)=>{
@@ -64,6 +65,46 @@ describe('live Rapier chest physics',()=>{
       expect(final.surface!.every(i=>i>=0&&i<previous.length/7+1000)).toBe(true);
       const next=new Float32Array(previous.length+7000);next.set(previous);next.set(final.poses!,previous.length);previous=next;
     }
+  },60000);
+
+  it('keeps a late floor escape in place instead of emitting it again from the bank centre',async()=>{
+    vi.resetModules();vi.useFakeTimers({toFake:['setTimeout','clearTimeout']});
+    const frames:{poses?:Float32Array;done?:boolean;resting?:number;time?:number;error?:string}[]=[];
+    let escaped=false, target:InstanceType<typeof RAPIER.RigidBody>|undefined;
+    const recovered:{fixed:boolean;position:{x:number;y:number;z:number}}[]=[];
+    const worker=Object.assign(Object.create(globalThis),{onmessage:null as null|((event:{data:unknown})=>Promise<void>),postMessage:(data:typeof frames[number])=>{
+      frames.push(data);
+      if(data.poses&&target){recovered.push({fixed:target.isFixed(),position:target.translation()});target=undefined;}
+    }});
+    vi.stubGlobal('self',worker);await import('./goldPhysics.worker');
+    const b=readFileSync(new URL('../../public/assets/hoard/chest.bin',import.meta.url));
+    const chest=new Float32Array(b.buffer.slice(b.byteOffset,b.byteOffset+b.byteLength));
+    await worker.onmessage!({data:{world:0,previous:new Float32Array(),chest,chestY:4.5,floorY:.7}});
+    const step=RAPIER.World.prototype.step;
+    vi.spyOn(RAPIER.World.prototype,'step').mockImplementation(function(this:InstanceType<typeof RAPIER.World>,...args){
+      step.apply(this,args);
+      if(!escaped&&(frames.at(-1)?.time??0)>=6) this.forEachRigidBody(body=>{
+        if(escaped||!body.isDynamic())return;
+        escaped=true;target=body;
+        body.setRotation({x:Math.SQRT1_2,y:0,z:0,w:Math.SQRT1_2},false);
+        body.setTranslation({x:2.3,y:.3,z:-2.1},true);
+      });
+    });
+    await worker.onmessage!({data:{start:true,duration:2.2}});
+    for(let i=0;i<600&&!frames.at(-1)?.done;i++) {
+      await vi.advanceTimersByTimeAsync(34);
+
+    }
+    // Inspect during postMessage, before a completed worker frees WASM handles.
+    expect(recovered).toHaveLength(1);expect(recovered[0]!.fixed).toBe(true);
+    expect(recovered[0]!.position.x).toBeCloseTo(2.3);
+    expect(recovered[0]!.position.z).toBeCloseTo(-2.1);
+    expect(recovered[0]!.position.y).toBeCloseTo(.7+.14+.005);
+    expect(escaped).toBe(true);expect(frames.some(f=>f.error)).toBe(false);
+    expect(frames.at(-1)?.done).toBe(true);expect(frames.at(-1)?.resting).toBe(1000);
+    expect(frames.filter(f=>f.poses).every(f=>f.poses!.length===7000)).toBe(true);
+    const poses=frames.at(-1)!.poses!;
+    expect(Array.from({length:1000},(_,i)=>i*7).some(i=>Math.abs(poses[i]!-2.3)<.001&&Math.abs(poses[i+2]!+2.1)<.001)).toBe(true);
   },60000);
 
 });
