@@ -67,14 +67,14 @@ describe('live Rapier chest physics',()=>{
     }
   },60000);
 
-  it('keeps a late floor escape in place instead of emitting it again from the bank centre',async()=>{
+  it('discards a late floor escape without respawning it or blocking completion',async()=>{
     vi.resetModules();vi.useFakeTimers({toFake:['setTimeout','clearTimeout']});
     const frames:{poses?:Float32Array;done?:boolean;resting?:number;time?:number;error?:string}[]=[];
     let escaped=false, target:InstanceType<typeof RAPIER.RigidBody>|undefined;
-    const recovered:{fixed:boolean;position:{x:number;y:number;z:number}}[]=[];
+    const discarded:boolean[]=[];
     const worker=Object.assign(Object.create(globalThis),{onmessage:null as null|((event:{data:unknown})=>Promise<void>),postMessage:(data:typeof frames[number])=>{
       frames.push(data);
-      if(data.poses&&target){recovered.push({fixed:target.isFixed(),position:target.translation()});target=undefined;}
+      if(data.poses&&target){discarded.push(!target.isValid());target=undefined;}
     }});
     vi.stubGlobal('self',worker);await import('./goldPhysics.worker');
     const b=readFileSync(new URL('../../public/assets/hoard/chest.bin',import.meta.url));
@@ -96,15 +96,16 @@ describe('live Rapier chest physics',()=>{
 
     }
     // Inspect during postMessage, before a completed worker frees WASM handles.
-    expect(recovered).toHaveLength(1);expect(recovered[0]!.fixed).toBe(true);
-    expect(recovered[0]!.position.x).toBeCloseTo(2.3);
-    expect(recovered[0]!.position.z).toBeCloseTo(-2.1);
-    expect(recovered[0]!.position.y).toBeCloseTo(.7+.14+.005);
+    expect(discarded).toEqual([true]);
     expect(escaped).toBe(true);expect(frames.some(f=>f.error)).toBe(false);
     expect(frames.at(-1)?.done).toBe(true);expect(frames.at(-1)?.resting).toBe(1000);
     expect(frames.filter(f=>f.poses).every(f=>f.poses!.length===7000)).toBe(true);
     const poses=frames.at(-1)!.poses!;
-    expect(Array.from({length:1000},(_,i)=>i*7).some(i=>Math.abs(poses[i]!-2.3)<.001&&Math.abs(poses[i+2]!+2.1)<.001)).toBe(true);
+    const removed = Array.from({length:1000},(_,i)=>i*7).filter(i=>poses.subarray(i,i+7).every(v=>v===0));
+    expect(removed.length).toBeGreaterThanOrEqual(1);
+    const firstDiscard=frames.findIndex(f=>f.poses&&removed.some(i=>f.poses!.subarray(i,i+7).every(v=>v===0)));
+    const slot=removed.find(i=>frames[firstDiscard]!.poses!.subarray(i,i+7).every(v=>v===0))!;
+    expect(frames.slice(firstDiscard).filter(f=>f.poses).every(f=>f.poses!.subarray(slot,slot+7).every(v=>v===0))).toBe(true);
   },60000);
 
 });

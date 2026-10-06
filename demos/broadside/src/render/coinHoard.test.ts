@@ -112,3 +112,24 @@ it('collides against neighbouring banks in the same cave without moving their sa
  expect(h.metrics(0)).toEqual({lastMs:2,meanMs:3,maxMs:4,staticTriangles:5});
  expect(h.restingCounts[1]).toBe(1000);scene.dispose();engine.dispose();
 });
+
+it('keeps discarded coins invisible, unsupported and absent from neighbouring collisions',async()=>{
+  vi.stubGlobal('Worker',FakeWorker);
+  const engine=new NullEngine(),scene=new Scene(engine),h=new CoinHoard(scene,false,undefined,{strictPhysics:true});
+  const floor=h.walkHeight(8,12);
+  const deposit=poses();deposit.fill(0,0,7);
+  h.addBatch(1);h.startPour(1);await flush();
+  const worker=FakeWorker.all.at(-1)!;
+  worker.emit(deposit,false);h.animate(1/60);
+  const moving=scene.getMeshByName('Pirate waters pouring gold coins') as Mesh;
+  expect(moving.thinInstanceGetWorldMatrices()[0]!.asArray().every(v=>v===0)).toBe(true);
+  // Remove the entire batch to make phantom origin support easy to detect.
+  const removed=new Float32Array(7000);
+  worker.emit(removed,true);await flush();
+  expect(h.drawnCounts[1]).toBe(0);
+  expect(h.walkHeight(8,12)).toBe(floor);
+  expect(vi.mocked(saveGoldLayout).mock.calls.at(-1)![1]).toEqual(removed);
+  h.addBatch(0);h.startPour(0);await flush();
+  expect((FakeWorker.all.at(-1)!.sent as {previous:Float32Array}).previous).toEqual(removed);
+  scene.dispose();engine.dispose();
+});

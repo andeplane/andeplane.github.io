@@ -8,5 +8,11 @@ export const GOLD_AREAS = [
 export const COIN_RADIUS = 0.14;
 export const COIN_THICKNESS = 0.055;
 export const GOLD_POSE_VERSION = 1;
-/** Binary layout: seven float32 values per coin: XYZ position, XYZW quaternion. */
+/** Seven float32 values: XYZ position, XYZW quaternion. All-zero slots mark
+ * discarded visual coins without changing earned gold or deposit save keys. */
 export const COIN_POSE_STRIDE = 7;
+
+export function removedCoinPose(poses: Float32Array, offset: number): boolean {
+  return poses[offset + 3] === 0 && poses[offset + 4] === 0 &&
+    poses[offset + 5] === 0 && poses[offset + 6] === 0;
+}

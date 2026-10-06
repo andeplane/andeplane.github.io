@@ -5,7 +5,7 @@ import { Matrix, Quaternion, Vector3 } from "@babylonjs/core/Maths/math.vector.j
 import type { Scene } from "@babylonjs/core/scene.js";
 import type { Progress } from "../game/progress";
 import { worldGold } from "../game/rewards";
-import { GOLD_AREAS, COIN_POSE_STRIDE, COIN_RADIUS, COIN_THICKNESS } from "../game/goldAreas";
+import { removedCoinPose, GOLD_AREAS, COIN_POSE_STRIDE, COIN_RADIUS, COIN_THICKNESS } from "../game/goldAreas";
 import { loadGoldLayout, saveGoldLayout } from "../game/goldLayout";
 import { caveFloor } from "../input/caveLayout";
 import { doubloonMaterial, doubloonMesh } from "./coin";
@@ -109,7 +109,9 @@ export class CoinHoard {
     const area = this.areas[world]!, poses = bank.poses;
     bank.peak = this.options.floorY ?? 0; bank.heights.clear();
     for (let i = 0; i < count; i++) {
-      const p = i * COIN_POSE_STRIDE, x = poses[p]!, y = poses[p + 1]!, z = poses[p + 2]!;
+      const p = i * COIN_POSE_STRIDE;
+      if (removedCoinPose(poses, p)) continue;
+      const x = poses[p]!, y = poses[p + 1]!, z = poses[p + 2]!;
       const normalY = 1 - 2 * (poses[p + 3]! ** 2 + poses[p + 5]! ** 2);
       const top = y + Math.sqrt(Math.max(0, 1 - normalY * normalY)) * COIN_RADIUS + Math.abs(normalY) * COIN_THICKNESS / 2;
       bank.peak = Math.max(bank.peak, top);
@@ -202,7 +204,10 @@ export class CoinHoard {
       for(const {b,i} of groups) {
         const count=i===world||b.depositing?b.depositFrom:b.count,area=this.areas[i]!,origin=this.areas[world]!;
         previous.set(b.poses.subarray(0,count*COIN_POSE_STRIDE),offset);
-        for(let j=offset;j<offset+count*COIN_POSE_STRIDE;j+=COIN_POSE_STRIDE){previous[j]!+=area.x-origin.x;previous[j+2]!+=area.z-origin.z;}
+        for(let j=offset;j<offset+count*COIN_POSE_STRIDE;j+=COIN_POSE_STRIDE) {
+          if (removedCoinPose(previous, j)) continue;
+          previous[j]!+=area.x-origin.x;previous[j+2]!+=area.z-origin.z;
+        }
         offset+=count*COIN_POSE_STRIDE;
       }
       worker.postMessage({world, previous, surfacePrevious:bank.poses.subarray(0,bank.depositFrom*COIN_POSE_STRIDE), chest, floorY:this.options.floorY,chestY:bank.basePeak+3.8,pose:bank.chestPose,area:this.areas[world],obstacles:this.options.obstacles});
@@ -210,6 +215,7 @@ export class CoinHoard {
   }
   private compose(bank: Bank, coin: number, blend = 1, target = bank.matrices, slot = coin - bank.depositFrom): void {
     const i = coin * COIN_POSE_STRIDE, p = bank.poses, old = bank.previousFrame, j = (coin - bank.depositFrom) * COIN_POSE_STRIDE;
+    if (removedCoinPose(p, i)) { target.fill(0, slot * 16, (slot + 1) * 16); return; }
     this.position.set(p[i]!, p[i + 1]!, p[i + 2]!);
     this.rotation.set(p[i + 3]!, p[i + 4]!, p[i + 5]!, p[i + 6]!);
     if (blend < 1 && j >= 0 && j + COIN_POSE_STRIDE <= old.length) {
