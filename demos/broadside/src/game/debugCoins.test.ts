@@ -20,6 +20,12 @@ describe('coin sandbox scheduling',()=>{
     expect(q.enqueue(1)).toBe(true);expect(q.start(1,0)).toBe(true);
     q.complete(1000);expect(q.totals).toEqual([0,1000,12000,0]);
   });
+  it('excludes an explicitly hidden interval while retaining real foreground time',()=>{
+    const q=new CoinDebugQueue();q.enqueue(0);q.start(0,0);
+    q.pause(1000);q.pause(2000);q.resume(61000);q.resume(62000);
+    expect(q.complete(65000)?.seconds).toBe(5);
+    q.pause(1);q.resume(2);expect(q.complete(3)).toBeNull();
+  });
   it('bounds queued allocations and stops honestly on physics failure',()=>{
     const q=new CoinDebugQueue();
     expect(q.enqueue(-1)).toBe(false);expect(q.enqueue(4)).toBe(false);expect(q.enqueue(.5)).toBe(false);
@@ -38,5 +44,6 @@ describe('coin sandbox measurements',()=>{
     expect(samples.values.fps).toBeCloseTo(1000/28);expect(samples.values.p95).toBe(100);expect(samples.values.render).toBe(5);
     for(let i=0;i<120;i++)samples.add(20,3);
     expect(samples.values).toEqual({fps:50,p95:20,render:3});
+    samples.reset();expect(samples.values).toEqual({fps:0,p95:0,render:0});
   });
 });

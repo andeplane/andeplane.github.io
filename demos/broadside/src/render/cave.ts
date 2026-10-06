@@ -319,6 +319,8 @@ export class TreasureCave {
       .map((light) => `${light.position.x},${light.position.z}`)
       .join(";");
   }
+  get drawnCoinCounts(): number[] { return this.coins.drawnCounts ; }
+  get coinRenderTriangles(): number { return this.coins.renderedTriangles ; }
   get coinCounts(): number[] { return this.coins.counts; }
   get restingCoinCounts(): number[] { return this.coins.restingCounts; }
   get coinPhysicsMetrics() { return this.coins.metrics(this.depositWorld??this.debugWorld??0); }

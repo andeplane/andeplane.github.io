@@ -4,6 +4,7 @@ import type {Engine} from '@babylonjs/core/Engines/engine.js';
 const fake=vi.hoisted(()=>({views:[] as {calls:number[][];depositComplete:boolean;dispose:ReturnType<typeof vi.fn>}[]}));
 vi.mock('../render/cave',()=>({TreasureCave:class {
   calls:number[][]=[];depositComplete=false;coinError=null;coinCounts=[0,0,0,0];restingCoinCounts=[0,0,0,0];
+  drawnCoinCounts=[0,0,0,0];coinRenderTriangles=0;
   coinPhysicsMetrics={lastMs:1,meanMs:2,maxMs:3,staticTriangles:42};
   dispose=vi.fn();scene={dispose:this.dispose};
   constructor(){fake.views.push(this);}
@@ -12,6 +13,7 @@ vi.mock('../render/cave',()=>({TreasureCave:class {
 }}));
 vi.mock('../render/shipHold',()=>({ShipHold:class {
   calls:number[][]=[];depositComplete=false;coinError=null;coinCounts=[0];restingCoinCounts=[0];
+  drawnCoinCounts=[0,0,0,0];coinRenderTriangles=0;
   coinPhysicsMetrics={lastMs:1,meanMs:2,maxMs:3,staticTriangles:42};
   dispose=vi.fn();scene={dispose:this.dispose};
   constructor(){fake.views.push(this);}

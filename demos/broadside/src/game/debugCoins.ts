@@ -14,8 +14,16 @@ export class CoinDebugQueue {
     if (this.active || !this.pending || this.error) return false;
     this.pending--; this.active = { world, started: now }; return true;
   }
+  /** Background time is excluded explicitly, rather than filtering slow frames. */
+  pause(now: number): void { if (this.active && this.pausedAt === null) this.pausedAt = now; }
+  resume(now: number): void {
+    if (this.active && this.pausedAt !== null) this.active.started += now - this.pausedAt;
+    this.pausedAt = null;
+  }
+  private pausedAt: number | null = null;
   complete(now: number): { world: number; coins: number; seconds: number } | null {
     if (!this.active) return null;
+    this.resume(now);
     const {world, started} = this.active;
     this.totals[world]! += 1000; this.active = null;
     return {world, coins:this.totals[world]!, seconds:(now-started)/1000};
@@ -37,6 +45,7 @@ export class CoinFrameSamples {
     this.intervals.push(interval); this.renders.push(render);
     if (this.intervals.length > 120) { this.intervals.shift(); this.renders.shift(); }
   }
+  reset(): void { this.intervals = []; this.renders = []; }
   get values() {
     if (!this.intervals.length) return {fps:0,p95:0,render:0};
     const sorted=[...this.intervals].sort((a,b)=>a-b);

@@ -65,9 +65,12 @@ export function doubloonMaterial(scene: Scene): StandardMaterial {
 }
 
 /** Bevelled edge and struck raised rim: a solid coin, including when seen edge-on. */
-export function doubloonMesh(scene: Scene, name: string): Mesh {
-  const mesh = new Mesh(name, scene), segments = 16, h = COIN_THICKNESS / 2, r = COIN_RADIUS;
-  const profile = [[0, -h + .004], [r * .94, -h + .004], [r, -h + .006], [r, h - .006], [r * .94, h - .004], [0, h - .004]];
+export function doubloonMesh(scene: Scene, name: string, pile = false): Mesh {
+  const mesh = new Mesh(name, scene), segments = pile ? 8 : 16, h = COIN_THICKNESS / 2, r = COIN_RADIUS;
+  // Engraving stays in the diffuse/normal maps. Bulk coins need only caps and
+  // an edge; retain the bevelled version for close-up chest contents.
+  const profile = pile ? [[0, -h], [r, -h], [r, h], [0, h]]
+    : [[0, -h + .004], [r * .94, -h + .004], [r, -h + .006], [r, h - .006], [r * .94, h - .004], [0, h - .004]];
   const positions: number[] = [], indices: number[] = [], uvs: number[] = [], normals: number[] = [];
   for (const [radius, height] of profile) for (let i = 0; i <= segments; i++) {
     const a = i / segments * Math.PI * 2, x = Math.cos(a) * radius!, z = Math.sin(a) * radius!;

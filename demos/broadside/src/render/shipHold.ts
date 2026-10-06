@@ -126,6 +126,8 @@ export class ShipHold {
     if (add) this.debugHoard.addBatch(0);
     this.debugAge = 0; this.debugFinished = null;this.debugExitAt=null; this.debugPour = add;
   }
+  get drawnCoinCounts(): number[] { return this.debugHoard?.drawnCounts ?? [0]; }
+  get coinRenderTriangles(): number { return this.debugHoard?.renderedTriangles ?? 0; }
   get coinCounts(): number[] { return this.debugHoard?.counts ?? [0]; }
   get restingCoinCounts(): number[] { return this.debugHoard?.restingCounts ?? [0]; }
   get coinPhysicsMetrics() { return this.debugHoard?.metrics(0)??{lastMs:0,meanMs:0,maxMs:0,staticTriangles:0}; }

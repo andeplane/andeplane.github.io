@@ -191,9 +191,15 @@ coin poses are kept in memory and are discarded on reload or Reset.
   the game's Rapier WASM worker, actual coin meshes and permanent pile collisions.
 - Switch between the cave's four banks and the ship hold after queued pours finish.
   Both places retain their temporary piles until reset. Ship coins land on the deck.
-- Compare visible/resting/moving coins, rolling FPS, frame interval p95, CPU render
-  time, draw calls and the actual drawing-buffer resolution. CPU render time is
-  not GPU execution time. Pour duration includes the chest animation and settling.
+- Compare total/drawn/resting/moving coins, submitted coin triangles, rolling FPS,
+  frame interval p95, CPU render time, physics tick cost, collision triangles, draw
+  calls and drawing-buffer resolution. CPU render time is not GPU execution time.
+  Pour duration includes animation and settling, excluding explicitly hidden-tab
+  time. Frame samples reset when the tab returns and when a new pour starts.
+- Frozen piles draw only outer coins with a 32-triangle mesh; all saved poses,
+  currency and collision support remain intact. Moving coins use a separate buffer.
+  Run `node --experimental-strip-types tools/hoard/benchmark-render.mjs` to compare
+  submitted geometry on the baked 1,000/8,000/10,000-coin layouts.
 - **Export measurements** downloads a CSV with a row for each completed chest.
   A bank accepts up to 100,000 coins including queued chests. Worker failures are
   shown explicitly; this mode does not substitute pre-baked layouts for failed pours.

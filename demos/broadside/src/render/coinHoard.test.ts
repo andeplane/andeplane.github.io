@@ -39,10 +39,17 @@ describe('real coin sandbox banks',()=>{
       if(batch)expect((worker.sent as {previous:Float32Array}).previous.slice(0,7000)).toEqual(poses());
       expect(()=>hoard.addBatch(0)).toThrow('already running');
       worker.emit(poses(),false);hoard.animate(1/60);
+      expect(hoard.drawnCounts[0]).toBeGreaterThanOrEqual(1000);
       expect(hoard.counts).toEqual([(batch+1)*1000]);expect(hoard.physicsActive).toBe(true);
       worker.emit(poses(),true);await flush();
       expect(hoard.restingCounts).toEqual([(batch+1)*1000]);expect(hoard.physicsActive).toBe(false);expect(worker.terminated).toBe(true);
+      expect(hoard.drawnCounts[0]).toBeLessThan(hoard.counts[0]!);
+      expect(hoard.renderedTriangles).toBe(hoard.drawnCounts[0]!*32);
+      expect((vi.mocked(saveGoldLayout).mock.calls.at(-1)![1] as Float32Array).length).toBe((batch+1)*7000);
       const mesh=scene.getMeshByName('ship settled gold coins') as Mesh;
+      expect(mesh.getTotalIndices()).toBe(96);
+      const moving=scene.getMeshByName('ship pouring gold coins') as Mesh;
+      expect(moving.isEnabled()).toBe(false);
       const upload=vi.spyOn(mesh,'thinInstancePartialBufferUpdate');
       hoard.animate(2);expect(upload).not.toHaveBeenCalled();upload.mockRestore();
     }
