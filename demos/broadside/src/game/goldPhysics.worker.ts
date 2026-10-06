@@ -1,3 +1,4 @@
+import { exposedGold } from "./goldSurface";
 import { coinFloor } from "./coinFloor";
 import { CoinRestWindow } from "./coinRest";
 import RAPIER from "@dimforge/rapier3d-compat";
@@ -10,13 +11,14 @@ let beginPour: ((duration: number) => void) | undefined;
 let carryPose: ChestPhysicsPose | undefined;
 
 /** Only the new chest is dynamic. The earned hoard is permanent collision geometry. */
-self.onmessage = async (event: MessageEvent<{ world: number; previous: Float32Array; chest: Float32Array; floorY?: number; chestY: number; pose?: ChestPhysicsPose; area?: {x:number;z:number;radius:number}; obstacles?: {x:number;z:number;rx:number;rz:number;top:number}[] } | { start: true; duration: number } | { pose: ChestPhysicsPose }>) => {
+self.onmessage = async (event: MessageEvent<{ world: number; previous: Float32Array; surfacePrevious?: Float32Array; chest: Float32Array; floorY?: number; chestY: number; pose?: ChestPhysicsPose; area?: {x:number;z:number;radius:number}; obstacles?: {x:number;z:number;rx:number;rz:number;top:number}[] } | { start: true; duration: number } | { pose: ChestPhysicsPose }>) => {
   if ('start' in event.data) { beginPour?.(event.data.duration); return; }
   if (!('world' in event.data)) { carryPose=event.data.pose;return; }
   let physics: InstanceType<typeof RAPIER.World> | undefined;
   let events: RAPIER.EventQueue | undefined;
   try {
     await RAPIER.init();
+    const surfacePrevious = event.data.surfacePrevious;
     const { world, previous, chest, floorY, chestY } = event.data, area = event.data.area ?? GOLD_AREAS[world]!;
     carryPose ??= event.data.pose ?? {position:{x:0,y:chestY,z:0},rotation:{x:0,y:0,z:0,w:1},lid:0};
     const floor = (x:number,z:number) => floorY ?? caveFloor(x + area.x, z + area.z);
@@ -154,7 +156,15 @@ self.onmessage = async (event: MessageEvent<{ world: number; previous: Float32Ar
       const done = moving.size === 0;
       if(done)empty=true;
       const physicsMs=performance.now()-start;totalMs+=physicsMs;ticks++;maxMs=Math.max(maxMs,physicsMs);
-      self.postMessage({ physicsMs, physicsMeanMs:totalMs/ticks, physicsMaxMs:maxMs, staticTriangles, poses, done, spawned: bodies.length, resting: bodies.length - moving.size, empty, withdraw:withdrawal(), time: frame / 60, turn: progress(), impacts: impacts.sort((a,b)=>b-a).slice(0,3) }, { transfer: [poses.buffer] });
+      let surface: number[] | undefined;
+      if (done && surfacePrevious) {
+        const all = new Float32Array(surfacePrevious.length + poses.length);
+        all.set(surfacePrevious); all.set(poses, surfacePrevious.length);
+        // Build once in the existing worker, never stall the render thread as
+        // the last coins stop. Physics retains every pose and collider.
+        surface = exposedGold(all);
+      }
+      self.postMessage({ surface, physicsMs, physicsMeanMs:totalMs/ticks, physicsMaxMs:maxMs, staticTriangles, poses, done, spawned: bodies.length, resting: bodies.length - moving.size, empty, withdraw:withdrawal(), time: frame / 60, turn: progress(), impacts: impacts.sort((a,b)=>b-a).slice(0,3) }, { transfer: [poses.buffer] });
       if (done) { events!.free(); events=undefined; physics!.free(); physics = undefined; }
       else setTimeout(tick, Math.max(0, 1000 / 30 - (performance.now() - start)));
     };

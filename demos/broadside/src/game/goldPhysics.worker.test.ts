@@ -45,11 +45,11 @@ describe('live Rapier chest physics',()=>{
     const chest=load('chest.bin');let previous=load('world-0/1000.bin');
     for(let batch=0;batch<2;batch++){
       vi.resetModules();
-      const frames:{poses?:Float32Array;ready?:boolean;done?:boolean;resting?:number;time?:number;error?:string}[]=[];
+      const frames:{surface?:number[];poses?:Float32Array;ready?:boolean;done?:boolean;resting?:number;time?:number;error?:string}[]=[];
       const worker=Object.assign(Object.create(globalThis),{onmessage:null as null|((event:{data:unknown})=>Promise<void>),postMessage:(data:typeof frames[number])=>frames.push(data)});
       vi.stubGlobal('self',worker);await import('./goldPhysics.worker');
       let peak=0;for(let i=1;i<previous.length;i+=7)peak=Math.max(peak,previous[i]!);
-      await worker.onmessage!({data:{world:0,previous,chest,chestY:peak+3.8}});
+      await worker.onmessage!({data:{world:0,previous,surfacePrevious:previous,chest,chestY:peak+3.8}});
       await worker.onmessage!({data:{start:true,duration:2.2}});
       for(let i=0;i<900&&!frames.at(-1)!.done;i++)await vi.advanceTimersByTimeAsync(34);
       const final=frames.at(-1)!;
@@ -59,6 +59,9 @@ describe('live Rapier chest physics',()=>{
       const tail=frames.find(f=>(f.resting??0)>=976)!;
       expect(final.time!-tail.time!,'last few coins settle promptly').toBeLessThan(4);
       const frameCount=frames.length;await vi.advanceTimersByTimeAsync(1000);expect(frames).toHaveLength(frameCount);
+      expect(final.surface!.length).toBeGreaterThan(100);
+      expect(final.surface!.length).toBeLessThan(previous.length/7+1000);
+      expect(final.surface!.every(i=>i>=0&&i<previous.length/7+1000)).toBe(true);
       const next=new Float32Array(previous.length+7000);next.set(previous);next.set(final.poses!,previous.length);previous=next;
     }
   },60000);
