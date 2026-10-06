@@ -42,8 +42,6 @@ self.onmessage = async (event: MessageEvent<{ world: number; previous: Float32Ar
     const collider = () => RAPIER.ColliderDesc.roundCylinder(COIN_THICKNESS / 2 - .006, COIN_RADIUS - .006, .006)
       .setFriction(.35).setRestitution(.025).setDensity(8)
       .setActiveEvents(RAPIER.ActiveEvents.CONTACT_FORCE_EVENTS).setContactForceEventThreshold(1);
-    let peak = Math.max(.1, floorY ?? .1);
-    for (let i = 1; i < previous.length; i += COIN_POSE_STRIDE) peak = Math.max(peak, previous[i]!);
     const patches=settledGoldPatches(previous);
     const staticTriangles=patches.reduce((n,p)=>n+p.indices.length/3,0);
     for(const {vertices,indices} of patches)
@@ -116,12 +114,22 @@ self.onmessage = async (event: MessageEvent<{ world: number; previous: Float32Ar
           lastImpact.set(hit.handle,frame);
           impacts.push(Math.min(1,Math.sqrt(event.totalForceMagnitude()/20)));
         });
-        // A rare solver escape is dropped again; no lost coins or invented final poses.
-        for (const b of moving.keys()) {
+        // Correct rare floor tunnelling locally. Re-dropping escaped coins from
+        // the bank centre looked like a new emitter after the chest had gone.
+        for (const [b, index] of moving) {
           const p = b.translation();
           if (p.y < floor(p.x,p.z) - .15) {
-            b.setTranslation({ x: 0, y: peak + 2, z: 0 }, true);
+            const q = b.rotation(), ny = 1 - 2 * (q.x * q.x + q.z * q.z);
+            const extent = Math.sqrt(Math.max(0, 1 - ny * ny)) * COIN_RADIUS + Math.abs(ny) * COIN_THICKNESS / 2;
+            const y = floor(p.x,p.z) + extent + .005;
+            b.setTranslation({ x: p.x, y, z: p.z }, false);
             b.setLinvel({ x: 0, y: 0, z: 0 }, true);
+            b.setAngvel({ x: 0, y: 0, z: 0 }, false);
+            // This coin already reached the ground. Keep it there rather than
+            // letting the same numerical escape cause an endless rescue loop.
+            b.setBodyType(RAPIER.RigidBodyType.Fixed, false);
+            settledPoses.set([p.x,y,p.z,q.x,q.y,q.z,q.w], index * COIN_POSE_STRIDE);
+            moving.delete(b); restWindows.delete(b);
           }
         }
         if (!empty && progress() === 1) {
