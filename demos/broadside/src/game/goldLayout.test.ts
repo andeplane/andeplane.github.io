@@ -40,6 +40,10 @@ describe("settled world gold banks", () => {
     expect(validGoldLayout(good, 1000, 4)).toBe(false);
     expect(validGoldLayout(good, 999, 0)).toBe(false);
     const poses = new Float32Array(good);
+    poses[0]=10;poses[2]=7;poses[1]=-1.05;
+    expect(validGoldLayout(good,1000,0)).toBe(true); // spilled into the actual cavern/canal
+    poses[0]=100;
+    expect(validGoldLayout(good,1000,0)).toBe(false);
     poses[0] = NaN;
     expect(validGoldLayout(good, 1000, 0)).toBe(false);
     poses[0] = 0; poses[1] = -80;

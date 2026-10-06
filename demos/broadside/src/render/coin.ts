@@ -66,8 +66,8 @@ export function doubloonMaterial(scene: Scene): StandardMaterial {
 
 /** Bevelled edge and struck raised rim: a solid coin, including when seen edge-on. */
 export function doubloonMesh(scene: Scene, name: string): Mesh {
-  const mesh = new Mesh(name, scene), segments = 20, h = COIN_THICKNESS / 2, r = COIN_RADIUS;
-  const profile = [[0, -h + .004], [r * .9, -h + .004], [r * .97, -h], [r, -h + .006], [r, h - .006], [r * .97, h], [r * .9, h - .004], [0, h - .004]];
+  const mesh = new Mesh(name, scene), segments = 16, h = COIN_THICKNESS / 2, r = COIN_RADIUS;
+  const profile = [[0, -h + .004], [r * .94, -h + .004], [r, -h + .006], [r, h - .006], [r * .94, h - .004], [0, h - .004]];
   const positions: number[] = [], indices: number[] = [], uvs: number[] = [], normals: number[] = [];
   for (const [radius, height] of profile) for (let i = 0; i <= segments; i++) {
     const a = i / segments * Math.PI * 2, x = Math.cos(a) * radius!, z = Math.sin(a) * radius!;
@@ -75,7 +75,9 @@ export function doubloonMesh(scene: Scene, name: string): Mesh {
   }
   for (let j = 0; j < profile.length - 1; j++) for (let i = 0; i < segments; i++) {
     const n = j * (segments + 1) + i;
-    indices.push(n, n + 1, n + segments + 1, n + 1, n + segments + 2, n + segments + 1);
+    // One triangle per cap sector, rather than duplicate centre triangles.
+    if(j>0)indices.push(n,n+1,n+segments+1);
+    if(j<profile.length-2)indices.push(n+1,n+segments+2,n+segments+1);
   }
   VertexData.ComputeNormals(positions, indices, normals);
   const data = new VertexData(); data.positions = positions; data.indices = indices; data.normals = normals; data.uvs = uvs; data.applyToMesh(mesh);

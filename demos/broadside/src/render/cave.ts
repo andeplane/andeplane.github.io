@@ -11,7 +11,7 @@ import { bindLocalLights } from "./localLights";
 import { Cavern } from "./cavern";
 import { CoinHoard } from "./coinHoard";
 import { GOLD_AREAS } from "../game/goldAreas";
-import { pourTilt } from "../game/coinPour";
+import { chestCarry, chestExit, CHEST_EXIT_SECONDS, pourTilt } from "../game/coinPour";
 import { StandardMaterial } from "@babylonjs/core/Materials/standardMaterial.js";
 import { MeshBuilder } from "@babylonjs/core/Meshes/meshBuilder.js";
 import { TransformNode } from "@babylonjs/core/Meshes/transformNode.js";
@@ -44,6 +44,7 @@ export class TreasureCave {
   private depositWorld: number | null = null;
   private pourStarted = false;
   private depositFinishedAt: number | null = null;
+  private chestExitAt: number | null = null;
   readonly walker: CaveWalker;
   private revealLight: PointLight;
   // Scattered ledges at different depths and heights, with a winding clear floor.
@@ -92,7 +93,7 @@ export class TreasureCave {
     hemi.intensity = 0.62;
     hemi.renderPriority = 7;
     this.chamber = new Cavern(s, this.spots);
-    this.coins = new CoinHoard(s, persistent, () => bindLocalLights(this.chamber.lamps, this.scene.meshes), { strictPhysics });
+    this.coins = new CoinHoard(s, persistent, () => bindLocalLights(this.chamber.lamps, this.scene.meshes), { strictPhysics, obstacles:this.chamber.obstacles });
     this.walker = new CaveWalker(this.chamber.obstacles, (x, z) =>
       Math.max(this.chamber.walkHeight(x, z), this.coins.walkHeight(x, z)),
     );
@@ -320,6 +321,7 @@ export class TreasureCave {
   }
   get coinCounts(): number[] { return this.coins.counts; }
   get restingCoinCounts(): number[] { return this.coins.restingCounts; }
+  get coinPhysicsMetrics() { return this.coins.metrics(this.depositWorld??this.debugWorld??0); }
   get goldPhysicsActive(): boolean { return this.coins.physicsActive; }
   /** Debug-only controller supplies temporary banks, never player progress. */
   debugCoinBank(world: number, add = false): void {
@@ -330,7 +332,7 @@ export class TreasureCave {
     } else {
       this.revealing = false;
       this.depositWorld = null;
-      this.depositFinishedAt = null;
+      this.depositFinishedAt = null;this.chestExitAt=null;
       this.chest.hide();
     }
   }
@@ -429,13 +431,13 @@ export class TreasureCave {
   beginReveal(index: number, depositWorld: number | null = null): void {
     this.depositWorld = depositWorld;
     this.pourStarted = false;
-    this.depositFinishedAt = null;
+    this.depositFinishedAt = null;this.chestExitAt=null;
     this.selected = index;
     this.revealTime = 0;
     this.revealing = true;
   }
   beginUnload(world: number): void { this.beginReveal(0, world); this.revealTime = this.reducedMotion ? 1.4 : 5.3; }
-  get depositComplete(): boolean { return this.depositFinishedAt !== null && this.revealTime - this.depositFinishedAt > 1; }
+  get depositComplete(): boolean { return this.depositFinishedAt !== null && this.chestExitAt !== null && this.revealTime-this.chestExitAt >= CHEST_EXIT_SECONDS; }
   endReveal(): void {
     this.revealing = false;
     this.coins.finishPours();
@@ -483,11 +485,14 @@ export class TreasureCave {
         this.camera.fov = (portrait ? 1.6 : .95) + ((portrait ? 1.35 : .9) - (portrait ? 1.6 : .95)) * blend;
         this.camera.setTarget(Vector3.Lerp(approach.add(new Vector3(0,1.25,0)), center.add(new Vector3(0, span.height * .1, 0)), blend));
         const travel = this.reducedMotion ? 1 : Math.min(1, elapsed / 3.8), carry = travel * travel * (3 - 2 * travel);
-        const raising = this.reducedMotion ? 1 : Math.max(0,Math.min(1,(elapsed-3.4)/.8));
-        const lift = raising * raising * (3 - 2 * raising);
-        // Carry at a steady height along the path, then lift at the bank to pour.
-        this.chest.root.position.copyFrom(Vector3.Lerp(approach, new Vector3(area.x, approach.y, area.z), carry));
-        this.chest.root.position.y += (pour.chestY - approach.y) * lift;
+        const carried=chestCarry(elapsed,approach,{x:area.x,y:pour.chestY,z:area.z},this.reducedMotion);
+        this.chest.root.position.set(carried.x,carried.y,carried.z);
+        // Follow the raised chest, then look down with its tilt. Lifting first
+        // must not carry it above the frame before it reaches the bank.
+        const aim=Vector3.Lerp(approach,center,blend);
+        aim.y=(carried.y+1)*(1-pour.turn)+(center.y+span.height*.1)*pour.turn;
+        this.camera.position.y=Math.min(6.1,this.camera.position.y+(carried.y-approach.y)*(1-blend));
+        this.camera.setTarget(aim);
         if (!this.reducedMotion && travel < 1) this.chest.root.position.y += Math.sin(elapsed*8)*.035*Math.sin(travel*Math.PI);
         this.chest.root.scaling.setAll(1);
         this.chest.root.rotation.set(0, Math.atan2(direction.x,direction.z) * (1 - carry), pourTilt(pour.turn));
@@ -499,17 +504,16 @@ export class TreasureCave {
           this.coins.startPour(world,this.reducedMotion?0:2.2);this.pourStarted=true;
         }
         this.chest.setCoinCount(1000 - pour.spawned);
-        const retreat=pour.withdraw, easeOut=retreat*retreat*(3-2*retreat);
-        this.chest.root.position.x+=.45*easeOut;this.chest.root.position.y+=.7*easeOut;
-        this.chest.fade(1-retreat);
-        if(pour.empty)this.chest.hide();
-        if (pour.done) {
-          this.depositFinishedAt ??= this.revealTime;
-          const fade = Math.min(1, (this.revealTime - this.depositFinishedAt) / .7);
-          this.chest.root.position.y += fade * .35;
-          this.chest.fade(1 - fade);
-          if (fade === 1) this.chest.hide();
+        // Continue independently after the physics worker sleeps. Never fade
+        // or remove an empty chest while it is still in the player's view.
+        if(this.chestExitAt===null&&(pour.withdraw>0||pour.done))
+          this.chestExitAt=this.revealTime-pour.withdraw*CHEST_EXIT_SECONDS;
+        if(this.chestExitAt!==null) {
+          const t=Math.max(0,(this.revealTime-this.chestExitAt)/CHEST_EXIT_SECONDS),exit=chestExit(t);
+          this.chest.root.position.addInPlaceFromFloats(exit.x,exit.y,exit.z);
+          if(t>=1)this.chest.hide();
         }
+        if(pour.done)this.depositFinishedAt??=this.revealTime;
         this.revealDais.setEnabled(false);
         this.revealLight.setEnabled(false);
       }

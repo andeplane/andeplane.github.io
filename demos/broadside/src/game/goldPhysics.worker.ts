@@ -1,15 +1,16 @@
+import { coinFloor } from "./coinFloor";
 import { CoinRestWindow } from "./coinRest";
 import RAPIER from "@dimforge/rapier3d-compat";
 import { GOLD_AREAS, COIN_RADIUS, COIN_THICKNESS, COIN_POSE_STRIDE } from "./goldAreas";
 import { caveFloor } from "../input/caveLayout";
-import { settledGoldCollision } from "./goldCollision";
-import { pourTilt, carriedCoin, type ChestPhysicsPose } from "./coinPour";
+import { settledGoldPatches } from "./goldCollision";
+import { pourTilt, carriedCoin, chestExit, CHEST_EXIT_SECONDS, type ChestPhysicsPose } from "./coinPour";
 
 let beginPour: ((duration: number) => void) | undefined;
 let carryPose: ChestPhysicsPose | undefined;
 
 /** Only the new chest is dynamic. The earned hoard is permanent collision geometry. */
-self.onmessage = async (event: MessageEvent<{ world: number; previous: Float32Array; chest: Float32Array; floorY?: number; chestY: number; pose?: ChestPhysicsPose; area?: {x:number;z:number;radius:number} } | { start: true; duration: number } | { pose: ChestPhysicsPose }>) => {
+self.onmessage = async (event: MessageEvent<{ world: number; previous: Float32Array; chest: Float32Array; floorY?: number; chestY: number; pose?: ChestPhysicsPose; area?: {x:number;z:number;radius:number}; obstacles?: {x:number;z:number;rx:number;rz:number;top:number}[] } | { start: true; duration: number } | { pose: ChestPhysicsPose }>) => {
   if ('start' in event.data) { beginPour?.(event.data.duration); return; }
   if (!('world' in event.data)) { carryPose=event.data.pose;return; }
   let physics: InstanceType<typeof RAPIER.World> | undefined;
@@ -25,34 +26,26 @@ self.onmessage = async (event: MessageEvent<{ world: number; previous: Float32Ar
     physics.timestep = 1 / 60;
     physics.numSolverIterations = 4;
     physics.integrationParameters.maxCcdSubsteps = 1;
-    const tiles = 24, extent = area.radius + .9, width = extent * 2 / tiles;
-    physics.createCollider(RAPIER.ColliderDesc.cuboid(extent, .7, extent).setTranslation(0, -.9, 0).setFriction(.8));
-    for (let j = 0; j < tiles; j++) for (let i = 0; i < tiles; i++) {
-      const x = -extent + (i + .5) * width, z = -extent + (j + .5) * width;
-      physics.createCollider(RAPIER.ColliderDesc.cuboid(width / 2 + .002, .4, width / 2 + .002)
-        .setTranslation(x, floor(x,z) - .4, z).setFriction(.8));
+    const ground=coinFloor(area,floorY);
+    physics.createCollider(RAPIER.ColliderDesc.trimesh(ground.vertices,ground.indices,RAPIER.TriMeshFlags.FIX_INTERNAL_EDGES|RAPIER.TriMeshFlags.MERGE_DUPLICATE_VERTICES).setFriction(.8));
+    // Only visible rocks and timber restrict coins. No box around a gold bank.
+    for(const o of event.data.obstacles??[]) {
+      const y=floor(o.x-area.x,o.z-area.z),half=Math.max(.05,(o.top-y)/2);
+      physics.createCollider(RAPIER.ColliderDesc.cuboid(o.rx,half,o.rz).setTranslation(o.x-area.x,y+half,o.z-area.z).setFriction(.85));
     }
-    for (let i = 0; i < 20; i++) {
-      const a = i * Math.PI * 2 / 20, r = area.radius + .15;
-      physics.createCollider(RAPIER.ColliderDesc.ball(.6).setTranslation(Math.sin(a) * r, floorY === undefined ? .3 : floorY - .5, Math.cos(a) * r).setFriction(.85));
+    if(floorY!==undefined)for(const sign of [-1,1]) {
+      physics.createCollider(RAPIER.ColliderDesc.cuboid(.1,2.8,7.5).setTranslation(sign*4.7,floorY+2.8,0));
+      physics.createCollider(RAPIER.ColliderDesc.cuboid(4.7,2.8,.1).setTranslation(0,floorY+2.8,sign*7.5));
     }
-    const boundaries: RAPIER.Collider[] = [];
-    for (const sign of [-1, 1]) {
-      boundaries.push(physics.createCollider(RAPIER.ColliderDesc.cuboid(.1, 6, extent).setTranslation(sign * extent, 5, 0)));
-      boundaries.push(physics.createCollider(RAPIER.ColliderDesc.cuboid(extent, 6, .1).setTranslation(0, 5, sign * extent)));
-    }
-    // The carrying route crosses the bank boundary; invisible retaining walls
-    // must only constrain coins after the chest has arrived above the bank.
-    for (const boundary of boundaries) boundary.setEnabled(false);
     const collider = () => RAPIER.ColliderDesc.roundCylinder(COIN_THICKNESS / 2 - .006, COIN_RADIUS - .006, .006)
       .setFriction(.35).setRestitution(.025).setDensity(8)
       .setActiveEvents(RAPIER.ActiveEvents.CONTACT_FORCE_EVENTS).setContactForceEventThreshold(1);
     let peak = Math.max(.1, floorY ?? .1);
     for (let i = 1; i < previous.length; i += COIN_POSE_STRIDE) peak = Math.max(peak, previous[i]!);
-    if (previous.length) {
-      const { vertices, indices } = settledGoldCollision(previous);
-      physics.createCollider(RAPIER.ColliderDesc.trimesh(vertices, indices).setFriction(.7));
-    }
+    const patches=settledGoldPatches(previous);
+    const staticTriangles=patches.reduce((n,p)=>n+p.indices.length/3,0);
+    for(const {vertices,indices} of patches)
+      physics.createCollider(RAPIER.ColliderDesc.trimesh(vertices,indices,RAPIER.TriMeshFlags.FIX_INTERNAL_EDGES|RAPIER.TriMeshFlags.MERGE_DUPLICATE_VERTICES).setFriction(.7));
     // Real moving floor and walls of the open chest. Coins can contact its rim
     // while it tips, rather than appearing beneath an already inverted box.
     const hull=physics.createRigidBody(RAPIER.RigidBodyDesc.kinematicPositionBased()
@@ -67,13 +60,13 @@ self.onmessage = async (event: MessageEvent<{ world: number; previous: Float32Ar
     const speeds = new Map<number, number>(), lastImpact = new Map<number, number>();
     const settledPoses = new Float32Array(1000 * COIN_POSE_STRIDE);
     let duration=0, started=false, turnFrame=0, withdrawFrame:number|null=null;
-    const withdrawal=()=>withdrawFrame===null?0:Math.min(1,(frame-withdrawFrame)/42);
+    const withdrawal=()=>withdrawFrame===null?0:Math.min(1,(frame-withdrawFrame)/(60*CHEST_EXIT_SECONDS));
     const progress=()=>!started?0:duration>0?Math.min(1,(frame-turnFrame)/60/duration):1;
     const chestPose=():ChestPhysicsPose=>{
       if(!started)return carryPose!;
       const angle=pourTilt(progress());
-      const retreat=withdrawal(),ease=retreat*retreat*(3-2*retreat);
-      return {position:{x:.45*ease,y:chestY+.7*ease,z:0},rotation:{x:0,y:0,z:Math.sin(angle/2),w:Math.cos(angle/2)},lid:1};
+      const exit=chestExit(withdrawal());
+      return {position:{x:exit.x,y:chestY+exit.y,z:exit.z},rotation:{x:0,y:0,z:Math.sin(angle/2),w:Math.cos(angle/2)},lid:1};
     };
     const spawn = () => {
       // Start from the same baked, irregular packing seen inside the chest.
@@ -86,7 +79,7 @@ self.onmessage = async (event: MessageEvent<{ world: number; previous: Float32Ar
       coinBodies.set(physics!.createCollider(collider(), b).handle, b);
       moving.set(b, bodies.length); bodies.push(b);
     };
-    let frame = 0;
+    let frame = 0, ticks=0, totalMs=0, maxMs=0;
     let polishing = false, empty = false;
     const restWindows = new Map<RAPIER.RigidBody,CoinRestWindow>();
     const tick = () => {
@@ -96,7 +89,7 @@ self.onmessage = async (event: MessageEvent<{ world: number; previous: Float32Ar
         // Only a handful of contacts remain. Extra solver accuracy and damping
         // stop a rim trapped between permanent coins from rattling forever.
         physics!.numSolverIterations = 12;
-        for (const b of moving.keys()) { b.setLinearDamping(4); b.setAngularDamping(16); }
+        for (const b of moving.keys()) { b.setLinearDamping(8); b.setAngularDamping(16); }
       }
       // Advance in real time throughout the spill, including after all coins exist.
       const steps = 2;
@@ -104,8 +97,8 @@ self.onmessage = async (event: MessageEvent<{ world: number; previous: Float32Ar
         // Once only a few coins remain, put the chest away instead of leaving
         // a rim collider supporting one coin forever. The last coins then fall
         // onto the bank and settle through the same physics as all the others.
-        if(withdrawFrame===null&&progress()===1&&moving.size<24&&frame-turnFrame>=duration*60+30)withdrawFrame=frame;
-        if(withdrawal()===1){empty=true;hull.setEnabled(false);}
+        if(withdrawFrame===null&&progress()===1&&(empty||moving.size<24)&&frame-turnFrame>=duration*60+30)withdrawFrame=frame;
+        if(withdrawal()>=.3){empty=true;hull.setEnabled(false);}
         const pose=chestPose();
         hull.setNextKinematicTranslation(pose.position);hull.setNextKinematicRotation(pose.rotation);
         // Every coin exists from the moment tipping starts. There is no emission
@@ -147,7 +140,7 @@ self.onmessage = async (event: MessageEvent<{ world: number; previous: Float32Ar
           if(!window){window=new CoinRestWindow();restWindows.set(b,window);}
           // Rotation about a round coin's own normal does not change its contacts.
           const nx=2*(q.x*q.y-q.z*q.w),ny=1-2*(q.x*q.x+q.z*q.z),nz=2*(q.y*q.z+q.x*q.w);
-          const still=window.sample({x:p.x,y:p.y,z:p.z,nx:polishing?0:nx,ny:polishing?1:ny,nz:polishing?0:nz});
+          const still=window.sample({x:p.x,y:p.y,z:p.z,nx:polishing?0:nx,ny:polishing?1:ny,nz:polishing?0:nz},polishing?COIN_RADIUS*3:COIN_RADIUS*1.1,polishing?COIN_RADIUS*.75:COIN_RADIUS*.35);
           // Never freeze a coin resting on the overturned chest itself.
           if (progress() === 1 && p.y < chestY-1.5 && (b.isSleeping() || still)) {
             b.setBodyType(RAPIER.RigidBodyType.Fixed, false);
@@ -160,14 +153,14 @@ self.onmessage = async (event: MessageEvent<{ world: number; previous: Float32Ar
       moving.forEach((i, b) => { const p = b.translation(), q = b.rotation(); poses.set([p.x,p.y,p.z,q.x,q.y,q.z,q.w], i * COIN_POSE_STRIDE); });
       const done = moving.size === 0;
       if(done)empty=true;
-      self.postMessage({ poses, done, spawned: bodies.length, resting: bodies.length - moving.size, empty, withdraw:withdrawal(), time: frame / 60, turn: progress(), impacts: impacts.sort((a,b)=>b-a).slice(0,3) }, { transfer: [poses.buffer] });
+      const physicsMs=performance.now()-start;totalMs+=physicsMs;ticks++;maxMs=Math.max(maxMs,physicsMs);
+      self.postMessage({ physicsMs, physicsMeanMs:totalMs/ticks, physicsMaxMs:maxMs, staticTriangles, poses, done, spawned: bodies.length, resting: bodies.length - moving.size, empty, withdraw:withdrawal(), time: frame / 60, turn: progress(), impacts: impacts.sort((a,b)=>b-a).slice(0,3) }, { transfer: [poses.buffer] });
       if (done) { events!.free(); events=undefined; physics!.free(); physics = undefined; }
       else setTimeout(tick, Math.max(0, 1000 / 30 - (performance.now() - start)));
     };
     beginPour=(seconds)=>{
       if(started)return;
       started=true;duration=Math.max(0,seconds);turnFrame=frame;
-      for(const boundary of boundaries)boundary.setEnabled(true);
       const pose=chestPose();
       hull.setTranslation(pose.position,true);hull.setRotation(pose.rotation,true);
       for(let i=0;i<1000;i++)spawn();

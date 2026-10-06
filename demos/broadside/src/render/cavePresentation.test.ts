@@ -13,11 +13,11 @@ vi.mock('./cavern',()=>({Cavern:class {
   animate(){}walkHeight(){return 0;}
 }}));
 vi.mock('@babylonjs/core/PostProcesses/RenderPipeline/Pipelines/defaultRenderingPipeline.js',()=>({DefaultRenderingPipeline:class {imageProcessing={};}}));
-const pourState=vi.hoisted(()=>({spawned:0,empty:false}));
+const pourState=vi.hoisted(()=>({spawned:0,empty:false,done:false,withdraw:0,chestY:3.8}));
 vi.mock('./coinHoard',()=>({CoinHoard:class {
   counts=[0,0,0,0];restingCounts=[0,0,0,0];physicsActive=false;
   addBatch(){}startPour(){}preparePour(){}carryChest(){}finishPours(){}animate(){}walkHeight(){return 0;}
-  pouring(){return {ready:true,physicsReady:true,turn:0,withdraw:0,...pourState,done:false,chestY:3.8,active:false,error:null};}
+  pouring(){return {ready:true,physicsReady:true,turn:0,...pourState,active:false,error:null};}
   center(world:number){return new Vector3(world===3?28:world===1?8:-8,.2,world>=2?43:6);}
   span(){return {height:.8,width:7.6};}
 }}));
@@ -29,7 +29,7 @@ vi.mock('./chest',()=>({revealPose:()=>({rise:0,discovered:false}),RewardChest:c
   setCoinCount(){}open(){}fade(){}
 }}));
 import {TreasureCave} from './cave';
-afterEach(()=>{vi.unstubAllGlobals();pourState.spawned=0;pourState.empty=false;});
+afterEach(()=>{vi.unstubAllGlobals();pourState.spawned=0;pourState.empty=false;pourState.done=false;pourState.withdraw=0;pourState.chestY=3.8;});
 const fixture=()=>{
   vi.stubGlobal('matchMedia',()=>({matches:false}));vi.stubGlobal('innerWidth',1440);vi.stubGlobal('innerHeight',900);
   const engine=new NullEngine(),cave=new TreasureCave(engine,false,true);
@@ -65,18 +65,23 @@ describe('cave chest presentation',()=>{
     expect(cave.camera.position.x).toBe(28);expect(chest.isEnabled()).toBe(false);
     expect(cave.depositComplete).toBe(false);close();
   });
-  it('only carries after Add, holds a steady height en route, then lifts for pouring',()=>{
+  it('lifts before crossing existing gold and arrives above the bank',()=>{
     const {cave,close}=fixture(),chest=cave.scene.getTransformNodeByName("captain's treasure chest")!;
     cave.debugCoinBank(0,true);cave.render(2,true);
-    expect(chest.isEnabled()).toBe(true);expect(chest.position.y).toBeGreaterThan(.4);expect(chest.position.y).toBeLessThan(.6);
-    cave.render(2.3,true);expect(chest.position.y).toBeCloseTo(3.8);
+    expect(chest.isEnabled()).toBe(true);expect(chest.position.y).toBeGreaterThan(3.76);
+    cave.render(2.3,true);expect(chest.position.y).toBeGreaterThan(3.76);
     cave.debugCoinBank(0);cave.render(.016,true);expect(chest.isEnabled()).toBe(false);close();
   });
-  it('keeps the chest visible while all 1,000 coins are dynamic and hides only after it empties',()=>{
+  it('keeps the empty chest visible and moves it continuously out of view before completing',()=>{
     const {cave,close}=fixture(),chest=cave.scene.getTransformNodeByName("captain's treasure chest")!;
     cave.debugCoinBank(0,true);pourState.spawned=1000;cave.render(4.3,true);
     expect(chest.isEnabled()).toBe(true);
-    pourState.empty=true;cave.render(.016,true);expect(chest.isEnabled()).toBe(false);close();
+    pourState.empty=true;pourState.done=true;cave.render(.016,true);
+    const start=chest.position.clone();expect(chest.isEnabled()).toBe(true);expect(cave.depositComplete).toBe(false);
+    cave.render(.4,true);expect(chest.isEnabled()).toBe(true);expect(chest.position.y).toBeGreaterThan(start.y);
+    expect(chest.position.z).toBeCloseTo(start.z); // lift before travelling sideways
+    cave.render(.5,true);expect(chest.isEnabled()).toBe(true);expect(chest.position.z).toBeLessThan(start.z);
+    cave.render(1.4,true);expect(chest.isEnabled()).toBe(false);expect(cave.depositComplete).toBe(true);close();
   });
 
 });

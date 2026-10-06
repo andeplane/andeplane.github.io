@@ -26,3 +26,17 @@ export function tiltedCoin(poses: Float32Array, coin: number, chestY: number, pr
   const a=pourTilt(progress);
   return carriedCoin(poses,coin,{position:{x:0,y:chestY,z:0},rotation:{x:0,y:0,z:Math.sin(a/2),w:Math.cos(a/2)},lid:1});
 }
+
+/** First lift the rim clear, then carry the empty chest towards the camera and
+ * out of view. Shared by render and physics, with no opacity changes. */
+export const CHEST_EXIT_SECONDS = 2.2;
+export function chestExit(progress:number) {
+  const smooth=(t:number)=>{t=Math.max(0,Math.min(1,t));return t*t*(3-2*t);};
+  return {x:0,y:.8*smooth(progress/.3),z:0-14*smooth((progress-.3)/.7)};
+}
+/** Raise in the clear aisle before crossing the existing fortune. */
+export function chestCarry(elapsed:number,from:{x:number;y:number;z:number},to:{x:number;y:number;z:number},reduced=false) {
+  const smooth=(t:number)=>{t=Math.max(0,Math.min(1,t));return t*t*(3-2*t);};
+  const lift=reduced?1:smooth(elapsed/1.2),travel=reduced?1:smooth((elapsed-1.2)/2.6);
+  return {x:from.x+(to.x-from.x)*travel,y:from.y+(to.y-from.y)*lift,z:from.z+(to.z-from.z)*travel};
+}

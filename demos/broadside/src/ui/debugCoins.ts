@@ -17,7 +17,7 @@ interface Sandbox { view: View; queue: CoinDebugQueue; meter: SceneInstrumentati
 export function startCoinDebug(engine: Engine, initial: Location, quality: () => void): void {
   let location=initial, world=0, previous=0, lastUi=0, disposed=false;
   const sandboxes: Partial<Record<Location,Sandbox>> = {};
-  const history: string[] = ['location,area,coins,pour_seconds,fps,frame_p95_ms,cpu_render_ms,draw_calls,width,height'];
+  const history: string[] = ['location,area,coins,pour_seconds,fps,frame_p95_ms,cpu_render_ms,draw_calls,width,height,physics_mean_ms,physics_max_ms,static_collision_triangles'];
   const get = (): Sandbox => sandboxes[location] ??= (()=>{
     const view=location==='cave'?new TreasureCave(engine,false,true):new ShipHold(engine,generateVoyage(0));
     view.debugCoinBank(location==='cave'?world:0);
@@ -46,9 +46,11 @@ export function startCoinDebug(engine: Engine, initial: Location, quality: () =>
   const update = () => {
     const s=get(), bank=location==='cave'?world:0, values=s.frames.values;
     const shown=s.view.coinCounts[bank]??0, resting=s.view.restingCoinCounts[bank]??0;
+    const physics=s.view.coinPhysicsMetrics;
     stats.textContent=`${shown.toLocaleString()} visible · ${resting.toLocaleString()} resting · ${Math.max(0,shown-resting).toLocaleString()} moving\n`+
       `${values.fps.toFixed(0)} FPS · ${values.p95.toFixed(1)} ms frame p95 · ${values.render.toFixed(1)} ms CPU render\n`+
-      `${s.meter.drawCallsCounter.current} draw calls · ${engine.getRenderWidth()} × ${engine.getRenderHeight()} pixels`;
+      `${s.meter.drawCallsCounter.current} draw calls · ${engine.getRenderWidth()} × ${engine.getRenderHeight()} pixels\n`+
+      `${physics.meanMs.toFixed(1)} ms mean physics tick · ${physics.maxMs.toFixed(1)} ms max · ${physics.staticTriangles.toLocaleString()} resting collision triangles`;
     status.textContent=s.queue.error??(s.queue.active?`Pouring chest · ${s.queue.pending} more queued · ${((performance.now()-s.queue.active.started)/1000).toFixed(1)} s`:
       s.queue.pending?`${s.queue.pending} chests queued`:'Tap Add repeatedly to build up the hoard.');
     place.disabled=area.disabled=s.queue.busy;
@@ -79,7 +81,7 @@ export function startCoinDebug(engine: Engine, initial: Location, quality: () =>
     if(s.view.coinError) s.queue.fail(s.view.coinError);
     if(s.queue.active&&s.view.depositComplete){
       const result=s.queue.complete(performance.now())!, v=s.frames.values;
-      history.push([location,result.world,result.coins,result.seconds.toFixed(2),v.fps.toFixed(1),v.p95.toFixed(2),v.render.toFixed(2),s.meter.drawCallsCounter.current,engine.getRenderWidth(),engine.getRenderHeight()].join(','));
+      history.push([location,result.world,result.coins,result.seconds.toFixed(2),v.fps.toFixed(1),v.p95.toFixed(2),v.render.toFixed(2),s.meter.drawCallsCounter.current,engine.getRenderWidth(),engine.getRenderHeight(),s.view.coinPhysicsMetrics.meanMs.toFixed(2),s.view.coinPhysicsMetrics.maxMs.toFixed(2),s.view.coinPhysicsMetrics.staticTriangles].join(','));
       find('history').textContent=history.slice(1).slice(-12).map(row=>{const c=row.split(',');return `${c[0]} / ${c[1]}: ${Number(c[2]).toLocaleString()} coins · ${c[3]} s · ${c[4]} FPS · p95 ${c[5]} ms`;}).join('\n');
       update();
     }

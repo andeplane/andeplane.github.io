@@ -5,7 +5,10 @@ export function validGoldLayout(data: ArrayBuffer, count: number, world: number)
   const poses = new Float32Array(data);
   for (let i = 0; i < poses.length; i += COIN_POSE_STRIDE) {
     if (!Array.from(poses.subarray(i, i + COIN_POSE_STRIDE)).every(Number.isFinite)) return false;
-    if (Math.abs(poses[i]!) > 5 || Math.abs(poses[i + 2]!) > 5 || poses[i + 1]! < -0.6 || poses[i + 1]! > 32) return false;
+    const area=GOLD_AREAS[world]!,x=poses[i]!+area.x,z=poses[i+2]!+area.z;
+    // The full cavern and its canal floor, rather than an imaginary bank box.
+    // Also accepts ship-hold local coordinates, using the same layout format.
+    if (x < -16 || x > 37 || z < -20 || z > 51 || poses[i + 1]! < -1.5 || poses[i + 1]! > 32) return false;
     const norm = Math.hypot(poses[i + 3]!, poses[i + 4]!, poses[i + 5]!, poses[i + 6]!);
     if (Math.abs(norm - 1) > 0.01) return false;
   }
