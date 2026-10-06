@@ -56,6 +56,7 @@ self.onmessage = async (event: MessageEvent<{ world: number; previous: Float32Ar
     for(const sign of [-1,1]){wall(1.75,.625,.085,0,.82,sign*.88);wall(.09,.625,.9,sign*1.7,.82,0);}
     const bodies: RAPIER.RigidBody[] = [];
     const moving = new Map<RAPIER.RigidBody, number>();
+    const removed = new Set<RAPIER.RigidBody>();
     const coinBodies = new Map<number, RAPIER.RigidBody>();
     const speeds = new Map<number, number>(), lastImpact = new Map<number, number>();
     const settledPoses = new Float32Array(1000 * COIN_POSE_STRIDE);
@@ -114,27 +115,22 @@ self.onmessage = async (event: MessageEvent<{ world: number; previous: Float32Ar
           lastImpact.set(hit.handle,frame);
           impacts.push(Math.min(1,Math.sqrt(event.totalForceMagnitude()/20)));
         });
-        // Correct rare floor tunnelling locally. Re-dropping escaped coins from
-        // the bank centre looked like a new emitter after the chest had gone.
+        // Discard rare floor tunnelling rather than teleporting a coin back.
+        // Coins scattered across the cave remain untouched.
         for (const [b, index] of moving) {
           const p = b.translation();
           if (p.y < floor(p.x,p.z) - .15) {
-            const q = b.rotation(), ny = 1 - 2 * (q.x * q.x + q.z * q.z);
-            const extent = Math.sqrt(Math.max(0, 1 - ny * ny)) * COIN_RADIUS + Math.abs(ny) * COIN_THICKNESS / 2;
-            const y = floor(p.x,p.z) + extent + .005;
-            b.setTranslation({ x: p.x, y, z: p.z }, false);
-            b.setLinvel({ x: 0, y: 0, z: 0 }, true);
-            b.setAngvel({ x: 0, y: 0, z: 0 }, false);
-            // This coin already reached the ground. Keep it there rather than
-            // letting the same numerical escape cause an endless rescue loop.
-            b.setBodyType(RAPIER.RigidBodyType.Fixed, false);
-            settledPoses.set([p.x,y,p.z,q.x,q.y,q.z,q.w], index * COIN_POSE_STRIDE);
-            moving.delete(b); restWindows.delete(b);
+            coinBodies.delete(b.collider(0).handle);
+            speeds.delete(b.handle); lastImpact.delete(b.handle);
+            settledPoses.fill(0, index * COIN_POSE_STRIDE, (index + 1) * COIN_POSE_STRIDE);
+            moving.delete(b); restWindows.delete(b); removed.add(b);
+            physics!.removeRigidBody(b);
           }
         }
         if (!empty && progress() === 1) {
           const q=pose.rotation;
           empty=bodies.every(b=>{
+            if (removed.has(b)) return true;
             const p=b.translation(),x=p.x-pose.position.x,y=p.y-pose.position.y,z=p.z-pose.position.z;
             const tx=2*(-q.y*z+q.z*y),ty=2*(-q.z*x+q.x*z),tz=2*(-q.x*y+q.y*x);
             const lx=x+q.w*tx-q.y*tz+q.z*ty,ly=y+q.w*ty-q.z*tx+q.x*tz,lz=z+q.w*tz-q.x*ty+q.y*tx;

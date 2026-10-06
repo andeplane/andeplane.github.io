@@ -73,6 +73,7 @@ describe("persistent coin poses", () => {
     try {
       const original = new Float32Array(snapshot(0, 1000));
       original[0] = original[0]! + .02;
+      original.fill(0, 7, 14); // Removed visual coin stays removed after reload.
       const expected = original.slice();
       await saveGoldLayout(0, original);
       original.fill(0);
@@ -94,14 +95,24 @@ describe("persistent coin poses", () => {
 
 describe('fishing gold beyond a completed world',()=>{
   it('extends the existing hoard without fetching nonexistent assets when storage is unavailable',async()=>{
-    const bytes=snapshot(0,10000),fetch=vi.fn().mockResolvedValue({ok:true,arrayBuffer:async()=>bytes});
+    const bytes=snapshot(0,10000);new Float32Array(bytes).fill(0,7,14);
+    const fetch=vi.fn().mockResolvedValue({ok:true,arrayBuffer:async()=>bytes});
     vi.stubGlobal('fetch',fetch);
     try {
       const poses=await loadGoldLayout(0,11000,false);
       expect(poses.subarray(0,10000*COIN_POSE_STRIDE)).toEqual(new Float32Array(bytes));
       expect(validGoldLayout(poses.slice().buffer,11000,0)).toBe(true);
       expect(poses[10000*COIN_POSE_STRIDE+1]).toBeGreaterThan(poses[1]!);
+      expect(poses.subarray(10001*7,10002*7)).toEqual(new Float32Array(7));
       expect(fetch).toHaveBeenCalledTimes(1);expect(fetch.mock.calls[0]![0]).toContain('/10000.bin');
     } finally {vi.unstubAllGlobals();}
   });
+});
+
+it('accepts only an all-zero discarded slot, preserving deposit counts',()=>{
+  const data=snapshot(0,1000),poses=new Float32Array(data);
+  poses.fill(0,0,7);
+  expect(validGoldLayout(data,1000,0)).toBe(true);
+  poses[0]=1;
+  expect(validGoldLayout(data,1000,0)).toBe(false);
 });

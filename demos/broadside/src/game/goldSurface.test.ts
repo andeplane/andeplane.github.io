@@ -37,3 +37,9 @@ describe('frozen pile surface', () => {
     expect(poses).toEqual(before);
   });
 });
+
+it('excludes discarded slots while retaining original indices of surviving coins',()=>{
+  const mixed=new Float32Array([...new Float32Array(7),...coin(2,1,3)]);
+  expect(exposedGold(mixed)).toEqual([1]);
+  expect(exposedGold(new Float32Array(7000))).toEqual([]);
+});

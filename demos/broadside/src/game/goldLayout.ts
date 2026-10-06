@@ -1,10 +1,14 @@
-import { GOLD_AREAS, COIN_POSE_STRIDE, GOLD_POSE_VERSION } from "./goldAreas";
+import { removedCoinPose, GOLD_AREAS, COIN_POSE_STRIDE, GOLD_POSE_VERSION } from "./goldAreas";
 
 export function validGoldLayout(data: ArrayBuffer, count: number, world: number): boolean {
   if (!GOLD_AREAS[world] || count < 0 || count > 100000 || count % 1000 || data.byteLength !== count * COIN_POSE_STRIDE * 4) return false;
   const poses = new Float32Array(data);
   for (let i = 0; i < poses.length; i += COIN_POSE_STRIDE) {
     if (!Array.from(poses.subarray(i, i + COIN_POSE_STRIDE)).every(Number.isFinite)) return false;
+    if (removedCoinPose(poses, i)) {
+      if (poses[i] !== 0 || poses[i + 1] !== 0 || poses[i + 2] !== 0) return false;
+      continue;
+    }
     const area=GOLD_AREAS[world]!,x=poses[i]!+area.x,z=poses[i+2]!+area.z;
     // The full cavern and its canal floor, rather than an imaginary bank box.
     // Also accepts ship-hold local coordinates, using the same layout format.
@@ -64,7 +68,8 @@ export async function loadGoldLayout(world: number, count: number, persistent = 
     const poses=new Float32Array(count*stride);
     for(let i=0;i<count;i++) {
       const src=(i%10000)*stride,dst=i*stride,layer=Math.floor(i/10000);
-      poses.set(base.subarray(src,src+stride),dst);poses[dst+1]!+=layer*(peak+.12);
+      poses.set(base.subarray(src,src+stride),dst);
+      if (!removedCoinPose(base, src)) poses[dst+1]!+=layer*(peak+.12);
     }
     if(persistent)await storeLayout(key,poses.slice().buffer);
     return poses;

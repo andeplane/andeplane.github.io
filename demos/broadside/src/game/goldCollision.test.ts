@@ -75,3 +75,16 @@ describe('exposed hoard collision patches',()=>{
     expect(settledGoldPatches(poses)).toEqual([settledGoldCollision(poses)]);
   });
 });
+
+it('never recreates discarded coins as collision geometry',()=>{
+  const live=new Float32Array([2,1,3,0,0,0,1]);
+  const mixed=new Float32Array([...new Float32Array(7),...live]);
+  expect(settledGoldCollision(mixed)).toEqual(settledGoldCollision(live));
+  expect(settledGoldPatches(mixed)).toEqual(settledGoldPatches(live));
+  const large=new Float32Array(7000);large.set(live,7);
+  const baseline=new Float32Array(7000);baseline.set(live);
+  expect(settledGoldPatches(large)).toEqual(settledGoldPatches(baseline));
+  expect(settledGoldCollision(new Float32Array(7)).indices.length).toBe(0);
+  expect(settledGoldPatches(new Float32Array(7))).toEqual([]);
+  expect(settledGoldPatches(new Float32Array(7000))).toEqual([]);
+});

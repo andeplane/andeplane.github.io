@@ -1,14 +1,16 @@
-import { COIN_POSE_STRIDE, COIN_RADIUS, COIN_THICKNESS } from "./goldAreas";
+import { removedCoinPose, COIN_POSE_STRIDE, COIN_RADIUS, COIN_THICKNESS } from "./goldAreas";
 
 /** The permanent hoard is one collision mesh, rather than thousands of
  * overlapping broad-phase objects. Keep every coin's saved pose and solid rim. */
 export function settledGoldCollision(poses: Float32Array): { vertices: Float32Array; indices: Uint32Array } {
   const segments = 12, perCoin = segments * 2 + 2;
-  const count = poses.length / COIN_POSE_STRIDE;
+  const active: number[] = [];
+  for (let p = 0; p < poses.length; p += COIN_POSE_STRIDE) if (!removedCoinPose(poses, p)) active.push(p);
+  const count = active.length;
   const vertices = new Float32Array(count * perCoin * 3);
   const indices = new Uint32Array(count * segments * 12);
   for (let coin = 0; coin < count; coin++) {
-    const p = coin * COIN_POSE_STRIDE, base = coin * perCoin;
+    const p = active[coin]!, base = coin * perCoin;
     const qx = poses[p + 3]!, qy = poses[p + 4]!, qz = poses[p + 5]!, qw = poses[p + 6]!;
     const vertex = (index: number, x: number, y: number, z: number) => {
       const tx = 2 * (qy * z - qz * y), ty = 2 * (qz * x - qx * z), tz = 2 * (qx * y - qy * x);
@@ -41,10 +43,14 @@ export interface GoldCollisionPatch { vertices: Float32Array; indices: Uint32Arr
  * original coin pose; this inexpensive surface is only used for contacts. */
 export function settledGoldPatches(poses: Float32Array): GoldCollisionPatch[] {
   if (!poses.length) return [];
-  if (poses.length <= 32 * COIN_POSE_STRIDE) return [settledGoldCollision(poses)];
+  if (poses.length <= 32 * COIN_POSE_STRIDE) {
+    const mesh = settledGoldCollision(poses);
+    return mesh.indices.length ? [mesh] : [];
+  }
   const grid = .14, patchSize = 16, cells = new Map<string, number>();
   let bottom = Infinity;
   for (let i = 0; i < poses.length; i += COIN_POSE_STRIDE) {
+    if (removedCoinPose(poses, i)) continue;
     const x=poses[i]!, y=poses[i+1]!, z=poses[i+2]!;
     const ny=1-2*(poses[i+3]!**2+poses[i+5]!**2);
     const extent=Math.sqrt(Math.max(0,1-ny*ny))*COIN_RADIUS+Math.abs(ny)*COIN_THICKNESS/2;
