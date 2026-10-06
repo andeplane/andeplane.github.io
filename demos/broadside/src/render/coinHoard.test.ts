@@ -92,3 +92,16 @@ describe('real coin sandbox banks',()=>{
     scene.dispose();expect(running.terminated).toBe(true);engine.dispose();
   });
 });
+
+it('collides against neighbouring banks in the same cave without moving their saved poses',async()=>{
+ vi.stubGlobal('Worker',FakeWorker);
+ const engine=new NullEngine(),scene=new Scene(engine),h=new CoinHoard(scene,false,undefined,{strictPhysics:true});
+ h.addBatch(1);h.startPour(1);await flush();FakeWorker.all.at(-1)!.emit(poses(),true);await flush();
+ h.addBatch(0);h.startPour(0);await flush();
+ const worker=FakeWorker.all.at(-1)!,previous=(worker.sent as {previous:Float32Array}).previous;
+ expect(previous.length).toBe(7000);expect(previous[0]).toBeCloseTo(16);expect(previous[2]).toBeCloseTo(6);
+ expect(previous[1]).toBe(poses()[1]);
+ worker.onmessage?.({data:{poses:poses(),done:false,resting:100,physicsMs:2,physicsMeanMs:3,physicsMaxMs:4,staticTriangles:5}});
+ expect(h.metrics(0)).toEqual({lastMs:2,meanMs:3,maxMs:4,staticTriangles:5});
+ expect(h.restingCounts[1]).toBe(1000);scene.dispose();engine.dispose();
+});

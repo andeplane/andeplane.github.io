@@ -21,7 +21,7 @@ import type { VoyageDef } from '../game/voyage';
 import { cargoChests } from '../game/rewards';
 import type { Progress } from '../game/progress';
 import { CoinHoard } from './coinHoard';
-import { pourTilt } from '../game/coinPour';
+import { chestCarry, chestExit, CHEST_EXIT_SECONDS, pourTilt } from '../game/coinPour';
 
 /** A shipboard cabin with an open stern window onto the island just reached. */
 export class ShipHold {
@@ -42,6 +42,7 @@ export class ShipHold {
   private debugHoard: CoinHoard | null = null;
   private debugAge = 0;
   private debugFinished: number | null = null;
+  private debugExitAt:number|null=null;
   private debugPour = false;
   constructor(engine: Engine, voyage: VoyageDef) {
     const s = this.scene = new Scene(engine);
@@ -123,13 +124,14 @@ export class ShipHold {
       areas: [{world:0,name:'Ship hold',x:0,z:0,radius:3.8}], floorY:.7, strictPhysics:true,
     });
     if (add) this.debugHoard.addBatch(0);
-    this.debugAge = 0; this.debugFinished = null; this.debugPour = add;
+    this.debugAge = 0; this.debugFinished = null;this.debugExitAt=null; this.debugPour = add;
   }
   get coinCounts(): number[] { return this.debugHoard?.counts ?? [0]; }
   get restingCoinCounts(): number[] { return this.debugHoard?.restingCounts ?? [0]; }
+  get coinPhysicsMetrics() { return this.debugHoard?.metrics(0)??{lastMs:0,meanMs:0,maxMs:0,staticTriangles:0}; }
   get goldPhysicsActive(): boolean { return this.debugHoard?.physicsActive ?? false; }
   get coinError(): string | null { return this.debugHoard?.pouring(0).error ?? null; }
-  get depositComplete(): boolean { return this.debugFinished !== null && this.debugAge - this.debugFinished > .7; }
+  get depositComplete(): boolean { return this.debugFinished !== null && this.debugExitAt!==null && this.debugAge-this.debugExitAt>=CHEST_EXIT_SECONDS; }
   render(dt:number,reduced=false):void {
     this.reducedMotion=reduced;
     this.time+=dt;if(this.revealing)this.revealTime+=dt;else this.revealTime=5;
@@ -145,20 +147,23 @@ export class ShipHold {
       this.camera.setTarget(new Vector3(0,Math.min(4,height*.5+1),0));
       if (this.debugPour) {
         this.chest.animate(5,0,reduced);
-        const lift=reduced?1:Math.min(1,this.debugAge);
-        this.chest.root.position.set(0,1.05+(pour.chestY-1.05)*lift,.8*(1-lift));
+        const carried=chestCarry(this.debugAge,{x:0,y:1.05,z:-5.4},{x:0,y:pour.chestY,z:0},reduced);
+        this.chest.root.position.set(carried.x,carried.y,carried.z);
+        this.camera.setTarget(new Vector3(0,(carried.y+1)*(1-pour.turn)+Math.min(4,height*.5+1)*pour.turn,0));
         this.chest.root.rotation.set(0,0,pourTilt(pour.turn));
-        const lid=reduced?1:Math.max(0,Math.min(1,(this.debugAge-.6)/.4));
+        const lid=reduced?1:Math.max(0,Math.min(1,(this.debugAge-3.4)/.6));
         this.chest.open(lid);
         this.debugHoard.carryChest(0,this.chest.root.position,this.chest.root.rotation,lid,dt);
         this.debugHoard.preparePour(0);
         this.chest.setCoinCount(1000-pour.spawned);
-        const retreat=pour.withdraw, easeOut=retreat*retreat*(3-2*retreat);
-        this.chest.root.position.x+=.45*easeOut;this.chest.root.position.y+=.7*easeOut;
-        this.chest.fade(1-retreat);
-        if(pour.empty)this.chest.hide();
-        if(this.debugAge>=(reduced ? .1 : 1)&&pour.physicsReady&&!pour.started&&!pour.done&&!pour.error) this.debugHoard.startPour(0,reduced?0:2.2);
-        if(pour.done){this.debugFinished??=this.debugAge;this.chest.hide();}
+        if(this.debugExitAt===null&&(pour.withdraw>0||pour.done))this.debugExitAt=this.debugAge-pour.withdraw*CHEST_EXIT_SECONDS;
+        if(this.debugExitAt!==null){
+          const t=Math.max(0,(this.debugAge-this.debugExitAt)/CHEST_EXIT_SECONDS),exit=chestExit(t);
+          this.chest.root.position.addInPlaceFromFloats(exit.x,exit.y,exit.z);
+          if(t>=1)this.chest.hide();
+        }
+        if(this.debugAge>=(reduced ? .1 : 4.2)&&pour.physicsReady&&!pour.started&&!pour.done&&!pour.error) this.debugHoard.startPour(0,reduced?0:2.2);
+        if(pour.done)this.debugFinished??=this.debugAge;
       } else this.chest.hide();
       this.debugHoard.animate(dt);
     }

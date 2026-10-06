@@ -1,5 +1,5 @@
 import {describe,expect,it} from 'vitest';
-import {pourTilt,canSpill,tiltedCoin,carriedCoin} from './coinPour';
+import {pourTilt,canSpill,tiltedCoin,carriedCoin,chestCarry,chestExit,CHEST_EXIT_SECONDS} from './coinPour';
 import {Quaternion,Vector3} from '@babylonjs/core/Maths/math.vector.js';
 describe('carried and tilting chest coin poses',()=>{
   const source=new Float32Array([1,.6,-.2,0,0,0,1]);
@@ -20,4 +20,15 @@ describe('carried and tilting chest coin poses',()=>{
     expect(p.position.x).toBeCloseTo(expected.x);expect(p.position.y).toBeCloseTo(expected.y);expect(p.position.z).toBeCloseTo(expected.z);
     expect(p.rotation).toMatchObject({x:q.x,y:q.y,z:q.z,w:q.w});
   });
+});
+
+it('lifts before crossing a full bank, then lifts and exits continuously without fading',()=>{
+ const from={x:0,y:.5,z:-5},to={x:-8,y:5,z:6};
+ expect(chestCarry(0,from,to)).toEqual(from);
+ expect(chestCarry(1.2,from,to)).toEqual({...from,y:5});
+ expect(chestCarry(3.8,from,to)).toEqual(to);expect(chestCarry(0,from,to,true)).toEqual(to);
+ expect(chestExit(0)).toEqual({x:0,y:0,z:0});
+ expect(chestExit(.3)).toEqual({x:0,y:.8,z:0});
+ expect(chestExit(1)).toEqual({x:0,y:.8,z:-14});expect(CHEST_EXIT_SECONDS).toBeGreaterThan(2);
+ for(let t=.01;t<1;t+=.01){const a=chestExit(t),b=chestExit(t-.01);expect(a.y).toBeGreaterThanOrEqual(b.y);expect(a.z).toBeLessThanOrEqual(b.z);expect(Math.abs(a.z-b.z)).toBeLessThan(.31);}
 });

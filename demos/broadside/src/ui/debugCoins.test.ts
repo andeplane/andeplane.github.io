@@ -4,6 +4,7 @@ import type {Engine} from '@babylonjs/core/Engines/engine.js';
 const fake=vi.hoisted(()=>({views:[] as {calls:number[][];depositComplete:boolean;dispose:ReturnType<typeof vi.fn>}[]}));
 vi.mock('../render/cave',()=>({TreasureCave:class {
   calls:number[][]=[];depositComplete=false;coinError=null;coinCounts=[0,0,0,0];restingCoinCounts=[0,0,0,0];
+  coinPhysicsMetrics={lastMs:1,meanMs:2,maxMs:3,staticTriangles:42};
   dispose=vi.fn();scene={dispose:this.dispose};
   constructor(){fake.views.push(this);}
   debugCoinBank(world:number,add=false){this.calls.push([world,Number(add)]);this.depositComplete=false;}
@@ -11,6 +12,7 @@ vi.mock('../render/cave',()=>({TreasureCave:class {
 }}));
 vi.mock('../render/shipHold',()=>({ShipHold:class {
   calls:number[][]=[];depositComplete=false;coinError=null;coinCounts=[0];restingCoinCounts=[0];
+  coinPhysicsMetrics={lastMs:1,meanMs:2,maxMs:3,staticTriangles:42};
   dispose=vi.fn();scene={dispose:this.dispose};
   constructor(){fake.views.push(this);}
   debugCoinBank(world:number,add=false){this.calls.push([world,Number(add)]);this.depositComplete=false;}
@@ -35,6 +37,7 @@ describe('coin lab controls',()=>{
     for(let i=0;i<3;i++){fake.views[0]!.depositComplete=true;render();if(i<2)render();}
     expect(fake.views[0]!.calls).toEqual([[0,0],[0,1],[0,1],[0,1]]);
     expect(place.disabled).toBe(false);
+    expect(document.querySelector('#coin-debug-stats')!.textContent).toContain('2.0 ms mean physics tick');
     expect(document.querySelector('#coin-debug-history')!.textContent).toContain('3,000 coins');
     place.value='ship';place.dispatchEvent(new Event('change'));
     expect(fake.views).toHaveLength(2);button.click();render();fake.views[1]!.depositComplete=true;render();

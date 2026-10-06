@@ -24,3 +24,13 @@ describe('coin displacement settling window',()=>{
     expect(falling.sample(sample(0,1.82))).toBe(true);
   });
 });
+
+it('finishes slow tail drift while continuing to reject a falling tail coin',()=>{
+ const drift=new CoinRestWindow(),falling=new CoinRestWindow();
+ let settled=false;
+ for(let i=0;i<30;i++){
+  settled=drift.sample(sample(i*.002),.42,.105);
+  expect(falling.sample(sample(0,4-i*.02),.42,.105)).toBe(false);
+ }
+ expect(settled).toBe(true);
+});
