@@ -10,7 +10,8 @@
     "build:demos": "node scripts/build-demos.mjs",
     "test:neural-operators": "node --experimental-strip-types --test tests/neural-operators/*.test.ts",
     "build:seo": "node --experimental-strip-types scripts/build-seo.mjs",
-    "test:seo": "node --experimental-strip-types --test tests/seo/*.test.ts"
+    "test:seo": "node --experimental-strip-types --test tests/seo/*.test.ts",
+    "test:fno-sketch": "node --experimental-strip-types --test tests/fno-sketch/*.test.ts"
   },
   "dependencies": {
     "@base-ui/react": "^1.7.0",

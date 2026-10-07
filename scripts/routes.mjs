@@ -54,6 +54,12 @@ const STATIC_ROUTES = [
     title: '3D rendering',
     description: 'Ray tracing, implicit surfaces and GPU rendering — from a sphere in a pixel shader to a quartic torus.',
   },
+  {
+    path: '/interests/neural-operators/fno-sketch',
+    title: 'One FNO layer, from a student’s sketch',
+    description:
+      'A hand-drawn notebook page on one Fourier Neural Operator layer, brought to life on a 5×5 grid: lift, Fourier transform, truncation, R(k) mixing, inverse and projection, every number computed live.',
+  },
 ]
 
 // Mirrors the `tabs` array in src/features/neural-operators/NeuralOperators.tsx.
