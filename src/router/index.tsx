@@ -14,6 +14,7 @@ const Games = lazy(() => import('@/pages/Games'))
 const Interests = lazy(() => import('@/pages/Interests'))
 const Physics = lazy(() => import('@/pages/Physics'))
 const NeuralOperators = lazy(() => import('@/features/neural-operators/NeuralOperators'))
+const FnoSketch = lazy(() => import('@/features/fno-sketch/FnoSketch'))
 
 export const router = createBrowserRouter([
   {
@@ -27,6 +28,7 @@ export const router = createBrowserRouter([
       { path: 'interests/physics', element: <Suspense fallback={<p>Loading physics…</p>}><Physics /></Suspense> },
       { path: 'interests/music', element: <Music /> },
       { path: 'interests/3d-rendering', element: <Rendering /> },
+      { path: 'interests/neural-operators/fno-sketch', element: <Suspense fallback={<p>Loading…</p>}><FnoSketch /></Suspense> },
       { path: 'interests/neural-operators/:tab?', element: <Suspense fallback={<p>Loading research…</p>}><NeuralOperators /></Suspense> },
       { path: 'projects/:slug', element: <ProjectDetail /> },
       { path: 'blog', element: <Blog /> },

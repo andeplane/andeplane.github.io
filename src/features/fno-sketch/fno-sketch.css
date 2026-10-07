@@ -1,0 +1,979 @@
+/* One FNO layer, from a student's sketch.
+   The site is dark-only (src/index.css); these custom properties are the only
+   page-specific colours, so a future light theme only has to remap them. */
+.fno-sketch {
+  --fs-paper: var(--color-surface, #111111);
+  --fs-card: #16161b;
+  --fs-rule: #1d1d22;
+  --fs-margin-rule: rgba(255, 110, 130, 0.3);
+  --fs-pencil: #9aa0aa;
+  --fs-pencil-soft: #5c616b;
+  --fs-pencil-faint: #34373f;
+  --fs-ink: var(--color-text, #e8e8e8);
+  --fs-muted: var(--color-text-muted, #888888);
+  --fs-pink: #ff7ab6;
+  --fs-orange: #ffa24d;
+  --fs-current: var(--color-accent-light, #818cf8);
+  --fs-hand: 'Bradley Hand', 'Segoe Print', 'Chalkboard SE', 'Noteworthy', 'Comic Sans MS', cursive;
+  --fs-mono: var(--font-mono, ui-monospace, monospace);
+  min-width: 0;
+}
+
+.fno-sketch .fs-header {
+  margin-bottom: 28px;
+  max-width: 62rem;
+}
+
+.fno-sketch .fs-pink {
+  color: var(--fs-pink);
+}
+.fno-sketch .fs-orange {
+  color: var(--fs-orange);
+}
+.fno-sketch .fs-small {
+  font-size: 13px;
+  color: var(--fs-muted);
+  line-height: 1.6;
+}
+.fno-sketch .fs-num {
+  font-family: var(--fs-mono);
+  font-size: 12.5px;
+  font-variant-numeric: tabular-nums;
+}
+.fno-sketch .fs-visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+
+/* ------------------------------------------------------------ the paper */
+
+.fno-sketch .fs-paper {
+  position: relative;
+  background-color: var(--fs-paper);
+  background-image:
+    linear-gradient(to right, transparent 30px, var(--fs-margin-rule) 30px, var(--fs-margin-rule) 31px, transparent 31px),
+    repeating-linear-gradient(to bottom, transparent 0, transparent 27px, var(--fs-rule) 27px, var(--fs-rule) 28px);
+  border: 1px solid var(--color-border, #2a2a2a);
+  border-radius: 12px;
+  padding: 18px clamp(14px, 2.4vw, 30px) 24px 46px;
+  color: var(--fs-ink);
+  min-width: 0;
+}
+@media (max-width: 640px) {
+  .fno-sketch .fs-paper {
+    background-image:
+      linear-gradient(to right, transparent 9px, var(--fs-margin-rule) 9px, var(--fs-margin-rule) 10px, transparent 10px),
+      repeating-linear-gradient(to bottom, transparent 0, transparent 27px, var(--fs-rule) 27px, var(--fs-rule) 28px);
+    padding: 14px 12px 20px 20px;
+  }
+}
+
+/* ------------------------------------------------------------ pipeline strip */
+
+.fno-sketch .fs-pipeline-wrap {
+  overflow-x: auto;
+  margin: 0 0 6px;
+}
+.fno-sketch .fs-pipeline {
+  display: block;
+  width: 100%;
+  min-width: 620px;
+  height: auto;
+}
+.fno-sketch .fs-pencil-stroke line,
+.fno-sketch .fs-pencil-stroke path,
+.fno-sketch .fs-pencil-stroke rect {
+  stroke: var(--fs-pencil);
+  stroke-width: 1.3;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.fno-sketch .fs-pencil-stroke .fs-pencil-faint line {
+  stroke: var(--fs-pencil-faint);
+  stroke-width: 0.8;
+}
+.fno-sketch .fs-pencil-stroke .fs-faded {
+  stroke: var(--fs-pencil-soft);
+}
+.fno-sketch .fs-head-open {
+  fill: none;
+  stroke: var(--fs-pencil);
+  stroke-width: 1.3;
+}
+.fno-sketch .fs-pipe-node {
+  cursor: pointer;
+}
+.fno-sketch .fs-pipe-box {
+  fill: var(--fs-paper);
+  stroke: var(--fs-pencil);
+  stroke-width: 1.3;
+}
+.fno-sketch .fs-pipe-node:hover .fs-pipe-box {
+  stroke: var(--fs-ink);
+}
+.fno-sketch .fs-pipe-node.is-current .fs-pipe-box {
+  fill: color-mix(in srgb, var(--fs-current) 18%, var(--fs-paper));
+  stroke: var(--fs-current);
+  stroke-width: 2;
+}
+.fno-sketch .fs-pipe-label,
+.fno-sketch .fs-pipe-tensor {
+  fill: var(--fs-ink);
+  font-family: 'Times New Roman', Georgia, serif;
+  font-style: italic;
+  font-size: 17px;
+}
+.fno-sketch .fs-pipe-tensor {
+  font-size: 13px;
+}
+.fno-sketch .fs-pipe-number {
+  fill: var(--fs-muted);
+  font-family: var(--fs-hand);
+  font-size: 13px;
+}
+.fno-sketch .fs-pipe-node.is-current .fs-pipe-number {
+  fill: var(--fs-current);
+  font-weight: 700;
+}
+.fno-sketch .fs-svg-small {
+  fill: var(--fs-muted);
+  font-family: var(--fs-hand);
+  font-size: 11px;
+}
+.fno-sketch .fs-faded-text {
+  fill: var(--fs-pencil-soft);
+}
+.fno-sketch .fs-svg-name {
+  fill: var(--fs-ink);
+  font-family: 'Times New Roman', Georgia, serif;
+  font-style: italic;
+  font-size: 14px;
+}
+
+/* ------------------------------------------------------------ stepper */
+
+.fno-sketch .fs-stepper {
+  display: flex;
+  align-items: stretch;
+  gap: 6px;
+  margin: 4px 0 14px;
+}
+.fno-sketch .fs-steps {
+  display: grid;
+  grid-template-columns: repeat(8, minmax(0, 1fr));
+  gap: 6px;
+  flex: 1;
+  min-width: 0;
+}
+.fno-sketch .fs-step,
+.fno-sketch .fs-step-arrow {
+  border: 1px solid var(--fs-pencil-faint);
+  background: var(--fs-card);
+  border-radius: 8px;
+  color: var(--fs-muted);
+  padding: 6px 6px;
+  line-height: 1.2;
+}
+.fno-sketch .fs-step {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 2px;
+  text-align: left;
+  min-width: 0;
+}
+.fno-sketch .fs-step-number {
+  font-family: var(--fs-hand);
+  font-size: 15px;
+  color: var(--fs-pencil);
+}
+.fno-sketch .fs-step-label {
+  font-size: 12px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 100%;
+}
+.fno-sketch .fs-step:hover,
+.fno-sketch .fs-step-arrow:hover:not(:disabled) {
+  border-color: var(--fs-pencil);
+  color: var(--fs-ink);
+}
+.fno-sketch .fs-step[aria-selected='true'] {
+  border-color: var(--fs-current);
+  color: var(--fs-ink);
+  background: color-mix(in srgb, var(--fs-current) 14%, var(--fs-card));
+}
+.fno-sketch .fs-step[aria-selected='true'] .fs-step-number {
+  color: var(--fs-current);
+}
+.fno-sketch .fs-step-arrow {
+  font-size: 22px;
+  padding: 0 10px;
+}
+@media (max-width: 760px) {
+  .fno-sketch .fs-steps {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 4px;
+  }
+  .fno-sketch .fs-stepper {
+    gap: 4px;
+  }
+  .fno-sketch .fs-step {
+    padding: 5px 5px;
+  }
+  .fno-sketch .fs-step-label {
+    white-space: normal;
+    font-size: 11px;
+    overflow-wrap: anywhere;
+  }
+  .fno-sketch .fs-step-arrow {
+    padding: 0 5px;
+    font-size: 18px;
+  }
+}
+
+/* ------------------------------------------------------------ controls */
+
+.fno-sketch .fs-controls {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px 22px;
+  padding: 10px 14px;
+  margin-bottom: 18px;
+  border: 1px dashed var(--fs-pencil-faint);
+  border-radius: 10px;
+  background: color-mix(in srgb, var(--fs-card) 85%, transparent);
+}
+.fno-sketch .fs-slider {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  color: var(--fs-ink);
+}
+.fno-sketch .fs-slider input {
+  width: 92px;
+  accent-color: var(--fs-pencil);
+}
+.fno-sketch .fs-slider output {
+  font-family: var(--fs-mono);
+  font-size: 13px;
+  min-width: 1ch;
+  color: var(--fs-ink);
+}
+.fno-sketch .fs-control-group {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+}
+.fno-sketch .fs-control-label {
+  font-size: 13px;
+  margin-right: 2px;
+}
+.fno-sketch .fs-btn,
+.fno-sketch .fs-chip {
+  border: 1px solid var(--fs-pencil-soft);
+  background: transparent;
+  color: var(--fs-ink);
+  border-radius: 999px;
+  padding: 4px 12px;
+  font-size: 12.5px;
+  line-height: 1.4;
+}
+.fno-sketch .fs-btn:hover:not(:disabled),
+.fno-sketch .fs-chip:hover {
+  border-color: var(--fs-ink);
+}
+.fno-sketch .fs-btn[aria-pressed='true'],
+.fno-sketch .fs-chip[aria-pressed='true'] {
+  background: color-mix(in srgb, var(--fs-current) 22%, transparent);
+  border-color: var(--fs-current);
+}
+.fno-sketch .fs-identity-flag {
+  margin: 0;
+  font-size: 12.5px;
+  color: var(--fs-orange);
+}
+.fno-sketch .fs-link {
+  background: none;
+  border: 0;
+  padding: 0;
+  color: var(--fs-current);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+.fno-sketch .fs-channels {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 12px;
+}
+.fno-sketch .fs-channels-label {
+  font-family: var(--fs-hand);
+  color: var(--fs-muted);
+  font-size: 14px;
+  margin-right: 4px;
+}
+.fno-sketch .fs-chip {
+  padding: 2px 10px;
+  font-family: 'Times New Roman', Georgia, serif;
+  font-style: italic;
+  font-size: 15px;
+}
+.fno-sketch .fs-check {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 14px;
+  font-size: 13.5px;
+}
+.fno-sketch .fs-check input {
+  width: 16px;
+  height: 16px;
+  accent-color: var(--fs-orange);
+}
+
+/* ------------------------------------------------------------ stage layout */
+
+.fno-sketch .fs-stage-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr);
+  grid-template-rows: auto auto 1fr;
+  grid-template-areas:
+    'visual text'
+    'visual numbers'
+    'visual .';
+  gap: 16px 30px;
+  align-items: start;
+}
+.fno-sketch .fs-stage-grid.has-notes {
+  grid-template-areas:
+    'visual text'
+    'visual numbers'
+    'visual notes';
+}
+@media (min-width: 1180px) {
+  .fno-sketch .fs-stage-grid.has-notes {
+    grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr) 170px;
+    grid-template-rows: auto 1fr;
+    grid-template-areas:
+      'visual text notes'
+      'visual numbers notes';
+  }
+}
+@media (max-width: 900px) {
+  .fno-sketch .fs-stage-grid,
+  .fno-sketch .fs-stage-grid.has-notes {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: none;
+    grid-template-areas: 'text' 'notes' 'visual' 'numbers';
+  }
+  .fno-sketch .fs-stage-grid {
+    grid-template-areas: 'text' 'visual' 'numbers';
+  }
+}
+.fno-sketch .fs-visual {
+  grid-area: visual;
+  min-width: 0;
+}
+.fno-sketch .fs-text {
+  grid-area: text;
+  min-width: 0;
+  font-size: 14.5px;
+  line-height: 1.7;
+}
+.fno-sketch .fs-notes {
+  grid-area: notes;
+  min-width: 0;
+}
+.fno-sketch .fs-text p {
+  margin: 10px 0;
+  color: #c9c9cf;
+}
+.fno-sketch .fs-text p.fs-small {
+  color: var(--fs-muted);
+}
+.fno-sketch .fs-stage-title {
+  font-size: 21px;
+  font-weight: 600;
+  line-height: 1.3;
+  letter-spacing: -0.015em;
+  margin: 0 0 8px;
+  color: #f3f3f6;
+}
+.fno-sketch .fs-stage-number {
+  display: inline-grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  margin-right: 6px;
+  border: 1.5px solid var(--fs-current);
+  border-radius: 50%;
+  font-family: var(--fs-hand);
+  font-size: 15px;
+  color: var(--fs-current);
+  vertical-align: 2px;
+}
+.fno-sketch .fs-tex {
+  overflow-x: auto;
+  overflow-y: hidden;
+  margin: 6px 0;
+  padding: 2px 0;
+}
+.fno-sketch .fs-tex .katex-display {
+  margin: 0.35em 0;
+}
+.fno-sketch .fs-tex .katex {
+  font-size: 1.04em;
+}
+@media (max-width: 560px) {
+  .fno-sketch .fs-tex .katex {
+    font-size: 0.92em;
+  }
+}
+
+/* ------------------------------------------------------------ numbers panel */
+
+.fno-sketch .fs-numbers {
+  grid-area: numbers;
+  padding: 12px 14px 14px;
+  background: var(--fs-card);
+  border: 1px solid #26262d;
+  border-radius: 10px;
+  min-width: 0;
+}
+.fno-sketch .fs-numbers-title {
+  font-size: 13.5px;
+  font-weight: 600;
+  margin: 4px 0 8px;
+  color: var(--fs-ink);
+}
+.fno-sketch .fs-numbers-title + .fs-numbers-title {
+  margin-top: 0;
+}
+.fno-sketch .fs-numbers > * + .fs-numbers-title {
+  margin-top: 16px;
+}
+.fno-sketch .fs-numbers-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px 22px;
+  align-items: flex-start;
+}
+.fno-sketch .fs-edit-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+.fno-sketch .fs-edit .fs-small {
+  margin: 0 0 6px;
+}
+.fno-sketch .fs-facts {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 4px 14px;
+  margin: 8px 0;
+  font-size: 13px;
+}
+.fno-sketch .fs-facts dt {
+  color: var(--fs-muted);
+}
+.fno-sketch .fs-facts dd {
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+.fno-sketch .fs-sums {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: grid;
+  gap: 6px;
+}
+.fno-sketch .fs-sums li {
+  display: grid;
+  grid-template-columns: 2.2em minmax(0, 1fr);
+  gap: 6px;
+  align-items: baseline;
+}
+.fno-sketch .fs-sum-name,
+.fno-sketch .fs-column-label {
+  font-family: 'Times New Roman', Georgia, serif;
+  font-style: italic;
+  font-size: 15px;
+  color: var(--fs-pencil);
+}
+.fno-sketch .fs-sums .fs-num,
+.fno-sketch .fs-written {
+  overflow-wrap: anywhere;
+}
+.fno-sketch .fs-written {
+  margin: 0 0 12px;
+  line-height: 1.7;
+}
+.fno-sketch .fs-hint {
+  font-size: 12.5px;
+  color: var(--fs-orange);
+  margin: 0 0 8px;
+}
+.fno-sketch .fs-status {
+  font-size: 13px;
+  margin: 8px 0 0;
+  color: var(--fs-ink);
+}
+.fno-sketch .fs-status.is-dropped {
+  color: var(--fs-muted);
+  font-style: italic;
+}
+.fno-sketch .fs-table-wrap {
+  overflow-x: auto;
+  margin: 4px 0 8px;
+}
+.fno-sketch .fs-table {
+  border-collapse: collapse;
+  font-size: 12.5px;
+  width: 100%;
+}
+.fno-sketch .fs-table th,
+.fno-sketch .fs-table td {
+  border-bottom: 1px solid #26262d;
+  padding: 4px 8px;
+  text-align: right;
+  white-space: nowrap;
+}
+.fno-sketch .fs-table th {
+  color: var(--fs-muted);
+  font-weight: 500;
+}
+.fno-sketch .fs-table thead th {
+  border-bottom-color: var(--fs-pencil-soft);
+}
+.fno-sketch .fs-table-dense td {
+  padding: 3px 6px;
+  font-size: 11.5px;
+}
+.fno-sketch .fs-table tr.is-channel td,
+.fno-sketch .fs-table tr.is-channel th {
+  background: rgba(255, 255, 255, 0.035);
+}
+
+/* ------------------------------------------------------------ margin notes */
+
+.fno-sketch .fs-margin-note {
+  font-family: var(--fs-hand);
+  font-size: 14px;
+  line-height: 1.45;
+  color: var(--fs-pencil);
+  border-left: 2px solid var(--fs-margin-rule);
+  padding: 4px 0 4px 12px;
+  transform: rotate(-0.6deg);
+}
+.fno-sketch .fs-margin-note p {
+  margin: 0 0 6px;
+}
+.fno-sketch .fs-margin-key {
+  color: var(--fs-muted);
+  font-style: italic;
+}
+.fno-sketch .fs-margin-extra {
+  color: var(--fs-muted);
+  font-size: 13px;
+}
+
+/* ------------------------------------------------------------ grids */
+
+.fno-sketch .fs-grids {
+  display: grid;
+  gap: 14px 16px;
+  align-items: start;
+}
+.fno-sketch .fs-grids-4 {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+.fno-sketch .fs-grids-2 {
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+}
+.fno-sketch .fs-grids-3 {
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+}
+.fno-sketch .fs-grids-auto {
+  grid-template-columns: repeat(auto-fill, minmax(132px, 1fr));
+  margin-top: 16px;
+}
+.fno-sketch .fs-grids-side {
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  margin-bottom: 16px;
+}
+.fno-sketch .fs-grids-ops {
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+}
+@media (max-width: 560px) {
+  .fno-sketch .fs-grids-2,
+  .fno-sketch .fs-grids-side {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+.fno-sketch .fs-fig {
+  margin: 0;
+  min-width: 0;
+}
+.fno-sketch .fs-fig figcaption {
+  font-family: var(--fs-hand);
+  font-size: 13.5px;
+  color: var(--fs-pencil);
+  margin-top: 5px;
+  line-height: 1.35;
+}
+.fno-sketch .fs-grid {
+  container-type: inline-size;
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  border: 1.3px solid var(--fs-pencil);
+  border-radius: 2px;
+  max-width: 300px;
+}
+.fno-sketch .fs-cell {
+  position: relative;
+  aspect-ratio: 1;
+  min-width: 0;
+  border: 0;
+  border-right: 1px solid var(--fs-pencil-faint);
+  border-bottom: 1px solid var(--fs-pencil-faint);
+  padding: 0;
+  display: grid;
+  place-items: center;
+  align-content: center;
+  gap: 1px;
+  color: var(--fs-ink);
+  font-family: var(--fs-mono);
+  font-size: clamp(7.5px, 5.4cqi, 12px);
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.02em;
+  overflow: hidden;
+}
+.fno-sketch .fs-cell:nth-child(5n) {
+  border-right: 0;
+}
+.fno-sketch .fs-cell:nth-last-child(-n + 5) {
+  border-bottom: 0;
+}
+.fno-sketch .fs-cell:hover {
+  box-shadow: inset 0 0 0 1px var(--fs-pencil);
+}
+.fno-sketch .fs-cell.is-pixel {
+  box-shadow: inset 0 0 0 2.5px var(--fs-pink);
+  z-index: 1;
+}
+.fno-sketch .fs-cell:focus-visible {
+  outline: 2px solid var(--fs-ink);
+  outline-offset: 1px;
+  z-index: 2;
+}
+.fno-sketch .fs-phase-arrow {
+  width: 13px;
+  height: 13px;
+}
+.fno-sketch .fs-phase-arrow line,
+.fno-sketch .fs-phase-arrow path {
+  stroke: var(--fs-pencil);
+  stroke-width: 1.3;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.fno-sketch .fs-modes {
+  display: grid;
+  gap: 0;
+  max-width: 300px;
+  align-items: stretch;
+}
+.fno-sketch .fs-modes-head,
+.fno-sketch .fs-modes-corner {
+  font-family: var(--fs-mono);
+  font-size: 11px;
+  color: var(--fs-muted);
+  display: grid;
+  place-items: center;
+  padding: 2px 6px;
+}
+.fno-sketch .fs-modes-corner {
+  font-size: 10px;
+  white-space: nowrap;
+}
+.fno-sketch .fs-mode {
+  min-height: 34px;
+  min-width: 0;
+  border: 1px solid var(--fs-pencil-faint);
+  margin: -0.5px;
+  background: transparent;
+  color: var(--fs-ink);
+  font-family: var(--fs-mono);
+  font-size: clamp(9.5px, 1.05vw, 11.5px);
+  padding: 2px;
+  position: relative;
+}
+.fno-sketch .fs-mode:hover {
+  border-color: var(--fs-pencil);
+  z-index: 1;
+}
+.fno-sketch .fs-mode.is-mirror {
+  border-style: dashed;
+  border-color: var(--fs-pencil-soft);
+  color: var(--fs-muted);
+}
+.fno-sketch .fs-mode.is-dropped {
+  color: var(--fs-pencil-soft);
+  text-decoration: none;
+  background: linear-gradient(
+    to top right,
+    transparent calc(50% - 0.7px),
+    var(--fs-pencil-soft) calc(50% - 0.7px),
+    var(--fs-pencil-soft) calc(50% + 0.7px),
+    transparent calc(50% + 0.7px)
+  );
+}
+.fno-sketch .fs-mode.is-mode {
+  box-shadow: inset 0 0 0 2.5px var(--fs-orange);
+  z-index: 2;
+}
+.fno-sketch .fs-mode.is-mode-partner {
+  outline: 1.5px dashed var(--fs-orange);
+  outline-offset: -3px;
+  z-index: 1;
+}
+.fno-sketch .fs-mode:focus-visible {
+  outline: 2px solid var(--fs-ink);
+  outline-offset: 1px;
+  z-index: 3;
+}
+
+/* ------------------------------------------------------------ stacked sheets */
+
+.fno-sketch .fs-stack-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px 14px;
+}
+.fno-sketch .fs-stack-row > .fs-fig {
+  flex: 1 1 150px;
+  max-width: 240px;
+}
+.fno-sketch .fs-sheets {
+  display: block;
+  max-width: 100%;
+  height: auto;
+  flex: 0 1 auto;
+  min-width: 0;
+}
+.fno-sketch .fs-svg-sub {
+  font-size: 9px;
+}
+.fno-sketch .fs-sheet-paper {
+  fill: var(--fs-paper);
+}
+.fno-sketch .fs-pink-cell {
+  fill: none;
+  stroke: var(--fs-pink);
+  stroke-width: 1.6;
+}
+.fno-sketch .fs-pink-line {
+  fill: none;
+  stroke: var(--fs-pink);
+  stroke-width: 1.6;
+  stroke-linecap: round;
+}
+.fno-sketch .fs-pink-dot {
+  fill: var(--fs-pink);
+}
+.fno-sketch .fs-stack-arrow {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0;
+  font-family: 'Times New Roman', Georgia, serif;
+  font-style: italic;
+  font-size: 15px;
+  color: var(--fs-ink);
+  text-align: center;
+}
+.fno-sketch .fs-stack-arrow .fs-small {
+  font-family: var(--fs-hand);
+  font-style: normal;
+}
+.fno-sketch .fs-arrow-glyph {
+  font-style: normal;
+  font-size: 26px;
+  line-height: 1;
+  color: var(--fs-pencil);
+}
+
+/* ------------------------------------------------------------ phasor plot */
+
+.fno-sketch .fs-phasor-wrap {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 10px;
+  margin-top: 18px;
+  max-width: 380px;
+}
+.fno-sketch .fs-phasor {
+  display: block;
+  width: 100%;
+  height: auto;
+  border: 1px dashed var(--fs-pencil-faint);
+  border-radius: 8px;
+  background: color-mix(in srgb, var(--fs-paper) 70%, transparent);
+}
+.fno-sketch .fs-phasor-side p {
+  margin: 0 0 8px;
+}
+.fno-sketch .fs-axis {
+  stroke: var(--fs-pencil-faint);
+  stroke-width: 1;
+}
+.fno-sketch .fs-arrow-pencil,
+.fno-sketch .fs-arrow-pink,
+.fno-sketch .fs-arrow-orange {
+  stroke-linecap: round;
+}
+.fno-sketch .fs-arrow-pencil {
+  stroke: var(--fs-pencil);
+  stroke-width: 1.2;
+}
+.fno-sketch .fs-arrow-pink {
+  stroke: var(--fs-pink);
+  stroke-width: 2.4;
+}
+.fno-sketch .fs-arrow-orange {
+  stroke: var(--fs-orange);
+  stroke-width: 2.6;
+}
+.fno-sketch .fs-head-pencil {
+  fill: var(--fs-pencil);
+}
+.fno-sketch .fs-head-pink {
+  fill: var(--fs-pink);
+}
+.fno-sketch .fs-head-orange {
+  fill: var(--fs-orange);
+}
+.fno-sketch .fs-origin {
+  fill: var(--fs-ink);
+}
+
+/* ------------------------------------------------------------ vectors and matrices */
+
+.fno-sketch .fs-column {
+  display: inline-flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+  max-width: 100%;
+}
+.fno-sketch .fs-column-title {
+  font-family: 'Times New Roman', Georgia, serif;
+  font-style: italic;
+  font-size: 15px;
+  color: var(--fs-ink);
+}
+.fno-sketch .fs-column-title .fs-small {
+  font-family: var(--fs-hand);
+  font-style: normal;
+}
+.fno-sketch .fs-column-body {
+  position: relative;
+  padding: 4px 12px;
+  border-left: 1.5px solid var(--fs-pencil);
+  border-right: 1.5px solid var(--fs-pencil);
+  border-radius: 7px;
+}
+.fno-sketch .fs-column.tone-pink .fs-column-body {
+  border-color: var(--fs-pink);
+}
+.fno-sketch .fs-column.tone-orange .fs-column-body {
+  border-color: var(--fs-orange);
+}
+.fno-sketch .fs-column-row {
+  display: flex;
+  gap: 10px;
+  align-items: baseline;
+  justify-content: space-between;
+  white-space: nowrap;
+  line-height: 1.6;
+}
+.fno-sketch .fs-column.tone-pink .fs-num {
+  color: color-mix(in srgb, var(--fs-pink) 55%, var(--fs-ink));
+}
+.fno-sketch .fs-column.tone-orange .fs-num {
+  color: color-mix(in srgb, var(--fs-orange) 55%, var(--fs-ink));
+}
+.fno-sketch .fs-heat {
+  display: grid;
+  gap: 0;
+  max-width: 360px;
+  font-family: var(--fs-mono);
+}
+.fno-sketch .fs-heat-row {
+  display: contents;
+}
+.fno-sketch .fs-heat-cell {
+  display: grid;
+  place-items: center;
+  min-height: 28px;
+  min-width: 0;
+  padding: 2px;
+  font-size: clamp(9.5px, 1vw, 11.5px);
+  border: 1px solid var(--fs-pencil-faint);
+  margin: -0.5px;
+  font-variant-numeric: tabular-nums;
+}
+.fno-sketch .fs-equation-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px 12px;
+}
+.fno-sketch .fs-equation-row > .fs-fig {
+  flex: 1 1 180px;
+  max-width: 300px;
+}
+.fno-sketch .fs-op {
+  font-family: 'Times New Roman', Georgia, serif;
+  font-size: 24px;
+  color: var(--fs-pencil);
+  padding: 0 2px;
+}
+.fno-sketch .fs-grow {
+  margin: 0;
+}
+
+/* ------------------------------------------------------------ conventions */
+
+.fno-sketch .fs-conventions {
+  margin-top: 26px;
+  border-top: 1px dashed var(--fs-pencil-faint);
+  padding-top: 12px;
+  font-size: 13.5px;
+  color: #c9c9cf;
+}
+.fno-sketch .fs-conventions summary {
+  cursor: pointer;
+  font-family: var(--fs-hand);
+  font-size: 15px;
+  color: var(--fs-pencil);
+}
+.fno-sketch .fs-conventions ul {
+  list-style: disc;
+  padding-left: 20px;
+  margin: 10px 0 0;
+  line-height: 1.7;
+  max-width: 75ch;
+}

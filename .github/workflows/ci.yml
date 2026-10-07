@@ -38,6 +38,9 @@ jobs:
       - name: Test Gaussian quadrature numerics
         run: node --experimental-strip-types --test tests/gaussian-quadrature/*.test.ts
 
+      - name: Test FNO sketch numerics
+        run: npm run test:fno-sketch
+
       # Same entry point the Pages deploy uses: builds every demo under
       # demos/ (each demo's own build script, including its test suite)
       # and then typechecks and builds the site itself.
