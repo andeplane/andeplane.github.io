@@ -11,6 +11,7 @@ vi.mock('./coin',async(importOriginal)=>{
 vi.mock('../game/goldLayout',()=>({loadGoldLayout:vi.fn(),saveGoldLayout:vi.fn().mockResolvedValue(undefined)}));
 vi.mock('../game/chestCoins',()=>({chestCoinPoses:vi.fn().mockResolvedValue(new Float32Array(7000))}));
 import {CoinHoard} from './coinHoard';
+import {DOUBLOON_RENDER_TRIANGLES} from './coin';
 import {coinSounds} from '../game/coinSounds';
 import {loadGoldLayout,saveGoldLayout} from '../game/goldLayout';
 class FakeWorker {
@@ -44,10 +45,10 @@ describe('real coin sandbox banks',()=>{
       worker.emit(poses(),true);await flush();
       expect(hoard.restingCounts).toEqual([(batch+1)*1000]);expect(hoard.physicsActive).toBe(false);expect(worker.terminated).toBe(true);
       expect(hoard.drawnCounts[0]).toBeLessThan(hoard.counts[0]!);
-      expect(hoard.renderedTriangles).toBe(hoard.drawnCounts[0]!*32);
+      expect(hoard.renderedTriangles).toBe(hoard.drawnCounts[0]!*DOUBLOON_RENDER_TRIANGLES);
       expect((vi.mocked(saveGoldLayout).mock.calls.at(-1)![1] as Float32Array).length).toBe((batch+1)*7000);
       const mesh=scene.getMeshByName('ship settled gold coins') as Mesh;
-      expect(mesh.getTotalIndices()).toBe(96);
+      expect(mesh.getTotalIndices()).toBe(DOUBLOON_RENDER_TRIANGLES*3);
       const moving=scene.getMeshByName('ship pouring gold coins') as Mesh;
       expect(moving.isEnabled()).toBe(false);
       const upload=vi.spyOn(mesh,'thinInstancePartialBufferUpdate');
