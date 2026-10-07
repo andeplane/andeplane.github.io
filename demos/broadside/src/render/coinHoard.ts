@@ -8,7 +8,7 @@ import { worldGold } from "../game/rewards";
 import { removedCoinPose, GOLD_AREAS, COIN_POSE_STRIDE, COIN_RADIUS, COIN_THICKNESS } from "../game/goldAreas";
 import { loadGoldLayout, saveGoldLayout } from "../game/goldLayout";
 import { caveFloor } from "../input/caveLayout";
-import { doubloonMaterial, doubloonMesh } from "./coin";
+import { doubloonMaterial, doubloonMesh, DOUBLOON_RENDER_TRIANGLES } from "./coin";
 import { exposedGold } from "../game/goldSurface";
 import { chestCoinPoses } from "../game/chestCoins";
 import { coinSounds } from "../game/coinSounds";
@@ -48,9 +48,9 @@ export class CoinHoard {
     this.areas = options.areas ?? GOLD_AREAS;
     const material = doubloonMaterial(scene);
     this.banks = this.areas.map((area) => {
-      const mesh = doubloonMesh(scene, `${area.name} settled gold coins`, true);
+      const mesh = doubloonMesh(scene, `${area.name} settled gold coins`);
       mesh.material = material; mesh.position.set(area.x, 0, area.z); mesh.isPickable = false; mesh.setEnabled(false);
-      const moving = doubloonMesh(scene, `${area.name} pouring gold coins`, true);
+      const moving = doubloonMesh(scene, `${area.name} pouring gold coins`);
       moving.material = material; moving.position.copyFrom(mesh.position); moving.isPickable = false; moving.setEnabled(false);
       moving.alwaysSelectAsActiveMesh = true;
       const proxy = MeshBuilder.CreateSphere(`${area.name} gold bank inspection`, { diameter: 2, segments: 12 }, scene);
@@ -260,7 +260,7 @@ export class CoinHoard {
   metrics(world:number):CoinPhysicsMetrics { return this.banks[world]!.metrics; }
   get counts(): number[] { return this.banks.map(b => !b.ready ? 0 : b.depositing ? b.depositFrom + b.spawned : b.loaded); }
   get drawnCounts(): number[] { return this.banks.map(b => (b.mesh.isEnabled() ? b.mesh.thinInstanceCount : 0) + (b.moving.isEnabled() ? b.moving.thinInstanceCount : 0)); }
-  get renderedTriangles(): number { return this.drawnCounts.reduce((sum, count) => sum + count * 32, 0); }
+  get renderedTriangles(): number { return this.drawnCounts.reduce((sum, count) => sum + count * DOUBLOON_RENDER_TRIANGLES, 0); }
   get restingCounts(): number[] { return this.banks.map(b => b.depositing ? b.depositFrom + b.resting : b.loaded); }
   get physicsActive(): boolean { return this.banks.some(b => !!b.worker); }
   walkHeight(x: number, z: number): number {
