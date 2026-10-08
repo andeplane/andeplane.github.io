@@ -1,0 +1,23 @@
+{
+  "name": "ripple-computer",
+  "version": "1.0.0",
+  "private": true,
+  "description": "A ripple-tank reservoir computer: waves in a 2D tank do the nonlinear mixing, a linear readout learns XOR and digits",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc --noEmit && npm test && vite build",
+    "preview": "vite preview",
+    "typecheck": "tsc --noEmit",
+    "test": "node --experimental-strip-types --no-warnings --test tests/*.test.ts"
+  },
+  "dependencies": {
+    "three": "^0.186.0"
+  },
+  "devDependencies": {
+    "@types/node": "^24.0.0",
+    "@types/three": "^0.185.0",
+    "typescript": "~5.9.0",
+    "vite": "^7.0.0"
+  }
+}

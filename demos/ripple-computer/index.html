@@ -1,0 +1,103 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>The Ripple Computer — a tank of water that learns</title>
+    <meta
+      name="description"
+      content="A ripple-tank reservoir computer: wave-makers play an input into a tank of water, ripples scatter off stone pillars, and a linear readout trained in your browser turns sixteen probe signals into XOR and digit answers."
+    />
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><circle cx='50' cy='50' r='12' fill='none' stroke='%2366e0ff' stroke-width='6'/><circle cx='50' cy='50' r='28' fill='none' stroke='%2366e0ff' stroke-width='5' opacity='.6'/><circle cx='50' cy='50' r='44' fill='none' stroke='%2366e0ff' stroke-width='4' opacity='.3'/></svg>" />
+    <link rel="stylesheet" href="/src/style.css" />
+  </head>
+  <body>
+    <canvas id="view"></canvas>
+    <div id="labels" aria-hidden="true"></div>
+
+    <header id="title">
+      <p class="eyebrow">Reservoir computing · after Fernando &amp; Sojakka, 2003</p>
+      <h1>The Ripple Computer</h1>
+      <p class="lede">
+        Wave-makers play a question into a tank of water. The ripples scatter off the
+        stones and interfere; sixteen probes listen. Only a <em>linear</em> readout is
+        trained. The water does the rest.
+      </p>
+    </header>
+
+    <section id="input-panel" class="panel">
+      <div class="tabs" role="tablist">
+        <button role="tab" data-task="xor" aria-selected="true">XOR</button>
+        <button role="tab" data-task="digits" aria-selected="false">Digits</button>
+      </div>
+
+      <div id="xor-input" class="task-input">
+        <p class="hint">Two wave-makers are the two input bits. On means "ripple", off means "still".</p>
+        <div class="bits">
+          <button class="bit" data-bit="0" aria-pressed="false"><span class="bit-name">A</span><span class="bit-val">0</span></button>
+          <span class="op">xor</span>
+          <button class="bit" data-bit="1" aria-pressed="false"><span class="bit-name">B</span><span class="bit-val">0</span></button>
+        </div>
+      </div>
+
+      <div id="digits-input" class="task-input" hidden>
+        <p class="hint">Draw a digit. Rows are wave-makers, columns are played left to right like a piano roll.</p>
+        <div class="pad-wrap">
+          <div id="pad" role="grid" aria-label="5 by 7 drawing pad"></div>
+          <div class="presets" id="presets"></div>
+        </div>
+      </div>
+
+      <div class="actions">
+        <button id="send" class="primary" type="button">Send ripples</button>
+        <label class="auto"><input id="auto" type="checkbox" checked /> Auto-play</label>
+      </div>
+      <div class="speed">
+        <span>Tank speed</span>
+        <input id="speed" type="range" min="0" max="3" step="1" value="1" aria-label="Simulation speed" />
+        <span id="speed-val">1×</span>
+      </div>
+    </section>
+
+    <section id="readout-panel" class="panel">
+      <div class="readout-head">
+        <h2>Readout</h2>
+        <span id="status" class="status">warming up</span>
+      </div>
+      <div id="progress" class="progress"><div></div></div>
+
+      <div id="answer" class="answer">
+        <div class="answer-label" id="answer-label">waiting for ripples</div>
+        <div class="answer-value" id="answer-value">·</div>
+        <div id="answer-bars" class="bars"></div>
+        <p id="vote-legend" class="vote-legend" hidden><i class="gold"></i>probes that voted for this answer <i class="blue"></i>against</p>
+      </div>
+
+      <canvas id="traces" height="150"></canvas>
+      <div class="trace-legend"><span>16 probe signals</span><span class="listen">readout listens here</span></div>
+
+      <div class="scores">
+        <div class="score">
+          <div class="score-row"><span>Linear readout on the <b>water</b></span><b id="acc-water">–</b></div>
+          <div class="meter water"><div id="bar-water"></div></div>
+        </div>
+        <div class="score">
+          <div class="score-row"><span>Same readout on the <b>raw input</b></span><b id="acc-raw">–</b></div>
+          <div class="meter raw"><div id="bar-raw"></div></div>
+        </div>
+        <p id="score-note" class="note"></p>
+      </div>
+    </section>
+
+    <footer id="timeline">
+      <span data-phase="input">Input</span>
+      <span data-phase="travel">Ripples travel</span>
+      <span data-phase="listen">Probes listen</span>
+      <span data-phase="answer">Answer</span>
+    </footer>
+    <p id="touch-hint">Drag to look around · tap the water between runs</p>
+    <pre id="errlog"></pre>
+
+    <script type="module" src="/src/main.ts"></script>
+  </body>
+</html>
