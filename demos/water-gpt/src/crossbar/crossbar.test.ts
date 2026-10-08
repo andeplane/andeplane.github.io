@@ -47,17 +47,22 @@ describe('hydraulic network', () => {
   });
 
   it('conserves mass: total valve flow equals total collector outflow', () => {
-    const g = Array.from({ length: 6 * 8 }, () => Math.random());
+    const g = Array.from({ length: 6 * 8 }, () => Math.abs(rnd()));
     const net = new CrossbarNetwork(6, 8, g, 0.02);
     const sol = net.solve([1, 0.5, 0.2, 0.9, 0, 0.3]);
-    const f = net.segmentFlows(sol);
-    const valves = f.valve.reduce((a, b) => a + b, 0);
+    // Sum valve flows in double precision from the solved heads: segmentFlows() keeps
+    // Float32 buffers for drawing, whose rounding alone is ~1e-8 relative.
+    let valves = 0;
+    for (let k = 0; k < g.length; k++) valves += g[k] * (sol.a[k] - sol.b[k]);
     const out = sol.q.reduce((a, b) => a + b, 0);
-    expect(Math.abs(valves - out) / out).toBeLessThan(1e-8);
+    expect(Math.abs(valves - out) / out).toBeLessThan(1e-12);
+    // The drawing buffers carry the same flows to float32 precision.
+    const f = net.segmentFlows(sol);
+    expect(Math.abs(f.valve.reduce((a, b) => a + b, 0) - out) / out).toBeLessThan(1e-6);
   });
 
   it('transfer matrix (superposition) reproduces a direct solve', () => {
-    const g = Array.from({ length: 6 * 4 }, () => Math.random());
+    const g = Array.from({ length: 6 * 4 }, () => Math.abs(rnd()));
     const net = new CrossbarNetwork(6, 4, g, 0.05);
     const T = net.transferMatrix();
     const s = [0.1, 0.7, 0.3, 1, 0.5, 0.2];
