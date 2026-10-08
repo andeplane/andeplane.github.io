@@ -43,7 +43,7 @@ const STEPS: { kicker: string; title: string; figure: string; body: string }[] =
     figure: figureMachine(),
     body: `
       <p>This page doesn't animate a fake answer. It <b>simulates the water</b>: for every
-      pipe and valve it solves the laminar-flow and conservation-of-water equations, including
+      pipe and valve it computes the laminar flow and conservation of water, including
       the flaws real hardware would have. Valves only have 64 positions, each is set slightly
       wrong, and pressure is lost along the pipes.</p>
       <p>Every matrix multiplication in the model is done by that simulated water: calc-gpt,
@@ -234,7 +234,7 @@ function figureMachine(): string {
       <text x="43" y="${water ? 84 : 38}" class="f-cap">${label}</text>
     </g>`;
   return `
-  <svg viewBox="0 0 560 150" role="img" aria-label="A row of simulated water crossbars with small digital steps between them">
+  <svg viewBox="0 0 560 176" role="img" aria-label="A row of simulated water crossbars with small digital steps between them">
     ${bank(10, 'attention', true)}
     ${arrow(98, 72, 112)}
     <g transform="translate(116,58)"><rect width="56" height="28" rx="14" class="f-dig"/><text x="28" y="18" class="f-cap">softmax</text></g>
@@ -245,7 +245,7 @@ function figureMachine(): string {
     ${arrow(346, 72, 360)}
     ${bank(364, 'MLP down', true)}
     <text x="462" y="76" class="f-dots">· · ·</text>
-    <g transform="translate(12,128)">
+    <g transform="translate(12,156)">
       <rect width="12" height="12" rx="3" class="f-mat"/><text x="18" y="10" class="f-leg">simulated water (every matrix multiply)</text>
       <rect x="280" width="12" height="12" rx="6" class="f-dig"/><text x="298" y="10" class="f-leg">ordinary arithmetic, labelled digital</text>
     </g>
