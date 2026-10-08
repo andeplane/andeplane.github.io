@@ -1,6 +1,7 @@
 // Serve the GPU test page with Vite and run it in headless Chromium.
-// Chromium's software WebGPU adapter (SwiftShader) is enough to check the
-// kernels against the CPU backend; set CHROMIUM_PATH to pick a browser.
+// Chromium uses the machine's GPU when it has one and falls back to its
+// software adapter (SwiftShader) otherwise, which is enough to check the
+// kernels against the CPU backend. Set CHROMIUM_PATH to pick a browser.
 import { createServer } from 'vite'
 import { chromium } from 'playwright-core'
 import { dirname } from 'node:path'
@@ -12,7 +13,7 @@ await server.listen()
 const url = server.resolvedUrls.local[0]
 const browser = await chromium.launch({
   executablePath: process.env.CHROMIUM_PATH || undefined,
-  args: ['--enable-unsafe-webgpu', '--enable-features=Vulkan', '--use-angle=swiftshader'],
+  args: ['--enable-unsafe-webgpu', '--enable-features=Vulkan'],
 })
 let failed = true
 try {
