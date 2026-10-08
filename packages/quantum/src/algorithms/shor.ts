@@ -170,5 +170,6 @@ export function interpretMeasurement(y: number, t: number, N: number, a: number)
   }
   const p = gcd(half - 1, N), q = gcd(half + 1, N)
   const f = p > 1 && p < N ? p : q
-  return { y, phase, convergents: cs, r, factors: [f, N / f], note: `${N} = ${f} × ${N / f}` }
+  const [lo, hi] = [Math.min(f, N / f), Math.max(f, N / f)]
+  return { y, phase, convergents: cs, r, factors: [lo, hi], note: `${N} = ${lo} × ${hi}` }
 }
