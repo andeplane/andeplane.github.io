@@ -1,0 +1,69 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>The Hydraulic Calculator</title>
+    <meta
+      name="description"
+      content="An analogue computer made of water: glass tanks that add, scale, integrate, take square roots by Torricelli's law and multiply with shaped vessels by the quarter-square rule."
+    />
+    <link
+      rel="icon"
+      href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect x='7' y='3' width='18' height='26' rx='2' fill='none' stroke='%23e4c487' stroke-width='2'/%3E%3Crect x='9' y='14' width='14' height='13' fill='%236fd3ff'/%3E%3C/svg%3E"
+    />
+    <link rel="stylesheet" href="/src/style.css" />
+  </head>
+  <body>
+    <main id="app">
+      <aside id="panel">
+        <header>
+          <p class="kicker">Analogue computing with water</p>
+          <h1>The Hydraulic Calculator</h1>
+          <p class="lede">
+            Numbers are volumes of water in glass tanks. Pipes, orifices and shaped vessels do the
+            arithmetic, in the spirit of Bill Phillips' MONIAC (1949).
+          </p>
+        </header>
+
+        <nav id="tabs" role="tablist" aria-label="Operation"></nav>
+
+        <section id="explain">
+          <h2 id="op-title"></h2>
+          <div id="op-text"></div>
+        </section>
+
+        <section id="inputs"></section>
+
+        <div id="buttons">
+          <button id="run" type="button" class="primary">Run</button>
+          <button id="reset" type="button">Reset</button>
+        </div>
+
+        <section id="result" aria-live="polite">
+          <div class="expr"><span id="expr"></span><span class="eq">=</span></div>
+          <div class="reading"><span id="reading">–</span></div>
+          <dl>
+            <div><dt>exact</dt><dd id="exact">–</dd></div>
+            <div><dt>error</dt><dd id="error">–</dd></div>
+          </dl>
+          <p id="status"></p>
+        </section>
+
+        <footer>
+          Levels come from a lumped hydraulic model (Torricelli outflow, float valves, ballistic
+          fall delay) that conserves volume exactly; the water you see is a position-based
+          particle fluid driven by it.
+        </footer>
+      </aside>
+
+      <div id="stage">
+        <canvas id="gl"></canvas>
+        <canvas id="glass"></canvas>
+        <canvas id="hud"></canvas>
+        <p id="nogl" hidden>This exhibit needs WebGL2.</p>
+      </div>
+    </main>
+    <script type="module" src="/src/main.ts"></script>
+  </body>
+</html>

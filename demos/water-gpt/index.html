@@ -1,0 +1,162 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>The Water GPT</title>
+    <meta
+      name="description"
+      content="A hydraulic crossbar: pipes, valves and reservoirs that multiply a matrix by a vector in one step, scaled up to run a small trained GPT that adds numbers, with every matrix product done by water."
+    />
+    <link
+      rel="icon"
+      href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Cg stroke='%236fd3ff' stroke-width='2'%3E%3Cpath d='M4 9h24M4 16h24M4 23h24'/%3E%3C/g%3E%3Cg stroke='%23e4c487' stroke-width='2'%3E%3Cpath d='M9 4v24M16 4v24M23 4v24'/%3E%3C/g%3E%3Cg fill='%23e4c487'%3E%3Ccircle cx='9' cy='9' r='2.6'/%3E%3Ccircle cx='23' cy='16' r='2.6'/%3E%3Ccircle cx='16' cy='23' r='2.6'/%3E%3C/g%3E%3C/svg%3E"
+    />
+    <link rel="stylesheet" href="/src/style.css" />
+  </head>
+  <body>
+    <main id="app">
+      <aside id="panel">
+        <header>
+          <p class="kicker">Analogue computing with water</p>
+          <h1>The Water GPT</h1>
+          <p class="lede">
+            A grid of pipes and valves multiplies a matrix by a vector in one go. Scale it up and it
+            runs a small language model. The valves were set once, at the factory, from a trained
+            model. To calculate, you fill the tanks.
+          </p>
+        </header>
+
+        <nav id="tabs" role="tablist" aria-label="Chapter">
+          <button type="button" role="tab" data-ch="1" aria-selected="true">1 · The crossbar</button>
+          <button type="button" role="tab" data-ch="2" aria-selected="false">2 · The GPT</button>
+        </nav>
+
+        <!-- ------------------------------------------------ chapter 1 -->
+        <section id="ch1" class="chapter">
+          <div class="text">
+            <p>
+              Each <b>reservoir</b> on the left holds water at a <b>head</b> (height) x<sub>i</sub>.
+              It feeds a horizontal manifold. Where the manifold crosses a <b>collector</b> column,
+              a thin pipe with a <b>valve</b> joins them. In a thin pipe the flow is laminar, so
+              Hagen–Poiseuille gives flow = conductance × head difference: <em>q = G<sub>ji</sub> x<sub>i</sub></em>.
+            </p>
+            <p>
+              Each column drains into a collector held near zero head. Water is conserved, so a
+              column's outflow is the sum of everything its valves let in:
+              <em>y<sub>j</sub> = Σ<sub>i</sub> G<sub>ji</sub> x<sub>i</sub></em>. That is a whole
+              matrix–vector product, and it happens all at once.
+            </p>
+            <p>
+              Valves can only let water through, so each output uses a <span class="pos">+</span>/<span class="neg">−</span>
+              <b>pair</b> of columns: a positive weight opens the valve on the <span class="pos">+</span> column, a
+              negative one on the <span class="neg">−</span> column, and the answer is the difference.
+            </p>
+          </div>
+
+          <div class="group">
+            <h3>Reservoir heads x</h3>
+            <div id="heads"></div>
+          </div>
+          <div class="group">
+            <h3>Valve settings W <span class="hint">· or drag a valve wheel up or down</span></h3>
+            <div id="wgrid"></div>
+            <div class="row-buttons">
+              <button type="button" id="randomise">Random weights</button>
+              <button type="button" id="identity">Identity</button>
+            </div>
+          </div>
+          <div class="buttons">
+            <button id="run1" type="button" class="primary">Fill the reservoirs</button>
+          </div>
+          <section class="result" aria-live="polite">
+            <table id="table1">
+              <thead>
+                <tr><th>j</th><th>water y<sub>j</sub></th><th>exact W·x</th><th>error</th></tr>
+              </thead>
+              <tbody></tbody>
+            </table>
+            <p class="note" id="note1"></p>
+          </section>
+          <div class="group" id="nonideal1"></div>
+        </section>
+
+        <!-- ------------------------------------------------ chapter 2 -->
+        <section id="ch2" class="chapter" hidden>
+          <div id="modes" class="modes" role="radiogroup" aria-label="Model"></div>
+          <div class="text" id="mode-intro"></div>
+          <div id="hall-panel" hidden></div>
+          <p class="factory">
+            <b>Set at the factory.</b> All the weight valves were set once, from a model trained
+            offline. Nothing is trained here. Your characters become water heads and fill the input
+            reservoirs, and the water does the rest, layer by layer.
+          </p>
+          <form id="prompt-form" class="prompt" autocomplete="off">
+            <label for="prompt" id="prompt-label">Sum</label>
+            <div class="prompt-row">
+              <input id="prompt" type="text" inputmode="numeric" spellcheck="false" maxlength="8" />
+              <button id="go" type="submit" class="primary">Calculate</button>
+            </div>
+            <div id="examples" class="examples"></div>
+            <p id="prompt-error" class="error" hidden></p>
+          </form>
+
+          <section class="result answer" aria-live="polite">
+            <div class="answer-line"><span id="ans-prompt"></span><span id="ans-gen"></span><span id="ans-cursor" class="cursor">▍</span></div>
+            <dl>
+              <div><dt>exact digital model</dt><dd id="ans-exact">–</dd></div>
+              <div><dt>true sum</dt><dd id="ans-true">–</dd></div>
+            </dl>
+          </section>
+
+          <div class="group">
+            <h3>Next-character probabilities <span class="hint">· <span class="pos">water</span> vs <span class="dig">exact digital</span></span></h3>
+            <div id="probs" class="probs"></div>
+          </div>
+
+          <div class="group">
+            <h3>Pipeline for one character</h3>
+            <ol id="pipeline" class="pipeline"></ol>
+            <div class="speed" role="radiogroup" aria-label="Speed">
+              <span>Speed</span>
+              <button type="button" data-speed="watch">Watch</button>
+              <button type="button" data-speed="fast" aria-pressed="true">Fast</button>
+              <button type="button" data-speed="instant">Instant</button>
+            </div>
+          </div>
+
+          <div class="group">
+            <h3>Held-out sums <span class="hint" id="acc-hint"></span></h3>
+            <div id="accuracy" class="accuracy"></div>
+            <div id="facts" class="facts"></div>
+          </div>
+
+          <div class="group" id="nonideal2"></div>
+
+          <div class="group">
+            <h3>What is water and what is digital</h3>
+            <ul class="split">
+              <li><span class="pos">water</span> Every matrix product: the embedding lookup (one reservoir per character opens its row of valves), Q·K·V, attention scores QKᵀ and attention·V (valves set on the fly from the activations), the attention output, MLP up and down, and the output head.</li>
+              <li><span class="dig">digital</span> The glue between crossbars: flowmeters read the collectors and regulators set the next heads. LayerNorm, softmax, the 1/√d scale, bias and residual adds, ReLU and the final argmax are done in digital arithmetic.</li>
+            </ul>
+          </div>
+        </section>
+
+        <footer>
+          The water you see follows the network solution: every valve flow, manifold flow and
+          collector level comes from solving Kirchhoff's law for laminar flow in the whole grid of
+          pipes. The numbers are the same ones the model uses.
+        </footer>
+      </aside>
+
+      <div id="stage">
+        <canvas id="gl"></canvas>
+        <canvas id="hud"></canvas>
+        <p id="nogl" hidden>This exhibit needs WebGL2.</p>
+        <p id="busy" hidden></p>
+      </div>
+      <div id="hall-stage" hidden></div>
+    </main>
+    <script type="module" src="/src/main.ts"></script>
+  </body>
+</html>
