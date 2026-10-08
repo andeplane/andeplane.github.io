@@ -11,6 +11,7 @@ import { MODES } from './modes/index.ts';
 import type { ModelMode } from './modes/types.ts';
 import type { BigMode } from './big/mode.ts';
 import type { Hall } from './big/app/hall.ts';
+import { setupIntro } from './ui/intro.ts';
 
 const $ = <T extends HTMLElement>(id: string) => document.getElementById(id) as T;
 
@@ -610,15 +611,18 @@ function nextStep(): void {
     highlight(null);
     return;
   }
-  // Fast: the first pour (embedding) and the last read-out (head) are slow enough to see,
-  // the layers in between flash past. A whole answer takes a few seconds.
+  // Fast: only the first pour (embedding) and the last read-out (head) are drawn, slowly
+  // enough to follow. The layers in between still run through the water, but the stage keeps
+  // showing the embedding while the pipeline list ticks through them; swapping a differently
+  // sized crossbar onto the stage every few frames just flickers. Watch shows every crossbar.
   const ends = current.key === 'embed' || current.key === 'wout';
-  const opDur = speed === 'watch' ? 1.1 : ends ? 0.38 : 0.09;
-  const digDur = speed === 'watch' ? 0.25 : 0.015;
+  const opDur = speed === 'watch' ? 1.1 : ends ? 0.9 : 0.05;
+  const digDur = speed === 'watch' ? 0.25 : 0.02;
   stepDur = (current.digital ? digDur : opDur) / (current.quick ? 3 : 1);
   stepT = 0;
   highlight(current.key);
-  showStep(current, stepDur);
+  if (speed === 'watch' || ends) showStep(current, stepDur);
+  else stripPos = current.pos;
 }
 
 function tickPlayer(dt: number): void {
@@ -864,3 +868,14 @@ setChapter(location.hash === '#gpt' || linked ? 2 : 1);
 // calc-gpt's weights are tiny and load at once; a big mode loads only when asked
 void selectMode(isHall(mode) ? mode : MODES[0]);
 requestAnimationFrame(frame);
+
+const intro = setupIntro({
+  crossbar: () => setChapter(1),
+  gpt: () => {
+    setChapter(2);
+    // TinyStories: the smaller download, and it stays coherent on the water machine.
+    const big = MODES.find((m) => m.id === 'tinystories');
+    if (big && 'gpu' in navigator && mode !== big) void selectMode(big);
+  },
+});
+$('how').addEventListener('click', () => intro.open(0));
