@@ -1,0 +1,196 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Water Logic</title>
+    <meta
+      name="description"
+      content="A 4-bit binary adder made of water jets, simulated live with a lattice Boltzmann fluid solver on your GPU. Toggle the valves and watch the carry ripple through colliding and wall-hugging jets."
+    />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,300;9..144,500;9..144,600&family=IBM+Plex+Mono:wght@400;500&family=Inter:wght@400;500;600&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="/src/style.css" />
+  </head>
+  <body>
+
+    <main class="exhibit">
+      <section class="stage" aria-label="Fluidic adder simulation">
+        <div id="board">
+          <canvas id="gl"></canvas>
+          <canvas id="overlay"></canvas>
+          <div id="board-ui"></div>
+        </div>
+        <div id="fallback" hidden>
+          <p>
+            This exhibit needs WebGL2 with float render targets. Try a recent Chrome, Edge, Firefox
+            or Safari.
+          </p>
+          <p id="fallback-detail"></p>
+        </div>
+      </section>
+
+      <aside class="panel">
+        <header class="hero">
+          <p class="eyebrow">Fluidic computing · lattice Boltzmann on the GPU</p>
+          <h1>Water Logic</h1>
+          <p class="lede">
+            A four-bit adder whose every bit is decided by water. Jets collide, cling to walls and
+            get knocked off them; where the water leaves each chamber <em>is</em> the answer.
+            Open the valves and watch the carry ripple from right to left.
+          </p>
+        </header>
+        <section class="card inputs">
+          <h2>Inputs</h2>
+          <div class="operand" data-op="a">
+            <span class="op-name">A</span>
+            <div class="bits" role="group" aria-label="Bits of A"></div>
+            <output class="dec">0</output>
+          </div>
+          <div class="operand" data-op="b">
+            <span class="op-name">B</span>
+            <div class="bits" role="group" aria-label="Bits of B"></div>
+            <output class="dec">0</output>
+          </div>
+          <div class="presets">
+            <button data-preset="0,0">0 + 0</button>
+            <button data-preset="5,3">5 + 3</button>
+            <button data-preset="15,1">15 + 1</button>
+            <button data-preset="9,6">9 + 6</button>
+            <button data-preset="random">random</button>
+          </div>
+        </section>
+
+        <section class="card readout" aria-live="polite">
+          <h2>Read from the water</h2>
+          <div id="equation"><span id="eq-a">0</span> + <span id="eq-b">0</span> = <span id="eq-sum">…</span></div>
+          <div id="sum-bits"></div>
+          <p id="status">Starting the pumps…</p>
+          <div id="progress"><div id="progress-bar"></div></div>
+        </section>
+
+        <section class="card controls">
+          <h2>View</h2>
+          <div class="seg" role="group" aria-label="Field shown">
+            <button data-mode="0" class="on">Dye</button>
+            <button data-mode="1">Vorticity</button>
+          </div>
+          <div class="seg" role="group" aria-label="Simulation pace">
+            <button data-pace="slow">Slow</button>
+            <button data-pace="normal" class="on">Normal</button>
+            <button data-pace="fast">Fast</button>
+          </div>
+          <ul class="legend">
+            <li><i style="--c: #38dbff"></i>left jet (A, partial sum)</li>
+            <li><i style="--c: #ffa838"></i>right jet (B, carry in)</li>
+            <li><i style="--c: #a899ff"></i>power jet</li>
+            <li><i style="--c: #ff5c9e"></i>control jets (carries)</li>
+          </ul>
+          <p class="stats" id="stats"></p>
+        </section>
+      </aside>
+    </main>
+
+    <section class="plaques">
+      <article class="plaque">
+        <h3><span>I</span>Clinging to a wall</h3>
+        <svg class="diagram" viewBox="0 0 240 150" role="img" aria-label="A jet bending onto a wall because the trapped eddy beside it is at low pressure">
+          <defs>
+            <linearGradient id="jet" x1="0" x2="0" y1="0" y2="1">
+              <stop offset="0" stop-color="#a899ff" />
+              <stop offset="1" stop-color="#a899ff" stop-opacity="0.35" />
+            </linearGradient>
+          </defs>
+          <path d="M98 0 V24 L70 150 M142 0 V24 L190 150" class="wall" />
+          <path d="M120 0 V22 C120 60 98 95 82 150" stroke="url(#jet)" stroke-width="16" fill="none" stroke-linecap="round" />
+          <ellipse cx="140" cy="88" rx="22" ry="34" class="eddy" />
+          <path d="M140 60 a22 30 0 1 1 -1 0" class="eddy-arrow" />
+          <text x="236" y="146" class="lbl" text-anchor="end">low-pressure bubble</text>
+          <text x="10" y="70" class="lbl">jet hugs</text>
+          <text x="10" y="82" class="lbl">this wall</text>
+        </svg>
+        <p>
+          A jet drags the water beside it along (entrainment). Next to a wall that water cannot be
+          replaced, so the pressure there drops and the jet is sucked sideways until it lies on the
+          wall. This is the <strong>Coandă effect</strong>, and it is self-reinforcing: once attached,
+          the jet stays put.
+        </p>
+        <p>
+          Give a Y-shaped chamber two such walls and the jet can sit on either one indefinitely —
+          a <strong>flip-flop</strong>, one bit of memory with no moving parts. A short puff from a
+          control port on the attached side refills the bubble, the jet lets go, swings across and
+          locks onto the other wall. In the bottom row of this board the power jet (violet) clings
+          to its wall and pours out of the right-hand NOR channel; either carry jet (pink) knocks it
+          off and into the OR channel. That is the carry-out.
+        </p>
+      </article>
+      <article class="plaque">
+        <h3><span>II</span>Two jets, one collision</h3>
+        <p>
+          The top two rows use the <strong>impact element</strong>, a passive half adder. Each nozzle
+          fires along the far roof of a diamond-shaped chamber. A lone jet hugs that roof and leaves
+          through a side channel: that is the <strong>sum</strong> (A&nbsp;XOR&nbsp;B). When both
+          fire, they meet head-on beneath the apex, their sideways momenta cancel and the merged jet
+          plunges down the middle: the <strong>carry</strong> (A&nbsp;AND&nbsp;B).
+        </p>
+        <p>
+          A full adder is two half adders and an OR: the first adds A and B, the second adds the
+          carry from the bit to the right, and the OR merges their carries. Four of them in a row
+          make a ripple-carry adder, and you can watch the carry travel leftwards, one chamber at a
+          time.
+        </p>
+      </article>
+      <article class="plaque">
+        <h3><span>III</span>What is real here</h3>
+        <p>
+          The water is a <strong>D2Q9 lattice Boltzmann</strong> simulation running in WebGL2: about
+          70&nbsp;000 wet cells, stepped thousands of times a second, with half-way bounce-back walls,
+          Smagorinsky sub-grid viscosity and jets at a Reynolds number of a few hundred. Coloured dye
+          is carried along by the computed flow. Nothing is animated by hand.
+        </p>
+        <p>
+          Each chamber is its own fluid tile. The glowing pipes between them are the wiring: a probe
+          measures how much water leaves through each output channel, and once the reading is clear
+          and steady it opens the matching valve on the next chamber. Every bit you see is decided by
+          where the simulated water went — the same pass-the-jet-along wiring a real fluidic circuit
+          does with tubing and amplifiers.
+        </p>
+        <p>
+          One honest wrinkle: at this Reynolds number a big eddy left over from the previous answer
+          can outlive the jet that spun it up and steer the next jet wrong. So before a collision
+          chamber computes, it is <strong>purged</strong> — both jets fire for a moment, the collision
+          sweeps the chamber clean, then the real inputs are applied. You can see it as a brief
+          double-jet flash.
+        </p>
+      </article>
+      <article class="plaque">
+        <h3><span>IV</span>Computers made of air and water</h3>
+        <p>
+          Fluid amplification was announced in 1960 by Billy Horton, Romald Bowles and Raymond
+          Warren at the US Army's Diamond Ordnance Fuze Laboratories (later Harry Diamond
+          Laboratories), and the wall-attachment flip-flop became its workhorse. Through the 1960s
+          fluidics was a serious contender wherever electronics struggled: radiation, heat,
+          vibration and explosive atmospheres. Sperry Rand's FLODAC (1964) was a small demonstration
+          computer built from air-driven NOR gates, and fluidic controllers went on to run machine
+          tools and fly in jet engines.
+        </p>
+        <p>
+          They lost to the transistor on speed — a fluidic gate switches in about a millisecond, set
+          by how fast the fluid can cross a chamber — but the idea never died: microfluidic logic now
+          computes inside lab-on-a-chip devices, with droplets and jets instead of electrons.
+        </p>
+      </article>
+    </section>
+
+    <footer class="foot">
+      <a href="/">← Anders Hafreager</a>
+      <span>Water analogue computer, exhibit 4: fluidic logic</span>
+    </footer>
+
+    <script type="module" src="/src/main.ts"></script>
+  </body>
+</html>
