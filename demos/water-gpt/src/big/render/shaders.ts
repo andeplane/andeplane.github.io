@@ -4,8 +4,9 @@
  * Level of detail is decided per pixel from `scale` (valves per device pixel):
  *   > ~6 valves/px   the hall: a mip-mapped atlas of 8×8-valve aggregates
  *                    (mean opening, +/− balance, max opening), built as bytes stream in;
- *   ~0.6–6           each valve as a tinted cell read straight from the valve-code buffer
- *                    the compute kernels use (so what you see is what computes);
+ *   ~0.6–6           each valve as a tinted cell read straight from the weight buffer the
+ *                    compute kernels use (so what you see is what computes): opening =
+ *                    |w| / (the tile's w_max), quantised to the machine's valve stops;
  *   < ~0.6           each valve as a glass tank: supply manifold, valve wheel, feed,
  *                    tank with water at the valve's opening, outlet into the + or −
  *                    collector, refraction/caustics and flow particles whose speed is the
@@ -30,19 +31,20 @@ struct U {
   kvCtx: u32,
   kvLen: u32,
   dModel: u32,
-  pad0: u32,
+  nHead: u32,
 };
 @group(0) @binding(0) var<uniform> u: U;
 @group(0) @binding(1) var<storage, read> tables: array<u32>;
 @group(0) @binding(2) var<storage, read> times: array<f32>;
-@group(0) @binding(3) var<storage, read> codes: array<u32>;
+@group(0) @binding(3) var<storage, read> vals: array<u32>;
 
 @group(0) @binding(4) var<storage, read> act: array<f32>;
 @group(0) @binding(5) var<storage, read> actMeta: array<f32>;
 @group(0) @binding(6) var atlas: texture_2d<f32>;
 @group(0) @binding(7) var samp: sampler;
-@group(0) @binding(8) var<storage, read> kbank: array<f32>;
-@group(0) @binding(9) var<storage, read> vgbank: array<f32>;
+@group(0) @binding(8) var<storage, read> wmaxB: array<f32>;
+@group(0) @binding(9) var<storage, read> kv: array<f32>;
+@group(0) @binding(10) var<storage, read> kvmax: array<f32>;
 
 const CYAN = vec3f(0.22, 0.86, 1.0);
 const AMBER = vec3f(1.0, 0.62, 0.20);
@@ -77,18 +79,19 @@ fn fillAA(d: f32, aa: f32) -> f32 { return clamp(0.5 - d / aa, 0.0, 1.0); }
 // grid table: 8 u32 per grid, after 8 u32 per rect
 fn gInfo(g: u32, k: u32) -> u32 { return tables[u.nRects * 8u + g * 8u + k]; }
 
-fn valveCode(g: u32, row: u32, col: u32) -> i32 {
+// signed valve opening in [-1, 1]: |w| / w_max of its tile, at the machine's valve stops
+fn valveOpening(g: u32, row: u32, col: u32) -> f32 {
   let tilesC = gInfo(g, 5u);
   let tr = row / 64u; let tc = col / 64u;
-  let word = gInfo(g, 0u) + (tr * tilesC + tc) * 1024u + (row % 64u) * 16u + ((col % 64u) >> 2u);
-  let w = codes[word];
-  return i32(w << (24u - 8u * (col & 3u))) >> 24u;
-}
-
-// signed opening in [-1, 1] at the machine's current valve resolution
-fn opening(q: i32) -> f32 {
-  let L = f32(u.levels);
-  return sign(f32(q)) * floor(f32(abs(q)) * L / 127.0 + 0.5) / L;
+  let tile = tr * tilesC + tc;
+  let e = (row % 64u) * 64u + (col % 64u);
+  let v = unpack2x16float(vals[gInfo(g, 0u) + tile * 2048u + (e >> 1u)]);
+  let w = select(v.x, v.y, (e & 1u) == 1u);
+  let wm = wmaxB[gInfo(g, 1u) + tile];
+  if (wm <= 0.0) { return 0.0; }
+  var a = abs(w) / wm;
+  if (u.levels > 0u) { let L = f32(u.levels); a = floor(a * L + 0.5) / L; }
+  return sign(w) * a;
 }
 
 fn waterColor(s: f32) -> vec3f { return select(AMBER, CYAN, s >= 0.0); }
@@ -124,8 +127,8 @@ fn farColor(wpos: vec2f, c: Ctx) -> vec3f {
   let bal = s.g * 2.0 - 1.0;
   // luminous water: deep blue for nearly shut valves, bright cyan for wide open ones,
   // tinted amber where the − collectors dominate
-  // m = mean valve opening over 8×8 valves; trained weights sit at 0.25–0.35
-  let I = pow(clamp((m - 0.2) * 5.0, 0.0, 1.0), 1.2);
+  // m = mean valve opening |w|/w_max over 8×8 valves; trained weights sit at 0.13–0.25
+  let I = pow(clamp((m - 0.1) * 6.5, 0.0, 1.0), 1.2);
   var water = mix(vec3f(0.01, 0.045, 0.11), vec3f(0.25, 0.80, 1.0), I);
   water = mix(water, AMBER * (0.15 + 0.85 * I), clamp(-bal * 1.4, 0.0, 1.0) * 0.75);
   var col = mix(GLASS * 0.9, water, c.fill);
@@ -344,8 +347,12 @@ fn background(wpos: vec2f) -> vec3f {
       c.actv = actv; c.head = 0.0; c.outflow = 0.0;
       var gv = 0.0;
       if (pos < u.kvLen) {
-        let idx = layer * u.kvCtx * u.dModel + pos * u.dModel + dim;
-        gv = select(vgbank[idx], kbank[idx], kind == 1u);
+        let which = select(1u, 0u, kind == 1u);
+        let v = kv[((layer * 2u + which) * u.kvCtx + pos) * u.dModel + dim];
+        let nb = (u.kvCtx + 63u) / 64u;
+        let h = dim / (u.dModel / u.nHead);
+        let m = kvmax[((layer * 2u + which) * u.nHead + h) * nb + pos / 64u];
+        gv = select(0.0, clamp(v / m, -1.0, 1.0), m > 0.0);
       }
       let tNearK = ss(0.75, 0.32, px);
       var shade = midColor(fr, gv, c) + VIOLET * 0.03;
@@ -402,8 +409,7 @@ fn background(wpos: vec2f) -> vec3f {
     let tNear = ss(0.75, 0.32, px);
     if (tFar > 0.0) { shade = farColor(wpos, c); }
     if (tFar < 1.0) {
-      let q = valveCode(g, row, colIdx);
-      let gv = opening(q);
+      let gv = valveOpening(g, row, colIdx);
       var near = vec3f(0.0);
       if (tNear > 0.0) {
         near = tankColor(fr, gv, c, 1.0 / px, hash21(cell), f32(cell.x % 1024), f32(cell.y % 1024));

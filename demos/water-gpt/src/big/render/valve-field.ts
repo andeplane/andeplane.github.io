@@ -1,5 +1,6 @@
-import { CODE_MAX, TILE } from '../crossbar.ts'
-import type { GpuMachine } from '../gpu/machine.ts'
+import { TILE } from '../grid.ts'
+import { fromHalf } from '../grid.ts'
+import { levelsOf, type GpuMachine } from '../gpu/machine.ts'
 import type { BandEvent, ModelWeights } from '../model.ts'
 import { Camera, type View } from './camera.ts'
 import { ATLAS_DOWNSAMPLE, buildLayout, pickValve, valveWorld, type Layout, type LayoutRect } from './layout.ts'
@@ -30,6 +31,9 @@ export class ValveFieldRenderer {
   private format: GPUTextureFormat
   private w: ModelWeights
   private m: GpuMachine
+  get machine(): GpuMachine {
+    return this.m
+  }
   private atlas: GPUTexture
   private atlasW: number
   private atlasH: number
@@ -112,7 +116,7 @@ export class ValveFieldRenderer {
     weights.grids.forEach((g, i) => {
       const L = machine.layout[i]
       this.loadOff[i] = bands
-      this.tableData.set([L.codeWordOff, L.scaleOff, L.actOff, g.rows, g.cols, g.tilesC, bands, 0], (nR + i) * 8)
+      this.tableData.set([L.valOff, L.tileOff, L.actOff, g.rows, g.cols, g.tilesC, bands, 0], (nR + i) * 8)
       bands += Math.max(g.tilesR, g.tilesC)
     })
     this.tables = device.createBuffer({ size: this.tableData.byteLength, usage: GPUBufferUsage.STORAGE | GPUBufferUsage.COPY_DST })
@@ -137,13 +141,14 @@ export class ValveFieldRenderer {
         { binding: 0, resource: { buffer: this.uniforms } },
         { binding: 1, resource: { buffer: this.tables } },
         { binding: 2, resource: { buffer: this.times } },
-        { binding: 3, resource: { buffer: machine.codes } },
+        { binding: 3, resource: { buffer: machine.vals } },
         { binding: 4, resource: { buffer: machine.act } },
         { binding: 5, resource: { buffer: machine.actMeta } },
         { binding: 6, resource: this.atlas.createView() },
         { binding: 7, resource: this.sampler },
-        { binding: 8, resource: { buffer: machine.kbank } },
-        { binding: 9, resource: { buffer: machine.vgbank } },
+        { binding: 8, resource: { buffer: machine.wmax } },
+        { binding: 9, resource: { buffer: machine.kv } },
+        { binding: 10, resource: { buffer: machine.kvmax } },
       ],
     })
     const mipModule = device.createShaderModule({ code: MIP_WGSL })
@@ -239,61 +244,54 @@ export class ValveFieldRenderer {
     const t = this.now()
     for (let b = 0; b < bands; b++) this.timeData[this.w.grids.length + this.loadOff[g.id] + bandIdx + b] = t
     this.timesDirty = true
-    for (const r of this.layout.rects) {
-      if (r.grid !== g.id || r.kind !== 'weights') continue
-      if (e.axis === 'rows') this.atlasRegion(r, e.start, e.start + e.count, r.colStart, r.colStart + r.w)
-      else {
-        const c0 = Math.max(e.start, r.colStart)
-        const c1 = Math.min(e.start + e.count, r.colStart + r.w)
-        if (c0 < c1) this.atlasRegion(r, 0, g.rows, c0, c1)
-      }
-    }
+    for (const t of e.tiles) this.atlasTile(g.id, t.tr, t.tc, t.half, t.wmax)
     this.mipDirty = true
   }
 
-  /** Aggregate valves [r0,r1)×[c0,c1) of a rect into 8×8 atlas texels and upload. */
-  private atlasRegion(rect: LayoutRect, r0: number, r1: number, c0: number, c1: number): void {
+  /** Aggregate one programmed 64 × 64 tile into 8 × 8 atlas texels (mean opening, +/− balance, max) and upload. */
+  private atlasTile(grid: number, tr: number, tc: number, half: Uint16Array, wmax: number): void {
     const D = ATLAS_DOWNSAMPLE
-    const g = this.w.grids[rect.grid]
-    const tx0 = Math.floor((rect.x0 + (c0 - rect.colStart)) / D)
-    const tx1 = Math.ceil((rect.x0 + (c1 - rect.colStart)) / D)
-    const ty0 = Math.floor((rect.y0 + r0) / D)
-    const ty1 = Math.ceil((rect.y0 + r1) / D)
-    const tw = tx1 - tx0
-    const th = ty1 - ty0
-    if (tw <= 0 || th <= 0) return
-    const bytesPerRow = Math.ceil((tw * 4) / 256) * 256
-    const data = new Uint8Array(bytesPerRow * th)
-    const codes = g.codes
-    for (let ty = 0; ty < th; ty++) {
-      for (let tx = 0; tx < tw; tx++) {
+    const g = this.w.grids[grid]
+    const inv = wmax > 0 ? 1 / wmax : 0
+    const k = Math.min(TILE, g.rows - tr * TILE)
+    const n = Math.min(TILE, g.cols - tc * TILE)
+    const T = TILE / D
+    const data = new Uint8Array(256 * T)
+    for (let ty = 0; ty < T; ty++)
+      for (let tx = 0; tx < T; tx++) {
         let sa = 0
         let ss = 0
         let mx = 0
-        let n = 0
+        let cnt = 0
         for (let dy = 0; dy < D; dy++) {
-          const row = (ty0 + ty) * D + dy - rect.y0
-          if (row < 0 || row >= g.rows) continue
+          const i = ty * D + dy
+          if (i >= k) break
           for (let dx = 0; dx < D; dx++) {
-            const col = (tx0 + tx) * D + dx - rect.x0 + rect.colStart
-            if (col < rect.colStart || col >= rect.colStart + rect.w || col >= g.cols) continue
-            const q = codes[g.index(row, col)]
-            const a = q < 0 ? -q : q
+            const j = tx * D + dx
+            if (j >= n) break
+            const o = fromHalf(half[i * TILE + j]) * inv
+            const a = Math.abs(o)
             sa += a
-            ss += q
+            ss += o
             if (a > mx) mx = a
-            n++
+            cnt++
           }
         }
-        const o = ty * bytesPerRow + tx * 4
-        if (n === 0) continue
-        data[o] = Math.min(255, Math.round(((sa / n) * 255) / CODE_MAX))
-        data[o + 1] = sa > 0 ? Math.round(127.5 + 127.5 * (ss / sa)) : 128
-        data[o + 2] = Math.round((mx * 255) / CODE_MAX)
-        data[o + 3] = 255
+        if (cnt === 0) continue
+        const at = ty * 256 + tx * 4
+        data[at] = Math.min(255, Math.round((sa / cnt) * 255))
+        data[at + 1] = sa > 0 ? Math.round(127.5 + 127.5 * (ss / sa)) : 128
+        data[at + 2] = Math.round(mx * 255)
+        data[at + 3] = 255
       }
+    const col0 = tc * TILE
+    for (const r of this.layout.rects) {
+      if (r.grid !== grid || r.kind !== 'weights') continue
+      if (col0 < r.colStart || col0 >= r.colStart + r.w) continue
+      const x = (r.x0 + col0 - r.colStart) / D
+      const y = (r.y0 + tr * TILE) / D
+      this.device.queue.writeTexture({ texture: this.atlas, origin: [x, y] }, data, { bytesPerRow: 256, rowsPerImage: T }, [T, T])
     }
-    this.device.queue.writeTexture({ texture: this.atlas, origin: [tx0, ty0] }, data, { bytesPerRow, rowsPerImage: th }, [tw, th])
   }
 
   private buildMips(): void {
@@ -389,7 +387,7 @@ export class ValveFieldRenderer {
     f[10] = this.atlasW
     f[11] = this.atlasH
     uu[12] = this.layout.rects.length
-    uu[13] = this.m.physics.ideal ? 127 : (1 << this.m.physics.bits) - 1
+    uu[13] = levelsOf(this.m.settings)
     f[14] = this.now()
     i[15] = this.hover ? this.hover.grid : -1
     i[16] = this.hover ? this.hover.x : 0
@@ -399,6 +397,7 @@ export class ValveFieldRenderer {
     uu[20] = this.m.ctx
     uu[21] = this.m.programmed
     uu[22] = this.w.cfg.d
+    uu[23] = this.w.cfg.nHead
     q.writeBuffer(this.uniforms, 0, buf)
     const enc = this.device.createCommandEncoder()
     let target: GPUTexture

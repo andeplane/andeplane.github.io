@@ -33,6 +33,12 @@ export interface ModeCopy {
 
 export interface ModelMode {
   readonly id: string;
+  /**
+   * How the app shows this mode: 'exhibit' (default) is calc-gpt's step-by-step crossbar
+   * exhibit on CPU crossbars; 'hall' runs on the WebGPU machine and is drawn as a field of
+   * valves (the big models, src/big/).
+   */
+  readonly kind?: 'exhibit' | 'hall';
   readonly copy: ModeCopy;
   /** Display string for each token id (for the probability bars). */
   readonly vocab: string[];

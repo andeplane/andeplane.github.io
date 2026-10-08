@@ -16,5 +16,5 @@
     "noFallthroughCasesInSwitch": true,
     "types": ["vite/client", "node", "@webgpu/types"]
   },
-  "include": ["src", "vite.config.ts"]
+  "include": ["src", "tools/node-models.ts", "tools/reference-big.ts", "tools/serve-weights.ts", "vite.config.ts"]
 }

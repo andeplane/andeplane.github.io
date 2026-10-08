@@ -40,6 +40,12 @@ export interface Backend {
   linear(name: string, x: Float32Array): Float32Array;
   scores(tag: string, q: Float32Array, keys: Float32Array[]): Float32Array;
   mix(tag: string, p: Float32Array, values: Float32Array[]): Float32Array;
+  /**
+   * Optional: column j of a weight crossbar, read backwards (drive one collector pair, read
+   * the reservoirs). The big models use it for the token embedding, which is tied to the
+   * output head.
+   */
+  column?(name: string, j: number): Float32Array;
   trace: ((e: TraceEvent) => void) | null;
 }
 
@@ -74,6 +80,13 @@ export class ExactBackend implements Backend {
     const y = exactMatvec(s.W, s.K, s.N, x);
     this.trace?.({ kind: 'linear', name, label: s.label, x, y });
     return y;
+  }
+
+  column(name: string, j: number): Float32Array {
+    const s = this.specs.get(name)!;
+    const out = new Float32Array(s.K);
+    for (let i = 0; i < s.K; i++) out[i] = s.W[i * s.N + j];
+    return out;
   }
 
   scores(tag: string, q: Float32Array, keys: Float32Array[]): Float32Array {

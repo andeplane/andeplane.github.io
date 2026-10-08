@@ -1,7 +1,7 @@
 /**
  * Dev-only static server for local weight copies, with CORS, so the hall can be tested
  * without Hugging Face:  node --experimental-strip-types tools/serve-weights.ts [dir] [port]
- * then open big.html?weights=http://localhost:8124/
+ * then open index.html?mode=gpt2&weights=http://localhost:8124/
  * Optional throttle (MB/s) to watch the reservoirs fill slowly: THROTTLE_MBPS=40.
  */
 import { createReadStream, statSync } from 'node:fs'

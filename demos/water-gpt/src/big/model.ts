@@ -1,4 +1,5 @@
-import { TileGrid, TILE } from './crossbar.ts'
+import { TileGrid, TILE, type ProgrammedTile } from './grid.ts'
+import type { WeightSpec } from '../engine/backend.ts'
 import type { TensorBand, TensorMeta } from './weights/bytereader.ts'
 
 /**
@@ -68,14 +69,14 @@ export function neoConfig(j: NeoConfigJson): ModelConfig {
 export interface GridSpec {
   name: string
   label: string
-  layer: number // -1 for the LM head
+  layer: number // -1 for the LM head, -2 for the position table
   rows: number
   cols: number
 }
 
 export function gridSpecs(cfg: ModelConfig): GridSpec[] {
   const d = cfg.d
-  const out: GridSpec[] = []
+  const out: GridSpec[] = [{ name: 'wpe', label: 'position table', layer: -2, rows: cfg.nCtx, cols: d }]
   for (let l = 0; l < cfg.nLayer; l++) {
     out.push({ name: `L${l}.qkv`, label: 'attention Q·K·V', layer: l, rows: d, cols: 3 * d })
     out.push({ name: `L${l}.attn_out`, label: 'attention out', layer: l, rows: d, cols: d })
@@ -95,7 +96,7 @@ export type Route =
 export function routeTensor(cfg: ModelConfig, rawName: string): Route {
   const name = rawName.replace(/^transformer\./, '')
   if (name === 'wte.weight') return { kind: 'grid', grid: 'lm_head', layout: 'out_in', colOffset: 0 }
-  if (name === 'wpe.weight') return { kind: 'vec', key: 'wpe' }
+  if (name === 'wpe.weight') return { kind: 'grid', grid: 'wpe', layout: 'in_out', colOffset: 0 }
   if (name === 'ln_f.weight') return { kind: 'vec', key: 'lnf.g' }
   if (name === 'ln_f.bias') return { kind: 'vec', key: 'lnf.b' }
   const m = /^h\.(\d+)\.(.+)$/.exec(name)
@@ -152,6 +153,8 @@ export function routeTensor(cfg: ModelConfig, rawName: string): Route {
 /** Progress of programming valves, for the loading animation. */
 export interface BandEvent {
   grid: TileGrid
+  /** The tiles this band completed (half floats + w_max), for the GPU. */
+  tiles: ProgrammedTile[]
   /** Band in crossbar coordinates. */
   axis: 'rows' | 'cols'
   start: number
@@ -172,11 +175,15 @@ export class ModelWeights {
   readonly totalValves: number
   onBand: ((e: BandEvent) => void) | null = null
 
-  constructor(cfg: ModelConfig, keepFloat: boolean) {
+  /**
+   * @param store which copies of the weights to keep in memory: `f32` for the CPU path,
+   *   `half` to keep the GPU's half floats on the CPU too (tests; the browser drops them).
+   */
+  constructor(cfg: ModelConfig, store: { half: boolean; f32: boolean }) {
     this.cfg = cfg
     this.specs = gridSpecs(cfg)
     this.grids = this.specs.map((s, i) => {
-      const g = new TileGrid(i, s.name, s.rows, s.cols, keepFloat)
+      const g = new TileGrid(i, s.name, s.rows, s.cols, store)
       this.gridByName.set(s.name, g)
       return g
     })
@@ -222,10 +229,11 @@ export class ModelWeights {
       return
     }
     const grid = this.grid(route.grid)
-    grid.programBand(b.data, b.rowStart, b.rows, rowLen, route.layout, route.colOffset)
+    const tiles = grid.programBand(b.data, b.rowStart, b.rows, rowLen, route.layout, route.colOffset)
     this.programmedValves += b.rows * rowLen
     this.onBand?.({
       grid,
+      tiles,
       axis: route.layout === 'in_out' ? 'rows' : 'cols',
       start: route.layout === 'in_out' ? b.rowStart : b.rowStart + route.colOffset,
       count: b.rows,
@@ -238,7 +246,7 @@ export class ModelWeights {
 
   /** Check that every tensor the forward pass needs arrived. */
   validate(): void {
-    const need = ['wpe', 'lnf.g', 'lnf.b']
+    const need = ['lnf.g', 'lnf.b']
     for (let l = 0; l < this.cfg.nLayer; l++) {
       for (const k of ['ln1.g', 'ln1.b', 'ln2.g', 'ln2.b', 'attn_out.b', 'fc.b', 'proj.b']) need.push(`L${l}.${k}`)
     }
@@ -247,6 +255,18 @@ export class ModelWeights {
     if (this.programmedValves < this.totalValves) {
       throw new Error(`only ${this.programmedValves} of ${this.totalValves} valves were programmed`)
     }
+  }
+
+  /**
+   * The weight crossbars as WeightSpecs for a Backend (CPU path). `fromHalf` uses the
+   * half-float copy (what the GPU computes with) instead of the float32 one.
+   */
+  weightSpecs(fromHalf = false): WeightSpec[] {
+    return this.grids.map((g, i) => {
+      const W = fromHalf ? g.decodeHalf() : g.f32
+      if (!W) throw new Error('weights were not kept for the CPU path')
+      return { name: g.name, label: this.specs[i].label, K: g.rows, N: g.cols, W, signedInputs: g.name !== 'wpe' }
+    })
   }
 }
 

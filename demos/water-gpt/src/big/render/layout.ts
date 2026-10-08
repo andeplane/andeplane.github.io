@@ -1,4 +1,4 @@
-import { TILE } from '../crossbar.ts'
+import { TILE } from '../grid.ts'
 import type { GridSpec } from '../model.ts'
 
 /**
@@ -67,12 +67,19 @@ export function buildLayout(specs: GridSpec[], nLayer: number, d: number, ctx: n
   }
   const width = bayCols * bayW + (bayCols - 1) * BAY_GAP
   let y = bayRows * bayH + (bayRows - 1) * BAY_GAP + BAY_GAP
+  const vy0 = y
+  // the position table (one row of valves per position), then the vocabulary banks
+  const wpeIndex = specs.findIndex((s) => s.layer === -2)
+  if (wpeIndex >= 0) {
+    const s = specs[wpeIndex]
+    rects.push({ grid: wpeIndex, x0: 0, y0: y, w: s.cols, h: s.rows, colStart: 0, label: s.label, layer: -2, bank: 0, kind: 'weights', below: 0 })
+    y += s.rows + BAY_GAP
+  }
   const lmIndex = specs.findIndex((s) => s.layer === -1)
   const lm = specs[lmIndex]
   const tiles = Math.ceil(lm.cols / TILE)
   const banks = Math.ceil((tiles * TILE) / width)
   const bankCols = Math.ceil(tiles / banks) * TILE
-  const vy0 = y
   for (let b = 0; b < banks; b++) {
     const colStart = b * bankCols
     const w = Math.min(bankCols, lm.cols - colStart)

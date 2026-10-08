@@ -9,6 +9,8 @@ import { ExactBackend, WaterBackend, type TraceEvent, type WeightSpec } from './
 import { generate, answer, type Generation } from './engine/generate.ts';
 import { MODES } from './modes/index.ts';
 import type { ModelMode } from './modes/types.ts';
+import type { BigMode } from './big/mode.ts';
+import type { Hall } from './big/app/hall.ts';
 
 const $ = <T extends HTMLElement>(id: string) => document.getElementById(id) as T;
 
@@ -208,6 +210,35 @@ function compute1(replay: boolean): void {
 // ------------------------------------------------------------------ chapter 2: a GPT on crossbars
 
 let mode: ModelMode = MODES[0];
+
+// ------------------------------------------------------------------ the hall (big modes)
+// GPT-2 and TinyStories run on the WebGPU machine and are drawn by the valve-field renderer
+// in place of the exhibit. Its code loads only when one of them is chosen, so calc-gpt and
+// chapter 1 work (and stay light) in browsers without WebGPU.
+let hall: Hall | null = null;
+let hallOn = false;
+const isHall = (m: ModelMode): m is BigMode => m.kind === 'hall';
+
+async function getHall(): Promise<Hall> {
+  if (!hall) {
+    const { Hall } = await import('./big/app/hall.ts');
+    hall = new Hall({ stage: $('hall-stage'), panel: $('hall-panel') });
+  }
+  return hall;
+}
+
+function showHall(on: boolean): void {
+  hallOn = on;
+  $('stage').hidden = on;
+  $('hall-stage').hidden = !on;
+  $('hall-panel').hidden = !on;
+  $('ch2').classList.toggle('hall-mode', on);
+  if (!on) hall?.hide();
+}
+
+function chapterHash(): string {
+  return chapter === 2 ? (isHall(mode) ? `#${mode.id}` : '#gpt') : '#crossbar';
+}
 let specs: WeightSpec[] = [];
 let exact: ExactBackend | null = null;
 let water: WaterBackend | null = null;
@@ -281,6 +312,19 @@ async function selectMode(m: ModelMode): Promise<void> {
   mode = m;
   buildModes();
   applyCopy();
+  if (chapter === 2) history.replaceState(null, '', location.search + chapterHash());
+  if (isHall(m)) {
+    commissionToken++;
+    stopPlayer();
+    ready = false;
+    busyEl.hidden = true;
+    if (chapter === 2) {
+      showHall(true);
+      await (await getHall()).show(m);
+    }
+    return;
+  }
+  if (hallOn) showHall(false);
   ready = false;
   setBusy('Loading the model…');
   await mode.load();
@@ -674,7 +718,13 @@ function setChapter(c: 1 | 2): void {
   $('ch1').hidden = c !== 1;
   $('ch2').hidden = c !== 2;
   if (exhibit) exhibit.insetTop = c === 2 ? 46 : 0;
-  history.replaceState(null, '', c === 2 ? '#gpt' : '#crossbar');
+  history.replaceState(null, '', location.search + chapterHash());
+  if (c === 2 && isHall(mode)) {
+    showHall(true);
+    void getHall().then((h) => h.show(mode as BigMode));
+    return;
+  }
+  if (hallOn) showHall(false);
   if (c === 1) {
     stopPlayer();
     busyEl.hidden = true;
@@ -791,8 +841,8 @@ let last = performance.now();
 function frame(now: number): void {
   const dt = Math.min(DT_CAP, (now - last) / 1000);
   last = now;
-  if (chapter === 2 && hold === null) tickPlayer(dt);
-  if (stage && exhibit) {
+  if (chapter === 2 && hold === null && !hallOn) tickPlayer(dt);
+  if (stage && exhibit && !hallOn) {
     if (hold !== null) exhibit.seek(hold);
     exhibit.frame(hold !== null ? Math.min(dt, 1 / 30) : dt);
     drawStrip();
@@ -803,9 +853,14 @@ function frame(now: number): void {
 
 // ---------------------------------------------------------------- start
 
+// Deep links: #gpt (calc-gpt), #tinystories, #gpt2, or ?mode=<id>.
+const wanted = new URLSearchParams(location.search).get('mode') ?? location.hash.slice(1);
+const linked = MODES.find((m) => m.id === wanted);
+if (linked) mode = linked;
 applyCopy();
 buildModes();
 renderProbs(null);
-setChapter(location.hash === '#gpt' ? 2 : 1);
-void selectMode(mode);
+setChapter(location.hash === '#gpt' || linked ? 2 : 1);
+// calc-gpt's weights are tiny and load at once; a big mode loads only when asked
+void selectMode(isHall(mode) ? mode : MODES[0]);
 requestAnimationFrame(frame);

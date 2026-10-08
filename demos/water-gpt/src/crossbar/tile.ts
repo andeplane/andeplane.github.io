@@ -24,6 +24,7 @@
  * scale and the per-tile weight scale w_max are applied when the collector flows are read out.
  */
 import { CrossbarNetwork, type NetworkSolution } from './network.ts';
+import { gauss3 } from './rng.ts';
 
 export interface CrossbarSettings {
   /** Valve resolution in bits (2^bits stops), or null for continuously variable valves. */
@@ -34,6 +35,20 @@ export interface CrossbarSettings {
   lambda: number;
   /** Seed for the programming error. */
   seed: number;
+  /**
+   * Where each valve's programming error comes from. 'stream' (default): a seeded sequence
+   * per tile. 'hash': a counter-based hash of (tile seed, physical row, physical column),
+   * so a GPU can recompute any one valve's error on the fly (used by the big models).
+   */
+  errors?: 'stream' | 'hash';
+  /**
+   * How the manifold network is solved. 'network' (default): the full linear network,
+   * exactly. 'first-order': the first-order expansion in λ of the same network (every valve
+   * sees its reservoir head minus the drop along its row and the rise along its column, both
+   * computed from the intended openings); see transferFirstOrder(). Used by the big models,
+   * where a full solve per tile is out of reach.
+   */
+  ir?: 'network' | 'first-order';
 }
 
 export const IDEAL: CrossbarSettings = { bits: null, noise: 0, lambda: 0, seed: 1 };
@@ -117,8 +132,13 @@ export class CrossbarTile {
       }
     this.gIntended = g.slice();
     if (settings.noise > 0) {
-      const rnd = gaussianStream(settings.seed);
-      for (let t = 0; t < g.length; t++) g[t] = Math.max(0, g[t] + settings.noise * rnd());
+      if (settings.errors === 'hash') {
+        const C = this.C;
+        for (let t = 0; t < g.length; t++) g[t] = Math.max(0, g[t] + settings.noise * gauss3(settings.seed, (t / C) | 0, t % C));
+      } else {
+        const rnd = gaussianStream(settings.seed);
+        for (let t = 0; t < g.length; t++) g[t] = Math.max(0, g[t] + settings.noise * rnd());
+      }
     }
     this.net = new CrossbarNetwork(this.R, this.C, g, settings.lambda);
     this.heads = new Float64Array(this.R);
@@ -138,7 +158,12 @@ export class CrossbarTile {
     const ones = new Float64Array(R).fill(1);
     const ideal = new Float64Array(C);
     for (let i = 0; i < R; i++) for (let j = 0; j < C; j++) ideal[j] += this.gIntended[i * C + j];
-    const actual = this.settings.lambda > 0 ? this.net.solve(ones, 1e-11).q : this.net.idealOutflow(ones);
+    let actual: Float64Array;
+    if (this.firstOrder) {
+      this.T ??= transferFirstOrder(R, C, this.net.g, this.gIntended, this.settings.lambda);
+      actual = new Float64Array(C);
+      for (let j = 0; j < C; j++) for (let i = 0; i < R; i++) actual[j] += this.T[j * R + i];
+    } else actual = this.settings.lambda > 0 ? this.net.solve(ones, 1e-11).q : this.net.idealOutflow(ones);
     this.gain = new Float64Array(C);
     for (let j = 0; j < C; j++) this.gain[j] = actual[j] > 1e-9 && ideal[j] > 1e-9 ? ideal[j] / actual[j] : 1;
   }
@@ -147,6 +172,10 @@ export class CrossbarTile {
   commission(): void {
     this.calibrate();
     if (!this.T && this.settings.lambda > 0) this.T = this.net.transferMatrix();
+  }
+
+  private get firstOrder(): boolean {
+    return this.settings.ir === 'first-order' && this.settings.lambda > 0;
   }
 
   get commissioned(): boolean {
@@ -178,8 +207,9 @@ export class CrossbarTile {
     const { R, C } = this;
     const q = this.q;
     if (this.settings.lambda <= 0) this.net.idealOutflow(this.heads, q);
-    else if (this.T) {
-      const T = this.T;
+    else if (this.T || this.firstOrder) {
+      this.T ??= transferFirstOrder(R, C, this.net.g, this.gIntended, this.settings.lambda);
+      const T = this.T!;
       const h = this.heads;
       for (let j = 0; j < C; j++) {
         let acc = 0;
@@ -200,4 +230,37 @@ export class CrossbarTile {
     const sol = this.net.solve(heads, 1e-9);
     return { heads, headScale, sol, flows: this.net.segmentFlows(sol) };
   }
+}
+
+/**
+ * First-order manifold loss, as a transfer matrix T [C × R] (outflow of column j per unit
+ * head on reservoir i).
+ *
+ * Zeroth order every valve sees its full reservoir head and an empty column, so valve (m, k)
+ * passes f = g_mk·s_m. To first order in λ, the head at row node (i, j) has dropped by λ times
+ * the flow through every row segment upstream of it, λ·Σ_m f_im·(min(m, j) + 1), and the
+ * head at column node (i, j) has risen by λ times the flow through every column segment
+ * between it and the collector, λ·Σ_m f_mj·(R − max(m, i)). Evaluating both with the intended
+ * openings g⁰ (dropping terms of order σ·λ) gives a per-valve effective conductance
+ *   T_ji = g_ij − λ·g⁰_ij·(A_ij + B_ij),
+ *   A_ij = Σ_m g⁰_im·(min(m, j) + 1),   B_ij = Σ_m g⁰_mj·(R − max(m, i)).
+ * The full network is linear in the heads, so this is the exact network's Taylor expansion to
+ * first order; at λ = 3·10⁻⁵ on a 128 × 128 tile it captures most of the IR drop (see the tests).
+ */
+export function transferFirstOrder(R: number, C: number, g: ArrayLike<number>, g0: ArrayLike<number>, lambda: number): Float64Array {
+  const T = new Float64Array(C * R);
+  for (let i = 0; i < R; i++)
+    for (let j = 0; j < C; j++) {
+      const o = g0[i * C + j];
+      let corr = 0;
+      if (o !== 0) {
+        let A = 0;
+        for (let m = 0; m < C; m++) A += g0[i * C + m] * (Math.min(m, j) + 1);
+        let B = 0;
+        for (let m = 0; m < R; m++) B += g0[m * C + j] * (R - Math.max(m, i));
+        corr = lambda * o * (A + B);
+      }
+      T[j * R + i] = g[i * C + j] - corr;
+    }
+  return T;
 }

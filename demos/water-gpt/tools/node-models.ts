@@ -23,13 +23,10 @@ export function loadTokenizer(): BpeTokenizer {
   return new BpeTokenizer(json)
 }
 
-export async function loadModel(model: 'gpt2' | 'tinystories', keepFloat = true): Promise<ModelWeights> {
+export async function loadModel(model: 'gpt2' | 'tinystories', store = { f32: true, half: false }): Promise<ModelWeights> {
   const f = LOCAL_NAMES[model]
-  const cfg =
-    model === 'gpt2'
-      ? GPT2_SMALL
-      : neoConfig(JSON.parse(readFileSync(join(WEIGHTS_DIR, f.config!), 'utf8')) as NeoConfigJson)
-  const w = new ModelWeights(cfg, keepFloat)
+  const cfg = model === 'gpt2' ? GPT2_SMALL : neoConfig(JSON.parse(readFileSync(join(WEIGHTS_DIR, f.config!), 'utf8')) as NeoConfigJson)
+  const w = new ModelWeights(cfg, store)
   const stream = createReadStream(join(WEIGHTS_DIR, f.weights), { highWaterMark: 4 << 20 })
   const r = new ByteReader(stream as unknown as AsyncIterable<Uint8Array>)
   const handlers = { want: w.want, bandRows: w.bandRows, band: w.band }

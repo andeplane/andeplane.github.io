@@ -10,6 +10,7 @@
  * `Crossbar` is the interface, `CpuCrossbar` the reference implementation.
  */
 import { CrossbarTile, TILE, type CrossbarSettings, type TileDetail } from './tile.ts';
+import { hash3 } from './rng.ts';
 
 export interface TilePlacement {
   /** First logical input row / output column of the block. */
@@ -30,7 +31,7 @@ export interface Crossbar {
   detail(tileIndex: number, x: ArrayLike<number>): TileDetail;
 }
 
-function hashName(s: string): number {
+export function hashName(s: string): number {
   let h = 2166136261;
   for (let i = 0; i < s.length; i++) h = Math.imul(h ^ s.charCodeAt(i), 16777619);
   return h >>> 0;
@@ -47,7 +48,7 @@ export class CpuCrossbar implements Crossbar {
     readonly signedInputs: boolean,
     settings: CrossbarSettings,
   ) {
-    const base = hashName(name) ^ settings.seed;
+    const base = matrixSeed(name, settings.seed);
     let t = 0;
     for (let r0 = 0; r0 < K; r0 += TILE)
       for (let c0 = 0; c0 < N; c0 += TILE) {
@@ -55,7 +56,11 @@ export class CpuCrossbar implements Crossbar {
         const n = Math.min(TILE, N - c0);
         const block = new Float32Array(k * n);
         for (let i = 0; i < k; i++) for (let j = 0; j < n; j++) block[i * n + j] = W[(r0 + i) * N + c0 + j];
-        const tile = new CrossbarTile(block, k, n, signedInputs, { ...settings, seed: (base + 7919 * ++t) >>> 0 });
+        ++t;
+        // With hashed valve errors the tile seed is a hash of its position, so a GPU can
+        // derive it without knowing the order tiles were built in.
+        const seed = settings.errors === 'hash' ? tileSeed(base, r0 / TILE, c0 / TILE) : (base + 7919 * t) >>> 0;
+        const tile = new CrossbarTile(block, k, n, signedInputs, { ...settings, seed });
         this.tiles.push({ r0, c0, tile });
       }
   }
@@ -92,6 +97,16 @@ export class CpuCrossbar implements Crossbar {
         for (let j = 0; j < tile.n; j++) out[(r0 + i) * this.N + c0 + j] = tile.wSet[i * tile.n + j];
     return out;
   }
+}
+
+/** Seed of the tile at tile-row tr, tile-column tc of a matrix whose base seed is `base`. */
+export function tileSeed(base: number, tr: number, tc: number): number {
+  return hash3(base >>> 0, tr, tc);
+}
+
+/** Base seed of a named matrix: every tile seed derives from it. */
+export function matrixSeed(name: string, seed: number): number {
+  return (hashName(name) ^ seed) >>> 0;
 }
 
 /** Exact digital y = x · W, the reference every water result is checked against. */
