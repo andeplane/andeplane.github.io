@@ -2,20 +2,28 @@
   "name": "water-gpt",
   "version": "1.0.0",
   "private": true,
-  "description": "A hydraulic crossbar computer: GPT-2 and TinyStories run on valves and water, rendered with WebGPU",
+  "description": "A hydraulic crossbar computer: calc-gpt, TinyStories-33M and GPT-2 small, every product done by simulated water",
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "tsc --noEmit && npm run selftest && vite build",
+    "build": "tsc --noEmit && vitest run && vite build",
     "preview": "vite preview",
     "typecheck": "tsc --noEmit",
-    "selftest": "node --experimental-strip-types --no-warnings tools/test-big.ts",
-    "reference": "node --experimental-strip-types --no-warnings tools/reference-big.ts"
+    "test": "vitest run",
+    "train": "vite-node tools/train.ts",
+    "evaluate": "vite-node tools/evaluate.ts",
+    "reference": "vite-node tools/reference-big.ts"
+  },
+  "dependencies": {
+    "three": "^0.180.0"
   },
   "devDependencies": {
-    "@types/node": "^24.0.0",
+    "@types/node": "^24.19.1",
+    "@types/three": "^0.180.0",
     "@webgpu/types": "^0.1.60",
-    "typescript": "^5.9.0",
-    "vite": "^7.0.0"
+    "typescript": "~5.9.0",
+    "vite": "^7.0.0",
+    "vite-node": "^3.2.4",
+    "vitest": "^3.0.0"
   }
 }
