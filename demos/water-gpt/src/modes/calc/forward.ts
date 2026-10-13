@@ -43,7 +43,7 @@ const LAYER_LABELS: Record<string, string> = {
   w2: 'MLP down',
 };
 
-/** The five kinds of weight matrix that become crossbars (biases and LayerNorms stay digital). */
+/** The five kinds of weight matrix that become crossbars (LayerNorms and activations are circuits; see crossbar/elements.ts). */
 export function weightSpecs(cfg: ModelConfig, p: Params): WeightSpec[] {
   const C = cfg.nEmbd;
   const V = cfg.vocabSize;
@@ -68,7 +68,7 @@ export function weightSpecs(cfg: ModelConfig, p: Params): WeightSpec[] {
         signedInputs: k !== 'w2',
       });
   }
-  out.push({ name: 'wout', label: 'output head', K: C, N: cfg.vocabSize, W: p.get('wout')!, signedInputs: true });
+  out.push({ name: 'wout', label: 'scores for every next character', K: C, N: cfg.vocabSize, W: p.get('wout')!, signedInputs: true });
   return out;
 }
 
@@ -103,7 +103,7 @@ export class CalcForward {
 
     for (let l = 0; l < nLayer; l++) {
       const g = (k: string) => p.get(`l${l}.${k}`)!;
-      const n1 = layerNorm(h, g('ln1g'), g('ln1b'));
+      const n1 = this.backend.layerNorm(`l${l}.ln1`, h, g('ln1g'), g('ln1b'), 1e-5);
       const qkv = this.backend.linear(`l${l}.wqkv`, n1);
       const bqkv = g('bqkv');
       for (let j = 0; j < 3 * C; j++) qkv[j] += bqkv[j];
@@ -113,8 +113,7 @@ export class CalcForward {
         this.keys[l][head].push(qkv.slice(C + head * hs, C + head * hs + hs));
         this.values[l][head].push(qkv.slice(2 * C + head * hs, 2 * C + head * hs + hs));
         const s = this.backend.scores(`l${l}.h${head}.qk`, q, this.keys[l][head]);
-        for (let j = 0; j < s.length; j++) s[j] *= scale;
-        const probs = softmax(s);
+        const probs = this.backend.softmax(`l${l}.softmax`, head, s, scale);
         const o = this.backend.mix(`l${l}.h${head}.av`, probs, this.values[l][head]);
         att.set(o, head * hs);
       }
@@ -122,17 +121,18 @@ export class CalcForward {
       const bproj = g('bproj');
       const hMid = new Float32Array(C);
       for (let c = 0; c < C; c++) hMid[c] = h[c] + proj[c] + bproj[c];
-      const n2 = layerNorm(hMid, g('ln2g'), g('ln2b'));
+      const n2 = this.backend.layerNorm(`l${l}.ln2`, hMid, g('ln2g'), g('ln2b'), 1e-5);
       const pre = this.backend.linear(`l${l}.w1`, n2);
       const b1 = g('b1');
-      for (let j = 0; j < pre.length; j++) pre[j] = Math.max(0, pre[j] + b1[j]);
+      for (let j = 0; j < pre.length; j++) pre[j] += b1[j];
+      this.backend.activation(`l${l}.w1`, 'relu', pre);
       const mlp = this.backend.linear(`l${l}.w2`, pre);
       const b2 = g('b2');
       const hOut = new Float32Array(C);
       for (let c = 0; c < C; c++) hOut[c] = hMid[c] + mlp[c] + b2[c];
       h = hOut;
     }
-    const nf = layerNorm(h, p.get('lnf.g')!, p.get('lnf.b')!);
+    const nf = this.backend.layerNorm('lnf', h, p.get('lnf.g')!, p.get('lnf.b')!, 1e-5);
     return this.backend.linear('wout', nf);
   }
 }

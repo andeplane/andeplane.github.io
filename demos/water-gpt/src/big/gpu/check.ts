@@ -1,4 +1,5 @@
 import { CpuCrossbar } from '../../crossbar/matrix.ts'
+import { waterRegulate } from '../../crossbar/elements.ts'
 import { LatticeBackend } from '../../crossbar/lattice.ts'
 import { IDEAL, type CrossbarSettings } from '../../crossbar/tile.ts'
 import type { Backend } from '../../engine/backend.ts'
@@ -59,7 +60,8 @@ async function matrixCheck(device: GPUDevice): Promise<Record<string, unknown>> 
     m.setPhysics(s)
     const gpu = await m.step([5, 17])
     const a = await m.read('a')
-    const ref = new CpuCrossbar('lm_head', lm.W, lm.K, lm.N, true, s).matvec(a.subarray(0, lm.K))
+    // the regulators after the crossbar, as the GPU applies them
+    const ref = waterRegulate(s, 'lm_head', 0, new CpuCrossbar('lm_head', lm.W, lm.K, lm.N, true, s).matvec(a.subarray(0, lm.K)))
     out[name] = rel(gpu, ref)
   }
   m.destroy()
@@ -85,6 +87,9 @@ async function opCheck(device: GPUDevice): Promise<Record<string, unknown>[]> {
       linear: (n, x) => (rec[n] = lat.linear(n, x)),
       column: (n, j) => lat.column(n, j),
       scores: (t, q, k) => lat.scores(t, q, k),
+      layerNorm: (t, x, g, b, eps, out) => lat.layerNorm(t, x, g, b, eps, out),
+      softmax: (t, h, sc, scale, j0) => lat.softmax(t, h, sc, scale, j0),
+      activation: (t, k, x) => lat.activation(t, k, x),
       mix: (t, p, v) => {
         const y = lat.mix(t, p, v)
         att.set(y, Number(/h(\d+)/.exec(t)![1]) * hd)

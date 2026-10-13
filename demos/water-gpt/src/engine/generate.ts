@@ -1,7 +1,7 @@
 /** Greedy generation, run on water and on the exact digital model side by side. */
 import type { ModelMode } from '../modes/types.ts';
 import type { Backend, TraceEvent } from './backend.ts';
-import { softmax, argmax } from '../modes/calc/forward.ts';
+import { argmax } from '../modes/calc/forward.ts';
 
 export interface GenStep {
   /** Token chosen by the water model (argmax of its logits). */
@@ -47,7 +47,8 @@ export function generate(mode: ModelMode, prompt: string, water: Backend, exact:
   let trace = promptTrace[promptTrace.length - 1] ?? [];
   while (wl) {
     const tok = argmax(wl);
-    steps.push({ token: tok, waterProbs: softmax(wl), exactProbs: el ? softmax(el) : null, trace });
+    // probabilities: the output collectors feed a softmax circuit (a flow divider)
+    steps.push({ token: tok, waterProbs: water.softmax('head', 0, wl, 1), exactProbs: el && exact ? exact.softmax('head', 0, el, 1) : null, trace });
     if (tok === mode.stopToken || steps.length >= mode.maxNewTokens || pos >= mode.contextLength) break;
     out.push(tok);
     cur = [];

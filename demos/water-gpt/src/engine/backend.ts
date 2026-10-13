@@ -4,12 +4,15 @@
  *
  *  - linear:  y = x · W for a named weight matrix (the valves were set once, at the factory);
  *  - scores:  s_j = q · k_j  (attention scores; valves set on the fly from the keys);
- *  - mix:     o = Σ_j p_j v_j (attention-weighted values; valves set from the values).
+ *  - mix:     o = Σ_j p_j v_j (attention-weighted values; valves set from the values);
+ *  - layerNorm, softmax, activation: the non-linear circuits between crossbars (check valves,
+ *    profiled valves, orifices and averaging nodes; see crossbar/elements.ts).
  *
  * Every call can be traced, which is how the renderer knows what flowed where.
  */
 import { CpuCrossbar, exactMatvec, type Crossbar } from '../crossbar/matrix.ts';
 import type { CrossbarSettings } from '../crossbar/tile.ts';
+import { waterActivation, waterLayerNorm, waterRegulate, waterSoftmax, type ElementPhysics } from '../crossbar/elements.ts';
 
 export interface WeightSpec {
   name: string;
@@ -46,8 +49,36 @@ export interface Backend {
    * output head.
    */
   column?(name: string, j: number): Float32Array;
+  /** LayerNorm circuit `tag` (e.g. "l0.ln1"). */
+  layerNorm(tag: string, x: Float32Array, g: Float32Array, b: Float32Array, eps: number, out?: Float32Array): Float32Array;
+  /** Softmax circuit of layer `tag`, valve bank `head`; `j0` is the first key's position. */
+  softmax(tag: string, head: number, s: Float32Array, scale: number, j0?: number): Float32Array;
+  /** ReLU / GELU circuit, in place. */
+  activation(tag: string, kind: 'relu' | 'gelu', x: Float32Array): Float32Array;
   trace: ((e: TraceEvent) => void) | null;
 }
+
+/** The circuits of crossbar/elements.ts, for a backend with physics `phys`. */
+export class Elements {
+  constructor(readonly phys: ElementPhysics) {}
+  layerNorm(tag: string, x: Float32Array, g: Float32Array, b: Float32Array, eps: number, out?: Float32Array): Float32Array {
+    return waterLayerNorm(this.phys, tag, x, g, b, eps, out);
+  }
+  softmax(tag: string, head: number, s: Float32Array, scale: number, j0 = 0): Float32Array {
+    return waterSoftmax(this.phys, tag, head, s, scale, j0);
+  }
+  activation(tag: string, kind: 'relu' | 'gelu', x: Float32Array): Float32Array {
+    return waterActivation(this.phys, tag, kind, x);
+  }
+  /** The regulators after crossbar `name` (weights) or attention product `tag` ("l0.h2.qk"). */
+  regulate(name: string, y: Float32Array): Float32Array {
+    const m = /^(l\d+)\.h(\d+)\.(qk|av)$/.exec(name);
+    return m ? waterRegulate(this.phys, `${m[1]}.${m[3]}`, Number(m[2]), y) : waterRegulate(this.phys, name, 0, y);
+  }
+}
+
+/** Perfect parts: the circuits compute exactly the digital functions. */
+export const IDEAL_ELEMENTS = new Elements({ noise: 0, seed: 0 });
 
 function keysMatrix(keys: Float32Array[]): { W: Float32Array; K: number; N: number } {
   // W[d][j] = k_j[d], so q · W = (q·k_0, q·k_1, …)
@@ -68,6 +99,9 @@ function valuesMatrix(values: Float32Array[]): { W: Float32Array; K: number; N: 
 
 export class ExactBackend implements Backend {
   readonly kind = 'exact';
+  readonly layerNorm = IDEAL_ELEMENTS.layerNorm.bind(IDEAL_ELEMENTS);
+  readonly softmax = IDEAL_ELEMENTS.softmax.bind(IDEAL_ELEMENTS);
+  readonly activation = IDEAL_ELEMENTS.activation.bind(IDEAL_ELEMENTS);
   trace: ((e: TraceEvent) => void) | null = null;
   private specs = new Map<string, WeightSpec>();
 
@@ -109,6 +143,7 @@ export class WaterBackend implements Backend {
   trace: ((e: TraceEvent) => void) | null = null;
   readonly crossbars = new Map<string, CpuCrossbar>();
   private attnCount = 0;
+  private el: Elements;
 
   constructor(
     specs: WeightSpec[],
@@ -116,7 +151,20 @@ export class WaterBackend implements Backend {
     /** Also run attention products (QKᵀ, A·V) on crossbars set from the activations. */
     readonly waterAttention = true,
   ) {
+    this.el = new Elements({ noise: settings.noise, seed: settings.seed });
     for (const s of specs) this.crossbars.set(s.name, new CpuCrossbar(s.name, s.W, s.K, s.N, s.signedInputs, settings));
+  }
+
+  layerNorm(tag: string, x: Float32Array, g: Float32Array, b: Float32Array, eps: number, out?: Float32Array): Float32Array {
+    return this.el.layerNorm(tag, x, g, b, eps, out);
+  }
+
+  softmax(tag: string, head: number, s: Float32Array, scale: number, j0 = 0): Float32Array {
+    return this.el.softmax(tag, head, s, scale, j0);
+  }
+
+  activation(tag: string, kind: 'relu' | 'gelu', x: Float32Array): Float32Array {
+    return this.el.activation(tag, kind, x);
   }
 
   get tileCount(): number {
@@ -138,7 +186,7 @@ export class WaterBackend implements Backend {
 
   linear(name: string, x: Float32Array): Float32Array {
     const c = this.crossbars.get(name)!;
-    const y = c.matvec(x);
+    const y = this.el.regulate(name, c.matvec(x));
     this.trace?.({ kind: 'linear', name, label: name, x, y, crossbar: c });
     return y;
   }
@@ -156,7 +204,7 @@ export class WaterBackend implements Backend {
       return y;
     }
     const c = this.transient(tag, W, K, N, true);
-    const y = c.matvec(q);
+    const y = this.el.regulate(tag, c.matvec(q));
     this.trace?.({ kind: 'scores', name: tag, label: tag, x: q, y, crossbar: c });
     return y;
   }
@@ -169,7 +217,7 @@ export class WaterBackend implements Backend {
       return y;
     }
     const c = this.transient(tag, W, K, N, false);
-    const y = c.matvec(p);
+    const y = this.el.regulate(tag, c.matvec(p));
     this.trace?.({ kind: 'mix', name: tag, label: tag, x: p, y, crossbar: c });
     return y;
   }

@@ -1,4 +1,5 @@
 import { WGSL_RNG } from '../../crossbar/rng.ts'
+import { WGSL_ELEMENTS } from '../../crossbar/elements.ts'
 
 /**
  * WGSL for the hydraulic machine. The physics is exactly src/crossbar/lattice.ts (which is
@@ -24,10 +25,11 @@ struct P {
   lnG: u32, lnB: u32, eps: f32, ctx: u32,
   srcOff: u32, nbMax: u32, wpeValOff: u32, wpeTileOff: u32,
   wpeTilesC: u32, wpeBase: u32, wpeRows: u32, signed: u32,
-  pad0: u32, pad1: u32, pad2: u32, pad3: u32,
+  elemSeed: u32, regSeed: u32, regSeed2: u32, pad3: u32,
 };
 @group(0) @binding(0) var<uniform> p: P;
 ${WGSL_RNG}
+${WGSL_ELEMENTS}
 `
 
 /**
@@ -275,7 +277,10 @@ fn main(@builtin(workgroup_id) wg: vec3u, @builtin(local_invocation_id) lid: vec
 }
 `
 
-/** Sum the row tiles' collectors, then the digital epilogue (bias, GELU, residual). */
+/**
+ * Sum the row tiles' collectors, then the epilogue: bias inflow, the GELU circuit (a profiled
+ * spring-loaded check valve per channel, crossbar/elements.ts) and the residual merge.
+ */
 export const WGSL_REDUCE = /* wgsl */ `
 ${WGSL_COMMON}
 @group(0) @binding(1) var<storage, read> partial: array<f32>;
@@ -283,20 +288,16 @@ ${WGSL_COMMON}
 @group(0) @binding(3) var<storage, read_write> dst: array<f32>;
 @group(0) @binding(4) var<storage, read_write> act: array<f32>;
 
-fn geluNew(x: f32) -> f32 {
-  let u = clamp(0.7978845608028654 * (x + 0.044715 * x * x * x), -15.0, 15.0);
-  return 0.5 * x * (1.0 + tanh(u));
-}
-
 @compute @workgroup_size(64)
 fn main(@builtin(global_invocation_id) gid: vec3u) {
   let c = gid.x;
   if (c >= p.cols) { return; }
   var y = 0.0;
   for (var tr = 0u; tr < p.tilesR; tr = tr + 1u) { y = y + partial[tr * p.cols + c]; }
+  y = y * part(p.noise, p.regSeed, 32u, c);
   act[p.actOff + p.rows + c] = y;
   if ((p.flags & 4u) != 0u) { y = y + vecs[p.biasOff + c]; }
-  if ((p.flags & 1u) != 0u) { y = geluNew(y); }
+  if ((p.flags & 1u) != 0u) { y = y * geluProfile(y) * part(p.noise, p.elemSeed, 6u, c); }
   if ((p.flags & 2u) != 0u) { dst[c] = dst[c] + y; } else { dst[c] = y; }
 }
 `
@@ -402,8 +403,8 @@ fn realised(valOff: u32, tileOff: u32, tilesC: u32, rows: u32, cols: u32, base: 
 fn main(@builtin(global_invocation_id) gid: vec3u) {
   let r = gid.x;
   if (r >= p.d) { return; }
-  let tok = realised(p.valOff, p.tileOff, p.tilesC, p.rows, p.cols, p.base, true, r, p.token);
-  let pe = realised(p.wpeValOff, p.wpeTileOff, p.wpeTilesC, p.wpeRows, p.d, p.wpeBase, false, p.pos, r);
+  let tok = realised(p.valOff, p.tileOff, p.tilesC, p.rows, p.cols, p.base, true, r, p.token) * part(p.noise, p.regSeed, 32u, r);
+  let pe = realised(p.wpeValOff, p.wpeTileOff, p.wpeTilesC, p.wpeRows, p.d, p.wpeBase, false, p.pos, r) * part(p.noise, p.regSeed2, 32u, r);
   x[r] = tok + pe;
 }
 `
@@ -441,17 +442,32 @@ fn wsum(v: f32, i: u32) -> f32 {
   workgroupBarrier();
   return r;
 }
+// The LayerNorm circuit (crossbar/elements.ts): averaging node → orifices (square) →
+// averaging node → orifice (square root) → pilot valves opened in proportion to σ.
 @compute @workgroup_size(256)
 fn main(@builtin(local_invocation_id) lid: vec3u) {
   let n = p.d;
+  let es = p.elemSeed;
   var s = 0.0;
-  for (var i = lid.x; i < n; i = i + 256u) { s = s + x[i]; }
-  let mean = wsum(s, lid.x) / f32(n);
-  var v = 0.0;
-  for (var i = lid.x; i < n; i = i + 256u) { let t = x[i] - mean; v = v + t * t; }
-  let inv = 1.0 / sqrt(wsum(v, lid.x) / f32(n) + p.eps);
+  var ws = 0.0;
   for (var i = lid.x; i < n; i = i + 256u) {
-    a[i] = (x[i] - mean) * inv * vecs[p.lnG + i] + vecs[p.lnB + i];
+    let w = part(p.noise, es, 1u, i);
+    s = s + w * x[i];
+    ws = ws + w;
+  }
+  let mean = wsum(s, lid.x) / wsum(ws, lid.x);
+  var v = 0.0;
+  var wv = 0.0;
+  for (var i = lid.x; i < n; i = i + 256u) {
+    let t = x[i] - mean;
+    let w = part(p.noise, es, 3u, i);
+    v = v + w * t * t * part(p.noise, es, 2u, i);
+    wv = wv + w;
+  }
+  let vs = wsum(v, lid.x);
+  let sd = sqrt(vs / wsum(wv, lid.x) + p.eps) * part(p.noise, es, 4u, 0u);
+  for (var i = lid.x; i < n; i = i + 256u) {
+    a[i] = (x[i] - mean) / sd * vecs[p.lnG + i] * part(p.noise, es, 5u, i) + vecs[p.lnB + i];
   }
 }
 `
@@ -509,12 +525,16 @@ fn main(@builtin(workgroup_id) wg: vec3u, @builtin(local_invocation_id) lid: vec
   xs[t] = xv;
   calibrate(t, 2u);
   let y = matvec(t);
-  if (t < tN) { scores[h * p.ctx + b * 64u + t] = y; }
+  if (t < tN) { scores[h * p.ctx + b * 64u + t] = y * part(p.noise, p.regSeed, 32u + h, b * 64u + t); }
   if (t == 0u) { kvmax[((p.layer * 2u) * p.nHead + h) * p.nbMax + (p.j0 + b * 64u) / 64u] = tW; }
 }
 `
 
-/** Digital: scale, softmax over the cached positions (in place). Workgroup per head. */
+/**
+ * The softmax circuit (crossbar/elements.ts) over the cached positions, in place: check-valve
+ * max node, exponentially profiled valves (1/√d in the profile), constant-inflow flow divider.
+ * Workgroup per head.
+ */
 export const WGSL_SOFTMAX = /* wgsl */ `
 ${WGSL_COMMON}
 @group(0) @binding(1) var<storage, read_write> scores: array<f32>;
@@ -540,7 +560,7 @@ fn main(@builtin(workgroup_id) wg: vec3u, @builtin(local_invocation_id) lid: vec
   let M = wred(mx, t, true);
   var z = 0.0;
   for (var j = t; j < p.nKeys; j = j + 64u) {
-    let e = exp(scores[base + j] * p.attnScale - M);
+    let e = max(G_LEAK, exp(scores[base + j] * p.attnScale - M) * part(p.noise, p.elemSeed, 16u + h, p.j0 + j));
     scores[base + j] = e;
     z = z + e;
   }
@@ -597,6 +617,6 @@ fn main(@builtin(global_invocation_id) gid: vec3u) {
   let nb = (p.nKeys + 63u) / 64u;
   var y = 0.0;
   for (var b = 0u; b < nb; b = b + 1u) { y = y + mixpart[(h * p.nbMax + b) * 64u + j]; }
-  att[c] = y;
+  att[c] = y * part(p.noise, p.regSeed2, 32u + h, j);
 }
 `

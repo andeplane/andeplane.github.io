@@ -1,6 +1,8 @@
 import { TILE, type CrossbarSettings } from '../../crossbar/tile.ts'
+import { fromHalf } from '../grid.ts'
 import { matrixSeed } from '../../crossbar/matrix.ts'
 import { transientSeed } from '../../crossbar/lattice.ts'
+import { elementSeed } from '../../crossbar/elements.ts'
 import { buildProgram, type BandEvent, type BufName, type ModelWeights, type Op } from '../model.ts'
 import {
   UNIFORM_BYTES,
@@ -110,6 +112,12 @@ export class GpuMachine {
   /** Wall time of the last step's GPU work (ms) and the number of tokens it ran. */
   lastStepMs = 0
   lastStepTokens = 0
+  /**
+   * Program index of one matmul whose input and output vectors are copied out at the next
+   * step (the guided tour reads one real neuron with it); null for none.
+   */
+  captureOp: number | null = null
+  private capture: GPUBuffer | null = null
 
   constructor(device: GPUDevice, w: ModelWeights, settings: CrossbarSettings) {
     this.device = device
@@ -239,6 +247,8 @@ export class GpuMachine {
               u[b + 32] = wpe.tilesC
               u[b + 33] = matrixSeed('wpe', this.settings.seed)
               u[b + 34] = wpe.rows
+              u[b + 37] = elementSeed('lm_head.col.reg', this.settings.seed)
+              u[b + 38] = elementSeed('wpe.reg', this.settings.seed)
             },
           })
           break
@@ -249,6 +259,8 @@ export class GpuMachine {
             wg: once(1),
             entries: [this.bufs.x, vecs, this.bufs.a],
             fill: (u, f, b) => {
+              this.fillPhysics(u, f, b)
+              u[b + 36] = elementSeed(op.g.replace(/\.g$/, ''), this.settings.seed)
               u[b + 20] = cfg.d
               u[b + 24] = this.vecOff.get(op.g)!
               u[b + 25] = this.vecOff.get(op.b)!
@@ -263,6 +275,8 @@ export class GpuMachine {
             u[b + 11] = (op.gelu ? 1 : 0) | (op.residual ? 2 : 0) | (op.bias ? 4 : 0)
             u[b + 12] = op.bias ? this.vecOff.get(op.bias)! : 0
             u[b + 14] = pos
+            u[b + 36] = elementSeed(op.grid, this.settings.seed)
+            u[b + 37] = elementSeed(`${op.grid}.reg`, this.settings.seed)
           }
           pend.push({
             op: oi,
@@ -291,6 +305,9 @@ export class GpuMachine {
             u[b + 23] = n
             u[b + 27] = this.ctx
             u[b + 29] = this.nbMax
+            u[b + 36] = elementSeed(`l${l}.softmax`, this.settings.seed)
+            u[b + 37] = elementSeed(`l${l}.qk.reg`, this.settings.seed)
+            u[b + 38] = elementSeed(`l${l}.av.reg`, this.settings.seed)
           }
           const nb = (pos: number): [number, number] => [Math.ceil(this.nKeys(l, pos).n / TILE), cfg.nHead]
           pend.push({ op: oi, pipeline: P.kv, wg: once(Math.ceil(cfg.d / 64)), entries: [this.bufs.qkv, this.kv], fill: fillAt })
@@ -414,13 +431,27 @@ export class GpuMachine {
     this.dispatches.forEach((d, i) => d.fill(u, f, (i * UNIFORM_SLOT) / 4, token, pos))
     q.writeBuffer(this.uniforms!, 0, data)
     const enc = this.device.createCommandEncoder({ label: `token ${pos}` })
-    const pass = enc.beginComputePass()
-    for (const d of this.dispatches) {
+    let pass = enc.beginComputePass()
+    const cap = this.captureOp
+    this.dispatches.forEach((d, i) => {
       pass.setPipeline(d.pipeline)
       pass.setBindGroup(0, d.bind)
       const [x, y] = d.wg(pos)
       pass.dispatchWorkgroups(x, y)
-    }
+      if (cap !== null && d.op === cap && this.dispatches[i + 1]?.op !== cap) {
+        // the op's input is still in its source buffer and its output in its destination
+        const op = this.program[cap]
+        if (op.kind !== 'matmul') return
+        pass.end()
+        const src = this.bufs[op.src]
+        const dst = this.bufs[op.dst]
+        const most = Math.max(...Object.values(this.bufs).map((b) => b.size))
+        this.capture ??= this.device.createBuffer({ size: 2 * most, usage: GPUBufferUsage.STORAGE | GPUBufferUsage.COPY_DST | GPUBufferUsage.COPY_SRC, label: 'tour capture' })
+        enc.copyBufferToBuffer(src, 0, this.capture, 0, src.size)
+        enc.copyBufferToBuffer(dst, 0, this.capture, src.size, dst.size)
+        pass = enc.beginComputePass()
+      }
+    })
     pass.end()
     q.submit([enc.finish()])
   }
@@ -466,6 +497,47 @@ export class GpuMachine {
     return { act, meta }
   }
 
+  /**
+   * The captured op's input vector (what filled its reservoirs) and output vector (after its
+   * bias, GELU and residual merge), from the last step that ran it.
+   */
+  async readCapture(): Promise<{ x: Float32Array; y: Float32Array } | null> {
+    const op = this.captureOp === null ? null : this.program[this.captureOp]
+    if (!this.capture || !op || op.kind !== 'matmul') return null
+    const all = await readBuffer(this.device, this.capture)
+    const n = this.bufs[op.src].size / 4
+    return { x: all.slice(0, n), y: all.slice(n, n + this.bufs[op.dst].size / 4) }
+  }
+
+  /** The intended (factory) weights of one column of a grid, read back from the GPU. */
+  async readColumn(grid: number, col: number): Promise<{ w: Float32Array; wmax: Float32Array }> {
+    const g = this.w.grids[grid]
+    const L = this.layout[grid]
+    const tc = Math.floor(col / TILE)
+    const j = col % TILE
+    const st = this.device.createBuffer({ size: g.tilesR * (8192 + 4), usage: GPUBufferUsage.MAP_READ | GPUBufferUsage.COPY_DST })
+    const enc = this.device.createCommandEncoder()
+    for (let tr = 0; tr < g.tilesR; tr++) {
+      const idx = tr * g.tilesC + tc
+      enc.copyBufferToBuffer(this.vals, (L.valOff + idx * 2048) * 4, st, tr * 8192, 8192)
+      enc.copyBufferToBuffer(this.wmax, (L.tileOff + idx) * 4, st, g.tilesR * 8192 + tr * 4, 4)
+    }
+    this.device.queue.submit([enc.finish()])
+    await st.mapAsync(GPUMapMode.READ)
+    const buf = st.getMappedRange().slice(0)
+    st.destroy()
+    const half = new Uint16Array(buf, 0, g.tilesR * 4096)
+    const wmaxAll = new Float32Array(buf, g.tilesR * 8192, g.tilesR)
+    const w = new Float32Array(g.rows)
+    const wmax = new Float32Array(g.rows)
+    for (let r = 0; r < g.rows; r++) {
+      const tr = Math.floor(r / TILE)
+      w[r] = fromHalf(half[tr * 4096 + (r % TILE) * TILE + j])
+      wmax[r] = wmaxAll[tr]
+    }
+    return { w, wmax }
+  }
+
   /** The attention probabilities of the last step, [head][position] (tests). */
   get debugScores(): GPUBuffer {
     return this.scores
@@ -480,6 +552,7 @@ export class GpuMachine {
     for (const b of [this.vals, this.wmax, this.gains, this.act, this.actMeta, this.partial, this.kv, this.kvmax, this.seeds, this.scores, this.mixpart, this.staging, ...Object.values(this.bufs)]) b.destroy()
     this.vecs?.destroy()
     this.uniforms?.destroy()
+    this.capture?.destroy()
   }
 }
 

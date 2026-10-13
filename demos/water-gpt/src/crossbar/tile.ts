@@ -20,8 +20,10 @@
  *    when the tile is set (closed valves can leak a little; conductance is clamped at 0);
  *  - manifold resistance λ (IR drop), solved exactly by the network model, after a one-off
  *    per-collector gain calibration (see calibrate()).
- * The reservoir heads are scaled per input vector so the largest |x| uses the full head; that
- * scale and the per-tile weight scale w_max are applied when the collector flows are read out.
+ * The reservoir heads are the activations themselves (in the machine's head unit). Each tile's
+ * valves are sized so its largest |w| is a fully open valve of conductance w_max; the
+ * regulators that read the collectors were set at commissioning to that unit.
+ * (Only drawings rescale the heads, so the fullest tank is drawn full.)
  */
 import { CrossbarNetwork, type NetworkSolution } from './network.ts';
 import { gauss3 } from './rng.ts';
@@ -182,13 +184,18 @@ export class CrossbarTile {
     return this.T !== null || this.settings.lambda <= 0;
   }
 
-  /** Reservoir heads for input x: split into x⁺/x⁻ and scaled so max |x| is a full head. */
-  setHeads(x: ArrayLike<number>, xOff = 0): number {
-    let xs = 0;
-    for (let i = 0; i < this.k; i++) xs = Math.max(xs, Math.abs(x[xOff + i]));
+  /**
+   * Reservoir heads for input x, split into x⁺/x⁻. `forDrawing` rescales them so the fullest
+   * tank is drawn full (the flows scale with it: the network is linear in the heads).
+   * Returns that drawing scale (1 when computing), or 0 for an all-zero input.
+   */
+  setHeads(x: ArrayLike<number>, xOff = 0, forDrawing = false): number {
+    let xm = 0;
+    for (let i = 0; i < this.k; i++) xm = Math.max(xm, Math.abs(x[xOff + i]));
     const h = this.heads;
     h.fill(0);
-    if (xs === 0) return 0;
+    if (xm === 0) return 0;
+    const xs = forDrawing ? xm : 1;
     for (let i = 0; i < this.k; i++) {
       const v = x[xOff + i] / xs;
       if (this.signedInputs) {
@@ -218,14 +225,14 @@ export class CrossbarTile {
         q[j] = acc;
       }
     } else q.set(this.net.solve(this.heads, 1e-10).q);
-    const gain = xs * this.wmax;
+    const gain = this.wmax;
     const cg = this.gain!;
     for (let j = 0; j < this.n; j++) y[yOff + j] += gain * (cg[2 * j] * q[2 * j] - cg[2 * j + 1] * q[2 * j + 1]);
   }
 
   /** Full network state for input x, for drawing (heads, node heads, pipe flows). */
   detail(x: ArrayLike<number>, xOff = 0): TileDetail {
-    const headScale = this.setHeads(x, xOff);
+    const headScale = this.setHeads(x, xOff, true);
     const heads = this.heads.slice();
     const sol = this.net.solve(heads, 1e-9);
     return { heads, headScale, sol, flows: this.net.segmentFlows(sol) };

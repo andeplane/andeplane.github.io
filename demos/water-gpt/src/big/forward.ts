@@ -1,6 +1,6 @@
 import type { Backend } from '../engine/backend.ts'
 import type { Sequence } from '../modes/types.ts'
-import { geluNew, type ModelConfig } from './model.ts'
+import type { ModelConfig } from './model.ts'
 
 /**
  * GPT-2 / GPT-Neo forward pass, one token at a time, with every product sent through a
@@ -10,8 +10,8 @@ import { geluNew, type ModelConfig } from './model.ts'
  *  - position embedding: the position's row of the position-table crossbar;
  *  - Q·K·V, attention out, MLP up and down, the output head: weight crossbars;
  *  - QKᵀ and attention·V: crossbars set on the fly from the cached keys and values;
- *  - digital: layer norm, the attention scale, softmax and its mask/window, GELU, bias and
- *    residual adds.
+ *  - circuits (crossbar/elements.ts): layer norm, softmax (with the attention scale) and GELU;
+ *  - bias and residual adds: flows merging, exact by conservation of mass.
  *
  * On the GPU (gpu/machine.ts) the same pass runs as WGSL kernels; this one is the reference
  * the GPU is checked against, and the Node path for the reference measurements.
@@ -45,7 +45,7 @@ export class BigForward implements Sequence {
     const a = new Float32Array(d)
     for (let l = 0; l < cfg.nLayer; l++) {
       const P = `L${l}`
-      layerNorm(x, this.vec(`${P}.ln1.g`), this.vec(`${P}.ln1.b`), cfg.eps, a)
+      be.layerNorm(`${P}.ln1`, x, this.vec(`${P}.ln1.g`), this.vec(`${P}.ln1.b`), cfg.eps, a)
       const qkv = be.linear(`${P}.qkv`, a)
       addInto(qkv, this.vec(`${P}.qkv.b`))
       const att = new Float32Array(d)
@@ -58,22 +58,23 @@ export class BigForward implements Sequence {
         V.push(qkv.slice(2 * d + h * hd, 2 * d + (h + 1) * hd))
         const j0 = win ? Math.max(0, K.length - win) : 0
         const s = be.scores(`l${l}.h${h}.qk`, q, K.slice(j0))
-        const p = softmaxScaled(s, cfg.attnScale)
+        const p = be.softmax(`l${l}.softmax`, h, s, cfg.attnScale, j0)
         const o = be.mix(`l${l}.h${h}.av`, p, V.slice(j0))
         att.set(o, h * hd)
       }
       const ao = be.linear(`${P}.attn_out`, att)
       const bo = this.vec(`${P}.attn_out.b`)
       for (let i = 0; i < d; i++) x[i] += ao[i] + bo[i]
-      layerNorm(x, this.vec(`${P}.ln2.g`), this.vec(`${P}.ln2.b`), cfg.eps, a)
+      be.layerNorm(`${P}.ln2`, x, this.vec(`${P}.ln2.g`), this.vec(`${P}.ln2.b`), cfg.eps, a)
       const hdn = be.linear(`${P}.fc`, a)
       const bf = this.vec(`${P}.fc.b`)
-      for (let i = 0; i < hdn.length; i++) hdn[i] = geluNew(hdn[i] + bf[i])
+      for (let i = 0; i < hdn.length; i++) hdn[i] += bf[i]
+      be.activation(`${P}.fc`, 'gelu', hdn)
       const pr = be.linear(`${P}.proj`, hdn)
       const bp = this.vec(`${P}.proj.b`)
       for (let i = 0; i < d; i++) x[i] += pr[i] + bp[i]
     }
-    layerNorm(x, this.vec('lnf.g'), this.vec('lnf.b'), cfg.eps, a)
+    be.layerNorm('lnf', x, this.vec('lnf.g'), this.vec('lnf.b'), cfg.eps, a)
     return be.linear('lm_head', a)
   }
 }
@@ -122,21 +123,4 @@ export function argmax(v: ArrayLike<number>): number {
   let best = 0
   for (let i = 1; i < v.length; i++) if (v[i] > v[best]) best = i
   return best
-}
-
-/** Digital sampling: temperature + top-k. Temperature 0 = greedy. */
-export function sample(logits: Float32Array, temperature: number, topK: number, rand: () => number = Math.random): number {
-  if (temperature <= 0) return argmax(logits)
-  const idx = Array.from(logits.keys())
-    .sort((a, b) => logits[b] - logits[a])
-    .slice(0, Math.max(1, topK))
-  const mx = logits[idx[0]]
-  const ps = idx.map((i) => Math.exp((logits[i] - mx) / temperature))
-  const z = ps.reduce((a, b) => a + b, 0)
-  let u = rand() * z
-  for (let i = 0; i < idx.length; i++) {
-    u -= ps[i]
-    if (u <= 0) return idx[i]
-  }
-  return idx[idx.length - 1]
 }

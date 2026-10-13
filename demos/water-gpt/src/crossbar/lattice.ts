@@ -22,7 +22,7 @@
 import { gauss3 } from './rng.ts';
 import { matrixSeed, tileSeed } from './matrix.ts';
 import { quantiseOpening, TILE, type CrossbarSettings } from './tile.ts';
-import type { Backend, TraceEvent, WeightSpec } from '../engine/backend.ts';
+import { Elements, type Backend, type TraceEvent, type WeightSpec } from '../engine/backend.ts';
 
 export interface RealisedTile {
   wmax: number;
@@ -224,12 +224,26 @@ export class LatticeBackend implements Backend {
   trace: ((e: TraceEvent) => void) | null = null;
   private specs = new Map<string, WeightSpec>();
   private bars = new Map<string, LatticeCrossbar>();
+  private el: Elements;
 
   constructor(
     specs: WeightSpec[],
     readonly settings: CrossbarSettings,
   ) {
     for (const s of specs) this.specs.set(s.name, s);
+    this.el = new Elements({ noise: settings.noise, seed: settings.seed });
+  }
+
+  layerNorm(tag: string, x: Float32Array, g: Float32Array, b: Float32Array, eps: number, out?: Float32Array): Float32Array {
+    return this.el.layerNorm(tag, x, g, b, eps, out);
+  }
+
+  softmax(tag: string, head: number, s: Float32Array, scale: number, j0 = 0): Float32Array {
+    return this.el.softmax(tag, head, s, scale, j0);
+  }
+
+  activation(tag: string, kind: 'relu' | 'gelu', x: Float32Array): Float32Array {
+    return this.el.activation(tag, kind, x);
   }
 
   crossbar(name: string): LatticeCrossbar {
@@ -249,13 +263,13 @@ export class LatticeBackend implements Backend {
   }
 
   linear(name: string, x: Float32Array): Float32Array {
-    const y = this.crossbar(name).matvec(x);
+    const y = this.el.regulate(name, this.crossbar(name).matvec(x));
     this.trace?.({ kind: 'linear', name, label: this.specs.get(name)!.label, x, y });
     return y;
   }
 
   column(name: string, j: number): Float32Array {
-    return this.crossbar(name).column(j);
+    return this.el.regulate(`${name}.col`, this.crossbar(name).column(j));
   }
 
   scores(tag: string, q: Float32Array, keys: Float32Array[]): Float32Array {
@@ -264,7 +278,7 @@ export class LatticeBackend implements Backend {
     const W = new Float32Array(K * N);
     for (let j = 0; j < N; j++) for (let d = 0; d < K; d++) W[d * N + j] = keys[j][d];
     const c = new LatticeCrossbar(tag, W, K, N, true, this.settings, transientSeed(tag, this.settings.seed, N));
-    const y = c.matvec(q);
+    const y = this.el.regulate(tag, c.matvec(q));
     this.trace?.({ kind: 'scores', name: tag, label: tag, x: q, y });
     return y;
   }
@@ -275,7 +289,7 @@ export class LatticeBackend implements Backend {
     const W = new Float32Array(K * N);
     for (let j = 0; j < K; j++) W.set(values[j], j * N);
     const c = new LatticeCrossbar(tag, W, K, N, false, this.settings, transientSeed(tag, this.settings.seed, K));
-    const y = c.matvec(p);
+    const y = this.el.regulate(tag, c.matvec(p));
     this.trace?.({ kind: 'mix', name: tag, label: tag, x: p, y });
     return y;
   }
