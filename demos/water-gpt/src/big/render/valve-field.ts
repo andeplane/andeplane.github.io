@@ -212,6 +212,25 @@ export class ValveFieldRenderer {
     this.camera.flyTo(this.fit(b.x0, b.y0, b.w, b.h, 1.1), this.canvas.clientWidth)
   }
 
+  /** Fly to one rect of a layer's bay: its key valves or value valves (the KV cache). */
+  flyToCache(layer: number): void {
+    const rs = this.layout.rects.filter((r) => r.layer === layer && r.kind !== 'weights')
+    if (!rs.length) return this.flyToLayer(layer)
+    const x0 = Math.min(...rs.map((r) => r.x0))
+    const y0 = Math.min(...rs.map((r) => r.y0))
+    const x1 = Math.max(...rs.map((r) => r.x0 + r.w))
+    const y1 = Math.max(...rs.map((r) => r.y0 + r.h))
+    this.camera.flyTo(this.fit(x0, y0, x1 - x0, y1 - y0, 1.15), this.canvas.clientWidth)
+  }
+
+  /** Fly to one column of a grid (e.g. a token's column of the vocabulary), framed top to bottom. */
+  flyToColumn(grid: number, col: number, rows: number): void {
+    const p = valveWorld(this.layout, grid, Math.floor(rows / 2), col)
+    if (!p) return
+    const scale = (rows * 1.35) / Math.max(1, this.canvas.clientHeight)
+    this.camera.flyTo({ cx: p.x + 0.5, cy: p.y + 0.5, scale }, this.canvas.clientWidth)
+  }
+
   flyToValve(grid: number, row: number, col: number, cellPx = 300): void {
     const p = valveWorld(this.layout, grid, row, col)
     if (!p) return

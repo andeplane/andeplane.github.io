@@ -287,3 +287,159 @@
     max-height: 72vh;
   }
 }
+
+/* ------------------------------------------------ guided tour card */
+#h-tour {
+  position: absolute;
+  left: 22px;
+  bottom: 22px;
+  z-index: 5;
+  width: min(430px, calc(100% - 44px));
+  max-height: calc(100% - 44px);
+  overflow-y: auto;
+  padding: 16px 18px 14px;
+  border-radius: 14px;
+  background: rgba(6, 10, 17, 0.92);
+  backdrop-filter: blur(8px);
+  border: 1px solid var(--gold-dim);
+  box-shadow: 0 16px 50px rgba(0, 0, 0, 0.6);
+  color: var(--ink);
+}
+
+#h-tour .tour-step {
+  margin: 0 0 4px;
+  font: 600 10.5px/1.2 var(--sans);
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--gold);
+}
+
+#h-tour h4 {
+  margin: 0 0 8px;
+  font: italic 500 20px/1.2 var(--serif);
+  color: #f6eedd;
+}
+
+#h-tour .tour-body p {
+  margin: 0 0 9px;
+  font: 14px/1.5 var(--serif);
+  color: var(--ink-dim);
+}
+
+#h-tour .tour-body b,
+#h-tour .tour-body q {
+  color: var(--ink);
+}
+
+#h-tour .tour-body .tour-fine {
+  font: 12px/1.45 var(--sans);
+  color: var(--ink-faint);
+}
+
+#h-tour .tour-nav {
+  display: flex;
+  gap: 8px;
+  margin-top: 6px;
+}
+
+#h-tour .tour-nav button {
+  flex: 1;
+  font: 600 13px/1 var(--sans);
+  padding: 10px 12px;
+  border-radius: 9px;
+  cursor: pointer;
+  color: var(--ink);
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid var(--edge);
+}
+
+#h-tour .tour-nav button.primary {
+  color: #08141d;
+  background: linear-gradient(180deg, #8fe0ff, #3fa6d3);
+  border-color: #a8e8ff;
+}
+
+#h-tour .tour-nav button:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+
+#h-tour-mark {
+  position: absolute;
+  left: 0;
+  top: 0;
+  z-index: 4;
+  border: 2px solid #8fe0ff;
+  border-radius: 4px;
+  box-shadow: 0 0 0 9999px rgba(4, 8, 14, 0.35), 0 0 18px rgba(143, 224, 255, 0.7);
+  pointer-events: none;
+}
+
+#h-tour-mark span {
+  position: absolute;
+  left: calc(100% + 10px);
+  top: 0;
+  white-space: nowrap;
+  font: 600 12px/1.3 var(--sans);
+  color: #8fe0ff;
+  text-shadow: 0 1px 6px #000;
+}
+
+.h-legend {
+  position: absolute;
+  right: 16px;
+  top: 12px;
+  max-width: 460px;
+  font: 12px/1.45 var(--sans);
+  color: var(--ink-dim);
+  background: rgba(6, 10, 17, 0.78);
+  border: 1px solid var(--edge);
+  border-radius: 10px;
+  padding: 8px 12px;
+  pointer-events: none;
+}
+
+.h-legend .pos {
+  color: var(--cyan);
+}
+
+.h-legend .neg {
+  color: var(--amber);
+}
+
+#h-tour table.tour-sum {
+  width: 100%;
+  margin: 0 0 10px;
+  border-collapse: collapse;
+  font: 12px/1.5 var(--mono);
+  color: var(--ink-dim);
+}
+
+#h-tour table.tour-sum td {
+  padding: 1px 6px 1px 0;
+  white-space: nowrap;
+}
+
+#h-tour table.tour-sum td:last-child {
+  text-align: right;
+}
+
+#h-tour table.tour-sum .pos {
+  color: var(--cyan);
+}
+
+#h-tour table.tour-sum .neg {
+  color: var(--amber);
+}
+
+#h-tour table.tour-sum .dim {
+  color: var(--ink-faint);
+  text-align: center;
+}
+
+#h-tour table.tour-sum tr.tot td {
+  border-top: 1px solid var(--edge);
+  color: var(--ink);
+  font-weight: 600;
+  padding-top: 3px;
+}

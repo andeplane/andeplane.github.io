@@ -19,7 +19,7 @@ export class CalcMode implements ModelMode {
     label: 'calc-gpt',
     title: 'A GPT that adds, in water',
     intro:
-      'Type a sum. Each character is looked up as a row of 32 numbers, and those numbers become the water heads in the input reservoirs. Water then runs through the crossbars of two transformer layers, one after the other, and the output collectors give the score of every possible next character.',
+      'The same machine as chapter 1, only bigger. Each step in the bar above the picture is a crossbar like the 4 × 4 one, with 32 or more reservoirs, or a small water circuit between crossbars. Type a sum: each character opens its own reservoir, and the water runs through two transformer layers, one after the other. The fullest output collector is the next character of the answer.',
     promptLabel: 'Sum',
     placeholder: '23+45=',
     examples: ['23+45=', '7+8=', '58+67=', '99+99=', '40+2='],

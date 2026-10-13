@@ -67,14 +67,14 @@ export function buildNonIdeal(
   );
   const NOISES = [0, 0.0025, 0.005, 0.01, 0.02, 0.04];
   const syncNoise = slider(
-    'Valve setting error σ',
+    'Valve setting error',
     NOISES.length,
     (i) => (NOISES[i] === 0 ? 'none' : `${(NOISES[i] * 100).toFixed(NOISES[i] < 0.01 ? 2 : 0)}% of full`),
     () => Math.max(0, NOISES.indexOf(cur.noise)),
     (i) => (cur.noise = NOISES[i]),
   );
   const syncLambda = slider(
-    'Manifold resistance λ',
+    'Pipe friction along each row',
     lambdas.length,
     (i) => (lambdas[i] === 0 ? 'none' : `λ = ${lambdas[i].toExponential(0)}`),
     () => Math.max(0, lambdas.indexOf(cur.lambda)),

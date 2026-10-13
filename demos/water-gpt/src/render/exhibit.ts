@@ -215,6 +215,11 @@ export class Exhibit {
     return true;
   }
 
+  /** Show one window of the grid (physical rows and columns), or the whole grid for null. */
+  focus(z: Win | null): void {
+    this.zoom = z ? this.clampWin(z) : null;
+  }
+
   resetZoom(): void {
     this.zoom = null;
   }
@@ -275,14 +280,15 @@ export class Exhibit {
         y: L.colY,
         w: colW,
         h: L.colH,
-        level: Math.abs(asm.collect[c]) * ph.collect * 0.92,
+        // a rotameter: the glass is full of passing water; the float (drawn on the HUD) shows the rate
+        level: Math.abs(asm.collect[c]) > 1e-6 ? Math.min(1, ph.collect * 4) * 0.97 : 0,
         tint: c % 2 === 0 ? 1 : 2,
         glow: ph.collect > 0 && ph.collect < 1 ? 0.4 : 0.1,
       });
     }
     stage.tanks.set(tanks);
 
-    // falling water: from each column outlet into its collector while it fills
+    // falling water: from each column outlet, through its flowmeter, to the drain
     const p = stage.particles;
     const G = 1100;
     p.step(dt, G);
@@ -418,13 +424,33 @@ export class Exhibit {
       ctx.textAlign = 'left';
     }
 
+    // The collectors drain freely; what the glass under each one shows is a flowmeter of the
+    // rotameter kind: a float that rises in proportion to the flow rate through it.
+    {
+      const colW = Math.max(1, L.cs * (L.cs > 12 ? 0.62 : 0.8));
+      ctx.fillStyle = '#e4c487';
+      for (let c = c0; c < c1; c++) {
+        const lvl = Math.abs(asm.collect[c]) * ph.collect * 0.92;
+        if (lvl < 0.01) continue;
+        const fy = Y(L.colY + 2 + lvl * (L.colH - 4));
+        ctx.fillRect(colX(c) - colW / 2 - 1, fy - 3, colW + 2, Math.max(2, Math.min(7, L.cs * 0.25)));
+      }
+    }
+
     // captions under the stage parts
     ctx.font = `600 10px ${SANS}`;
     ctx.fillStyle = 'rgba(228, 196, 135, 0.8)';
     ctx.textAlign = 'center';
     ctx.fillText('RESERVOIRS', L.resX + L.resW / 2, Y(L.gy) + 16);
+    ctx.font = `10px ${SANS}`;
+    ctx.fillText('held at a fixed level', L.resX + L.resW / 2, Y(L.gy) + 29);
     ctx.textAlign = 'left';
-    ctx.fillText('COLLECTORS', L.resX, Y(L.colY + L.colH / 2) + 4);
+    ctx.font = `600 10px ${SANS}`;
+    ctx.fillText('FLOWMETERS', L.resX, Y(L.colY + L.colH / 2) - 4);
+    ctx.font = `10px ${SANS}`;
+    ctx.fillStyle = 'rgba(233, 227, 214, 0.55)';
+    ctx.fillText('float height =', L.resX, Y(L.colY + L.colH / 2) + 9);
+    ctx.fillText('steady flow rate', L.resX, Y(L.colY + L.colH / 2) + 21);
     if (this.opts.caption && w >= 640) {
       ctx.font = `12px ${SANS}`;
       ctx.fillStyle = 'rgba(233, 227, 214, 0.55)';

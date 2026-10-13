@@ -44,7 +44,7 @@ export const BIG_MODELS: Record<BigModelId, { label: string; blurb: string; appr
       label: 'GPT-2 small',
       title: 'GPT-2, in water',
       intro:
-        'Every one of GPT-2’s 124 million weights is a valve. Your text becomes water heads, and it runs through 12 layers of crossbars to the 50 257 collectors of the output head.',
+        'Every one of GPT-2’s 124 million weights is set as valves. Each word of your text opens its own reservoirs, and the water runs through 12 layers of crossbars to 50 257 collectors, one for every word GPT-2 knows. The fullest one is the next word.',
       promptLabel: 'Prompt',
       placeholder: 'The museum of water computers opened its doors',
       examples: ['The museum of water computers opened its doors', 'In a quiet village by the river,', 'The secret of the old lighthouse was'],
@@ -61,7 +61,7 @@ export const BIG_MODELS: Record<BigModelId, { label: string; blurb: string; appr
       label: 'TinyStories-33M',
       title: 'Bedtime stories, in water',
       intro:
-        'A small GPT-Neo that only ever read children’s stories. Its 68 million valves (most of them in the output head) are enough to tell a coherent little story.',
+        'A small GPT-Neo that only ever read children’s stories. Its 68 million weights are set as valves (most of them in the 50 257-word vocabulary bank), and that is enough plumbing to tell a coherent little story.',
       promptLabel: 'Prompt',
       placeholder: 'Once upon a time, there was a little boat made of',
       examples: ['Once upon a time, there was a little boat made of', 'Lily wanted to see the sea, so', 'Tom found a shiny stone in the garden.'],

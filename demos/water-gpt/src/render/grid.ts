@@ -130,8 +130,6 @@ void main() {
     face = mix(face, sCol * (0.35 + 0.65 * o) + WATER * sqrt(valveF) * 0.45, arc);
     vec3 brass = BRASS * (0.55 + 0.45 * (0.5 - v.y / rv * 0.5));
     face = mix(face, brass, max(ring, max(sp * 0.85, hub)));
-    float glint = band(length(v - vec2(-0.09, -0.11)), 0.035, aa) * 0.6;
-    face += vec3(1.0, 0.95, 0.85) * glint;
     // the flow through the valve itself: a pulse in the hub
     face += WATER * sqrt(valveF) * 0.55 * band(r, rv * 0.3, aa) * (0.7 + 0.3 * sin(uTime * 6.0 - ph.x * 6.28));
     if (uHover >= 0.0 && abs(uHover - (cell.y * uSize.y + cell.x)) < 0.5) face += vec3(0.25, 0.22, 0.15) * ring;
