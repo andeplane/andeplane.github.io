@@ -1,0 +1,22 @@
+{
+  "name": "@andeplane/quantum",
+  "version": "0.1.0",
+  "private": true,
+  "description": "A gate-level quantum computer simulator for the browser: one circuit model, a WebGPU statevector backend and a CPU reference backend",
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "test:gpu": "node test/gpu/run.mjs"
+  },
+  "devDependencies": {
+    "@webgpu/types": "^0.1.64",
+    "playwright-core": "^1.56.1",
+    "typescript": "^5.9.3",
+    "vite": "^7.0.0",
+    "vitest": "^3.2.0"
+  }
+}
