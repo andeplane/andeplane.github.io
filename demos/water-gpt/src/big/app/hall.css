@@ -1,0 +1,445 @@
+/* The hall of valves (big modes): stage overlay and the chapter-2 panel. Uses the app's
+   variables from src/style.css. */
+
+#hall-stage {
+  position: relative;
+  overflow: hidden;
+  background: #02050a;
+  min-height: 0;
+  touch-action: none;
+  --cyan: #38dbff;
+  --amber: #ffa838;
+  --violet: #a899ff;
+  --brass: #d6b26e;
+}
+
+#h-field {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  display: block;
+  touch-action: none;
+  outline: none;
+}
+
+#h-labels {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+#hall-stage .lbl {
+  position: absolute;
+  left: 0;
+  top: 0;
+  white-space: nowrap;
+  transition: opacity 0.25s;
+  will-change: transform;
+}
+
+#hall-stage .lbl.bay {
+  font: italic 300 21px/1.2 var(--serif);
+  color: #f6eedd;
+  text-shadow: 0 2px 12px #000;
+}
+
+#hall-stage .lbl.rect {
+  font: 500 10.5px/1.2 var(--mono);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--gold);
+  text-shadow: 0 1px 6px #000;
+}
+
+#hall-stage .lbl.rect.kv {
+  color: var(--violet);
+}
+
+#hall-stage .lbl.rect span {
+  color: var(--ink-faint);
+  margin-left: 6px;
+}
+
+#h-plaque {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 300px;
+  padding: 12px 14px;
+  border-radius: 10px;
+  background: rgba(6, 10, 17, 0.88);
+  backdrop-filter: blur(8px);
+  border: 1px solid var(--gold-dim);
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.6);
+  pointer-events: none;
+  font: 12.5px/1.45 var(--sans);
+  color: var(--ink-dim);
+}
+
+#h-plaque .pl-where {
+  font: 500 10.5px/1.3 var(--mono);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--gold);
+}
+
+#h-plaque .pl-w {
+  font: 300 30px/1.15 var(--serif);
+  color: #f6eedd;
+  margin: 2px 0 4px;
+  font-variant-numeric: tabular-nums;
+}
+
+#h-plaque .pl-row {
+  margin-top: 3px;
+}
+
+#h-plaque .pos {
+  color: var(--cyan);
+}
+
+#h-plaque .neg {
+  color: var(--amber);
+}
+
+#hall-stage .dim,
+#hall-panel .dim {
+  color: var(--ink-faint);
+}
+
+.h-note {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  width: min(440px, calc(100% - 32px));
+  text-align: center;
+  color: var(--ink-dim);
+  font: 15px/1.5 var(--serif);
+}
+
+.h-note .note-title {
+  font: italic 500 26px/1.2 var(--serif);
+  color: #f6eedd;
+  margin: 0 0 8px;
+}
+
+#h-fill {
+  position: absolute;
+  left: 50%;
+  bottom: 24px;
+  transform: translateX(-50%);
+  width: min(520px, calc(100% - 32px));
+  padding: 14px 16px;
+  border-radius: 12px;
+  background: rgba(6, 10, 17, 0.84);
+  backdrop-filter: blur(8px);
+  border: 1px solid var(--edge);
+}
+
+#h-fill .fill-head,
+#h-fill .fill-foot {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  font: 12px/1.3 var(--mono);
+}
+
+#h-fill .fill-title {
+  color: var(--gold);
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+#h-fill .fill-foot {
+  color: var(--ink-faint);
+  margin-top: 6px;
+}
+
+#h-fill .bar {
+  height: 6px;
+  margin-top: 8px;
+  border-radius: 3px;
+  background: rgba(255, 255, 255, 0.06);
+  overflow: hidden;
+}
+
+#h-fill-bar {
+  height: 100%;
+  width: 0;
+  background: linear-gradient(90deg, #1b6f9a, var(--cyan));
+  box-shadow: 0 0 12px rgba(56, 219, 255, 0.6);
+}
+
+.h-zoomhint {
+  position: absolute;
+  left: 16px;
+  top: 14px;
+  font: 11px/1.2 var(--mono);
+  color: var(--ink-faint);
+  transition: opacity 0.5s;
+  pointer-events: none;
+}
+
+/* ---- panel ---- */
+
+#hall-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+#hall-panel textarea {
+  width: 100%;
+  resize: vertical;
+  font: 15px/1.45 var(--serif);
+  color: var(--ink);
+  background: rgba(0, 0, 0, 0.3);
+  border: 1px solid var(--edge);
+  border-radius: 8px;
+  padding: 8px 10px;
+  margin-bottom: 8px;
+}
+
+#hall-panel textarea:focus {
+  outline: none;
+  border-color: var(--gold-dim);
+}
+
+#hall-panel select {
+  font: 500 14px/1 var(--serif);
+  color: var(--ink-dim);
+  background: rgba(255, 255, 255, 0.025);
+  border: 1px solid var(--edge);
+  border-radius: 8px;
+  padding: 8px 6px;
+}
+
+#hall-panel .row-buttons {
+  display: flex;
+  gap: 6px;
+  margin-top: 8px;
+}
+
+#hall-panel .row-buttons > * {
+  flex: 1;
+}
+
+#hall-panel .fine {
+  margin: 8px 0 0;
+  font: 12.5px/1.45 var(--serif);
+  color: var(--ink-faint);
+}
+
+.h-sliders {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 4px 14px;
+  margin-top: 10px;
+}
+
+.h-check {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  margin-top: 8px;
+  font: 13px/1.3 var(--serif);
+  color: var(--ink-dim);
+}
+
+.h-output {
+  min-height: 80px;
+  max-height: 280px;
+  overflow: auto;
+  font: 16px/1.5 var(--serif);
+  white-space: pre-wrap;
+}
+
+.h-output .prompt {
+  color: var(--ink-dim);
+}
+
+.h-output .gen {
+  color: var(--water);
+}
+
+.h-output .caret {
+  display: inline-block;
+  width: 7px;
+  height: 1em;
+  margin-left: 2px;
+  vertical-align: -2px;
+  background: var(--water);
+  animation: blink 1s steps(2) infinite;
+}
+
+/* chapter 2 in a hall mode: hide calc-gpt's controls */
+#ch2.hall-mode > :not(#modes):not(#mode-intro):not(#hall-panel) {
+  display: none !important;
+}
+
+@media (max-width: 820px) {
+  #hall-stage {
+    grid-row: 1;
+    aspect-ratio: 4 / 3;
+    max-height: 72vh;
+  }
+}
+
+/* ------------------------------------------------ guided tour card */
+#h-tour {
+  position: absolute;
+  left: 22px;
+  bottom: 22px;
+  z-index: 5;
+  width: min(430px, calc(100% - 44px));
+  max-height: calc(100% - 44px);
+  overflow-y: auto;
+  padding: 16px 18px 14px;
+  border-radius: 14px;
+  background: rgba(6, 10, 17, 0.92);
+  backdrop-filter: blur(8px);
+  border: 1px solid var(--gold-dim);
+  box-shadow: 0 16px 50px rgba(0, 0, 0, 0.6);
+  color: var(--ink);
+}
+
+#h-tour .tour-step {
+  margin: 0 0 4px;
+  font: 600 10.5px/1.2 var(--sans);
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--gold);
+}
+
+#h-tour h4 {
+  margin: 0 0 8px;
+  font: italic 500 20px/1.2 var(--serif);
+  color: #f6eedd;
+}
+
+#h-tour .tour-body p {
+  margin: 0 0 9px;
+  font: 14px/1.5 var(--serif);
+  color: var(--ink-dim);
+}
+
+#h-tour .tour-body b,
+#h-tour .tour-body q {
+  color: var(--ink);
+}
+
+#h-tour .tour-body .tour-fine {
+  font: 12px/1.45 var(--sans);
+  color: var(--ink-faint);
+}
+
+#h-tour .tour-nav {
+  display: flex;
+  gap: 8px;
+  margin-top: 6px;
+}
+
+#h-tour .tour-nav button {
+  flex: 1;
+  font: 600 13px/1 var(--sans);
+  padding: 10px 12px;
+  border-radius: 9px;
+  cursor: pointer;
+  color: var(--ink);
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid var(--edge);
+}
+
+#h-tour .tour-nav button.primary {
+  color: #08141d;
+  background: linear-gradient(180deg, #8fe0ff, #3fa6d3);
+  border-color: #a8e8ff;
+}
+
+#h-tour .tour-nav button:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+
+#h-tour-mark {
+  position: absolute;
+  left: 0;
+  top: 0;
+  z-index: 4;
+  border: 2px solid #8fe0ff;
+  border-radius: 4px;
+  box-shadow: 0 0 0 9999px rgba(4, 8, 14, 0.35), 0 0 18px rgba(143, 224, 255, 0.7);
+  pointer-events: none;
+}
+
+#h-tour-mark span {
+  position: absolute;
+  left: calc(100% + 10px);
+  top: 0;
+  white-space: nowrap;
+  font: 600 12px/1.3 var(--sans);
+  color: #8fe0ff;
+  text-shadow: 0 1px 6px #000;
+}
+
+.h-legend {
+  position: absolute;
+  right: 16px;
+  top: 12px;
+  max-width: 460px;
+  font: 12px/1.45 var(--sans);
+  color: var(--ink-dim);
+  background: rgba(6, 10, 17, 0.78);
+  border: 1px solid var(--edge);
+  border-radius: 10px;
+  padding: 8px 12px;
+  pointer-events: none;
+}
+
+.h-legend .pos {
+  color: var(--cyan);
+}
+
+.h-legend .neg {
+  color: var(--amber);
+}
+
+#h-tour table.tour-sum {
+  width: 100%;
+  margin: 0 0 10px;
+  border-collapse: collapse;
+  font: 12px/1.5 var(--mono);
+  color: var(--ink-dim);
+}
+
+#h-tour table.tour-sum td {
+  padding: 1px 6px 1px 0;
+  white-space: nowrap;
+}
+
+#h-tour table.tour-sum td:last-child {
+  text-align: right;
+}
+
+#h-tour table.tour-sum .pos {
+  color: var(--cyan);
+}
+
+#h-tour table.tour-sum .neg {
+  color: var(--amber);
+}
+
+#h-tour table.tour-sum .dim {
+  color: var(--ink-faint);
+  text-align: center;
+}
+
+#h-tour table.tour-sum tr.tot td {
+  border-top: 1px solid var(--edge);
+  color: var(--ink);
+  font-weight: 600;
+  padding-top: 3px;
+}

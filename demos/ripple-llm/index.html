@@ -1,0 +1,121 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>The Ripple LLM — matrix multiplication and a tiny language model made of water</title>
+    <meta
+      name="description"
+      content="Ripple tanks whose sculpted floors are inverse-designed so that waves compute a matrix–vector product. First one tank multiplies a vector, then 24 of them run every multiply–add of a tiny character-level language model."
+    />
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><circle cx='50' cy='50' r='12' fill='none' stroke='%23f2c46d' stroke-width='6'/><circle cx='50' cy='50' r='28' fill='none' stroke='%2366e0ff' stroke-width='5' opacity='.6'/><circle cx='50' cy='50' r='44' fill='none' stroke='%2366e0ff' stroke-width='4' opacity='.3'/></svg>" />
+    <link rel="stylesheet" href="./src/style.css" />
+  </head>
+  <body data-chapter="1">
+    <canvas id="view"></canvas>
+    <div id="labels" aria-hidden="true"></div>
+
+    <header id="title">
+      <p class="eyebrow">Wave computing · after Hughes et al., 2019</p>
+      <h1>The Ripple LLM</h1>
+      <p class="lede ch1">
+        Waves add up linearly, so a tank driven at one frequency turns the strengths of its
+        wave-makers into readings at its probes through a fixed matrix. Sculpt the floor and
+        you choose the matrix.
+      </p>
+      <p class="lede ch2">
+        Twenty-four sculpted tanks hold every weight of a tiny character-level language model.
+        Each letter it writes is a wave pattern crossing all of them.
+      </p>
+    </header>
+
+    <nav id="chapters" role="tablist" aria-label="Chapters">
+      <button role="tab" data-ch="1" aria-selected="true"><span>I</span> Matrix × vector</button>
+      <button role="tab" data-ch="2" aria-selected="false"><span>II</span> A tiny language model</button>
+    </nav>
+
+    <!-- Chapter 1 -->
+    <section id="ch1-left" class="panel left ch1" aria-label="Program the tank">
+      <h2>Program</h2>
+      <div id="targets" class="chips" role="radiogroup" aria-label="Target matrix"></div>
+      <p id="target-blurb" class="hint"></p>
+      <div class="equation">
+        <div id="matrix" class="matrix" aria-label="Target matrix W"></div>
+        <div class="times">·</div>
+        <div id="xvec" class="vec"></div>
+      </div>
+      <h3>Input <i>x</i> <span class="sub">wave-maker amplitudes</span></h3>
+      <div id="xin" class="sliders"></div>
+      <div class="actions">
+        <button id="send" class="primary" type="button">Send waves</button>
+        <button id="shuffle" class="ghost" type="button">Random x</button>
+      </div>
+    </section>
+
+    <section id="ch1-right" class="panel right ch1" aria-label="Readout">
+      <div class="readout-head">
+        <h2>Readout</h2>
+        <span id="status1" class="status">ready</span>
+      </div>
+      <div id="progress1" class="progress"><div></div></div>
+      <div class="ans-head"><span></span><span class="w">water</span><span class="e">exact W·x</span></div>
+      <div id="answers" class="answers"></div>
+      <div id="err1" class="err1">Press <b>Send waves</b>.</div>
+      <p class="note">
+        Each probe feeds a <b>lock-in amplifier</b>: it multiplies the probe's height by the
+        wave-makers' own clock and averages over whole periods. That <em>in-phase</em> amplitude is
+        the signed answer (a negative input is the same stroke half a period late). One fixed gain
+        converts it to numbers, the same for every tank.
+      </p>
+      <p id="fd1" class="note small"></p>
+    </section>
+
+    <!-- Chapter 2 -->
+    <section id="ch2-left" class="panel left ch2" aria-label="Prompt">
+      <h2>Prompt</h2>
+      <p class="hint">Type the start of a first name. A model trained on 32&nbsp;000 names finishes it, one letter per wave pattern.</p>
+      <form id="prompt-form" class="prompt-row">
+        <input id="prompt" value="an" maxlength="12" autocomplete="off" spellcheck="false" aria-label="Prompt" />
+        <button id="gen" class="primary" type="submit">Generate</button>
+      </form>
+      <div id="output" class="output" aria-live="polite"><span class="caret"></span></div>
+      <ol id="history" class="history"></ol>
+      <label class="check"><input id="watch" type="checkbox" checked /> Watch the visible tank settle for every letter</label>
+      <div class="noise">
+        <span>Probe noise σ</span>
+        <input id="noise" type="range" min="0" max="5" step="1" value="0" aria-label="Probe noise" />
+        <b id="noise-val">0</b>
+      </div>
+      <div class="legend">
+        <div><i class="sw water"></i><b>Water</b> every multiply–add of both layers: 24 tanks, 1 shown in the time domain, all 24 by the steady-state solve of the same floors.</div>
+        <div><i class="sw digital"></i><b>Digital</b> embedding lookup, adding tile outputs, tanh, softmax, sampling, the lock-in gain.</div>
+      </div>
+    </section>
+
+    <section id="ch2-right" class="panel right ch2" aria-label="Tank hall and next-letter probabilities">
+      <div class="readout-head">
+        <h2>Tank hall</h2>
+        <span id="status2" class="status">calibrating</span>
+      </div>
+      <div id="hall" class="hall"></div>
+      <p id="visible-note" class="note small"></p>
+      <h3>Next letter <span class="sub"><i class="sw water"></i>water <i class="sw exact"></i>exact model</span></h3>
+      <canvas id="probs" height="120"></canvas>
+      <div id="token-line" class="token-line"></div>
+      <div class="scores">
+        <div class="score-row"><span>Top-1 agreement, held-out names</span><b id="agree">–</b></div>
+        <div class="meter water"><div id="bar-agree"></div></div>
+        <div class="score-row"><span>Mean KL(exact ‖ water)</span><b id="kl">–</b></div>
+        <div class="score-row"><span>This session's letters</span><b id="session">–</b></div>
+        <p id="agree-note" class="note small"></p>
+      </div>
+    </section>
+
+    <footer id="timeline"></footer>
+    <p id="touch-hint">Drag to look around</p>
+    <div id="loading">Sculpting tanks…</div>
+    <pre id="errlog"></pre>
+
+    <script type="module" src="./src/main.ts"></script>
+  </body>
+</html>

@@ -1,0 +1,200 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>The Water GPT</title>
+    <meta
+      name="description"
+      content="A hydraulic crossbar: pipes, valves and reservoirs that multiply a matrix by a vector in one step, scaled up to run a small trained GPT that adds numbers, with every matrix product done by water."
+    />
+    <link
+      rel="icon"
+      href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Cg stroke='%236fd3ff' stroke-width='2'%3E%3Cpath d='M4 9h24M4 16h24M4 23h24'/%3E%3C/g%3E%3Cg stroke='%23e4c487' stroke-width='2'%3E%3Cpath d='M9 4v24M16 4v24M23 4v24'/%3E%3C/g%3E%3Cg fill='%23e4c487'%3E%3Ccircle cx='9' cy='9' r='2.6'/%3E%3Ccircle cx='23' cy='16' r='2.6'/%3E%3Ccircle cx='16' cy='23' r='2.6'/%3E%3C/g%3E%3C/svg%3E"
+    />
+    <link rel="stylesheet" href="/src/style.css" />
+  </head>
+  <body>
+    <main id="app">
+      <aside id="panel">
+        <header>
+          <p class="kicker">Analogue computing with water</p>
+          <h1>The Water GPT</h1>
+          <p class="lede">
+            An analogue computer doesn't count in digits. It lets a law of physics do the
+            arithmetic. Here the physics is water: a grid of pipes and valves multiplies a matrix by
+            a vector in one go, and scaled up, it runs a real language model.
+          </p>
+          <p class="lede lede-strong">
+            Everything you see is a physics simulation of that water. Every number the models use
+            comes out of a simulated pipe, valve or tank.
+          </p>
+          <button type="button" id="intro-open" class="intro-open">What am I looking at?</button>
+        </header>
+
+        <nav id="tabs" role="tablist" aria-label="Chapter">
+          <button type="button" role="tab" data-ch="1" aria-selected="true">1 · The crossbar</button>
+          <button type="button" role="tab" data-ch="2" aria-selected="false">2 · The GPT</button>
+        </nav>
+
+        <!-- ------------------------------------------------ chapter 1 -->
+        <section id="ch1" class="chapter">
+          <div class="text">
+            <p>
+              Each <b>reservoir</b> on the left is held at a fixed <b>level</b> x<sub>i</sub> (engineers
+              call it the hydraulic head): it is topped up and has an overflow, so its pressure never
+              changes. That pressure is the input. Its supply pipe runs to the right and
+              crosses a row of <b>collector</b> columns. At every crossing a <b>valve</b> lets water
+              through. Slow water in a thin pipe flows in proportion to the pressure behind it
+              (Hagen–Poiseuille), so a valve of conductance w passes a steady
+              <em>w · x<sub>i</sub></em> litres per second. The valve's conductance is the weight.
+            </p>
+            <p>
+              Each column drains into a collector that is open to the air, so nothing pushes back.
+              The water never stops, but within a moment every flow is steady, and since water is
+              conserved, the steady flow rate into a collector is the sum of what its valves pass:
+              <em>y<sub>j</sub> = Σ<sub>i</sub> w<sub>ji</sub> x<sub>i</sub></em>. That rate is the
+              answer: under each collector, a flowmeter's float rises to show it. A whole matrix–vector product, with no part waiting
+              for another.
+            </p>
+            <p>
+              A valve can only let water through, so each output uses a <span class="pos">+</span>/<span class="neg">−</span>
+              <b>pair</b> of collectors: a positive weight opens the valve on the <span class="pos">+</span> collector, a
+              negative one on the <span class="neg">−</span> collector, and the answer is the difference.
+              (Inputs can be negative too, so the bigger machines give each input two reservoirs, x⁺ and x⁻.)
+            </p>
+            <p class="analogue">
+              <b>Not just a water toy.</b> Analogue AI chips being built today use exactly this layout
+              with electricity: voltages for levels, resistors for valves, and currents adding up in a
+              wire, by Ohm's and Kirchhoff's laws. Water obeys the same laws, and you can watch it.
+            </p>
+          </div>
+
+          <div class="group">
+            <h3>Reservoir levels x</h3>
+            <div id="heads"></div>
+          </div>
+          <div class="group">
+            <h3>Valve openings w <span class="hint">· or drag a valve wheel up or down</span></h3>
+            <div id="wgrid"></div>
+            <div class="row-buttons">
+              <button type="button" id="randomise">Random weights</button>
+              <button type="button" id="identity">Identity</button>
+            </div>
+          </div>
+          <div class="buttons">
+            <button id="run1" type="button" class="primary">Fill the reservoirs</button>
+          </div>
+          <section class="result" aria-live="polite">
+            <table id="table1">
+              <thead>
+                <tr><th>j</th><th>water y<sub>j</sub></th><th>ordinary computer</th><th>error</th></tr>
+              </thead>
+              <tbody></tbody>
+            </table>
+            <p class="note" id="note1"></p>
+          </section>
+          <div class="group" id="nonideal1"></div>
+        </section>
+
+        <!-- ------------------------------------------------ chapter 2 -->
+        <section id="ch2" class="chapter" hidden>
+          <div id="modes" class="modes" role="radiogroup" aria-label="Model"></div>
+          <form id="prompt-form" class="prompt" autocomplete="off">
+            <label for="prompt" id="prompt-label">Sum</label>
+            <div class="prompt-row">
+              <input id="prompt" type="text" inputmode="numeric" spellcheck="false" maxlength="8" />
+              <button id="go" type="submit" class="primary">Calculate</button>
+            </div>
+            <div id="examples" class="examples"></div>
+            <p id="prompt-error" class="error" hidden></p>
+          </form>
+
+          <section class="result answer" aria-live="polite">
+            <div class="answer-line"><span id="ans-prompt"></span><span id="ans-gen"></span><span id="ans-cursor" class="cursor">▍</span></div>
+            <dl>
+              <div><dt>same model on an ordinary computer</dt><dd id="ans-exact">–</dd></div>
+              <div><dt>true sum</dt><dd id="ans-true">–</dd></div>
+            </dl>
+          </section>
+
+          <div id="hall-panel" hidden></div>
+          <div class="text" id="mode-intro"></div>
+          <p class="factory">
+            <b>Set at the factory.</b> The valves were set once, from a model trained elsewhere.
+            Nothing learns here: the water only calculates.
+          </p>
+          <details class="trip">
+            <summary>One character's trip through the machine</summary>
+            <dl>
+              <dt>embed</dt><dd>the character opens its reservoir, and its row of valves pours out its 32 numbers</dd>
+              <dt>LayerNorm</dt><dd>a water circuit evens out the levels so nothing runs off the scale</dd>
+              <dt>Q·K·V</dt><dd>each character makes a question (query), a label (key) and a message (value)</dd>
+              <dt>QKᵀ</dt><dd>how well this question matches every earlier label: valves set by the earlier characters</dd>
+              <dt>softmax</dt><dd>a water circuit turns those scores into shares that add up to 1</dd>
+              <dt>A·V</dt><dd>blend the earlier messages by those shares</dd>
+              <dt>out</dt><dd>mix the attention heads back together</dd>
+              <dt>up · ReLU · down</dt><dd>a small calculator for each character; ReLU is a check valve</dd>
+              <dt>scores</dt><dd>one collector per possible next character</dd>
+              <dt>read out</dt><dd>check valves let only the fullest collector through: that is the answer</dd>
+            </dl>
+          </details>
+          <div class="group">
+            <h3>Next-character probabilities <span class="hint">· <span class="pos">water</span> vs <span class="dig">ordinary computer</span></span></h3>
+            <div id="probs" class="probs"></div>
+          </div>
+
+          <div class="group">
+            <h3>Held-out sums <span class="hint" id="acc-hint"></span></h3>
+            <div id="accuracy" class="accuracy"></div>
+            <div id="facts" class="facts"></div>
+          </div>
+
+          <div class="group" id="nonideal2"></div>
+
+          <div class="group">
+            <h3>What is water and what is not</h3>
+            <ul class="split">
+              <li><span class="pos">crossbars</span> Every matrix product: the embedding lookup (one reservoir per character opens its row of valves), Q·K·V, attention scores QKᵀ and attention·V (valves set on the fly from the activations), the attention output, MLP up and down, and the final scores.</li>
+              <li><span class="pos">circuits</span> Everything in between, also water. <b>Softmax</b>: a check-valve node finds the largest score, valves profiled to open as e<sup>s/√d</sup> pass the rest, and a fixed inflow splits across them in exactly the softmax ratios. <b>LayerNorm</b>: an averaging node gives the mean, orifices give the square and the square root, and valves opened in proportion to σ divide by it. <b>ReLU</b>: a check valve. Bias and residual adds are flows merging. Between crossbars, pressure regulators (mechanical, no electronics) set each next reservoir's level from a collector's flow. Every part has its own manufacturing error.</li>
+              <li><span class="pos">read-out</span> Water too: every output collector feeds one node through its own check valve, and the collector that fills it is the next character.</li>
+              <li><span class="dig">not water</span> Only the keyboard: each character you type opens its reservoir.</li>
+            </ul>
+          </div>
+        </section>
+
+        <footer>
+          The water you see follows the network solution: every valve flow, supply-pipe flow and
+          collector level comes from solving Kirchhoff's law for laminar flow in the whole grid of
+          pipes. Every number the model uses comes out of a simulated water part, and each part is built
+          with its own manufacturing error. The simulation is a pipe-network
+          model (Hagen–Poiseuille pipes, orifices and check valves at steady state), not a
+          computational fluid dynamics solve.
+        </footer>
+      </aside>
+
+      <div id="stage">
+        <canvas id="gl"></canvas>
+        <canvas id="hud"></canvas>
+        <div id="pipe-bar" hidden>
+          <div class="pipe-head">
+            <span class="pipe-title">What the water does for one character</span>
+            <span class="pipe-key"><i class="k-bar"></i> crossbar (matrix × vector) <i class="k-circ"></i> water circuit</span>
+            <div class="speed" role="radiogroup" aria-label="Speed">
+              <button type="button" data-speed="watch">Slow</button>
+              <button type="button" data-speed="fast" aria-pressed="true">Normal</button>
+              <button type="button" data-speed="instant">Skip</button>
+            </div>
+          </div>
+          <ol id="pipeline" class="pipeline"></ol>
+        </div>
+        <div id="valve-key" aria-label="How to read a valve"></div>
+        <div id="circuit-card" hidden aria-live="polite"><p class="cc-kicker">Water circuit</p><h4 id="cc-title"></h4><p id="cc-body"></p></div>
+        <p id="nogl" hidden>This exhibit needs WebGL2.</p>
+        <p id="busy" hidden></p>
+      </div>
+      <div id="hall-stage" hidden></div>
+    </main>
+    <script type="module" src="/src/main.ts"></script>
+  </body>
+</html>
