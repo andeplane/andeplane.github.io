@@ -1,9 +1,9 @@
-import portrait from '@/assets/anders-hafreager.jpg'
+import ProfilePortrait from '@/components/ProfilePortrait'
 
 export default function About() {
   return (
     <div className="personal-intro personal-intro-about">
-      <img className="personal-portrait" src={portrait} alt="Anders Hafreager" width={2000} height={3000} />
+      <ProfilePortrait />
       <div className="personal-intro-copy" style={{ maxWidth: '680px' }}>
         <h1 style={{ fontSize: '2.25rem', fontWeight: 800, color: '#fff', margin: '0 0 2rem', letterSpacing: '-0.02em' }}>
           About
@@ -44,23 +44,9 @@ export default function About() {
           <div>
             <h2 style={{ fontSize: '1.2rem', fontWeight: 700, color: '#fff', margin: '0 0 1rem' }}>Get in touch</h2>
             <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-              <li style={{ display: 'flex', alignItems: 'center', flexWrap: 'wrap', gap: '0.5rem 1rem' }}>
+              <li>
                 <a href="https://github.com/andeplane" target="_blank" rel="noopener noreferrer">
                   GitHub — github.com/andeplane
-                </a>
-                <a
-                  href="https://user-badge.committers.top/norway_public/andeplane"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  style={{ display: 'inline-flex', maxWidth: '100%' }}
-                >
-                  <img
-                    src="https://user-badge.committers.top/norway_public/andeplane.svg"
-                    alt="andeplane's committers.top ranking for public contributions in Norway"
-                    width={341}
-                    height={20}
-                    style={{ maxWidth: '100%', height: 'auto' }}
-                  />
                 </a>
               </li>
               <li>

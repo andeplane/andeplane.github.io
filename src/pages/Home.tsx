@@ -1,4 +1,4 @@
-import portrait from '@/assets/anders-hafreager.jpg'
+import ProfilePortrait from '@/components/ProfilePortrait'
 import { Link } from 'react-router-dom'
 import { useState, useEffect, useRef, useCallback } from 'react'
 import type { CSSProperties } from 'react'
@@ -180,7 +180,7 @@ export default function Home() {
     <div>
       {/* Hero */}
       <section className="personal-intro" style={{ paddingBottom: '5rem', borderBottom: '1px solid var(--color-border)' }}>
-        <img className="personal-portrait" src={portrait} alt="Anders Hafreager" width={2000} height={3000} fetchPriority="high" />
+        <ProfilePortrait priority />
         <div className="personal-intro-copy">
           <div style={{ display: 'inline-block', padding: '0.3em 0.8em', borderRadius: '20px', background: 'var(--color-surface-2)', border: '1px solid var(--color-border)', fontSize: '0.8rem', color: 'var(--color-text-muted)', marginBottom: '1.5rem' }}>
             Vice President of Engineering at Cognite
