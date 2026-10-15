@@ -44,9 +44,23 @@ export default function About() {
           <div>
             <h2 style={{ fontSize: '1.2rem', fontWeight: 700, color: '#fff', margin: '0 0 1rem' }}>Get in touch</h2>
             <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-              <li>
+              <li style={{ display: 'flex', alignItems: 'center', flexWrap: 'wrap', gap: '0.5rem 1rem' }}>
                 <a href="https://github.com/andeplane" target="_blank" rel="noopener noreferrer">
                   GitHub — github.com/andeplane
+                </a>
+                <a
+                  href="https://user-badge.committers.top/norway_public/andeplane"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  style={{ display: 'inline-flex', maxWidth: '100%' }}
+                >
+                  <img
+                    src="https://user-badge.committers.top/norway_public/andeplane.svg"
+                    alt="andeplane's committers.top ranking for public contributions in Norway"
+                    width={341}
+                    height={20}
+                    style={{ maxWidth: '100%', height: 'auto' }}
+                  />
                 </a>
               </li>
               <li>
