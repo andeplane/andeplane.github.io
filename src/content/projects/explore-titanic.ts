@@ -7,6 +7,26 @@ const project: ProjectMeta = {
     'Walk the whole of RMS Titanic in your browser, inside and out: from the boat deck down to the engine rooms, built room by room from the 1912 deck plans, on an open North Atlantic in any weather and under the real night sky of 14 April 1912.',
   tags: ['TypeScript', 'Babylon.js', 'Game', 'Exploration', 'History', 'WebXR'],
   liveUrl: '/explore-titanic/',
+  screenshot: '/projects/explore-titanic/preview.jpg',
+  screenshotAlt: 'Titanic steaming through a dark blue North Atlantic, seen from above her starboard bow, smoke trailing from three funnels',
+  screenshotsTitle: 'At sea',
+  screenshotsNote: 'Screenshots from the live game. Click any image for a closer look.',
+  screenshots: [
+    {
+      src: '/projects/explore-titanic/ship-at-sea.jpg',
+      alt: 'Titanic seen broadside from above her port bow, her wake running back to the horizon',
+      caption: 'The opening view: the ship heaving and pitching on the swell',
+      width: 1600,
+      height: 1000,
+    },
+    {
+      src: '/projects/explore-titanic/sunset.jpg',
+      alt: 'Titanic at sunset under a pale pink sky, the sea dark and calm',
+      caption: 'Sunset, one of four times of day',
+      width: 1600,
+      height: 1000,
+    },
+  ],
   longDescription: `
 A first-person walk through RMS Titanic. Stroll the boat deck between the lifeboats,
 open a door and step into the gymnasium, take the grand staircase down, and keep going:
