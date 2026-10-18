@@ -2,7 +2,7 @@ import { Link } from 'react-router-dom'
 import { useProjects } from '@/hooks/useProjects'
 import './games.css'
 
-const order = ['broadside', 'fuse-riders', 'fusetown', 'fuse-craft', 'fuse-axe', 'fuse-bombers', 'fuse-choppers', 'fuse-freight', 'hook-havok', 'verdant', 'particle-defence', 'flow-defence', 'lunarlander', 'sunken', 'three-lefts', 'curling-simulator', 'interval-trainer']
+const order = ['explore-titanic', 'broadside', 'fuse-riders', 'fusetown', 'fuse-craft', 'fuse-axe', 'fuse-bombers', 'fuse-choppers', 'fuse-freight', 'hook-havok', 'verdant', 'particle-defence', 'flow-defence', 'lunarlander', 'sunken', 'three-lefts', 'curling-simulator', 'interval-trainer']
 export default function Games() {
   const projects = useProjects().filter(p => (p.tags.includes('Game') || order.includes(p.slug)) && p.liveUrl)
     .sort((a, b) => (order.indexOf(a.slug) < 0 ? 99 : order.indexOf(a.slug)) - (order.indexOf(b.slug) < 0 ? 99 : order.indexOf(b.slug)))
