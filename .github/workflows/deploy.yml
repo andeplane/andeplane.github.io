@@ -32,6 +32,18 @@ jobs:
       - name: Build
         run: npm run build
 
+      # The Explore Titanic game at /explore-titanic/: built in its private repository
+      # (dev/build-public.mjs there) and pushed to the explore-titanic-build branch as one
+      # commit per release, then deployed by running this workflow (workflow_dispatch)
+      - name: Add Explore Titanic
+        run: |
+          if git fetch --depth=1 origin explore-titanic-build; then
+            mkdir -p dist/explore-titanic
+            git archive FETCH_HEAD | tar -x -C dist/explore-titanic
+            # files over GitHub's 100 MB limit are stored gzipped
+            find dist/explore-titanic -name '*.gz' -exec gunzip {} +
+          fi
+
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
