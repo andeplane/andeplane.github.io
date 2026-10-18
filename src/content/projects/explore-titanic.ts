@@ -8,13 +8,13 @@ const project: ProjectMeta = {
   tags: ['TypeScript', 'Babylon.js', 'Game', 'Exploration', 'History', 'WebXR'],
   liveUrl: '/explore-titanic/',
   screenshot: '/projects/explore-titanic/preview.jpg',
-  screenshotAlt: 'Titanic steaming through a dark blue North Atlantic, seen from above her starboard bow, smoke trailing from three funnels',
+  screenshotAlt: 'Titanic steaming through a dark blue North Atlantic, seen from above her bow, smoke trailing from her funnels',
   screenshotsTitle: 'At sea',
   screenshotsNote: 'Screenshots from the live game. Click any image for a closer look.',
   screenshots: [
     {
       src: '/projects/explore-titanic/ship-at-sea.jpg',
-      alt: 'Titanic seen broadside from above her port bow, her wake running back to the horizon',
+      alt: 'Titanic seen from above, her wake running back to the horizon',
       caption: 'The opening view: the ship heaving and pitching on the swell',
       width: 1600,
       height: 1000,
