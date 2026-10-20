@@ -11,6 +11,8 @@ import Music from '@/pages/Music'
 import Rendering from '@/pages/Rendering'
 
 const Games = lazy(() => import('@/pages/Games'))
+const Hardware = lazy(() => import('@/pages/Hardware'))
+const Kiwi = lazy(() => import('@/features/kiwi/Kiwi'))
 const Interests = lazy(() => import('@/pages/Interests'))
 const Physics = lazy(() => import('@/pages/Physics'))
 const NeuralOperators = lazy(() => import('@/features/neural-operators/NeuralOperators'))
@@ -24,6 +26,8 @@ export const router = createBrowserRouter([
       { index: true, element: <Home /> },
       { path: 'projects', element: <Projects /> },
       { path: 'games', element: <Suspense fallback={<p>Loading games…</p>}><Games /></Suspense> },
+      { path: 'hardware', element: <Suspense fallback={<p>Loading hardware…</p>}><Hardware /></Suspense> },
+      { path: 'hardware/kiwi', element: <Suspense fallback={<p>Loading Kiwi…</p>}><Kiwi /></Suspense> },
       { path: 'interests', element: <Suspense fallback={<p>Loading interests…</p>}><Interests /></Suspense> },
       { path: 'interests/physics', element: <Suspense fallback={<p>Loading physics…</p>}><Physics /></Suspense> },
       { path: 'interests/music', element: <Music /> },

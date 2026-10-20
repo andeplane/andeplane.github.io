@@ -1,0 +1,1409 @@
+{
+  "status": "PASS",
+  "issues": [],
+  "validPartInstances": 124,
+  "partInstances": 124,
+  "printedInstances": 51,
+  "uniquePrintableStls": 31,
+  "contactPoints": [
+    {
+      "wheelAngleDeg": 30,
+      "pointMm": [
+        114.142,
+        65.9,
+        0.0
+      ]
+    },
+    {
+      "wheelAngleDeg": 150,
+      "pointMm": [
+        -114.142,
+        65.9,
+        0.0
+      ]
+    },
+    {
+      "wheelAngleDeg": 270,
+      "pointMm": [
+        -0.0,
+        -131.8,
+        0.0
+      ]
+    }
+  ],
+  "contactPlaneZMm": 0,
+  "analyticClearances": [
+    {
+      "pair": "wheel swept top / shell underside",
+      "nominalMm": 3.0,
+      "basis": "wheel maxz60; shell wall starts63"
+    },
+    {
+      "pair": "gearcase / clamp bore (diametral)",
+      "nominalMm": 0.6,
+      "basis": "25mm vendor case,25.6mm bore"
+    },
+    {
+      "pair": "motor can / rear clamp bore (diametral)",
+      "nominalMm": 0.6,
+      "basis": "24.4mm vendor can,25mm bore"
+    },
+    {
+      "pair": "motor face / hub barrel",
+      "nominalMm": 1.0,
+      "basis": "radial face102; hub begins103"
+    },
+    {
+      "pair": "camera / padded saddle width",
+      "nominalMm": 4.0,
+      "basis": "95mm insidewidth vs91mm camera"
+    },
+    {
+      "pair": "battery / locating pocket width",
+      "nominalMm": 2.0,
+      "basis": "36mm clearpocket vs34mm pack"
+    },
+    {
+      "pair": "Pi cooler / lid lower face",
+      "nominalMm": 18.4,
+      "basis": "cooler top121mm; lid bottom139.4mm"
+    },
+    {
+      "pair": "left / right deck and shell seam",
+      "nominalMm": 0.5,
+      "basis": "parametric splitgap"
+    }
+  ],
+  "criticalPairChecks": [
+    {
+      "parts": [
+        "battery",
+        "pi-tray"
+      ],
+      "intersectionMm3": 0.0,
+      "passed": true
+    },
+    {
+      "parts": [
+        "battery",
+        "deck-left"
+      ],
+      "intersectionMm3": 0.0,
+      "passed": true
+    },
+    {
+      "parts": [
+        "battery",
+        "deck-right"
+      ],
+      "intersectionMm3": 0.0,
+      "passed": true
+    },
+    {
+      "parts": [
+        "pi-cooler",
+        "lid-left"
+      ],
+      "intersectionMm3": 0.0,
+      "passed": true
+    },
+    {
+      "parts": [
+        "pi-cooler",
+        "lid-right"
+      ],
+      "intersectionMm3": 0.0,
+      "passed": true
+    },
+    {
+      "parts": [
+        "oak-body",
+        "camera-saddle"
+      ],
+      "intersectionMm3": 0.0,
+      "passed": true
+    },
+    {
+      "parts": [
+        "battery",
+        "stop-tower"
+      ],
+      "intersectionMm3": 0.0,
+      "passed": true
+    },
+    {
+      "parts": [
+        "battery",
+        "electronics-tray"
+      ],
+      "intersectionMm3": 0.0,
+      "passed": true
+    },
+    {
+      "parts": [
+        "camera-saddle",
+        "camera-tower--43"
+      ],
+      "intersectionMm3": 0.0,
+      "passed": true
+    },
+    {
+      "parts": [
+        "camera-saddle",
+        "camera-tower-43"
+      ],
+      "intersectionMm3": 0.0,
+      "passed": true
+    },
+    {
+      "parts": [
+        "stop-body",
+        "stop-tower"
+      ],
+      "intersectionMm3": 0.0,
+      "passed": true
+    },
+    {
+      "parts": [
+        "stop-tower",
+        "lid-right"
+      ],
+      "intersectionMm3": 0.0,
+      "passed": true
+    },
+    {
+      "parts": [
+        "splice-0",
+        "clamp-upper-270"
+      ],
+      "intersectionMm3": 0.0,
+      "passed": true
+    },
+    {
+      "parts": [
+        "splice-1",
+        "clamp-upper-270"
+      ],
+      "intersectionMm3": 0.0,
+      "passed": true
+    },
+    {
+      "parts": [
+        "main-rocker-body",
+        "main-switch-panel"
+      ],
+      "intersectionMm3": 0.0,
+      "passed": true
+    },
+    {
+      "parts": [
+        "main-rocker-body",
+        "battery"
+      ],
+      "intersectionMm3": 0.0,
+      "passed": true
+    },
+    {
+      "parts": [
+        "motor-driver-0",
+        "battery"
+      ],
+      "intersectionMm3": 0.0,
+      "passed": true
+    },
+    {
+      "parts": [
+        "i2c-mux-0",
+        "camera-tower--43"
+      ],
+      "intersectionMm3": 0.0,
+      "passed": true
+    },
+    {
+      "parts": [
+        "i2c-mux-1",
+        "camera-tower-43"
+      ],
+      "intersectionMm3": 0.0,
+      "passed": true
+    },
+    {
+      "parts": [
+        "imu",
+        "pi-tray"
+      ],
+      "intersectionMm3": 0.0,
+      "passed": true
+    },
+    {
+      "parts": [
+        "power-regulator",
+        "stop-tower"
+      ],
+      "intersectionMm3": 0.0,
+      "passed": true
+    },
+    {
+      "parts": [
+        "microcontroller",
+        "shell-left"
+      ],
+      "intersectionMm3": 0.0,
+      "passed": true
+    }
+  ],
+  "printedPairChecks": [
+    {
+      "parts": [
+        "deck-left",
+        "pi-riser-0"
+      ],
+      "intersectionMm3": 0.0,
+      "passed": true,
+      "intersectionBoundsMm": null
+    },
+    {
+      "parts": [
+        "deck-left",
+        "pi-riser-2"
+      ],
+      "intersectionMm3": 0.0,
+      "passed": true,
+      "intersectionBoundsMm": null
+    },
+    {
+      "parts": [
+        "deck-left",
+        "camera-tower--43"
+      ],
+      "intersectionMm3": 0.0,
+      "passed": true,
+      "intersectionBoundsMm": null
+    },
+    {
+      "parts": [
+        "deck-left",
+        "bumper-90"
+      ],
+      "intersectionMm3": 0.0,
+      "passed": true,
+      "intersectionBoundsMm": null
+    },
+    {
+      "parts": [
+        "deck-left",
+        "bumper-carrier-90"
+      ],
+      "intersectionMm3": 0.0,
+      "passed": true,
+      "intersectionBoundsMm": null
+    },
+    {
+      "parts": [
+        "deck-left",
+        "bumper-210"
+      ],
+      "intersectionMm3": 0.0,
+      "passed": true,
+      "intersectionBoundsMm": null
+    },
+    {
+      "parts": [
+        "deck-left",
+        "bumper-carrier-210"
+      ],
+      "intersectionMm3": 0.0,
+      "passed": true,
+      "intersectionBoundsMm": null
+    },
+    {
+      "parts": [
+        "deck-left",
+        "driver-riser-0"
+      ],
+      "intersectionMm3": 0.0,
+      "passed": true,
+      "intersectionBoundsMm": null
+    },
+    {
+      "parts": [
+        "deck-left",
+        "driver-riser-1"
+      ],
+      "intersectionMm3": 0.0,
+      "passed": true,
+      "intersectionBoundsMm": null
+    },
+    {
+      "parts": [
+        "deck-left",
+        "pico-carrier"
+      ],
+      "intersectionMm3": 0.0,
+      "passed": true,
+      "intersectionBoundsMm": null
+    },
+    {
+      "parts": [
+        "deck-left",
+        "mux-carrier"
+      ],
+      "intersectionMm3": 0.0,
+      "passed": true,
+      "intersectionBoundsMm": null
+    },
+    {
+      "parts": [
+        "deck-left",
+        "imu-carrier"
+      ],
+      "intersectionMm3": 0.0,
+      "passed": true,
+      "intersectionBoundsMm": null
+    },
+    {
+      "parts": [
+        "deck-left",
+        "main-switch-panel"
+      ],
+      "intersectionMm3": 0.0,
+      "passed": true,
+      "intersectionBoundsMm": null
+    },
+    {
+      "parts": [
+        "deck-right",
+        "pi-riser-1"
+      ],
+      "intersectionMm3": 0.0,
+      "passed": true,
+      "intersectionBoundsMm": null
+    },
+    {
+      "parts": [
+        "deck-right",
+        "pi-riser-3"
+      ],
+      "intersectionMm3": 0.0,
+      "passed": true,
+      "intersectionBoundsMm": null
+    },
+    {
+      "parts": [
+        "deck-right",
+        "camera-tower-43"
+      ],
+      "intersectionMm3": 0.0,
+      "passed": true,
+      "intersectionBoundsMm": null
+    },
+    {
+      "parts": [
+        "deck-right",
+        "bumper-90"
+      ],
+      "intersectionMm3": 0.0,
+      "passed": true,
+      "intersectionBoundsMm": null
+    },
+    {
+      "parts": [
+        "deck-right",
+        "bumper-carrier-90"
+      ],
+      "intersectionMm3": 0.0,
+      "passed": true,
+      "intersectionBoundsMm": null
+    },
+    {
+      "parts": [
+        "deck-right",
+        "bumper-330"
+      ],
+      "intersectionMm3": 0.0,
+      "passed": true,
+      "intersectionBoundsMm": null
+    },
+    {
+      "parts": [
+        "deck-right",
+        "bumper-carrier-330"
+      ],
+      "intersectionMm3": 0.0,
+      "passed": true,
+      "intersectionBoundsMm": null
+    },
+    {
+      "parts": [
+        "deck-right",
+        "stop-tower"
+      ],
+      "intersectionMm3": 0.0,
+      "passed": true,
+      "intersectionBoundsMm": null
+    },
+    {
+      "parts": [
+        "deck-right",
+        "pi-power-carrier"
+      ],
+      "intersectionMm3": 0.0,
+      "passed": true,
+      "intersectionBoundsMm": null
+    },
+    {
+      "parts": [
+        "deck-right",
+        "disconnect-carrier"
+      ],
+      "intersectionMm3": 0.0,
+      "passed": true,
+      "intersectionBoundsMm": null
+    },
+    {
+      "parts": [
+        "deck-right",
+        "mux-carrier"
+      ],
+      "intersectionMm3": 0.0,
+      "passed": true,
+      "intersectionBoundsMm": null
+    },
+    {
+      "parts": [
+        "deck-right",
+        "imu-carrier"
+      ],
+      "intersectionMm3": 0.0,
+      "passed": true,
+      "intersectionBoundsMm": null
+    },
+    {
+      "parts": [
+        "deck-right",
+        "main-switch-panel"
+      ],
+      "intersectionMm3": 0.0,
+      "passed": true,
+      "intersectionBoundsMm": null
+    },
+    {
+      "parts": [
+        "clamp-upper-30",
+        "cliff-mount-30"
+      ],
+      "intersectionMm3": 0.0,
+      "passed": true,
+      "intersectionBoundsMm": null
+    },
+    {
+      "parts": [
+        "clamp-upper-150",
+        "cliff-mount-150"
+      ],
+      "intersectionMm3": 0.0,
+      "passed": true,
+      "intersectionBoundsMm": null
+    },
+    {
+      "parts": [
+        "shell-left",
+        "trim-left"
+      ],
+      "intersectionMm3": 0.0,
+      "passed": true,
+      "intersectionBoundsMm": null
+    },
+    {
+      "parts": [
+        "shell-left",
+        "pi-tray"
+      ],
+      "intersectionMm3": 0.0,
+      "passed": true,
+      "intersectionBoundsMm": null
+    },
+    {
+      "parts": [
+        "shell-left",
+        "pi-riser-0"
+      ],
+      "intersectionMm3": 0.0,
+      "passed": true,
+      "intersectionBoundsMm": null
+    },
+    {
+      "parts": [
+        "shell-left",
+        "pi-riser-2"
+      ],
+      "intersectionMm3": 0.0,
+      "passed": true,
+      "intersectionBoundsMm": null
+    },
+    {
+      "parts": [
+        "shell-left",
+        "camera-tower--43"
+      ],
+      "intersectionMm3": 0.0,
+      "passed": true,
+      "intersectionBoundsMm": null
+    },
+    {
+      "parts": [
+        "shell-left",
+        "camera-saddle"
+      ],
+      "intersectionMm3": 0.0,
+      "passed": true,
+      "intersectionBoundsMm": null
+    },
+    {
+      "parts": [
+        "shell-left",
+        "tof-mount-120"
+      ],
+      "intersectionMm3": 0.0,
+      "passed": true,
+      "intersectionBoundsMm": null
+    },
+    {
+      "parts": [
+        "shell-left",
+        "tof-mount-180"
+      ],
+      "intersectionMm3": 0.0,
+      "passed": true,
+      "intersectionBoundsMm": null
+    },
+    {
+      "parts": [
+        "shell-left",
+        "tof-mount-240"
+      ],
+      "intersectionMm3": 0.0,
+      "passed": true,
+      "intersectionBoundsMm": null
+    },
+    {
+      "parts": [
+        "shell-left",
+        "bumper-90"
+      ],
+      "intersectionMm3": 0.0,
+      "passed": true,
+      "intersectionBoundsMm": null
+    },
+    {
+      "parts": [
+        "shell-left",
+        "bumper-carrier-90"
+      ],
+      "intersectionMm3": 0.0,
+      "passed": true,
+      "intersectionBoundsMm": null
+    },
+    {
+      "parts": [
+        "shell-left",
+        "bumper-210"
+      ],
+      "intersectionMm3": 0.0,
+      "passed": true,
+      "intersectionBoundsMm": null
+    },
+    {
+      "parts": [
+        "shell-left",
+        "bumper-carrier-210"
+      ],
+      "intersectionMm3": 0.0,
+      "passed": true,
+      "intersectionBoundsMm": null
+    },
+    {
+      "parts": [
+        "shell-left",
+        "electronics-tray"
+      ],
+      "intersectionMm3": 0.0,
+      "passed": true,
+      "intersectionBoundsMm": null
+    },
+    {
+      "parts": [
+        "shell-left",
+        "driver-riser-0"
+      ],
+      "intersectionMm3": 0.0,
+      "passed": true,
+      "intersectionBoundsMm": null
+    },
+    {
+      "parts": [
+        "shell-left",
+        "driver-riser-1"
+      ],
+      "intersectionMm3": 0.0,
+      "passed": true,
+      "intersectionBoundsMm": null
+    },
+    {
+      "parts": [
+        "shell-left",
+        "main-switch-panel"
+      ],
+      "intersectionMm3": 0.0,
+      "passed": true,
+      "intersectionBoundsMm": null
+    },
+    {
+      "parts": [
+        "lid-left",
+        "camera-saddle"
+      ],
+      "intersectionMm3": 0.0,
+      "passed": true,
+      "intersectionBoundsMm": null
+    },
+    {
+      "parts": [
+        "shell-right",
+        "trim-right"
+      ],
+      "intersectionMm3": 0.0,
+      "passed": true,
+      "intersectionBoundsMm": null
+    },
+    {
+      "parts": [
+        "shell-right",
+        "pi-tray"
+      ],
+      "intersectionMm3": 0.0,
+      "passed": true,
+      "intersectionBoundsMm": null
+    },
+    {
+      "parts": [
+        "shell-right",
+        "pi-riser-1"
+      ],
+      "intersectionMm3": 0.0,
+      "passed": true,
+      "intersectionBoundsMm": null
+    },
+    {
+      "parts": [
+        "shell-right",
+        "pi-riser-3"
+      ],
+      "intersectionMm3": 0.0,
+      "passed": true,
+      "intersectionBoundsMm": null
+    },
+    {
+      "parts": [
+        "shell-right",
+        "camera-tower-43"
+      ],
+      "intersectionMm3": 0.0,
+      "passed": true,
+      "intersectionBoundsMm": null
+    },
+    {
+      "parts": [
+        "shell-right",
+        "camera-saddle"
+      ],
+      "intersectionMm3": 0.0,
+      "passed": true,
+      "intersectionBoundsMm": null
+    },
+    {
+      "parts": [
+        "shell-right",
+        "camera-relief"
+      ],
+      "intersectionMm3": 0.0,
+      "passed": true,
+      "intersectionBoundsMm": null
+    },
+    {
+      "parts": [
+        "shell-right",
+        "tof-mount-0"
+      ],
+      "intersectionMm3": 0.0,
+      "passed": true,
+      "intersectionBoundsMm": null
+    },
+    {
+      "parts": [
+        "shell-right",
+        "tof-mount-60"
+      ],
+      "intersectionMm3": 0.0,
+      "passed": true,
+      "intersectionBoundsMm": null
+    },
+    {
+      "parts": [
+        "shell-right",
+        "tof-mount-300"
+      ],
+      "intersectionMm3": 0.0,
+      "passed": true,
+      "intersectionBoundsMm": null
+    },
+    {
+      "parts": [
+        "shell-right",
+        "bumper-90"
+      ],
+      "intersectionMm3": 0.0,
+      "passed": true,
+      "intersectionBoundsMm": null
+    },
+    {
+      "parts": [
+        "shell-right",
+        "bumper-carrier-90"
+      ],
+      "intersectionMm3": 0.0,
+      "passed": true,
+      "intersectionBoundsMm": null
+    },
+    {
+      "parts": [
+        "shell-right",
+        "bumper-330"
+      ],
+      "intersectionMm3": 0.0,
+      "passed": true,
+      "intersectionBoundsMm": null
+    },
+    {
+      "parts": [
+        "shell-right",
+        "bumper-carrier-330"
+      ],
+      "intersectionMm3": 0.0,
+      "passed": true,
+      "intersectionBoundsMm": null
+    },
+    {
+      "parts": [
+        "shell-right",
+        "stop-tower"
+      ],
+      "intersectionMm3": 0.0,
+      "passed": true,
+      "intersectionBoundsMm": null
+    },
+    {
+      "parts": [
+        "shell-right",
+        "main-switch-panel"
+      ],
+      "intersectionMm3": 0.0,
+      "passed": true,
+      "intersectionBoundsMm": null
+    },
+    {
+      "parts": [
+        "lid-right",
+        "camera-saddle"
+      ],
+      "intersectionMm3": 0.0,
+      "passed": true,
+      "intersectionBoundsMm": null
+    },
+    {
+      "parts": [
+        "lid-right",
+        "camera-relief"
+      ],
+      "intersectionMm3": 0.0,
+      "passed": true,
+      "intersectionBoundsMm": null
+    },
+    {
+      "parts": [
+        "trim-left",
+        "pi-riser-0"
+      ],
+      "intersectionMm3": 0.0,
+      "passed": true,
+      "intersectionBoundsMm": null
+    },
+    {
+      "parts": [
+        "trim-left",
+        "pi-riser-2"
+      ],
+      "intersectionMm3": 0.0,
+      "passed": true,
+      "intersectionBoundsMm": null
+    },
+    {
+      "parts": [
+        "trim-left",
+        "camera-tower--43"
+      ],
+      "intersectionMm3": 0.0,
+      "passed": true,
+      "intersectionBoundsMm": null
+    },
+    {
+      "parts": [
+        "trim-left",
+        "tof-mount-120"
+      ],
+      "intersectionMm3": 0.0,
+      "passed": true,
+      "intersectionBoundsMm": null
+    },
+    {
+      "parts": [
+        "trim-left",
+        "tof-mount-180"
+      ],
+      "intersectionMm3": 0.0,
+      "passed": true,
+      "intersectionBoundsMm": null
+    },
+    {
+      "parts": [
+        "trim-left",
+        "tof-mount-240"
+      ],
+      "intersectionMm3": 0.0,
+      "passed": true,
+      "intersectionBoundsMm": null
+    },
+    {
+      "parts": [
+        "trim-left",
+        "bumper-90"
+      ],
+      "intersectionMm3": 0.0,
+      "passed": true,
+      "intersectionBoundsMm": null
+    },
+    {
+      "parts": [
+        "trim-left",
+        "bumper-carrier-90"
+      ],
+      "intersectionMm3": 0.0,
+      "passed": true,
+      "intersectionBoundsMm": null
+    },
+    {
+      "parts": [
+        "trim-left",
+        "bumper-210"
+      ],
+      "intersectionMm3": 0.0,
+      "passed": true,
+      "intersectionBoundsMm": null
+    },
+    {
+      "parts": [
+        "trim-left",
+        "bumper-carrier-210"
+      ],
+      "intersectionMm3": 0.0,
+      "passed": true,
+      "intersectionBoundsMm": null
+    },
+    {
+      "parts": [
+        "trim-left",
+        "driver-riser-0"
+      ],
+      "intersectionMm3": 0.0,
+      "passed": true,
+      "intersectionBoundsMm": null
+    },
+    {
+      "parts": [
+        "trim-left",
+        "driver-riser-1"
+      ],
+      "intersectionMm3": 0.0,
+      "passed": true,
+      "intersectionBoundsMm": null
+    },
+    {
+      "parts": [
+        "trim-left",
+        "main-switch-panel"
+      ],
+      "intersectionMm3": 0.0,
+      "passed": true,
+      "intersectionBoundsMm": null
+    },
+    {
+      "parts": [
+        "trim-right",
+        "pi-riser-1"
+      ],
+      "intersectionMm3": 0.0,
+      "passed": true,
+      "intersectionBoundsMm": null
+    },
+    {
+      "parts": [
+        "trim-right",
+        "pi-riser-3"
+      ],
+      "intersectionMm3": 0.0,
+      "passed": true,
+      "intersectionBoundsMm": null
+    },
+    {
+      "parts": [
+        "trim-right",
+        "camera-tower-43"
+      ],
+      "intersectionMm3": 0.0,
+      "passed": true,
+      "intersectionBoundsMm": null
+    },
+    {
+      "parts": [
+        "trim-right",
+        "tof-mount-0"
+      ],
+      "intersectionMm3": 0.0,
+      "passed": true,
+      "intersectionBoundsMm": null
+    },
+    {
+      "parts": [
+        "trim-right",
+        "tof-mount-60"
+      ],
+      "intersectionMm3": 0.0,
+      "passed": true,
+      "intersectionBoundsMm": null
+    },
+    {
+      "parts": [
+        "trim-right",
+        "tof-mount-300"
+      ],
+      "intersectionMm3": 0.0,
+      "passed": true,
+      "intersectionBoundsMm": null
+    },
+    {
+      "parts": [
+        "trim-right",
+        "bumper-90"
+      ],
+      "intersectionMm3": 0.0,
+      "passed": true,
+      "intersectionBoundsMm": null
+    },
+    {
+      "parts": [
+        "trim-right",
+        "bumper-carrier-90"
+      ],
+      "intersectionMm3": 0.0,
+      "passed": true,
+      "intersectionBoundsMm": null
+    },
+    {
+      "parts": [
+        "trim-right",
+        "bumper-330"
+      ],
+      "intersectionMm3": 0.0,
+      "passed": true,
+      "intersectionBoundsMm": null
+    },
+    {
+      "parts": [
+        "trim-right",
+        "bumper-carrier-330"
+      ],
+      "intersectionMm3": 0.0,
+      "passed": true,
+      "intersectionBoundsMm": null
+    },
+    {
+      "parts": [
+        "trim-right",
+        "stop-tower"
+      ],
+      "intersectionMm3": 0.0,
+      "passed": true,
+      "intersectionBoundsMm": null
+    },
+    {
+      "parts": [
+        "trim-right",
+        "main-switch-panel"
+      ],
+      "intersectionMm3": 0.0,
+      "passed": true,
+      "intersectionBoundsMm": null
+    },
+    {
+      "parts": [
+        "pi-riser-0",
+        "bumper-210"
+      ],
+      "intersectionMm3": 0.0,
+      "passed": true,
+      "intersectionBoundsMm": null
+    },
+    {
+      "parts": [
+        "pi-riser-1",
+        "bumper-330"
+      ],
+      "intersectionMm3": 0.0,
+      "passed": true,
+      "intersectionBoundsMm": null
+    },
+    {
+      "parts": [
+        "camera-tower--43",
+        "tof-mount-120"
+      ],
+      "intersectionMm3": 0.0,
+      "passed": true,
+      "intersectionBoundsMm": null
+    },
+    {
+      "parts": [
+        "camera-tower--43",
+        "bumper-90"
+      ],
+      "intersectionMm3": 0.0,
+      "passed": true,
+      "intersectionBoundsMm": null
+    },
+    {
+      "parts": [
+        "camera-tower-43",
+        "tof-mount-60"
+      ],
+      "intersectionMm3": 0.0,
+      "passed": true,
+      "intersectionBoundsMm": null
+    },
+    {
+      "parts": [
+        "camera-tower-43",
+        "bumper-90"
+      ],
+      "intersectionMm3": 0.0,
+      "passed": true,
+      "intersectionBoundsMm": null
+    },
+    {
+      "parts": [
+        "tof-mount-0",
+        "bumper-330"
+      ],
+      "intersectionMm3": 0.0,
+      "passed": true,
+      "intersectionBoundsMm": null
+    },
+    {
+      "parts": [
+        "tof-mount-60",
+        "bumper-90"
+      ],
+      "intersectionMm3": 0.0,
+      "passed": true,
+      "intersectionBoundsMm": null
+    },
+    {
+      "parts": [
+        "tof-mount-120",
+        "bumper-90"
+      ],
+      "intersectionMm3": 0.0,
+      "passed": true,
+      "intersectionBoundsMm": null
+    },
+    {
+      "parts": [
+        "tof-mount-180",
+        "bumper-210"
+      ],
+      "intersectionMm3": 0.0,
+      "passed": true,
+      "intersectionBoundsMm": null
+    },
+    {
+      "parts": [
+        "tof-mount-240",
+        "bumper-210"
+      ],
+      "intersectionMm3": 0.0,
+      "passed": true,
+      "intersectionBoundsMm": null
+    },
+    {
+      "parts": [
+        "tof-mount-300",
+        "bumper-330"
+      ],
+      "intersectionMm3": 0.0,
+      "passed": true,
+      "intersectionBoundsMm": null
+    },
+    {
+      "parts": [
+        "bumper-90",
+        "bumper-carrier-90"
+      ],
+      "intersectionMm3": 0.0,
+      "passed": true,
+      "intersectionBoundsMm": null
+    },
+    {
+      "parts": [
+        "bumper-210",
+        "bumper-carrier-210"
+      ],
+      "intersectionMm3": 0.0,
+      "passed": true,
+      "intersectionBoundsMm": null
+    },
+    {
+      "parts": [
+        "bumper-210",
+        "driver-riser-0"
+      ],
+      "intersectionMm3": 0.0,
+      "passed": true,
+      "intersectionBoundsMm": null
+    },
+    {
+      "parts": [
+        "bumper-210",
+        "driver-riser-1"
+      ],
+      "intersectionMm3": 0.0,
+      "passed": true,
+      "intersectionBoundsMm": null
+    },
+    {
+      "parts": [
+        "bumper-carrier-210",
+        "driver-riser-0"
+      ],
+      "intersectionMm3": 0.0,
+      "passed": true,
+      "intersectionBoundsMm": null
+    },
+    {
+      "parts": [
+        "bumper-330",
+        "bumper-carrier-330"
+      ],
+      "intersectionMm3": 0.0,
+      "passed": true,
+      "intersectionBoundsMm": null
+    },
+    {
+      "parts": [
+        "bumper-330",
+        "stop-tower"
+      ],
+      "intersectionMm3": 0.0,
+      "passed": true,
+      "intersectionBoundsMm": null
+    },
+    {
+      "parts": [
+        "bumper-carrier-330",
+        "stop-tower"
+      ],
+      "intersectionMm3": 0.0,
+      "passed": true,
+      "intersectionBoundsMm": null
+    }
+  ],
+  "printedPairCandidates": 1275,
+  "structuralMountChecks": [
+    {
+      "group": "stop",
+      "pointMm": [
+        54,
+        -20
+      ],
+      "shaftPathIntersectionMm3": 0.0,
+      "passed": true
+    },
+    {
+      "group": "stop",
+      "pointMm": [
+        98,
+        -20
+      ],
+      "shaftPathIntersectionMm3": 0.0,
+      "passed": true
+    },
+    {
+      "group": "driver",
+      "pointMm": [
+        -74,
+        -52
+      ],
+      "shaftPathIntersectionMm3": 0.0,
+      "passed": true
+    },
+    {
+      "group": "driver",
+      "pointMm": [
+        -66,
+        -74
+      ],
+      "shaftPathIntersectionMm3": 0.0,
+      "passed": true
+    },
+    {
+      "group": "pico",
+      "pointMm": [
+        -74,
+        35
+      ],
+      "shaftPathIntersectionMm3": 0.0,
+      "passed": true
+    },
+    {
+      "group": "pico",
+      "pointMm": [
+        -74,
+        65
+      ],
+      "shaftPathIntersectionMm3": 0.0,
+      "passed": true
+    },
+    {
+      "group": "piPower",
+      "pointMm": [
+        76,
+        -8
+      ],
+      "shaftPathIntersectionMm3": 0.0,
+      "passed": true
+    },
+    {
+      "group": "piPower",
+      "pointMm": [
+        76,
+        32
+      ],
+      "shaftPathIntersectionMm3": 0.0,
+      "passed": true
+    },
+    {
+      "group": "disconnect",
+      "pointMm": [
+        75,
+        55
+      ],
+      "shaftPathIntersectionMm3": 0.0,
+      "passed": true
+    },
+    {
+      "group": "disconnect",
+      "pointMm": [
+        75,
+        73
+      ],
+      "shaftPathIntersectionMm3": 0.0,
+      "passed": true
+    },
+    {
+      "group": "mux",
+      "pointMm": [
+        -31,
+        66
+      ],
+      "shaftPathIntersectionMm3": 0.0,
+      "passed": true
+    },
+    {
+      "group": "mux",
+      "pointMm": [
+        31,
+        66
+      ],
+      "shaftPathIntersectionMm3": 0.0,
+      "passed": true
+    },
+    {
+      "group": "mux",
+      "pointMm": [
+        -31,
+        84
+      ],
+      "shaftPathIntersectionMm3": 0.0,
+      "passed": true
+    },
+    {
+      "group": "mux",
+      "pointMm": [
+        31,
+        84
+      ],
+      "shaftPathIntersectionMm3": 0.0,
+      "passed": true
+    },
+    {
+      "group": "mainPanel",
+      "pointMm": [
+        -27,
+        -101
+      ],
+      "shaftPathIntersectionMm3": 0.0,
+      "passed": true
+    },
+    {
+      "group": "mainPanel",
+      "pointMm": [
+        27,
+        -101
+      ],
+      "shaftPathIntersectionMm3": 0.0,
+      "passed": true
+    }
+  ],
+  "notValidated": [
+    "bumper switch actuation and return spring force",
+    "cliff floor detection and drop-edge stopping",
+    "physicalprint/fit",
+    "vendor exact electronics mounting",
+    "hub set-screw retention/load",
+    "screw-length physical stack",
+    "collision of all cable/bend envelopes",
+    "roller traction",
+    "tip/stability with moving loads",
+    "thermal performance",
+    "sensor optical behavior",
+    "electrical safety and emergency stop function"
+  ],
+  "intentionalMating": [
+    "clamp upper/lower sharez30splitplane",
+    "cradle/underside deck sharez48",
+    "seam splice/underside deck sharez48",
+    "shellflange/post sharez61",
+    "Pi PCB/standoff sharez107",
+    "battery/rails supportz58",
+    "camera/bottom saddle sharez138",
+    "sensor straps/foam not rigid booleans"
+  ]
+}

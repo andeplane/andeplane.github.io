@@ -1,0 +1,3 @@
+# Preserve exact CAD-export bytes; these are generated download artifacts.
+assembly.step binary
+print-queue.csv binary

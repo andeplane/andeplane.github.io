@@ -11,6 +11,18 @@ const CONTENT = new URL('../src/content/', import.meta.url)
 
 const STATIC_ROUTES = [
   {
+    path: '/hardware',
+    title: 'Hardware',
+    description: 'Printed mechanisms and robots, with editable CAD, component lists, assembly guides, and physical prototype experiments.',
+    image: '/hardware/kiwi/concept.webp',
+  },
+  {
+    path: '/hardware/kiwi',
+    title: 'Kiwi · Home robot',
+    description: 'Explore a 29 cm omni-wheel robot: interactive prototype CAD, STEP/STL downloads, stereo depth, a parts list, and local navigation with model decisions.',
+    image: '/hardware/kiwi/concept.webp',
+  },
+  {
     path: '/games',
     title: 'Games',
     description: 'Play Broadside, Fuse Riders, and more browser games: pirate treasures, neon races, tower defence, and playful worlds.',
