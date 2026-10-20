@@ -1,0 +1,126 @@
+{
+  "checked": "2026-10-21",
+  "status": "optional-concept-not-cad-integrated",
+  "recommendation": "SO-101 follower with wrist RGB camera; stationary manipulation only",
+  "extraBudget": {
+    "currency": "USD",
+    "min": 250,
+    "max": 300,
+    "excludes": [
+      "shipping",
+      "Norwegian import charges"
+    ],
+    "observedHardwareSubtotalMin": 171.99,
+    "observedHardwareSubtotalMax": 173.99,
+    "allowanceMin": 75,
+    "allowanceMax": 125
+  },
+  "workingEnvelope": {
+    "objectPayloadG": 100,
+    "toolRadiusFromRobotCenterMm": 250,
+    "wristCameraBracketCableAllowanceG": 50,
+    "accepted": false
+  },
+  "arm": {
+    "positioningJoints": 5,
+    "gripperActuators": 1,
+    "modelMassKg": 0.632006,
+    "modelMassIsPhysicalMeasurement": false,
+    "source": "https://github.com/TheRobotStudio/SO-ARM100/blob/main/Simulation/SO101/so101_new_calib.urdf"
+  },
+  "items": [
+    {
+      "name": "Feetech ST3215-C047 12V 1:345",
+      "sku": "108090003",
+      "quantity": 6,
+      "currency": "USD",
+      "unitObserved": 22,
+      "subtotalObserved": 132,
+      "url": "https://www.seeedstudio.com/STS3215-30KG-Serial-Servo-p-6340.html"
+    },
+    {
+      "name": "Waveshare Bus Servo Adapter (A)",
+      "sku": "25514",
+      "quantity": 1,
+      "currency": "USD",
+      "observedRange": [
+        9.99,
+        11.99
+      ],
+      "variantCheckoutVerified": false,
+      "url": "https://www.waveshare.com/bus-servo-adapter-a.htm"
+    },
+    {
+      "name": "RGB USB Camera 100deg 720P",
+      "sku": "100079619",
+      "quantity": 1,
+      "currency": "USD",
+      "unitObserved": 30,
+      "url": "https://www.seeedstudio.com/Camera-Module-OV9732-1MP-100-USB2-0-USB2-0-L38-W38-H16-05mm-p-6982.html"
+    },
+    {
+      "name": "Prints, wrist bracket, fasteners, finger pads",
+      "currency": "USD",
+      "estimateRange": [
+        25,
+        40
+      ]
+    },
+    {
+      "name": "Fused actuator harness, stop/disconnect, connectors, USB lead",
+      "currency": "USD",
+      "estimateRange": [
+        35,
+        55
+      ]
+    },
+    {
+      "name": "Backing plate, low ballast, contingency",
+      "currency": "USD",
+      "estimateRange": [
+        15,
+        30
+      ]
+    }
+  ],
+  "stability": {
+    "baseMassAssumedKg": 2,
+    "wheelCenterRadiusMm": 131.8,
+    "worstSupportEdgeRadiusMm": 65.9,
+    "restrictedCase": {
+      "armComAssumedMm": 150,
+      "toolRadiusMm": 250,
+      "combinedMassKg": 2.782006,
+      "comXMm": 47.55593625606846,
+      "edgeMarginMm": 18.344063743931535,
+      "staticMomentRatio": 1.631860562502138
+    },
+    "isCertification": false
+  },
+  "power": {
+    "rail": "dedicated fused 3S actuator branch, separate from Pi 5V rail",
+    "servoRatedInputV": [
+      4,
+      14
+    ],
+    "servoNominalV": 12,
+    "servoRatedA": 0.9,
+    "servoStallA": 2.7,
+    "sixServoStallA": 16.2,
+    "dataSheet": "https://files.seeedstudio.com/products/Feetech/108090003_FEETECH_ST-3215-C047-Datasheet.pdf"
+  },
+  "camera": {
+    "type": "USB2 UVC RGB, not depth",
+    "moduleEnvelopeMm": [
+      38,
+      38,
+      16.05
+    ],
+    "massAndCloseFocusVerified": false
+  },
+  "openAI": {
+    "decisions": "fixed-choice / predicate / score selection; no arbitrary joint trajectory",
+    "parameterizedActions": "Responses strict function calling or validated local adapter",
+    "doc": "https://developers.openai.com/api/docs/guides/decisions"
+  }
+}

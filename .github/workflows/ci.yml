@@ -41,6 +41,9 @@ jobs:
       - name: Test FNO sketch numerics
         run: npm run test:fno-sketch
 
+      - name: Validate Kiwi CAD assets, budget, and kinematics
+        run: node --experimental-strip-types --test tests/kiwi/*.test.ts
+
       - name: Test quantum simulator engine
         run: npm ci --prefix packages/quantum && npm test --prefix packages/quantum
 
