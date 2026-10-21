@@ -36,6 +36,11 @@ def package(variant):
     ET.ElementTree(combined).write(out/'assembly-drawing.svg',encoding='utf-8',xml_declaration=True)
     counts=Counter(p['stl'] for p in manifest['parts'] if p.get('printable'))
     counts['stl/insert-fit-coupon.stl']=1;counts['stl/motor-clamp-fit-coupon.stl']=1
+    # This directory is exclusively generated CAD output. Remove obsolete STLs so
+    # a revised bracket cannot remain downloadable after its instance is removed.
+    expected={Path(filename).name for filename in counts}
+    for target in (out/'stl').glob('*.stl'):
+        if target.name not in expected:target.unlink()
     print_items=[]
     for filename,qty in sorted(counts.items()):
         representative=next((p for p in manifest['parts'] if p.get('stl')==filename),None)

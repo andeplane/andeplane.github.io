@@ -2,23 +2,29 @@
 
 Camera and algorithm research checked against primary sources on 21 October 2026. All three variants use cameras for observing the house, with wheel encoders and a base IMU for internal motion feedback and physical contact bumpers. No external electronic range or distance sensors are included. Software integration and physical performance remain untested.
 
+## Keep intelligence off the robot
+
+The cameras are inexpensive image sources. The Pi captures/encodes/streams their images, publishes wheel/IMU motion and enforces command freshness and motor limits. **No object detector, scene-understanding model or LLM runs on the cameras or Pi.** Vision-capable LLMs and decision models on the Mac mini or in the cloud interpret objects, rooms and tasks. Stereo depth, visual feature tracking, SLAM and route planning also run on the mini; they supply geometric state to the models. No AI camera or accelerator is in the robot BOM.
+
 ## Choose the camera capability
 
 | Variant | Proposed hardware | Useful first capability | What it does not establish |
 | --- | --- | --- | --- |
 | A — Front RGB | One Waveshare OV2735 2MP USB Camera (A), SKU 33122 | Live view, recognizing objects, visual landmarks and inexpensive experiments | A single image does not provide calibrated obstacle distance |
-| B — Front + sides | Three of the same RGB modules, facing front, left and right | Observe sideways motion with less turning; choose the relevant view for a task | Independent views are not a synchronized stereo system; rear coverage is still absent |
+| B — Front + diagonals | Three of the same RGB modules, facing forward and approximately 45° left/right | More forward-side context; choose the relevant view for a task | Independent views are not a synchronized stereo system; rear coverage is still absent |
 | C — Front stereo | One Waveshare AR0144 Stereo USB Camera (A), SKU 32695 | Two synchronized views for host-computed metric depth after calibration | It is an image-streaming module, not a guaranteed calibrated depth-output camera |
 
-**Start with A for the lowest-cost starting point. Choose B if looking sideways is the priority. Choose C if experimenting with measured front-facing depth and mapping is the priority.** These are alternative camera builds, not three simultaneous camera purchases.
+**Start with A for the lowest-cost starting point. Choose B for more forward-side context. Choose C if experimenting with measured front-facing depth and mapping is the priority.** These are alternative camera builds, not three simultaneous camera purchases.
 
 The OV2735 module is fixed focus with a rolling shutter, USB 2.0 and MJPEG/YUY2 image formats. Its published 96° field of view is diagonal, not a promise of 96° horizontal coverage. The camera board is approximately 25 × 25 × 22.1 mm; the current listing is USD 14.99 each. [Manufacturer specifications](https://www.waveshare.com/ov2735-2mp-usb-camera-a.htm).
 
-The AR0144 module has two global-shutter color cameras, hardware synchronization and a 52 mm baseline. Published dimensions are 66 × 30 × 17.72 mm, with 65° horizontal/74° diagonal field of view and USB 2.0. The proposed process computes depth on the Pi or home Mac. No factory calibration file or ready-made depth output is assumed. [Manufacturer product](https://www.waveshare.com/product/ar0144-stereo-usb-camera-a.htm), [capture formats and host examples](https://www.waveshare.com/wiki/AR0144_Stereo_USB_Camera_%28A%29).
+The AR0144 module has two global-shutter cameras, hardware synchronization and a 52 mm baseline. Published dimensions are 66 × 30 × 17.72 mm, with 65° horizontal/74° diagonal field of view and USB 2.0. The proposed process computes depth on the Mac mini. No factory calibration file or ready-made depth output is assumed; confirm the delivered color/mono specification before buying. [Manufacturer product](https://www.waveshare.com/product/raspberry-pi/cameras/ar0144-stereo-usb-camera-a.htm), [capture formats and host examples](https://www.waveshare.com/wiki/AR0144_Stereo_USB_Camera_%28A%29).
+
+The target body integrates the camera boards inside the shell, with clear lens apertures. See [camera placement](camera-layout.md). Offboard mapping on the Mac mini is a proposed option for every version; the stereo version gives the clearest route to a metric floorplan and 3D geometry. See [mapping and room labels](mapping.md).
 
 ## A: useful vision with one camera
 
-The immediate software stack is simple: show the camera stream, track a few visual landmarks, recognize objects on the home Mac, and move through short known-clear routes using wheel/IMU feedback. Printed AprilTag/ArUco markers are a practical first way to identify a room, tray or dock. Known marker dimensions and calibrated camera intrinsics let OpenCV estimate a marker's pose in metric units. [OpenCV marker detection and pose estimation](https://docs.opencv.org/4.13.0/d5/dae/tutorial_aruco_detection.html).
+The immediate software stack is simple: show the camera stream, track a few visual landmarks, ask an offboard vision LLM to interpret objects and rooms, and move through short known-clear routes using wheel/IMU feedback. Printed AprilTag/ArUco markers are a practical first way to identify a room, tray or dock. Known marker dimensions and calibrated camera intrinsics let OpenCV estimate a marker's pose in metric units. [OpenCV marker detection and pose estimation](https://docs.opencv.org/4.13.0/d5/dae/tutorial_aruco_detection.html).
 
 For more general visual tracking, **ORB-SLAM3** is an established candidate supporting monocular, stereo and visual-inertial configurations. Its upstream camera-calibration and integration work still has to be done; its supplied ROS examples are not proof of a ready-to-install Jazzy/Pi package. [Authors' repository](https://github.com/UZ-SLAMLab/ORB_SLAM3).
 
@@ -30,7 +36,7 @@ Monocular learned-depth models such as **Depth Anything V2** can add a relative-
 
 ## B: more viewpoints, not automatic stereo
 
-Run the same front-camera pipeline and add independent left/right images for scene understanding and lateral inspection. Give the model the view that matters, or a clearly labeled set of snapshots. Side views can also supply visual features, but multi-camera SLAM requires its own calibration and estimator support; three independent monocular trackers cannot simply be merged into one consistent map.
+Run the same front-camera pipeline and add independent front-left/front-right images for scene understanding. The target optical axes are 0° and approximately ±45° from forward. Give the model the view that matters, or a clearly labeled set of snapshots. Extra views can supply visual features, but multi-camera SLAM requires its own calibration and estimator support; three independent monocular trackers cannot simply be merged into one consistent map.
 
 The proposed cameras face different directions. A useful stereo pair must observe matching scene content with known relative geometry and sufficiently aligned exposure times. Non-overlapping views mainly improve coverage. Three USB cameras without documented synchronization should not be marketed as a three-camera depth system. Calibrate each lens and its mounting transform even when using the views independently. [OpenCV camera and stereo geometry](https://docs.opencv.org/4.13.0/d9/d0c/group__calib3d.html).
 
@@ -43,7 +49,7 @@ The AR0144's fixed baseline and synchronized global-shutter images make it a sen
 1. Capture its combined image and verify which half belongs to each eye.
 2. Calibrate both cameras and their relative pose at the exact capture resolution; save the measured baseline/intrinsics/distortion.
 3. Rectify the pair with OpenCV so matching points lie on corresponding image rows.
-4. Run **StereoSGBM** or StereoBM, reject inconsistent/low-confidence matches, and convert valid disparity to depth.
+4. On the Mac mini, run **StereoSGBM** or StereoBM, reject inconsistent/low-confidence matches, and convert valid disparity to depth.
 5. Use the resulting depth and camera calibration with a stereo/RGB-D mapping pipeline such as RTAB-Map.
 
 OpenCV supplies the calibration, rectification and stereo correspondence building blocks; this still requires implementing and testing the image pipeline. [OpenCV calibration reference](https://docs.opencv.org/4.13.0/d9/d0c/group__calib3d.html), [stereo depth tutorial](https://docs.opencv.org/4.13.0/dd/d53/tutorial_py_depthmap.html), [RTAB-Map ROS 2](https://github.com/introlab/rtabmap_ros/blob/ros2/README.md).
@@ -54,37 +60,38 @@ Stereo still needs texture and useful lighting. Blank surfaces, reflections, gla
 
 ## Practical image rates and power
 
-These are starting targets to profile on the actual Pi, not measured performance promises:
+These are capture/transport and offboard-processing targets to profile on the actual hardware, not measured performance promises:
 
 | Variant | Initial processing target | Practical qualification |
 | --- | --- | --- |
 | A | Front image about 640 × 360 at 15–20 processed frames/s | Capture a supported 16:9 mode and downscale without distorting geometry |
-| B | Front about 640 × 360 at 15 frames/s; each side about 10 frames/s | Process the newest images; keep model snapshots event driven |
-| C | About 640 × 480 per eye; begin with 10–15 depth updates/s | Verify side-by-side split, calibration and stereo CPU load in the chosen mode |
+| B | Front about 640 × 360 at 15 frames/s; each side about 10 frames/s | Stream newest images; keep offboard model snapshots event driven |
+| C | About 640 × 360 per eye; start by profiling 10 pairs/s | Preserve aspect ratio; verify split, calibration, matching and network load |
 
-For OV2735, the manufacturer explicitly lists 720p/1080p MJPEG at 30 frames/s. If the device does not negotiate a lower-resolution/rate mode, capture that supported mode and process selected downscaled frames; this does not reduce the USB capture bandwidth automatically. For AR0144, a documented starting transport is combined 1280 × 480 YUY2 at 15 frames/s, approximately 18.4 MB/s before overhead. Verify the actual left/right layout before calibrating. The product's advertised maximum capture rate is not a Pi stereo-processing benchmark. [OV2735 modes](https://www.waveshare.com/ov2735-2mp-usb-camera-a.htm), [AR0144 modes](https://www.waveshare.com/wiki/AR0144_Stereo_USB_Camera_%28A%29).
+For OV2735, the manufacturer lists 720p/1080p MJPEG at 30 frames/s. If the device does not negotiate a lower-resolution/rate mode, capture a supported mode and process selected downscaled frames; this does not automatically reduce USB capture bandwidth. AR0144 documentation lists combined 2560 × 720 images, but the product and wiki capture tables differ. Enumerate the delivered UVC modes and verify each eye's resolution and layout before calibration. A 1280 × 720 eye image can be downscaled proportionally to 640 × 360. Advertised capture rates are not stereo-processing benchmarks. [OV2735 modes](https://www.waveshare.com/ov2735-2mp-usb-camera-a.htm), [AR0144 product modes](https://www.waveshare.com/product/raspberry-pi/cameras/ar0144-stereo-usb-camera-a.htm), [AR0144 wiki](https://www.waveshare.com/wiki/AR0144_Stereo_USB_Camera_%28A%29).
 
-Prefer MJPEG for multiple RGB streams if supported reliably, while measuring decoding cost and image age. Do not send every full-resolution frame through a language-model API. Publish a live preview locally and send selected compressed snapshots to the home Mac/cloud when there is a useful decision to make.
+Prefer MJPEG for multiple RGB streams if supported reliably, while measuring decoding cost and image age. Do not send every full-resolution frame through a language-model API. The Pi publishes a camera stream and sends selected compressed snapshots to the home Mac/cloud when there is a useful decision to make. Image understanding runs there, never on the Pi.
 
 Camera current consumption is not established by these mode tables. The three-camera design includes an externally powered Raspberry Pi USB 3 Hub and a separate DFR0849 camera converter; the Pico remains directly connected to the Pi. Verify the actual hub/cable/source combination and measure each camera's startup and operating current. The other two versions power their camera module from the Pi and must remain within its aggregate USB budget. See wiring.md for the selected power paths. [Official Pi USB power guidance](https://www.raspberrypi.com/documentation/hardware/raspberrypi/usb/configuration.html).
 
-## Motion control stays local
+## Mapping can run on the Mac; motion control stays local
 
-The three timescales remain the same:
+The proposed split is:
 
 | Layer | Runs on | Responsibility |
 | --- | --- | --- |
 | Wheel control | Pico MCU, proposed 100–200 Hz | Encoder PID, PWM, acceleration limits, heartbeat timeout and bumper inputs |
-| Vision/navigation | Pi, proposed 10–30 Hz where feasible | Track the robot, inspect images/depth as available, choose a local trajectory |
-| Intent/semantics | Home Mac or cloud, event driven | Interpret requests, identify objects and select known tasks/destinations |
+| Capture and local odometry | Pi | Capture/encode/stream images with calibration metadata, fuse wheel/IMU feedback, validate incoming motion commands |
+| Mapping and navigation | Mac mini Linux guest, rate to benchmark | Stereo/visual SLAM, map localization, map assembly and Nav2 planning |
+| Vision LLM / decision model | Home Mac or cloud, event driven | Interpret images and requests, identify objects/rooms and select confirmed tasks/destinations |
 
-A physical stop opens the motor-driver enable loop; the main switch provides power isolation. The MCU stops when commands expire. Camera/model delay does not control wheel PWM directly. Initial operation is slow on a bounded flat floor; the chosen viewpoints and their floor blind regions do not establish stair-avoidance capability.
+A physical stop opens the motor-driver enable loop; the main switch provides power isolation. The MCU stops when commands expire. The Pi also stops accepting motion when the remote images/localization become too old or Wi-Fi is lost. Camera/model delay does not control wheel PWM directly. Initial operation is slow on a bounded flat floor; the chosen viewpoints and their floor blind regions do not establish stair-avoidance capability.
 
 Use the **ROS 2 Jazzy omni wheel controller** for three equally spaced omni wheels, and **robot_localization** to fuse metric wheel velocities with base IMU measurements. Keep actual sideways velocity in the state. CAD uses +Y forward/+X right, whereas ROS uses +X forward/+Y left: `vx_ros = vy_cad`, `vy_ros = -vx_cad`, with unchanged yaw rate. [Omni controller](https://control.ros.org/jazzy/doc/ros2_controllers/omni_wheel_drive_controller/doc/userdoc.html), [EKF configuration](https://github.com/cra-ros-pkg/robot_localization/blob/rolling-devel/doc/configuring_robot_localization.rst).
 
-For stereo C, RTAB-Map can build a metric map and occupancy grid after the stereo pipeline is qualified. Nav2 can use a holonomic planner/controller such as NavFn/Smac 2D with DWB or Omni MPPI. For A/B, start with known routes, wheel/IMU localization and visual landmarks; a sparse monocular map or an object detector alone is not a complete obstacle costmap. Camera-based floor segmentation/ground projection is a possible later experiment, with its flat-floor assumptions explicit. [RTAB-Map capabilities](https://github.com/introlab/rtabmap_ros/blob/ros2/README.md), [Nav2 navigation plugins](https://docs.nav2.org/rolling/configuration_and_development/navigation_plugins/).
+For stereo C, RTAB-Map can build metric geometry and an occupancy grid after the stereo pipeline is qualified. Nav2 can use a holonomic planner/controller such as NavFn/Smac 2D with DWB or Omni MPPI. For A/B, start with known routes, wheel/IMU localization and visual landmarks; a sparse monocular map or an object detector alone is not a complete obstacle costmap. RTAB-Map's ordinary RGB-plus-odometry input does not itself reconstruct its metric depth map. Offboard camera-based floor reconstruction/ground projection is a possible later experiment, with its flat-floor assumptions explicit. [RTAB-Map input modes](https://github.com/introlab/rtabmap_ros/blob/ros2/rtabmap_slam/doc/rtabmap.md), [Nav2 navigation plugins](https://docs.nav2.org/rolling/configuration_and_development/navigation_plugins/).
 
-Use **Ubuntu Server 24.04 arm64 / ROS 2 Jazzy** as the integration target. Verify UVC capture and actual arm64 package installation on the Pi. Pin working versions after calibration and recorded-data replay. Package documentation does not establish this combined build's performance. [ROS maintainers' Pi guide](https://github.com/ros2/ros2_documentation/blob/jazzy/source/How-To-Guides/Installing-on-Raspberry-Pi.rst).
+Use **Ubuntu Server 24.04 arm64 / ROS 2 Jazzy** on the Pi. On an Apple Silicon Mac mini, target an Ubuntu 24.04 arm64 VM for the ROS 2 stack; use amd64 for an Intel mini. Stock macOS does not have the same official Jazzy binary-install path. Verify capture, packages, VM networking and recorded-data replay before driving. The mini's exact hardware and combined performance have not been measured. [ROS maintainers' Pi guide](https://github.com/ros2/ros2_documentation/blob/jazzy/source/How-To-Guides/Installing-on-Raspberry-Pi.rst), [Jazzy installation platforms](https://github.com/ros2/ros2_documentation/blob/jazzy/source/Installation.rst).
 
 ## Model decisions
 

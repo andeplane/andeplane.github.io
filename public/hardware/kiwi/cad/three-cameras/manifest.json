@@ -12,17 +12,22 @@
       ],
       [
         "left",
-        90
+        45
       ],
       [
         "right",
-        -90
+        -45
       ]
     ],
     "hub": true,
     "width": 25.0,
     "height": 25.0,
-    "cameraZ": 151.0,
+    "cameraZ": 117.0,
+    "boardRear": 107.4,
+    "glassFront": 125.0,
+    "horizontalFovDeg": 88.14,
+    "verticalFovDeg": 57.14,
+    "portDiameter": 20.0,
     "holeX": 21.0,
     "holeZ": 21.0,
     "holeD": 2.0
@@ -51,6 +56,167 @@
     "bumperTravelMm": 3.0,
     "physicalValidation": "pending"
   },
+  "cameraPlacement": [
+    {
+      "label": "front",
+      "yawDegFromFront": 0,
+      "centerZMm": 117,
+      "boardCenterCadMm": [
+        0.0,
+        108.2,
+        117
+      ],
+      "boardCenterGlbM": [
+        0.0,
+        0.117,
+        -0.1082
+      ],
+      "forwardCad": [
+        0.0,
+        1.0,
+        0
+      ],
+      "forwardGlb": [
+        0.0,
+        0.0,
+        -1.0
+      ],
+      "glassCentersCadMm": [
+        [
+          0.0,
+          125.0,
+          117
+        ]
+      ],
+      "glassCentersGlbM": [
+        [
+          0.0,
+          0.117,
+          -0.125
+        ]
+      ],
+      "horizontalFovDeg": 88.14,
+      "verticalFovDeg": 57.14,
+      "fovBasis": "96deg diagonal nominal,derived16:9 pinhole;unmeasured",
+      "port": {
+        "diameterMm": 20,
+        "glassSetbackMm": 1.0,
+        "requiredPlanningRadiusMm": 8.1107,
+        "planningRadialMarginMm": 1.8893,
+        "shape": "circular port in curved shell",
+        "outerFaceLocalYmm": 126,
+        "entryPupilAndLensDistortion": "unknown;physical FOV target test required"
+      },
+      "mounting": "two deck forks;M3x10 atX+/-43,Y106,Z96",
+      "boardInternal": true
+    },
+    {
+      "label": "left",
+      "yawDegFromFront": 45,
+      "centerZMm": 117,
+      "boardCenterCadMm": [
+        -76.509,
+        76.509,
+        117
+      ],
+      "boardCenterGlbM": [
+        -0.076509,
+        0.117,
+        -0.076509
+      ],
+      "forwardCad": [
+        -0.7071,
+        0.7071,
+        0
+      ],
+      "forwardGlb": [
+        -0.707107,
+        0.0,
+        -0.707107
+      ],
+      "glassCentersCadMm": [
+        [
+          -88.3883,
+          88.3883,
+          117
+        ]
+      ],
+      "glassCentersGlbM": [
+        [
+          -0.088388,
+          0.117,
+          -0.088388
+        ]
+      ],
+      "horizontalFovDeg": 88.14,
+      "verticalFovDeg": 57.14,
+      "fovBasis": "96deg diagonal nominal,derived16:9 pinhole;unmeasured",
+      "port": {
+        "diameterMm": 20,
+        "glassSetbackMm": 1.0,
+        "requiredPlanningRadiusMm": 8.1107,
+        "planningRadialMarginMm": 1.8893,
+        "shape": "circular port in curved shell",
+        "outerFaceLocalYmm": 126,
+        "entryPupilAndLensDistortion": "unknown;physical FOV target test required"
+      },
+      "mounting": "Pi tray front-corner structural attachment;M3x14 atX+/-47,Y58,Z99",
+      "boardInternal": true
+    },
+    {
+      "label": "right",
+      "yawDegFromFront": -45,
+      "centerZMm": 117,
+      "boardCenterCadMm": [
+        76.509,
+        76.509,
+        117
+      ],
+      "boardCenterGlbM": [
+        0.076509,
+        0.117,
+        -0.076509
+      ],
+      "forwardCad": [
+        0.7071,
+        0.7071,
+        0
+      ],
+      "forwardGlb": [
+        0.707107,
+        0.0,
+        -0.707107
+      ],
+      "glassCentersCadMm": [
+        [
+          88.3883,
+          88.3883,
+          117
+        ]
+      ],
+      "glassCentersGlbM": [
+        [
+          0.088388,
+          0.117,
+          -0.088388
+        ]
+      ],
+      "horizontalFovDeg": 88.14,
+      "verticalFovDeg": 57.14,
+      "fovBasis": "96deg diagonal nominal,derived16:9 pinhole;unmeasured",
+      "port": {
+        "diameterMm": 20,
+        "glassSetbackMm": 1.0,
+        "requiredPlanningRadiusMm": 8.1107,
+        "planningRadialMarginMm": 1.8893,
+        "shape": "circular port in curved shell",
+        "outerFaceLocalYmm": 126,
+        "entryPupilAndLensDistortion": "unknown;physical FOV target test required"
+      },
+      "mounting": "Pi tray front-corner structural attachment;M3x14 atX+/-47,Y58,Z99",
+      "boardInternal": true
+    }
+  ],
   "parameters": {
     "deck_radius": 126.0,
     "deck_bottom": 48.0,
@@ -104,8 +270,8 @@
     "variant": "three-cameras",
     "camera_width": 25.0,
     "camera_height": 25.0,
-    "camera_centre_z": 151.0,
-    "camera_board_rear_y": 114.0,
+    "camera_centre_z": 117.0,
+    "camera_board_rear_y": 107.4,
     "camera_hole_pitch_x": 21.0,
     "camera_hole_pitch_z": 21.0,
     "camera_baseline_mm": null,
@@ -182,24 +348,6 @@
         94
       ]
     ],
-    "cameraSides": [
-      [
-        -99,
-        -9
-      ],
-      [
-        -99,
-        9
-      ],
-      [
-        99,
-        -9
-      ],
-      [
-        99,
-        9
-      ]
-    ],
     "usbHub": [
       [
         -22,
@@ -220,7 +368,7 @@
     ]
   },
   "activeDistanceSensors": 0,
-  "sourceSha256": "6bdcbf9ca70f0a52c6d4f3b34fe9f74fe4c589ecdbe2c6b69fa2a3781af947a7",
+  "sourceSha256": "f1d689e23da8145359242b60b9ade17726575070dcad7f3eab3c646c76f9b8cf",
   "parts": [
     {
       "id": "deck-left",
@@ -263,7 +411,7 @@
           13.0
         ]
       },
-      "volumeMm3": 136355.32,
+      "volumeMm3": 136464.271,
       "solidCount": 1,
       "validSolid": true,
       "stl": "stl/deck-left.stl",
@@ -315,7 +463,7 @@
           13.0
         ]
       },
-      "volumeMm3": 135871.511,
+      "volumeMm3": 135980.461,
       "solidCount": 1,
       "validSolid": true,
       "stl": "stl/deck-right.stl",
@@ -1324,22 +1472,22 @@
       ],
       "boundingBoxMm": {
         "min": [
-          -126.0,
-          -125.99975198388289,
+          -126.0000001,
+          -125.99975208388288,
           61.0
         ],
         "max": [
-          -0.2499999999999041,
-          125.9997519838829,
-          139.0
+          -0.24999989999954755,
+          125.99975208625081,
+          139.0000001
         ],
         "size": [
-          125.7500000000001,
-          251.9995039677658,
-          78.0
+          125.75000020000044,
+          251.9995041701337,
+          78.0000001
         ]
       },
-      "volumeMm3": 79897.126,
+      "volumeMm3": 81316.522,
       "solidCount": 1,
       "validSolid": true,
       "stl": "stl/shell-left.stl",
@@ -1376,28 +1524,28 @@
       ],
       "boundingBoxMm": {
         "min": [
-          -124.17290364648805,
+          -125.4,
           -125.39975079720055,
           139.4
         ],
         "max": [
-          -0.25,
-          124.17290364648804,
+          -0.24999999999999825,
+          125.39975079720057,
           143.0
         ],
         "size": [
-          123.92290364648805,
-          249.57265444368858,
+          125.15,
+          250.79950159440114,
           3.5999999999999943
         ]
       },
-      "volumeMm3": 80209.095,
+      "volumeMm3": 84735.08,
       "solidCount": 1,
       "validSolid": true,
       "stl": "stl/lid-left.stl",
       "printBoundingBoxMm": [
-        123.923,
-        249.573,
+        125.15,
+        250.8,
         3.6
       ],
       "fits256mmBed": true
@@ -1428,22 +1576,22 @@
       ],
       "boundingBoxMm": {
         "min": [
-          0.24999999999985945,
+          0.24999989999999855,
           -125.99975198388289,
           61.0
         ],
         "max": [
-          126.00000000000001,
-          125.9997519838829,
-          139.0
+          126.0000001,
+          125.99975208625077,
+          139.0000001
         ],
         "size": [
-          125.75000000000016,
-          251.9995039677658,
-          78.0
+          125.7500002,
+          251.99950407013364,
+          78.0000001
         ]
       },
-      "volumeMm3": 79897.126,
+      "volumeMm3": 81316.506,
       "solidCount": 1,
       "validSolid": true,
       "stl": "stl/shell-right.stl",
@@ -1480,28 +1628,28 @@
       ],
       "boundingBoxMm": {
         "min": [
-          0.24999999999989939,
-          -125.39975079720055,
+          0.25,
+          -125.39975079720057,
           139.4
         ],
         "max": [
-          124.17290364648804,
-          124.17290364648804,
+          125.4,
+          125.39975079720057,
           143.0
         ],
         "size": [
-          123.92290364648814,
-          249.57265444368858,
+          125.15,
+          250.79950159440114,
           3.5999999999999943
         ]
       },
-      "volumeMm3": 78777.707,
+      "volumeMm3": 83303.692,
       "solidCount": 1,
       "validSolid": true,
       "stl": "stl/lid-right.stl",
       "printBoundingBoxMm": [
-        123.923,
-        249.573,
+        125.15,
+        250.8,
         3.6
       ],
       "fits256mmBed": true
@@ -1858,7 +2006,7 @@
     },
     {
       "id": "camera-front-tower--43",
-      "name": "Front camera structural tower",
+      "name": "Internal front camera structural fork",
       "kind": "printed",
       "source": "Kiwi K1 parametric design",
       "dimensionalStatus": "designed; physical fit pending",
@@ -1888,29 +2036,29 @@
         ],
         "max": [
           -37.5,
-          122.0,
-          134.0
+          112.0,
+          96.0
         ],
         "size": [
           11.0,
-          38.0,
-          80.0
+          28.0,
+          42.0
         ]
       },
-      "volumeMm3": 11491.396,
+      "volumeMm3": 6270.406,
       "solidCount": 1,
       "validSolid": true,
       "stl": "stl/camera-front-tower--43.stl",
       "printBoundingBoxMm": [
         11.0,
-        38.0,
-        80.0
+        28.0,
+        42.0
       ],
       "fits256mmBed": true
     },
     {
       "id": "camera-front-tower-43",
-      "name": "Front camera structural tower",
+      "name": "Internal front camera structural fork",
       "kind": "printed",
       "source": "Kiwi K1 parametric design",
       "dimensionalStatus": "designed; physical fit pending",
@@ -1940,16 +2088,16 @@
         ],
         "max": [
           48.5,
-          122.0,
-          134.0
+          112.0,
+          96.0
         ],
         "size": [
           11.0,
-          38.0,
-          80.0
+          28.0,
+          42.0
         ]
       },
-      "volumeMm3": 11491.396,
+      "volumeMm3": 6270.406,
       "solidCount": 1,
       "validSolid": true,
       "stl": "stl/camera-front-tower--43.stl"
@@ -1965,7 +2113,7 @@
         0.04,
         -0.025
       ],
-      "group": "camera-front-mount",
+      "group": "camera-mount-front",
       "printable": true,
       "notes": [],
       "meshNames": [
@@ -1980,81 +2128,29 @@
       ],
       "boundingBoxMm": {
         "min": [
-          -50.0,
-          105.5,
-          121.0
+          -50.000000000000014,
+          90.0,
+          87.0
         ],
         "max": [
           50.0,
-          132.5,
-          167.5
+          118.0,
+          135.5
         ],
         "size": [
-          100.0,
-          27.0,
-          46.5
+          100.00000000000001,
+          28.0,
+          48.5
         ]
       },
-      "volumeMm3": 12061.727,
+      "volumeMm3": 11584.733,
       "solidCount": 1,
       "validSolid": true,
       "stl": "stl/camera-mount-front.stl",
       "printBoundingBoxMm": [
         100.0,
-        27.0,
-        46.5
-      ],
-      "fits256mmBed": true
-    },
-    {
-      "id": "camera-side-tower-left",
-      "name": "left camera structural tower",
-      "kind": "printed",
-      "source": "Kiwi K1 parametric design",
-      "dimensionalStatus": "designed; physical fit pending",
-      "explode": [
-        0,
-        0.025,
-        0
-      ],
-      "group": "camera-side-towers",
-      "printable": true,
-      "notes": [],
-      "meshNames": [
-        "camera-side-tower-left"
-      ],
-      "quantity": 1,
-      "color": [
-        0.095,
-        0.12,
-        0.135,
-        1
-      ],
-      "boundingBoxMm": {
-        "min": [
-          -105.0,
-          -14.99999999999999,
-          54.0
-        ],
-        "max": [
-          -93.0,
-          15.000000000000012,
-          134.0
-        ],
-        "size": [
-          12.0,
-          30.0,
-          80.0
-        ]
-      },
-      "volumeMm3": 13712.356,
-      "solidCount": 1,
-      "validSolid": true,
-      "stl": "stl/camera-side-tower-left.stl",
-      "printBoundingBoxMm": [
-        12.0,
-        30.0,
-        80.0
+        28.0,
+        48.5
       ],
       "fits256mmBed": true
     },
@@ -2069,7 +2165,7 @@
         0.04,
         -0.025
       ],
-      "group": "camera-side-mounts",
+      "group": "camera-mount-left",
       "printable": true,
       "notes": [],
       "meshNames": [
@@ -2084,77 +2180,31 @@
       ],
       "boundingBoxMm": {
         "min": [
-          -128.0,
-          -16.49999999999999,
-          121.0
+          -94.04520189781083,
+          52.499999994598056,
+          87.0
         ],
         "max": [
-          -95.0,
-          16.50000000000001,
-          167.5
+          -41.499999998914255,
+          94.04520189781083,
+          135.5
         ],
         "size": [
-          33.0,
-          33.0,
-          46.5
+          52.54520189889657,
+          41.54520190321277,
+          48.5
         ]
       },
-      "volumeMm3": 4912.006,
+      "volumeMm3": 5456.5,
       "solidCount": 1,
       "validSolid": true,
       "stl": "stl/camera-mount-left.stl",
       "printBoundingBoxMm": [
-        33.0,
-        33.0,
-        46.5
+        52.545,
+        41.545,
+        48.5
       ],
       "fits256mmBed": true
-    },
-    {
-      "id": "camera-side-tower-right",
-      "name": "right camera structural tower",
-      "kind": "printed",
-      "source": "Kiwi K1 parametric design",
-      "dimensionalStatus": "designed; physical fit pending",
-      "explode": [
-        0,
-        0.025,
-        0
-      ],
-      "group": "camera-side-towers",
-      "printable": true,
-      "notes": [],
-      "meshNames": [
-        "camera-side-tower-right"
-      ],
-      "quantity": 1,
-      "color": [
-        0.095,
-        0.12,
-        0.135,
-        1
-      ],
-      "boundingBoxMm": {
-        "min": [
-          93.0,
-          -14.99999999999999,
-          54.0
-        ],
-        "max": [
-          105.0,
-          15.000000000000012,
-          134.0
-        ],
-        "size": [
-          12.0,
-          30.0,
-          80.0
-        ]
-      },
-      "volumeMm3": 13712.356,
-      "solidCount": 1,
-      "validSolid": true,
-      "stl": "stl/camera-side-tower-left.stl"
     },
     {
       "id": "camera-mount-right",
@@ -2167,7 +2217,7 @@
         0.04,
         -0.025
       ],
-      "group": "camera-side-mounts",
+      "group": "camera-mount-right",
       "printable": true,
       "notes": [],
       "meshNames": [
@@ -2182,25 +2232,31 @@
       ],
       "boundingBoxMm": {
         "min": [
-          95.0,
-          -16.49999999999999,
-          121.0
+          41.499999998914255,
+          52.499999994598056,
+          87.0
         ],
         "max": [
-          128.0,
-          16.50000000000001,
-          167.5
+          94.04520189781083,
+          94.04520189781083,
+          135.5
         ],
         "size": [
-          33.0,
-          33.0,
-          46.5
+          52.54520189889657,
+          41.54520190321277,
+          48.5
         ]
       },
-      "volumeMm3": 4912.006,
+      "volumeMm3": 5464.063,
       "solidCount": 1,
       "validSolid": true,
-      "stl": "stl/camera-mount-left.stl"
+      "stl": "stl/camera-mount-right.stl",
+      "printBoundingBoxMm": [
+        52.545,
+        41.545,
+        48.5
+      ],
+      "fits256mmBed": true
     },
     {
       "id": "bumper-90",
@@ -5163,13 +5219,13 @@
       "boundingBoxMm": {
         "min": [
           -12.5,
-          114.0,
-          138.5
+          107.4,
+          104.5
         ],
         "max": [
           12.5,
-          115.6,
-          163.5
+          109.0,
+          129.5
         ],
         "size": [
           25.0,
@@ -5208,13 +5264,13 @@
       "boundingBoxMm": {
         "min": [
           -7.0,
-          115.6,
-          144.0
+          109.0,
+          110.0
         ],
         "max": [
           7.0,
-          131.6,
-          158.0
+          125.0,
+          124.0
         ],
         "size": [
           14.0,
@@ -5253,17 +5309,17 @@
       "boundingBoxMm": {
         "min": [
           -6.0,
-          131.3,
-          145.0
+          124.7,
+          111.0
         ],
         "max": [
           6.0,
-          131.60000000000002,
-          157.0
+          125.0,
+          123.0
         ],
         "size": [
           12.0,
-          0.30000000000001137,
+          0.29999999999999716,
           12.0
         ]
       },
@@ -5298,13 +5354,13 @@
       "boundingBoxMm": {
         "min": [
           -5.0,
-          109.5,
-          134.5
+          102.9,
+          100.5
         ],
         "max": [
           5.0,
-          114.0,
-          142.5
+          107.4,
+          108.5
         ],
         "size": [
           10.0,
@@ -5342,18 +5398,18 @@
       ],
       "boundingBoxMm": {
         "min": [
-          -115.6,
-          -12.499999999999988,
-          138.5
+          -85.91347391416552,
+          67.10443353460337,
+          104.5
         ],
         "max": [
-          -114.0,
-          12.500000000000012,
-          163.5
+          -67.10443353460336,
+          85.91347391416554,
+          129.5
         ],
         "size": [
-          1.5999999999999943,
-          25.0,
+          18.809040379562163,
+          18.809040379562163,
           25.0
         ]
       },
@@ -5387,18 +5443,18 @@
       ],
       "boundingBoxMm": {
         "min": [
-          -131.6,
-          -6.999999999999988,
-          144.0
+          -93.33809511662426,
+          72.12489168102786,
+          110.0
         ],
         "max": [
-          -115.6,
-          7.000000000000014,
-          158.0
+          -72.12489168102785,
+          93.33809511662427,
+          124.0
         ],
         "size": [
-          16.0,
-          14.000000000000002,
+          21.213203435596412,
+          21.213203435596412,
           14.0
         ]
       },
@@ -5432,18 +5488,18 @@
       ],
       "boundingBoxMm": {
         "min": [
-          -131.60000000000002,
-          -5.999999999999986,
-          145.0
+          -92.63098833543772,
+          83.93357492684319,
+          111.0
         ],
         "max": [
-          -131.3,
-          6.000000000000014,
-          157.0
+          -83.93357492684318,
+          92.63098833543773,
+          123.0
         ],
         "size": [
-          0.30000000000001137,
-          12.0,
+          8.697413408594542,
+          8.697413408594542,
           12.0
         ]
       },
@@ -5477,18 +5533,18 @@
       ],
       "boundingBoxMm": {
         "min": [
-          -114.0,
-          -4.999999999999988,
-          134.5
+          -79.47880220536794,
+          69.225753878163,
+          100.5
         ],
         "max": [
-          -109.5,
-          5.000000000000013,
-          142.5
+          -69.225753878163,
+          79.47880220536796,
+          108.5
         ],
         "size": [
-          4.5,
-          10.0,
+          10.253048327204937,
+          10.25304832720495,
           8.0
         ]
       },
@@ -5522,18 +5578,18 @@
       ],
       "boundingBoxMm": {
         "min": [
-          114.0,
-          -12.499999999999988,
-          138.5
+          67.10443353460336,
+          67.10443353460337,
+          104.5
         ],
         "max": [
-          115.6,
-          12.500000000000012,
-          163.5
+          85.91347391416552,
+          85.91347391416554,
+          129.5
         ],
         "size": [
-          1.5999999999999943,
-          25.0,
+          18.809040379562163,
+          18.809040379562163,
           25.0
         ]
       },
@@ -5567,18 +5623,18 @@
       ],
       "boundingBoxMm": {
         "min": [
-          115.6,
-          -6.999999999999988,
-          144.0
+          72.12489168102785,
+          72.12489168102786,
+          110.0
         ],
         "max": [
-          131.6,
-          7.000000000000014,
-          158.0
+          93.33809511662426,
+          93.33809511662427,
+          124.0
         ],
         "size": [
-          16.0,
-          14.000000000000002,
+          21.213203435596412,
+          21.213203435596412,
           14.0
         ]
       },
@@ -5612,18 +5668,18 @@
       ],
       "boundingBoxMm": {
         "min": [
-          131.3,
-          -5.999999999999986,
-          145.0
+          83.93357492684318,
+          83.93357492684319,
+          111.0
         ],
         "max": [
-          131.60000000000002,
-          6.000000000000014,
-          157.0
+          92.63098833543772,
+          92.63098833543773,
+          123.0
         ],
         "size": [
-          0.30000000000001137,
-          12.0,
+          8.697413408594542,
+          8.697413408594542,
           12.0
         ]
       },
@@ -5657,18 +5713,18 @@
       ],
       "boundingBoxMm": {
         "min": [
-          109.5,
-          -4.999999999999988,
-          134.5
+          69.225753878163,
+          69.225753878163,
+          100.5
         ],
         "max": [
-          114.0,
-          5.000000000000013,
-          142.5
+          79.47880220536794,
+          79.47880220536796,
+          108.5
         ],
         "size": [
-          4.5,
-          10.0,
+          10.253048327204937,
+          10.25304832720495,
           8.0
         ]
       },
@@ -5879,8 +5935,8 @@
     {
       "id": "hardware_m3x10",
       "item": "M3x10 socket cap screw",
-      "quantity": 50,
-      "use": "34commoninstalled+4spares;threecamera adds8sidecamera+4hubriser bottom"
+      "quantity": 40,
+      "use": "34commoninstalled+4spares;threecamera adds4hubriserbottom and upgrades2tray screws toM3x14"
     },
     {
       "id": "hardware_m3x8",
@@ -5897,14 +5953,14 @@
     {
       "id": "hardware_m3x14",
       "item": "M3x14 socket cap screw",
-      "quantity": 12,
-      "use": "2Pico+2PiPower+2disconnect+2IMU/splice+2spares;threecamera adds2DFR/frontsplice"
+      "quantity": 14,
+      "use": "2Pico+2PiPower+2disconnect+2IMU/splice+2spares;threecamera adds2DFR/frontsplice and2oblique/tray attachments"
     },
     {
       "id": "hardware_inserts",
       "item": "ruthexRX-M3Sx4.0SHORT OD4.6/L4.0 nominal4.0bore",
-      "quantity": 56,
-      "use": "40common;threecamera adds8sidetower+8hubriser"
+      "quantity": 48,
+      "use": "40common;threecamera adds8hubriser"
     },
     {
       "id": "hardware_nyloc",
@@ -5915,7 +5971,7 @@
     {
       "id": "hardware_washers",
       "item": "M3 washer",
-      "quantity": 58,
+      "quantity": 50,
       "use": "printed joints, guides and spare allowance;check washer clearance at each interface"
     },
     {
@@ -6000,9 +6056,9 @@
   "checks": {
     "status": "PASS",
     "issues": [],
-    "validPartInstances": 120,
-    "partInstances": 120,
-    "printedInstances": 50,
+    "validPartInstances": 118,
+    "partInstances": 118,
+    "printedInstances": 48,
     "uniquePrintableStls": 32,
     "contactPoints": [
       {
@@ -6028,6 +6084,3777 @@
           -131.8,
           0.0
         ]
+      }
+    ],
+    "cameraComponentChecks": [
+      {
+        "camera": "camera-front-pcb",
+        "part": "deck-left",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "camera": "camera-front-pcb",
+        "part": "deck-right",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "camera": "camera-front-pcb",
+        "part": "splice-0",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "camera": "camera-front-pcb",
+        "part": "splice-1",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "camera": "camera-front-pcb",
+        "part": "splice-2",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "camera": "camera-front-pcb",
+        "part": "clamp-upper-30",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "camera": "camera-front-pcb",
+        "part": "clamp-lower-30",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "camera": "camera-front-pcb",
+        "part": "clamp-upper-150",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "camera": "camera-front-pcb",
+        "part": "clamp-lower-150",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "camera": "camera-front-pcb",
+        "part": "clamp-upper-270",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "camera": "camera-front-pcb",
+        "part": "clamp-lower-270",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "camera": "camera-front-pcb",
+        "part": "shell-left",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "camera": "camera-front-pcb",
+        "part": "lid-left",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "camera": "camera-front-pcb",
+        "part": "shell-right",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "camera": "camera-front-pcb",
+        "part": "lid-right",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "camera": "camera-front-pcb",
+        "part": "trim-left",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "camera": "camera-front-pcb",
+        "part": "trim-right",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "camera": "camera-front-pcb",
+        "part": "pi-tray",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "camera": "camera-front-pcb",
+        "part": "pi-riser-0",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "camera": "camera-front-pcb",
+        "part": "pi-riser-1",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "camera": "camera-front-pcb",
+        "part": "pi-riser-2",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "camera": "camera-front-pcb",
+        "part": "pi-riser-3",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "camera": "camera-front-pcb",
+        "part": "camera-front-tower--43",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "camera": "camera-front-pcb",
+        "part": "camera-front-tower-43",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "camera": "camera-front-pcb",
+        "part": "camera-mount-front",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "camera": "camera-front-pcb",
+        "part": "camera-mount-left",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "camera": "camera-front-pcb",
+        "part": "camera-mount-right",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "camera": "camera-front-pcb",
+        "part": "bumper-90",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "camera": "camera-front-pcb",
+        "part": "bumper-carrier-90",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "camera": "camera-front-pcb",
+        "part": "bumper-210",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "camera": "camera-front-pcb",
+        "part": "bumper-carrier-210",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "camera": "camera-front-pcb",
+        "part": "bumper-330",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "camera": "camera-front-pcb",
+        "part": "bumper-carrier-330",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "camera": "camera-front-pcb",
+        "part": "stop-tower",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "camera": "camera-front-pcb",
+        "part": "electronics-tray",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "camera": "camera-front-pcb",
+        "part": "driver-riser-0",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "camera": "camera-front-pcb",
+        "part": "driver-riser-1",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "camera": "camera-front-pcb",
+        "part": "pico-carrier",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "camera": "camera-front-pcb",
+        "part": "pi-power-carrier",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "camera": "camera-front-pcb",
+        "part": "disconnect-carrier",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "camera": "camera-front-pcb",
+        "part": "imu-carrier",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "camera": "camera-front-pcb",
+        "part": "main-switch-panel",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "camera": "camera-front-pcb",
+        "part": "usb-hub-carrier",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "camera": "camera-front-pcb",
+        "part": "usb-hub-riser-0",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "camera": "camera-front-pcb",
+        "part": "usb-hub-riser-1",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "camera": "camera-front-pcb",
+        "part": "usb-hub-riser-2",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "camera": "camera-front-pcb",
+        "part": "usb-hub-riser-3",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "camera": "camera-front-pcb",
+        "part": "camera-power-carrier",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "camera": "camera-front-pcb",
+        "part": "pi-pcb",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "camera": "camera-front-pcb",
+        "part": "pi-ports",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "camera": "camera-front-pcb",
+        "part": "pi-cooler",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "camera": "camera-front-pcb",
+        "part": "battery",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "camera": "camera-front-pcb",
+        "part": "microcontroller",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "camera": "camera-front-pcb",
+        "part": "motor-disconnect",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "camera": "camera-front-pcb",
+        "part": "camera-usb-hub",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "camera": "camera-front-pcb",
+        "part": "camera-power-buck",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "camera": "camera-front-pcb",
+        "part": "stop-body",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "camera": "camera-front-usb",
+        "part": "deck-left",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "camera": "camera-front-usb",
+        "part": "deck-right",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "camera": "camera-front-usb",
+        "part": "splice-0",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "camera": "camera-front-usb",
+        "part": "splice-1",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "camera": "camera-front-usb",
+        "part": "splice-2",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "camera": "camera-front-usb",
+        "part": "clamp-upper-30",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "camera": "camera-front-usb",
+        "part": "clamp-lower-30",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "camera": "camera-front-usb",
+        "part": "clamp-upper-150",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "camera": "camera-front-usb",
+        "part": "clamp-lower-150",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "camera": "camera-front-usb",
+        "part": "clamp-upper-270",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "camera": "camera-front-usb",
+        "part": "clamp-lower-270",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "camera": "camera-front-usb",
+        "part": "shell-left",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "camera": "camera-front-usb",
+        "part": "lid-left",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "camera": "camera-front-usb",
+        "part": "shell-right",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "camera": "camera-front-usb",
+        "part": "lid-right",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "camera": "camera-front-usb",
+        "part": "trim-left",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "camera": "camera-front-usb",
+        "part": "trim-right",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "camera": "camera-front-usb",
+        "part": "pi-tray",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "camera": "camera-front-usb",
+        "part": "pi-riser-0",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "camera": "camera-front-usb",
+        "part": "pi-riser-1",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "camera": "camera-front-usb",
+        "part": "pi-riser-2",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "camera": "camera-front-usb",
+        "part": "pi-riser-3",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "camera": "camera-front-usb",
+        "part": "camera-front-tower--43",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "camera": "camera-front-usb",
+        "part": "camera-front-tower-43",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "camera": "camera-front-usb",
+        "part": "camera-mount-front",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "camera": "camera-front-usb",
+        "part": "camera-mount-left",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "camera": "camera-front-usb",
+        "part": "camera-mount-right",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "camera": "camera-front-usb",
+        "part": "bumper-90",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "camera": "camera-front-usb",
+        "part": "bumper-carrier-90",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "camera": "camera-front-usb",
+        "part": "bumper-210",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "camera": "camera-front-usb",
+        "part": "bumper-carrier-210",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "camera": "camera-front-usb",
+        "part": "bumper-330",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "camera": "camera-front-usb",
+        "part": "bumper-carrier-330",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "camera": "camera-front-usb",
+        "part": "stop-tower",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "camera": "camera-front-usb",
+        "part": "electronics-tray",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "camera": "camera-front-usb",
+        "part": "driver-riser-0",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "camera": "camera-front-usb",
+        "part": "driver-riser-1",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "camera": "camera-front-usb",
+        "part": "pico-carrier",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "camera": "camera-front-usb",
+        "part": "pi-power-carrier",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "camera": "camera-front-usb",
+        "part": "disconnect-carrier",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "camera": "camera-front-usb",
+        "part": "imu-carrier",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "camera": "camera-front-usb",
+        "part": "main-switch-panel",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "camera": "camera-front-usb",
+        "part": "usb-hub-carrier",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "camera": "camera-front-usb",
+        "part": "usb-hub-riser-0",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "camera": "camera-front-usb",
+        "part": "usb-hub-riser-1",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "camera": "camera-front-usb",
+        "part": "usb-hub-riser-2",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "camera": "camera-front-usb",
+        "part": "usb-hub-riser-3",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "camera": "camera-front-usb",
+        "part": "camera-power-carrier",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "camera": "camera-front-usb",
+        "part": "pi-pcb",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "camera": "camera-front-usb",
+        "part": "pi-ports",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "camera": "camera-front-usb",
+        "part": "pi-cooler",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "camera": "camera-front-usb",
+        "part": "battery",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "camera": "camera-front-usb",
+        "part": "microcontroller",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "camera": "camera-front-usb",
+        "part": "motor-disconnect",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "camera": "camera-front-usb",
+        "part": "camera-usb-hub",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "camera": "camera-front-usb",
+        "part": "camera-power-buck",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "camera": "camera-front-usb",
+        "part": "stop-body",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "camera": "camera-left-pcb",
+        "part": "deck-left",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "camera": "camera-left-pcb",
+        "part": "deck-right",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "camera": "camera-left-pcb",
+        "part": "splice-0",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "camera": "camera-left-pcb",
+        "part": "splice-1",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "camera": "camera-left-pcb",
+        "part": "splice-2",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "camera": "camera-left-pcb",
+        "part": "clamp-upper-30",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "camera": "camera-left-pcb",
+        "part": "clamp-lower-30",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "camera": "camera-left-pcb",
+        "part": "clamp-upper-150",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "camera": "camera-left-pcb",
+        "part": "clamp-lower-150",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "camera": "camera-left-pcb",
+        "part": "clamp-upper-270",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "camera": "camera-left-pcb",
+        "part": "clamp-lower-270",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "camera": "camera-left-pcb",
+        "part": "shell-left",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "camera": "camera-left-pcb",
+        "part": "lid-left",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "camera": "camera-left-pcb",
+        "part": "shell-right",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "camera": "camera-left-pcb",
+        "part": "lid-right",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "camera": "camera-left-pcb",
+        "part": "trim-left",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "camera": "camera-left-pcb",
+        "part": "trim-right",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "camera": "camera-left-pcb",
+        "part": "pi-tray",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "camera": "camera-left-pcb",
+        "part": "pi-riser-0",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "camera": "camera-left-pcb",
+        "part": "pi-riser-1",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "camera": "camera-left-pcb",
+        "part": "pi-riser-2",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "camera": "camera-left-pcb",
+        "part": "pi-riser-3",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "camera": "camera-left-pcb",
+        "part": "camera-front-tower--43",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "camera": "camera-left-pcb",
+        "part": "camera-front-tower-43",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "camera": "camera-left-pcb",
+        "part": "camera-mount-front",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "camera": "camera-left-pcb",
+        "part": "camera-mount-left",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "camera": "camera-left-pcb",
+        "part": "camera-mount-right",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "camera": "camera-left-pcb",
+        "part": "bumper-90",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "camera": "camera-left-pcb",
+        "part": "bumper-carrier-90",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "camera": "camera-left-pcb",
+        "part": "bumper-210",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "camera": "camera-left-pcb",
+        "part": "bumper-carrier-210",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "camera": "camera-left-pcb",
+        "part": "bumper-330",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "camera": "camera-left-pcb",
+        "part": "bumper-carrier-330",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "camera": "camera-left-pcb",
+        "part": "stop-tower",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "camera": "camera-left-pcb",
+        "part": "electronics-tray",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "camera": "camera-left-pcb",
+        "part": "driver-riser-0",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "camera": "camera-left-pcb",
+        "part": "driver-riser-1",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "camera": "camera-left-pcb",
+        "part": "pico-carrier",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "camera": "camera-left-pcb",
+        "part": "pi-power-carrier",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "camera": "camera-left-pcb",
+        "part": "disconnect-carrier",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "camera": "camera-left-pcb",
+        "part": "imu-carrier",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "camera": "camera-left-pcb",
+        "part": "main-switch-panel",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "camera": "camera-left-pcb",
+        "part": "usb-hub-carrier",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "camera": "camera-left-pcb",
+        "part": "usb-hub-riser-0",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "camera": "camera-left-pcb",
+        "part": "usb-hub-riser-1",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "camera": "camera-left-pcb",
+        "part": "usb-hub-riser-2",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "camera": "camera-left-pcb",
+        "part": "usb-hub-riser-3",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "camera": "camera-left-pcb",
+        "part": "camera-power-carrier",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "camera": "camera-left-pcb",
+        "part": "pi-pcb",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "camera": "camera-left-pcb",
+        "part": "pi-ports",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "camera": "camera-left-pcb",
+        "part": "pi-cooler",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "camera": "camera-left-pcb",
+        "part": "battery",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "camera": "camera-left-pcb",
+        "part": "microcontroller",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "camera": "camera-left-pcb",
+        "part": "motor-disconnect",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "camera": "camera-left-pcb",
+        "part": "camera-usb-hub",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "camera": "camera-left-pcb",
+        "part": "camera-power-buck",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "camera": "camera-left-pcb",
+        "part": "stop-body",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "camera": "camera-left-usb",
+        "part": "deck-left",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "camera": "camera-left-usb",
+        "part": "deck-right",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "camera": "camera-left-usb",
+        "part": "splice-0",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "camera": "camera-left-usb",
+        "part": "splice-1",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "camera": "camera-left-usb",
+        "part": "splice-2",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "camera": "camera-left-usb",
+        "part": "clamp-upper-30",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "camera": "camera-left-usb",
+        "part": "clamp-lower-30",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "camera": "camera-left-usb",
+        "part": "clamp-upper-150",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "camera": "camera-left-usb",
+        "part": "clamp-lower-150",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "camera": "camera-left-usb",
+        "part": "clamp-upper-270",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "camera": "camera-left-usb",
+        "part": "clamp-lower-270",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "camera": "camera-left-usb",
+        "part": "shell-left",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "camera": "camera-left-usb",
+        "part": "lid-left",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "camera": "camera-left-usb",
+        "part": "shell-right",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "camera": "camera-left-usb",
+        "part": "lid-right",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "camera": "camera-left-usb",
+        "part": "trim-left",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "camera": "camera-left-usb",
+        "part": "trim-right",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "camera": "camera-left-usb",
+        "part": "pi-tray",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "camera": "camera-left-usb",
+        "part": "pi-riser-0",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "camera": "camera-left-usb",
+        "part": "pi-riser-1",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "camera": "camera-left-usb",
+        "part": "pi-riser-2",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "camera": "camera-left-usb",
+        "part": "pi-riser-3",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "camera": "camera-left-usb",
+        "part": "camera-front-tower--43",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "camera": "camera-left-usb",
+        "part": "camera-front-tower-43",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "camera": "camera-left-usb",
+        "part": "camera-mount-front",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "camera": "camera-left-usb",
+        "part": "camera-mount-left",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "camera": "camera-left-usb",
+        "part": "camera-mount-right",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "camera": "camera-left-usb",
+        "part": "bumper-90",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "camera": "camera-left-usb",
+        "part": "bumper-carrier-90",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "camera": "camera-left-usb",
+        "part": "bumper-210",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "camera": "camera-left-usb",
+        "part": "bumper-carrier-210",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "camera": "camera-left-usb",
+        "part": "bumper-330",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "camera": "camera-left-usb",
+        "part": "bumper-carrier-330",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "camera": "camera-left-usb",
+        "part": "stop-tower",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "camera": "camera-left-usb",
+        "part": "electronics-tray",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "camera": "camera-left-usb",
+        "part": "driver-riser-0",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "camera": "camera-left-usb",
+        "part": "driver-riser-1",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "camera": "camera-left-usb",
+        "part": "pico-carrier",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "camera": "camera-left-usb",
+        "part": "pi-power-carrier",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "camera": "camera-left-usb",
+        "part": "disconnect-carrier",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "camera": "camera-left-usb",
+        "part": "imu-carrier",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "camera": "camera-left-usb",
+        "part": "main-switch-panel",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "camera": "camera-left-usb",
+        "part": "usb-hub-carrier",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "camera": "camera-left-usb",
+        "part": "usb-hub-riser-0",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "camera": "camera-left-usb",
+        "part": "usb-hub-riser-1",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "camera": "camera-left-usb",
+        "part": "usb-hub-riser-2",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "camera": "camera-left-usb",
+        "part": "usb-hub-riser-3",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "camera": "camera-left-usb",
+        "part": "camera-power-carrier",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "camera": "camera-left-usb",
+        "part": "pi-pcb",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "camera": "camera-left-usb",
+        "part": "pi-ports",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "camera": "camera-left-usb",
+        "part": "pi-cooler",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "camera": "camera-left-usb",
+        "part": "battery",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "camera": "camera-left-usb",
+        "part": "microcontroller",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "camera": "camera-left-usb",
+        "part": "motor-disconnect",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "camera": "camera-left-usb",
+        "part": "camera-usb-hub",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "camera": "camera-left-usb",
+        "part": "camera-power-buck",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "camera": "camera-left-usb",
+        "part": "stop-body",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "camera": "camera-right-pcb",
+        "part": "deck-left",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "camera": "camera-right-pcb",
+        "part": "deck-right",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "camera": "camera-right-pcb",
+        "part": "splice-0",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "camera": "camera-right-pcb",
+        "part": "splice-1",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "camera": "camera-right-pcb",
+        "part": "splice-2",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "camera": "camera-right-pcb",
+        "part": "clamp-upper-30",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "camera": "camera-right-pcb",
+        "part": "clamp-lower-30",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "camera": "camera-right-pcb",
+        "part": "clamp-upper-150",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "camera": "camera-right-pcb",
+        "part": "clamp-lower-150",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "camera": "camera-right-pcb",
+        "part": "clamp-upper-270",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "camera": "camera-right-pcb",
+        "part": "clamp-lower-270",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "camera": "camera-right-pcb",
+        "part": "shell-left",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "camera": "camera-right-pcb",
+        "part": "lid-left",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "camera": "camera-right-pcb",
+        "part": "shell-right",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "camera": "camera-right-pcb",
+        "part": "lid-right",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "camera": "camera-right-pcb",
+        "part": "trim-left",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "camera": "camera-right-pcb",
+        "part": "trim-right",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "camera": "camera-right-pcb",
+        "part": "pi-tray",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "camera": "camera-right-pcb",
+        "part": "pi-riser-0",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "camera": "camera-right-pcb",
+        "part": "pi-riser-1",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "camera": "camera-right-pcb",
+        "part": "pi-riser-2",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "camera": "camera-right-pcb",
+        "part": "pi-riser-3",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "camera": "camera-right-pcb",
+        "part": "camera-front-tower--43",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "camera": "camera-right-pcb",
+        "part": "camera-front-tower-43",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "camera": "camera-right-pcb",
+        "part": "camera-mount-front",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "camera": "camera-right-pcb",
+        "part": "camera-mount-left",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "camera": "camera-right-pcb",
+        "part": "camera-mount-right",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "camera": "camera-right-pcb",
+        "part": "bumper-90",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "camera": "camera-right-pcb",
+        "part": "bumper-carrier-90",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "camera": "camera-right-pcb",
+        "part": "bumper-210",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "camera": "camera-right-pcb",
+        "part": "bumper-carrier-210",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "camera": "camera-right-pcb",
+        "part": "bumper-330",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "camera": "camera-right-pcb",
+        "part": "bumper-carrier-330",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "camera": "camera-right-pcb",
+        "part": "stop-tower",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "camera": "camera-right-pcb",
+        "part": "electronics-tray",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "camera": "camera-right-pcb",
+        "part": "driver-riser-0",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "camera": "camera-right-pcb",
+        "part": "driver-riser-1",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "camera": "camera-right-pcb",
+        "part": "pico-carrier",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "camera": "camera-right-pcb",
+        "part": "pi-power-carrier",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "camera": "camera-right-pcb",
+        "part": "disconnect-carrier",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "camera": "camera-right-pcb",
+        "part": "imu-carrier",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "camera": "camera-right-pcb",
+        "part": "main-switch-panel",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "camera": "camera-right-pcb",
+        "part": "usb-hub-carrier",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "camera": "camera-right-pcb",
+        "part": "usb-hub-riser-0",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "camera": "camera-right-pcb",
+        "part": "usb-hub-riser-1",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "camera": "camera-right-pcb",
+        "part": "usb-hub-riser-2",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "camera": "camera-right-pcb",
+        "part": "usb-hub-riser-3",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "camera": "camera-right-pcb",
+        "part": "camera-power-carrier",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "camera": "camera-right-pcb",
+        "part": "pi-pcb",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "camera": "camera-right-pcb",
+        "part": "pi-ports",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "camera": "camera-right-pcb",
+        "part": "pi-cooler",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "camera": "camera-right-pcb",
+        "part": "battery",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "camera": "camera-right-pcb",
+        "part": "microcontroller",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "camera": "camera-right-pcb",
+        "part": "motor-disconnect",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "camera": "camera-right-pcb",
+        "part": "camera-usb-hub",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "camera": "camera-right-pcb",
+        "part": "camera-power-buck",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "camera": "camera-right-pcb",
+        "part": "stop-body",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "camera": "camera-right-usb",
+        "part": "deck-left",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "camera": "camera-right-usb",
+        "part": "deck-right",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "camera": "camera-right-usb",
+        "part": "splice-0",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "camera": "camera-right-usb",
+        "part": "splice-1",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "camera": "camera-right-usb",
+        "part": "splice-2",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "camera": "camera-right-usb",
+        "part": "clamp-upper-30",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "camera": "camera-right-usb",
+        "part": "clamp-lower-30",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "camera": "camera-right-usb",
+        "part": "clamp-upper-150",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "camera": "camera-right-usb",
+        "part": "clamp-lower-150",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "camera": "camera-right-usb",
+        "part": "clamp-upper-270",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "camera": "camera-right-usb",
+        "part": "clamp-lower-270",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "camera": "camera-right-usb",
+        "part": "shell-left",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "camera": "camera-right-usb",
+        "part": "lid-left",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "camera": "camera-right-usb",
+        "part": "shell-right",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "camera": "camera-right-usb",
+        "part": "lid-right",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "camera": "camera-right-usb",
+        "part": "trim-left",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "camera": "camera-right-usb",
+        "part": "trim-right",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "camera": "camera-right-usb",
+        "part": "pi-tray",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "camera": "camera-right-usb",
+        "part": "pi-riser-0",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "camera": "camera-right-usb",
+        "part": "pi-riser-1",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "camera": "camera-right-usb",
+        "part": "pi-riser-2",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "camera": "camera-right-usb",
+        "part": "pi-riser-3",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "camera": "camera-right-usb",
+        "part": "camera-front-tower--43",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "camera": "camera-right-usb",
+        "part": "camera-front-tower-43",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "camera": "camera-right-usb",
+        "part": "camera-mount-front",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "camera": "camera-right-usb",
+        "part": "camera-mount-left",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "camera": "camera-right-usb",
+        "part": "camera-mount-right",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "camera": "camera-right-usb",
+        "part": "bumper-90",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "camera": "camera-right-usb",
+        "part": "bumper-carrier-90",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "camera": "camera-right-usb",
+        "part": "bumper-210",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "camera": "camera-right-usb",
+        "part": "bumper-carrier-210",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "camera": "camera-right-usb",
+        "part": "bumper-330",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "camera": "camera-right-usb",
+        "part": "bumper-carrier-330",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "camera": "camera-right-usb",
+        "part": "stop-tower",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "camera": "camera-right-usb",
+        "part": "electronics-tray",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "camera": "camera-right-usb",
+        "part": "driver-riser-0",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "camera": "camera-right-usb",
+        "part": "driver-riser-1",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "camera": "camera-right-usb",
+        "part": "pico-carrier",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "camera": "camera-right-usb",
+        "part": "pi-power-carrier",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "camera": "camera-right-usb",
+        "part": "disconnect-carrier",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "camera": "camera-right-usb",
+        "part": "imu-carrier",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "camera": "camera-right-usb",
+        "part": "main-switch-panel",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "camera": "camera-right-usb",
+        "part": "usb-hub-carrier",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "camera": "camera-right-usb",
+        "part": "usb-hub-riser-0",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "camera": "camera-right-usb",
+        "part": "usb-hub-riser-1",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "camera": "camera-right-usb",
+        "part": "usb-hub-riser-2",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "camera": "camera-right-usb",
+        "part": "usb-hub-riser-3",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "camera": "camera-right-usb",
+        "part": "camera-power-carrier",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "camera": "camera-right-usb",
+        "part": "pi-pcb",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "camera": "camera-right-usb",
+        "part": "pi-ports",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "camera": "camera-right-usb",
+        "part": "pi-cooler",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "camera": "camera-right-usb",
+        "part": "battery",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "camera": "camera-right-usb",
+        "part": "microcontroller",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "camera": "camera-right-usb",
+        "part": "motor-disconnect",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "camera": "camera-right-usb",
+        "part": "camera-usb-hub",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "camera": "camera-right-usb",
+        "part": "camera-power-buck",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "camera": "camera-right-usb",
+        "part": "stop-body",
+        "intersectionMm3": 0.0,
+        "passed": true
+      }
+    ],
+    "cameraEnvelopeChecks": [
+      {
+        "label": "front",
+        "boardOutsideInnerShellMm3": 0.0,
+        "boardTopZMm": 129.5,
+        "passed": true
+      },
+      {
+        "label": "left",
+        "boardOutsideInnerShellMm3": 0.0,
+        "boardTopZMm": 129.5,
+        "passed": true
+      },
+      {
+        "label": "right",
+        "boardOutsideInnerShellMm3": 0.0,
+        "boardTopZMm": 129.5,
+        "passed": true
+      }
+    ],
+    "opticalPortChecks": [
+      {
+        "label": "front",
+        "lensOffsetMm": 0,
+        "part": "shell-left",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "label": "front",
+        "lensOffsetMm": 0,
+        "part": "shell-right",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "label": "front",
+        "lensOffsetMm": 0,
+        "part": "camera-mount-front",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "label": "front",
+        "lensOffsetMm": 0,
+        "part": "camera-mount-left",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "label": "front",
+        "lensOffsetMm": 0,
+        "part": "camera-mount-right",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "label": "left",
+        "lensOffsetMm": 0,
+        "part": "shell-left",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "label": "left",
+        "lensOffsetMm": 0,
+        "part": "shell-right",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "label": "left",
+        "lensOffsetMm": 0,
+        "part": "camera-mount-front",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "label": "left",
+        "lensOffsetMm": 0,
+        "part": "camera-mount-left",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "label": "left",
+        "lensOffsetMm": 0,
+        "part": "camera-mount-right",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "label": "right",
+        "lensOffsetMm": 0,
+        "part": "shell-left",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "label": "right",
+        "lensOffsetMm": 0,
+        "part": "shell-right",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "label": "right",
+        "lensOffsetMm": 0,
+        "part": "camera-mount-front",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "label": "right",
+        "lensOffsetMm": 0,
+        "part": "camera-mount-left",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "label": "right",
+        "lensOffsetMm": 0,
+        "part": "camera-mount-right",
+        "intersectionMm3": 0.0,
+        "passed": true
+      }
+    ],
+    "cameraPlugChecks": [
+      {
+        "label": "front",
+        "part": "deck-left",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "label": "front",
+        "part": "deck-right",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "label": "front",
+        "part": "splice-0",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "label": "front",
+        "part": "splice-1",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "label": "front",
+        "part": "splice-2",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "label": "front",
+        "part": "clamp-upper-30",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "label": "front",
+        "part": "clamp-lower-30",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "label": "front",
+        "part": "clamp-upper-150",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "label": "front",
+        "part": "clamp-lower-150",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "label": "front",
+        "part": "clamp-upper-270",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "label": "front",
+        "part": "clamp-lower-270",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "label": "front",
+        "part": "shell-left",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "label": "front",
+        "part": "lid-left",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "label": "front",
+        "part": "shell-right",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "label": "front",
+        "part": "lid-right",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "label": "front",
+        "part": "trim-left",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "label": "front",
+        "part": "trim-right",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "label": "front",
+        "part": "pi-tray",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "label": "front",
+        "part": "pi-riser-0",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "label": "front",
+        "part": "pi-riser-1",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "label": "front",
+        "part": "pi-riser-2",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "label": "front",
+        "part": "pi-riser-3",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "label": "front",
+        "part": "camera-front-tower--43",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "label": "front",
+        "part": "camera-front-tower-43",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "label": "front",
+        "part": "camera-mount-front",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "label": "front",
+        "part": "camera-mount-left",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "label": "front",
+        "part": "camera-mount-right",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "label": "front",
+        "part": "bumper-90",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "label": "front",
+        "part": "bumper-carrier-90",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "label": "front",
+        "part": "bumper-210",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "label": "front",
+        "part": "bumper-carrier-210",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "label": "front",
+        "part": "bumper-330",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "label": "front",
+        "part": "bumper-carrier-330",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "label": "front",
+        "part": "stop-tower",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "label": "front",
+        "part": "electronics-tray",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "label": "front",
+        "part": "driver-riser-0",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "label": "front",
+        "part": "driver-riser-1",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "label": "front",
+        "part": "pico-carrier",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "label": "front",
+        "part": "pi-power-carrier",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "label": "front",
+        "part": "disconnect-carrier",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "label": "front",
+        "part": "imu-carrier",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "label": "front",
+        "part": "main-switch-panel",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "label": "front",
+        "part": "usb-hub-carrier",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "label": "front",
+        "part": "usb-hub-riser-0",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "label": "front",
+        "part": "usb-hub-riser-1",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "label": "front",
+        "part": "usb-hub-riser-2",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "label": "front",
+        "part": "usb-hub-riser-3",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "label": "front",
+        "part": "camera-power-carrier",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "label": "front",
+        "part": "pi-pcb",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "label": "front",
+        "part": "pi-ports",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "label": "front",
+        "part": "pi-cooler",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "label": "front",
+        "part": "battery",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "label": "front",
+        "part": "microcontroller",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "label": "front",
+        "part": "motor-disconnect",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "label": "front",
+        "part": "camera-usb-hub",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "label": "front",
+        "part": "camera-power-buck",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "label": "front",
+        "part": "stop-body",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "label": "left",
+        "part": "deck-left",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "label": "left",
+        "part": "deck-right",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "label": "left",
+        "part": "splice-0",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "label": "left",
+        "part": "splice-1",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "label": "left",
+        "part": "splice-2",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "label": "left",
+        "part": "clamp-upper-30",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "label": "left",
+        "part": "clamp-lower-30",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "label": "left",
+        "part": "clamp-upper-150",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "label": "left",
+        "part": "clamp-lower-150",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "label": "left",
+        "part": "clamp-upper-270",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "label": "left",
+        "part": "clamp-lower-270",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "label": "left",
+        "part": "shell-left",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "label": "left",
+        "part": "lid-left",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "label": "left",
+        "part": "shell-right",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "label": "left",
+        "part": "lid-right",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "label": "left",
+        "part": "trim-left",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "label": "left",
+        "part": "trim-right",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "label": "left",
+        "part": "pi-tray",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "label": "left",
+        "part": "pi-riser-0",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "label": "left",
+        "part": "pi-riser-1",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "label": "left",
+        "part": "pi-riser-2",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "label": "left",
+        "part": "pi-riser-3",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "label": "left",
+        "part": "camera-front-tower--43",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "label": "left",
+        "part": "camera-front-tower-43",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "label": "left",
+        "part": "camera-mount-front",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "label": "left",
+        "part": "camera-mount-left",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "label": "left",
+        "part": "camera-mount-right",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "label": "left",
+        "part": "bumper-90",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "label": "left",
+        "part": "bumper-carrier-90",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "label": "left",
+        "part": "bumper-210",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "label": "left",
+        "part": "bumper-carrier-210",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "label": "left",
+        "part": "bumper-330",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "label": "left",
+        "part": "bumper-carrier-330",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "label": "left",
+        "part": "stop-tower",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "label": "left",
+        "part": "electronics-tray",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "label": "left",
+        "part": "driver-riser-0",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "label": "left",
+        "part": "driver-riser-1",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "label": "left",
+        "part": "pico-carrier",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "label": "left",
+        "part": "pi-power-carrier",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "label": "left",
+        "part": "disconnect-carrier",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "label": "left",
+        "part": "imu-carrier",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "label": "left",
+        "part": "main-switch-panel",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "label": "left",
+        "part": "usb-hub-carrier",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "label": "left",
+        "part": "usb-hub-riser-0",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "label": "left",
+        "part": "usb-hub-riser-1",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "label": "left",
+        "part": "usb-hub-riser-2",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "label": "left",
+        "part": "usb-hub-riser-3",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "label": "left",
+        "part": "camera-power-carrier",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "label": "left",
+        "part": "pi-pcb",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "label": "left",
+        "part": "pi-ports",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "label": "left",
+        "part": "pi-cooler",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "label": "left",
+        "part": "battery",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "label": "left",
+        "part": "microcontroller",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "label": "left",
+        "part": "motor-disconnect",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "label": "left",
+        "part": "camera-usb-hub",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "label": "left",
+        "part": "camera-power-buck",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "label": "left",
+        "part": "stop-body",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "label": "right",
+        "part": "deck-left",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "label": "right",
+        "part": "deck-right",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "label": "right",
+        "part": "splice-0",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "label": "right",
+        "part": "splice-1",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "label": "right",
+        "part": "splice-2",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "label": "right",
+        "part": "clamp-upper-30",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "label": "right",
+        "part": "clamp-lower-30",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "label": "right",
+        "part": "clamp-upper-150",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "label": "right",
+        "part": "clamp-lower-150",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "label": "right",
+        "part": "clamp-upper-270",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "label": "right",
+        "part": "clamp-lower-270",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "label": "right",
+        "part": "shell-left",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "label": "right",
+        "part": "lid-left",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "label": "right",
+        "part": "shell-right",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "label": "right",
+        "part": "lid-right",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "label": "right",
+        "part": "trim-left",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "label": "right",
+        "part": "trim-right",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "label": "right",
+        "part": "pi-tray",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "label": "right",
+        "part": "pi-riser-0",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "label": "right",
+        "part": "pi-riser-1",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "label": "right",
+        "part": "pi-riser-2",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "label": "right",
+        "part": "pi-riser-3",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "label": "right",
+        "part": "camera-front-tower--43",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "label": "right",
+        "part": "camera-front-tower-43",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "label": "right",
+        "part": "camera-mount-front",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "label": "right",
+        "part": "camera-mount-left",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "label": "right",
+        "part": "camera-mount-right",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "label": "right",
+        "part": "bumper-90",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "label": "right",
+        "part": "bumper-carrier-90",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "label": "right",
+        "part": "bumper-210",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "label": "right",
+        "part": "bumper-carrier-210",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "label": "right",
+        "part": "bumper-330",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "label": "right",
+        "part": "bumper-carrier-330",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "label": "right",
+        "part": "stop-tower",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "label": "right",
+        "part": "electronics-tray",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "label": "right",
+        "part": "driver-riser-0",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "label": "right",
+        "part": "driver-riser-1",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "label": "right",
+        "part": "pico-carrier",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "label": "right",
+        "part": "pi-power-carrier",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "label": "right",
+        "part": "disconnect-carrier",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "label": "right",
+        "part": "imu-carrier",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "label": "right",
+        "part": "main-switch-panel",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "label": "right",
+        "part": "usb-hub-carrier",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "label": "right",
+        "part": "usb-hub-riser-0",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "label": "right",
+        "part": "usb-hub-riser-1",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "label": "right",
+        "part": "usb-hub-riser-2",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "label": "right",
+        "part": "usb-hub-riser-3",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "label": "right",
+        "part": "camera-power-carrier",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "label": "right",
+        "part": "pi-pcb",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "label": "right",
+        "part": "pi-ports",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "label": "right",
+        "part": "pi-cooler",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "label": "right",
+        "part": "battery",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "label": "right",
+        "part": "microcontroller",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "label": "right",
+        "part": "motor-disconnect",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "label": "right",
+        "part": "camera-usb-hub",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "label": "right",
+        "part": "camera-power-buck",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "label": "right",
+        "part": "stop-body",
+        "intersectionMm3": 0.0,
+        "passed": true
+      }
+    ],
+    "cameraFastenerChecks": [
+      {
+        "label": "front",
+        "atLocalMm": [
+          -10.5,
+          106.5
+        ],
+        "part": "camera-mount-front",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "label": "front",
+        "atLocalMm": [
+          -10.5,
+          127.5
+        ],
+        "part": "camera-mount-front",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "label": "front",
+        "atLocalMm": [
+          10.5,
+          106.5
+        ],
+        "part": "camera-mount-front",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "label": "front",
+        "atLocalMm": [
+          10.5,
+          127.5
+        ],
+        "part": "camera-mount-front",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "label": "left",
+        "atLocalMm": [
+          -10.5,
+          106.5
+        ],
+        "part": "camera-mount-left",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "label": "left",
+        "atLocalMm": [
+          -10.5,
+          127.5
+        ],
+        "part": "camera-mount-left",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "label": "left",
+        "atLocalMm": [
+          10.5,
+          106.5
+        ],
+        "part": "camera-mount-left",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "label": "left",
+        "atLocalMm": [
+          10.5,
+          127.5
+        ],
+        "part": "camera-mount-left",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "label": "right",
+        "atLocalMm": [
+          -10.5,
+          106.5
+        ],
+        "part": "camera-mount-right",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "label": "right",
+        "atLocalMm": [
+          -10.5,
+          127.5
+        ],
+        "part": "camera-mount-right",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "label": "right",
+        "atLocalMm": [
+          10.5,
+          106.5
+        ],
+        "part": "camera-mount-right",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "label": "right",
+        "atLocalMm": [
+          10.5,
+          127.5
+        ],
+        "part": "camera-mount-right",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "supportPointMm": [
+          -43,
+          106,
+          90
+        ],
+        "lengthMm": 10,
+        "part": "pi-tray",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "supportPointMm": [
+          -43,
+          106,
+          90
+        ],
+        "lengthMm": 10,
+        "part": "pi-riser-0",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "supportPointMm": [
+          -43,
+          106,
+          90
+        ],
+        "lengthMm": 10,
+        "part": "pi-riser-1",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "supportPointMm": [
+          -43,
+          106,
+          90
+        ],
+        "lengthMm": 10,
+        "part": "pi-riser-2",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "supportPointMm": [
+          -43,
+          106,
+          90
+        ],
+        "lengthMm": 10,
+        "part": "pi-riser-3",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "supportPointMm": [
+          -43,
+          106,
+          90
+        ],
+        "lengthMm": 10,
+        "part": "camera-front-tower--43",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "supportPointMm": [
+          -43,
+          106,
+          90
+        ],
+        "lengthMm": 10,
+        "part": "camera-front-tower-43",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "supportPointMm": [
+          -43,
+          106,
+          90
+        ],
+        "lengthMm": 10,
+        "part": "camera-mount-front",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "supportPointMm": [
+          -43,
+          106,
+          90
+        ],
+        "lengthMm": 10,
+        "part": "camera-mount-left",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "supportPointMm": [
+          -43,
+          106,
+          90
+        ],
+        "lengthMm": 10,
+        "part": "camera-mount-right",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "supportPointMm": [
+          43,
+          106,
+          90
+        ],
+        "lengthMm": 10,
+        "part": "pi-tray",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "supportPointMm": [
+          43,
+          106,
+          90
+        ],
+        "lengthMm": 10,
+        "part": "pi-riser-0",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "supportPointMm": [
+          43,
+          106,
+          90
+        ],
+        "lengthMm": 10,
+        "part": "pi-riser-1",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "supportPointMm": [
+          43,
+          106,
+          90
+        ],
+        "lengthMm": 10,
+        "part": "pi-riser-2",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "supportPointMm": [
+          43,
+          106,
+          90
+        ],
+        "lengthMm": 10,
+        "part": "pi-riser-3",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "supportPointMm": [
+          43,
+          106,
+          90
+        ],
+        "lengthMm": 10,
+        "part": "camera-front-tower--43",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "supportPointMm": [
+          43,
+          106,
+          90
+        ],
+        "lengthMm": 10,
+        "part": "camera-front-tower-43",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "supportPointMm": [
+          43,
+          106,
+          90
+        ],
+        "lengthMm": 10,
+        "part": "camera-mount-front",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "supportPointMm": [
+          43,
+          106,
+          90
+        ],
+        "lengthMm": 10,
+        "part": "camera-mount-left",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "supportPointMm": [
+          43,
+          106,
+          90
+        ],
+        "lengthMm": 10,
+        "part": "camera-mount-right",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "supportPointMm": [
+          -47,
+          58,
+          89
+        ],
+        "lengthMm": 14,
+        "part": "pi-tray",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "supportPointMm": [
+          -47,
+          58,
+          89
+        ],
+        "lengthMm": 14,
+        "part": "pi-riser-0",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "supportPointMm": [
+          -47,
+          58,
+          89
+        ],
+        "lengthMm": 14,
+        "part": "pi-riser-1",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "supportPointMm": [
+          -47,
+          58,
+          89
+        ],
+        "lengthMm": 14,
+        "part": "pi-riser-2",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "supportPointMm": [
+          -47,
+          58,
+          89
+        ],
+        "lengthMm": 14,
+        "part": "pi-riser-3",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "supportPointMm": [
+          -47,
+          58,
+          89
+        ],
+        "lengthMm": 14,
+        "part": "camera-front-tower--43",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "supportPointMm": [
+          -47,
+          58,
+          89
+        ],
+        "lengthMm": 14,
+        "part": "camera-front-tower-43",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "supportPointMm": [
+          -47,
+          58,
+          89
+        ],
+        "lengthMm": 14,
+        "part": "camera-mount-front",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "supportPointMm": [
+          -47,
+          58,
+          89
+        ],
+        "lengthMm": 14,
+        "part": "camera-mount-left",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "supportPointMm": [
+          -47,
+          58,
+          89
+        ],
+        "lengthMm": 14,
+        "part": "camera-mount-right",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "supportPointMm": [
+          47,
+          58,
+          89
+        ],
+        "lengthMm": 14,
+        "part": "pi-tray",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "supportPointMm": [
+          47,
+          58,
+          89
+        ],
+        "lengthMm": 14,
+        "part": "pi-riser-0",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "supportPointMm": [
+          47,
+          58,
+          89
+        ],
+        "lengthMm": 14,
+        "part": "pi-riser-1",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "supportPointMm": [
+          47,
+          58,
+          89
+        ],
+        "lengthMm": 14,
+        "part": "pi-riser-2",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "supportPointMm": [
+          47,
+          58,
+          89
+        ],
+        "lengthMm": 14,
+        "part": "pi-riser-3",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "supportPointMm": [
+          47,
+          58,
+          89
+        ],
+        "lengthMm": 14,
+        "part": "camera-front-tower--43",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "supportPointMm": [
+          47,
+          58,
+          89
+        ],
+        "lengthMm": 14,
+        "part": "camera-front-tower-43",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "supportPointMm": [
+          47,
+          58,
+          89
+        ],
+        "lengthMm": 14,
+        "part": "camera-mount-front",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "supportPointMm": [
+          47,
+          58,
+          89
+        ],
+        "lengthMm": 14,
+        "part": "camera-mount-left",
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "supportPointMm": [
+          47,
+          58,
+          89
+        ],
+        "lengthMm": 14,
+        "part": "camera-mount-right",
+        "intersectionMm3": 0.0,
+        "passed": true
       }
     ],
     "contactPlaneZMm": 0,
@@ -6397,15 +10224,6 @@
       {
         "parts": [
           "deck-left",
-          "camera-side-tower-left"
-        ],
-        "intersectionMm3": 0.0,
-        "passed": true,
-        "intersectionBoundsMm": null
-      },
-      {
-        "parts": [
-          "deck-left",
           "bumper-90"
         ],
         "intersectionMm3": 0.0,
@@ -6533,15 +10351,6 @@
         "parts": [
           "deck-right",
           "camera-front-tower-43"
-        ],
-        "intersectionMm3": 0.0,
-        "passed": true,
-        "intersectionBoundsMm": null
-      },
-      {
-        "parts": [
-          "deck-right",
-          "camera-side-tower-right"
         ],
         "intersectionMm3": 0.0,
         "passed": true,
@@ -6712,15 +10521,6 @@
       {
         "parts": [
           "shell-left",
-          "camera-side-tower-left"
-        ],
-        "intersectionMm3": 0.0,
-        "passed": true,
-        "intersectionBoundsMm": null
-      },
-      {
-        "parts": [
-          "shell-left",
           "camera-mount-left"
         ],
         "intersectionMm3": 0.0,
@@ -6828,24 +10628,6 @@
       },
       {
         "parts": [
-          "lid-left",
-          "camera-mount-front"
-        ],
-        "intersectionMm3": 0.0,
-        "passed": true,
-        "intersectionBoundsMm": null
-      },
-      {
-        "parts": [
-          "lid-left",
-          "camera-mount-left"
-        ],
-        "intersectionMm3": 0.0,
-        "passed": true,
-        "intersectionBoundsMm": null
-      },
-      {
-        "parts": [
           "shell-right",
           "trim-right"
         ],
@@ -6893,15 +10675,6 @@
         "parts": [
           "shell-right",
           "camera-mount-front"
-        ],
-        "intersectionMm3": 0.0,
-        "passed": true,
-        "intersectionBoundsMm": null
-      },
-      {
-        "parts": [
-          "shell-right",
-          "camera-side-tower-right"
         ],
         "intersectionMm3": 0.0,
         "passed": true,
@@ -6999,24 +10772,6 @@
       },
       {
         "parts": [
-          "lid-right",
-          "camera-mount-front"
-        ],
-        "intersectionMm3": 0.0,
-        "passed": true,
-        "intersectionBoundsMm": null
-      },
-      {
-        "parts": [
-          "lid-right",
-          "camera-mount-right"
-        ],
-        "intersectionMm3": 0.0,
-        "passed": true,
-        "intersectionBoundsMm": null
-      },
-      {
-        "parts": [
           "trim-left",
           "pi-riser-0"
         ],
@@ -7037,15 +10792,6 @@
         "parts": [
           "trim-left",
           "camera-front-tower--43"
-        ],
-        "intersectionMm3": 0.0,
-        "passed": true,
-        "intersectionBoundsMm": null
-      },
-      {
-        "parts": [
-          "trim-left",
-          "camera-side-tower-left"
         ],
         "intersectionMm3": 0.0,
         "passed": true,
@@ -7144,15 +10890,6 @@
       {
         "parts": [
           "trim-right",
-          "camera-side-tower-right"
-        ],
-        "intersectionMm3": 0.0,
-        "passed": true,
-        "intersectionBoundsMm": null
-      },
-      {
-        "parts": [
-          "trim-right",
           "bumper-90"
         ],
         "intersectionMm3": 0.0,
@@ -7206,6 +10943,24 @@
       },
       {
         "parts": [
+          "pi-tray",
+          "camera-mount-left"
+        ],
+        "intersectionMm3": 0.0,
+        "passed": true,
+        "intersectionBoundsMm": null
+      },
+      {
+        "parts": [
+          "pi-tray",
+          "camera-mount-right"
+        ],
+        "intersectionMm3": 0.0,
+        "passed": true,
+        "intersectionBoundsMm": null
+      },
+      {
+        "parts": [
           "pi-riser-0",
           "bumper-210"
         ],
@@ -7224,43 +10979,7 @@
       },
       {
         "parts": [
-          "camera-front-tower--43",
-          "camera-mount-front"
-        ],
-        "intersectionMm3": 0.0,
-        "passed": true,
-        "intersectionBoundsMm": null
-      },
-      {
-        "parts": [
-          "camera-front-tower--43",
-          "bumper-90"
-        ],
-        "intersectionMm3": 0.0,
-        "passed": true,
-        "intersectionBoundsMm": null
-      },
-      {
-        "parts": [
-          "camera-front-tower-43",
-          "camera-mount-front"
-        ],
-        "intersectionMm3": 0.0,
-        "passed": true,
-        "intersectionBoundsMm": null
-      },
-      {
-        "parts": [
-          "camera-front-tower-43",
-          "bumper-90"
-        ],
-        "intersectionMm3": 0.0,
-        "passed": true,
-        "intersectionBoundsMm": null
-      },
-      {
-        "parts": [
-          "camera-side-tower-left",
+          "pi-riser-2",
           "camera-mount-left"
         ],
         "intersectionMm3": 0.0,
@@ -7269,16 +10988,7 @@
       },
       {
         "parts": [
-          "camera-side-tower-left",
-          "bumper-210"
-        ],
-        "intersectionMm3": 0.0,
-        "passed": true,
-        "intersectionBoundsMm": null
-      },
-      {
-        "parts": [
-          "camera-side-tower-right",
+          "pi-riser-3",
           "camera-mount-right"
         ],
         "intersectionMm3": 0.0,
@@ -7287,8 +10997,8 @@
       },
       {
         "parts": [
-          "camera-side-tower-right",
-          "bumper-330"
+          "camera-front-tower--43",
+          "camera-mount-front"
         ],
         "intersectionMm3": 0.0,
         "passed": true,
@@ -7296,8 +11006,62 @@
       },
       {
         "parts": [
-          "camera-mount-right",
-          "stop-tower"
+          "camera-front-tower--43",
+          "camera-mount-left"
+        ],
+        "intersectionMm3": 0.0,
+        "passed": true,
+        "intersectionBoundsMm": null
+      },
+      {
+        "parts": [
+          "camera-front-tower--43",
+          "bumper-90"
+        ],
+        "intersectionMm3": 0.0,
+        "passed": true,
+        "intersectionBoundsMm": null
+      },
+      {
+        "parts": [
+          "camera-front-tower-43",
+          "camera-mount-front"
+        ],
+        "intersectionMm3": 0.0,
+        "passed": true,
+        "intersectionBoundsMm": null
+      },
+      {
+        "parts": [
+          "camera-front-tower-43",
+          "camera-mount-right"
+        ],
+        "intersectionMm3": 0.0,
+        "passed": true,
+        "intersectionBoundsMm": null
+      },
+      {
+        "parts": [
+          "camera-front-tower-43",
+          "bumper-90"
+        ],
+        "intersectionMm3": 0.0,
+        "passed": true,
+        "intersectionBoundsMm": null
+      },
+      {
+        "parts": [
+          "camera-mount-front",
+          "camera-mount-left"
+        ],
+        "intersectionMm3": 0.0,
+        "passed": true,
+        "intersectionBoundsMm": null
+      },
+      {
+        "parts": [
+          "camera-mount-front",
+          "camera-mount-right"
         ],
         "intersectionMm3": 0.0,
         "passed": true,
@@ -7376,7 +11140,7 @@
         "intersectionBoundsMm": null
       }
     ],
-    "printedPairCandidates": 1225,
+    "printedPairCandidates": 1128,
     "structuralMountChecks": [
       {
         "group": "stop",
@@ -7505,42 +11269,6 @@
         "passed": true
       },
       {
-        "group": "cameraSides",
-        "pointMm": [
-          -99,
-          -9
-        ],
-        "shaftPathIntersectionMm3": 0.0,
-        "passed": true
-      },
-      {
-        "group": "cameraSides",
-        "pointMm": [
-          -99,
-          9
-        ],
-        "shaftPathIntersectionMm3": 0.0,
-        "passed": true
-      },
-      {
-        "group": "cameraSides",
-        "pointMm": [
-          99,
-          -9
-        ],
-        "shaftPathIntersectionMm3": 0.0,
-        "passed": true
-      },
-      {
-        "group": "cameraSides",
-        "pointMm": [
-          99,
-          9
-        ],
-        "shaftPathIntersectionMm3": 0.0,
-        "passed": true
-      },
-      {
         "group": "usbHub",
         "pointMm": [
           -22,
@@ -7598,8 +11326,8 @@
       "shellflange/post sharez61",
       "Pi PCB/standoff sharez107",
       "battery/rails supportz58",
-      "cameraPCB/standoff sharey114",
-      "camera frame/tower sharez134"
+      "cameraPCB/boss share localY107.4",
+      "frontcamera frame/fork sharez96;oblique frame/tray sharez99"
     ]
   },
   "qualification": "Prototype CAD only. Export validity and listed clearances do not establish printability, assembly, device, or physical safety."

@@ -16,6 +16,7 @@ export interface RobotVariant {
   algorithmBody: string
   mappingBody: string
   cameraProduct: { name: string; sku: string; price: number; currency: string; url: string; baselineMm?: number; widthMm: number; heightMm: number; depthMm: number }
+  cameraPlacement: { label: string; yawDegFromFront: number; centerZMm: number; horizontalFovDeg: number; verticalFovDeg: number; boardInternal: boolean }[]
   items: Part[]
 }
 

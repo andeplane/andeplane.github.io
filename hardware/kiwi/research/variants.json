@@ -4,14 +4,14 @@
     "number": "01",
     "label": "One front camera",
     "shortLabel": "Front camera",
-    "cameraLabel": "1 \u00d7 basic RGB camera",
+    "cameraLabel": "1 × basic RGB camera",
     "cameraQuantity": 1,
     "cameraKey": "single",
-    "description": "The simplest version: one inexpensive camera looking ahead. Turn the robot to look before moving into a new area.",
+    "description": "One inexpensive camera recessed into the front of the body. Turn the robot to inspect an area before moving into it.",
     "capability": "Live video, object recognition and visual landmarks.",
     "limitation": "One image does not directly measure distance in metres. The sides and rear are outside the view.",
     "algorithmTitle": "Single-camera vision",
-    "algorithmBody": "Use a modest video stream for object recognition and known visual markers. Calibrated monocular SLAM can track visual features; wheel odometry or a known marker provides a metric reference.",
+    "algorithmBody": "Stream selected camera frames to the Mac mini or cloud vision model for object and room understanding. Run visual landmarks and monocular SLAM on the mini; calibrated wheel motion or a measured marker supplies a metric reference.",
     "mappingBody": "Start with known landmarks and short supervised moves. General room navigation needs calibrated visual mapping and a measured scale; a language model looking at a picture does not provide a distance map."
   },
   {
@@ -19,29 +19,29 @@
     "number": "02",
     "label": "Front + left + right",
     "shortLabel": "Three cameras",
-    "cameraLabel": "3 \u00d7 basic RGB cameras",
+    "cameraLabel": "3 × basic RGB cameras",
     "cameraQuantity": 3,
     "cameraKey": "single",
-    "description": "The same inexpensive camera at the front, left and right. See more of the room without turning the whole robot.",
-    "capability": "Front and side views for object recognition and visual checks before moving.",
-    "limitation": "Wider coverage does not automatically produce stereo depth. The rear remains outside the cameras\u2019 views.",
+    "description": "Three inexpensive cameras inside the body: one looking forward and two angled 45° left and right. Their views overlap ahead of the robot.",
+    "capability": "Overlapping front and forward-side views for object recognition and visual checks before moving.",
+    "limitation": "Forward coverage is roughly a half-circle, not 360°. The rear remains unseen. Independent cameras do not provide synchronized stereo depth.",
     "algorithmTitle": "Three independent camera views",
-    "algorithmBody": "Capture the front, left and right streams with stable device IDs. Process only the views needed for the next movement. These cameras are not treated as a synchronized stereo rig.",
-    "mappingBody": "Use visual landmarks and camera calibration to relate each view to the robot. Overlapping views and multi-camera SLAM are a later integration task; three pictures alone do not create a depth map."
+    "algorithmBody": "Stream labeled front and ±45° views to the Mac mini or cloud vision model. The mini handles geometric tracking and camera calibration. These inexpensive cameras capture images; they do not detect objects or run AI.",
+    "mappingBody": "Run front-camera monocular tracking first, with scale tied to calibrated motion or a measured marker. Extra views can supply object context. Multi-camera SLAM and dense reconstruction are separate integration tasks."
   },
   {
     "id": "stereo",
     "number": "03",
     "label": "Stereo camera pair",
     "shortLabel": "Stereo pair",
-    "cameraLabel": "1 \u00d7 synchronized stereo module",
+    "cameraLabel": "1 × synchronized stereo module",
     "cameraQuantity": 1,
     "cameraKey": "stereo",
-    "description": "Two forward-facing cameras on one rigid board. Their overlapping, synchronized images can be used to estimate distance.",
+    "description": "Two forward-facing cameras on one rigid board, recessed inside the body. Synchronized images and a calibrated baseline let software estimate distance.",
     "capability": "Front-facing stereo vision with a known baseline for metric depth after calibration.",
-    "limitation": "Depth is computed by the Pi or home computer. Glass, blank surfaces, poor light and occlusion can leave gaps.",
+    "limitation": "Depth is computed on the Mac mini. Glass, blank surfaces, poor light and occlusion can leave gaps.",
     "algorithmTitle": "Calibrated stereo vision",
-    "algorithmBody": "Calibrate both lenses and their relative positions, rectify the synchronized images, then compute disparity with OpenCV StereoSGBM. With focal length f and baseline B, distance is Z = f \u00d7 B / disparity.",
-    "mappingBody": "After calibrating and measuring its useful range, feed valid stereo depth to RTAB-Map and Nav2. Invalid depth stays unknown. Benchmark image size, frame rate and processing time on the Pi or home computer."
+    "algorithmBody": "Stream synchronized image pairs to the Mac mini. It calibrates and rectifies the views, then computes disparity with OpenCV StereoSGBM or RTAB-Map. With focal length f and baseline B, distance is Z = f × B / disparity.",
+    "mappingBody": "The Mac mini runs RTAB-Map and navigation after stereo calibration. Invalid depth stays unknown. Vision LLMs on the mini or in the cloud interpret objects and rooms from selected images and map context."
   }
 ]

@@ -56,7 +56,7 @@ COLORS = dict(white=(0.88,0.87,0.82,1), charcoal=(0.095,0.12,0.135,1),
 
 VARIANTS={
     'front-camera':dict(label='Single front camera',stereo=False,poses=[('front',0)],hub=False),
-    'three-cameras':dict(label='Front, left and right cameras',stereo=False,poses=[('front',0),('left',90),('right',-90)],hub=True),
+    'three-cameras':dict(label='Front, left and right cameras',stereo=False,poses=[('front',0),('left',45),('right',-45)],hub=True),
     'stereo':dict(label='Synchronized stereo camera pair',stereo=True,poses=[('front',0)],hub=False),
 }
 VARIANT='front-camera'
@@ -68,17 +68,20 @@ def configure(variant):
     global VARIANT,CONFIG
     VARIANT=variant;CONFIG=VARIANTS[variant];PARTS.clear()
     CONFIG.update(width=66.0 if CONFIG['stereo'] else 25.0,height=30.0 if CONFIG['stereo'] else 25.0,
-                  cameraZ=154.0 if CONFIG['stereo'] else 151.0,
+                  cameraZ=117.0,boardRear=106.28 if CONFIG['stereo'] else 107.4,
+                  glassFront=124.0 if CONFIG['stereo'] else 125.0,
+                  horizontalFovDeg=65.0 if CONFIG['stereo'] else 88.14,
+                  verticalFovDeg=43.0 if CONFIG['stereo'] else 57.14,portDiameter=20.0,
                   holeX=60.0 if CONFIG['stereo'] else 21.0,holeZ=24.0 if CONFIG['stereo'] else 21.0,
                   holeD=3.2 if CONFIG['stereo'] else 2.0)
     STRUCTURAL_MOUNTS['cameraFront']=[(-43,94),(43,94)]
+    STRUCTURAL_MOUNTS.pop('cameraSides',None)
     if CONFIG['hub']:
-        STRUCTURAL_MOUNTS['cameraSides']=[(-99,-9),(-99,9),(99,-9),(99,9)]
         STRUCTURAL_MOUNTS['usbHub']=[(-22,-20),(22,-20),(-22,26),(22,26)]
     else:
         STRUCTURAL_MOUNTS.pop('cameraSides',None);STRUCTURAL_MOUNTS.pop('usbHub',None)
     P.update(variant=variant,camera_width=CONFIG['width'],camera_height=CONFIG['height'],
-             camera_centre_z=CONFIG['cameraZ'],camera_board_rear_y=114.0,
+             camera_centre_z=CONFIG['cameraZ'],camera_board_rear_y=CONFIG['boardRear'],
              camera_hole_pitch_x=CONFIG['holeX'],camera_hole_pitch_z=CONFIG['holeZ'],
              camera_baseline_mm=52.0 if CONFIG['stereo'] else None,
              active_distance_sensors=0)
@@ -216,10 +219,15 @@ def make_shell():
     for a in range(0,360,60):
         x,y=xy(120,a)
         s=s.cut(cyl(1.7,10,(x,y,59)))
-    # Camera adapter plates pass through the top rim; optics sit above it.
+    # Optics are inside the body, not on the lid. Stereo needs a flat facet:
+    # the 52mm baseline would otherwise cut the circular wall behind its lenses.
+    if CONFIG['stereo']:
+        s=s.fuse(box(82,11,28,0,119.5,117))
+        s=s.cut(box(76,12,22,0,116,117))  # cavity toY122;3mm front skin
+        s=s.cut(box(82,12,28,0,131,117))  # planar external faceY125
     for label,yaw in CONFIG['poses']:
-        width=(max(100,CONFIG['width']+12) if label=='front' else 30)+2
-        s=s.cut(radial(box(width,32,14,0,123,134),yaw))
+        for x in ((-26,26) if CONFIG['stereo'] else (0,)):
+            s=s.cut(radial(cyl(10,26,(x,110,117),(0,1,0)),yaw))
     # Structural rear main-switch opening.
     s=s.cut(box(64,20,44,0,-124,104))
     # Openings for sliding bumper arms/actuator; free3mmradialtravel through shell.
@@ -244,11 +252,6 @@ def make_lid():
         s=s.cut(box(3.8,54,10,x,26,141))
     # IDEC YW1B-V4E01R:22.3mm nominal panel cutout with0.2mm printing clearance.
     s=s.cut(cyl(11.25,10,(78,-48,137)))
-    # Camera-specific frame and downward USB connector reliefs.
-    for label,yaw in CONFIG['poses']:
-        width=CONFIG['width']+10
-        s=s.cut(radial(box(width,30,10,0,119,141),yaw))
-        s=s.cut(radial(box(18,22,10,0,109,141),yaw))
     for a in (20,50,120,160,200,255,285,340):
         x,y=xy(117.8,a)
         s=s.cut(cyl(1.7,10,(x,y,137)))
@@ -278,41 +281,69 @@ def tray_riser(x,y):
     return s.clean()
 
 def camera_front_tower(x):
-    s=union(box(11,20,6,x,94,57),box(11,12,74,x,94,97),box(11,34,5,x,105,131.5))
-    s=s.cut(cyl(1.7,82,(x,94,52))).cut(cyl(2,5,(x,94,54)))
-    s=s.cut(cyl(1.7,8,(x,117,128))).cut(cyl(2,5,(x,117,129)))
+    # Short structural forks, bolted to deck and to the internal frame atZ96.
+    s=union(box(11,20,6,x,94,57),box(11,12,36,x,94,78),box(11,24,5,x,100,93.5))
+    s=s.cut(cyl(1.7,46,(x,94,52))).cut(cyl(2,5,(x,94,54)))
+    s=s.cut(cyl(1.7,8,(x,106,90))).cut(cyl(2,5,(x,106,91)))
     return s.clean()
-
-
-def camera_side_tower(yaw):
-    s=union(box(30,12,6,0,99,57),box(20,8,74,0,99,97))
-    for x in (-9,9):s=s.cut(cyl(1.7,8,(x,99,52))).cut(cyl(2,5,(x,99,54)))
-    for x in (-5,5):s=s.cut(cyl(1.7,8,(x,99,128))).cut(cyl(2,5,(x,99,129)))
-    return radial(s.clean(),yaw)
 
 
 def camera_mount(label,yaw):
     w,h,z=CONFIG['width'],CONFIG['height'],CONFIG['cameraZ']
-    front=(label=='front')
-    bw=max(100,w+12) if front else 30
-    by=119 if front else 111.5
-    depth=27 if front else 33
-    s=union(box(bw,depth,4,0,by,136),box(w+8,3,h+8,0,110,z))
-    s=s.cut(box(w-8,12,h-8,0,110,z))
+    front=(label=='front');plate=CONFIG['boardRear']-4
+    base=box(100 if front else 30,28,4,0,104,98 if front else 102)
+    base=base.intersect(cyl(120,150,(0,0,0)))
+    s=union(base,box(w+8,3,h+12,0,plate,z))
+    s=s.cut(box(w-8,12,h-8,0,plate,z))
     for x in (-CONFIG['holeX']/2,CONFIG['holeX']/2):
         for zz in (z-CONFIG['holeZ']/2,z+CONFIG['holeZ']/2):
-            boss=cyl(3.75 if CONFIG['stereo'] else 3,2.5,(x,111.5,zz),(0,1,0))
-            s=s.fuse(boss)
-            s=s.cut(cyl(1.7 if CONFIG['stereo'] else 1.1,9,(x,107,zz),(0,1,0)))
-    # Both boards have edge USB: orient down, not into the back of a closed plate.
-    s=s.cut(box(16,20,16,0,110,z-h/2+1))
-    points=[(-43,117),(43,117)] if front else[(-5,99),(5,99)]
-    s=holes(s,points,1.7,132,10)
-    # Removable cable tie anchor holds the downward USB lead below the board.
-    ear=box(3,7,14,12,110,128)
-    ear=ear.cut(box(6,4,3,12,110,127))
+            s=s.fuse(cyl(3.75 if CONFIG['stereo'] else 3,2.5,(x,plate+1.5,zz),(0,1,0)))
+            s=s.cut(cyl(1.7 if CONFIG['stereo'] else 1.1,10,(x,plate-3,zz),(0,1,0)))
+    # Downward USB connector plus30mm plug/bend zone, with no lid penetration.
+    s=s.cut(box(16,20,38,0,plate,z-h/2-12))
+    if front:
+        s=holes(s,[(-43,106),(43,106)],1.7,94,10)
+    else:
+        # One removable M3x14 fastener shares an existing front-corner tray riser.
+        # The short diagonal beam transfers load to the structural tray, not shell.
+        sign=1 if yaw>0 else -1
+        foot=(sign*7.77817459,74.24621202);target=(sign*12,plate)
+        dx,dy=target[0]-foot[0],target[1]-foot[1]
+        length=math.hypot(dx,dy)
+        beam=box(8,length+4,4,0,0,101)
+        beam=radial(beam,-math.degrees(math.atan2(dx,dy))).translate(((foot[0]+target[0])/2,(foot[1]+target[1])/2,0))
+        s=union(s,beam,cyl(5.5,4,(foot[0],foot[1],99)))
+        s=s.cut(cyl(1.7,10,(foot[0],foot[1],97)))
+    ear=box(3,7,14,12,plate,94)
+    ear=ear.cut(box(6,4,3,12,plate,93))
     s=s.fuse(ear)
     return radial(s.clean(),yaw)
+
+
+def camera_placement():
+    result=[]
+    def point(x,y,z,yaw,glb=False):
+        a=math.radians(yaw);q=[x*math.cos(a)-y*math.sin(a),x*math.sin(a)+y*math.cos(a),z]
+        return [round(q[0]*.001,6),round(q[2]*.001,6),round(-q[1]*.001,6)] if glb else [round(v,4) for v in q]
+    for label,yaw in CONFIG['poses']:
+        hfov,vfov=CONFIG['horizontalFovDeg'],CONFIG['verticalFovDeg']
+        # Conservative planning cone starts from the entire14mm lens front.
+        setback=1.0;required=7+setback*math.hypot(math.tan(math.radians(hfov/2)),math.tan(math.radians(vfov/2)))
+        result.append(dict(label=label,yawDegFromFront=yaw,centerZMm=117,
+            boardCenterCadMm=point(0,CONFIG['boardRear']+.8,117,yaw),
+            boardCenterGlbM=point(0,CONFIG['boardRear']+.8,117,yaw,True),
+            forwardCad=point(0,1,0,yaw),forwardGlb=point(0,1000,0,yaw,True),
+            glassCentersCadMm=[point(x,CONFIG['glassFront'],117,yaw) for x in ((-26,26) if CONFIG['stereo'] else (0,))],
+            glassCentersGlbM=[point(x,CONFIG['glassFront'],117,yaw,True) for x in ((-26,26) if CONFIG['stereo'] else (0,))],
+            horizontalFovDeg=hfov,verticalFovDeg=vfov,
+            fovBasis='vendor nominal65deg horizontal/43deg vertical;unmeasured' if CONFIG['stereo'] else '96deg diagonal nominal,derived16:9 pinhole;unmeasured',
+            port=dict(diameterMm=20,glassSetbackMm=setback,requiredPlanningRadiusMm=round(required,4),
+                      planningRadialMarginMm=round(10-required,4),shape='two circular ports in82x28mm flat facet' if CONFIG['stereo'] else 'circular port in curved shell',
+                      outerFaceLocalYmm=125 if CONFIG['stereo'] else 126,
+                      entryPupilAndLensDistortion='unknown;physical FOV target test required'),
+            mounting='two deck forks;M3x10 atX+/-43,Y106,Z96' if label=='front' else 'Pi tray front-corner structural attachment;M3x14 atX+/-47,Y58,Z99',
+            boardInternal=True))
+    return result
 
 
 def usb_hub_carrier():
@@ -500,10 +531,11 @@ def motor_proxy(a):
 def camera_electronics():
     for label,yaw in CONFIG['poses']:
         w,h,z=CONFIG['width'],CONFIG['height'],CONFIG['cameraZ']
-        pcb=box(w,1.6,h,0,114.8,z)
+        rear_y=CONFIG['boardRear']
+        pcb=box(w,1.6,h,0,rear_y+.8,z)
         for x in (-CONFIG['holeX']/2,CONFIG['holeX']/2):
             for zz in (z-CONFIG['holeZ']/2,z+CONFIG['holeZ']/2):
-                pcb=pcb.cut(cyl(CONFIG['holeD']/2,4,(x,113,zz),(0,1,0)))
+                pcb=pcb.cut(cyl(CONFIG['holeD']/2,4,(x,rear_y-1,zz),(0,1,0)))
         name='Waveshare AR0144 Stereo USB Camera(A)' if CONFIG['stereo'] else 'Waveshare OV2735 USB Camera(A)'
         sku='32695' if CONFIG['stereo'] else '33122'
         src='https://www.waveshare.com/ar0144-stereo-usb-camera-a.htm' if CONFIG['stereo'] else 'https://www.waveshare.com/ov2735-2mp-usb-camera-a.htm'
@@ -512,13 +544,13 @@ def camera_electronics():
         lensx=(-26,26) if CONFIG['stereo'] else(0,)
         length=16.12 if CONFIG['stereo'] else 16
         for n,x in enumerate(lensx):
-            lens=cyl(7,length,(x,115.6,z),(0,1,0))
+            lens=cyl(7,length,(x,rear_y+1.6,z),(0,1,0))
             add(f'camera-{label}-lens-{n}',f'{label} lens barrel',radial(lens,yaw),'black','purchased',src,
                 'vendor14mmOD;52mmstereobaseline' if CONFIG['stereo'] else 'vendor14mmOD/16mmprojectionfromPCBfront',group='camera-lenses',explode=(0,.04,-.025))
-            add(f'camera-{label}-glass-{n}',f'{label} optical aperture reference',radial(cyl(6,.3,(x,115.3+length,z),(0,1,0)),yaw),'lens','purchased',src,
+            add(f'camera-{label}-glass-{n}',f'{label} optical aperture reference',radial(cyl(6,.3,(x,rear_y+1.3+length,z),(0,1,0)),yaw),'lens','purchased',src,
                 'illustrative optical glass within documented lens envelope',group='camera-lenses',explode=(0,.04,-.025))
         rear=3.5 if CONFIG['stereo'] else 4.5
-        usb=box(10,rear,8,0,114-rear/2,z-h/2)
+        usb=box(10,rear,8,0,rear_y-rear/2,z-h/2)
         add(f'camera-{label}-usb','Downward USB-C connector reference',radial(usb,yaw),'silver','purchased',src,
             'board-edgeconnector orientedDOWN;30mmdownwardplug/wirezone;housingdetailreference',group='camera-usb',explode=(0,.04,-.025))
     if CONFIG['hub']:
@@ -597,10 +629,9 @@ def build():
     for i,(x,y) in enumerate([(-47,-8),(47,-8),(-47,58),(47,58)]):
         add(f'pi-riser-{i}','41mm Pi tray riser',tray_riser(x,y),'charcoal',group='pi-risers',explode=(0,.025,0))
     for x in (-43,43):
-        add(f'camera-front-tower-{x}','Front camera structural tower',camera_front_tower(x),'charcoal',group='camera-front-towers',explode=(0,.025,0))
+        add(f'camera-front-tower-{x}','Internal front camera structural fork',camera_front_tower(x),'charcoal',group='camera-front-towers',explode=(0,.025,0))
     for label,yaw in CONFIG['poses']:
-        if label!='front':add(f'camera-side-tower-{label}',f'{label} camera structural tower',camera_side_tower(yaw),'charcoal',group='camera-side-towers',explode=(0,.025,0))
-        add(f'camera-mount-{label}',f'{label} camera open-back mounting frame',camera_mount(label,yaw),'white',group='camera-front-mount' if label=='front' else 'camera-side-mounts',explode=(0,.04,-.025))
+        add(f'camera-mount-{label}',f'{label} camera open-back mounting frame',camera_mount(label,yaw),'white',group=f'camera-mount-{label}',explode=(0,.04,-.025))
     for a in (90,210,330):
         add(f'bumper-{a}','3mmtravel contact bumper segment',bumper(a),'teal',group='bumpers',explode=(0,.015,0))
         add(f'bumper-carrier-{a}','Switch/guide/hardstop bumper carrier',bumper_carrier(a),'charcoal',group='bumper-carriers',explode=(0,.005,0))
@@ -718,6 +749,55 @@ def export(out):
         v=index[i].intersect(index[j]).Volume()
         critical_pairs.append({'parts':[i,j],'intersectionMm3':round(v,5),'passed':v<.01})
         if v>=.01: issues.append(f'Unintended collision {i}/{j}: {v:.2f}mm3')
+    # Camera-only revision checks: internal PCBs, full clear lens ports and real cable zones.
+    camera_envelopes=[];optical_checks=[];camera_plug_checks=[];camera_screw_checks=[];camera_component_checks=[]
+    all_obstacles=[p for p in PARTS if p['kind']=='printed' or p['id'] in
+                   ('pi-pcb','pi-ports','pi-cooler','stop-body','battery','camera-power-buck','camera-usb-hub','microcontroller','motor-disconnect')]
+    internal=cyl(P['shell_inner'],P['shell_top']-P['shell_bottom'],(0,0,P['shell_bottom']))
+    for pose in camera_placement():
+        label=pose['label'];yaw=pose['yawDegFromFront'];pcb=index[f'camera-{label}-pcb']
+        outside=pcb.cut(internal).Volume();top=exact_bb(pcb).zmax
+        passed=outside<.01 and top<P['lid_bottom']
+        camera_envelopes.append(dict(label=label,boardOutsideInnerShellMm3=round(outside,6),boardTopZMm=top,passed=passed))
+        if not passed:issues.append('Camera PCB outside body '+label)
+        for x in ((-26,26) if CONFIG['stereo'] else (0,)):
+            cone=cq.Solid.makeCone(7,pose['port']['requiredPlanningRadiusMm']+.06,1.05,
+                                  cq.Vector(x,CONFIG['glassFront'],117),cq.Vector(0,1,0))
+            cone=radial(cone,yaw)
+            for obstacle in [p for p in PARTS if p['kind']=='printed']:
+                v=cone.intersect(obstacle['shape']).Volume()
+                if v>.0001 or obstacle['id'].startswith(('shell-','camera-mount-')):
+                    optical_checks.append(dict(label=label,lensOffsetMm=x,part=obstacle['id'],intersectionMm3=round(v,6),passed=v<.01))
+                if v>=.01:issues.append('Optical port clipped '+label+'/'+obstacle['id'])
+        plug=radial(box(14,10,30,0,CONFIG['boardRear']-2,117-CONFIG['height']/2-15),yaw)
+        for obstacle in all_obstacles:
+            v=plug.intersect(obstacle['shape']).Volume()
+            camera_plug_checks.append(dict(label=label,part=obstacle['id'],intersectionMm3=round(v,5),passed=v<.01))
+            if v>=.01:issues.append('Camera USB plug zone blocked '+label+'/'+obstacle['id']+f':{v:.3f}mm3')
+        for x in (-CONFIG['holeX']/2,CONFIG['holeX']/2):
+            for z in (117-CONFIG['holeZ']/2,117+CONFIG['holeZ']/2):
+                shaft=radial(cyl(1.5 if CONFIG['stereo'] else 1.0,12 if CONFIG['stereo'] else 10,
+                    (x,CONFIG['boardRear']+1.6-(12 if CONFIG['stereo'] else 10),z),(0,1,0)),yaw)
+                for obstacle in [p for p in PARTS if p['kind']=='printed']:
+                    v=shaft.intersect(obstacle['shape']).Volume()
+                    if v>.0001 or obstacle['id']==f'camera-mount-{label}':
+                        camera_screw_checks.append(dict(label=label,atLocalMm=[x,z],part=obstacle['id'],intersectionMm3=round(v,5),passed=v<.01))
+                    if v>=.01:issues.append('Camera fastener blocked '+label+'/'+obstacle['id'])
+        for component in (f'camera-{label}-pcb',f'camera-{label}-usb'):
+            for obstacle in all_obstacles:
+                v=index[component].intersect(obstacle['shape']).Volume()
+                camera_component_checks.append(dict(camera=component,part=obstacle['id'],intersectionMm3=round(v,5),passed=v<.01))
+                if v>=.01:issues.append('Camera/component collision '+component+'/'+obstacle['id']+f':{v:.3f}mm3')
+    # Exact vertical screw paths at front fork and oblique tray support interfaces.
+    support_paths=[(-43,106,90,10),(43,106,90,10)]
+    if CONFIG['hub']:support_paths.extend([(-47,58,89,14),(47,58,89,14)])
+    for x,y,z,length in support_paths:
+        shaft=cyl(1.5,length,(x,y,z))
+        for obstacle in [p for p in PARTS if p['kind']=='printed']:
+            v=shaft.intersect(obstacle['shape']).Volume()
+            if v>.0001 or obstacle['id'].startswith(('camera-mount-','camera-front-tower','pi-tray','pi-riser-')):
+                camera_screw_checks.append(dict(supportPointMm=[x,y,z],lengthMm=length,part=obstacle['id'],intersectionMm3=round(v,5),passed=v<.01))
+            if v>=.01:issues.append('Camera support fastener blocked '+obstacle['id']+str((x,y,z)))
     mount_checks=[]
     deck_union=index['deck-left'].fuse(index['deck-right'])
     for group,points in STRUCTURAL_MOUNTS.items():
@@ -744,13 +824,13 @@ def export(out):
         dict(id='hardware_m3x45',item='M3x45 socket cap screw',quantity=12,use='four through-bolts per two-station motor cradle'),
         dict(id='hardware_m3_nut',item='M3 nut',quantity=12,use='motor cradle lower hex traps'),
         dict(id='hardware_m3x12',item='M3x12 socket cap screw',quantity=(2 if extra else 4)+(4 if stereo else 0),use='outerdecksplices;threecamera frontsplice usesM3x14;stereo adds4camera screws'),
-        dict(id='hardware_m3x10',item='M3x10 socket cap screw',quantity=50 if extra else 38,use='34commoninstalled+4spares;threecamera adds8sidecamera+4hubriser bottom'),
+        dict(id='hardware_m3x10',item='M3x10 socket cap screw',quantity=40 if extra else 38,use='34commoninstalled+4spares;threecamera adds4hubriserbottom and upgrades2tray screws toM3x14'),
         dict(id='hardware_m3x8',item='M3x8 socket cap screw',quantity=4 if extra else 0,use='USBhubcarrier top;shorter to avoid opposed screw collision'),
         dict(id='hardware_m3x16',item='M3x16 socket cap screw',quantity=8,use='6bumpercarrier+2spares'),
-        dict(id='hardware_m3x14',item='M3x14 socket cap screw',quantity=12 if extra else 10,use='2Pico+2PiPower+2disconnect+2IMU/splice+2spares;threecamera adds2DFR/frontsplice'),
-        dict(id='hardware_inserts',item='ruthexRX-M3Sx4.0SHORT OD4.6/L4.0 nominal4.0bore',quantity=56 if extra else 40,use='40common;threecamera adds8sidetower+8hubriser'),
+        dict(id='hardware_m3x14',item='M3x14 socket cap screw',quantity=14 if extra else 10,use='2Pico+2PiPower+2disconnect+2IMU/splice+2spares;threecamera adds2DFR/frontsplice and2oblique/tray attachments'),
+        dict(id='hardware_inserts',item='ruthexRX-M3Sx4.0SHORT OD4.6/L4.0 nominal4.0bore',quantity=48 if extra else 40,use='40common;threecamera adds8hubriser'),
         dict(id='hardware_nyloc',item='M3 nut/nyloc',quantity=24 if stereo else 20,use='12carrier/power+6bumperguides+2spares;stereo adds4camera nuts'),
-        dict(id='hardware_washers',item='M3 washer',quantity=58 if extra else 42,use='printed joints, guides and spare allowance;check washer clearance at each interface'),
+        dict(id='hardware_washers',item='M3 washer',quantity=50 if extra else 42,use='printed joints, guides and spare allowance;check washer clearance at each interface'),
         dict(id='hardware_m3x25',item='M3x25 screw',quantity=6,use='bumper guide sleeves and retaining washers'),
         dict(id='hardware_m2x20',item='M2x20 screw and nut',quantity=6,use='Omron switches throughbody+carrier+deckslots'),
         dict(id='hardware_camera_m2x10',item='M2x10 screw and nut',quantity=0 if stereo else 12 if extra else 4,use='four exact21x21mm mountingholes perOV2735'),
@@ -769,6 +849,7 @@ def export(out):
     report={'status':'PASS' if not issues else 'FAIL','issues':issues,'validPartInstances':valid_count,
             'partInstances':len(PARTS),'printedInstances':sum(p['kind']=='printed' for p in PARTS),
             'uniquePrintableStls':len(stl_by_group)+2,'contactPoints':contacts,
+            'cameraComponentChecks':camera_component_checks,'cameraEnvelopeChecks':camera_envelopes,'opticalPortChecks':optical_checks,'cameraPlugChecks':camera_plug_checks,'cameraFastenerChecks':camera_screw_checks,
             'contactPlaneZMm':0,'analyticClearances':clearances,'criticalPairChecks':critical_pairs,'printedPairChecks':printed_pairs,'printedPairCandidates':len(printed)*(len(printed)-1)//2,'structuralMountChecks':mount_checks,
             'notValidated':['bumper switch actuation and return spring force','camera-only obstacle/drop-edge detection and stopping','physicalprint/fit','vendor exact electronics mounting','hub set-screw retention/load',
                             'screw-length physical stack','collision of all cable/bend envelopes','roller traction',
@@ -777,14 +858,14 @@ def export(out):
             'intentionalMating':['clamp upper/lower sharez30splitplane','cradle/underside deck sharez48',
                                 'seam splice/underside deck sharez48','shellflange/post sharez61',
                                 'Pi PCB/standoff sharez107','battery/rails supportz58',
-                                'cameraPCB/standoff sharey114','camera frame/tower sharez134']}
+                                'cameraPCB/boss share localY'+str(CONFIG['boardRear']),'frontcamera frame/fork sharez96;oblique frame/tray sharez99']}
     result={'schemaVersion':1,'name':'Kiwi K1 — '+CONFIG['label'],'variant':VARIANT,'cameraConfiguration':{k:v for k,v in CONFIG.items()},'units':'mm',
             'coordinateSystem':{'cadUp':'+z','cadForward':'+y','glbUp':'+y','glbForward':'-z',
                                 'glbUnits':'meters','explodeUnits':'meters','explodeCoordinates':'GLB'},
-            'assembly':{'heightMm':max(171.6,CONFIG['cameraZ']+(CONFIG['height']+8)/2),'radialEnvelopeDiameterMm':292.0,'drivetrainRadialEnvelopeDiameterMm':P['radial_envelope_diameter'],
+            'assembly':{'heightMm':max(171.6,CONFIG['cameraZ']+(CONFIG['height']+12)/2),'radialEnvelopeDiameterMm':292.0,'drivetrainRadialEnvelopeDiameterMm':P['radial_envelope_diameter'],
                         'chassisDiameterMm':252,'wheelDiameterMm':60,'wheelAxialWidthMm':25.6,
                         'groundClearanceMm':13.5,'targetTotalMassKg':2.0,'bumperCoverageDeg':240,'bumperWheelGapDeg':120,'bumperTravelMm':3.0,'physicalValidation':'pending'},
-            'parameters':P,'structuralMountPatternsMm':STRUCTURAL_MOUNTS,'activeDistanceSensors':0,'sourceSha256':hashlib.sha256(Path(__file__).read_bytes()).hexdigest(),'parts':manifest,'fasteners':fasteners,'checks':report,
+            'cameraPlacement':camera_placement(),'parameters':P,'structuralMountPatternsMm':STRUCTURAL_MOUNTS,'activeDistanceSensors':0,'sourceSha256':hashlib.sha256(Path(__file__).read_bytes()).hexdigest(),'parts':manifest,'fasteners':fasteners,'checks':report,
             'qualification':'Prototype CAD only. Export validity and listed clearances do not establish printability, assembly, device, or physical safety.'}
     (out/'manifest.json').write_text(json.dumps(result,indent=2))
     (out/'checks.json').write_text(json.dumps(report,indent=2))
@@ -815,19 +896,19 @@ def draw_svg(out):
     svg.append(f'<rect x="{cx-52.5}" y="{cy+28}" width="105" height="34" class="dark"/>')
     svg.append(f'<rect x="{cx-42.5}" y="{cy-53}" width="85" height="56" fill="#78a98b" stroke="#25343b"/>')
     for label,yaw in CONFIG['poses']:
-        svg.append(f'<g transform="translate({cx},{cy}) rotate({-yaw})"><rect x="{-CONFIG["width"]/2}" y="-132" width="{CONFIG["width"]}" height="22" class="dark"/></g>')
+        svg.append(f'<g transform="translate({cx},{cy}) rotate({-yaw})"><rect x="{-CONFIG["width"]/2}" y="-125" width="{CONFIG["width"]}" height="22" class="dark"/></g>')
     svg+=[dim(cx-126,cy+164,cx+126,cy+164,'252 chassis'),dim(cx+170,cy-144.6,cx+170,cy+144.6,'292 bumper envelope'),
           num(cx-75,cy-70,1),num(cx+114,cy-70,2),num(cx,cy+47,3),num(cx,cy-25,4),num(cx,cy-145,5),num(cx+76,cy+60,6)]
     legend=['1 Split PETG chassis / cosmetic shell','2 60 × 25.6 omniwheel, 3 stations @120°','3 3S LiPo105 ×34 ×23, two straps','4 Pi5 85 ×56; hole pattern58 ×49','5 '+('AR0144 synced stereo66x30,52mm baseline' if CONFIG['stereo'] else str(len(CONFIG['poses']))+' OV2735 USB camera(s),25x25'),'6 IDEC latching stop /22.5 panel aperture']
     for i,l in enumerate(legend):svg.append(text(475,130+i*26,l,'small'))
-    svg += [text(475,330,'REFERENCE / HOLD POINTS','label'),text(475,350,'Motor25D×68.5; shaft4×12.5','small'),text(475,368,'Hub16long / shaftengagement11.5','small'),text(475,386,'Wheel/hub mating physically unverified','small'),text(475,404,'3mm wheel-to-shell nominal clearance','small'),text(475,422,'0.5mm split seam; M3 clearholes3.4','small'),text(30,550,'K1 REV A · Not a manufacturing qualification · All fasteners and cable bends must be trial assembled.','small'),'</svg>']
+    svg += [text(475,330,'REFERENCE / HOLD POINTS','label'),text(475,350,'Motor25D×68.5; shaft4×12.5','small'),text(475,368,'Hub16long / shaftengagement11.5','small'),text(475,386,'Wheel/hub mating physically unverified','small'),text(475,404,'3mm wheel-to-shell nominal clearance','small'),text(475,422,'0.5mm split seam; M3 clearholes3.4','small'),text(30,550,'K1 REV C · Not a manufacturing qualification · All fasteners and cable bends must be trial assembled.','small'),'</svg>']
     (out/'top-plan.svg').write_text(''.join(svg))
-    svg=[f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 780 480">',style,'<rect width="780" height="480" fill="#faf9f5"/>',text(30,32,'KIWI K1 · SIDE SECTION / mm'),text(30,50,'Forward is right; camera fixed above lid; no powered gimbal','small')]
+    svg=[f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 780 480">',style,'<rect width="780" height="480" fill="#faf9f5"/>',text(30,32,'KIWI K1 · SIDE SECTION / mm'),text(30,50,'Forward is right; cameras internal atZ117; near-flush glass ports','small')]
     ox,oy=270,350
-    maxheight=max(171.6,CONFIG['cameraZ']+(CONFIG['height']+8)/2)
+    maxheight=max(171.6,CONFIG['cameraZ']+(CONFIG['height']+12)/2)
     def rect(x,y,w,h,cl='white'):return f'<rect x="{ox+x}" y="{oy-y-h}" width="{w}" height="{h}" class="{cl}"/>'
-    svg += [line(70,oy,490,oy,'thin'),rect(-126,63,252,76),rect(-126,48,252,6,'dark'),rect(-125.4,139.4,250.8,3.6),rect(-62,58,34,23,'dark'),rect(-13,95,76,4,'dark'),rect(-3,107,56,1.6,'dark'),rect(110.5,CONFIG['cameraZ']-CONFIG['height']/2,22,CONFIG['height'],'dark'),circle(ox-66,oy-30,30,'dark'),circle(ox+66,oy-30,30,'dark'),dim(ox+170,oy,ox+170,oy-maxheight,str(maxheight)+' maximum'),dim(ox-150,oy-48,ox-150,oy-54,'6deck'),dim(ox-170,oy,ox-170,oy-13.5,'13.5 cradle clearance'),num(ox-45,oy-70,3),num(ox+30,oy-115,4),num(ox+120,oy-180,5)]
-    for i,l in enumerate(['Motor/wheel axle z30; wheelgroundz0','Deck z48–54; shell z63–139','Pi board bottom107; cooler top121','Lid z139.4–143; stop top171.6','Camera plate top'+str(CONFIG['cameraZ']+(CONFIG['height']+8)/2),'Cameras + encoders + IMU + contact bumpers']):svg.append(text(510,130+i*25,l,'small'))
+    svg += [line(70,oy,490,oy,'thin'),rect(-126,63,252,76),rect(-126,48,252,6,'dark'),rect(-125.4,139.4,250.8,3.6),rect(-62,58,34,23,'dark'),rect(-13,95,76,4,'dark'),rect(-3,107,56,1.6,'dark'),rect(CONFIG['boardRear']-4.5,CONFIG['cameraZ']-CONFIG['height']/2,CONFIG['glassFront']-CONFIG['boardRear']+4.5,CONFIG['height'],'dark'),circle(ox-66,oy-30,30,'dark'),circle(ox+66,oy-30,30,'dark'),dim(ox+170,oy,ox+170,oy-maxheight,str(maxheight)+' maximum'),dim(ox-150,oy-48,ox-150,oy-54,'6deck'),dim(ox-170,oy,ox-170,oy-13.5,'13.5 cradle clearance'),num(ox-45,oy-70,3),num(ox+30,oy-115,4),num(ox+115,oy-117,5)]
+    for i,l in enumerate(['Motor/wheel axle z30; wheelgroundz0','Deck z48–54; shell z63–139','Pi board bottom107; cooler top121','Lid z139.4–143; stop top171.6','Internal frame top'+str(CONFIG['cameraZ']+(CONFIG['height']+12)/2),'Cameras + encoders + IMU + contact bumpers']):svg.append(text(510,130+i*25,l,'small'))
     svg += [text(30,435,'Section is a dimensioned layout schematic. Open STEP for full named part geometry.','small'),text(30,454,'Contact geometry, stiffness, thermal behavior and printed fastener stacks require physical validation.','small'),'</svg>']
     (out/'side-section.svg').write_text(''.join(svg))
 

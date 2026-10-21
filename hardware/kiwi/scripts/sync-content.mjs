@@ -19,6 +19,7 @@ const variants = await Promise.all(configurations.map(async config => {
   ] : []
   const cad = JSON.parse(await readFile(new URL(`public/hardware/kiwi/cad/${config.id}/manifest.json`, root), 'utf8'))
   if (cad.variant !== config.id || cad.activeDistanceSensors !== 0 || cad.checks.status !== 'PASS' || cad.sourceSha256 !== sourceHash) throw new Error(`Unqualified CAD/BOM configuration: ${config.id}`)
+  if (!cad.cameraPlacement?.length || cad.cameraPlacement.some(camera => !camera.boardInternal)) throw new Error(`Missing inset-camera placement: ${config.id}`)
   const fasteners = cad.fasteners.filter(item => !['hardware_inserts', 'bumper_springs'].includes(item.id)).map(item => ({
     id: item.id, category: 'Assembly', name: item.item, quantity: item.quantity, unit: item.item.includes('and nut') ? 'sets' : 'each',
     url: `/hardware/kiwi/cad/${config.id}/assembly-guide.md`,
@@ -27,7 +28,7 @@ const variants = await Promise.all(configurations.map(async config => {
   }))
   const inserts = cad.fasteners.find(item => item.id === 'hardware_inserts')?.quantity
   const core = common.items.filter(item => !item.id.startsWith('hardware_') && !['clamp_bolts', 'bumper_anchor_pins'].includes(item.id)).map(item => item.id === 'heatset' ? { ...item, note: `100-pack; ${inserts} inserts used by this model. OD 4.6 mm, length 4 mm; nominal 4 mm bore with 5 mm blind depth. Print the fit coupon first. This pack is outside the materials allowance.` } : item)
-  return { ...config, cameraProduct: product, items: [...core, camera, ...extra, ...fasteners] }
+  return { ...config, cameraProduct: product, cameraPlacement: cad.cameraPlacement, items: [...core, camera, ...extra, ...fasteners] }
 }))
 await writeFile(new URL('src/features/kiwi/variants.json', root), JSON.stringify(variants, null, 2) + '\n')
 for (const variant of variants) {
@@ -46,5 +47,5 @@ for (const variant of variants) {
   }
 }
 await writeFile(new URL('src/features/kiwi/parts.json', root), JSON.stringify({ items: variants[0].items }, null, 2) + '\n')
-for (const name of ['autonomy.md', 'arm.md', 'docking.md', 'camera-options.md', 'camera-options.json']) await copyFile(new URL(name, research), new URL(name, output))
+for (const name of ['autonomy.md', 'arm.md', 'docking.md', 'camera-options.md', 'camera-options.json', 'mapping.md', 'camera-layout.md']) await copyFile(new URL(name, research), new URL(name, output))
 console.log(`Synced ${variants.length} vision-only variants with separate BOMs and camera hardware.`)

@@ -7,11 +7,11 @@
     "cameraLabel": "1 × basic RGB camera",
     "cameraQuantity": 1,
     "cameraKey": "single",
-    "description": "The simplest version: one inexpensive camera looking ahead. Turn the robot to look before moving into a new area.",
+    "description": "One inexpensive camera recessed into the front of the body. Turn the robot to inspect an area before moving into it.",
     "capability": "Live video, object recognition and visual landmarks.",
     "limitation": "One image does not directly measure distance in metres. The sides and rear are outside the view.",
     "algorithmTitle": "Single-camera vision",
-    "algorithmBody": "Use a modest video stream for object recognition and known visual markers. Calibrated monocular SLAM can track visual features; wheel odometry or a known marker provides a metric reference.",
+    "algorithmBody": "Stream selected camera frames to the Mac mini or cloud vision model for object and room understanding. Run visual landmarks and monocular SLAM on the mini; calibrated wheel motion or a measured marker supplies a metric reference.",
     "mappingBody": "Start with known landmarks and short supervised moves. General room navigation needs calibrated visual mapping and a measured scale; a language model looking at a picture does not provide a distance map.",
     "cameraProduct": {
       "name": "Waveshare OV2735 2MP USB Camera (A)",
@@ -38,6 +38,61 @@
         "usbConnectorPosition": "Centered on one board edge; plug axis parallel to PCB. Orient down and reserve 30mm for plug and cable bend."
       }
     },
+    "cameraPlacement": [
+      {
+        "label": "front",
+        "yawDegFromFront": 0,
+        "centerZMm": 117,
+        "boardCenterCadMm": [
+          0,
+          108.2,
+          117
+        ],
+        "boardCenterGlbM": [
+          0,
+          0.117,
+          -0.1082
+        ],
+        "forwardCad": [
+          0,
+          1,
+          0
+        ],
+        "forwardGlb": [
+          0,
+          0,
+          -1
+        ],
+        "glassCentersCadMm": [
+          [
+            0,
+            125,
+            117
+          ]
+        ],
+        "glassCentersGlbM": [
+          [
+            0,
+            0.117,
+            -0.125
+          ]
+        ],
+        "horizontalFovDeg": 88.14,
+        "verticalFovDeg": 57.14,
+        "fovBasis": "96deg diagonal nominal,derived16:9 pinhole;unmeasured",
+        "port": {
+          "diameterMm": 20,
+          "glassSetbackMm": 1,
+          "requiredPlanningRadiusMm": 8.1107,
+          "planningRadialMarginMm": 1.8893,
+          "shape": "circular port in curved shell",
+          "outerFaceLocalYmm": 126,
+          "entryPupilAndLensDistortion": "unknown;physical FOV target test required"
+        },
+        "mounting": "two deck forks;M3x10 atX+/-43,Y106,Z96",
+        "boardInternal": true
+      }
+    ],
     "items": [
       {
         "id": "motor",
@@ -511,12 +566,12 @@
     "cameraLabel": "3 × basic RGB cameras",
     "cameraQuantity": 3,
     "cameraKey": "single",
-    "description": "The same inexpensive camera at the front, left and right. See more of the room without turning the whole robot.",
-    "capability": "Front and side views for object recognition and visual checks before moving.",
-    "limitation": "Wider coverage does not automatically produce stereo depth. The rear remains outside the cameras’ views.",
+    "description": "Three inexpensive cameras inside the body: one looking forward and two angled 45° left and right. Their views overlap ahead of the robot.",
+    "capability": "Overlapping front and forward-side views for object recognition and visual checks before moving.",
+    "limitation": "Forward coverage is roughly a half-circle, not 360°. The rear remains unseen. Independent cameras do not provide synchronized stereo depth.",
     "algorithmTitle": "Three independent camera views",
-    "algorithmBody": "Capture the front, left and right streams with stable device IDs. Process only the views needed for the next movement. These cameras are not treated as a synchronized stereo rig.",
-    "mappingBody": "Use visual landmarks and camera calibration to relate each view to the robot. Overlapping views and multi-camera SLAM are a later integration task; three pictures alone do not create a depth map.",
+    "algorithmBody": "Stream labeled front and ±45° views to the Mac mini or cloud vision model. The mini handles geometric tracking and camera calibration. These inexpensive cameras capture images; they do not detect objects or run AI.",
+    "mappingBody": "Run front-camera monocular tracking first, with scale tied to calibrated motion or a measured marker. Extra views can supply object context. Multi-camera SLAM and dense reconstruction are separate integration tasks.",
     "cameraProduct": {
       "name": "Waveshare OV2735 2MP USB Camera (A)",
       "sku": "33122",
@@ -542,6 +597,167 @@
         "usbConnectorPosition": "Centered on one board edge; plug axis parallel to PCB. Orient down and reserve 30mm for plug and cable bend."
       }
     },
+    "cameraPlacement": [
+      {
+        "label": "front",
+        "yawDegFromFront": 0,
+        "centerZMm": 117,
+        "boardCenterCadMm": [
+          0,
+          108.2,
+          117
+        ],
+        "boardCenterGlbM": [
+          0,
+          0.117,
+          -0.1082
+        ],
+        "forwardCad": [
+          0,
+          1,
+          0
+        ],
+        "forwardGlb": [
+          0,
+          0,
+          -1
+        ],
+        "glassCentersCadMm": [
+          [
+            0,
+            125,
+            117
+          ]
+        ],
+        "glassCentersGlbM": [
+          [
+            0,
+            0.117,
+            -0.125
+          ]
+        ],
+        "horizontalFovDeg": 88.14,
+        "verticalFovDeg": 57.14,
+        "fovBasis": "96deg diagonal nominal,derived16:9 pinhole;unmeasured",
+        "port": {
+          "diameterMm": 20,
+          "glassSetbackMm": 1,
+          "requiredPlanningRadiusMm": 8.1107,
+          "planningRadialMarginMm": 1.8893,
+          "shape": "circular port in curved shell",
+          "outerFaceLocalYmm": 126,
+          "entryPupilAndLensDistortion": "unknown;physical FOV target test required"
+        },
+        "mounting": "two deck forks;M3x10 atX+/-43,Y106,Z96",
+        "boardInternal": true
+      },
+      {
+        "label": "left",
+        "yawDegFromFront": 45,
+        "centerZMm": 117,
+        "boardCenterCadMm": [
+          -76.509,
+          76.509,
+          117
+        ],
+        "boardCenterGlbM": [
+          -0.076509,
+          0.117,
+          -0.076509
+        ],
+        "forwardCad": [
+          -0.7071,
+          0.7071,
+          0
+        ],
+        "forwardGlb": [
+          -0.707107,
+          0,
+          -0.707107
+        ],
+        "glassCentersCadMm": [
+          [
+            -88.3883,
+            88.3883,
+            117
+          ]
+        ],
+        "glassCentersGlbM": [
+          [
+            -0.088388,
+            0.117,
+            -0.088388
+          ]
+        ],
+        "horizontalFovDeg": 88.14,
+        "verticalFovDeg": 57.14,
+        "fovBasis": "96deg diagonal nominal,derived16:9 pinhole;unmeasured",
+        "port": {
+          "diameterMm": 20,
+          "glassSetbackMm": 1,
+          "requiredPlanningRadiusMm": 8.1107,
+          "planningRadialMarginMm": 1.8893,
+          "shape": "circular port in curved shell",
+          "outerFaceLocalYmm": 126,
+          "entryPupilAndLensDistortion": "unknown;physical FOV target test required"
+        },
+        "mounting": "Pi tray front-corner structural attachment;M3x14 atX+/-47,Y58,Z99",
+        "boardInternal": true
+      },
+      {
+        "label": "right",
+        "yawDegFromFront": -45,
+        "centerZMm": 117,
+        "boardCenterCadMm": [
+          76.509,
+          76.509,
+          117
+        ],
+        "boardCenterGlbM": [
+          0.076509,
+          0.117,
+          -0.076509
+        ],
+        "forwardCad": [
+          0.7071,
+          0.7071,
+          0
+        ],
+        "forwardGlb": [
+          0.707107,
+          0,
+          -0.707107
+        ],
+        "glassCentersCadMm": [
+          [
+            88.3883,
+            88.3883,
+            117
+          ]
+        ],
+        "glassCentersGlbM": [
+          [
+            0.088388,
+            0.117,
+            -0.088388
+          ]
+        ],
+        "horizontalFovDeg": 88.14,
+        "verticalFovDeg": 57.14,
+        "fovBasis": "96deg diagonal nominal,derived16:9 pinhole;unmeasured",
+        "port": {
+          "diameterMm": 20,
+          "glassSetbackMm": 1,
+          "requiredPlanningRadiusMm": 8.1107,
+          "planningRadialMarginMm": 1.8893,
+          "shape": "circular port in curved shell",
+          "outerFaceLocalYmm": 126,
+          "entryPupilAndLensDistortion": "unknown;physical FOV target test required"
+        },
+        "mounting": "Pi tray front-corner structural attachment;M3x14 atX+/-47,Y58,Z99",
+        "boardInternal": true
+      }
+    ],
     "items": [
       {
         "id": "motor",
@@ -757,7 +973,7 @@
         "price": 8.99,
         "currency": "EUR",
         "url": "https://www.ruthex.de/en/products/ruthex-gewindeeinsatz-m3s-100stuck-rx-m3x4-0-short-messing-gewindebuchsen-fur-3d-druck",
-        "note": "100-pack; 56 inserts used by this model. OD 4.6 mm, length 4 mm; nominal 4 mm bore with 5 mm blind depth. Print the fit coupon first. This pack is outside the materials allowance.",
+        "note": "100-pack; 48 inserts used by this model. OD 4.6 mm, length 4 mm; nominal 4 mm bore with 5 mm blind depth. Print the fit coupon first. This pack is outside the materials allowance.",
         "status": "Add to cart; 2–4 days Germany shown"
       },
       {
@@ -880,10 +1096,10 @@
         "id": "hardware_m3x10",
         "category": "Assembly",
         "name": "M3x10 socket cap screw",
-        "quantity": 50,
+        "quantity": 40,
         "unit": "each",
         "url": "/hardware/kiwi/cad/three-cameras/assembly-guide.md",
-        "note": "50 required, including the spares in the assembly guide. Included in the materials allowance; check fit and screw engagement on the physical assembly.",
+        "note": "40 required, including the spares in the assembly guide. Included in the materials allowance; check fit and screw engagement on the physical assembly.",
         "status": "Quantity from this model’s CAD assembly schedule; retail cart unquoted"
       },
       {
@@ -910,10 +1126,10 @@
         "id": "hardware_m3x14",
         "category": "Assembly",
         "name": "M3x14 socket cap screw",
-        "quantity": 12,
+        "quantity": 14,
         "unit": "each",
         "url": "/hardware/kiwi/cad/three-cameras/assembly-guide.md",
-        "note": "12 required, including the spares in the assembly guide. Included in the materials allowance; check fit and screw engagement on the physical assembly.",
+        "note": "14 required, including the spares in the assembly guide. Included in the materials allowance; check fit and screw engagement on the physical assembly.",
         "status": "Quantity from this model’s CAD assembly schedule; retail cart unquoted"
       },
       {
@@ -930,10 +1146,10 @@
         "id": "hardware_washers",
         "category": "Assembly",
         "name": "M3 washer",
-        "quantity": 58,
+        "quantity": 50,
         "unit": "each",
         "url": "/hardware/kiwi/cad/three-cameras/assembly-guide.md",
-        "note": "58 required, including the spares in the assembly guide. Included in the materials allowance; check fit and screw engagement on the physical assembly.",
+        "note": "50 required, including the spares in the assembly guide. Included in the materials allowance; check fit and screw engagement on the physical assembly.",
         "status": "Quantity from this model’s CAD assembly schedule; retail cart unquoted"
       },
       {
@@ -1066,12 +1282,12 @@
     "cameraLabel": "1 × synchronized stereo module",
     "cameraQuantity": 1,
     "cameraKey": "stereo",
-    "description": "Two forward-facing cameras on one rigid board. Their overlapping, synchronized images can be used to estimate distance.",
+    "description": "Two forward-facing cameras on one rigid board, recessed inside the body. Synchronized images and a calibrated baseline let software estimate distance.",
     "capability": "Front-facing stereo vision with a known baseline for metric depth after calibration.",
-    "limitation": "Depth is computed by the Pi or home computer. Glass, blank surfaces, poor light and occlusion can leave gaps.",
+    "limitation": "Depth is computed on the Mac mini. Glass, blank surfaces, poor light and occlusion can leave gaps.",
     "algorithmTitle": "Calibrated stereo vision",
-    "algorithmBody": "Calibrate both lenses and their relative positions, rectify the synchronized images, then compute disparity with OpenCV StereoSGBM. With focal length f and baseline B, distance is Z = f × B / disparity.",
-    "mappingBody": "After calibrating and measuring its useful range, feed valid stereo depth to RTAB-Map and Nav2. Invalid depth stays unknown. Benchmark image size, frame rate and processing time on the Pi or home computer.",
+    "algorithmBody": "Stream synchronized image pairs to the Mac mini. It calibrates and rectifies the views, then computes disparity with OpenCV StereoSGBM or RTAB-Map. With focal length f and baseline B, distance is Z = f × B / disparity.",
+    "mappingBody": "The Mac mini runs RTAB-Map and navigation after stereo calibration. Invalid depth stays unknown. Vision LLMs on the mini or in the cloud interpret objects and rooms from selected images and map context.",
     "cameraProduct": {
       "name": "Waveshare AR0144 Stereo USB Camera (A)",
       "sku": "32695",
@@ -1083,7 +1299,7 @@
       "depthMm": 17.72,
       "baselineMm": 52,
       "currentMa": null,
-      "note": "Two synchronized global-shutter cameras on one USB 2 Type-C module, 52 mm apart. Calibrate and compute depth on the Pi or home computer; no factory calibration file or onboard depth processor has been verified. Confirm delivered color/mono specification before buying.",
+      "note": "Two synchronized global-shutter cameras on one USB 2 Type-C module, 52 mm apart. Calibrate and compute depth on the Mac mini; no factory calibration file or onboard depth processor has been verified. Confirm delivered color/mono specification before buying.",
       "mount": {
         "drawingUrl": "https://www.waveshare.com/img/devkit/accBoard/AR0144-Stereo-USB-Camera-A/AR0144-Stereo-USB-Camera-A-details-size.jpg",
         "drawingStatus": "Manufacturer outline reproduced by Spotpear; visually checked. Published 17.72mm side dimension appears to exclude rear USB projection. Allocate 22mm bare depth provisionally and measure actual module.",
@@ -1106,6 +1322,71 @@
         "conservativeBareDepthMm": 22
       }
     },
+    "cameraPlacement": [
+      {
+        "label": "front",
+        "yawDegFromFront": 0,
+        "centerZMm": 117,
+        "boardCenterCadMm": [
+          0,
+          107.08,
+          117
+        ],
+        "boardCenterGlbM": [
+          0,
+          0.117,
+          -0.10708
+        ],
+        "forwardCad": [
+          0,
+          1,
+          0
+        ],
+        "forwardGlb": [
+          0,
+          0,
+          -1
+        ],
+        "glassCentersCadMm": [
+          [
+            -26,
+            124,
+            117
+          ],
+          [
+            26,
+            124,
+            117
+          ]
+        ],
+        "glassCentersGlbM": [
+          [
+            -0.026,
+            0.117,
+            -0.124
+          ],
+          [
+            0.026,
+            0.117,
+            -0.124
+          ]
+        ],
+        "horizontalFovDeg": 65,
+        "verticalFovDeg": 43,
+        "fovBasis": "vendor nominal65deg horizontal/43deg vertical;unmeasured",
+        "port": {
+          "diameterMm": 20,
+          "glassSetbackMm": 1,
+          "requiredPlanningRadiusMm": 7.749,
+          "planningRadialMarginMm": 2.251,
+          "shape": "two circular ports in82x28mm flat facet",
+          "outerFaceLocalYmm": 125,
+          "entryPupilAndLensDistortion": "unknown;physical FOV target test required"
+        },
+        "mounting": "two deck forks;M3x10 atX+/-43,Y106,Z96",
+        "boardInternal": true
+      }
+    ],
     "items": [
       {
         "id": "motor",
@@ -1366,7 +1647,7 @@
         "price": 66.99,
         "currency": "USD",
         "url": "https://www.waveshare.com/ar0144-stereo-usb-camera-a.htm",
-        "note": "Two synchronized global-shutter cameras on one USB 2 Type-C module, 52 mm apart. Calibrate and compute depth on the Pi or home computer; no factory calibration file or onboard depth processor has been verified. Confirm delivered color/mono specification before buying.",
+        "note": "Two synchronized global-shutter cameras on one USB 2 Type-C module, 52 mm apart. Calibrate and compute depth on the Mac mini; no factory calibration file or onboard depth processor has been verified. Confirm delivered color/mono specification before buying.",
         "status": "Manufacturer price checked 21 October 2026; final stock and delivery unconfirmed"
       },
       {

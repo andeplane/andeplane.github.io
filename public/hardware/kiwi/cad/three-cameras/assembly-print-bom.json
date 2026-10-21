@@ -27,38 +27,50 @@
     },
     {
       "id": "camera-front-towers",
-      "name": "Front camera structural tower",
+      "name": "Internal front camera structural fork",
       "stl": "stl/camera-front-tower--43.stl",
       "quantity": 2,
       "material": "PETG starting point",
       "printBoundingBoxMm": [
         11.0,
-        38.0,
-        80.0
+        28.0,
+        42.0
       ]
     },
     {
-      "id": "camera-front-mount",
+      "id": "camera-mount-front",
       "name": "front camera open-back mounting frame",
       "stl": "stl/camera-mount-front.stl",
       "quantity": 1,
       "material": "PETG starting point",
       "printBoundingBoxMm": [
         100.0,
-        27.0,
-        46.5
+        28.0,
+        48.5
       ]
     },
     {
-      "id": "camera-side-mounts",
+      "id": "camera-mount-left",
       "name": "left camera open-back mounting frame",
       "stl": "stl/camera-mount-left.stl",
-      "quantity": 2,
+      "quantity": 1,
       "material": "PETG starting point",
       "printBoundingBoxMm": [
-        33.0,
-        33.0,
-        46.5
+        52.545,
+        41.545,
+        48.5
+      ]
+    },
+    {
+      "id": "camera-mount-right",
+      "name": "right camera open-back mounting frame",
+      "stl": "stl/camera-mount-right.stl",
+      "quantity": 1,
+      "material": "PETG starting point",
+      "printBoundingBoxMm": [
+        52.545,
+        41.545,
+        48.5
       ]
     },
     {
@@ -71,18 +83,6 @@
         46.0,
         56.0,
         3.0
-      ]
-    },
-    {
-      "id": "camera-side-towers",
-      "name": "left camera structural tower",
-      "stl": "stl/camera-side-tower-left.stl",
-      "quantity": 2,
-      "material": "PETG starting point",
-      "printBoundingBoxMm": [
-        12.0,
-        30.0,
-        80.0
       ]
     },
     {
@@ -196,8 +196,8 @@
       "quantity": 1,
       "material": "PETG starting point",
       "printBoundingBoxMm": [
-        123.923,
-        249.573,
+        125.15,
+        250.8,
         3.6
       ]
     },
@@ -208,8 +208,8 @@
       "quantity": 1,
       "material": "PETG starting point",
       "printBoundingBoxMm": [
-        123.923,
-        249.573,
+        125.15,
+        250.8,
         3.6
       ]
     },
