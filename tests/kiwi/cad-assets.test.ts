@@ -1,12 +1,15 @@
 import assert from 'node:assert/strict'
 import { test } from 'node:test'
 import { readFile, readdir } from 'node:fs/promises'
+import { createHash } from 'node:crypto'
 import { WHEEL_ANGLES_DEG } from '../../src/features/kiwi/kinematics.ts'
 
-const folder = new URL('../../public/hardware/kiwi/cad/', import.meta.url)
+for (const variant of ['front-camera', 'three-cameras', 'stereo']) {
+const folder = new URL(`../../public/hardware/kiwi/cad/${variant}/`, import.meta.url)
 const manifest = JSON.parse(await readFile(new URL('manifest.json', folder), 'utf8'))
 
-test('published assembly and mixer use identical wheel geometry', () => {
+
+test(`${variant}: published assembly and mixer use identical wheel geometry`, () => {
   assert.deepEqual(manifest.parameters.wheel_angles_deg, [...WHEEL_ANGLES_DEG])
   assert.equal(manifest.parameters.wheel_center_radius, 131.8)
   assert.equal(manifest.parameters.wheel_diameter, 60)
@@ -14,7 +17,7 @@ test('published assembly and mixer use identical wheel geometry', () => {
   assert.equal(manifest.checks.issues.length, 0)
 })
 
-test('actual binary print meshes fit the 256 mm print volume with XY bed margins', async () => {
+test(`${variant}: actual binary print meshes fit the 256 mm print volume with XY bed margins`, async () => {
   const stls = (await readdir(new URL('stl/', folder))).filter(name => name.endsWith('.stl'))
   assert.ok(stls.length >= 20)
   for (const name of stls) {
@@ -33,7 +36,7 @@ test('actual binary print meshes fit the 256 mm print volume with XY bed margins
   }
 })
 
-test('GLB assembly contains every named CAD instance needed for selection and explosion', async () => {
+test(`${variant}: GLB assembly contains every named CAD instance needed for selection and explosion`, async () => {
   const bytes = await readFile(new URL('assembly.glb', folder))
   assert.equal(bytes.toString('ascii', 0, 4), 'glTF')
   assert.equal(bytes.readUInt32LE(4), 2)
@@ -44,11 +47,29 @@ test('GLB assembly contains every named CAD instance needed for selection and ex
   for (const part of manifest.parts) for (const name of part.meshNames) assert.ok(names.has(name), name)
 })
 
-test('all advertised CAD downloads are real artifacts', async () => {
+test(`${variant}: all advertised CAD downloads are real artifacts`, async () => {
   for (const name of ['assembly.step', 'kiwi-print-pack.zip', 'source.zip', 'assembly-drawing.svg', 'assembly-guide.md', 'validation.json']) {
     const bytes = await readFile(new URL(name, folder))
     assert.ok(bytes.length > 100, name)
     if (name.endsWith('.zip')) assert.equal(bytes.toString('hex', 0, 4), '504b0304', name)
     if (name.endsWith('.step')) assert.match(bytes.toString('ascii', 0, 100), /ISO-10303-21/, name)
   }
+  const source = await readFile(new URL('kiwi.py', folder))
+  assert.equal(createHash('sha256').update(source).digest('hex'), manifest.sourceSha256)
+  assert.deepEqual(source, await readFile(new URL('../../hardware/kiwi/cad/kiwi.py', import.meta.url)))
 })
+
+
+test(`${variant}: actual model contains its selected cameras and no distance hardware`, () => {
+  assert.equal(manifest.variant, variant)
+  assert.equal(manifest.activeDistanceSensors, 0)
+  const ids = manifest.parts.map(p => p.id)
+  assert.ok(!ids.some(id => /^(tof|cliff|i2c-mux|sensor-regulator)/i.test(id)))
+  const cameras = ids.filter(id => /^camera-(front|left|right)-pcb$/.test(id))
+  assert.equal(cameras.length, variant === 'three-cameras' ? 3 : 1)
+  const lenses = ids.filter(id => /^camera-(front|left|right)-lens-/.test(id))
+  assert.equal(lenses.length, variant === 'three-cameras' ? 3 : variant === 'stereo' ? 2 : 1)
+  assert.equal(ids.includes('camera-usb-hub'), variant === 'three-cameras')
+  assert.equal(ids.includes('camera-power-buck'), variant === 'three-cameras')
+})
+}

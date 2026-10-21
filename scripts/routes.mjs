@@ -19,9 +19,14 @@ const STATIC_ROUTES = [
   {
     path: '/hardware/kiwi',
     title: 'Kiwi · Home robot',
-    description: 'Explore a 29 cm omni-wheel robot: interactive prototype CAD, STEP/STL downloads, stereo depth, a parts list, and local navigation with model decisions.',
+    description: 'Choose a vision-only 29 cm omni-wheel robot: one front camera, three cameras or a stereo pair, each with its own CAD, parts and NOK budget.',
     image: '/hardware/kiwi/concept.webp',
   },
+  ...[
+    ['front-camera', 'One front camera', 'A basic front-facing USB camera on a three-wheel robot. Separate CAD, printable files, parts list and a complete NOK budget.'],
+    ['three-cameras', 'Front, left and right cameras', 'Three inexpensive USB cameras for wider coverage. A distinct robot model, powered USB hub, printable parts and a complete NOK budget.'],
+    ['stereo', 'Stereo camera pair', 'A synchronized stereo camera pair for host-computed depth. Separate CAD, print files, calibration plan, parts and a complete NOK budget.'],
+  ].map(([id, title, description]) => ({ path: `/hardware/kiwi/${id}`, title: `Kiwi · ${title}`, description, image: '/hardware/kiwi/concept.webp' })),
   {
     path: '/games',
     title: 'Games',

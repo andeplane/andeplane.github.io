@@ -6,7 +6,7 @@ import { OrbitControls } from 'three/addons/controls/OrbitControls.js'
 interface CadPart { id: string; name: string; kind: string; meshNames?: string[]; explode?: number[] }
 interface CadManifest { parts: CadPart[] }
 
-export default function CadViewer() {
+export default function CadViewer({ assetPath, compact = false }: { assetPath: string; compact?: boolean }) {
   const mount = useRef<HTMLDivElement>(null)
   const model = useRef<THREE.Group | null>(null)
   const metadata = useRef<CadManifest | null>(null)
@@ -70,8 +70,8 @@ export default function CadViewer() {
     }
     renderer.domElement.addEventListener('pointerup', click)
     Promise.all([
-      new GLTFLoader().loadAsync('/hardware/kiwi/cad/assembly.glb'),
-      fetch('/hardware/kiwi/cad/manifest.json').then(r => { if (!r.ok) throw new Error('CAD manifest unavailable'); return r.json() as Promise<CadManifest> }),
+      new GLTFLoader().loadAsync(`${assetPath}assembly.glb`),
+      fetch(`${assetPath}manifest.json`).then(r => { if (!r.ok) throw new Error('CAD manifest unavailable'); return r.json() as Promise<CadManifest> }),
     ]).then(([gltf, manifest]) => {
       if (disposed) { gltf.scene.traverse(obj => { if (obj instanceof THREE.Mesh) obj.geometry.dispose() }); return }
       model.current = gltf.scene; metadata.current = manifest
@@ -103,7 +103,7 @@ export default function CadViewer() {
       })
       renderer.dispose(); renderer.domElement.remove(); model.current = null
     }
-  }, [])
+  }, [assetPath])
 
   useEffect(() => {
     const group = model.current
@@ -119,17 +119,17 @@ export default function CadViewer() {
     }
   }, [explode, shell, partCount])
 
-  return <div className="kiwi-cad">
+  return <div className={`kiwi-cad${compact ? ' kiwi-cad-compact' : ''}`}>
     <div className="kiwi-cad-stage" ref={mount} data-ready={partCount > 0}>
-      {error && <img className="kiwi-cad-fallback" src="/hardware/kiwi/cad/assembly-drawing.svg" alt="Dimensioned top and side views of the Kiwi robot" />}
-      <span className="kiwi-cad-label">REV A / PARAMETRIC CAD</span>
+      {error && <img className="kiwi-cad-fallback" src={`${assetPath}assembly-drawing.svg`} alt="Dimensioned top and side views of the selected Kiwi robot" />}
+      <span className="kiwi-cad-label">REV B / {assetPath.split('/').filter(Boolean).at(-1)?.replace(/-/g, ' ').toUpperCase()}</span>
       <span className="kiwi-cad-selection" aria-live="polite">{selected}</span>
     </div>
-    <div className="kiwi-cad-controls">
+    {!compact && <div className="kiwi-cad-controls">
       <label>Explode assembly <input aria-label="Explode assembly" type="range" min="0" max="100" value={explode} onChange={e => setExplode(Number(e.target.value))} /><output>{explode}%</output></label>
       <button type="button" aria-pressed={!shell} onClick={() => setShell(!shell)}>{shell ? 'Remove shell' : 'Show shell'}</button>
       <button type="button" onClick={() => { reset.current(); setExplode(0); setShell(true) }}>Reset view</button>
-    </div>
-    <p className="kiwi-caption" role="status">{status}. Printed parts are dimensioned solids. Bought components are reference envelopes; check their listed dimensional status before printing.</p>
+    </div>}
+    <p className="kiwi-caption" role="status">{status}.{!compact && ' Printed parts are dimensioned solids. Bought components are reference envelopes; check dimensions against the actual parts before printing.'}</p>
   </div>
 }

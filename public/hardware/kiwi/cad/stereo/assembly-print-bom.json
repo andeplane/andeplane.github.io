@@ -1,0 +1,321 @@
+{
+  "variant": "stereo",
+  "items": [
+    {
+      "id": "bumpers",
+      "name": "3mmtravel contact bumper segment",
+      "stl": "stl/bumper-90.stl",
+      "quantity": 3,
+      "material": "PETG starting point",
+      "printBoundingBoxMm": [
+        39.0,
+        187.694,
+        16.0
+      ]
+    },
+    {
+      "id": "bumper-carriers",
+      "name": "Switch/guide/hardstop bumper carrier",
+      "stl": "stl/bumper-carrier-90.stl",
+      "quantity": 3,
+      "material": "PETG starting point",
+      "printBoundingBoxMm": [
+        38.0,
+        68.0,
+        20.3
+      ]
+    },
+    {
+      "id": "camera-front-towers",
+      "name": "Front camera structural tower",
+      "stl": "stl/camera-front-tower--43.stl",
+      "quantity": 2,
+      "material": "PETG starting point",
+      "printBoundingBoxMm": [
+        11.0,
+        38.0,
+        80.0
+      ]
+    },
+    {
+      "id": "camera-front-mount",
+      "name": "front camera open-back mounting frame",
+      "stl": "stl/camera-mount-front.stl",
+      "quantity": 1,
+      "material": "PETG starting point",
+      "printBoundingBoxMm": [
+        100.0,
+        27.0,
+        52.0
+      ]
+    },
+    {
+      "id": "motor-clamp-lower",
+      "name": "Two-station motor cradle cap",
+      "stl": "stl/clamp-lower-30.stl",
+      "quantity": 3,
+      "material": "PETG starting point",
+      "printBoundingBoxMm": [
+        16.5,
+        48.0,
+        41.0
+      ]
+    },
+    {
+      "id": "motor-clamp-upper",
+      "name": "Two-station upper motor cradle",
+      "stl": "stl/clamp-upper-30.stl",
+      "quantity": 3,
+      "material": "PETG starting point",
+      "printBoundingBoxMm": [
+        18.0,
+        48.0,
+        41.0
+      ]
+    },
+    {
+      "id": "deck-left",
+      "name": "6mm chassis deck left",
+      "stl": "stl/deck-left.stl",
+      "quantity": 1,
+      "material": "PETG starting point",
+      "printBoundingBoxMm": [
+        125.75,
+        247.041,
+        13.0
+      ]
+    },
+    {
+      "id": "deck-right",
+      "name": "6mm chassis deck right",
+      "stl": "stl/deck-right.stl",
+      "quantity": 1,
+      "material": "PETG starting point",
+      "printBoundingBoxMm": [
+        125.75,
+        247.041,
+        13.0
+      ]
+    },
+    {
+      "id": "disconnect-carrier",
+      "name": "Motor power switch strap carrier",
+      "stl": "stl/disconnect-carrier.stl",
+      "quantity": 1,
+      "material": "PETG starting point",
+      "printBoundingBoxMm": [
+        31.0,
+        39.0,
+        3.0
+      ]
+    },
+    {
+      "id": "driver-risers",
+      "name": "23mm inserted driver-carrier riser",
+      "stl": "stl/driver-riser-0.stl",
+      "quantity": 2,
+      "material": "PETG starting point",
+      "printBoundingBoxMm": [
+        8.0,
+        8.0,
+        23.0
+      ]
+    },
+    {
+      "id": "driver-carrier",
+      "name": "Three-motor-driver strap carrier",
+      "stl": "stl/electronics-tray.stl",
+      "quantity": 1,
+      "material": "PETG starting point",
+      "printBoundingBoxMm": [
+        35.0,
+        90.0,
+        3.0
+      ]
+    },
+    {
+      "id": "imu-carrier",
+      "name": "IMU-only carrier",
+      "stl": "stl/imu-carrier.stl",
+      "quantity": 1,
+      "material": "PETG starting point",
+      "printBoundingBoxMm": [
+        36.0,
+        38.5,
+        5.0
+      ]
+    },
+    {
+      "id": "insert-fit-coupon",
+      "name": "insert-fit-coupon",
+      "stl": "stl/insert-fit-coupon.stl",
+      "quantity": 1,
+      "material": "PETG starting point",
+      "printBoundingBoxMm": null
+    },
+    {
+      "id": "lid-left",
+      "name": "Vented service lid left",
+      "stl": "stl/lid-left.stl",
+      "quantity": 1,
+      "material": "PETG starting point",
+      "printBoundingBoxMm": [
+        125.15,
+        244.904,
+        3.6
+      ]
+    },
+    {
+      "id": "lid-right",
+      "name": "Vented service lid right",
+      "stl": "stl/lid-right.stl",
+      "quantity": 1,
+      "material": "PETG starting point",
+      "printBoundingBoxMm": [
+        125.15,
+        244.904,
+        3.6
+      ]
+    },
+    {
+      "id": "main-switch-panel",
+      "name": "Structural rear master-switch panel",
+      "stl": "stl/main-switch-panel.stl",
+      "quantity": 1,
+      "material": "PETG starting point",
+      "printBoundingBoxMm": [
+        62.0,
+        27.5,
+        70.0
+      ]
+    },
+    {
+      "id": "motor-clamp-fit-coupon",
+      "name": "motor-clamp-fit-coupon",
+      "stl": "stl/motor-clamp-fit-coupon.stl",
+      "quantity": 1,
+      "material": "PETG starting point",
+      "printBoundingBoxMm": null
+    },
+    {
+      "id": "pi-power-carrier",
+      "name": "5V power regulator strap carrier",
+      "stl": "stl/pi-power-carrier.stl",
+      "quantity": 1,
+      "material": "PETG starting point",
+      "printBoundingBoxMm": [
+        31.0,
+        54.0,
+        3.0
+      ]
+    },
+    {
+      "id": "pi-risers",
+      "name": "41mm Pi tray riser",
+      "stl": "stl/pi-riser-0.stl",
+      "quantity": 4,
+      "material": "PETG starting point",
+      "printBoundingBoxMm": [
+        14.0,
+        14.0,
+        41.0
+      ]
+    },
+    {
+      "id": "compute-mounts",
+      "name": "Raised ventilated Pi mounting tray",
+      "stl": "stl/pi-tray.stl",
+      "quantity": 1,
+      "material": "PETG starting point",
+      "printBoundingBoxMm": [
+        106.0,
+        76.0,
+        12.0
+      ]
+    },
+    {
+      "id": "pico-carrier",
+      "name": "Pico2 strap carrier",
+      "stl": "stl/pico-carrier.stl",
+      "quantity": 1,
+      "material": "PETG starting point",
+      "printBoundingBoxMm": [
+        31.0,
+        61.0,
+        3.0
+      ]
+    },
+    {
+      "id": "shell-left",
+      "name": "Segmented outer shell left",
+      "stl": "stl/shell-left.stl",
+      "quantity": 1,
+      "material": "PETG starting point",
+      "printBoundingBoxMm": [
+        125.75,
+        252.0,
+        78.0
+      ]
+    },
+    {
+      "id": "shell-right",
+      "name": "Segmented outer shell right",
+      "stl": "stl/shell-right.stl",
+      "quantity": 1,
+      "material": "PETG starting point",
+      "printBoundingBoxMm": [
+        125.75,
+        252.0,
+        78.0
+      ]
+    },
+    {
+      "id": "deck-splices",
+      "name": "Deck seam splice",
+      "stl": "stl/splice-0.stl",
+      "quantity": 3,
+      "material": "PETG starting point",
+      "printBoundingBoxMm": [
+        40.0,
+        16.0,
+        5.0
+      ]
+    },
+    {
+      "id": "power-mounts",
+      "name": "Emergency-stop support tower",
+      "stl": "stl/stop-tower.stl",
+      "quantity": 1,
+      "material": "PETG starting point",
+      "printBoundingBoxMm": [
+        52.0,
+        54.0,
+        84.8
+      ]
+    },
+    {
+      "id": "trim-left",
+      "name": "Teal shell accent half",
+      "stl": "stl/trim-left.stl",
+      "quantity": 1,
+      "material": "PETG starting point",
+      "printBoundingBoxMm": [
+        125.75,
+        252.0,
+        3.0
+      ]
+    },
+    {
+      "id": "trim-right",
+      "name": "Teal shell accent half",
+      "stl": "stl/trim-right.stl",
+      "quantity": 1,
+      "material": "PETG starting point",
+      "printBoundingBoxMm": [
+        125.75,
+        252.0,
+        3.0
+      ]
+    }
+  ]
+}

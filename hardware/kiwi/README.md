@@ -2,11 +2,19 @@
 
 A 29 cm three-wheel indoor robot prototype, documented at [andeplane.github.io/hardware/kiwi/](https://andeplane.github.io/hardware/kiwi/). This repository contains a project workbench, parametric CAD, reference electronics envelopes, print files, and researched procurement/control plans. The physical robot has not been built or commissioned.
 
+## Three vision-only versions
+
+- `/hardware/kiwi/front-camera/`: one basic front-facing USB camera.
+- `/hardware/kiwi/three-cameras/`: front, left and right USB cameras with a powered hub and separate camera converter.
+- `/hardware/kiwi/stereo/`: a synchronized stereo module, with host-computed depth after calibration.
+
+Each URL selects a separate assembly under `public/hardware/kiwi/cad/<variant>/`, a separate BOM/CSV and a NOK cost breakdown. `/hardware/kiwi/` opens the front-camera version. None contains distance sensors.
+
 ## Design files
 
 - `cad/kiwi.py`: authoritative editable CadQuery design. Its parameters and actual generated checks define the prototype revision.
 - `public/hardware/kiwi/cad/` at repository root: STEP assembly, named-mesh GLB, individual printable STLs, fit coupons, drawings, assembly guide, validation data, and archives.
-- `research/parts.json`: quantities, observed prices, ordering links and constraints. `research/parts.md` provides interface details and the small-parts schedule.
+- `research/parts.json`: common quantities, observed prices, ordering links and constraints. `research/variants.json` and `research/camera-options.json` select the camera hardware. `research/parts.md` provides interface details and the small-parts schedule.
 - `research/wiring.md`: power rails, connector parts, GPIO assignment, input levels, stop wiring, and commissioning requirements.
 - `research/autonomy.md`: calibrated depth, ROS 2 navigation, and model-decision architecture. This is a design, not implemented robot firmware.
 - `research/arm.md` and `research/docking.md`: optional expansion studies. Arm mounts, dock, replacement battery cradle, and charging circuit are absent from Rev A CAD.
@@ -18,7 +26,7 @@ The frontend lives in `src/features/kiwi/`. `/hardware/` is the category landing
 
 Read `cad/README.md` and use its pinned Python requirements for the CAD export. Heavy export and build jobs should run through `codex-home` on a home worker, then their exact outputs must be brought back and inspected.
 
-After research edits, run `node hardware/kiwi/scripts/sync-content.mjs` from repository root. This synchronizes webpage component data, CSV and the downloadable technical notes. Run `node --experimental-strip-types --test tests/kiwi/*.test.ts` for wheel-kinematics checks. The ordinary site CI builds and checks route coverage.
+After research edits, run `node hardware/kiwi/scripts/sync-content.mjs` from repository root. This synchronizes all three webpage configurations, separate BOMs, CSV files and technical notes. Run `node --experimental-strip-types --test tests/kiwi/*.test.ts` for wheel-kinematics checks. The ordinary site CI builds and checks route coverage.
 
 ## Scope and evidence
 

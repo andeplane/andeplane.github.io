@@ -1,0 +1,6173 @@
+{
+  "schemaVersion": 1,
+  "name": "Kiwi K1 \u2014 Single front camera",
+  "variant": "front-camera",
+  "cameraConfiguration": {
+    "label": "Single front camera",
+    "stereo": false,
+    "poses": [
+      [
+        "front",
+        0
+      ]
+    ],
+    "hub": false,
+    "width": 25.0,
+    "height": 25.0,
+    "cameraZ": 151.0,
+    "holeX": 21.0,
+    "holeZ": 21.0,
+    "holeD": 2.0
+  },
+  "units": "mm",
+  "coordinateSystem": {
+    "cadUp": "+z",
+    "cadForward": "+y",
+    "glbUp": "+y",
+    "glbForward": "-z",
+    "glbUnits": "meters",
+    "explodeUnits": "meters",
+    "explodeCoordinates": "GLB"
+  },
+  "assembly": {
+    "heightMm": 171.6,
+    "radialEnvelopeDiameterMm": 292.0,
+    "drivetrainRadialEnvelopeDiameterMm": 289.2,
+    "chassisDiameterMm": 252,
+    "wheelDiameterMm": 60,
+    "wheelAxialWidthMm": 25.6,
+    "groundClearanceMm": 13.5,
+    "targetTotalMassKg": 2.0,
+    "bumperCoverageDeg": 240,
+    "bumperWheelGapDeg": 120,
+    "bumperTravelMm": 3.0,
+    "physicalValidation": "pending"
+  },
+  "parameters": {
+    "deck_radius": 126.0,
+    "deck_bottom": 48.0,
+    "deck_thickness": 6.0,
+    "seam_gap": 0.5,
+    "shell_inner": 123.4,
+    "shell_outer": 126.0,
+    "shell_bottom": 63.0,
+    "shell_top": 139.0,
+    "lid_bottom": 139.4,
+    "lid_thickness": 3.6,
+    "motor_face_radius": 102.0,
+    "motor_center_z": 30.0,
+    "motor_body_length": 68.5,
+    "gear_length": 23.0,
+    "motor_length": 30.8,
+    "gear_diameter": 25.0,
+    "motor_diameter": 24.4,
+    "shaft_diameter": 4.0,
+    "shaft_exposed": 12.5,
+    "hub_motor_gap": 1.0,
+    "hub_length": 16.0,
+    "wheel_diameter": 60.0,
+    "wheel_width": 25.6,
+    "wheel_angles_deg": [
+      30,
+      150,
+      270
+    ],
+    "clamp_gear_radius": 95.0,
+    "clamp_rear_radius": 63.0,
+    "clamp_gear_clearance_diameter": 25.6,
+    "clamp_rear_clearance_diameter": 25.0,
+    "battery_length": 105.0,
+    "battery_width": 34.0,
+    "battery_height": 23.0,
+    "battery_center_y": -45.0,
+    "battery_bottom": 58.0,
+    "pi_length": 85.0,
+    "pi_width": 56.0,
+    "pi_hole_x": 58.0,
+    "pi_hole_y": 49.0,
+    "tray_bottom": 95.0,
+    "tray_thickness": 4.0,
+    "m3_clearance": 3.4,
+    "m3_insert_hole": 4.0,
+    "insert_depth": 5.0,
+    "wheel_inner_radius": 119.0,
+    "wheel_center_radius": 131.8,
+    "radial_envelope_diameter": 289.2,
+    "variant": "front-camera",
+    "camera_width": 25.0,
+    "camera_height": 25.0,
+    "camera_centre_z": 151.0,
+    "camera_board_rear_y": 114.0,
+    "camera_hole_pitch_x": 21.0,
+    "camera_hole_pitch_z": 21.0,
+    "camera_baseline_mm": null,
+    "active_distance_sensors": 0
+  },
+  "structuralMountPatternsMm": {
+    "stop": [
+      [
+        54,
+        -20
+      ],
+      [
+        98,
+        -20
+      ]
+    ],
+    "driver": [
+      [
+        -74,
+        -52
+      ],
+      [
+        -66,
+        -74
+      ]
+    ],
+    "pico": [
+      [
+        -74,
+        35
+      ],
+      [
+        -74,
+        65
+      ]
+    ],
+    "piPower": [
+      [
+        76,
+        -8
+      ],
+      [
+        76,
+        32
+      ]
+    ],
+    "disconnect": [
+      [
+        75,
+        55
+      ],
+      [
+        75,
+        73
+      ]
+    ],
+    "mainPanel": [
+      [
+        -27,
+        -101
+      ],
+      [
+        27,
+        -101
+      ]
+    ],
+    "cameraFront": [
+      [
+        -43,
+        94
+      ],
+      [
+        43,
+        94
+      ]
+    ]
+  },
+  "activeDistanceSensors": 0,
+  "sourceSha256": "6bdcbf9ca70f0a52c6d4f3b34fe9f74fe4c589ecdbe2c6b69fa2a3781af947a7",
+  "parts": [
+    {
+      "id": "deck-left",
+      "name": "6mm chassis deck left",
+      "kind": "printed",
+      "source": "Kiwi K1 parametric design",
+      "dimensionalStatus": "designed; physical fit pending",
+      "explode": [
+        -0.045,
+        0,
+        0
+      ],
+      "group": "deck-left",
+      "printable": true,
+      "notes": [],
+      "meshNames": [
+        "deck-left"
+      ],
+      "quantity": 1,
+      "color": [
+        0.095,
+        0.12,
+        0.135,
+        1
+      ],
+      "boundingBoxMm": {
+        "min": [
+          -126.0,
+          -121.04131526053408,
+          48.0
+        ],
+        "max": [
+          -0.24999999999998676,
+          125.9997519838829,
+          61.0
+        ],
+        "size": [
+          125.75000000000001,
+          247.04106724441698,
+          13.0
+        ]
+      },
+      "volumeMm3": 136672.983,
+      "solidCount": 1,
+      "validSolid": true,
+      "stl": "stl/deck-left.stl",
+      "printBoundingBoxMm": [
+        125.75,
+        247.041,
+        13.0
+      ],
+      "fits256mmBed": true
+    },
+    {
+      "id": "deck-right",
+      "name": "6mm chassis deck right",
+      "kind": "printed",
+      "source": "Kiwi K1 parametric design",
+      "dimensionalStatus": "designed; physical fit pending",
+      "explode": [
+        0.045,
+        0,
+        0
+      ],
+      "group": "deck-right",
+      "printable": true,
+      "notes": [],
+      "meshNames": [
+        "deck-right"
+      ],
+      "quantity": 1,
+      "color": [
+        0.095,
+        0.12,
+        0.135,
+        1
+      ],
+      "boundingBoxMm": {
+        "min": [
+          0.25,
+          -121.04131526053409,
+          48.0
+        ],
+        "max": [
+          126.00000000000001,
+          125.9997519838829,
+          61.0
+        ],
+        "size": [
+          125.75000000000001,
+          247.04106724441698,
+          13.0
+        ]
+      },
+      "volumeMm3": 136189.173,
+      "solidCount": 1,
+      "validSolid": true,
+      "stl": "stl/deck-right.stl",
+      "printBoundingBoxMm": [
+        125.75,
+        247.041,
+        13.0
+      ],
+      "fits256mmBed": true
+    },
+    {
+      "id": "splice-0",
+      "name": "Deck seam splice",
+      "kind": "printed",
+      "source": "Kiwi K1 parametric design",
+      "dimensionalStatus": "designed; physical fit pending",
+      "explode": [
+        0,
+        -0.025,
+        0
+      ],
+      "group": "deck-splices",
+      "printable": true,
+      "notes": [],
+      "meshNames": [
+        "splice-0"
+      ],
+      "quantity": 1,
+      "color": [
+        0.095,
+        0.12,
+        0.135,
+        1
+      ],
+      "boundingBoxMm": {
+        "min": [
+          -20.0,
+          -54.0,
+          43.0
+        ],
+        "max": [
+          20.0,
+          -38.0,
+          48.0
+        ],
+        "size": [
+          40.0,
+          16.0,
+          5.0
+        ]
+      },
+      "volumeMm3": 3074.336,
+      "solidCount": 1,
+      "validSolid": true,
+      "stl": "stl/splice-0.stl",
+      "printBoundingBoxMm": [
+        40.0,
+        16.0,
+        5.0
+      ],
+      "fits256mmBed": true
+    },
+    {
+      "id": "splice-1",
+      "name": "Deck seam splice",
+      "kind": "printed",
+      "source": "Kiwi K1 parametric design",
+      "dimensionalStatus": "designed; physical fit pending",
+      "explode": [
+        0,
+        -0.025,
+        0
+      ],
+      "group": "deck-splices",
+      "printable": true,
+      "notes": [],
+      "meshNames": [
+        "splice-1"
+      ],
+      "quantity": 1,
+      "color": [
+        0.095,
+        0.12,
+        0.135,
+        1
+      ],
+      "boundingBoxMm": {
+        "min": [
+          -20.0,
+          -8.0,
+          43.0
+        ],
+        "max": [
+          20.0,
+          8.0,
+          48.0
+        ],
+        "size": [
+          40.0,
+          16.0,
+          5.0
+        ]
+      },
+      "volumeMm3": 3074.336,
+      "solidCount": 1,
+      "validSolid": true,
+      "stl": "stl/splice-0.stl"
+    },
+    {
+      "id": "splice-2",
+      "name": "Deck seam splice",
+      "kind": "printed",
+      "source": "Kiwi K1 parametric design",
+      "dimensionalStatus": "designed; physical fit pending",
+      "explode": [
+        0,
+        -0.025,
+        0
+      ],
+      "group": "deck-splices",
+      "printable": true,
+      "notes": [],
+      "meshNames": [
+        "splice-2"
+      ],
+      "quantity": 1,
+      "color": [
+        0.095,
+        0.12,
+        0.135,
+        1
+      ],
+      "boundingBoxMm": {
+        "min": [
+          -20.0,
+          64.0,
+          43.0
+        ],
+        "max": [
+          20.0,
+          80.0,
+          48.0
+        ],
+        "size": [
+          40.0,
+          16.0,
+          5.0
+        ]
+      },
+      "volumeMm3": 3074.336,
+      "solidCount": 1,
+      "validSolid": true,
+      "stl": "stl/splice-0.stl"
+    },
+    {
+      "id": "motor-30",
+      "name": "Pololu 4866 motor 30deg",
+      "kind": "purchased",
+      "source": "https://www.pololu.com/product/4866",
+      "dimensionalStatus": "vendor envelope:25Dx68.5mm;4x12.5mm shaft; internal detail simplified",
+      "explode": [
+        0.05542562584220408,
+        0.031999999999999994,
+        0
+      ],
+      "group": "motors",
+      "printable": false,
+      "notes": [],
+      "meshNames": [
+        "motor-30"
+      ],
+      "quantity": 1,
+      "color": [
+        0.55,
+        0.59,
+        0.61,
+        1
+      ],
+      "boundingBoxMm": {
+        "min": [
+          22.9118510267787,
+          6.184490073829846,
+          17.5
+        ],
+        "max": [
+          100.15990873331823,
+          61.825317547305474,
+          42.5
+        ],
+        "size": [
+          77.24805770653953,
+          55.640827473475625,
+          25.0
+        ]
+      },
+      "volumeMm3": 32722.735,
+      "solidCount": 1,
+      "validSolid": true
+    },
+    {
+      "id": "hub-30",
+      "name": "Nexus 18018 4mm bore hub",
+      "kind": "purchased",
+      "source": "https://www.nexusrobot.com/product/60mm-double-aluminum-omni-wheel-bearing-rollers.html",
+      "dimensionalStatus": "vendor envelope and 21mm PCD; set-screw engagement remains physical hold point",
+      "explode": [
+        0,
+        0.04,
+        0
+      ],
+      "group": "hubs",
+      "printable": false,
+      "notes": [],
+      "meshNames": [
+        "hub-30"
+      ],
+      "quantity": 1,
+      "color": [
+        0.55,
+        0.59,
+        0.61,
+        1
+      ],
+      "boundingBoxMm": {
+        "min": [
+          85.45061658979719,
+          45.0048094716167,
+          16.0
+        ],
+        "max": [
+          110.0570230503482,
+          71.62435565298213,
+          44.0
+        ],
+        "size": [
+          24.606406460551014,
+          26.61954618136543,
+          28.0
+        ]
+      },
+      "volumeMm3": 4286.012,
+      "solidCount": 1,
+      "validSolid": true
+    },
+    {
+      "id": "wheel-core-30",
+      "name": "Nexus 14145 omni wheel aluminium core",
+      "kind": "purchased",
+      "source": "https://www.nexusrobot.com/wp-content/uploads/2016/09/60mm-Aluminum-Double-Omni-Wheel.pdf",
+      "dimensionalStatus": "60x25.6mm purchased wheel envelope; core/roller geometry illustrative",
+      "explode": [
+        0,
+        0.07,
+        0
+      ],
+      "group": "wheels",
+      "printable": false,
+      "notes": [],
+      "meshNames": [
+        "wheel-core-30"
+      ],
+      "quantity": 1,
+      "color": [
+        0.55,
+        0.59,
+        0.61,
+        1
+      ],
+      "boundingBoxMm": {
+        "min": [
+          91.3070230503482,
+          39.14840301106568,
+          6.5
+        ],
+        "max": [
+          136.97727338722981,
+          92.6515969889343,
+          53.5
+        ],
+        "size": [
+          45.67025033688161,
+          53.50319397786862,
+          47.0
+        ]
+      },
+      "volumeMm3": 40037.663,
+      "solidCount": 1,
+      "validSolid": true
+    },
+    {
+      "id": "wheel-rollers-30",
+      "name": "Illustrative omni wheel rollers",
+      "kind": "purchased",
+      "source": "Nexus14145 outer-envelope reference",
+      "dimensionalStatus": "roller count/shape illustrative; no manufacturing claim",
+      "explode": [
+        0,
+        0.07,
+        0
+      ],
+      "group": "wheels",
+      "printable": false,
+      "notes": [],
+      "meshNames": [
+        "wheel-rollers-30"
+      ],
+      "quantity": 1,
+      "color": [
+        0.025,
+        0.035,
+        0.04,
+        1
+      ],
+      "boundingBoxMm": {
+        "min": [
+          90.75317547305484,
+          35.849364905389024,
+          -8.881784197001252e-16
+        ],
+        "max": [
+          137.47731870509998,
+          95.77907131578966,
+          60.0
+        ],
+        "size": [
+          46.72414323204514,
+          59.92970641040064,
+          60.0
+        ]
+      },
+      "volumeMm3": 12566.371,
+      "solidCount": 20,
+      "validSolid": true
+    },
+    {
+      "id": "clamp-upper-30",
+      "name": "Two-station upper motor cradle",
+      "kind": "printed",
+      "source": "Kiwi K1 parametric design",
+      "dimensionalStatus": "designed; physical fit pending",
+      "explode": [
+        0,
+        0.025,
+        0
+      ],
+      "group": "motor-clamp-upper",
+      "printable": true,
+      "notes": [],
+      "meshNames": [
+        "clamp-upper-30"
+      ],
+      "quantity": 1,
+      "color": [
+        0.095,
+        0.12,
+        0.135,
+        1
+      ],
+      "boundingBoxMm": {
+        "min": [
+          38.66248612138967,
+          8.465390309173467,
+          29.999999999999996
+        ],
+        "max": [
+          98.16952767655165,
+          70.53460969082653,
+          48.0
+        ],
+        "size": [
+          59.50704155516198,
+          62.06921938165306,
+          18.000000000000004
+        ]
+      },
+      "volumeMm3": 10122.401,
+      "solidCount": 1,
+      "validSolid": true,
+      "stl": "stl/clamp-upper-30.stl",
+      "printBoundingBoxMm": [
+        18.0,
+        48.0,
+        41.0
+      ],
+      "fits256mmBed": true
+    },
+    {
+      "id": "clamp-lower-30",
+      "name": "Two-station motor cradle cap",
+      "kind": "printed",
+      "source": "Kiwi K1 parametric design",
+      "dimensionalStatus": "designed; physical fit pending",
+      "explode": [
+        0,
+        -0.035,
+        0
+      ],
+      "group": "motor-clamp-lower",
+      "printable": true,
+      "notes": [],
+      "meshNames": [
+        "clamp-lower-30"
+      ],
+      "quantity": 1,
+      "color": [
+        0.095,
+        0.12,
+        0.135,
+        1
+      ],
+      "boundingBoxMm": {
+        "min": [
+          38.66248612138966,
+          8.465390309173467,
+          13.5
+        ],
+        "max": [
+          98.16952767655165,
+          70.53460969082653,
+          30.0
+        ],
+        "size": [
+          59.50704155516199,
+          62.06921938165306,
+          16.5
+        ]
+      },
+      "volumeMm3": 9162.556,
+      "solidCount": 1,
+      "validSolid": true,
+      "stl": "stl/clamp-lower-30.stl",
+      "printBoundingBoxMm": [
+        16.5,
+        48.0,
+        41.0
+      ],
+      "fits256mmBed": true
+    },
+    {
+      "id": "motor-150",
+      "name": "Pololu 4866 motor 150deg",
+      "kind": "purchased",
+      "source": "https://www.pololu.com/product/4866",
+      "dimensionalStatus": "vendor envelope:25Dx68.5mm;4x12.5mm shaft; internal detail simplified",
+      "explode": [
+        -0.05542562584220408,
+        0.031999999999999994,
+        0
+      ],
+      "group": "motors",
+      "printable": false,
+      "notes": [],
+      "meshNames": [
+        "motor-150"
+      ],
+      "quantity": 1,
+      "color": [
+        0.55,
+        0.59,
+        0.61,
+        1
+      ],
+      "boundingBoxMm": {
+        "min": [
+          -100.15990873331825,
+          6.184490073829844,
+          17.5
+        ],
+        "max": [
+          -22.911851026778702,
+          61.825317547305474,
+          42.5
+        ],
+        "size": [
+          77.24805770653954,
+          55.64082747347563,
+          25.0
+        ]
+      },
+      "volumeMm3": 32722.735,
+      "solidCount": 1,
+      "validSolid": true
+    },
+    {
+      "id": "hub-150",
+      "name": "Nexus 18018 4mm bore hub",
+      "kind": "purchased",
+      "source": "https://www.nexusrobot.com/product/60mm-double-aluminum-omni-wheel-bearing-rollers.html",
+      "dimensionalStatus": "vendor envelope and 21mm PCD; set-screw engagement remains physical hold point",
+      "explode": [
+        0,
+        0.04,
+        0
+      ],
+      "group": "hubs",
+      "printable": false,
+      "notes": [],
+      "meshNames": [
+        "hub-150"
+      ],
+      "quantity": 1,
+      "color": [
+        0.55,
+        0.59,
+        0.61,
+        1
+      ],
+      "boundingBoxMm": {
+        "min": [
+          -110.05702305034822,
+          45.0048094716167,
+          16.0
+        ],
+        "max": [
+          -85.45061658979719,
+          71.62435565298213,
+          44.0
+        ],
+        "size": [
+          24.606406460551028,
+          26.61954618136543,
+          28.0
+        ]
+      },
+      "volumeMm3": 4286.012,
+      "solidCount": 1,
+      "validSolid": true
+    },
+    {
+      "id": "wheel-core-150",
+      "name": "Nexus 14145 omni wheel aluminium core",
+      "kind": "purchased",
+      "source": "https://www.nexusrobot.com/wp-content/uploads/2016/09/60mm-Aluminum-Double-Omni-Wheel.pdf",
+      "dimensionalStatus": "60x25.6mm purchased wheel envelope; core/roller geometry illustrative",
+      "explode": [
+        0,
+        0.07,
+        0
+      ],
+      "group": "wheels",
+      "printable": false,
+      "notes": [],
+      "meshNames": [
+        "wheel-core-150"
+      ],
+      "quantity": 1,
+      "color": [
+        0.55,
+        0.59,
+        0.61,
+        1
+      ],
+      "boundingBoxMm": {
+        "min": [
+          -136.97727338722984,
+          39.14840301106568,
+          6.5
+        ],
+        "max": [
+          -91.30702305034822,
+          92.6515969889343,
+          53.5
+        ],
+        "size": [
+          45.67025033688162,
+          53.50319397786862,
+          47.0
+        ]
+      },
+      "volumeMm3": 40037.663,
+      "solidCount": 1,
+      "validSolid": true
+    },
+    {
+      "id": "wheel-rollers-150",
+      "name": "Illustrative omni wheel rollers",
+      "kind": "purchased",
+      "source": "Nexus14145 outer-envelope reference",
+      "dimensionalStatus": "roller count/shape illustrative; no manufacturing claim",
+      "explode": [
+        0,
+        0.07,
+        0
+      ],
+      "group": "wheels",
+      "printable": false,
+      "notes": [],
+      "meshNames": [
+        "wheel-rollers-150"
+      ],
+      "quantity": 1,
+      "color": [
+        0.025,
+        0.035,
+        0.04,
+        1
+      ],
+      "boundingBoxMm": {
+        "min": [
+          -137.4773187051,
+          35.849364905389024,
+          -8.881784197001252e-16
+        ],
+        "max": [
+          -90.75317547305485,
+          95.77907131578966,
+          60.0
+        ],
+        "size": [
+          46.72414323204515,
+          59.92970641040064,
+          60.0
+        ]
+      },
+      "volumeMm3": 12566.371,
+      "solidCount": 20,
+      "validSolid": true
+    },
+    {
+      "id": "clamp-upper-150",
+      "name": "Two-station upper motor cradle",
+      "kind": "printed",
+      "source": "Kiwi K1 parametric design",
+      "dimensionalStatus": "designed; physical fit pending",
+      "explode": [
+        0,
+        0.025,
+        0
+      ],
+      "group": "motor-clamp-upper",
+      "printable": true,
+      "notes": [],
+      "meshNames": [
+        "clamp-upper-150"
+      ],
+      "quantity": 1,
+      "color": [
+        0.095,
+        0.12,
+        0.135,
+        1
+      ],
+      "boundingBoxMm": {
+        "min": [
+          -98.16952767655167,
+          8.465390309173465,
+          29.999999999999996
+        ],
+        "max": [
+          -38.66248612138967,
+          70.53460969082653,
+          48.0
+        ],
+        "size": [
+          59.507041555162,
+          62.06921938165306,
+          18.000000000000004
+        ]
+      },
+      "volumeMm3": 10122.401,
+      "solidCount": 1,
+      "validSolid": true,
+      "stl": "stl/clamp-upper-30.stl"
+    },
+    {
+      "id": "clamp-lower-150",
+      "name": "Two-station motor cradle cap",
+      "kind": "printed",
+      "source": "Kiwi K1 parametric design",
+      "dimensionalStatus": "designed; physical fit pending",
+      "explode": [
+        0,
+        -0.035,
+        0
+      ],
+      "group": "motor-clamp-lower",
+      "printable": true,
+      "notes": [],
+      "meshNames": [
+        "clamp-lower-150"
+      ],
+      "quantity": 1,
+      "color": [
+        0.095,
+        0.12,
+        0.135,
+        1
+      ],
+      "boundingBoxMm": {
+        "min": [
+          -98.16952767655167,
+          8.465390309173465,
+          13.5
+        ],
+        "max": [
+          -38.66248612138967,
+          70.53460969082653,
+          30.0
+        ],
+        "size": [
+          59.507041555162,
+          62.06921938165306,
+          16.5
+        ]
+      },
+      "volumeMm3": 9162.556,
+      "solidCount": 1,
+      "validSolid": true,
+      "stl": "stl/clamp-lower-30.stl"
+    },
+    {
+      "id": "motor-270",
+      "name": "Pololu 4866 motor 270deg",
+      "kind": "purchased",
+      "source": "https://www.pololu.com/product/4866",
+      "dimensionalStatus": "vendor envelope:25Dx68.5mm;4x12.5mm shaft; internal detail simplified",
+      "explode": [
+        -1.175660927181459e-17,
+        -0.064,
+        0
+      ],
+      "group": "motors",
+      "printable": false,
+      "notes": [],
+      "meshNames": [
+        "motor-270"
+      ],
+      "quantity": 1,
+      "color": [
+        0.55,
+        0.59,
+        0.61,
+        1
+      ],
+      "boundingBoxMm": {
+        "min": [
+          -12.500000000000023,
+          -114.5,
+          17.5
+        ],
+        "max": [
+          12.499999999999982,
+          -33.5,
+          42.5
+        ],
+        "size": [
+          25.000000000000007,
+          81.0,
+          25.0
+        ]
+      },
+      "volumeMm3": 32722.735,
+      "solidCount": 1,
+      "validSolid": true
+    },
+    {
+      "id": "hub-270",
+      "name": "Nexus 18018 4mm bore hub",
+      "kind": "purchased",
+      "source": "https://www.nexusrobot.com/product/60mm-double-aluminum-omni-wheel-bearing-rollers.html",
+      "dimensionalStatus": "vendor envelope and 21mm PCD; set-screw engagement remains physical hold point",
+      "explode": [
+        0,
+        0.04,
+        0
+      ],
+      "group": "hubs",
+      "printable": false,
+      "notes": [],
+      "meshNames": [
+        "hub-270"
+      ],
+      "quantity": 1,
+      "color": [
+        0.55,
+        0.59,
+        0.61,
+        1
+      ],
+      "boundingBoxMm": {
+        "min": [
+          -14.000000000000027,
+          -119.0,
+          16.0
+        ],
+        "max": [
+          13.999999999999975,
+          -103.0,
+          44.0
+        ],
+        "size": [
+          28.0,
+          16.0,
+          28.0
+        ]
+      },
+      "volumeMm3": 4286.012,
+      "solidCount": 1,
+      "validSolid": true
+    },
+    {
+      "id": "wheel-core-270",
+      "name": "Nexus 14145 omni wheel aluminium core",
+      "kind": "purchased",
+      "source": "https://www.nexusrobot.com/wp-content/uploads/2016/09/60mm-Aluminum-Double-Omni-Wheel.pdf",
+      "dimensionalStatus": "60x25.6mm purchased wheel envelope; core/roller geometry illustrative",
+      "explode": [
+        0,
+        0.07,
+        0
+      ],
+      "group": "wheels",
+      "printable": false,
+      "notes": [],
+      "meshNames": [
+        "wheel-core-270"
+      ],
+      "quantity": 1,
+      "color": [
+        0.55,
+        0.59,
+        0.61,
+        1
+      ],
+      "boundingBoxMm": {
+        "min": [
+          -23.500000000000032,
+          -144.6,
+          6.5
+        ],
+        "max": [
+          23.499999999999975,
+          -119.0,
+          53.5
+        ],
+        "size": [
+          47.00000000000001,
+          25.599999999999994,
+          47.0
+        ]
+      },
+      "volumeMm3": 40037.663,
+      "solidCount": 1,
+      "validSolid": true
+    },
+    {
+      "id": "wheel-rollers-270",
+      "name": "Illustrative omni wheel rollers",
+      "kind": "purchased",
+      "source": "Nexus14145 outer-envelope reference",
+      "dimensionalStatus": "roller count/shape illustrative; no manufacturing claim",
+      "explode": [
+        0,
+        0.07,
+        0
+      ],
+      "group": "wheels",
+      "printable": false,
+      "notes": [],
+      "meshNames": [
+        "wheel-rollers-270"
+      ],
+      "quantity": 1,
+      "color": [
+        0.025,
+        0.035,
+        0.04,
+        1
+      ],
+      "boundingBoxMm": {
+        "min": [
+          -30.00000000000003,
+          -143.6,
+          -8.881784197001252e-16
+        ],
+        "max": [
+          29.99999999999997,
+          -120.0,
+          60.0
+        ],
+        "size": [
+          60.0,
+          23.599999999999994,
+          60.0
+        ]
+      },
+      "volumeMm3": 12566.371,
+      "solidCount": 20,
+      "validSolid": true
+    },
+    {
+      "id": "clamp-upper-270",
+      "name": "Two-station upper motor cradle",
+      "kind": "printed",
+      "source": "Kiwi K1 parametric design",
+      "dimensionalStatus": "designed; physical fit pending",
+      "explode": [
+        0,
+        0.025,
+        0
+      ],
+      "group": "motor-clamp-upper",
+      "printable": true,
+      "notes": [],
+      "meshNames": [
+        "clamp-upper-270"
+      ],
+      "quantity": 1,
+      "color": [
+        0.095,
+        0.12,
+        0.135,
+        1
+      ],
+      "boundingBoxMm": {
+        "min": [
+          -24.000000000000025,
+          -99.5,
+          29.999999999999996
+        ],
+        "max": [
+          23.999999999999986,
+          -58.49999999999999,
+          48.0
+        ],
+        "size": [
+          48.000000000000014,
+          41.00000000000001,
+          18.000000000000004
+        ]
+      },
+      "volumeMm3": 10122.401,
+      "solidCount": 1,
+      "validSolid": true,
+      "stl": "stl/clamp-upper-30.stl"
+    },
+    {
+      "id": "clamp-lower-270",
+      "name": "Two-station motor cradle cap",
+      "kind": "printed",
+      "source": "Kiwi K1 parametric design",
+      "dimensionalStatus": "designed; physical fit pending",
+      "explode": [
+        0,
+        -0.035,
+        0
+      ],
+      "group": "motor-clamp-lower",
+      "printable": true,
+      "notes": [],
+      "meshNames": [
+        "clamp-lower-270"
+      ],
+      "quantity": 1,
+      "color": [
+        0.095,
+        0.12,
+        0.135,
+        1
+      ],
+      "boundingBoxMm": {
+        "min": [
+          -24.000000000000025,
+          -99.5,
+          13.5
+        ],
+        "max": [
+          23.999999999999986,
+          -58.49999999999999,
+          30.0
+        ],
+        "size": [
+          48.000000000000014,
+          41.00000000000001,
+          16.5
+        ]
+      },
+      "volumeMm3": 9162.556,
+      "solidCount": 1,
+      "validSolid": true,
+      "stl": "stl/clamp-lower-30.stl"
+    },
+    {
+      "id": "shell-left",
+      "name": "Segmented outer shell left",
+      "kind": "printed",
+      "source": "Kiwi K1 parametric design",
+      "dimensionalStatus": "designed; physical fit pending",
+      "explode": [
+        -0.07,
+        0.025,
+        0
+      ],
+      "group": "shell-left",
+      "printable": true,
+      "notes": [],
+      "meshNames": [
+        "shell-left"
+      ],
+      "quantity": 1,
+      "color": [
+        0.88,
+        0.87,
+        0.82,
+        1
+      ],
+      "boundingBoxMm": {
+        "min": [
+          -126.0,
+          -125.99975198388289,
+          61.0
+        ],
+        "max": [
+          -0.2499999999999041,
+          125.9997519838829,
+          139.0
+        ],
+        "size": [
+          125.7500000000001,
+          251.9995039677658,
+          78.0
+        ]
+      },
+      "volumeMm3": 80898.287,
+      "solidCount": 1,
+      "validSolid": true,
+      "stl": "stl/shell-left.stl",
+      "printBoundingBoxMm": [
+        125.75,
+        252.0,
+        78.0
+      ],
+      "fits256mmBed": true
+    },
+    {
+      "id": "lid-left",
+      "name": "Vented service lid left",
+      "kind": "printed",
+      "source": "Kiwi K1 parametric design",
+      "dimensionalStatus": "designed; physical fit pending",
+      "explode": [
+        -0.07,
+        0.1,
+        0
+      ],
+      "group": "lid-left",
+      "printable": true,
+      "notes": [],
+      "meshNames": [
+        "lid-left"
+      ],
+      "quantity": 1,
+      "color": [
+        0.88,
+        0.87,
+        0.82,
+        1
+      ],
+      "boundingBoxMm": {
+        "min": [
+          -125.4,
+          -125.39975079720057,
+          139.4
+        ],
+        "max": [
+          -0.2499999999999671,
+          124.17290364648804,
+          143.0
+        ],
+        "size": [
+          125.15000000000003,
+          249.5726544436886,
+          3.5999999999999943
+        ]
+      },
+      "volumeMm3": 83242.859,
+      "solidCount": 1,
+      "validSolid": true,
+      "stl": "stl/lid-left.stl",
+      "printBoundingBoxMm": [
+        125.15,
+        249.573,
+        3.6
+      ],
+      "fits256mmBed": true
+    },
+    {
+      "id": "shell-right",
+      "name": "Segmented outer shell right",
+      "kind": "printed",
+      "source": "Kiwi K1 parametric design",
+      "dimensionalStatus": "designed; physical fit pending",
+      "explode": [
+        0.07,
+        0.025,
+        0
+      ],
+      "group": "shell-right",
+      "printable": true,
+      "notes": [],
+      "meshNames": [
+        "shell-right"
+      ],
+      "quantity": 1,
+      "color": [
+        0.88,
+        0.87,
+        0.82,
+        1
+      ],
+      "boundingBoxMm": {
+        "min": [
+          0.24999999999985945,
+          -125.9997519838829,
+          61.0
+        ],
+        "max": [
+          126.00000000000001,
+          125.9997519838829,
+          139.0
+        ],
+        "size": [
+          125.75000000000016,
+          251.9995039677658,
+          78.0
+        ]
+      },
+      "volumeMm3": 80898.287,
+      "solidCount": 1,
+      "validSolid": true,
+      "stl": "stl/shell-right.stl",
+      "printBoundingBoxMm": [
+        125.75,
+        252.0,
+        78.0
+      ],
+      "fits256mmBed": true
+    },
+    {
+      "id": "lid-right",
+      "name": "Vented service lid right",
+      "kind": "printed",
+      "source": "Kiwi K1 parametric design",
+      "dimensionalStatus": "designed; physical fit pending",
+      "explode": [
+        0.07,
+        0.1,
+        0
+      ],
+      "group": "lid-right",
+      "printable": true,
+      "notes": [],
+      "meshNames": [
+        "lid-right"
+      ],
+      "quantity": 1,
+      "color": [
+        0.88,
+        0.87,
+        0.82,
+        1
+      ],
+      "boundingBoxMm": {
+        "min": [
+          0.24999999999994987,
+          -125.39975079720055,
+          139.4
+        ],
+        "max": [
+          125.4,
+          124.17290364648804,
+          143.0
+        ],
+        "size": [
+          125.15000000000006,
+          249.57265444368858,
+          3.5999999999999943
+        ]
+      },
+      "volumeMm3": 81811.47,
+      "solidCount": 1,
+      "validSolid": true,
+      "stl": "stl/lid-right.stl",
+      "printBoundingBoxMm": [
+        125.15,
+        249.573,
+        3.6
+      ],
+      "fits256mmBed": true
+    },
+    {
+      "id": "trim-left",
+      "name": "Teal shell accent half",
+      "kind": "printed",
+      "source": "Kiwi K1 parametric design",
+      "dimensionalStatus": "designed; physical fit pending",
+      "explode": [
+        0,
+        0.015,
+        0
+      ],
+      "group": "trim-left",
+      "printable": true,
+      "notes": [
+        "Cosmetic thin part; use PETG or paint shell instead."
+      ],
+      "meshNames": [
+        "trim-left"
+      ],
+      "quantity": 1,
+      "color": [
+        0.08,
+        0.53,
+        0.49,
+        1
+      ],
+      "boundingBoxMm": {
+        "min": [
+          -126.0,
+          -125.99975198388289,
+          74.0
+        ],
+        "max": [
+          -0.24999999999998676,
+          125.9997519838829,
+          77.0
+        ],
+        "size": [
+          125.75000000000001,
+          251.9995039677658,
+          3.0
+        ]
+      },
+      "volumeMm3": 1298.922,
+      "solidCount": 1,
+      "validSolid": true,
+      "stl": "stl/trim-left.stl",
+      "printBoundingBoxMm": [
+        125.75,
+        252.0,
+        3.0
+      ],
+      "fits256mmBed": true
+    },
+    {
+      "id": "trim-right",
+      "name": "Teal shell accent half",
+      "kind": "printed",
+      "source": "Kiwi K1 parametric design",
+      "dimensionalStatus": "designed; physical fit pending",
+      "explode": [
+        0,
+        0.015,
+        0
+      ],
+      "group": "trim-right",
+      "printable": true,
+      "notes": [
+        "Cosmetic thin part; use PETG or paint shell instead."
+      ],
+      "meshNames": [
+        "trim-right"
+      ],
+      "quantity": 1,
+      "color": [
+        0.08,
+        0.53,
+        0.49,
+        1
+      ],
+      "boundingBoxMm": {
+        "min": [
+          0.2499999999999591,
+          -125.99975198388289,
+          74.0
+        ],
+        "max": [
+          126.00000000000001,
+          125.9997519838829,
+          77.0
+        ],
+        "size": [
+          125.75000000000006,
+          251.9995039677658,
+          3.0
+        ]
+      },
+      "volumeMm3": 1298.922,
+      "solidCount": 1,
+      "validSolid": true,
+      "stl": "stl/trim-right.stl",
+      "printBoundingBoxMm": [
+        125.75,
+        252.0,
+        3.0
+      ],
+      "fits256mmBed": true
+    },
+    {
+      "id": "pi-tray",
+      "name": "Raised ventilated Pi mounting tray",
+      "kind": "printed",
+      "source": "Kiwi K1 parametric design",
+      "dimensionalStatus": "designed; physical fit pending",
+      "explode": [
+        0,
+        0.055,
+        0
+      ],
+      "group": "compute-mounts",
+      "printable": true,
+      "notes": [],
+      "meshNames": [
+        "pi-tray"
+      ],
+      "quantity": 1,
+      "color": [
+        0.095,
+        0.12,
+        0.135,
+        1
+      ],
+      "boundingBoxMm": {
+        "min": [
+          -53.0,
+          -13.0,
+          95.0
+        ],
+        "max": [
+          53.0,
+          63.0,
+          107.0
+        ],
+        "size": [
+          106.0,
+          76.0,
+          12.0
+        ]
+      },
+      "volumeMm3": 28347.019,
+      "solidCount": 1,
+      "validSolid": true,
+      "stl": "stl/pi-tray.stl",
+      "printBoundingBoxMm": [
+        106.0,
+        76.0,
+        12.0
+      ],
+      "fits256mmBed": true
+    },
+    {
+      "id": "pi-riser-0",
+      "name": "41mm Pi tray riser",
+      "kind": "printed",
+      "source": "Kiwi K1 parametric design",
+      "dimensionalStatus": "designed; physical fit pending",
+      "explode": [
+        0,
+        0.025,
+        0
+      ],
+      "group": "pi-risers",
+      "printable": true,
+      "notes": [],
+      "meshNames": [
+        "pi-riser-0"
+      ],
+      "quantity": 1,
+      "color": [
+        0.095,
+        0.12,
+        0.135,
+        1
+      ],
+      "boundingBoxMm": {
+        "min": [
+          -54.0,
+          -15.0,
+          54.0
+        ],
+        "max": [
+          -40.0,
+          -1.0,
+          95.0
+        ],
+        "size": [
+          14.0,
+          14.0,
+          41.0
+        ]
+      },
+      "volumeMm3": 3039.208,
+      "solidCount": 1,
+      "validSolid": true,
+      "stl": "stl/pi-riser-0.stl",
+      "printBoundingBoxMm": [
+        14.0,
+        14.0,
+        41.0
+      ],
+      "fits256mmBed": true
+    },
+    {
+      "id": "pi-riser-1",
+      "name": "41mm Pi tray riser",
+      "kind": "printed",
+      "source": "Kiwi K1 parametric design",
+      "dimensionalStatus": "designed; physical fit pending",
+      "explode": [
+        0,
+        0.025,
+        0
+      ],
+      "group": "pi-risers",
+      "printable": true,
+      "notes": [],
+      "meshNames": [
+        "pi-riser-1"
+      ],
+      "quantity": 1,
+      "color": [
+        0.095,
+        0.12,
+        0.135,
+        1
+      ],
+      "boundingBoxMm": {
+        "min": [
+          40.0,
+          -15.0,
+          54.0
+        ],
+        "max": [
+          54.0,
+          -1.0,
+          95.0
+        ],
+        "size": [
+          14.0,
+          14.0,
+          41.0
+        ]
+      },
+      "volumeMm3": 3039.208,
+      "solidCount": 1,
+      "validSolid": true,
+      "stl": "stl/pi-riser-0.stl"
+    },
+    {
+      "id": "pi-riser-2",
+      "name": "41mm Pi tray riser",
+      "kind": "printed",
+      "source": "Kiwi K1 parametric design",
+      "dimensionalStatus": "designed; physical fit pending",
+      "explode": [
+        0,
+        0.025,
+        0
+      ],
+      "group": "pi-risers",
+      "printable": true,
+      "notes": [],
+      "meshNames": [
+        "pi-riser-2"
+      ],
+      "quantity": 1,
+      "color": [
+        0.095,
+        0.12,
+        0.135,
+        1
+      ],
+      "boundingBoxMm": {
+        "min": [
+          -54.0,
+          51.0,
+          54.0
+        ],
+        "max": [
+          -40.0,
+          65.0,
+          95.0
+        ],
+        "size": [
+          14.0,
+          14.0,
+          41.0
+        ]
+      },
+      "volumeMm3": 3039.208,
+      "solidCount": 1,
+      "validSolid": true,
+      "stl": "stl/pi-riser-0.stl"
+    },
+    {
+      "id": "pi-riser-3",
+      "name": "41mm Pi tray riser",
+      "kind": "printed",
+      "source": "Kiwi K1 parametric design",
+      "dimensionalStatus": "designed; physical fit pending",
+      "explode": [
+        0,
+        0.025,
+        0
+      ],
+      "group": "pi-risers",
+      "printable": true,
+      "notes": [],
+      "meshNames": [
+        "pi-riser-3"
+      ],
+      "quantity": 1,
+      "color": [
+        0.095,
+        0.12,
+        0.135,
+        1
+      ],
+      "boundingBoxMm": {
+        "min": [
+          40.0,
+          51.0,
+          54.0
+        ],
+        "max": [
+          54.0,
+          65.0,
+          95.0
+        ],
+        "size": [
+          14.0,
+          14.0,
+          41.0
+        ]
+      },
+      "volumeMm3": 3039.208,
+      "solidCount": 1,
+      "validSolid": true,
+      "stl": "stl/pi-riser-0.stl"
+    },
+    {
+      "id": "camera-front-tower--43",
+      "name": "Front camera structural tower",
+      "kind": "printed",
+      "source": "Kiwi K1 parametric design",
+      "dimensionalStatus": "designed; physical fit pending",
+      "explode": [
+        0,
+        0.025,
+        0
+      ],
+      "group": "camera-front-towers",
+      "printable": true,
+      "notes": [],
+      "meshNames": [
+        "camera-front-tower--43"
+      ],
+      "quantity": 1,
+      "color": [
+        0.095,
+        0.12,
+        0.135,
+        1
+      ],
+      "boundingBoxMm": {
+        "min": [
+          -48.5,
+          84.0,
+          54.0
+        ],
+        "max": [
+          -37.5,
+          122.0,
+          134.0
+        ],
+        "size": [
+          11.0,
+          38.0,
+          80.0
+        ]
+      },
+      "volumeMm3": 11491.396,
+      "solidCount": 1,
+      "validSolid": true,
+      "stl": "stl/camera-front-tower--43.stl",
+      "printBoundingBoxMm": [
+        11.0,
+        38.0,
+        80.0
+      ],
+      "fits256mmBed": true
+    },
+    {
+      "id": "camera-front-tower-43",
+      "name": "Front camera structural tower",
+      "kind": "printed",
+      "source": "Kiwi K1 parametric design",
+      "dimensionalStatus": "designed; physical fit pending",
+      "explode": [
+        0,
+        0.025,
+        0
+      ],
+      "group": "camera-front-towers",
+      "printable": true,
+      "notes": [],
+      "meshNames": [
+        "camera-front-tower-43"
+      ],
+      "quantity": 1,
+      "color": [
+        0.095,
+        0.12,
+        0.135,
+        1
+      ],
+      "boundingBoxMm": {
+        "min": [
+          37.5,
+          84.0,
+          54.0
+        ],
+        "max": [
+          48.5,
+          122.0,
+          134.0
+        ],
+        "size": [
+          11.0,
+          38.0,
+          80.0
+        ]
+      },
+      "volumeMm3": 11491.396,
+      "solidCount": 1,
+      "validSolid": true,
+      "stl": "stl/camera-front-tower--43.stl"
+    },
+    {
+      "id": "camera-mount-front",
+      "name": "front camera open-back mounting frame",
+      "kind": "printed",
+      "source": "Kiwi K1 parametric design",
+      "dimensionalStatus": "designed; physical fit pending",
+      "explode": [
+        0,
+        0.04,
+        -0.025
+      ],
+      "group": "camera-front-mount",
+      "printable": true,
+      "notes": [],
+      "meshNames": [
+        "camera-mount-front"
+      ],
+      "quantity": 1,
+      "color": [
+        0.88,
+        0.87,
+        0.82,
+        1
+      ],
+      "boundingBoxMm": {
+        "min": [
+          -50.0,
+          105.5,
+          121.0
+        ],
+        "max": [
+          50.0,
+          132.5,
+          167.5
+        ],
+        "size": [
+          100.0,
+          27.0,
+          46.5
+        ]
+      },
+      "volumeMm3": 12061.727,
+      "solidCount": 1,
+      "validSolid": true,
+      "stl": "stl/camera-mount-front.stl",
+      "printBoundingBoxMm": [
+        100.0,
+        27.0,
+        46.5
+      ],
+      "fits256mmBed": true
+    },
+    {
+      "id": "bumper-90",
+      "name": "3mmtravel contact bumper segment",
+      "kind": "printed",
+      "source": "Kiwi K1 parametric design",
+      "dimensionalStatus": "designed; physical fit pending",
+      "explode": [
+        0,
+        0.015,
+        0
+      ],
+      "group": "bumpers",
+      "printable": true,
+      "notes": [],
+      "meshNames": [
+        "bumper-90"
+      ],
+      "quantity": 1,
+      "color": [
+        0.08,
+        0.53,
+        0.49,
+        1
+      ],
+      "boundingBoxMm": {
+        "min": [
+          -93.84699101423472,
+          107.0,
+          58.3
+        ],
+        "max": [
+          93.84699101423479,
+          146.0,
+          74.3
+        ],
+        "size": [
+          187.69398202846952,
+          39.0,
+          16.0
+        ]
+      },
+      "volumeMm3": 11761.076,
+      "solidCount": 1,
+      "validSolid": true,
+      "stl": "stl/bumper-90.stl",
+      "printBoundingBoxMm": [
+        39.0,
+        187.694,
+        16.0
+      ],
+      "fits256mmBed": true
+    },
+    {
+      "id": "bumper-carrier-90",
+      "name": "Switch/guide/hardstop bumper carrier",
+      "kind": "printed",
+      "source": "Kiwi K1 parametric design",
+      "dimensionalStatus": "designed; physical fit pending",
+      "explode": [
+        0,
+        0.005,
+        0
+      ],
+      "group": "bumper-carriers",
+      "printable": true,
+      "notes": [],
+      "meshNames": [
+        "bumper-carrier-90"
+      ],
+      "quantity": 1,
+      "color": [
+        0.095,
+        0.12,
+        0.135,
+        1
+      ],
+      "boundingBoxMm": {
+        "min": [
+          -33.999999999999986,
+          100.0,
+          54.0
+        ],
+        "max": [
+          34.000000000000014,
+          138.0,
+          74.3
+        ],
+        "size": [
+          68.0,
+          38.0,
+          20.299999999999997
+        ]
+      },
+      "volumeMm3": 9509.747,
+      "solidCount": 1,
+      "validSolid": true,
+      "stl": "stl/bumper-carrier-90.stl",
+      "printBoundingBoxMm": [
+        38.0,
+        68.0,
+        20.3
+      ],
+      "fits256mmBed": true
+    },
+    {
+      "id": "bumper-switch-90",
+      "name": "Omron D2F-01L lever microswitch",
+      "kind": "purchased",
+      "source": "https://omronfs.omron.com/en_US/ecb/products/pdf/en-d2f.pdf",
+      "dimensionalStatus": "vendor12.8x5.8mm body/6.5mmmountpitch; leverproxy; adjusttripbeforehardstop",
+      "explode": [
+        0,
+        0.02,
+        0
+      ],
+      "group": "bumper-switches",
+      "printable": false,
+      "notes": [],
+      "meshNames": [
+        "bumper-switch-90"
+      ],
+      "quantity": 1,
+      "color": [
+        0.025,
+        0.035,
+        0.04,
+        1
+      ],
+      "boundingBoxMm": {
+        "min": [
+          -6.399999999999988,
+          113.0,
+          59.0
+        ],
+        "max": [
+          6.400000000000014,
+          123.15,
+          64.8
+        ],
+        "size": [
+          12.8,
+          10.150000000000006,
+          5.799999999999997
+        ]
+      },
+      "volumeMm3": 494.758,
+      "solidCount": 2,
+      "validSolid": true
+    },
+    {
+      "id": "bumper-sleeve-90--20",
+      "name": "5OD/3.2ID x16mm steel guide sleeve",
+      "kind": "purchased",
+      "source": "generic5x3.2x16mmspacer",
+      "dimensionalStatus": "cut-to-length guide sleeve; final stackheight physically set",
+      "explode": [
+        0,
+        0,
+        0
+      ],
+      "group": "bumper-guides",
+      "printable": false,
+      "notes": [],
+      "meshNames": [
+        "bumper-sleeve-90--20"
+      ],
+      "quantity": 1,
+      "color": [
+        0.55,
+        0.59,
+        0.61,
+        1
+      ],
+      "boundingBoxMm": {
+        "min": [
+          17.500000000000014,
+          111.0,
+          54.0
+        ],
+        "max": [
+          22.500000000000014,
+          116.0,
+          70.0
+        ],
+        "size": [
+          5.0,
+          5.0,
+          16.0
+        ]
+      },
+      "volumeMm3": 185.48,
+      "solidCount": 1,
+      "validSolid": true
+    },
+    {
+      "id": "bumper-sleeve-90-20",
+      "name": "5OD/3.2ID x16mm steel guide sleeve",
+      "kind": "purchased",
+      "source": "generic5x3.2x16mmspacer",
+      "dimensionalStatus": "cut-to-length guide sleeve; final stackheight physically set",
+      "explode": [
+        0,
+        0,
+        0
+      ],
+      "group": "bumper-guides",
+      "printable": false,
+      "notes": [],
+      "meshNames": [
+        "bumper-sleeve-90-20"
+      ],
+      "quantity": 1,
+      "color": [
+        0.55,
+        0.59,
+        0.61,
+        1
+      ],
+      "boundingBoxMm": {
+        "min": [
+          -22.499999999999986,
+          111.0,
+          54.0
+        ],
+        "max": [
+          -17.499999999999986,
+          116.0,
+          70.0
+        ],
+        "size": [
+          5.0,
+          5.0,
+          16.0
+        ]
+      },
+      "volumeMm3": 185.48,
+      "solidCount": 1,
+      "validSolid": true
+    },
+    {
+      "id": "bumper-spring-90--30",
+      "name": "MISUMI AUA2-20 extension spring envelope",
+      "kind": "purchased",
+      "source": "https://uk.misumi-ec.com/vona2/detail/110302603670/?HissuCode=AUA2-20",
+      "dimensionalStatus": "vendorOD2/wire0.2/free20;21rest/24pressed;F0.162/0.258Nnominal;fitforcephysicalpending",
+      "explode": [
+        0,
+        0,
+        0
+      ],
+      "group": "bumper-return-springs",
+      "printable": false,
+      "notes": [],
+      "meshNames": [
+        "bumper-spring-90--30"
+      ],
+      "quantity": 1,
+      "color": [
+        0.55,
+        0.59,
+        0.61,
+        1
+      ],
+      "boundingBoxMm": {
+        "min": [
+          29.000000000000014,
+          113.0,
+          68.3
+        ],
+        "max": [
+          31.000000000000014,
+          134.0,
+          70.3
+        ],
+        "size": [
+          2.0,
+          21.0,
+          2.0
+        ]
+      },
+      "volumeMm3": 33.646,
+      "solidCount": 1,
+      "validSolid": true
+    },
+    {
+      "id": "bumper-anchor-pin-90--30-113",
+      "name": "1mmsteel spring anchor pin",
+      "kind": "purchased",
+      "source": "generic1mmspringsteelpin",
+      "dimensionalStatus": "cut10mmlength;reamprintedbore1.1;retainendswithsmalladhesivedabafterassembly",
+      "explode": [
+        0,
+        0,
+        0
+      ],
+      "group": "bumper-anchor-pins",
+      "printable": false,
+      "notes": [],
+      "meshNames": [
+        "bumper-anchor-pin-90--30-113"
+      ],
+      "quantity": 1,
+      "color": [
+        0.55,
+        0.59,
+        0.61,
+        1
+      ],
+      "boundingBoxMm": {
+        "min": [
+          29.500000000000014,
+          112.5,
+          64.5
+        ],
+        "max": [
+          30.500000000000014,
+          113.5,
+          74.5
+        ],
+        "size": [
+          1.0,
+          1.0,
+          10.0
+        ]
+      },
+      "volumeMm3": 7.854,
+      "solidCount": 1,
+      "validSolid": true
+    },
+    {
+      "id": "bumper-anchor-pin-90--30-134",
+      "name": "1mmsteel spring anchor pin",
+      "kind": "purchased",
+      "source": "generic1mmspringsteelpin",
+      "dimensionalStatus": "cut10mmlength;reamprintedbore1.1;retainendswithsmalladhesivedabafterassembly",
+      "explode": [
+        0,
+        0,
+        0
+      ],
+      "group": "bumper-anchor-pins",
+      "printable": false,
+      "notes": [],
+      "meshNames": [
+        "bumper-anchor-pin-90--30-134"
+      ],
+      "quantity": 1,
+      "color": [
+        0.55,
+        0.59,
+        0.61,
+        1
+      ],
+      "boundingBoxMm": {
+        "min": [
+          29.500000000000014,
+          133.5,
+          64.5
+        ],
+        "max": [
+          30.500000000000014,
+          134.5,
+          74.5
+        ],
+        "size": [
+          1.0,
+          1.0,
+          10.0
+        ]
+      },
+      "volumeMm3": 7.854,
+      "solidCount": 1,
+      "validSolid": true
+    },
+    {
+      "id": "bumper-spring-90-30",
+      "name": "MISUMI AUA2-20 extension spring envelope",
+      "kind": "purchased",
+      "source": "https://uk.misumi-ec.com/vona2/detail/110302603670/?HissuCode=AUA2-20",
+      "dimensionalStatus": "vendorOD2/wire0.2/free20;21rest/24pressed;F0.162/0.258Nnominal;fitforcephysicalpending",
+      "explode": [
+        0,
+        0,
+        0
+      ],
+      "group": "bumper-return-springs",
+      "printable": false,
+      "notes": [],
+      "meshNames": [
+        "bumper-spring-90-30"
+      ],
+      "quantity": 1,
+      "color": [
+        0.55,
+        0.59,
+        0.61,
+        1
+      ],
+      "boundingBoxMm": {
+        "min": [
+          -30.999999999999986,
+          113.0,
+          68.3
+        ],
+        "max": [
+          -28.999999999999986,
+          134.0,
+          70.3
+        ],
+        "size": [
+          2.0,
+          21.0,
+          2.0
+        ]
+      },
+      "volumeMm3": 33.646,
+      "solidCount": 1,
+      "validSolid": true
+    },
+    {
+      "id": "bumper-anchor-pin-90-30-113",
+      "name": "1mmsteel spring anchor pin",
+      "kind": "purchased",
+      "source": "generic1mmspringsteelpin",
+      "dimensionalStatus": "cut10mmlength;reamprintedbore1.1;retainendswithsmalladhesivedabafterassembly",
+      "explode": [
+        0,
+        0,
+        0
+      ],
+      "group": "bumper-anchor-pins",
+      "printable": false,
+      "notes": [],
+      "meshNames": [
+        "bumper-anchor-pin-90-30-113"
+      ],
+      "quantity": 1,
+      "color": [
+        0.55,
+        0.59,
+        0.61,
+        1
+      ],
+      "boundingBoxMm": {
+        "min": [
+          -30.499999999999986,
+          112.5,
+          64.5
+        ],
+        "max": [
+          -29.499999999999986,
+          113.5,
+          74.5
+        ],
+        "size": [
+          1.0,
+          1.0,
+          10.0
+        ]
+      },
+      "volumeMm3": 7.854,
+      "solidCount": 1,
+      "validSolid": true
+    },
+    {
+      "id": "bumper-anchor-pin-90-30-134",
+      "name": "1mmsteel spring anchor pin",
+      "kind": "purchased",
+      "source": "generic1mmspringsteelpin",
+      "dimensionalStatus": "cut10mmlength;reamprintedbore1.1;retainendswithsmalladhesivedabafterassembly",
+      "explode": [
+        0,
+        0,
+        0
+      ],
+      "group": "bumper-anchor-pins",
+      "printable": false,
+      "notes": [],
+      "meshNames": [
+        "bumper-anchor-pin-90-30-134"
+      ],
+      "quantity": 1,
+      "color": [
+        0.55,
+        0.59,
+        0.61,
+        1
+      ],
+      "boundingBoxMm": {
+        "min": [
+          -30.499999999999986,
+          133.5,
+          64.5
+        ],
+        "max": [
+          -29.499999999999986,
+          134.5,
+          74.5
+        ],
+        "size": [
+          1.0,
+          1.0,
+          10.0
+        ]
+      },
+      "volumeMm3": 7.854,
+      "solidCount": 1,
+      "validSolid": true
+    },
+    {
+      "id": "bumper-210",
+      "name": "3mmtravel contact bumper segment",
+      "kind": "printed",
+      "source": "Kiwi K1 parametric design",
+      "dimensionalStatus": "designed; physical fit pending",
+      "explode": [
+        0,
+        0.015,
+        0
+      ],
+      "group": "bumpers",
+      "printable": true,
+      "notes": [],
+      "meshNames": [
+        "bumper-210"
+      ],
+      "quantity": 1,
+      "color": [
+        0.08,
+        0.53,
+        0.49,
+        1
+      ],
+      "boundingBoxMm": {
+        "min": [
+          -146.0,
+          -137.19512263474263,
+          58.3
+        ],
+        "max": [
+          -48.908880495570635,
+          25.352633939371866,
+          74.3
+        ],
+        "size": [
+          97.09111950442937,
+          162.5477565741145,
+          16.0
+        ]
+      },
+      "volumeMm3": 11761.076,
+      "solidCount": 1,
+      "validSolid": true,
+      "stl": "stl/bumper-90.stl"
+    },
+    {
+      "id": "bumper-carrier-210",
+      "name": "Switch/guide/hardstop bumper carrier",
+      "kind": "printed",
+      "source": "Kiwi K1 parametric design",
+      "dimensionalStatus": "designed; physical fit pending",
+      "explode": [
+        0,
+        0.005,
+        0
+      ],
+      "group": "bumper-carriers",
+      "printable": true,
+      "notes": [],
+      "meshNames": [
+        "bumper-carrier-210"
+      ],
+      "quantity": 1,
+      "color": [
+        0.095,
+        0.12,
+        0.135,
+        1
+      ],
+      "boundingBoxMm": {
+        "min": [
+          -135.76150572225254,
+          -97.14582562299428,
+          54.0
+        ],
+        "max": [
+          -76.41471820493493,
+          -25.354174377005755,
+          74.3
+        ],
+        "size": [
+          59.34678751731761,
+          71.79165124598853,
+          20.299999999999997
+        ]
+      },
+      "volumeMm3": 9509.747,
+      "solidCount": 1,
+      "validSolid": true,
+      "stl": "stl/bumper-carrier-90.stl"
+    },
+    {
+      "id": "bumper-switch-210",
+      "name": "Omron D2F-01L lever microswitch",
+      "kind": "purchased",
+      "source": "https://omronfs.omron.com/en_US/ecb/products/pdf/en-d2f.pdf",
+      "dimensionalStatus": "vendor12.8x5.8mm body/6.5mmmountpitch; leverproxy; adjusttripbeforehardstop",
+      "explode": [
+        0,
+        0.02,
+        0
+      ],
+      "group": "bumper-switches",
+      "printable": false,
+      "notes": [],
+      "meshNames": [
+        "bumper-switch-210"
+      ],
+      "quantity": 1,
+      "color": [
+        0.025,
+        0.035,
+        0.04,
+        1
+      ],
+      "boundingBoxMm": {
+        "min": [
+          -109.85102847605361,
+          -67.11756258422042,
+          59.0
+        ],
+        "max": [
+          -94.66087062764156,
+          -50.95743741577961,
+          64.8
+        ],
+        "size": [
+          15.190157848412056,
+          16.160125168440814,
+          5.799999999999997
+        ]
+      },
+      "volumeMm3": 494.758,
+      "solidCount": 2,
+      "validSolid": true
+    },
+    {
+      "id": "bumper-sleeve-210--20",
+      "name": "5OD/3.2ID x16mm steel guide sleeve",
+      "kind": "purchased",
+      "source": "generic5x3.2x16mmspacer",
+      "dimensionalStatus": "cut-to-length guide sleeve; final stackheight physically set",
+      "explode": [
+        0,
+        0,
+        0
+      ],
+      "group": "bumper-guides",
+      "printable": false,
+      "notes": [],
+      "meshNames": [
+        "bumper-sleeve-210--20"
+      ],
+      "quantity": 1,
+      "color": [
+        0.55,
+        0.59,
+        0.61,
+        1
+      ],
+      "boundingBoxMm": {
+        "min": [
+          -110.79388332953378,
+          -41.92949192431124,
+          54.0
+        ],
+        "max": [
+          -105.79388332953378,
+          -36.92949192431124,
+          70.0
+        ],
+        "size": [
+          5.0,
+          5.0,
+          16.0
+        ]
+      },
+      "volumeMm3": 185.48,
+      "solidCount": 1,
+      "validSolid": true
+    },
+    {
+      "id": "bumper-sleeve-210-20",
+      "name": "5OD/3.2ID x16mm steel guide sleeve",
+      "kind": "purchased",
+      "source": "generic5x3.2x16mmspacer",
+      "dimensionalStatus": "cut-to-length guide sleeve; final stackheight physically set",
+      "explode": [
+        0,
+        0,
+        0
+      ],
+      "group": "bumper-guides",
+      "printable": false,
+      "notes": [],
+      "meshNames": [
+        "bumper-sleeve-210-20"
+      ],
+      "quantity": 1,
+      "color": [
+        0.55,
+        0.59,
+        0.61,
+        1
+      ],
+      "boundingBoxMm": {
+        "min": [
+          -90.79388332953378,
+          -76.57050807568878,
+          54.0
+        ],
+        "max": [
+          -85.79388332953378,
+          -71.57050807568878,
+          70.0
+        ],
+        "size": [
+          5.0,
+          5.0,
+          16.0
+        ]
+      },
+      "volumeMm3": 185.48,
+      "solidCount": 1,
+      "validSolid": true
+    },
+    {
+      "id": "bumper-spring-210--30",
+      "name": "MISUMI AUA2-20 extension spring envelope",
+      "kind": "purchased",
+      "source": "https://uk.misumi-ec.com/vona2/detail/110302603670/?HissuCode=AUA2-20",
+      "dimensionalStatus": "vendorOD2/wire0.2/free20;21rest/24pressed;F0.162/0.258Nnominal;fitforcephysicalpending",
+      "explode": [
+        0,
+        0,
+        0
+      ],
+      "group": "bumper-return-springs",
+      "printable": false,
+      "notes": [],
+      "meshNames": [
+        "bumper-spring-210--30"
+      ],
+      "quantity": 1,
+      "color": [
+        0.55,
+        0.59,
+        0.61,
+        1
+      ],
+      "boundingBoxMm": {
+        "min": [
+          -131.54740410711477,
+          -41.8852632902513,
+          68.3
+        ],
+        "max": [
+          -112.36087062764156,
+          -29.65321248268242,
+          70.3
+        ],
+        "size": [
+          19.186533479473212,
+          12.232050807568882,
+          2.0
+        ]
+      },
+      "volumeMm3": 33.646,
+      "solidCount": 1,
+      "validSolid": true
+    },
+    {
+      "id": "bumper-anchor-pin-210--30-113",
+      "name": "1mmsteel spring anchor pin",
+      "kind": "purchased",
+      "source": "generic1mmspringsteelpin",
+      "dimensionalStatus": "cut10mmlength;reamprintedbore1.1;retainendswithsmalladhesivedabafterassembly",
+      "explode": [
+        0,
+        0,
+        0
+      ],
+      "group": "bumper-anchor-pins",
+      "printable": false,
+      "notes": [],
+      "meshNames": [
+        "bumper-anchor-pin-210--30-113"
+      ],
+      "quantity": 1,
+      "color": [
+        0.55,
+        0.59,
+        0.61,
+        1
+      ],
+      "boundingBoxMm": {
+        "min": [
+          -113.36087062764156,
+          -31.019237886466858,
+          64.5
+        ],
+        "max": [
+          -112.36087062764156,
+          -30.019237886466858,
+          74.5
+        ],
+        "size": [
+          1.0,
+          1.0,
+          10.0
+        ]
+      },
+      "volumeMm3": 7.854,
+      "solidCount": 1,
+      "validSolid": true
+    },
+    {
+      "id": "bumper-anchor-pin-210--30-134",
+      "name": "1mmsteel spring anchor pin",
+      "kind": "purchased",
+      "source": "generic1mmspringsteelpin",
+      "dimensionalStatus": "cut10mmlength;reamprintedbore1.1;retainendswithsmalladhesivedabafterassembly",
+      "explode": [
+        0,
+        0,
+        0
+      ],
+      "group": "bumper-anchor-pins",
+      "printable": false,
+      "notes": [],
+      "meshNames": [
+        "bumper-anchor-pin-210--30-134"
+      ],
+      "quantity": 1,
+      "color": [
+        0.55,
+        0.59,
+        0.61,
+        1
+      ],
+      "boundingBoxMm": {
+        "min": [
+          -131.54740410711477,
+          -41.51923788646686,
+          64.5
+        ],
+        "max": [
+          -130.54740410711477,
+          -40.51923788646686,
+          74.5
+        ],
+        "size": [
+          1.0,
+          1.0,
+          10.0
+        ]
+      },
+      "volumeMm3": 7.854,
+      "solidCount": 1,
+      "validSolid": true
+    },
+    {
+      "id": "bumper-spring-210-30",
+      "name": "MISUMI AUA2-20 extension spring envelope",
+      "kind": "purchased",
+      "source": "https://uk.misumi-ec.com/vona2/detail/110302603670/?HissuCode=AUA2-20",
+      "dimensionalStatus": "vendorOD2/wire0.2/free20;21rest/24pressed;F0.162/0.258Nnominal;fitforcephysicalpending",
+      "explode": [
+        0,
+        0,
+        0
+      ],
+      "group": "bumper-return-springs",
+      "printable": false,
+      "notes": [],
+      "meshNames": [
+        "bumper-spring-210-30"
+      ],
+      "quantity": 1,
+      "color": [
+        0.55,
+        0.59,
+        0.61,
+        1
+      ],
+      "boundingBoxMm": {
+        "min": [
+          -101.54740410711477,
+          -93.84678751731761,
+          68.3
+        ],
+        "max": [
+          -82.36087062764156,
+          -81.61473670974874,
+          70.3
+        ],
+        "size": [
+          19.186533479473212,
+          12.232050807568868,
+          2.0
+        ]
+      },
+      "volumeMm3": 33.646,
+      "solidCount": 1,
+      "validSolid": true
+    },
+    {
+      "id": "bumper-anchor-pin-210-30-113",
+      "name": "1mmsteel spring anchor pin",
+      "kind": "purchased",
+      "source": "generic1mmspringsteelpin",
+      "dimensionalStatus": "cut10mmlength;reamprintedbore1.1;retainendswithsmalladhesivedabafterassembly",
+      "explode": [
+        0,
+        0,
+        0
+      ],
+      "group": "bumper-anchor-pins",
+      "printable": false,
+      "notes": [],
+      "meshNames": [
+        "bumper-anchor-pin-210-30-113"
+      ],
+      "quantity": 1,
+      "color": [
+        0.55,
+        0.59,
+        0.61,
+        1
+      ],
+      "boundingBoxMm": {
+        "min": [
+          -83.36087062764156,
+          -82.98076211353317,
+          64.5
+        ],
+        "max": [
+          -82.36087062764156,
+          -81.98076211353317,
+          74.5
+        ],
+        "size": [
+          1.0,
+          1.0,
+          10.0
+        ]
+      },
+      "volumeMm3": 7.854,
+      "solidCount": 1,
+      "validSolid": true
+    },
+    {
+      "id": "bumper-anchor-pin-210-30-134",
+      "name": "1mmsteel spring anchor pin",
+      "kind": "purchased",
+      "source": "generic1mmspringsteelpin",
+      "dimensionalStatus": "cut10mmlength;reamprintedbore1.1;retainendswithsmalladhesivedabafterassembly",
+      "explode": [
+        0,
+        0,
+        0
+      ],
+      "group": "bumper-anchor-pins",
+      "printable": false,
+      "notes": [],
+      "meshNames": [
+        "bumper-anchor-pin-210-30-134"
+      ],
+      "quantity": 1,
+      "color": [
+        0.55,
+        0.59,
+        0.61,
+        1
+      ],
+      "boundingBoxMm": {
+        "min": [
+          -101.54740410711477,
+          -93.48076211353317,
+          64.5
+        ],
+        "max": [
+          -100.54740410711477,
+          -92.48076211353317,
+          74.5
+        ],
+        "size": [
+          1.0,
+          1.0,
+          10.0
+        ]
+      },
+      "volumeMm3": 7.854,
+      "solidCount": 1,
+      "validSolid": true
+    },
+    {
+      "id": "bumper-330",
+      "name": "3mmtravel contact bumper segment",
+      "kind": "printed",
+      "source": "Kiwi K1 parametric design",
+      "dimensionalStatus": "designed; physical fit pending",
+      "explode": [
+        0,
+        0.015,
+        0
+      ],
+      "group": "bumpers",
+      "printable": true,
+      "notes": [],
+      "meshNames": [
+        "bumper-330"
+      ],
+      "quantity": 1,
+      "color": [
+        0.08,
+        0.53,
+        0.49,
+        1
+      ],
+      "boundingBoxMm": {
+        "min": [
+          48.9088804955705,
+          -137.19512263474266,
+          58.3
+        ],
+        "max": [
+          146.0,
+          25.35263393937174,
+          74.3
+        ],
+        "size": [
+          97.0911195044295,
+          162.5477565741144,
+          16.0
+        ]
+      },
+      "volumeMm3": 11761.076,
+      "solidCount": 1,
+      "validSolid": true,
+      "stl": "stl/bumper-90.stl"
+    },
+    {
+      "id": "bumper-carrier-330",
+      "name": "Switch/guide/hardstop bumper carrier",
+      "kind": "printed",
+      "source": "Kiwi K1 parametric design",
+      "dimensionalStatus": "designed; physical fit pending",
+      "explode": [
+        0,
+        0.005,
+        0
+      ],
+      "group": "bumper-carriers",
+      "printable": true,
+      "notes": [],
+      "meshNames": [
+        "bumper-carrier-330"
+      ],
+      "quantity": 1,
+      "color": [
+        0.095,
+        0.12,
+        0.135,
+        1
+      ],
+      "boundingBoxMm": {
+        "min": [
+          76.41471820493489,
+          -97.14582562299431,
+          54.0
+        ],
+        "max": [
+          135.7615057222525,
+          -25.354174377005798,
+          74.3
+        ],
+        "size": [
+          59.34678751731762,
+          71.7916512459885,
+          20.299999999999997
+        ]
+      },
+      "volumeMm3": 9509.747,
+      "solidCount": 1,
+      "validSolid": true,
+      "stl": "stl/bumper-carrier-90.stl"
+    },
+    {
+      "id": "bumper-switch-330",
+      "name": "Omron D2F-01L lever microswitch",
+      "kind": "purchased",
+      "source": "https://omronfs.omron.com/en_US/ecb/products/pdf/en-d2f.pdf",
+      "dimensionalStatus": "vendor12.8x5.8mm body/6.5mmmountpitch; leverproxy; adjusttripbeforehardstop",
+      "explode": [
+        0,
+        0.02,
+        0
+      ],
+      "group": "bumper-switches",
+      "printable": false,
+      "notes": [],
+      "meshNames": [
+        "bumper-switch-330"
+      ],
+      "quantity": 1,
+      "color": [
+        0.025,
+        0.035,
+        0.04,
+        1
+      ],
+      "boundingBoxMm": {
+        "min": [
+          94.66087062764153,
+          -67.11756258422047,
+          59.0
+        ],
+        "max": [
+          109.8510284760536,
+          -50.957437415779644,
+          64.8
+        ],
+        "size": [
+          15.19015784841207,
+          16.16012516844082,
+          5.799999999999997
+        ]
+      },
+      "volumeMm3": 494.758,
+      "solidCount": 2,
+      "validSolid": true
+    },
+    {
+      "id": "bumper-sleeve-330--20",
+      "name": "5OD/3.2ID x16mm steel guide sleeve",
+      "kind": "purchased",
+      "source": "generic5x3.2x16mmspacer",
+      "dimensionalStatus": "cut-to-length guide sleeve; final stackheight physically set",
+      "explode": [
+        0,
+        0,
+        0
+      ],
+      "group": "bumper-guides",
+      "printable": false,
+      "notes": [],
+      "meshNames": [
+        "bumper-sleeve-330--20"
+      ],
+      "quantity": 1,
+      "color": [
+        0.55,
+        0.59,
+        0.61,
+        1
+      ],
+      "boundingBoxMm": {
+        "min": [
+          85.79388332953374,
+          -76.57050807568882,
+          54.0
+        ],
+        "max": [
+          90.79388332953374,
+          -71.57050807568882,
+          70.0
+        ],
+        "size": [
+          5.0,
+          5.0,
+          16.0
+        ]
+      },
+      "volumeMm3": 185.48,
+      "solidCount": 1,
+      "validSolid": true
+    },
+    {
+      "id": "bumper-sleeve-330-20",
+      "name": "5OD/3.2ID x16mm steel guide sleeve",
+      "kind": "purchased",
+      "source": "generic5x3.2x16mmspacer",
+      "dimensionalStatus": "cut-to-length guide sleeve; final stackheight physically set",
+      "explode": [
+        0,
+        0,
+        0
+      ],
+      "group": "bumper-guides",
+      "printable": false,
+      "notes": [],
+      "meshNames": [
+        "bumper-sleeve-330-20"
+      ],
+      "quantity": 1,
+      "color": [
+        0.55,
+        0.59,
+        0.61,
+        1
+      ],
+      "boundingBoxMm": {
+        "min": [
+          105.79388332953377,
+          -41.929491924311286,
+          54.0
+        ],
+        "max": [
+          110.79388332953377,
+          -36.929491924311286,
+          70.0
+        ],
+        "size": [
+          5.0,
+          5.0,
+          16.0
+        ]
+      },
+      "volumeMm3": 185.48,
+      "solidCount": 1,
+      "validSolid": true
+    },
+    {
+      "id": "bumper-spring-330--30",
+      "name": "MISUMI AUA2-20 extension spring envelope",
+      "kind": "purchased",
+      "source": "https://uk.misumi-ec.com/vona2/detail/110302603670/?HissuCode=AUA2-20",
+      "dimensionalStatus": "vendorOD2/wire0.2/free20;21rest/24pressed;F0.162/0.258Nnominal;fitforcephysicalpending",
+      "explode": [
+        0,
+        0,
+        0
+      ],
+      "group": "bumper-return-springs",
+      "printable": false,
+      "notes": [],
+      "meshNames": [
+        "bumper-spring-330--30"
+      ],
+      "quantity": 1,
+      "color": [
+        0.55,
+        0.59,
+        0.61,
+        1
+      ],
+      "boundingBoxMm": {
+        "min": [
+          82.36087062764152,
+          -93.84678751731765,
+          68.3
+        ],
+        "max": [
+          101.54740410711473,
+          -81.61473670974877,
+          70.3
+        ],
+        "size": [
+          19.186533479473212,
+          12.232050807568882,
+          2.0
+        ]
+      },
+      "volumeMm3": 33.646,
+      "solidCount": 1,
+      "validSolid": true
+    },
+    {
+      "id": "bumper-anchor-pin-330--30-113",
+      "name": "1mmsteel spring anchor pin",
+      "kind": "purchased",
+      "source": "generic1mmspringsteelpin",
+      "dimensionalStatus": "cut10mmlength;reamprintedbore1.1;retainendswithsmalladhesivedabafterassembly",
+      "explode": [
+        0,
+        0,
+        0
+      ],
+      "group": "bumper-anchor-pins",
+      "printable": false,
+      "notes": [],
+      "meshNames": [
+        "bumper-anchor-pin-330--30-113"
+      ],
+      "quantity": 1,
+      "color": [
+        0.55,
+        0.59,
+        0.61,
+        1
+      ],
+      "boundingBoxMm": {
+        "min": [
+          82.36087062764152,
+          -82.9807621135332,
+          64.5
+        ],
+        "max": [
+          83.36087062764152,
+          -81.9807621135332,
+          74.5
+        ],
+        "size": [
+          1.0,
+          1.0,
+          10.0
+        ]
+      },
+      "volumeMm3": 7.854,
+      "solidCount": 1,
+      "validSolid": true
+    },
+    {
+      "id": "bumper-anchor-pin-330--30-134",
+      "name": "1mmsteel spring anchor pin",
+      "kind": "purchased",
+      "source": "generic1mmspringsteelpin",
+      "dimensionalStatus": "cut10mmlength;reamprintedbore1.1;retainendswithsmalladhesivedabafterassembly",
+      "explode": [
+        0,
+        0,
+        0
+      ],
+      "group": "bumper-anchor-pins",
+      "printable": false,
+      "notes": [],
+      "meshNames": [
+        "bumper-anchor-pin-330--30-134"
+      ],
+      "quantity": 1,
+      "color": [
+        0.55,
+        0.59,
+        0.61,
+        1
+      ],
+      "boundingBoxMm": {
+        "min": [
+          100.54740410711473,
+          -93.48076211353322,
+          64.5
+        ],
+        "max": [
+          101.54740410711473,
+          -92.48076211353322,
+          74.5
+        ],
+        "size": [
+          1.0,
+          1.0,
+          10.0
+        ]
+      },
+      "volumeMm3": 7.854,
+      "solidCount": 1,
+      "validSolid": true
+    },
+    {
+      "id": "bumper-spring-330-30",
+      "name": "MISUMI AUA2-20 extension spring envelope",
+      "kind": "purchased",
+      "source": "https://uk.misumi-ec.com/vona2/detail/110302603670/?HissuCode=AUA2-20",
+      "dimensionalStatus": "vendorOD2/wire0.2/free20;21rest/24pressed;F0.162/0.258Nnominal;fitforcephysicalpending",
+      "explode": [
+        0,
+        0,
+        0
+      ],
+      "group": "bumper-return-springs",
+      "printable": false,
+      "notes": [],
+      "meshNames": [
+        "bumper-spring-330-30"
+      ],
+      "quantity": 1,
+      "color": [
+        0.55,
+        0.59,
+        0.61,
+        1
+      ],
+      "boundingBoxMm": {
+        "min": [
+          112.36087062764155,
+          -41.885263290251345,
+          68.3
+        ],
+        "max": [
+          131.54740410711474,
+          -29.65321248268246,
+          70.3
+        ],
+        "size": [
+          19.186533479473198,
+          12.232050807568886,
+          2.0
+        ]
+      },
+      "volumeMm3": 33.646,
+      "solidCount": 1,
+      "validSolid": true
+    },
+    {
+      "id": "bumper-anchor-pin-330-30-113",
+      "name": "1mmsteel spring anchor pin",
+      "kind": "purchased",
+      "source": "generic1mmspringsteelpin",
+      "dimensionalStatus": "cut10mmlength;reamprintedbore1.1;retainendswithsmalladhesivedabafterassembly",
+      "explode": [
+        0,
+        0,
+        0
+      ],
+      "group": "bumper-anchor-pins",
+      "printable": false,
+      "notes": [],
+      "meshNames": [
+        "bumper-anchor-pin-330-30-113"
+      ],
+      "quantity": 1,
+      "color": [
+        0.55,
+        0.59,
+        0.61,
+        1
+      ],
+      "boundingBoxMm": {
+        "min": [
+          112.36087062764155,
+          -31.019237886466897,
+          64.5
+        ],
+        "max": [
+          113.36087062764155,
+          -30.019237886466897,
+          74.5
+        ],
+        "size": [
+          1.0,
+          1.0,
+          10.0
+        ]
+      },
+      "volumeMm3": 7.854,
+      "solidCount": 1,
+      "validSolid": true
+    },
+    {
+      "id": "bumper-anchor-pin-330-30-134",
+      "name": "1mmsteel spring anchor pin",
+      "kind": "purchased",
+      "source": "generic1mmspringsteelpin",
+      "dimensionalStatus": "cut10mmlength;reamprintedbore1.1;retainendswithsmalladhesivedabafterassembly",
+      "explode": [
+        0,
+        0,
+        0
+      ],
+      "group": "bumper-anchor-pins",
+      "printable": false,
+      "notes": [],
+      "meshNames": [
+        "bumper-anchor-pin-330-30-134"
+      ],
+      "quantity": 1,
+      "color": [
+        0.55,
+        0.59,
+        0.61,
+        1
+      ],
+      "boundingBoxMm": {
+        "min": [
+          130.54740410711474,
+          -41.519237886466904,
+          64.5
+        ],
+        "max": [
+          131.54740410711474,
+          -40.519237886466904,
+          74.5
+        ],
+        "size": [
+          1.0,
+          1.0,
+          10.0
+        ]
+      },
+      "volumeMm3": 7.854,
+      "solidCount": 1,
+      "validSolid": true
+    },
+    {
+      "id": "stop-tower",
+      "name": "Emergency-stop support tower",
+      "kind": "printed",
+      "source": "Kiwi K1 parametric design",
+      "dimensionalStatus": "designed; physical fit pending",
+      "explode": [
+        0.025,
+        0.025,
+        0
+      ],
+      "group": "power-mounts",
+      "printable": true,
+      "notes": [],
+      "meshNames": [
+        "stop-tower"
+      ],
+      "quantity": 1,
+      "color": [
+        0.095,
+        0.12,
+        0.135,
+        1
+      ],
+      "boundingBoxMm": {
+        "min": [
+          50.0,
+          -70.0,
+          54.0
+        ],
+        "max": [
+          102.0,
+          -16.0,
+          138.8
+        ],
+        "size": [
+          52.0,
+          54.0,
+          84.80000000000001
+        ]
+      },
+      "volumeMm3": 17376.425,
+      "solidCount": 1,
+      "validSolid": true,
+      "stl": "stl/stop-tower.stl",
+      "printBoundingBoxMm": [
+        52.0,
+        54.0,
+        84.8
+      ],
+      "fits256mmBed": true
+    },
+    {
+      "id": "electronics-tray",
+      "name": "Three-motor-driver strap carrier",
+      "kind": "printed",
+      "source": "Kiwi K1 parametric design",
+      "dimensionalStatus": "designed; physical fit pending",
+      "explode": [
+        -0.025,
+        0.025,
+        0
+      ],
+      "group": "driver-carrier",
+      "printable": true,
+      "notes": [],
+      "meshNames": [
+        "electronics-tray"
+      ],
+      "quantity": 1,
+      "color": [
+        0.095,
+        0.12,
+        0.135,
+        1
+      ],
+      "boundingBoxMm": {
+        "min": [
+          -92.5,
+          -79.0,
+          77.0
+        ],
+        "max": [
+          -57.5,
+          11.0,
+          80.0
+        ],
+        "size": [
+          35.0,
+          90.0,
+          3.0
+        ]
+      },
+      "volumeMm3": 8975.525,
+      "solidCount": 1,
+      "validSolid": true,
+      "stl": "stl/electronics-tray.stl",
+      "printBoundingBoxMm": [
+        35.0,
+        90.0,
+        3.0
+      ],
+      "fits256mmBed": true
+    },
+    {
+      "id": "driver-riser-0",
+      "name": "23mm inserted driver-carrier riser",
+      "kind": "printed",
+      "source": "Kiwi K1 parametric design",
+      "dimensionalStatus": "designed; physical fit pending",
+      "explode": [
+        0,
+        0,
+        0
+      ],
+      "group": "driver-risers",
+      "printable": true,
+      "notes": [],
+      "meshNames": [
+        "driver-riser-0"
+      ],
+      "quantity": 1,
+      "color": [
+        0.095,
+        0.12,
+        0.135,
+        1
+      ],
+      "boundingBoxMm": {
+        "min": [
+          -78.0,
+          -56.0,
+          54.0
+        ],
+        "max": [
+          -70.0,
+          -48.0,
+          77.0
+        ],
+        "size": [
+          8.0,
+          8.0,
+          23.0
+        ]
+      },
+      "volumeMm3": 912.413,
+      "solidCount": 1,
+      "validSolid": true,
+      "stl": "stl/driver-riser-0.stl",
+      "printBoundingBoxMm": [
+        8.0,
+        8.0,
+        23.0
+      ],
+      "fits256mmBed": true
+    },
+    {
+      "id": "driver-riser-1",
+      "name": "23mm inserted driver-carrier riser",
+      "kind": "printed",
+      "source": "Kiwi K1 parametric design",
+      "dimensionalStatus": "designed; physical fit pending",
+      "explode": [
+        0,
+        0,
+        0
+      ],
+      "group": "driver-risers",
+      "printable": true,
+      "notes": [],
+      "meshNames": [
+        "driver-riser-1"
+      ],
+      "quantity": 1,
+      "color": [
+        0.095,
+        0.12,
+        0.135,
+        1
+      ],
+      "boundingBoxMm": {
+        "min": [
+          -70.0,
+          -78.0,
+          54.0
+        ],
+        "max": [
+          -62.0,
+          -70.0,
+          77.0
+        ],
+        "size": [
+          8.0,
+          8.0,
+          23.0
+        ]
+      },
+      "volumeMm3": 912.413,
+      "solidCount": 1,
+      "validSolid": true,
+      "stl": "stl/driver-riser-0.stl"
+    },
+    {
+      "id": "pico-carrier",
+      "name": "Pico2 strap carrier",
+      "kind": "printed",
+      "source": "Kiwi K1 parametric design",
+      "dimensionalStatus": "designed; physical fit pending",
+      "explode": [
+        0,
+        0,
+        0
+      ],
+      "group": "pico-carrier",
+      "printable": true,
+      "notes": [],
+      "meshNames": [
+        "pico-carrier"
+      ],
+      "quantity": 1,
+      "color": [
+        0.095,
+        0.12,
+        0.135,
+        1
+      ],
+      "boundingBoxMm": {
+        "min": [
+          -90.5,
+          20.5,
+          54.0
+        ],
+        "max": [
+          -59.5,
+          81.5,
+          57.0
+        ],
+        "size": [
+          31.0,
+          61.0,
+          3.0
+        ]
+      },
+      "volumeMm3": 5198.525,
+      "solidCount": 1,
+      "validSolid": true,
+      "stl": "stl/pico-carrier.stl",
+      "printBoundingBoxMm": [
+        31.0,
+        61.0,
+        3.0
+      ],
+      "fits256mmBed": true
+    },
+    {
+      "id": "pi-power-carrier",
+      "name": "5V power regulator strap carrier",
+      "kind": "printed",
+      "source": "Kiwi K1 parametric design",
+      "dimensionalStatus": "designed; physical fit pending",
+      "explode": [
+        0,
+        0,
+        0
+      ],
+      "group": "pi-power-carrier",
+      "printable": true,
+      "notes": [],
+      "meshNames": [
+        "pi-power-carrier"
+      ],
+      "quantity": 1,
+      "color": [
+        0.095,
+        0.12,
+        0.135,
+        1
+      ],
+      "boundingBoxMm": {
+        "min": [
+          60.5,
+          -15.0,
+          54.0
+        ],
+        "max": [
+          91.5,
+          39.0,
+          57.0
+        ],
+        "size": [
+          31.0,
+          54.0,
+          3.0
+        ]
+      },
+      "volumeMm3": 4547.525,
+      "solidCount": 1,
+      "validSolid": true,
+      "stl": "stl/pi-power-carrier.stl",
+      "printBoundingBoxMm": [
+        31.0,
+        54.0,
+        3.0
+      ],
+      "fits256mmBed": true
+    },
+    {
+      "id": "disconnect-carrier",
+      "name": "Motor power switch strap carrier",
+      "kind": "printed",
+      "source": "Kiwi K1 parametric design",
+      "dimensionalStatus": "designed; physical fit pending",
+      "explode": [
+        0,
+        0,
+        0
+      ],
+      "group": "disconnect-carrier",
+      "printable": true,
+      "notes": [],
+      "meshNames": [
+        "disconnect-carrier"
+      ],
+      "quantity": 1,
+      "color": [
+        0.095,
+        0.12,
+        0.135,
+        1
+      ],
+      "boundingBoxMm": {
+        "min": [
+          59.5,
+          44.5,
+          54.0
+        ],
+        "max": [
+          90.5,
+          83.5,
+          57.0
+        ],
+        "size": [
+          31.0,
+          39.0,
+          3.0
+        ]
+      },
+      "volumeMm3": 3152.525,
+      "solidCount": 1,
+      "validSolid": true,
+      "stl": "stl/disconnect-carrier.stl",
+      "printBoundingBoxMm": [
+        31.0,
+        39.0,
+        3.0
+      ],
+      "fits256mmBed": true
+    },
+    {
+      "id": "imu-carrier",
+      "name": "IMU-only carrier",
+      "kind": "printed",
+      "source": "Kiwi K1 parametric design",
+      "dimensionalStatus": "designed; physical fit pending",
+      "explode": [
+        0,
+        0,
+        0
+      ],
+      "group": "imu-carrier",
+      "printable": true,
+      "notes": [],
+      "meshNames": [
+        "imu-carrier"
+      ],
+      "quantity": 1,
+      "color": [
+        0.095,
+        0.12,
+        0.135,
+        1
+      ],
+      "boundingBoxMm": {
+        "min": [
+          -18.0,
+          -18.0,
+          54.0
+        ],
+        "max": [
+          18.0,
+          20.5,
+          59.0
+        ],
+        "size": [
+          36.0,
+          38.5,
+          5.0
+        ]
+      },
+      "volumeMm3": 3661.525,
+      "solidCount": 1,
+      "validSolid": true,
+      "stl": "stl/imu-carrier.stl",
+      "printBoundingBoxMm": [
+        36.0,
+        38.5,
+        5.0
+      ],
+      "fits256mmBed": true
+    },
+    {
+      "id": "main-switch-panel",
+      "name": "Structural rear master-switch panel",
+      "kind": "printed",
+      "source": "Kiwi K1 parametric design",
+      "dimensionalStatus": "designed; physical fit pending",
+      "explode": [
+        0,
+        0,
+        0
+      ],
+      "group": "main-switch-panel",
+      "printable": true,
+      "notes": [],
+      "meshNames": [
+        "main-switch-panel"
+      ],
+      "quantity": 1,
+      "color": [
+        0.095,
+        0.12,
+        0.135,
+        1
+      ],
+      "boundingBoxMm": {
+        "min": [
+          -31.0,
+          -123.5,
+          54.0
+        ],
+        "max": [
+          31.0,
+          -96.0,
+          124.0
+        ],
+        "size": [
+          62.0,
+          27.5,
+          70.0
+        ]
+      },
+      "volumeMm3": 10988.987,
+      "solidCount": 1,
+      "validSolid": true,
+      "stl": "stl/main-switch-panel.stl",
+      "printBoundingBoxMm": [
+        62.0,
+        27.5,
+        70.0
+      ],
+      "fits256mmBed": true
+    },
+    {
+      "id": "pi-pcb",
+      "name": "Raspberry Pi 5 PCB",
+      "kind": "purchased",
+      "source": "https://datasheets.raspberrypi.com/rpi5/raspberry-pi-5-mechanical-drawing.pdf",
+      "dimensionalStatus": "documented85x56PCB and58x49holepattern; components simplified",
+      "explode": [
+        0,
+        0.05,
+        0
+      ],
+      "group": "compute",
+      "printable": false,
+      "notes": [],
+      "meshNames": [
+        "pi-pcb"
+      ],
+      "quantity": 1,
+      "color": [
+        0.06,
+        0.35,
+        0.2,
+        1
+      ],
+      "boundingBoxMm": {
+        "min": [
+          -42.5,
+          -3.0,
+          107.0
+        ],
+        "max": [
+          42.5,
+          53.0,
+          108.6
+        ],
+        "size": [
+          85.0,
+          56.0,
+          1.5999999999999943
+        ]
+      },
+      "volumeMm3": 7579.356,
+      "solidCount": 1,
+      "validSolid": true
+    },
+    {
+      "id": "pi-ports",
+      "name": "Pi 5 connector envelopes",
+      "kind": "purchased",
+      "source": "Pi5 reference",
+      "dimensionalStatus": "approximate connector envelopes; verify USB cable bends",
+      "explode": [
+        0,
+        0.05,
+        0
+      ],
+      "group": "compute",
+      "printable": false,
+      "notes": [],
+      "meshNames": [
+        "pi-ports"
+      ],
+      "quantity": 1,
+      "color": [
+        0.55,
+        0.59,
+        0.61,
+        1
+      ],
+      "boundingBoxMm": {
+        "min": [
+          25.0,
+          0.0,
+          108.6
+        ],
+        "max": [
+          43.0,
+          53.5,
+          122.6
+        ],
+        "size": [
+          18.0,
+          53.5,
+          14.0
+        ]
+      },
+      "volumeMm3": 12096.0,
+      "solidCount": 3,
+      "validSolid": true
+    },
+    {
+      "id": "pi-cooler",
+      "name": "Pi 5 active cooler envelope",
+      "kind": "purchased",
+      "source": "RaspberryPi activecooler",
+      "dimensionalStatus": "space reservation only; exact vendor cooler fit pending",
+      "explode": [
+        0,
+        0.065,
+        0
+      ],
+      "group": "compute",
+      "printable": false,
+      "notes": [],
+      "meshNames": [
+        "pi-cooler"
+      ],
+      "quantity": 1,
+      "color": [
+        0.55,
+        0.59,
+        0.61,
+        1
+      ],
+      "boundingBoxMm": {
+        "min": [
+          -25.0,
+          11.0,
+          109.0
+        ],
+        "max": [
+          9.0,
+          45.0,
+          121.0
+        ],
+        "size": [
+          34.0,
+          34.0,
+          12.0
+        ]
+      },
+      "volumeMm3": 13872.0,
+      "solidCount": 1,
+      "validSolid": true
+    },
+    {
+      "id": "battery",
+      "name": "Gens Ace 3S 2200mAh XT60 LiPo",
+      "kind": "purchased",
+      "source": "https://www.elefun.no/vare-64255/batteri-lipo-3s-2200mah-45c-gens-ace-g-tech-xt60",
+      "dimensionalStatus": "vendor105x34x23mm; wires/connectors need hand routing",
+      "explode": [
+        0,
+        0.03,
+        0.035
+      ],
+      "group": "power",
+      "printable": false,
+      "notes": [],
+      "meshNames": [
+        "battery"
+      ],
+      "quantity": 1,
+      "color": [
+        0.2,
+        0.24,
+        0.29,
+        1
+      ],
+      "boundingBoxMm": {
+        "min": [
+          -52.5,
+          -62.0,
+          58.0
+        ],
+        "max": [
+          52.5,
+          -28.0,
+          81.0
+        ],
+        "size": [
+          105.0,
+          34.0,
+          23.0
+        ]
+      },
+      "volumeMm3": 82110.0,
+      "solidCount": 1,
+      "validSolid": true
+    },
+    {
+      "id": "battery-strap-0",
+      "name": "15mm hook-and-loop battery strap",
+      "kind": "purchased",
+      "source": "generic15x250mmstrap",
+      "dimensionalStatus": "reference strap path; route beneath deck via slots",
+      "explode": [
+        0,
+        0.04,
+        0.04
+      ],
+      "group": "power",
+      "printable": false,
+      "notes": [],
+      "meshNames": [
+        "battery-strap-0"
+      ],
+      "quantity": 1,
+      "color": [
+        0.025,
+        0.035,
+        0.04,
+        1
+      ],
+      "boundingBoxMm": {
+        "min": [
+          -56.25,
+          -61.5,
+          54.8
+        ],
+        "max": [
+          56.25,
+          -46.5,
+          82.8
+        ],
+        "size": [
+          112.5,
+          15.0,
+          28.0
+        ]
+      },
+      "volumeMm3": 3723.75,
+      "solidCount": 1,
+      "validSolid": true
+    },
+    {
+      "id": "battery-strap-1",
+      "name": "15mm hook-and-loop battery strap",
+      "kind": "purchased",
+      "source": "generic15x250mmstrap",
+      "dimensionalStatus": "reference strap path; route beneath deck via slots",
+      "explode": [
+        0,
+        0.04,
+        0.04
+      ],
+      "group": "power",
+      "printable": false,
+      "notes": [],
+      "meshNames": [
+        "battery-strap-1"
+      ],
+      "quantity": 1,
+      "color": [
+        0.025,
+        0.035,
+        0.04,
+        1
+      ],
+      "boundingBoxMm": {
+        "min": [
+          -56.25,
+          -43.5,
+          54.8
+        ],
+        "max": [
+          56.25,
+          -28.5,
+          82.8
+        ],
+        "size": [
+          112.5,
+          15.0,
+          28.0
+        ]
+      },
+      "volumeMm3": 3723.75,
+      "solidCount": 1,
+      "validSolid": true
+    },
+    {
+      "id": "motor-driver-0",
+      "name": "Pololu2997 TB9051FTG motor driver",
+      "kind": "purchased",
+      "source": "https://www.pololu.com/product/2997",
+      "dimensionalStatus": "vendor25.4x25.4PCB,1.57PCB+6.1components;18mmterminal/wireheightallocation;strapmount",
+      "explode": [
+        -0.04,
+        0.02,
+        0
+      ],
+      "group": "motor-drivers",
+      "printable": false,
+      "notes": [],
+      "meshNames": [
+        "motor-driver-0"
+      ],
+      "quantity": 1,
+      "color": [
+        0.06,
+        0.35,
+        0.2,
+        1
+      ],
+      "boundingBoxMm": {
+        "min": [
+          -87.7,
+          -76.7,
+          81.0
+        ],
+        "max": [
+          -62.3,
+          -51.3,
+          88.67
+        ],
+        "size": [
+          25.400000000000006,
+          25.400000000000006,
+          7.670000000000002
+        ]
+      },
+      "volumeMm3": 4948.377,
+      "solidCount": 1,
+      "validSolid": true
+    },
+    {
+      "id": "motor-driver-1",
+      "name": "Pololu2997 TB9051FTG motor driver",
+      "kind": "purchased",
+      "source": "https://www.pololu.com/product/2997",
+      "dimensionalStatus": "vendor25.4x25.4PCB,1.57PCB+6.1components;18mmterminal/wireheightallocation;strapmount",
+      "explode": [
+        -0.04,
+        0.02,
+        0
+      ],
+      "group": "motor-drivers",
+      "printable": false,
+      "notes": [],
+      "meshNames": [
+        "motor-driver-1"
+      ],
+      "quantity": 1,
+      "color": [
+        0.06,
+        0.35,
+        0.2,
+        1
+      ],
+      "boundingBoxMm": {
+        "min": [
+          -87.7,
+          -46.7,
+          81.0
+        ],
+        "max": [
+          -62.3,
+          -21.3,
+          88.67
+        ],
+        "size": [
+          25.400000000000006,
+          25.400000000000002,
+          7.670000000000002
+        ]
+      },
+      "volumeMm3": 4948.377,
+      "solidCount": 1,
+      "validSolid": true
+    },
+    {
+      "id": "motor-driver-2",
+      "name": "Pololu2997 TB9051FTG motor driver",
+      "kind": "purchased",
+      "source": "https://www.pololu.com/product/2997",
+      "dimensionalStatus": "vendor25.4x25.4PCB,1.57PCB+6.1components;18mmterminal/wireheightallocation;strapmount",
+      "explode": [
+        -0.04,
+        0.02,
+        0
+      ],
+      "group": "motor-drivers",
+      "printable": false,
+      "notes": [],
+      "meshNames": [
+        "motor-driver-2"
+      ],
+      "quantity": 1,
+      "color": [
+        0.06,
+        0.35,
+        0.2,
+        1
+      ],
+      "boundingBoxMm": {
+        "min": [
+          -87.7,
+          -16.7,
+          81.0
+        ],
+        "max": [
+          -62.3,
+          8.7,
+          88.67
+        ],
+        "size": [
+          25.400000000000006,
+          25.4,
+          7.670000000000002
+        ]
+      },
+      "volumeMm3": 4948.377,
+      "solidCount": 1,
+      "validSolid": true
+    },
+    {
+      "id": "microcontroller",
+      "name": "Raspberry Pi Pico2 with headers",
+      "kind": "purchased",
+      "source": "https://www.raspberrypi.com/products/raspberry-pi-pico-2/",
+      "dimensionalStatus": "documented51x21PCB;10mmheaderenvelope; strapcarrier",
+      "explode": [
+        -0.04,
+        0.04,
+        0
+      ],
+      "group": "electronics",
+      "printable": false,
+      "notes": [],
+      "meshNames": [
+        "microcontroller"
+      ],
+      "quantity": 1,
+      "color": [
+        0.06,
+        0.35,
+        0.2,
+        1
+      ],
+      "boundingBoxMm": {
+        "min": [
+          -85.5,
+          25.5,
+          58.0
+        ],
+        "max": [
+          -64.5,
+          76.5,
+          68.0
+        ],
+        "size": [
+          21.0,
+          51.0,
+          10.0
+        ]
+      },
+      "volumeMm3": 10710.0,
+      "solidCount": 1,
+      "validSolid": true
+    },
+    {
+      "id": "power-regulator",
+      "name": "Pololu2866 D24V90F5 5V9A regulator",
+      "kind": "purchased",
+      "source": "https://www.pololu.com/product/2866",
+      "dimensionalStatus": "vendor40.6x20.3x7.6mm envelope;5VGPIOheaderfeed,notUSBPD",
+      "explode": [
+        0.04,
+        0.03,
+        0
+      ],
+      "group": "electronics",
+      "printable": false,
+      "notes": [],
+      "meshNames": [
+        "power-regulator"
+      ],
+      "quantity": 1,
+      "color": [
+        0.06,
+        0.35,
+        0.2,
+        1
+      ],
+      "boundingBoxMm": {
+        "min": [
+          65.85,
+          -8.3,
+          58.0
+        ],
+        "max": [
+          86.15,
+          32.3,
+          65.6
+        ],
+        "size": [
+          20.30000000000001,
+          40.599999999999994,
+          7.599999999999994
+        ]
+      },
+      "volumeMm3": 6263.768,
+      "solidCount": 1,
+      "validSolid": true
+    },
+    {
+      "id": "imu",
+      "name": "Pololu2798 MinIMU-9v5",
+      "kind": "purchased",
+      "source": "https://www.pololu.com/product/2798",
+      "dimensionalStatus": "vendor13x23x3mmPCB envelope;bodyaxesmustbecalibrated",
+      "explode": [
+        0,
+        0.02,
+        0
+      ],
+      "group": "electronics",
+      "printable": false,
+      "notes": [],
+      "meshNames": [
+        "imu"
+      ],
+      "quantity": 1,
+      "color": [
+        0.06,
+        0.35,
+        0.2,
+        1
+      ],
+      "boundingBoxMm": {
+        "min": [
+          -6.5,
+          -6.5,
+          58.0
+        ],
+        "max": [
+          6.5,
+          16.5,
+          61.0
+        ],
+        "size": [
+          13.0,
+          23.0,
+          3.0
+        ]
+      },
+      "volumeMm3": 897.0,
+      "solidCount": 1,
+      "validSolid": true
+    },
+    {
+      "id": "motor-disconnect",
+      "name": "Pololu2813 high-side power switch",
+      "kind": "purchased",
+      "source": "https://www.pololu.com/product/2813",
+      "dimensionalStatus": "vendor20.3x25.4PCB;10mmterminal/headerallocation;currentandthermaltestpending",
+      "explode": [
+        0,
+        0.02,
+        0
+      ],
+      "group": "electronics",
+      "printable": false,
+      "notes": [],
+      "meshNames": [
+        "motor-disconnect"
+      ],
+      "quantity": 1,
+      "color": [
+        0.06,
+        0.35,
+        0.2,
+        1
+      ],
+      "boundingBoxMm": {
+        "min": [
+          64.85,
+          51.3,
+          58.0
+        ],
+        "max": [
+          85.15,
+          76.7,
+          68.0
+        ],
+        "size": [
+          20.30000000000001,
+          25.400000000000006,
+          10.0
+        ]
+      },
+      "volumeMm3": 5156.2,
+      "solidCount": 1,
+      "validSolid": true
+    },
+    {
+      "id": "main-rocker-body",
+      "name": "Carling master power rocker rear envelope",
+      "kind": "purchased",
+      "source": "https://www.digikey.com/en/products/detail/carling-technologies/V1D1B60B-CMC00-000/3025047",
+      "dimensionalStatus": "36.83x21.08cutout;37.57rearspadefamilyenvelope;60mmrearwirezoneallocated",
+      "explode": [
+        0,
+        0,
+        0.03
+      ],
+      "group": "power",
+      "printable": false,
+      "notes": [],
+      "meshNames": [
+        "main-rocker-body"
+      ],
+      "quantity": 1,
+      "color": [
+        0.025,
+        0.035,
+        0.04,
+        1
+      ],
+      "boundingBoxMm": {
+        "min": [
+          -18.415,
+          -123.0,
+          93.46000000000001
+        ],
+        "max": [
+          18.415,
+          -85.43,
+          114.54
+        ],
+        "size": [
+          36.83,
+          37.56999999999999,
+          21.08
+        ]
+      },
+      "volumeMm3": 29168.461,
+      "solidCount": 1,
+      "validSolid": true
+    },
+    {
+      "id": "main-rocker-actuator",
+      "name": "Rear main power rocker actuator",
+      "kind": "purchased",
+      "source": "CarlingV1D1B60B-CMC00-000",
+      "dimensionalStatus": "family49.09x24.38face/14.8abovebezel;exactphysicalfitpending",
+      "explode": [
+        0,
+        0,
+        0.03
+      ],
+      "group": "power",
+      "printable": false,
+      "notes": [],
+      "meshNames": [
+        "main-rocker-actuator"
+      ],
+      "quantity": 1,
+      "color": [
+        0.025,
+        0.035,
+        0.04,
+        1
+      ],
+      "boundingBoxMm": {
+        "min": [
+          -24.545,
+          -137.8,
+          91.81
+        ],
+        "max": [
+          24.545,
+          -123.0,
+          116.19
+        ],
+        "size": [
+          49.09,
+          14.800000000000011,
+          24.379999999999995
+        ]
+      },
+      "volumeMm3": 17712.85,
+      "solidCount": 1,
+      "validSolid": true
+    },
+    {
+      "id": "camera-front-pcb",
+      "name": "Waveshare OV2735 USB Camera(A) PCB /front",
+      "kind": "purchased",
+      "source": "https://www.waveshare.com/ov2735-2mp-usb-camera-a.htm",
+      "dimensionalStatus": "vendor SKU33122;PCB25.0x25.0x1.6;holepitch21.0x21.0;exact outline,components simplified",
+      "explode": [
+        0,
+        0.04,
+        -0.025
+      ],
+      "group": "cameras",
+      "printable": false,
+      "notes": [],
+      "meshNames": [
+        "camera-front-pcb"
+      ],
+      "quantity": 1,
+      "color": [
+        0.06,
+        0.35,
+        0.2,
+        1
+      ],
+      "boundingBoxMm": {
+        "min": [
+          -12.5,
+          114.0,
+          138.5
+        ],
+        "max": [
+          12.5,
+          115.6,
+          163.5
+        ],
+        "size": [
+          25.0,
+          1.5999999999999943,
+          25.0
+        ]
+      },
+      "volumeMm3": 979.894,
+      "solidCount": 1,
+      "validSolid": true
+    },
+    {
+      "id": "camera-front-lens-0",
+      "name": "front lens barrel",
+      "kind": "purchased",
+      "source": "https://www.waveshare.com/ov2735-2mp-usb-camera-a.htm",
+      "dimensionalStatus": "vendor14mmOD/16mmprojectionfromPCBfront",
+      "explode": [
+        0,
+        0.04,
+        -0.025
+      ],
+      "group": "camera-lenses",
+      "printable": false,
+      "notes": [],
+      "meshNames": [
+        "camera-front-lens-0"
+      ],
+      "quantity": 1,
+      "color": [
+        0.025,
+        0.035,
+        0.04,
+        1
+      ],
+      "boundingBoxMm": {
+        "min": [
+          -7.0,
+          115.6,
+          144.0
+        ],
+        "max": [
+          7.0,
+          131.6,
+          158.0
+        ],
+        "size": [
+          14.0,
+          16.0,
+          14.0
+        ]
+      },
+      "volumeMm3": 2463.009,
+      "solidCount": 1,
+      "validSolid": true
+    },
+    {
+      "id": "camera-front-glass-0",
+      "name": "front optical aperture reference",
+      "kind": "purchased",
+      "source": "https://www.waveshare.com/ov2735-2mp-usb-camera-a.htm",
+      "dimensionalStatus": "illustrative optical glass within documented lens envelope",
+      "explode": [
+        0,
+        0.04,
+        -0.025
+      ],
+      "group": "camera-lenses",
+      "printable": false,
+      "notes": [],
+      "meshNames": [
+        "camera-front-glass-0"
+      ],
+      "quantity": 1,
+      "color": [
+        0.05,
+        0.13,
+        0.16,
+        1
+      ],
+      "boundingBoxMm": {
+        "min": [
+          -6.0,
+          131.3,
+          145.0
+        ],
+        "max": [
+          6.0,
+          131.60000000000002,
+          157.0
+        ],
+        "size": [
+          12.0,
+          0.30000000000001137,
+          12.0
+        ]
+      },
+      "volumeMm3": 33.929,
+      "solidCount": 1,
+      "validSolid": true
+    },
+    {
+      "id": "camera-front-usb",
+      "name": "Downward USB-C connector reference",
+      "kind": "purchased",
+      "source": "https://www.waveshare.com/ov2735-2mp-usb-camera-a.htm",
+      "dimensionalStatus": "board-edgeconnector orientedDOWN;30mmdownwardplug/wirezone;housingdetailreference",
+      "explode": [
+        0,
+        0.04,
+        -0.025
+      ],
+      "group": "camera-usb",
+      "printable": false,
+      "notes": [],
+      "meshNames": [
+        "camera-front-usb"
+      ],
+      "quantity": 1,
+      "color": [
+        0.55,
+        0.59,
+        0.61,
+        1
+      ],
+      "boundingBoxMm": {
+        "min": [
+          -5.0,
+          109.5,
+          134.5
+        ],
+        "max": [
+          5.0,
+          114.0,
+          142.5
+        ],
+        "size": [
+          10.0,
+          4.5,
+          8.0
+        ]
+      },
+      "volumeMm3": 360.0,
+      "solidCount": 1,
+      "validSolid": true
+    },
+    {
+      "id": "stop-body",
+      "name": "IDEC YW1B-V4E01R switch rear envelope",
+      "kind": "purchased",
+      "source": "https://eu.idec.com/idec-eu/en_EU/",
+      "dimensionalStatus": "vendor22.3mm panelcutout/45.8mmrear extent; neck/body shape proxy, add wireclearance",
+      "explode": [
+        0,
+        0.03,
+        0
+      ],
+      "group": "power",
+      "printable": false,
+      "notes": [],
+      "meshNames": [
+        "stop-body"
+      ],
+      "quantity": 1,
+      "color": [
+        0.025,
+        0.035,
+        0.04,
+        1
+      ],
+      "boundingBoxMm": {
+        "min": [
+          63.0,
+          -63.0,
+          97.2
+        ],
+        "max": [
+          93.0,
+          -33.0,
+          143.0
+        ],
+        "size": [
+          30.0,
+          30.0,
+          45.8
+        ]
+      },
+      "volumeMm3": 28856.502,
+      "solidCount": 1,
+      "validSolid": true
+    },
+    {
+      "id": "stop-button",
+      "name": "IDEC latching motor stop mushroom",
+      "kind": "purchased",
+      "source": "https://eu.idec.com/idec-eu/en_EU/",
+      "dimensionalStatus": "vendor40mmhead and28.6mmabove-panel height; functional circuit testing pending",
+      "explode": [
+        0,
+        0.03,
+        0
+      ],
+      "group": "power",
+      "printable": false,
+      "notes": [],
+      "meshNames": [
+        "stop-button"
+      ],
+      "quantity": 1,
+      "color": [
+        0.8,
+        0.08,
+        0.045,
+        1
+      ],
+      "boundingBoxMm": {
+        "min": [
+          58.0,
+          -68.0,
+          143.0
+        ],
+        "max": [
+          98.0,
+          -28.0,
+          171.6
+        ],
+        "size": [
+          40.0,
+          40.0,
+          28.599999999999994
+        ]
+      },
+      "volumeMm3": 35939.82,
+      "solidCount": 1,
+      "validSolid": true
+    }
+  ],
+  "fasteners": [
+    {
+      "id": "hardware_m3x45",
+      "item": "M3x45 socket cap screw",
+      "quantity": 12,
+      "use": "four through-bolts per two-station motor cradle"
+    },
+    {
+      "id": "hardware_m3_nut",
+      "item": "M3 nut",
+      "quantity": 12,
+      "use": "motor cradle lower hex traps"
+    },
+    {
+      "id": "hardware_m3x12",
+      "item": "M3x12 socket cap screw",
+      "quantity": 4,
+      "use": "outerdecksplices;threecamera frontsplice usesM3x14;stereo adds4camera screws"
+    },
+    {
+      "id": "hardware_m3x10",
+      "item": "M3x10 socket cap screw",
+      "quantity": 38,
+      "use": "34commoninstalled+4spares;threecamera adds8sidecamera+4hubriser bottom"
+    },
+    {
+      "id": "hardware_m3x16",
+      "item": "M3x16 socket cap screw",
+      "quantity": 8,
+      "use": "6bumpercarrier+2spares"
+    },
+    {
+      "id": "hardware_m3x14",
+      "item": "M3x14 socket cap screw",
+      "quantity": 10,
+      "use": "2Pico+2PiPower+2disconnect+2IMU/splice+2spares;threecamera adds2DFR/frontsplice"
+    },
+    {
+      "id": "hardware_inserts",
+      "item": "ruthexRX-M3Sx4.0SHORT OD4.6/L4.0 nominal4.0bore",
+      "quantity": 40,
+      "use": "40common;threecamera adds8sidetower+8hubriser"
+    },
+    {
+      "id": "hardware_nyloc",
+      "item": "M3 nut/nyloc",
+      "quantity": 20,
+      "use": "12carrier/power+6bumperguides+2spares;stereo adds4camera nuts"
+    },
+    {
+      "id": "hardware_washers",
+      "item": "M3 washer",
+      "quantity": 42,
+      "use": "printed joints, guides and spare allowance;check washer clearance at each interface"
+    },
+    {
+      "id": "hardware_m3x25",
+      "item": "M3x25 screw",
+      "quantity": 6,
+      "use": "bumper guide sleeves and retaining washers"
+    },
+    {
+      "id": "hardware_m2x20",
+      "item": "M2x20 screw and nut",
+      "quantity": 6,
+      "use": "Omron switches throughbody+carrier+deckslots"
+    },
+    {
+      "id": "hardware_camera_m2x10",
+      "item": "M2x10 screw and nut",
+      "quantity": 4,
+      "use": "four exact21x21mm mountingholes perOV2735"
+    },
+    {
+      "id": "bumper_sleeves",
+      "item": "5OD/3.2ID x16mm steel sleeve",
+      "quantity": 6,
+      "use": "bumper guide spacers"
+    },
+    {
+      "id": "bumper_springs",
+      "item": "MISUMI AUA2-20 extension spring",
+      "quantity": 6,
+      "use": "21mmrest/24mmpressed,0.162/0.258N nominal"
+    },
+    {
+      "id": "spring_pins",
+      "item": "1mmdiameter x10mmsteelpin",
+      "quantity": 12,
+      "use": "springanchorload through1.1mmbore"
+    },
+    {
+      "id": "hardware_pi_m25",
+      "item": "M2.5x8 screw",
+      "quantity": 4,
+      "use": "Pi mounting;pilot fitcoupon required"
+    },
+    {
+      "id": "hardware_wheel_screws",
+      "item": "M3x10 countersunk screw",
+      "quantity": 9,
+      "use": "hub/wheelweb stack conditionalphysicalfit"
+    },
+    {
+      "id": "hardware_wheel_nuts",
+      "item": "M3lowprofile nut",
+      "quantity": 9,
+      "use": "hub/wheelweb stack conditionalphysicalfit"
+    },
+    {
+      "id": "hardware_set_screws",
+      "item": "M3 set screw",
+      "quantity": 3,
+      "use": "Nexus supplied hubshaftretention"
+    },
+    {
+      "id": "battery_straps",
+      "item": "15x250mm hook-and-loop strap",
+      "quantity": 2,
+      "use": "battery retention"
+    },
+    {
+      "id": "hardware_ties",
+      "item": "2.5mm cable tie",
+      "quantity": 20,
+      "use": "USB/power/electronics harness and strapcradles"
+    },
+    {
+      "id": "camera_foam",
+      "item": "1mm insulating foam/pad sheet",
+      "quantity": 1,
+      "use": "strap-mounted electronics protection;cut-to-fit"
+    }
+  ],
+  "checks": {
+    "status": "PASS",
+    "issues": [],
+    "validPartInstances": 100,
+    "partInstances": 100,
+    "printedInstances": 40,
+    "uniquePrintableStls": 27,
+    "contactPoints": [
+      {
+        "wheelAngleDeg": 30,
+        "pointMm": [
+          114.142,
+          65.9,
+          0.0
+        ]
+      },
+      {
+        "wheelAngleDeg": 150,
+        "pointMm": [
+          -114.142,
+          65.9,
+          0.0
+        ]
+      },
+      {
+        "wheelAngleDeg": 270,
+        "pointMm": [
+          -0.0,
+          -131.8,
+          0.0
+        ]
+      }
+    ],
+    "contactPlaneZMm": 0,
+    "analyticClearances": [
+      {
+        "pair": "wheel swept top / shell underside",
+        "nominalMm": 3.0,
+        "basis": "wheel maxz60; shell wall starts63"
+      },
+      {
+        "pair": "gearcase / clamp bore (diametral)",
+        "nominalMm": 0.6,
+        "basis": "25mm vendor case,25.6mm bore"
+      },
+      {
+        "pair": "motor can / rear clamp bore (diametral)",
+        "nominalMm": 0.6,
+        "basis": "24.4mm vendor can,25mm bore"
+      },
+      {
+        "pair": "motor face / hub barrel",
+        "nominalMm": 1.0,
+        "basis": "radial face102; hub begins103"
+      },
+      {
+        "pair": "battery / locating pocket width",
+        "nominalMm": 2.0,
+        "basis": "36mm clearpocket vs34mm pack"
+      },
+      {
+        "pair": "Pi cooler / lid lower face",
+        "nominalMm": 18.4,
+        "basis": "cooler top121mm; lid bottom139.4mm"
+      },
+      {
+        "pair": "left / right deck and shell seam",
+        "nominalMm": 0.5,
+        "basis": "parametric splitgap"
+      }
+    ],
+    "criticalPairChecks": [
+      {
+        "parts": [
+          "battery",
+          "pi-tray"
+        ],
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "parts": [
+          "battery",
+          "deck-left"
+        ],
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "parts": [
+          "battery",
+          "deck-right"
+        ],
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "parts": [
+          "pi-cooler",
+          "lid-left"
+        ],
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "parts": [
+          "pi-cooler",
+          "lid-right"
+        ],
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "parts": [
+          "battery",
+          "stop-tower"
+        ],
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "parts": [
+          "battery",
+          "electronics-tray"
+        ],
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "parts": [
+          "stop-body",
+          "stop-tower"
+        ],
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "parts": [
+          "stop-tower",
+          "lid-right"
+        ],
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "parts": [
+          "splice-0",
+          "clamp-upper-270"
+        ],
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "parts": [
+          "splice-1",
+          "clamp-upper-270"
+        ],
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "parts": [
+          "main-rocker-body",
+          "main-switch-panel"
+        ],
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "parts": [
+          "main-rocker-body",
+          "battery"
+        ],
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "parts": [
+          "motor-driver-0",
+          "battery"
+        ],
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "parts": [
+          "imu",
+          "pi-tray"
+        ],
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "parts": [
+          "power-regulator",
+          "stop-tower"
+        ],
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "parts": [
+          "microcontroller",
+          "shell-left"
+        ],
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "parts": [
+          "camera-front-pcb",
+          "camera-mount-front"
+        ],
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "parts": [
+          "camera-front-usb",
+          "camera-mount-front"
+        ],
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "parts": [
+          "camera-mount-front",
+          "lid-left"
+        ],
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "parts": [
+          "camera-mount-front",
+          "lid-right"
+        ],
+        "intersectionMm3": 0.0,
+        "passed": true
+      }
+    ],
+    "printedPairChecks": [
+      {
+        "parts": [
+          "deck-left",
+          "pi-riser-0"
+        ],
+        "intersectionMm3": 0.0,
+        "passed": true,
+        "intersectionBoundsMm": null
+      },
+      {
+        "parts": [
+          "deck-left",
+          "pi-riser-2"
+        ],
+        "intersectionMm3": 0.0,
+        "passed": true,
+        "intersectionBoundsMm": null
+      },
+      {
+        "parts": [
+          "deck-left",
+          "camera-front-tower--43"
+        ],
+        "intersectionMm3": 0.0,
+        "passed": true,
+        "intersectionBoundsMm": null
+      },
+      {
+        "parts": [
+          "deck-left",
+          "bumper-90"
+        ],
+        "intersectionMm3": 0.0,
+        "passed": true,
+        "intersectionBoundsMm": null
+      },
+      {
+        "parts": [
+          "deck-left",
+          "bumper-carrier-90"
+        ],
+        "intersectionMm3": 0.0,
+        "passed": true,
+        "intersectionBoundsMm": null
+      },
+      {
+        "parts": [
+          "deck-left",
+          "bumper-210"
+        ],
+        "intersectionMm3": 0.0,
+        "passed": true,
+        "intersectionBoundsMm": null
+      },
+      {
+        "parts": [
+          "deck-left",
+          "bumper-carrier-210"
+        ],
+        "intersectionMm3": 0.0,
+        "passed": true,
+        "intersectionBoundsMm": null
+      },
+      {
+        "parts": [
+          "deck-left",
+          "driver-riser-0"
+        ],
+        "intersectionMm3": 0.0,
+        "passed": true,
+        "intersectionBoundsMm": null
+      },
+      {
+        "parts": [
+          "deck-left",
+          "driver-riser-1"
+        ],
+        "intersectionMm3": 0.0,
+        "passed": true,
+        "intersectionBoundsMm": null
+      },
+      {
+        "parts": [
+          "deck-left",
+          "pico-carrier"
+        ],
+        "intersectionMm3": 0.0,
+        "passed": true,
+        "intersectionBoundsMm": null
+      },
+      {
+        "parts": [
+          "deck-left",
+          "imu-carrier"
+        ],
+        "intersectionMm3": 0.0,
+        "passed": true,
+        "intersectionBoundsMm": null
+      },
+      {
+        "parts": [
+          "deck-left",
+          "main-switch-panel"
+        ],
+        "intersectionMm3": 0.0,
+        "passed": true,
+        "intersectionBoundsMm": null
+      },
+      {
+        "parts": [
+          "deck-right",
+          "pi-riser-1"
+        ],
+        "intersectionMm3": 0.0,
+        "passed": true,
+        "intersectionBoundsMm": null
+      },
+      {
+        "parts": [
+          "deck-right",
+          "pi-riser-3"
+        ],
+        "intersectionMm3": 0.0,
+        "passed": true,
+        "intersectionBoundsMm": null
+      },
+      {
+        "parts": [
+          "deck-right",
+          "camera-front-tower-43"
+        ],
+        "intersectionMm3": 0.0,
+        "passed": true,
+        "intersectionBoundsMm": null
+      },
+      {
+        "parts": [
+          "deck-right",
+          "bumper-90"
+        ],
+        "intersectionMm3": 0.0,
+        "passed": true,
+        "intersectionBoundsMm": null
+      },
+      {
+        "parts": [
+          "deck-right",
+          "bumper-carrier-90"
+        ],
+        "intersectionMm3": 0.0,
+        "passed": true,
+        "intersectionBoundsMm": null
+      },
+      {
+        "parts": [
+          "deck-right",
+          "bumper-330"
+        ],
+        "intersectionMm3": 0.0,
+        "passed": true,
+        "intersectionBoundsMm": null
+      },
+      {
+        "parts": [
+          "deck-right",
+          "bumper-carrier-330"
+        ],
+        "intersectionMm3": 0.0,
+        "passed": true,
+        "intersectionBoundsMm": null
+      },
+      {
+        "parts": [
+          "deck-right",
+          "stop-tower"
+        ],
+        "intersectionMm3": 0.0,
+        "passed": true,
+        "intersectionBoundsMm": null
+      },
+      {
+        "parts": [
+          "deck-right",
+          "pi-power-carrier"
+        ],
+        "intersectionMm3": 0.0,
+        "passed": true,
+        "intersectionBoundsMm": null
+      },
+      {
+        "parts": [
+          "deck-right",
+          "disconnect-carrier"
+        ],
+        "intersectionMm3": 0.0,
+        "passed": true,
+        "intersectionBoundsMm": null
+      },
+      {
+        "parts": [
+          "deck-right",
+          "imu-carrier"
+        ],
+        "intersectionMm3": 0.0,
+        "passed": true,
+        "intersectionBoundsMm": null
+      },
+      {
+        "parts": [
+          "deck-right",
+          "main-switch-panel"
+        ],
+        "intersectionMm3": 0.0,
+        "passed": true,
+        "intersectionBoundsMm": null
+      },
+      {
+        "parts": [
+          "shell-left",
+          "trim-left"
+        ],
+        "intersectionMm3": 0.0,
+        "passed": true,
+        "intersectionBoundsMm": null
+      },
+      {
+        "parts": [
+          "shell-left",
+          "pi-tray"
+        ],
+        "intersectionMm3": 0.0,
+        "passed": true,
+        "intersectionBoundsMm": null
+      },
+      {
+        "parts": [
+          "shell-left",
+          "pi-riser-0"
+        ],
+        "intersectionMm3": 0.0,
+        "passed": true,
+        "intersectionBoundsMm": null
+      },
+      {
+        "parts": [
+          "shell-left",
+          "pi-riser-2"
+        ],
+        "intersectionMm3": 0.0,
+        "passed": true,
+        "intersectionBoundsMm": null
+      },
+      {
+        "parts": [
+          "shell-left",
+          "camera-front-tower--43"
+        ],
+        "intersectionMm3": 0.0,
+        "passed": true,
+        "intersectionBoundsMm": null
+      },
+      {
+        "parts": [
+          "shell-left",
+          "camera-mount-front"
+        ],
+        "intersectionMm3": 0.0,
+        "passed": true,
+        "intersectionBoundsMm": null
+      },
+      {
+        "parts": [
+          "shell-left",
+          "bumper-90"
+        ],
+        "intersectionMm3": 0.0,
+        "passed": true,
+        "intersectionBoundsMm": null
+      },
+      {
+        "parts": [
+          "shell-left",
+          "bumper-carrier-90"
+        ],
+        "intersectionMm3": 0.0,
+        "passed": true,
+        "intersectionBoundsMm": null
+      },
+      {
+        "parts": [
+          "shell-left",
+          "bumper-210"
+        ],
+        "intersectionMm3": 0.0,
+        "passed": true,
+        "intersectionBoundsMm": null
+      },
+      {
+        "parts": [
+          "shell-left",
+          "bumper-carrier-210"
+        ],
+        "intersectionMm3": 0.0,
+        "passed": true,
+        "intersectionBoundsMm": null
+      },
+      {
+        "parts": [
+          "shell-left",
+          "electronics-tray"
+        ],
+        "intersectionMm3": 0.0,
+        "passed": true,
+        "intersectionBoundsMm": null
+      },
+      {
+        "parts": [
+          "shell-left",
+          "driver-riser-0"
+        ],
+        "intersectionMm3": 0.0,
+        "passed": true,
+        "intersectionBoundsMm": null
+      },
+      {
+        "parts": [
+          "shell-left",
+          "driver-riser-1"
+        ],
+        "intersectionMm3": 0.0,
+        "passed": true,
+        "intersectionBoundsMm": null
+      },
+      {
+        "parts": [
+          "shell-left",
+          "main-switch-panel"
+        ],
+        "intersectionMm3": 0.0,
+        "passed": true,
+        "intersectionBoundsMm": null
+      },
+      {
+        "parts": [
+          "lid-left",
+          "camera-mount-front"
+        ],
+        "intersectionMm3": 0.0,
+        "passed": true,
+        "intersectionBoundsMm": null
+      },
+      {
+        "parts": [
+          "shell-right",
+          "trim-right"
+        ],
+        "intersectionMm3": 0.0,
+        "passed": true,
+        "intersectionBoundsMm": null
+      },
+      {
+        "parts": [
+          "shell-right",
+          "pi-tray"
+        ],
+        "intersectionMm3": 0.0,
+        "passed": true,
+        "intersectionBoundsMm": null
+      },
+      {
+        "parts": [
+          "shell-right",
+          "pi-riser-1"
+        ],
+        "intersectionMm3": 0.0,
+        "passed": true,
+        "intersectionBoundsMm": null
+      },
+      {
+        "parts": [
+          "shell-right",
+          "pi-riser-3"
+        ],
+        "intersectionMm3": 0.0,
+        "passed": true,
+        "intersectionBoundsMm": null
+      },
+      {
+        "parts": [
+          "shell-right",
+          "camera-front-tower-43"
+        ],
+        "intersectionMm3": 0.0,
+        "passed": true,
+        "intersectionBoundsMm": null
+      },
+      {
+        "parts": [
+          "shell-right",
+          "camera-mount-front"
+        ],
+        "intersectionMm3": 0.0,
+        "passed": true,
+        "intersectionBoundsMm": null
+      },
+      {
+        "parts": [
+          "shell-right",
+          "bumper-90"
+        ],
+        "intersectionMm3": 0.0,
+        "passed": true,
+        "intersectionBoundsMm": null
+      },
+      {
+        "parts": [
+          "shell-right",
+          "bumper-carrier-90"
+        ],
+        "intersectionMm3": 0.0,
+        "passed": true,
+        "intersectionBoundsMm": null
+      },
+      {
+        "parts": [
+          "shell-right",
+          "bumper-330"
+        ],
+        "intersectionMm3": 0.0,
+        "passed": true,
+        "intersectionBoundsMm": null
+      },
+      {
+        "parts": [
+          "shell-right",
+          "bumper-carrier-330"
+        ],
+        "intersectionMm3": 0.0,
+        "passed": true,
+        "intersectionBoundsMm": null
+      },
+      {
+        "parts": [
+          "shell-right",
+          "stop-tower"
+        ],
+        "intersectionMm3": 0.0,
+        "passed": true,
+        "intersectionBoundsMm": null
+      },
+      {
+        "parts": [
+          "shell-right",
+          "main-switch-panel"
+        ],
+        "intersectionMm3": 0.0,
+        "passed": true,
+        "intersectionBoundsMm": null
+      },
+      {
+        "parts": [
+          "lid-right",
+          "camera-mount-front"
+        ],
+        "intersectionMm3": 0.0,
+        "passed": true,
+        "intersectionBoundsMm": null
+      },
+      {
+        "parts": [
+          "trim-left",
+          "pi-riser-0"
+        ],
+        "intersectionMm3": 0.0,
+        "passed": true,
+        "intersectionBoundsMm": null
+      },
+      {
+        "parts": [
+          "trim-left",
+          "pi-riser-2"
+        ],
+        "intersectionMm3": 0.0,
+        "passed": true,
+        "intersectionBoundsMm": null
+      },
+      {
+        "parts": [
+          "trim-left",
+          "camera-front-tower--43"
+        ],
+        "intersectionMm3": 0.0,
+        "passed": true,
+        "intersectionBoundsMm": null
+      },
+      {
+        "parts": [
+          "trim-left",
+          "bumper-90"
+        ],
+        "intersectionMm3": 0.0,
+        "passed": true,
+        "intersectionBoundsMm": null
+      },
+      {
+        "parts": [
+          "trim-left",
+          "bumper-carrier-90"
+        ],
+        "intersectionMm3": 0.0,
+        "passed": true,
+        "intersectionBoundsMm": null
+      },
+      {
+        "parts": [
+          "trim-left",
+          "bumper-210"
+        ],
+        "intersectionMm3": 0.0,
+        "passed": true,
+        "intersectionBoundsMm": null
+      },
+      {
+        "parts": [
+          "trim-left",
+          "bumper-carrier-210"
+        ],
+        "intersectionMm3": 0.0,
+        "passed": true,
+        "intersectionBoundsMm": null
+      },
+      {
+        "parts": [
+          "trim-left",
+          "driver-riser-0"
+        ],
+        "intersectionMm3": 0.0,
+        "passed": true,
+        "intersectionBoundsMm": null
+      },
+      {
+        "parts": [
+          "trim-left",
+          "driver-riser-1"
+        ],
+        "intersectionMm3": 0.0,
+        "passed": true,
+        "intersectionBoundsMm": null
+      },
+      {
+        "parts": [
+          "trim-left",
+          "main-switch-panel"
+        ],
+        "intersectionMm3": 0.0,
+        "passed": true,
+        "intersectionBoundsMm": null
+      },
+      {
+        "parts": [
+          "trim-right",
+          "pi-riser-1"
+        ],
+        "intersectionMm3": 0.0,
+        "passed": true,
+        "intersectionBoundsMm": null
+      },
+      {
+        "parts": [
+          "trim-right",
+          "pi-riser-3"
+        ],
+        "intersectionMm3": 0.0,
+        "passed": true,
+        "intersectionBoundsMm": null
+      },
+      {
+        "parts": [
+          "trim-right",
+          "camera-front-tower-43"
+        ],
+        "intersectionMm3": 0.0,
+        "passed": true,
+        "intersectionBoundsMm": null
+      },
+      {
+        "parts": [
+          "trim-right",
+          "bumper-90"
+        ],
+        "intersectionMm3": 0.0,
+        "passed": true,
+        "intersectionBoundsMm": null
+      },
+      {
+        "parts": [
+          "trim-right",
+          "bumper-carrier-90"
+        ],
+        "intersectionMm3": 0.0,
+        "passed": true,
+        "intersectionBoundsMm": null
+      },
+      {
+        "parts": [
+          "trim-right",
+          "bumper-330"
+        ],
+        "intersectionMm3": 0.0,
+        "passed": true,
+        "intersectionBoundsMm": null
+      },
+      {
+        "parts": [
+          "trim-right",
+          "bumper-carrier-330"
+        ],
+        "intersectionMm3": 0.0,
+        "passed": true,
+        "intersectionBoundsMm": null
+      },
+      {
+        "parts": [
+          "trim-right",
+          "stop-tower"
+        ],
+        "intersectionMm3": 0.0,
+        "passed": true,
+        "intersectionBoundsMm": null
+      },
+      {
+        "parts": [
+          "trim-right",
+          "main-switch-panel"
+        ],
+        "intersectionMm3": 0.0,
+        "passed": true,
+        "intersectionBoundsMm": null
+      },
+      {
+        "parts": [
+          "pi-riser-0",
+          "bumper-210"
+        ],
+        "intersectionMm3": 0.0,
+        "passed": true,
+        "intersectionBoundsMm": null
+      },
+      {
+        "parts": [
+          "pi-riser-1",
+          "bumper-330"
+        ],
+        "intersectionMm3": 0.0,
+        "passed": true,
+        "intersectionBoundsMm": null
+      },
+      {
+        "parts": [
+          "camera-front-tower--43",
+          "camera-mount-front"
+        ],
+        "intersectionMm3": 0.0,
+        "passed": true,
+        "intersectionBoundsMm": null
+      },
+      {
+        "parts": [
+          "camera-front-tower--43",
+          "bumper-90"
+        ],
+        "intersectionMm3": 0.0,
+        "passed": true,
+        "intersectionBoundsMm": null
+      },
+      {
+        "parts": [
+          "camera-front-tower-43",
+          "camera-mount-front"
+        ],
+        "intersectionMm3": 0.0,
+        "passed": true,
+        "intersectionBoundsMm": null
+      },
+      {
+        "parts": [
+          "camera-front-tower-43",
+          "bumper-90"
+        ],
+        "intersectionMm3": 0.0,
+        "passed": true,
+        "intersectionBoundsMm": null
+      },
+      {
+        "parts": [
+          "bumper-90",
+          "bumper-carrier-90"
+        ],
+        "intersectionMm3": 0.0,
+        "passed": true,
+        "intersectionBoundsMm": null
+      },
+      {
+        "parts": [
+          "bumper-210",
+          "bumper-carrier-210"
+        ],
+        "intersectionMm3": 0.0,
+        "passed": true,
+        "intersectionBoundsMm": null
+      },
+      {
+        "parts": [
+          "bumper-210",
+          "driver-riser-0"
+        ],
+        "intersectionMm3": 0.0,
+        "passed": true,
+        "intersectionBoundsMm": null
+      },
+      {
+        "parts": [
+          "bumper-210",
+          "driver-riser-1"
+        ],
+        "intersectionMm3": 0.0,
+        "passed": true,
+        "intersectionBoundsMm": null
+      },
+      {
+        "parts": [
+          "bumper-carrier-210",
+          "driver-riser-0"
+        ],
+        "intersectionMm3": 0.0,
+        "passed": true,
+        "intersectionBoundsMm": null
+      },
+      {
+        "parts": [
+          "bumper-330",
+          "bumper-carrier-330"
+        ],
+        "intersectionMm3": 0.0,
+        "passed": true,
+        "intersectionBoundsMm": null
+      },
+      {
+        "parts": [
+          "bumper-330",
+          "stop-tower"
+        ],
+        "intersectionMm3": 0.0,
+        "passed": true,
+        "intersectionBoundsMm": null
+      },
+      {
+        "parts": [
+          "bumper-carrier-330",
+          "stop-tower"
+        ],
+        "intersectionMm3": 0.0,
+        "passed": true,
+        "intersectionBoundsMm": null
+      }
+    ],
+    "printedPairCandidates": 780,
+    "structuralMountChecks": [
+      {
+        "group": "stop",
+        "pointMm": [
+          54,
+          -20
+        ],
+        "shaftPathIntersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "group": "stop",
+        "pointMm": [
+          98,
+          -20
+        ],
+        "shaftPathIntersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "group": "driver",
+        "pointMm": [
+          -74,
+          -52
+        ],
+        "shaftPathIntersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "group": "driver",
+        "pointMm": [
+          -66,
+          -74
+        ],
+        "shaftPathIntersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "group": "pico",
+        "pointMm": [
+          -74,
+          35
+        ],
+        "shaftPathIntersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "group": "pico",
+        "pointMm": [
+          -74,
+          65
+        ],
+        "shaftPathIntersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "group": "piPower",
+        "pointMm": [
+          76,
+          -8
+        ],
+        "shaftPathIntersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "group": "piPower",
+        "pointMm": [
+          76,
+          32
+        ],
+        "shaftPathIntersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "group": "disconnect",
+        "pointMm": [
+          75,
+          55
+        ],
+        "shaftPathIntersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "group": "disconnect",
+        "pointMm": [
+          75,
+          73
+        ],
+        "shaftPathIntersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "group": "mainPanel",
+        "pointMm": [
+          -27,
+          -101
+        ],
+        "shaftPathIntersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "group": "mainPanel",
+        "pointMm": [
+          27,
+          -101
+        ],
+        "shaftPathIntersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "group": "cameraFront",
+        "pointMm": [
+          -43,
+          94
+        ],
+        "shaftPathIntersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "group": "cameraFront",
+        "pointMm": [
+          43,
+          94
+        ],
+        "shaftPathIntersectionMm3": 0.0,
+        "passed": true
+      }
+    ],
+    "notValidated": [
+      "bumper switch actuation and return spring force",
+      "camera-only obstacle/drop-edge detection and stopping",
+      "physicalprint/fit",
+      "vendor exact electronics mounting",
+      "hub set-screw retention/load",
+      "screw-length physical stack",
+      "collision of all cable/bend envelopes",
+      "roller traction",
+      "tip/stability with moving loads",
+      "thermal performance",
+      "camera calibration, USB current, bandwidth and cable clearances",
+      "electrical safety and emergency stop function"
+    ],
+    "intentionalMating": [
+      "clamp upper/lower sharez30splitplane",
+      "cradle/underside deck sharez48",
+      "seam splice/underside deck sharez48",
+      "shellflange/post sharez61",
+      "Pi PCB/standoff sharez107",
+      "battery/rails supportz58",
+      "cameraPCB/standoff sharey114",
+      "camera frame/tower sharez134"
+    ]
+  },
+  "qualification": "Prototype CAD only. Export validity and listed clearances do not establish printability, assembly, device, or physical safety."
+}

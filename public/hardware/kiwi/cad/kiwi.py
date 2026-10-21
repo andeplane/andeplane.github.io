@@ -1,6 +1,6 @@
 """Kiwi K1: editable, parameter-driven CadQuery prototype (all source units mm).
 
-Run: python kiwi.py --output public/hardware/kiwi/cad
+Run: python kiwi.py --variant front-camera --output public/hardware/kiwi/cad/front-camera
 Requires CadQuery 2.8 and trimesh. Purchased parts are envelope/reference models,
 not vendor CAD. This is a prototype engineering baseline, not a qualified build.
 """
@@ -35,10 +35,7 @@ P = dict(
     battery_center_y=-45.0, battery_bottom=58.0,
     pi_length=85.0, pi_width=56.0, pi_hole_x=58.0, pi_hole_y=49.0,
     tray_bottom=95.0, tray_thickness=4.0,
-    camera_width=91.0, camera_height=28.0, camera_depth=17.5,
-    camera_center_y=120.0, camera_bottom=138.0,
     m3_clearance=3.4, m3_insert_hole=4.0, insert_depth=5.0,
-    sensor_width=13.0, sensor_height=18.0, sensor_depth=2.0,
 )
 P['wheel_inner_radius'] = P['motor_face_radius'] + P['hub_motor_gap'] + P['hub_length']
 P['wheel_center_radius'] = P['wheel_inner_radius'] + P['wheel_width']/2
@@ -47,7 +44,7 @@ P['radial_envelope_diameter'] = 2*(P['wheel_inner_radius']+P['wheel_width'])
 STRUCTURAL_MOUNTS = {
     'stop':[(54,-20),(98,-20)],'driver':[(-74,-52),(-66,-74)],
     'pico':[(-74,35),(-74,65)],'piPower':[(76,-8),(76,32)],
-    'disconnect':[(75,55),(75,73)],'mux':[(-31,66),(31,66),(-31,84),(31,84)],
+    'disconnect':[(75,55),(75,73)],
     'mainPanel':[(-27,-101),(27,-101)],
 }
 
@@ -57,7 +54,35 @@ COLORS = dict(white=(0.88,0.87,0.82,1), charcoal=(0.095,0.12,0.135,1),
               battery=(0.20,0.24,0.29,1), red=(0.8,0.08,0.045,1),
               copper=(0.71,0.47,0.18,1), lens=(0.05,0.13,0.16,1))
 
+VARIANTS={
+    'front-camera':dict(label='Single front camera',stereo=False,poses=[('front',0)],hub=False),
+    'three-cameras':dict(label='Front, left and right cameras',stereo=False,poses=[('front',0),('left',90),('right',-90)],hub=True),
+    'stereo':dict(label='Synchronized stereo camera pair',stereo=True,poses=[('front',0)],hub=False),
+}
+VARIANT='front-camera'
+CONFIG=VARIANTS[VARIANT]
 PARTS=[]
+
+
+def configure(variant):
+    global VARIANT,CONFIG
+    VARIANT=variant;CONFIG=VARIANTS[variant];PARTS.clear()
+    CONFIG.update(width=66.0 if CONFIG['stereo'] else 25.0,height=30.0 if CONFIG['stereo'] else 25.0,
+                  cameraZ=154.0 if CONFIG['stereo'] else 151.0,
+                  holeX=60.0 if CONFIG['stereo'] else 21.0,holeZ=24.0 if CONFIG['stereo'] else 21.0,
+                  holeD=3.2 if CONFIG['stereo'] else 2.0)
+    STRUCTURAL_MOUNTS['cameraFront']=[(-43,94),(43,94)]
+    if CONFIG['hub']:
+        STRUCTURAL_MOUNTS['cameraSides']=[(-99,-9),(-99,9),(99,-9),(99,9)]
+        STRUCTURAL_MOUNTS['usbHub']=[(-22,-20),(22,-20),(-22,26),(22,26)]
+    else:
+        STRUCTURAL_MOUNTS.pop('cameraSides',None);STRUCTURAL_MOUNTS.pop('usbHub',None)
+    P.update(variant=variant,camera_width=CONFIG['width'],camera_height=CONFIG['height'],
+             camera_centre_z=CONFIG['cameraZ'],camera_board_rear_y=114.0,
+             camera_hole_pitch_x=CONFIG['holeX'],camera_hole_pitch_z=CONFIG['holeZ'],
+             camera_baseline_mm=52.0 if CONFIG['stereo'] else None,
+             active_distance_sensors=0)
+
 
 def exact_bb(shape):
     # Ignore cached display triangulation; otherwise OCC inflates boxes by mesh deflection.
@@ -152,9 +177,6 @@ def make_deck():
     # Four upper tray risers bolt from above; inserts are pressed into risers.
     for x,y in [(-47,-8),(47,-8),(-47,58),(47,58)]:
         s=s.cut(cyl(1.7,12,(x,y,46)))
-    # Independent camera tower mounts.
-    for x in (-43,43):
-        s=s.cut(cyl(1.7,12,(x,94,46)))
     # Six integrated shell pedestals, radial positions avoid wheel cutouts.
     for a in range(0,360,60):
         x,y=xy(120,a)
@@ -169,14 +191,9 @@ def make_deck():
             s=s.cut(cyl(1.7,12,(q.x,q.y,46)))
         for t in (-3.25,3.25):
             s=s.cut(radial(radial_slot(115,t,46,6.2,2.2,16),a))
-    # Outboard-pitched cliff probes are alongside each wheel, not behind another station.
-    for a in P['wheel_angles_deg']:
-        for t in (34,50):
-            q=radial(box(1,1,1,94,t,0),a).Center()
-            s=s.cut(cyl(1.7,12,(q.x,q.y,46)))
     # Open2.2mm-deep wiring races connect small motor feedthroughs to the sensor bus.
     # Remaining deck web3.8mm; thin signal leads only, not forced XT60 connectors.
-    for x in (-27,27):s=s.cut(box(6,88,2.2,x,24,52.9))
+    for x in ((-35,35) if CONFIG['hub'] else(-27,27)):s=s.cut(box(6,88,2.2,x,24,52.9))
     s=s.cut(box(33,6,2.2,13.5,-25,52.9))
     for a in P['wheel_angles_deg']:
         s=s.cut(radial(box(12,8,10,32,0,51),a))
@@ -199,12 +216,12 @@ def make_shell():
     for a in range(0,360,60):
         x,y=xy(120,a)
         s=s.cut(cyl(1.7,10,(x,y,59)))
-    # Camera/cable notch, rear structural main-switch panel, six sensor apertures.
-    s=s.cut(box(103,40,19,0,124,137.5))
-    s=s.cut(box(30,30,16,65,119,136))
+    # Camera adapter plates pass through the top rim; optics sit above it.
+    for label,yaw in CONFIG['poses']:
+        width=(max(100,CONFIG['width']+12) if label=='front' else 30)+2
+        s=s.cut(radial(box(width,32,14,0,123,134),yaw))
+    # Structural rear main-switch opening.
     s=s.cut(box(64,20,44,0,-124,104))
-    for a in (0,60,120,180,240,300):
-        s=s.cut(radial(box(20,14,14,125,0,86),a))
     # Openings for sliding bumper arms/actuator; free3mmradialtravel through shell.
     for a in (90,210,330):
         for t in (-20,20):s=s.cut(radial(box(44,15,12,127,t,66),a))
@@ -227,8 +244,11 @@ def make_lid():
         s=s.cut(box(3.8,54,10,x,26,141))
     # IDEC YW1B-V4E01R:22.3mm nominal panel cutout with0.2mm printing clearance.
     s=s.cut(cyl(11.25,10,(78,-48,137)))
-    # Independent camera tower passes through this cutout.
-    s=s.cut(box(105,52,10,0,121,141))
+    # Camera-specific frame and downward USB connector reliefs.
+    for label,yaw in CONFIG['poses']:
+        width=CONFIG['width']+10
+        s=s.cut(radial(box(width,30,10,0,119,141),yaw))
+        s=s.cut(radial(box(18,22,10,0,109,141),yaw))
     for a in (20,50,120,160,200,255,285,340):
         x,y=xy(117.8,a)
         s=s.cut(cyl(1.7,10,(x,y,137)))
@@ -257,54 +277,64 @@ def tray_riser(x,y):
     s=s.cut(cyl(2.0,5,(x,y,54)))
     return s.clean()
 
-def camera_tower(x):
-    # Independent of cosmetic shell; two M3 base screws, not vendor camera holes.
-    s=box(11,12,79,x,94,93.5)
-    s=s.fuse(box(11,34,5,x,105,131.5))
-    s=s.cut(cyl(1.7,82,(x,94,52)))
-    # Top entry insert and base nut/insert let one M3x10 fastener attach each end.
-    s=s.cut(cyl(2.0,5,(x,94,54)))
-    s=s.cut(cyl(2.0,5,(x,117,129)))
+def camera_front_tower(x):
+    s=union(box(11,20,6,x,94,57),box(11,12,74,x,94,97),box(11,34,5,x,105,131.5))
+    s=s.cut(cyl(1.7,82,(x,94,52))).cut(cyl(2,5,(x,94,54)))
+    s=s.cut(cyl(1.7,8,(x,117,128))).cut(cyl(2,5,(x,117,129)))
     return s.clean()
 
-def camera_saddle():
-    # Body support is adjustable and padded; no unverified manufacturer-hole pattern.
-    s=union(box(101,27,4,0,119,136),box(101,3,32,0,106,152),
-            box(3,26,33,-49,119,152.5),box(3,26,33,49,119,152.5))
-    # Light lip and removable strap slots; apertures remain completely uncovered.
-    for x in (-43,43):
-        s=s.cut(cyl(1.7,10,(x,117,132)))
-        s=s.cut(box(3.5,16,9,x,117,135))
-    # USB-C lead passes sideways into 30 mm minimum cable-turn space.
-    s=s.cut(box(10,19,13,49,119,149))
+
+def camera_side_tower(yaw):
+    s=union(box(30,12,6,0,99,57),box(20,8,74,0,99,97))
+    for x in (-9,9):s=s.cut(cyl(1.7,8,(x,99,52))).cut(cyl(2,5,(x,99,54)))
+    for x in (-5,5):s=s.cut(cyl(1.7,8,(x,99,128))).cut(cyl(2,5,(x,99,129)))
+    return radial(s.clean(),yaw)
+
+
+def camera_mount(label,yaw):
+    w,h,z=CONFIG['width'],CONFIG['height'],CONFIG['cameraZ']
+    front=(label=='front')
+    bw=max(100,w+12) if front else 30
+    by=119 if front else 111.5
+    depth=27 if front else 33
+    s=union(box(bw,depth,4,0,by,136),box(w+8,3,h+8,0,110,z))
+    s=s.cut(box(w-8,12,h-8,0,110,z))
+    for x in (-CONFIG['holeX']/2,CONFIG['holeX']/2):
+        for zz in (z-CONFIG['holeZ']/2,z+CONFIG['holeZ']/2):
+            boss=cyl(3.75 if CONFIG['stereo'] else 3,2.5,(x,111.5,zz),(0,1,0))
+            s=s.fuse(boss)
+            s=s.cut(cyl(1.7 if CONFIG['stereo'] else 1.1,9,(x,107,zz),(0,1,0)))
+    # Both boards have edge USB: orient down, not into the back of a closed plate.
+    s=s.cut(box(16,20,16,0,110,z-h/2+1))
+    points=[(-43,117),(43,117)] if front else[(-5,99),(5,99)]
+    s=holes(s,points,1.7,132,10)
+    # Removable cable tie anchor holds the downward USB lead below the board.
+    ear=box(3,7,14,12,110,128)
+    ear=ear.cut(box(6,4,3,12,110,127))
+    s=s.fuse(ear)
+    return radial(s.clean(),yaw)
+
+
+def usb_hub_carrier():
+    # Official SC1636 housing, no invented enclosure mounting holes.
+    s=box(65.4,60.4,3,0,3,65.5)
+    s=holes(s,STRUCTURAL_MOUNTS['usbHub'],1.7,62,10)
+    for x in (-31,31):
+        for y in (-14,20):s=s.cut(box(3.5,15,10,x,y,65))
+    for y in (-24.7,30.7):s=s.fuse(box(59.4,2,2,0,y,68))
     return s.clean()
 
-def cable_relief():
-    s=union(box(20,18,4,63,119,136),box(3,18,16,72,119,144))
-    for y in (114,124): s=s.cut(box(12,3.5,10,63,y,136))
-    # Shares the outboard camera-saddle clamp; adhesive/strap attachment is explicit.
+
+def hub_riser(x,y):
+    s=cyl(4,10,(x,y,54)).cut(cyl(1.7,12,(x,y,53)))
+    return s.cut(cyl(2,5,(x,y,54))).cut(cyl(2,5,(x,y,59))).clean()
+
+
+def camera_power_carrier():
+    # DFR0849 rotated90deg: USB-A ports and plugs face robot right.
+    s=strap_carrier(0,66,46,56,[(-13,72),(13,72)])
+    for x in (-21,21):s=s.cut(box(3.5,26,10,x,66,55))
     return s.clean()
-
-def sensor_carrier(angle,cliff=False):
-    if cliff:
-        # Offset42mm tangentially: the 50deg downward/outward ray misses the wheel.
-        # All chassis fasteners are inboard of the radial wheel cutout.
-        s=union(box(17,29,3,93.5,42,46.5),
-                box(22,3,11,105,30,40.5),box(22,3,11,105,54,40.5))
-        shelf=box(18,27,3,108,42,39.5)
-        shelf=shelf.rotate((108,42,37),(108,43,37),-50)
-        shelf=shelf.cut(box(24,19,30,108,42,37))
-        # Two remaining side ledges connect into the side arms.
-        s=s.fuse(shelf)
-        for t in (34,50): s=s.cut(cyl(1.7,14,(94,t,40)))
-        for t in (30,54): s=s.cut(box(3.5,1.2,14,108,t,37))
-    else:
-        s=union(box(4,27,27,119.5,0,86),box(8,27,3,117.5,0,72.5))
-        s=s.cut(box(10,14,12,119.5,0,86))
-        for t in (-10,10): s=s.cut(box(10,3.5,15,119.5,t,87))
-        for t in (-9,9): s=s.cut(box(3.5,4,9,117,t,73))
-    return radial(s.clean(),angle)
-
 
 def radial_slot(r,t,z,length,width,height):
     # True obround allows controlled travel; unlike a rectangle it has no notch corner.
@@ -406,18 +436,10 @@ def electronics_tray():
     return strap_carrier(-75,-34,35,90,[(-74,-52),(-66,-74)]).translate((0,0,23))
 
 
-def mux_carrier():
-    s=strap_carrier(0,75,74,28,[(-31,66),(31,66),(-31,84),(31,84)])
-    for x in (-18,18):
-        for y in (64,86):s=s.cut(box(18,3.5,10,x,y,55))
-    return s.clean()
-
-
 def imu_carrier():
-    # Existing centre seam-splice screws retain this carrier; two longer screws needed.
-    s=strap_carrier(6,0,52,36,[(-13,0),(13,0)])
-    for x,y,w,l in [(0,5,17,27),(24,5,11.6,15.4)]:
-        for side in (-1,1):s=s.fuse(box(2,l+4,2,x+side*(w/2+1),y,58))
+    # Existing centre seam-splice screws retain the IMU-only carrier.
+    s=strap_carrier(0,0,36,36,[(-13,0),(13,0)])
+    for side in (-1,1):s=s.fuse(box(2,31,2,side*9.5,5,58))
     return s.clean()
 
 
@@ -475,6 +497,37 @@ def motor_proxy(a):
     add(f'wheel-rollers-{a}','Illustrative omni wheel rollers',radial(cq.Compound.makeCompound(rollers),a),'black','purchased',
         'Nexus14145 outer-envelope reference','roller count/shape illustrative; no manufacturing claim',group='wheels',explode=(0,0.07,0))
 
+def camera_electronics():
+    for label,yaw in CONFIG['poses']:
+        w,h,z=CONFIG['width'],CONFIG['height'],CONFIG['cameraZ']
+        pcb=box(w,1.6,h,0,114.8,z)
+        for x in (-CONFIG['holeX']/2,CONFIG['holeX']/2):
+            for zz in (z-CONFIG['holeZ']/2,z+CONFIG['holeZ']/2):
+                pcb=pcb.cut(cyl(CONFIG['holeD']/2,4,(x,113,zz),(0,1,0)))
+        name='Waveshare AR0144 Stereo USB Camera(A)' if CONFIG['stereo'] else 'Waveshare OV2735 USB Camera(A)'
+        sku='32695' if CONFIG['stereo'] else '33122'
+        src='https://www.waveshare.com/ar0144-stereo-usb-camera-a.htm' if CONFIG['stereo'] else 'https://www.waveshare.com/ov2735-2mp-usb-camera-a.htm'
+        add(f'camera-{label}-pcb',f'{name} PCB /{label}',radial(pcb,yaw),'green','purchased',src,
+            f'vendor SKU{sku};PCB{w}x{h}x1.6;holepitch{CONFIG["holeX"]}x{CONFIG["holeZ"]};exact outline,components simplified',group='cameras',explode=(0,.04,-.025))
+        lensx=(-26,26) if CONFIG['stereo'] else(0,)
+        length=16.12 if CONFIG['stereo'] else 16
+        for n,x in enumerate(lensx):
+            lens=cyl(7,length,(x,115.6,z),(0,1,0))
+            add(f'camera-{label}-lens-{n}',f'{label} lens barrel',radial(lens,yaw),'black','purchased',src,
+                'vendor14mmOD;52mmstereobaseline' if CONFIG['stereo'] else 'vendor14mmOD/16mmprojectionfromPCBfront',group='camera-lenses',explode=(0,.04,-.025))
+            add(f'camera-{label}-glass-{n}',f'{label} optical aperture reference',radial(cyl(6,.3,(x,115.3+length,z),(0,1,0)),yaw),'lens','purchased',src,
+                'illustrative optical glass within documented lens envelope',group='camera-lenses',explode=(0,.04,-.025))
+        rear=3.5 if CONFIG['stereo'] else 4.5
+        usb=box(10,rear,8,0,114-rear/2,z-h/2)
+        add(f'camera-{label}-usb','Downward USB-C connector reference',radial(usb,yaw),'silver','purchased',src,
+            'board-edgeconnector orientedDOWN;30mmdownwardplug/wirezone;housingdetailreference',group='camera-usb',explode=(0,.04,-.025))
+    if CONFIG['hub']:
+        add('camera-usb-hub','Raspberry PiUSB3Hub SC1636',box(57.4,52.4,18,0,3,76),'charcoal','purchased',
+            'https://www.raspberrypi.com/documentation/accessories/usb.html','documented57.4x52.4x18mmhousing;80mmcaptiveupstreamlead;portdetailsreference',group='camera-usb-power')
+        add('camera-power-buck','DFRobot DFR0849 camera-only5V supply',box(40,50,25,0,66,70.5),'green','purchased',
+            'https://www.dfrobot.com/product-2299.html','vendor50x40mmPCBfootprint;rotated90deg;25mmHEIGHTRESERVATIONnotmeasured;USBportsface+X',group='camera-usb-power')
+
+
 def purchased_electronics():
     # Pi board holes are documented, component enclosures are simplified envelopes.
     pi=box(85,56,1.6,0,25,107.8)
@@ -504,13 +557,8 @@ def purchased_electronics():
         'documented51x21PCB;10mmheaderenvelope; strapcarrier',group='electronics',explode=(-.04,.04,0))
     add('power-regulator','Pololu2866 D24V90F5 5V9A regulator',box(20.3,40.6,7.6,76,12,61.8),'green','purchased',
         'https://www.pololu.com/product/2866','vendor40.6x20.3x7.6mm envelope;5VGPIOheaderfeed,notUSBPD',group='electronics',explode=(.04,.03,0))
-    for i,x in enumerate((-18,18)):
-        add(f'i2c-mux-{i}','Adafruit2717 TCA9548A I2C mux',box(30.6,17.6,2.7,x,75,59.35),'green','purchased',
-            'https://www.adafruit.com/product/2717','vendor30.6x17.6x2.7mmPCB;header/wireclearanceadditional',group='electronics',explode=(0,.02,0))
     add('imu','Pololu2798 MinIMU-9v5',box(13,23,3,0,5,59.5),'green','purchased',
         'https://www.pololu.com/product/2798','vendor13x23x3mmPCB envelope;bodyaxesmustbecalibrated',group='electronics',explode=(0,.02,0))
-    add('logic-regulator','Pololu5432 3.3V logic regulator',box(7.6,11.4,2.8,24,5,59.4),'green','purchased',
-        'https://www.pololu.com/product/5432','vendor7.6x11.4x2.8mmPCB;headersandwiresadditional',group='electronics',explode=(0,.02,0))
     add('motor-disconnect','Pololu2813 high-side power switch',box(20.3,25.4,10,75,64,63),'green','purchased',
         'https://www.pololu.com/product/2813','vendor20.3x25.4PCB;10mmterminal/headerallocation;currentandthermaltestpending',group='electronics',explode=(0,.02,0))
     # Rear rocker physical body/lead envelope and accessible actuator.
@@ -518,22 +566,7 @@ def purchased_electronics():
         'https://www.digikey.com/en/products/detail/carling-technologies/V1D1B60B-CMC00-000/3025047','36.83x21.08cutout;37.57rearspadefamilyenvelope;60mmrearwirezoneallocated',group='power',explode=(0,0,.03))
     add('main-rocker-actuator','Rear main power rocker actuator',box(49.09,14.8,24.38,0,-130.4,104),'black','purchased',
         'CarlingV1D1B60B-CMC00-000','family49.09x24.38face/14.8abovebezel;exactphysicalfitpending',group='power',explode=(0,0,.03))
-    oak=box(91,17.5,28,0,120,152)
-    add('oak-body','Luxonis OAK-D Lite fixed-focus',oak,'charcoal','purchased','https://docs.luxonis.com/hardware/products/OAK-D%20Lite',
-        'vendor91x28x17.5mm envelope; padded saddle, no invented mounting holes',group='vision',explode=(0,.04,-.035))
-    for x,r in [(-37.5,5.3),(0,7),(37.5,5.3)]:
-        add(f'oak-lens-{x}','OAK optical aperture reference',cyl(r,1,(x,129,153),(0,1,0)),'lens','purchased',
-            'OAK-DLite reference','aperture positions illustrative; camera front unobstructed',group='vision',explode=(0,.04,-.035))
-    # USB turns sideways, with an explicit 30 mm design clearance region.
-    add('oak-usb','USB-C plug/cable clearance reference',box(24,12,10,57,120,150),'black','purchased',
-        'USB-C90degreerightangleleadreference','right-angle cable fit must be physically checked; 30mm outside camera side reserved',group='vision',explode=(0,.04,-.035))
-    for a in (0,60,120,180,240,300):
-        s=box(2,13,18,116.5,0,86)
-        add(f'tof-perimeter-{a}','VL53L1X perimeter ToF reference',radial(s,a),'green','purchased','https://www.pololu.com/product/3415',
-            'vendor13x18x2mm PCB envelope; strap mount and optical window need physical fit test',group='sensors',explode=(0,.01,0))
-    for a in P['wheel_angles_deg']:
-        add(f'tof-cliff-{a}','Downward cliff ToF reference',radial(box(13,18,2,108,42,37).rotate((108,42,37),(108,43,37),-50),a),'green','purchased',
-            'https://www.pololu.com/product/3415','vendor13x18x2mm;50deg outward/42mm tangent offset; stair-safety unvalidated',group='sensors',explode=(0,-.02,0))
+    camera_electronics()
     # Panel stop cuts motor power; exact switch electrical ratings are a BOM hold point.
     add('stop-body','IDEC YW1B-V4E01R switch rear envelope',union(cyl(15,34.8,(78,-48,97.2)),cyl(11.1,11,(78,-48,132))),'black','purchased',
         'https://eu.idec.com/idec-eu/en_EU/','vendor22.3mm panelcutout/45.8mmrear extent; neck/body shape proxy, add wireclearance',group='power',explode=(0,.03,0))
@@ -564,13 +597,10 @@ def build():
     for i,(x,y) in enumerate([(-47,-8),(47,-8),(-47,58),(47,58)]):
         add(f'pi-riser-{i}','41mm Pi tray riser',tray_riser(x,y),'charcoal',group='pi-risers',explode=(0,.025,0))
     for x in (-43,43):
-        add(f'camera-tower-{x}','Independent camera tower',camera_tower(x),'charcoal',group='camera-towers',explode=(0,.025,0))
-    add('camera-saddle','Padded camera saddle',camera_saddle(),'white',group='camera-saddle',explode=(0,.04,-.035))
-    add('camera-relief','USB cable strain relief',cable_relief(),'white',group='camera-relief',explode=(0,.04,-.035))
-    for a in (0,60,120,180,240,300):
-        add(f'tof-mount-{a}','Perimeter ToF strap carrier',sensor_carrier(a),'charcoal',group='perimeter-tof-mounts',explode=(0,.015,0))
-    for a in P['wheel_angles_deg']:
-        add(f'cliff-mount-{a}','50degree floor sensor carrier',sensor_carrier(a,True),'charcoal',group='cliff-tof-mounts',explode=(0,-.025,0))
+        add(f'camera-front-tower-{x}','Front camera structural tower',camera_front_tower(x),'charcoal',group='camera-front-towers',explode=(0,.025,0))
+    for label,yaw in CONFIG['poses']:
+        if label!='front':add(f'camera-side-tower-{label}',f'{label} camera structural tower',camera_side_tower(yaw),'charcoal',group='camera-side-towers',explode=(0,.025,0))
+        add(f'camera-mount-{label}',f'{label} camera open-back mounting frame',camera_mount(label,yaw),'white',group='camera-front-mount' if label=='front' else 'camera-side-mounts',explode=(0,.04,-.025))
     for a in (90,210,330):
         add(f'bumper-{a}','3mmtravel contact bumper segment',bumper(a),'teal',group='bumpers',explode=(0,.015,0))
         add(f'bumper-carrier-{a}','Switch/guide/hardstop bumper carrier',bumper_carrier(a),'charcoal',group='bumper-carriers',explode=(0,.005,0))
@@ -584,9 +614,13 @@ def build():
     add('pico-carrier','Pico2 strap carrier',strap_carrier(-75,51,31,61,[(-74,35),(-74,65)]),'charcoal',group='pico-carrier')
     add('pi-power-carrier','5V power regulator strap carrier',strap_carrier(76,12,31,54,[(76,-8),(76,32)]),'charcoal',group='pi-power-carrier')
     add('disconnect-carrier','Motor power switch strap carrier',strap_carrier(75,64,31,39,[(75,55),(75,73)]),'charcoal',group='disconnect-carrier')
-    add('mux-carrier','Dual I2C multiplexer strap carrier',mux_carrier(),'charcoal',group='mux-carrier')
-    add('imu-carrier','IMU and3.3V regulator carrier',imu_carrier(),'charcoal',group='imu-carrier')
+    add('imu-carrier','IMU-only carrier',imu_carrier(),'charcoal',group='imu-carrier')
     add('main-switch-panel','Structural rear master-switch panel',master_panel(),'charcoal',group='main-switch-panel')
+    if CONFIG['hub']:
+        add('usb-hub-carrier','Raised powered-USB-hub strap cradle',usb_hub_carrier(),'charcoal',group='usb-hub-carrier')
+        for i,(x,y) in enumerate(STRUCTURAL_MOUNTS['usbHub']):
+            add(f'usb-hub-riser-{i}','10mm inserted USB-hub riser',hub_riser(x,y),'charcoal',group='usb-hub-risers')
+        add('camera-power-carrier','Dedicated camera5V supply strap cradle',camera_power_carrier(),'charcoal',group='camera-power-carrier')
     purchased_electronics()
 
 def export(out):
@@ -623,7 +657,7 @@ def export(out):
                 item['stl']=stl_by_group[p['group']]
             else:
                 ps=s
-                if p['id'].startswith(('clamp-','bumper-','tof-mount-','cliff-mount-')):
+                if p['id'].startswith(('clamp-','bumper-')):
                     a=int(p['id'].split('-')[-1]);ps=ps.rotate((0,0,0),(0,0,1),-a)
                 for ax,a in p['printRotation']:
                     axis={'x':(1,0,0),'y':(0,1,0),'z':(0,0,1)}[ax]
@@ -660,7 +694,6 @@ def export(out):
         {'pair':'gearcase / clamp bore (diametral)','nominalMm':.6,'basis':'25mm vendor case,25.6mm bore'},
         {'pair':'motor can / rear clamp bore (diametral)','nominalMm':.6,'basis':'24.4mm vendor can,25mm bore'},
         {'pair':'motor face / hub barrel','nominalMm':1.0,'basis':'radial face102; hub begins103'},
-        {'pair':'camera / padded saddle width','nominalMm':4.0,'basis':'95mm insidewidth vs91mm camera'},
         {'pair':'battery / locating pocket width','nominalMm':2.0,'basis':'36mm clearpocket vs34mm pack'},
         {'pair':'Pi cooler / lid lower face','nominalMm':18.4,'basis':'cooler top121mm; lid bottom139.4mm'},
         {'pair':'left / right deck and shell seam','nominalMm':.5,'basis':'parametric splitgap'},
@@ -668,8 +701,20 @@ def export(out):
     critical_pairs=[]
     # Small set of meaningful shape collision tests, excluding fastening/mating surfaces.
     index={p['id']:p['shape'] for p in PARTS}
-    for i,j in [('battery','pi-tray'),('battery','deck-left'),('battery','deck-right'),
-                ('pi-cooler','lid-left'),('pi-cooler','lid-right'),('oak-body','camera-saddle'),('battery','stop-tower'),('battery','electronics-tray'),('camera-saddle','camera-tower--43'),('camera-saddle','camera-tower-43'),('stop-body','stop-tower'),('stop-tower','lid-right'),('splice-0','clamp-upper-270'),('splice-1','clamp-upper-270'),('main-rocker-body','main-switch-panel'),('main-rocker-body','battery'),('motor-driver-0','battery'),('i2c-mux-0','camera-tower--43'),('i2c-mux-1','camera-tower-43'),('imu','pi-tray'),('power-regulator','stop-tower'),('microcontroller','shell-left')]:
+    selected_pairs=[('battery','pi-tray'),('battery','deck-left'),('battery','deck-right'),
+        ('pi-cooler','lid-left'),('pi-cooler','lid-right'),('battery','stop-tower'),('battery','electronics-tray'),
+        ('stop-body','stop-tower'),('stop-tower','lid-right'),('splice-0','clamp-upper-270'),('splice-1','clamp-upper-270'),
+        ('main-rocker-body','main-switch-panel'),('main-rocker-body','battery'),('motor-driver-0','battery'),
+        ('imu','pi-tray'),('power-regulator','stop-tower'),('microcontroller','shell-left')]
+    for label,yaw in CONFIG['poses']:
+        selected_pairs.extend([(f'camera-{label}-pcb',f'camera-mount-{label}'),
+                               (f'camera-{label}-usb',f'camera-mount-{label}'),
+                               (f'camera-mount-{label}','lid-left'),(f'camera-mount-{label}','lid-right')])
+    if CONFIG['hub']:
+        selected_pairs.extend([('camera-usb-hub','imu'),('camera-usb-hub','pi-tray'),('camera-usb-hub','battery'),('usb-hub-carrier','battery'),
+                               ('camera-power-buck','pi-tray'),('camera-power-buck','usb-hub-carrier'),
+                               ('camera-power-buck','camera-front-tower--43'),('camera-power-buck','camera-front-tower-43')])
+    for i,j in selected_pairs:
         v=index[i].intersect(index[j]).Volume()
         critical_pairs.append({'parts':[i,j],'intersectionMm3':round(v,5),'passed':v<.01})
         if v>=.01: issues.append(f'Unintended collision {i}/{j}: {v:.2f}mm3')
@@ -694,50 +739,56 @@ def export(out):
             common=left['shape'].intersect(right['shape']);v=common.Volume()
             printed_pairs.append({'parts':[left['id'],right['id']],'intersectionMm3':round(v,5),'passed':v<.02,'intersectionBoundsMm':([exact_bb(common).xmin,exact_bb(common).ymin,exact_bb(common).zmin,exact_bb(common).xmax,exact_bb(common).ymax,exact_bb(common).zmax] if v>.02 else None)})
             if v>=.02:issues.append('Printed collision '+left['id']+'/'+right['id']+f':{v:.3f}mm3')
+    extra=CONFIG['hub'];stereo=CONFIG['stereo']
     fasteners=[
-        {'item':'M3x45 socket cap screw','quantity':12,'use':'four through-bolts per two-station motor cradle'},
-        {'item':'M3 nut','quantity':12,'use':'motor cradle lower hex traps'},
-        {'item':'M3x12 socket cap screw','quantity':4,'use':'front/rear deck seam splice plates; centre usesM3x14throughIMUcarrier'},
-        {'item':'M3x10 socket cap screw','quantity':38,'use':'6shell+8lid+8trayrisers+4camera+4driverrisers+2stop+2mainpanel+4spares'},
-        {'item':'M3x16 socket cap screw','quantity':8,'use':'6bumpercarrier+2spares'},
-        {'item':'M3x14 socket cap screw','quantity':20,'use':'6cliff+2Pico+2PiPower+2disconnect+4mux+2IMU/splice+2spares'},
-        {'item':'ruthexRX-M3Sx4.0SHORT OD4.6/L4.0, nominal4.0bore','quantity':40,'use':'6splices+6shellposts+8lidpads+8trayrisers+4cameratower+4driverrisers+2stopcolumns+2mainpanel'},
-        {'item':'M3 nut/nyloc','quantity':30,'use':'22carrier/power+6bumperguidebolts+2spares'},
-        {'item':'M3 washer','quantity':52,'use':'12motorcradle+6bumperguides+28carrier/power+6spares'},
-        {'item':'M3x25 screw','quantity':6,'use':'bumper guide sleeves and retaining washers; verify free3mmtravel'},
-        {'item':'M2x20 screw and nut','quantity':6,'use':'Omron lever switch throughbody+carrier+deck adjustable slots'},
-        {'item':'5OD/3.2ID x16mm steel sleeve','quantity':6,'use':'bumper guide-bearing spacers'},
-        {'item':'MISUMI AUA2-20 extension spring','quantity':6,'use':'OD2/free20;21mmrest/24mmpressed;nominal0.162/0.258N'},{'item':'1mmdiameter x10mmsteelpin','quantity':12,'use':'springanchorloaddirection;fittedthrough1.1mmprintedbore'},
-        {'item':'M2.5x8 screw','quantity':4,'use':'Pi to printed standoffs; selftap only after pilot coupon'},
-        {'item':'M3x10 countersunk screw','quantity':9,'use':'three vendor hub-to-wheel screws perwheel; verify head seat and rear clearance'},
-        {'item':'M3lowprofile nut','quantity':9,'use':'wheel/hub mounting,conditionalactualwheelwebstack'},
-        {'item':'M3 set screw','quantity':3,'use':'Nexus hub supplied/set-screw length vendor verified at purchase'},
-        {'item':'15x250mm hook-and-loop strap','quantity':2,'use':'battery retention'},
-        {'item':'2.5mm cable tie','quantity':40,'use':'9ToF sensor boards, camera/USB/electronics harness'},
-        {'item':'1mm closed-cell foam adhesive pad','quantity':1,'use':'camera saddle vibration isolation; cut-to-fit'},
+        dict(id='hardware_m3x45',item='M3x45 socket cap screw',quantity=12,use='four through-bolts per two-station motor cradle'),
+        dict(id='hardware_m3_nut',item='M3 nut',quantity=12,use='motor cradle lower hex traps'),
+        dict(id='hardware_m3x12',item='M3x12 socket cap screw',quantity=(2 if extra else 4)+(4 if stereo else 0),use='outerdecksplices;threecamera frontsplice usesM3x14;stereo adds4camera screws'),
+        dict(id='hardware_m3x10',item='M3x10 socket cap screw',quantity=50 if extra else 38,use='34commoninstalled+4spares;threecamera adds8sidecamera+4hubriser bottom'),
+        dict(id='hardware_m3x8',item='M3x8 socket cap screw',quantity=4 if extra else 0,use='USBhubcarrier top;shorter to avoid opposed screw collision'),
+        dict(id='hardware_m3x16',item='M3x16 socket cap screw',quantity=8,use='6bumpercarrier+2spares'),
+        dict(id='hardware_m3x14',item='M3x14 socket cap screw',quantity=12 if extra else 10,use='2Pico+2PiPower+2disconnect+2IMU/splice+2spares;threecamera adds2DFR/frontsplice'),
+        dict(id='hardware_inserts',item='ruthexRX-M3Sx4.0SHORT OD4.6/L4.0 nominal4.0bore',quantity=56 if extra else 40,use='40common;threecamera adds8sidetower+8hubriser'),
+        dict(id='hardware_nyloc',item='M3 nut/nyloc',quantity=24 if stereo else 20,use='12carrier/power+6bumperguides+2spares;stereo adds4camera nuts'),
+        dict(id='hardware_washers',item='M3 washer',quantity=58 if extra else 42,use='printed joints, guides and spare allowance;check washer clearance at each interface'),
+        dict(id='hardware_m3x25',item='M3x25 screw',quantity=6,use='bumper guide sleeves and retaining washers'),
+        dict(id='hardware_m2x20',item='M2x20 screw and nut',quantity=6,use='Omron switches throughbody+carrier+deckslots'),
+        dict(id='hardware_camera_m2x10',item='M2x10 screw and nut',quantity=0 if stereo else 12 if extra else 4,use='four exact21x21mm mountingholes perOV2735'),
+        dict(id='bumper_sleeves',item='5OD/3.2ID x16mm steel sleeve',quantity=6,use='bumper guide spacers'),
+        dict(id='bumper_springs',item='MISUMI AUA2-20 extension spring',quantity=6,use='21mmrest/24mmpressed,0.162/0.258N nominal'),
+        dict(id='spring_pins',item='1mmdiameter x10mmsteelpin',quantity=12,use='springanchorload through1.1mmbore'),
+        dict(id='hardware_pi_m25',item='M2.5x8 screw',quantity=4,use='Pi mounting;pilot fitcoupon required'),
+        dict(id='hardware_wheel_screws',item='M3x10 countersunk screw',quantity=9,use='hub/wheelweb stack conditionalphysicalfit'),
+        dict(id='hardware_wheel_nuts',item='M3lowprofile nut',quantity=9,use='hub/wheelweb stack conditionalphysicalfit'),
+        dict(id='hardware_set_screws',item='M3 set screw',quantity=3,use='Nexus supplied hubshaftretention'),
+        dict(id='battery_straps',item='15x250mm hook-and-loop strap',quantity=2,use='battery retention'),
+        dict(id='hardware_ties',item='2.5mm cable tie',quantity=32 if extra else 20,use='USB/power/electronics harness and strapcradles'),
+        dict(id='camera_foam',item='1mm insulating foam/pad sheet',quantity=1,use='strap-mounted electronics protection;cut-to-fit'),
     ]
+    fasteners=[f for f in fasteners if f['quantity']>0]
     report={'status':'PASS' if not issues else 'FAIL','issues':issues,'validPartInstances':valid_count,
             'partInstances':len(PARTS),'printedInstances':sum(p['kind']=='printed' for p in PARTS),
             'uniquePrintableStls':len(stl_by_group)+2,'contactPoints':contacts,
             'contactPlaneZMm':0,'analyticClearances':clearances,'criticalPairChecks':critical_pairs,'printedPairChecks':printed_pairs,'printedPairCandidates':len(printed)*(len(printed)-1)//2,'structuralMountChecks':mount_checks,
-            'notValidated':['bumper switch actuation and return spring force','cliff floor detection and drop-edge stopping','physicalprint/fit','vendor exact electronics mounting','hub set-screw retention/load',
+            'notValidated':['bumper switch actuation and return spring force','camera-only obstacle/drop-edge detection and stopping','physicalprint/fit','vendor exact electronics mounting','hub set-screw retention/load',
                             'screw-length physical stack','collision of all cable/bend envelopes','roller traction',
-                            'tip/stability with moving loads','thermal performance','sensor optical behavior',
+                            'tip/stability with moving loads','thermal performance','camera calibration, USB current, bandwidth and cable clearances',
                             'electrical safety and emergency stop function'],
             'intentionalMating':['clamp upper/lower sharez30splitplane','cradle/underside deck sharez48',
                                 'seam splice/underside deck sharez48','shellflange/post sharez61',
                                 'Pi PCB/standoff sharez107','battery/rails supportz58',
-                                'camera/bottom saddle sharez138','sensor straps/foam not rigid booleans']}
-    result={'schemaVersion':1,'name':'Kiwi K1 engineering prototype','units':'mm',
+                                'cameraPCB/standoff sharey114','camera frame/tower sharez134']}
+    result={'schemaVersion':1,'name':'Kiwi K1 — '+CONFIG['label'],'variant':VARIANT,'cameraConfiguration':{k:v for k,v in CONFIG.items()},'units':'mm',
             'coordinateSystem':{'cadUp':'+z','cadForward':'+y','glbUp':'+y','glbForward':'-z',
                                 'glbUnits':'meters','explodeUnits':'meters','explodeCoordinates':'GLB'},
-            'assembly':{'heightMm':171.6,'radialEnvelopeDiameterMm':292.0,'drivetrainRadialEnvelopeDiameterMm':P['radial_envelope_diameter'],
+            'assembly':{'heightMm':max(171.6,CONFIG['cameraZ']+(CONFIG['height']+8)/2),'radialEnvelopeDiameterMm':292.0,'drivetrainRadialEnvelopeDiameterMm':P['radial_envelope_diameter'],
                         'chassisDiameterMm':252,'wheelDiameterMm':60,'wheelAxialWidthMm':25.6,
                         'groundClearanceMm':13.5,'targetTotalMassKg':2.0,'bumperCoverageDeg':240,'bumperWheelGapDeg':120,'bumperTravelMm':3.0,'physicalValidation':'pending'},
-            'parameters':P,'structuralMountPatternsMm':STRUCTURAL_MOUNTS,'sourceSha256':hashlib.sha256(Path(__file__).read_bytes()).hexdigest(),'parts':manifest,'fasteners':fasteners,'checks':report,
+            'parameters':P,'structuralMountPatternsMm':STRUCTURAL_MOUNTS,'activeDistanceSensors':0,'sourceSha256':hashlib.sha256(Path(__file__).read_bytes()).hexdigest(),'parts':manifest,'fasteners':fasteners,'checks':report,
             'qualification':'Prototype CAD only. Export validity and listed clearances do not establish printability, assembly, device, or physical safety.'}
     (out/'manifest.json').write_text(json.dumps(result,indent=2))
     (out/'checks.json').write_text(json.dumps(report,indent=2))
+    (out/'assembly-fasteners.json').write_text(json.dumps({'variant':VARIANT,'items':fasteners},indent=2))
     draw_svg(out)
     print(json.dumps({'status':report['status'],'issues':issues,'parts':len(PARTS),'stls':len(stl_by_group)+2,
                       'stepBytes':(out/'assembly.step').stat().st_size,'glbBytes':(out/'assembly.glb').stat().st_size},indent=2),flush=True)
@@ -754,7 +805,7 @@ def draw_svg(out):
         return line(x1,y1,x2,y2,'dim')+line(x1-3,y1-3,x1+3,y1+3,'dim')+line(x2-3,y2-3,x2+3,y2+3,'dim')+text((x1+x2)/2+5,(y1+y2)/2-5,s,'small')
     def num(x,y,n):return circle(x,y,8,'num')+f'<text x="{x}" y="{y+3}" text-anchor="middle" fill="white" style="fill:white;font-size:10px">{n}</text>'
     svg=[f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 780 580">',style,
-         '<rect width="780" height="580" fill="#faf9f5"/>',text(30,32,'KIWI K1 · TOP PLAN / mm'),text(30,50,'Prototype engineering layout · source parameters drive all dimensions','small')]
+         '<rect width="780" height="580" fill="#faf9f5"/>',text(30,32,'KIWI K1 · '+CONFIG['label']+' / mm'),text(30,50,'Prototype engineering layout · source parameters drive all dimensions','small')]
     cx,cy=240,270
     svg+=[circle(cx,cy,126,'white'),line(cx,cy-126,cx,cy+126,'thin'),line(cx-146,cy,cx+146,cy,'thin')]
     for a in P['wheel_angles_deg']:
@@ -763,21 +814,23 @@ def draw_svg(out):
         svg.append(f'<g transform="translate({cx+x},{cy-y}) rotate({-a})"><rect x="-12.8" y="-30" width="25.6" height="60" rx="5" class="dark"/></g>')
     svg.append(f'<rect x="{cx-52.5}" y="{cy+28}" width="105" height="34" class="dark"/>')
     svg.append(f'<rect x="{cx-42.5}" y="{cy-53}" width="85" height="56" fill="#78a98b" stroke="#25343b"/>')
-    svg.append(f'<rect x="{cx-45.5}" y="{cy-129}" width="91" height="17.5" class="dark"/>')
+    for label,yaw in CONFIG['poses']:
+        svg.append(f'<g transform="translate({cx},{cy}) rotate({-yaw})"><rect x="{-CONFIG["width"]/2}" y="-132" width="{CONFIG["width"]}" height="22" class="dark"/></g>')
     svg+=[dim(cx-126,cy+164,cx+126,cy+164,'252 chassis'),dim(cx+170,cy-144.6,cx+170,cy+144.6,'292 bumper envelope'),
           num(cx-75,cy-70,1),num(cx+114,cy-70,2),num(cx,cy+47,3),num(cx,cy-25,4),num(cx,cy-145,5),num(cx+76,cy+60,6)]
-    legend=['1 Split PETG chassis / cosmetic shell','2 60 × 25.6 omniwheel, 3 stations @120°','3 3S LiPo105 ×34 ×23, two straps','4 Pi5 85 ×56; hole pattern58 ×49','5 OAK-D Lite91 ×28 ×17.5','6 IDEC latching stop /22.5 panel aperture']
+    legend=['1 Split PETG chassis / cosmetic shell','2 60 × 25.6 omniwheel, 3 stations @120°','3 3S LiPo105 ×34 ×23, two straps','4 Pi5 85 ×56; hole pattern58 ×49','5 '+('AR0144 synced stereo66x30,52mm baseline' if CONFIG['stereo'] else str(len(CONFIG['poses']))+' OV2735 USB camera(s),25x25'),'6 IDEC latching stop /22.5 panel aperture']
     for i,l in enumerate(legend):svg.append(text(475,130+i*26,l,'small'))
     svg += [text(475,330,'REFERENCE / HOLD POINTS','label'),text(475,350,'Motor25D×68.5; shaft4×12.5','small'),text(475,368,'Hub16long / shaftengagement11.5','small'),text(475,386,'Wheel/hub mating physically unverified','small'),text(475,404,'3mm wheel-to-shell nominal clearance','small'),text(475,422,'0.5mm split seam; M3 clearholes3.4','small'),text(30,550,'K1 REV A · Not a manufacturing qualification · All fasteners and cable bends must be trial assembled.','small'),'</svg>']
     (out/'top-plan.svg').write_text(''.join(svg))
     svg=[f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 780 480">',style,'<rect width="780" height="480" fill="#faf9f5"/>',text(30,32,'KIWI K1 · SIDE SECTION / mm'),text(30,50,'Forward is right; camera fixed above lid; no powered gimbal','small')]
     ox,oy=270,350
+    maxheight=max(171.6,CONFIG['cameraZ']+(CONFIG['height']+8)/2)
     def rect(x,y,w,h,cl='white'):return f'<rect x="{ox+x}" y="{oy-y-h}" width="{w}" height="{h}" class="{cl}"/>'
-    svg += [line(70,oy,490,oy,'thin'),rect(-126,63,252,76),rect(-126,48,252,6,'dark'),rect(-125.4,139.4,250.8,3.6),rect(-62,58,34,23,'dark'),rect(-13,95,76,4,'dark'),rect(-3,107,56,1.6,'dark'),rect(111.25,138,17.5,28,'dark'),circle(ox-66,oy-30,30,'dark'),circle(ox+66,oy-30,30,'dark'),dim(ox+170,oy,ox+170,oy-171.6,'171.6 maximum'),dim(ox-150,oy-48,ox-150,oy-54,'6deck'),dim(ox-170,oy,ox-170,oy-13.5,'13.5 cradle clearance'),num(ox-45,oy-70,3),num(ox+30,oy-115,4),num(ox+120,oy-180,5)]
-    for i,l in enumerate(['Motor/wheel axle z30; wheelgroundz0','Deck z48–54; shell z63–139','Pi board bottom107; cooler top121','Lid z139.4–143; stop top171.6','Camera top166; saddle top169','Groundsensing is independent ofAI']):svg.append(text(510,130+i*25,l,'small'))
+    svg += [line(70,oy,490,oy,'thin'),rect(-126,63,252,76),rect(-126,48,252,6,'dark'),rect(-125.4,139.4,250.8,3.6),rect(-62,58,34,23,'dark'),rect(-13,95,76,4,'dark'),rect(-3,107,56,1.6,'dark'),rect(110.5,CONFIG['cameraZ']-CONFIG['height']/2,22,CONFIG['height'],'dark'),circle(ox-66,oy-30,30,'dark'),circle(ox+66,oy-30,30,'dark'),dim(ox+170,oy,ox+170,oy-maxheight,str(maxheight)+' maximum'),dim(ox-150,oy-48,ox-150,oy-54,'6deck'),dim(ox-170,oy,ox-170,oy-13.5,'13.5 cradle clearance'),num(ox-45,oy-70,3),num(ox+30,oy-115,4),num(ox+120,oy-180,5)]
+    for i,l in enumerate(['Motor/wheel axle z30; wheelgroundz0','Deck z48–54; shell z63–139','Pi board bottom107; cooler top121','Lid z139.4–143; stop top171.6','Camera plate top'+str(CONFIG['cameraZ']+(CONFIG['height']+8)/2),'Cameras + encoders + IMU + contact bumpers']):svg.append(text(510,130+i*25,l,'small'))
     svg += [text(30,435,'Section is a dimensioned layout schematic. Open STEP for full named part geometry.','small'),text(30,454,'Contact geometry, stiffness, thermal behavior and printed fastener stacks require physical validation.','small'),'</svg>']
     (out/'side-section.svg').write_text(''.join(svg))
 
 if __name__=='__main__':
-    ap=argparse.ArgumentParser();ap.add_argument('--output',type=Path,default=Path('public/hardware/kiwi/cad'))
-    args=ap.parse_args();build();export(args.output)
+    ap=argparse.ArgumentParser();ap.add_argument('--variant',choices=list(VARIANTS),default='front-camera');ap.add_argument('--output',type=Path)
+    args=ap.parse_args();configure(args.variant);build();export(args.output or Path('public/hardware/kiwi/cad')/args.variant)

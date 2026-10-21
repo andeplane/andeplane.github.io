@@ -1,0 +1,114 @@
+{
+  "checkedAt": "2026-10-21",
+  "availabilityNote": "Primary manufacturer search-index content retrieved on 2026-10-21; direct store opens returned HTTP403. USD prices are planning references, stock/Norway delivery/shipping/VAT/final checkout unverified.",
+  "single": {
+    "name": "Waveshare OV2735 2MP USB Camera (A)",
+    "sku": "33122",
+    "price": 14.99,
+    "currency": "USD",
+    "url": "https://www.waveshare.com/ov2735-2mp-usb-camera-a.htm",
+    "widthMm": 25,
+    "heightMm": 25,
+    "depthMm": 22.1,
+    "currentMa": null,
+    "note": "Basic 2 MP fixed-focus color camera, 96\u00b0 diagonal view, USB 2 Type-C. The same module is used once or three times. Complete-module current is unpublished; measure USB draw and verify capture settings. Independent modules are not synchronized stereo.",
+    "mount": {
+      "holeDiameterMm": 2,
+      "holePitchXmm": 21,
+      "holePitchYmm": 21,
+      "pcbThicknessMm": 1.6,
+      "lensDiameterMm": 14,
+      "lensCenterXmm": 12.5,
+      "lensCenterYmm": 12.5,
+      "lensFrontToPcbFrontMm": 16,
+      "drawingUrl": "https://d2air1d4eqhwg2.cloudfront.net/markdownx/82ec46a9-5b11-422e-8bdf-77a6714958d5.png",
+      "drawingStatus": "Manufacturer outline reproduced by distributor; visually checked",
+      "usbConnectorPosition": "Centered on one board edge; plug axis parallel to PCB. Orient down and reserve 30mm for plug and cable bend."
+    }
+  },
+  "stereo": {
+    "name": "Waveshare AR0144 Stereo USB Camera (A)",
+    "sku": "32695",
+    "price": 66.99,
+    "currency": "USD",
+    "url": "https://www.waveshare.com/ar0144-stereo-usb-camera-a.htm",
+    "widthMm": 66,
+    "heightMm": 30,
+    "depthMm": 17.72,
+    "baselineMm": 52,
+    "currentMa": null,
+    "note": "Two synchronized global-shutter cameras on one USB 2 Type-C module, 52 mm apart. Calibrate and compute depth on the Pi or home computer; no factory calibration file or onboard depth processor has been verified. Confirm delivered color/mono specification before buying.",
+    "mount": {
+      "drawingUrl": "https://www.waveshare.com/img/devkit/accBoard/AR0144-Stereo-USB-Camera-A/AR0144-Stereo-USB-Camera-A-details-size.jpg",
+      "drawingStatus": "Manufacturer outline reproduced by Spotpear; visually checked. Published 17.72mm side dimension appears to exclude rear USB projection. Allocate 22mm bare depth provisionally and measure actual module.",
+      "holeDiameterMm": 3.2,
+      "holePitchXmm": 60,
+      "holePitchYmm": 24,
+      "pcbThicknessMm": 1.6,
+      "lensDiameterMm": 14,
+      "lensCentersMm": [
+        [
+          7,
+          15
+        ],
+        [
+          59,
+          15
+        ]
+      ],
+      "drawingMirrorUrl": "https://cdn.static.spotpear.cn/uploads/picture/product/module/camera/AR0144-Stereo-USB-Camera-A/AR0144-Stereo-USB-Camera-A-details-06.jpg",
+      "conservativeBareDepthMm": 22
+    }
+  },
+  "usb": {
+    "pi5Ports": 4,
+    "picoPorts": 1,
+    "pi5PeripheralBudgetMa": 1600,
+    "threeRgbCameraProvisionalAllocationMa": 1500,
+    "picoProvisionalAllocationMa": 100,
+    "threeRgbMarginMa": 0,
+    "note": "Three cameras plus Pico fit four direct ports, but provisional 500mA per camera leaves zero margin. Include externally powered hub. Target 2A output, including 1.5A camera allocation plus 0.5A hub/cable margin; actual current unpublished and must be measured. A hub adds no USB2 bandwidth; test simultaneous MJPEG capture at modest frame rate. Main Pi buck retains 6A qualification.",
+    "threeRgbDirectConnectionAccepted": false,
+    "threeRgbSupplyArchitecture": "Dedicated DFR0849 source and externally powered official Pi USB3 hub; Pico direct to Pi"
+  },
+  "hub": {
+    "name": "Raspberry Pi USB 3 Hub",
+    "sku": "SC1636",
+    "price": 14.25,
+    "currency": "USD",
+    "url": "https://www.pishop.us/product/raspberry-pi-usb-3-hub/",
+    "widthMm": 57.4,
+    "heightMm": 52.4,
+    "depthMm": 18,
+    "currentMa": null,
+    "externalPowerMaxMa": 3000,
+    "note": "Three-camera version only. Four USB-A ports, captive 80 mm upstream lead, external 5 V USB-C input. Official ideal-diode isolation prevents upstream backfeeding. Strap mounting uses approximate published body dimensions; check the received unit.",
+    "documentationUrl": "https://www.raspberrypi.com/documentation/accessories/usb.html",
+    "noBackfeedSourceUrl": "https://forums.raspberrypi.com/viewtopic.php?t=389617"
+  },
+  "cameraPowerSupply": {
+    "name": "Camera power cable and fused wiring",
+    "quantity": 1,
+    "unit": "set",
+    "note": "Included in unquoted small-parts allowance: standard USB-A-to-C power cable, short 20AWG supply wiring and 2A BAT_SW input fuse. Verify exact hub/source/cable at 2A output; legacy A-to-C does not advertise 3A Type-C current. All power grounds join the common star; hub ideal diode prevents upstream backfeed. Exact cable SKU unquoted.",
+    "status": "Source SKU selected; wiring and cable allowance"
+  },
+  "cameraPower": {
+    "name": "DFRobot 2-Way USB Fast Charge Buck Module",
+    "sku": "DFR0849",
+    "price": 5.9,
+    "currency": "USD",
+    "url": "https://www.dfrobot.com/product-2299.html",
+    "widthMm": 50,
+    "heightMm": 40,
+    "depthMm": null,
+    "reservedHeightMm": 25,
+    "currentMa": null,
+    "inputMinV": 6,
+    "inputMaxV": 32,
+    "outputDefaultV": 5,
+    "outputMaxMa": 3000,
+    "note": "Three-camera version only. Separate 6\u201332 V input USB-A buck source, default 5 V, up to 3 A listed. Feed through a 2 A input fuse; use one USB-A output and an A-to-C cable to power the hub. Verify the actual hub/cable combination at a 2 A load. Board height is a provisional CAD clearance, not a verified part dimension.",
+    "dimensionSourceUrl": "https://www.mouser.com/en/ProductDetail/DFRobot/DFR0849?qs=ljCeji4nMDmXQ1xHHWD9YQ%3D%3D"
+  }
+}

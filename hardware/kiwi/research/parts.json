@@ -1,8 +1,6 @@
 {
   "checkedAt": "2026-10-21",
-  "currencyNote": "Observed store currencies; shipping/import/final VAT unverified. Prices per unit. Mixed-currency totals are not checkout quotes.",
-  "usdCoreSubtotal": 975.7,
-  "nokDisplayedSubtotal": 1289.8,
+  "currencyNote": "Common parts shared by all three vision-only robots. Add the camera row from the selected variant. Prices checked 20\u201321 October 2026; final stock, shipping and tax treatment need checkout confirmation.",
   "items": [
     {
       "id": "motor",
@@ -12,7 +10,7 @@
       "unit": "each",
       "currency": "USD",
       "url": "https://www.pololu.com/product/4866",
-      "note": "4mm D shaft ×12.5mm; 100rpm; 1.8A stall. Buy the MP variant; stock quantity unconfirmed.",
+      "note": "4mm D shaft \u00d712.5mm; 100rpm; 1.8A stall. Buy the MP variant; stock quantity unconfirmed.",
       "status": "Backorders allowed",
       "price": 53.95
     },
@@ -103,42 +101,6 @@
       "price": 6.6
     },
     {
-      "id": "camera",
-      "category": "Sensing",
-      "name": "Luxonis OAK-D Lite Fixed-Focus A00532",
-      "quantity": 1,
-      "unit": "each",
-      "currency": "USD",
-      "url": "https://checkout.luxonis.com/products/oak-d-lite-1",
-      "note": "RGB plus stereo pair;91×28×17.5mm; up to5W. Confirm fixed-focus variant at checkout.",
-      "status": "100+ shown; confirm variant",
-      "price": 269
-    },
-    {
-      "id": "tof",
-      "category": "Sensing",
-      "name": "Pololu 3415 VL53L1X distance sensor",
-      "quantity": 9,
-      "unit": "each",
-      "currency": "USD",
-      "url": "https://www.pololu.com/product/3415",
-      "note": "Six perimeter plus three downward.13×18×2mm;40mA peak each. This is not continuous360-degree coverage.",
-      "status": "Backorders allowed",
-      "price": 22.95
-    },
-    {
-      "id": "mux",
-      "category": "Sensing",
-      "name": "Adafruit 2717 TCA9548A I2C multiplexer",
-      "quantity": 2,
-      "unit": "each",
-      "currency": "USD",
-      "url": "https://www.adafruit.com/product/2717",
-      "note": "Set addresses0x70 and0x71; one ToF per channel. Board30.6×17.6mm.",
-      "status": "In stock shown",
-      "price": 6.95
-    },
-    {
       "id": "imu",
       "category": "Sensing",
       "name": "Pololu 2798 LSM6DSO base IMU",
@@ -146,7 +108,7 @@
       "unit": "each",
       "currency": "USD",
       "url": "https://www.pololu.com/product/2798",
-      "note": "Separate six-axis IMU avoids relying on camera batch IMU.13×23×3mm.",
+      "note": "Separate six-axis IMU avoids relying on camera batch IMU.13\u00d723\u00d73mm.",
       "status": "Backorders allowed",
       "price": 19.95
     },
@@ -170,21 +132,9 @@
       "unit": "each",
       "currency": "USD",
       "url": "https://www.pololu.com/product/2866",
-      "note": "Qualify6A total output at9.9–12.6V input. Feed both Pi5V pins; no PD negotiation; never parallel bench USB-C supply.",
+      "note": "Qualify6A total output at9.9\u201312.6V input. Feed both Pi5V pins; no PD negotiation; never parallel bench USB-C supply.",
       "status": "Rationed; backorder allowed",
       "price": 36.82
-    },
-    {
-      "id": "buck33",
-      "category": "Power",
-      "name": "Pololu 5432 D45V5F3 3.3V regulator",
-      "quantity": 1,
-      "unit": "each",
-      "currency": "USD",
-      "url": "https://www.pololu.com/product/5432",
-      "note": "Dedicated500mA sensor rail. Nine ToF sensors need up to360mA; do not power them from Pico accessory rail.",
-      "status": "Backorders allowed",
-      "price": 5.75
     },
     {
       "id": "selfoff",
@@ -206,7 +156,7 @@
       "unit": "each",
       "currency": "USD",
       "url": "https://www.digikey.com/en/products/detail/carling-technologies/V1D1B60B-CMC00-000/3025047",
-      "note": "Complete20A4–14VDC assembly;36.83×21.08mm cutout,6.3mm spades. Family drawing:37.57mm below panel, reserve60mm with terminals/bend;49.09×24.38 face. Verify exact physical assembly.",
+      "note": "Complete20A4\u201314VDC assembly;36.83\u00d721.08mm cutout,6.3mm spades. Family drawing:37.57mm below panel, reserve60mm with terminals/bend;49.09\u00d724.38 face. Verify exact physical assembly.",
       "status": "892 in stock shown; Norway delivery unverified",
       "price": 12.61
     },
@@ -230,7 +180,7 @@
       "unit": "each",
       "currency": "NOK",
       "url": "https://www.elefun.no/vare-64255/batteri-lipo-3s-2200mah-45c-gens-ace-g-tech-xt60",
-      "note": "GEA223S45X6GT / B-45C-2200-3S1P-XT60-GT.105×34×23mm; stock and final VAT mode unconfirmed.",
+      "note": "GEA223S45X6GT / B-45C-2200-3S1P-XT60-GT.105\u00d734\u00d723mm; stock and final VAT mode unconfirmed.",
       "status": "Stock and final VAT unconfirmed",
       "price": 349
     },
@@ -242,8 +192,8 @@
       "unit": "kit",
       "currency": "NOK",
       "url": "https://www.elefun.no/vare-59757/computerlader-gens-ace-imars-mini-g-tech-2-4s-60w",
-      "note": "Includes65W USB-C AC supply;2–4S LiPo; XT60 and XH balance. Check included leads. Its5V3A supply is not the Pi5 mobile supply.",
-      "status": "10–25 in stock shown; VAT unconfirmed",
+      "note": "Includes65W USB-C AC supply;2\u20134S LiPo; XT60 and XH balance. Check included leads. Its5V3A supply is not the Pi5 mobile supply.",
+      "status": "10\u201325 in stock shown; VAT unconfirmed",
       "price": 649
     },
     {
@@ -254,7 +204,7 @@
       "unit": "allowance",
       "currency": "USD",
       "url": "https://www.pololu.com/",
-      "note": "USD100–180 unquoted allowance, excluding separately quoted ruthex pack. Detailed quantities in parts.md; spring SKU selected but price and Norway delivery unverified.",
+      "note": "Allowance for wiring, fuses, microSD, bench supply, printed parts and fasteners. Exact print and fastener quantities are in the selected model assembly guide.",
       "status": "Specification list; final cart required"
     },
     {
@@ -267,7 +217,7 @@
       "currency": "EUR",
       "url": "https://www.ruthex.de/en/products/ruthex-gewindeeinsatz-m3s-100stuck-rx-m3x4-0-short-messing-gewindebuchsen-fur-3d-druck",
       "note": "100-pack, 40 used / 60 spare. OD4.6mm, length4.0mm; nominal4.0mm bore with5.0mm blind depth. Print the fit coupon before installing. Separate EUR price is excluded from the small-parts allowance.",
-      "status": "Add to cart; 2–4 days Germany shown"
+      "status": "Add to cart; 2\u20134 days Germany shown"
     },
     {
       "id": "power_harness",
@@ -281,17 +231,6 @@
       "status": "Exact parts specified; final cart unquoted"
     },
     {
-      "id": "clamp_bolts",
-      "category": "Assembly",
-      "name": "M3×45 motor clamp screws, nuts and washers",
-      "quantity": 12,
-      "unit": "sets",
-      "currency": "USD",
-      "url": "https://www.pololu.com/category/60/nuts-and-screws",
-      "note": "Twelve sets required by final split clamp stack. Included in hardware allowance.",
-      "status": "Known quantity; final fastener shop unquoted"
-    },
-    {
       "id": "bumper_springs",
       "category": "Assembly",
       "name": "MISUMI AUA2-20 extra-light extension spring",
@@ -299,140 +238,8 @@
       "unit": "each",
       "currency": "EUR",
       "url": "https://uk.misumi-ec.com/vona2/detail/110302603670/?HissuCode=AUA2-20",
-      "note": "SUS304, OD2mm, wire0.2mm, free overall20mm ±1mm; k0.032N/mm and initial tension0.13N are reference values. Nominal0.162N at21mm /0.258N at24mm. Use1mm steel anchor pins,12×10mm. Physical return/force test required; included in allowance.",
+      "note": "SUS304, OD2mm, wire0.2mm, free overall20mm \u00b11mm; k0.032N/mm and initial tension0.13N are reference values. Nominal0.162N at21mm /0.258N at24mm. Use1mm steel anchor pins,12\u00d710mm. Physical return/force test required; included in allowance.",
       "status": "Exact SKU selected; business-only seller; price, lead time and Norway checkout unverified"
-    },
-    {
-      "id": "hardware_24",
-      "category": "Assembly",
-      "name": "M3×12 seam splice screws",
-      "quantity": 4,
-      "unit": "each",
-      "currency": "USD",
-      "url": "https://www.pololu.com/category/60/nuts-and-screws",
-      "note": "Front/rear splices; center splice shares the M3×14 IMU carrier fasteners.",
-      "status": "CAD quantity fixed; exact cart unquoted"
-    },
-    {
-      "id": "hardware_25",
-      "category": "Assembly",
-      "name": "M3×10 shell, lid, riser, camera and panel screws",
-      "quantity": 38,
-      "unit": "each",
-      "currency": "USD",
-      "url": "https://www.pololu.com/category/60/nuts-and-screws",
-      "note": "Final CAD: shell6 + lid8 + Pi risers8 + camera4 + driver risers4 + stop2 + rocker panel2 + spares4.",
-      "status": "CAD quantity fixed; exact cart unquoted"
-    },
-    {
-      "id": "hardware_26",
-      "category": "Assembly",
-      "name": "M3×16 bumper carrier screws",
-      "quantity": 8,
-      "unit": "each",
-      "currency": "USD",
-      "url": "https://www.pololu.com/category/60/nuts-and-screws",
-      "note": "Six bumper-carrier screws plus two spares; other carriers use M3×14 in the final export.",
-      "status": "CAD quantity fixed; exact cart unquoted"
-    },
-    {
-      "id": "hardware_27",
-      "category": "Assembly",
-      "name": "M3×25 bumper guide screws",
-      "quantity": 6,
-      "unit": "each",
-      "currency": "USD",
-      "url": "https://www.pololu.com/category/60/nuts-and-screws",
-      "note": "Six translating guides. Included in the unquoted hardware allowance.",
-      "status": "CAD quantity fixed; exact cart unquoted"
-    },
-    {
-      "id": "hardware_28",
-      "category": "Assembly",
-      "name": "M3 nyloc nuts",
-      "quantity": 30,
-      "unit": "each",
-      "currency": "USD",
-      "url": "https://www.pololu.com/category/60/nuts-and-screws",
-      "note": "Final CAD: 22 carrier/power + 6 bumper guides + 2 spares. Motor cradle nuts are included in the separate 12 clamp sets.",
-      "status": "CAD quantity fixed; exact cart unquoted"
-    },
-    {
-      "id": "hardware_29",
-      "category": "Assembly",
-      "name": "M3 plain washers",
-      "quantity": 52,
-      "unit": "each",
-      "currency": "USD",
-      "url": "https://www.pololu.com/category/60/nuts-and-screws",
-      "note": "12 motor cradle + 6 bumper guide + 28 carrier/power + 6 spares.",
-      "status": "CAD quantity fixed; exact cart unquoted"
-    },
-    {
-      "id": "hardware_30",
-      "category": "Assembly",
-      "name": "M3×10 countersunk wheel hub screws with nuts",
-      "quantity": 9,
-      "unit": "each",
-      "currency": "USD",
-      "url": "https://www.pololu.com/category/60/nuts-and-screws",
-      "note": "Conditional on actual purchased wheel web seating. Included in the unquoted hardware allowance.",
-      "status": "CAD quantity fixed; exact cart unquoted"
-    },
-    {
-      "id": "hardware_31",
-      "category": "Assembly",
-      "name": "M2×20 bumper switch screws with nuts",
-      "quantity": 6,
-      "unit": "each",
-      "currency": "USD",
-      "url": "https://www.pololu.com/category/60/nuts-and-screws",
-      "note": "Switch/carrier/deck through stack. Included in the unquoted hardware allowance.",
-      "status": "CAD quantity fixed; exact cart unquoted"
-    },
-    {
-      "id": "hardware_32",
-      "category": "Assembly",
-      "name": "M2.5×8 Raspberry Pi screws",
-      "quantity": 4,
-      "unit": "each",
-      "currency": "USD",
-      "url": "https://www.pololu.com/category/60/nuts-and-screws",
-      "note": "Pi mount. Included in the unquoted hardware allowance.",
-      "status": "CAD quantity fixed; exact cart unquoted"
-    },
-    {
-      "id": "hardware_33",
-      "category": "Assembly",
-      "name": "Guide sleeves OD5 / ID3.2 / L16mm",
-      "quantity": 6,
-      "unit": "each",
-      "currency": "USD",
-      "url": "https://www.pololu.com/category/60/nuts-and-screws",
-      "note": "Cut and deburr tube to length. Included in the unquoted hardware allowance.",
-      "status": "CAD quantity fixed; exact cart unquoted"
-    },
-    {
-      "id": "hardware_m3x14",
-      "category": "Assembly",
-      "name": "M3×14 sensor, control and power carrier screws",
-      "quantity": 20,
-      "unit": "each",
-      "currency": "USD",
-      "url": "/hardware/kiwi/cad/assembly-guide.md",
-      "note": "Final CAD: cliff6 + Pico2 + Pi power2 + disconnect2 + mux4 + IMU/splice2 + spares2. Included in small-parts allowance.",
-      "status": "Length matched to CAD; physical engagement test pending"
-    },
-    {
-      "id": "bumper_anchor_pins",
-      "category": "Assembly",
-      "name": "Ø1mm ×10mm steel spring anchor pins",
-      "quantity": 12,
-      "unit": "each",
-      "currency": "USD",
-      "url": "/hardware/kiwi/cad/assembly-guide.md",
-      "note": "Cut-to-length steel wire pins, axially retained. Fits the MISUMI spring hook; do not substitute an M3 shank. Included in allowance.",
-      "status": "Stock material; fit and retention test pending"
     },
     {
       "id": "bumper_input_fet",
@@ -446,5 +253,5 @@
       "status": "Exact part specified; retail price/stock unquoted"
     }
   ],
-  "eurQuotedSubtotal": 8.99
+  "fastenerSource": "The sync script adds the selected variant\u2019s complete fastener schedule from cad/<variant>/manifest.json. Do not duplicate fastener counts in this shared hardware list."
 }
