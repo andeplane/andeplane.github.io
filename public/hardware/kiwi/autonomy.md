@@ -8,7 +8,7 @@ Camera and algorithm research checked against primary sources on 21 October 2026
 | --- | --- | --- | --- |
 | A — Front RGB | One Waveshare OV2735 2MP USB Camera (A), SKU 33122 | Live view, recognizing objects, visual landmarks and inexpensive experiments | A single image does not provide calibrated obstacle distance |
 | B — Front + sides | Three of the same RGB modules, facing front, left and right | Observe sideways motion with less turning; choose the relevant view for a task | Independent views are not a synchronized stereo system; rear coverage is still absent |
-| C — Front stereo RGB | One Waveshare AR0144 Stereo USB Camera (A), SKU 32695 | Two synchronized color views for host-computed metric depth after calibration | It is an image-streaming module, not a guaranteed calibrated depth-output camera |
+| C — Front stereo | One Waveshare AR0144 Stereo USB Camera (A), SKU 32695 | Two synchronized views for host-computed metric depth after calibration | It is an image-streaming module, not a guaranteed calibrated depth-output camera |
 
 **Start with A for the lowest-cost starting point. Choose B if looking sideways is the priority. Choose C if experimenting with measured front-facing depth and mapping is the priority.** These are alternative camera builds, not three simultaneous camera purchases.
 
@@ -66,7 +66,7 @@ For OV2735, the manufacturer explicitly lists 720p/1080p MJPEG at 30 frames/s. I
 
 Prefer MJPEG for multiple RGB streams if supported reliably, while measuring decoding cost and image age. Do not send every full-resolution frame through a language-model API. Publish a live preview locally and send selected compressed snapshots to the home Mac/cloud when there is a useful decision to make.
 
-Camera current consumption is not established by these mode tables. Three USB cameras plus the Pico must fit the Pi's aggregate USB budget and supply/harness limits; reserve and measure each device's startup and operating current. An independently powered USB hub is an option if necessary, with a reviewed power path that does not back-feed the Pi. [Official Pi USB power guidance](https://www.raspberrypi.com/documentation/hardware/raspberrypi/usb/configuration.html).
+Camera current consumption is not established by these mode tables. The three-camera design includes an externally powered Raspberry Pi USB 3 Hub and a separate DFR0849 camera converter; the Pico remains directly connected to the Pi. Verify the actual hub/cable/source combination and measure each camera's startup and operating current. The other two versions power their camera module from the Pi and must remain within its aggregate USB budget. See wiring.md for the selected power paths. [Official Pi USB power guidance](https://www.raspberrypi.com/documentation/hardware/raspberrypi/usb/configuration.html).
 
 ## Motion control stays local
 
