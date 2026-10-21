@@ -28,6 +28,7 @@ export const router = createBrowserRouter([
       { path: 'games', element: <Suspense fallback={<p>Loading games…</p>}><Games /></Suspense> },
       { path: 'hardware', element: <Suspense fallback={<p>Loading hardware…</p>}><Hardware /></Suspense> },
       { path: 'hardware/kiwi', element: <Suspense fallback={<p>Loading Kiwi…</p>}><Kiwi /></Suspense> },
+      { path: 'hardware/kiwi/:variant', element: <Suspense fallback={<p>Loading Kiwi…</p>}><Kiwi /></Suspense> },
       { path: 'interests', element: <Suspense fallback={<p>Loading interests…</p>}><Interests /></Suspense> },
       { path: 'interests/physics', element: <Suspense fallback={<p>Loading physics…</p>}><Physics /></Suspense> },
       { path: 'interests/music', element: <Music /> },

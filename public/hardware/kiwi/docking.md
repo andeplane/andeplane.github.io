@@ -43,7 +43,7 @@ For architecture 2, BatterySpace **CH-L1118** is a documented 12.6 V/1.8 A 3S ch
 
 **Waveshare UPS Module 3S** is a useful comparison: **USD 21.99** base listing, three 18650 cells excluded, with a 12.6 V/2 A charger option. Waveshare documents protection/equalizing charge, simultaneous charge/output, a 5 V/5 A regulator, and a 60 × 93 mm board. Its raw 3S interface is labeled **12.6 V/2 A**. That output must not be assumed capable of the motor budget above. [Manufacturer listing](https://www.waveshare.com/product/ups-module-3s.htm), [module documentation](https://www.waveshare.com/wiki/UPS_Module_3S).
 
-Even its 5 V/5 A advertisement does not establish loaded Pi 5 plus OAK-D performance, USB-C 5 A identification, cable voltage drop, cooling or recharge power remaining while operating. It could be investigated for electronics, but bypassing its protected path to feed motors would require another reviewed battery architecture. It is not selected for this dock revision. Do not count a separate set of UPS cells plus a replacement traction battery as though they were one battery upgrade.
+Even its 5 V/5 A advertisement does not establish loaded Pi 5 plus the selected cameras, USB-C 5 A identification, cable voltage drop, cooling or recharge power remaining while operating. It could be investigated for electronics, but bypassing its protected path to feed motors would require another reviewed battery architecture. It is not selected for this dock revision. Do not count a separate set of UPS cells plus a replacement traction battery as though they were one battery upgrade.
 
 ## Contact and monitoring hardware
 
@@ -71,7 +71,7 @@ Proposed sequence:
 
 Nav2's `use_battery_status` and `charging_threshold` support battery-current-based confirmation; setting charging equal to “pose reached” is inappropriate for this design. Handle a nearly full battery explicitly, because valid charging can taper below a fixed current threshold. A custom plugin/state machine may be needed for actual hardware status and “already full” behavior. Keep independent stops active while allowing only the specifically designed docking contact event. [Jazzy docking parameters](https://docs.nav2.org/jazzy/configuration_and_development/configuration_guide/core_servers/configuring_docking_server/).
 
-Calibrate actual marker dimensions, camera intrinsics, `base_link → camera`, and marker-to-contact geometry. The camera must still see enough of the marker during the final approach: a marker immediately above the contact plane may leave the image or become too large/blurred at close range. Position the marker behind/above the contact plane with tested geometry; do not use stereo depth below its configured minimum range. The last centimeters may use short-range sensing, odometry and a contact signal. Model image interpretation does not replace these measurements.
+Calibrate actual marker dimensions, camera intrinsics, `base_link → camera`, and marker-to-contact geometry. The camera must still see enough of the marker during the final approach: a marker immediately above the contact plane may leave the image or become too large/blurred at close range. Position the marker behind/above the contact plane with tested geometry; do not use stereo depth below its configured minimum range. The last centimeters use the calibrated marker view, odometry and a contact signal; these vision-only versions do not add a range sensor. Model image interpretation does not replace these measurements.
 
 ## Budget and double counting
 

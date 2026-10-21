@@ -77,9 +77,9 @@ Initial operating rules are therefore **park before manipulation; fold before tr
 
 ## Wrist camera and depth
 
-Keep the fixed OAK-D Lite on the body for mapping and overview; add one small RGB camera beside the gripper for close alignment. **This is two viewpoints, not automatically a stereo camera pair.** A moving wrist and fixed body camera require calibration and synchronization before combined triangulation could be trusted.
+Keep the selected fixed cameras on the body for mapping and overview; add one small RGB camera beside the gripper for close alignment. **This is two viewpoints, not automatically a stereo camera pair.** A moving wrist and fixed body camera require calibration and synchronization before combined triangulation could be trusted.
 
-OAK-D Lite stereo can reach approximately 20 cm minimum depth in a suitable configuration, while its fixed-focus color variant is recommended from 50 cm. The final centimeters of a grasp can be occluded or outside useful depth/focus range. The wrist camera addresses view and close focus; it does not produce metric depth by itself. [Luxonis depth/focus guidance](https://checkout.luxonis.com/products/oak-d-lite-1).
+selected body camera stereo can reach approximately 20 cm minimum depth in a suitable configuration, while its fixed-focus color variant is recommended from 50 cm. The final centimeters of a grasp can be occluded or outside useful depth/focus range. The wrist camera addresses view and close focus; it does not produce metric depth by itself. [Luxonis depth/focus guidance](https://checkout.luxonis.com/products/oak-d-lite-1).
 
 Start with a **known working plane / tray and a few known-sized objects**. Calibrate camera intrinsics, the body camera to robot transform, the wrist camera to gripper transform, and joint zeros. AprilTags on the tray and/or wrist provide scale and pose checks. OpenCV hand-eye calibration estimates the camera/gripper relationship; AprilTag pose estimation requires known tag size and camera intrinsics. [OpenCV calibration functions](https://docs.opencv.org/4.13.0/d9/d0c/group__calib3d.html), [AprilRobotics pose estimation](https://github.com/AprilRobotics/apriltag/blob/master/apriltag_estimate_tag_pose.docstring).
 

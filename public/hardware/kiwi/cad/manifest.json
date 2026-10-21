@@ -1,6 +1,24 @@
 {
   "schemaVersion": 1,
-  "name": "Kiwi K1 engineering prototype",
+  "name": "Kiwi K1 \u2014 Single front camera",
+  "variant": "front-camera",
+  "cameraConfiguration": {
+    "label": "Single front camera",
+    "stereo": false,
+    "poses": [
+      [
+        "front",
+        0
+      ]
+    ],
+    "hub": false,
+    "width": 25.0,
+    "height": 25.0,
+    "cameraZ": 151.0,
+    "holeX": 21.0,
+    "holeZ": 21.0,
+    "holeD": 2.0
+  },
   "units": "mm",
   "coordinateSystem": {
     "cadUp": "+z",
@@ -69,20 +87,21 @@
     "pi_hole_y": 49.0,
     "tray_bottom": 95.0,
     "tray_thickness": 4.0,
-    "camera_width": 91.0,
-    "camera_height": 28.0,
-    "camera_depth": 17.5,
-    "camera_center_y": 120.0,
-    "camera_bottom": 138.0,
     "m3_clearance": 3.4,
     "m3_insert_hole": 4.0,
     "insert_depth": 5.0,
-    "sensor_width": 13.0,
-    "sensor_height": 18.0,
-    "sensor_depth": 2.0,
     "wheel_inner_radius": 119.0,
     "wheel_center_radius": 131.8,
-    "radial_envelope_diameter": 289.2
+    "radial_envelope_diameter": 289.2,
+    "variant": "front-camera",
+    "camera_width": 25.0,
+    "camera_height": 25.0,
+    "camera_centre_z": 151.0,
+    "camera_board_rear_y": 114.0,
+    "camera_hole_pitch_x": 21.0,
+    "camera_hole_pitch_z": 21.0,
+    "camera_baseline_mm": null,
+    "active_distance_sensors": 0
   },
   "structuralMountPatternsMm": {
     "stop": [
@@ -135,24 +154,6 @@
         73
       ]
     ],
-    "mux": [
-      [
-        -31,
-        66
-      ],
-      [
-        31,
-        66
-      ],
-      [
-        -31,
-        84
-      ],
-      [
-        31,
-        84
-      ]
-    ],
     "mainPanel": [
       [
         -27,
@@ -162,9 +163,20 @@
         27,
         -101
       ]
+    ],
+    "cameraFront": [
+      [
+        -43,
+        94
+      ],
+      [
+        43,
+        94
+      ]
     ]
   },
-  "sourceSha256": "78b2e8772f209caf630b00215f06d74ef414e8f6addec5f86451ecd8a121c932",
+  "activeDistanceSensors": 0,
+  "sourceSha256": "6bdcbf9ca70f0a52c6d4f3b34fe9f74fe4c589ecdbe2c6b69fa2a3781af947a7",
   "parts": [
     {
       "id": "deck-left",
@@ -207,7 +219,7 @@
           13.0
         ]
       },
-      "volumeMm3": 136458.046,
+      "volumeMm3": 136672.983,
       "solidCount": 1,
       "validSolid": true,
       "stl": "stl/deck-left.stl",
@@ -259,7 +271,7 @@
           13.0
         ]
       },
-      "volumeMm3": 135865.286,
+      "volumeMm3": 136189.173,
       "solidCount": 1,
       "validSolid": true,
       "stl": "stl/deck-right.stl",
@@ -1283,7 +1295,7 @@
           78.0
         ]
       },
-      "volumeMm3": 79488.953,
+      "volumeMm3": 80898.287,
       "solidCount": 1,
       "validSolid": true,
       "stl": "stl/shell-left.stl",
@@ -1320,28 +1332,28 @@
       ],
       "boundingBoxMm": {
         "min": [
-          -125.40000000000003,
-          -125.39975079720058,
+          -125.4,
+          -125.39975079720057,
           139.4
         ],
         "max": [
-          -0.25,
-          113.88112222840098,
+          -0.2499999999999671,
+          124.17290364648804,
           143.0
         ],
         "size": [
           125.15000000000003,
-          239.28087302560158,
+          249.5726544436886,
           3.5999999999999943
         ]
       },
-      "volumeMm3": 79728.65,
+      "volumeMm3": 83242.859,
       "solidCount": 1,
       "validSolid": true,
       "stl": "stl/lid-left.stl",
       "printBoundingBoxMm": [
         125.15,
-        239.281,
+        249.573,
         3.6
       ],
       "fits256mmBed": true
@@ -1373,7 +1385,7 @@
       "boundingBoxMm": {
         "min": [
           0.24999999999985945,
-          -125.99975198388289,
+          -125.9997519838829,
           61.0
         ],
         "max": [
@@ -1387,7 +1399,7 @@
           78.0
         ]
       },
-      "volumeMm3": 78923.05,
+      "volumeMm3": 80898.287,
       "solidCount": 1,
       "validSolid": true,
       "stl": "stl/shell-right.stl",
@@ -1424,28 +1436,28 @@
       ],
       "boundingBoxMm": {
         "min": [
-          0.25,
-          -125.39975079720058,
+          0.24999999999994987,
+          -125.39975079720055,
           139.4
         ],
         "max": [
-          125.40000000000002,
-          113.88112222840098,
+          125.4,
+          124.17290364648804,
           143.0
         ],
         "size": [
-          125.15000000000002,
-          239.28087302560158,
+          125.15000000000006,
+          249.57265444368858,
           3.5999999999999943
         ]
       },
-      "volumeMm3": 78297.262,
+      "volumeMm3": 81811.47,
       "solidCount": 1,
       "validSolid": true,
       "stl": "stl/lid-right.stl",
       "printBoundingBoxMm": [
         125.15,
-        239.281,
+        249.573,
         3.6
       ],
       "fits256mmBed": true
@@ -1801,8 +1813,8 @@
       "stl": "stl/pi-riser-0.stl"
     },
     {
-      "id": "camera-tower--43",
-      "name": "Independent camera tower",
+      "id": "camera-front-tower--43",
+      "name": "Front camera structural tower",
       "kind": "printed",
       "source": "Kiwi K1 parametric design",
       "dimensionalStatus": "designed; physical fit pending",
@@ -1811,11 +1823,11 @@
         0.025,
         0
       ],
-      "group": "camera-towers",
+      "group": "camera-front-towers",
       "printable": true,
       "notes": [],
       "meshNames": [
-        "camera-tower--43"
+        "camera-front-tower--43"
       ],
       "quantity": 1,
       "color": [
@@ -1827,7 +1839,7 @@
       "boundingBoxMm": {
         "min": [
           -48.5,
-          88.0,
+          84.0,
           54.0
         ],
         "max": [
@@ -1837,24 +1849,24 @@
         ],
         "size": [
           11.0,
-          34.0,
+          38.0,
           80.0
         ]
       },
-      "volumeMm3": 10963.396,
+      "volumeMm3": 11491.396,
       "solidCount": 1,
       "validSolid": true,
-      "stl": "stl/camera-tower--43.stl",
+      "stl": "stl/camera-front-tower--43.stl",
       "printBoundingBoxMm": [
         11.0,
-        34.0,
+        38.0,
         80.0
       ],
       "fits256mmBed": true
     },
     {
-      "id": "camera-tower-43",
-      "name": "Independent camera tower",
+      "id": "camera-front-tower-43",
+      "name": "Front camera structural tower",
       "kind": "printed",
       "source": "Kiwi K1 parametric design",
       "dimensionalStatus": "designed; physical fit pending",
@@ -1863,11 +1875,11 @@
         0.025,
         0
       ],
-      "group": "camera-towers",
+      "group": "camera-front-towers",
       "printable": true,
       "notes": [],
       "meshNames": [
-        "camera-tower-43"
+        "camera-front-tower-43"
       ],
       "quantity": 1,
       "color": [
@@ -1879,7 +1891,7 @@
       "boundingBoxMm": {
         "min": [
           37.5,
-          88.0,
+          84.0,
           54.0
         ],
         "max": [
@@ -1889,31 +1901,31 @@
         ],
         "size": [
           11.0,
-          34.0,
+          38.0,
           80.0
         ]
       },
-      "volumeMm3": 10963.396,
+      "volumeMm3": 11491.396,
       "solidCount": 1,
       "validSolid": true,
-      "stl": "stl/camera-tower--43.stl"
+      "stl": "stl/camera-front-tower--43.stl"
     },
     {
-      "id": "camera-saddle",
-      "name": "Padded camera saddle",
+      "id": "camera-mount-front",
+      "name": "front camera open-back mounting frame",
       "kind": "printed",
       "source": "Kiwi K1 parametric design",
       "dimensionalStatus": "designed; physical fit pending",
       "explode": [
         0,
         0.04,
-        -0.035
+        -0.025
       ],
-      "group": "camera-saddle",
+      "group": "camera-front-mount",
       "printable": true,
       "notes": [],
       "meshNames": [
-        "camera-saddle"
+        "camera-mount-front"
       ],
       "quantity": 1,
       "color": [
@@ -1924,509 +1936,31 @@
       ],
       "boundingBoxMm": {
         "min": [
-          -50.5,
-          104.5,
-          134.0
+          -50.0,
+          105.5,
+          121.0
         ],
         "max": [
-          50.5,
+          50.0,
           132.5,
-          169.0
+          167.5
         ],
         "size": [
-          101.0,
-          28.0,
-          35.0
-        ]
-      },
-      "volumeMm3": 23577.0,
-      "solidCount": 1,
-      "validSolid": true,
-      "stl": "stl/camera-saddle.stl",
-      "printBoundingBoxMm": [
-        101.0,
-        28.0,
-        35.0
-      ],
-      "fits256mmBed": true
-    },
-    {
-      "id": "camera-relief",
-      "name": "USB cable strain relief",
-      "kind": "printed",
-      "source": "Kiwi K1 parametric design",
-      "dimensionalStatus": "designed; physical fit pending",
-      "explode": [
-        0,
-        0.04,
-        -0.035
-      ],
-      "group": "camera-relief",
-      "printable": true,
-      "notes": [],
-      "meshNames": [
-        "camera-relief"
-      ],
-      "quantity": 1,
-      "color": [
-        0.88,
-        0.87,
-        0.82,
-        1
-      ],
-      "boundingBoxMm": {
-        "min": [
-          53.0,
-          110.0,
-          134.0
-        ],
-        "max": [
-          73.5,
-          128.0,
-          152.0
-        ],
-        "size": [
-          20.5,
-          18.0,
-          18.0
-        ]
-      },
-      "volumeMm3": 1878.0,
-      "solidCount": 1,
-      "validSolid": true,
-      "stl": "stl/camera-relief.stl",
-      "printBoundingBoxMm": [
-        20.5,
-        18.0,
-        18.0
-      ],
-      "fits256mmBed": true
-    },
-    {
-      "id": "tof-mount-0",
-      "name": "Perimeter ToF strap carrier",
-      "kind": "printed",
-      "source": "Kiwi K1 parametric design",
-      "dimensionalStatus": "designed; physical fit pending",
-      "explode": [
-        0,
-        0.015,
-        0
-      ],
-      "group": "perimeter-tof-mounts",
-      "printable": true,
-      "notes": [],
-      "meshNames": [
-        "tof-mount-0"
-      ],
-      "quantity": 1,
-      "color": [
-        0.095,
-        0.12,
-        0.135,
-        1
-      ],
-      "boundingBoxMm": {
-        "min": [
-          113.5,
-          -13.5,
-          71.0
-        ],
-        "max": [
-          121.5,
-          13.5,
-          99.5
-        ],
-        "size": [
-          8.0,
+          100.0,
           27.0,
-          28.5
+          46.5
         ]
       },
-      "volumeMm3": 2191.0,
+      "volumeMm3": 12061.727,
       "solidCount": 1,
       "validSolid": true,
-      "stl": "stl/tof-mount-0.stl",
+      "stl": "stl/camera-mount-front.stl",
       "printBoundingBoxMm": [
-        8.0,
+        100.0,
         27.0,
-        28.5
+        46.5
       ],
       "fits256mmBed": true
-    },
-    {
-      "id": "tof-mount-60",
-      "name": "Perimeter ToF strap carrier",
-      "kind": "printed",
-      "source": "Kiwi K1 parametric design",
-      "dimensionalStatus": "designed; physical fit pending",
-      "explode": [
-        0,
-        0.015,
-        0
-      ],
-      "group": "perimeter-tof-mounts",
-      "printable": true,
-      "notes": [],
-      "meshNames": [
-        "tof-mount-60"
-      ],
-      "quantity": 1,
-      "color": [
-        0.095,
-        0.12,
-        0.135,
-        1
-      ],
-      "boundingBoxMm": {
-        "min": [
-          45.05865704891009,
-          91.54388332953378,
-          71.0
-        ],
-        "max": [
-          72.44134295108994,
-          111.9720865598093,
-          99.5
-        ],
-        "size": [
-          27.382685902179844,
-          20.428203230275514,
-          28.5
-        ]
-      },
-      "volumeMm3": 2191.0,
-      "solidCount": 1,
-      "validSolid": true,
-      "stl": "stl/tof-mount-0.stl"
-    },
-    {
-      "id": "tof-mount-120",
-      "name": "Perimeter ToF strap carrier",
-      "kind": "printed",
-      "source": "Kiwi K1 parametric design",
-      "dimensionalStatus": "designed; physical fit pending",
-      "explode": [
-        0,
-        0.015,
-        0
-      ],
-      "group": "perimeter-tof-mounts",
-      "printable": true,
-      "notes": [],
-      "meshNames": [
-        "tof-mount-120"
-      ],
-      "quantity": 1,
-      "color": [
-        0.095,
-        0.12,
-        0.135,
-        1
-      ],
-      "boundingBoxMm": {
-        "min": [
-          -72.4413429510899,
-          91.54388332953378,
-          71.0
-        ],
-        "max": [
-          -45.05865704891005,
-          111.9720865598093,
-          99.5
-        ],
-        "size": [
-          27.382685902179844,
-          20.428203230275514,
-          28.5
-        ]
-      },
-      "volumeMm3": 2191.0,
-      "solidCount": 1,
-      "validSolid": true,
-      "stl": "stl/tof-mount-0.stl"
-    },
-    {
-      "id": "tof-mount-180",
-      "name": "Perimeter ToF strap carrier",
-      "kind": "printed",
-      "source": "Kiwi K1 parametric design",
-      "dimensionalStatus": "designed; physical fit pending",
-      "explode": [
-        0,
-        0.015,
-        0
-      ],
-      "group": "perimeter-tof-mounts",
-      "printable": true,
-      "notes": [],
-      "meshNames": [
-        "tof-mount-180"
-      ],
-      "quantity": 1,
-      "color": [
-        0.095,
-        0.12,
-        0.135,
-        1
-      ],
-      "boundingBoxMm": {
-        "min": [
-          -121.5,
-          -13.499999999999986,
-          71.0
-        ],
-        "max": [
-          -113.5,
-          13.500000000000016,
-          99.5
-        ],
-        "size": [
-          8.0,
-          27.0,
-          28.5
-        ]
-      },
-      "volumeMm3": 2191.0,
-      "solidCount": 1,
-      "validSolid": true,
-      "stl": "stl/tof-mount-0.stl"
-    },
-    {
-      "id": "tof-mount-240",
-      "name": "Perimeter ToF strap carrier",
-      "kind": "printed",
-      "source": "Kiwi K1 parametric design",
-      "dimensionalStatus": "designed; physical fit pending",
-      "explode": [
-        0,
-        0.015,
-        0
-      ],
-      "group": "perimeter-tof-mounts",
-      "printable": true,
-      "notes": [],
-      "meshNames": [
-        "tof-mount-240"
-      ],
-      "quantity": 1,
-      "color": [
-        0.095,
-        0.12,
-        0.135,
-        1
-      ],
-      "boundingBoxMm": {
-        "min": [
-          -72.44134295108998,
-          -111.97208655980927,
-          71.0
-        ],
-        "max": [
-          -45.05865704891013,
-          -91.54388332953376,
-          99.5
-        ],
-        "size": [
-          27.38268590217985,
-          20.428203230275514,
-          28.5
-        ]
-      },
-      "volumeMm3": 2191.0,
-      "solidCount": 1,
-      "validSolid": true,
-      "stl": "stl/tof-mount-0.stl"
-    },
-    {
-      "id": "tof-mount-300",
-      "name": "Perimeter ToF strap carrier",
-      "kind": "printed",
-      "source": "Kiwi K1 parametric design",
-      "dimensionalStatus": "designed; physical fit pending",
-      "explode": [
-        0,
-        0.015,
-        0
-      ],
-      "group": "perimeter-tof-mounts",
-      "printable": true,
-      "notes": [],
-      "meshNames": [
-        "tof-mount-300"
-      ],
-      "quantity": 1,
-      "color": [
-        0.095,
-        0.12,
-        0.135,
-        1
-      ],
-      "boundingBoxMm": {
-        "min": [
-          45.05865704891009,
-          -111.9720865598093,
-          71.0
-        ],
-        "max": [
-          72.44134295108994,
-          -91.54388332953378,
-          99.5
-        ],
-        "size": [
-          27.382685902179844,
-          20.428203230275514,
-          28.5
-        ]
-      },
-      "volumeMm3": 2191.0,
-      "solidCount": 1,
-      "validSolid": true,
-      "stl": "stl/tof-mount-0.stl"
-    },
-    {
-      "id": "cliff-mount-30",
-      "name": "50degree floor sensor carrier",
-      "kind": "printed",
-      "source": "Kiwi K1 parametric design",
-      "dimensionalStatus": "designed; physical fit pending",
-      "explode": [
-        0,
-        -0.025,
-        0
-      ],
-      "group": "cliff-tof-mounts",
-      "printable": true,
-      "notes": [],
-      "meshNames": [
-        "cliff-mount-30"
-      ],
-      "quantity": 1,
-      "color": [
-        0.095,
-        0.12,
-        0.135,
-        1
-      ],
-      "boundingBoxMm": {
-        "min": [
-          45.36215932167729,
-          66.31569860407205,
-          30.748387621615745
-        ],
-        "max": [
-          86.20894683899489,
-          106.06440991003635,
-          48.0
-        ],
-        "size": [
-          40.8467875173176,
-          39.74871130596429,
-          17.251612378384255
-        ]
-      },
-      "volumeMm3": 2939.491,
-      "solidCount": 1,
-      "validSolid": true,
-      "stl": "stl/cliff-mount-30.stl",
-      "printBoundingBoxMm": [
-        31.0,
-        29.0,
-        17.252
-      ],
-      "fits256mmBed": true
-    },
-    {
-      "id": "cliff-mount-150",
-      "name": "50degree floor sensor carrier",
-      "kind": "printed",
-      "source": "Kiwi K1 parametric design",
-      "dimensionalStatus": "designed; physical fit pending",
-      "explode": [
-        0,
-        -0.025,
-        0
-      ],
-      "group": "cliff-tof-mounts",
-      "printable": true,
-      "notes": [],
-      "meshNames": [
-        "cliff-mount-150"
-      ],
-      "quantity": 1,
-      "color": [
-        0.095,
-        0.12,
-        0.135,
-        1
-      ],
-      "boundingBoxMm": {
-        "min": [
-          -128.2089468389949,
-          -6.430435313820799,
-          30.748387621615745
-        ],
-        "max": [
-          -87.3621593216773,
-          33.31827599214349,
-          48.0
-        ],
-        "size": [
-          40.84678751731761,
-          39.74871130596429,
-          17.251612378384255
-        ]
-      },
-      "volumeMm3": 2939.491,
-      "solidCount": 1,
-      "validSolid": true,
-      "stl": "stl/cliff-mount-30.stl"
-    },
-    {
-      "id": "cliff-mount-270",
-      "name": "50degree floor sensor carrier",
-      "kind": "printed",
-      "source": "Kiwi K1 parametric design",
-      "dimensionalStatus": "designed; physical fit pending",
-      "explode": [
-        0,
-        -0.025,
-        0
-      ],
-      "group": "cliff-tof-mounts",
-      "printable": true,
-      "notes": [],
-      "meshNames": [
-        "cliff-mount-270"
-      ],
-      "quantity": 1,
-      "color": [
-        0.095,
-        0.12,
-        0.135,
-        1
-      ],
-      "boundingBoxMm": {
-        "min": [
-          27.49999999999998,
-          -116.00000000000001,
-          30.748387621615745
-        ],
-        "max": [
-          56.499999999999986,
-          -85.0,
-          48.0
-        ],
-        "size": [
-          29.000000000000007,
-          31.000000000000014,
-          17.251612378384255
-        ]
-      },
-      "volumeMm3": 2939.491,
-      "solidCount": 1,
-      "validSolid": true,
-      "stl": "stl/cliff-mount-30.stl"
     },
     {
       "id": "bumper-90",
@@ -4290,60 +3824,8 @@
       "fits256mmBed": true
     },
     {
-      "id": "mux-carrier",
-      "name": "Dual I2C multiplexer strap carrier",
-      "kind": "printed",
-      "source": "Kiwi K1 parametric design",
-      "dimensionalStatus": "designed; physical fit pending",
-      "explode": [
-        0,
-        0,
-        0
-      ],
-      "group": "mux-carrier",
-      "printable": true,
-      "notes": [],
-      "meshNames": [
-        "mux-carrier"
-      ],
-      "quantity": 1,
-      "color": [
-        0.095,
-        0.12,
-        0.135,
-        1
-      ],
-      "boundingBoxMm": {
-        "min": [
-          -37.0,
-          61.0,
-          54.0
-        ],
-        "max": [
-          37.0,
-          89.0,
-          57.0
-        ],
-        "size": [
-          74.0,
-          28.0,
-          3.0
-        ]
-      },
-      "volumeMm3": 4975.362,
-      "solidCount": 1,
-      "validSolid": true,
-      "stl": "stl/mux-carrier.stl",
-      "printBoundingBoxMm": [
-        74.0,
-        28.0,
-        3.0
-      ],
-      "fits256mmBed": true
-    },
-    {
       "id": "imu-carrier",
-      "name": "IMU and3.3V regulator carrier",
+      "name": "IMU-only carrier",
       "kind": "printed",
       "source": "Kiwi K1 parametric design",
       "dimensionalStatus": "designed; physical fit pending",
@@ -4367,27 +3849,27 @@
       ],
       "boundingBoxMm": {
         "min": [
-          -20.0,
+          -18.0,
           -18.0,
           54.0
         ],
         "max": [
-          32.0,
+          18.0,
           20.5,
           59.0
         ],
         "size": [
-          52.0,
+          36.0,
           38.5,
           5.0
         ]
       },
-      "volumeMm3": 5544.725,
+      "volumeMm3": 3661.525,
       "solidCount": 1,
       "validSolid": true,
       "stl": "stl/imu-carrier.stl",
       "printBoundingBoxMm": [
-        52.0,
+        36.0,
         38.5,
         5.0
       ],
@@ -4941,96 +4423,6 @@
       "validSolid": true
     },
     {
-      "id": "i2c-mux-0",
-      "name": "Adafruit2717 TCA9548A I2C mux",
-      "kind": "purchased",
-      "source": "https://www.adafruit.com/product/2717",
-      "dimensionalStatus": "vendor30.6x17.6x2.7mmPCB;header/wireclearanceadditional",
-      "explode": [
-        0,
-        0.02,
-        0
-      ],
-      "group": "electronics",
-      "printable": false,
-      "notes": [],
-      "meshNames": [
-        "i2c-mux-0"
-      ],
-      "quantity": 1,
-      "color": [
-        0.06,
-        0.35,
-        0.2,
-        1
-      ],
-      "boundingBoxMm": {
-        "min": [
-          -33.3,
-          66.2,
-          58.0
-        ],
-        "max": [
-          -2.6999999999999957,
-          83.80000000000001,
-          60.7
-        ],
-        "size": [
-          30.6,
-          17.60000000000001,
-          2.700000000000003
-        ]
-      },
-      "volumeMm3": 1454.112,
-      "solidCount": 1,
-      "validSolid": true
-    },
-    {
-      "id": "i2c-mux-1",
-      "name": "Adafruit2717 TCA9548A I2C mux",
-      "kind": "purchased",
-      "source": "https://www.adafruit.com/product/2717",
-      "dimensionalStatus": "vendor30.6x17.6x2.7mmPCB;header/wireclearanceadditional",
-      "explode": [
-        0,
-        0.02,
-        0
-      ],
-      "group": "electronics",
-      "printable": false,
-      "notes": [],
-      "meshNames": [
-        "i2c-mux-1"
-      ],
-      "quantity": 1,
-      "color": [
-        0.06,
-        0.35,
-        0.2,
-        1
-      ],
-      "boundingBoxMm": {
-        "min": [
-          2.6999999999999993,
-          66.2,
-          58.0
-        ],
-        "max": [
-          33.3,
-          83.80000000000001,
-          60.7
-        ],
-        "size": [
-          30.599999999999998,
-          17.60000000000001,
-          2.700000000000003
-        ]
-      },
-      "volumeMm3": 1454.112,
-      "solidCount": 1,
-      "validSolid": true
-    },
-    {
       "id": "imu",
       "name": "Pololu2798 MinIMU-9v5",
       "kind": "purchased",
@@ -5072,51 +4464,6 @@
         ]
       },
       "volumeMm3": 897.0,
-      "solidCount": 1,
-      "validSolid": true
-    },
-    {
-      "id": "logic-regulator",
-      "name": "Pololu5432 3.3V logic regulator",
-      "kind": "purchased",
-      "source": "https://www.pololu.com/product/5432",
-      "dimensionalStatus": "vendor7.6x11.4x2.8mmPCB;headersandwiresadditional",
-      "explode": [
-        0,
-        0.02,
-        0
-      ],
-      "group": "electronics",
-      "printable": false,
-      "notes": [],
-      "meshNames": [
-        "logic-regulator"
-      ],
-      "quantity": 1,
-      "color": [
-        0.06,
-        0.35,
-        0.2,
-        1
-      ],
-      "boundingBoxMm": {
-        "min": [
-          20.2,
-          -0.7000000000000002,
-          58.0
-        ],
-        "max": [
-          27.8,
-          10.7,
-          60.8
-        ],
-        "size": [
-          7.600000000000001,
-          11.399999999999999,
-          2.799999999999997
-        ]
-      },
-      "volumeMm3": 242.592,
       "solidCount": 1,
       "validSolid": true
     },
@@ -5256,201 +4603,66 @@
       "validSolid": true
     },
     {
-      "id": "oak-body",
-      "name": "Luxonis OAK-D Lite fixed-focus",
+      "id": "camera-front-pcb",
+      "name": "Waveshare OV2735 USB Camera(A) PCB /front",
       "kind": "purchased",
-      "source": "https://docs.luxonis.com/hardware/products/OAK-D%20Lite",
-      "dimensionalStatus": "vendor91x28x17.5mm envelope; padded saddle, no invented mounting holes",
+      "source": "https://www.waveshare.com/ov2735-2mp-usb-camera-a.htm",
+      "dimensionalStatus": "vendor SKU33122;PCB25.0x25.0x1.6;holepitch21.0x21.0;exact outline,components simplified",
       "explode": [
         0,
         0.04,
-        -0.035
+        -0.025
       ],
-      "group": "vision",
+      "group": "cameras",
       "printable": false,
       "notes": [],
       "meshNames": [
-        "oak-body"
+        "camera-front-pcb"
       ],
       "quantity": 1,
       "color": [
-        0.095,
-        0.12,
-        0.135,
+        0.06,
+        0.35,
+        0.2,
         1
       ],
       "boundingBoxMm": {
         "min": [
-          -45.5,
-          111.25,
-          138.0
+          -12.5,
+          114.0,
+          138.5
         ],
         "max": [
-          45.5,
-          128.75,
-          166.0
+          12.5,
+          115.6,
+          163.5
         ],
         "size": [
-          91.0,
-          17.5,
-          28.0
+          25.0,
+          1.5999999999999943,
+          25.0
         ]
       },
-      "volumeMm3": 44590.0,
+      "volumeMm3": 979.894,
       "solidCount": 1,
       "validSolid": true
     },
     {
-      "id": "oak-lens--37.5",
-      "name": "OAK optical aperture reference",
+      "id": "camera-front-lens-0",
+      "name": "front lens barrel",
       "kind": "purchased",
-      "source": "OAK-DLite reference",
-      "dimensionalStatus": "aperture positions illustrative; camera front unobstructed",
+      "source": "https://www.waveshare.com/ov2735-2mp-usb-camera-a.htm",
+      "dimensionalStatus": "vendor14mmOD/16mmprojectionfromPCBfront",
       "explode": [
         0,
         0.04,
-        -0.035
+        -0.025
       ],
-      "group": "vision",
+      "group": "camera-lenses",
       "printable": false,
       "notes": [],
       "meshNames": [
-        "oak-lens--37.5"
-      ],
-      "quantity": 1,
-      "color": [
-        0.05,
-        0.13,
-        0.16,
-        1
-      ],
-      "boundingBoxMm": {
-        "min": [
-          -42.8,
-          129.0,
-          147.7
-        ],
-        "max": [
-          -32.2,
-          130.0,
-          158.3
-        ],
-        "size": [
-          10.599999999999994,
-          1.0,
-          10.600000000000023
-        ]
-      },
-      "volumeMm3": 88.247,
-      "solidCount": 1,
-      "validSolid": true
-    },
-    {
-      "id": "oak-lens-0",
-      "name": "OAK optical aperture reference",
-      "kind": "purchased",
-      "source": "OAK-DLite reference",
-      "dimensionalStatus": "aperture positions illustrative; camera front unobstructed",
-      "explode": [
-        0,
-        0.04,
-        -0.035
-      ],
-      "group": "vision",
-      "printable": false,
-      "notes": [],
-      "meshNames": [
-        "oak-lens-0"
-      ],
-      "quantity": 1,
-      "color": [
-        0.05,
-        0.13,
-        0.16,
-        1
-      ],
-      "boundingBoxMm": {
-        "min": [
-          -7.0,
-          129.0,
-          146.0
-        ],
-        "max": [
-          7.0,
-          130.0,
-          160.0
-        ],
-        "size": [
-          14.0,
-          1.0,
-          14.0
-        ]
-      },
-      "volumeMm3": 153.938,
-      "solidCount": 1,
-      "validSolid": true
-    },
-    {
-      "id": "oak-lens-37.5",
-      "name": "OAK optical aperture reference",
-      "kind": "purchased",
-      "source": "OAK-DLite reference",
-      "dimensionalStatus": "aperture positions illustrative; camera front unobstructed",
-      "explode": [
-        0,
-        0.04,
-        -0.035
-      ],
-      "group": "vision",
-      "printable": false,
-      "notes": [],
-      "meshNames": [
-        "oak-lens-37.5"
-      ],
-      "quantity": 1,
-      "color": [
-        0.05,
-        0.13,
-        0.16,
-        1
-      ],
-      "boundingBoxMm": {
-        "min": [
-          32.2,
-          129.0,
-          147.7
-        ],
-        "max": [
-          42.8,
-          130.0,
-          158.3
-        ],
-        "size": [
-          10.599999999999994,
-          1.0,
-          10.600000000000023
-        ]
-      },
-      "volumeMm3": 88.247,
-      "solidCount": 1,
-      "validSolid": true
-    },
-    {
-      "id": "oak-usb",
-      "name": "USB-C plug/cable clearance reference",
-      "kind": "purchased",
-      "source": "USB-C90degreerightangleleadreference",
-      "dimensionalStatus": "right-angle cable fit must be physically checked; 30mm outside camera side reserved",
-      "explode": [
-        0,
-        0.04,
-        -0.035
-      ],
-      "group": "vision",
-      "printable": false,
-      "notes": [],
-      "meshNames": [
-        "oak-usb"
+        "camera-front-lens-0"
       ],
       "quantity": 1,
       "color": [
@@ -5461,427 +4673,112 @@
       ],
       "boundingBoxMm": {
         "min": [
-          45.0,
-          114.0,
+          -7.0,
+          115.6,
+          144.0
+        ],
+        "max": [
+          7.0,
+          131.6,
+          158.0
+        ],
+        "size": [
+          14.0,
+          16.0,
+          14.0
+        ]
+      },
+      "volumeMm3": 2463.009,
+      "solidCount": 1,
+      "validSolid": true
+    },
+    {
+      "id": "camera-front-glass-0",
+      "name": "front optical aperture reference",
+      "kind": "purchased",
+      "source": "https://www.waveshare.com/ov2735-2mp-usb-camera-a.htm",
+      "dimensionalStatus": "illustrative optical glass within documented lens envelope",
+      "explode": [
+        0,
+        0.04,
+        -0.025
+      ],
+      "group": "camera-lenses",
+      "printable": false,
+      "notes": [],
+      "meshNames": [
+        "camera-front-glass-0"
+      ],
+      "quantity": 1,
+      "color": [
+        0.05,
+        0.13,
+        0.16,
+        1
+      ],
+      "boundingBoxMm": {
+        "min": [
+          -6.0,
+          131.3,
           145.0
         ],
         "max": [
-          69.0,
-          126.0,
-          155.0
+          6.0,
+          131.60000000000002,
+          157.0
         ],
         "size": [
-          24.0,
           12.0,
-          10.0
+          0.30000000000001137,
+          12.0
         ]
       },
-      "volumeMm3": 2880.0,
+      "volumeMm3": 33.929,
       "solidCount": 1,
       "validSolid": true
     },
     {
-      "id": "tof-perimeter-0",
-      "name": "VL53L1X perimeter ToF reference",
+      "id": "camera-front-usb",
+      "name": "Downward USB-C connector reference",
       "kind": "purchased",
-      "source": "https://www.pololu.com/product/3415",
-      "dimensionalStatus": "vendor13x18x2mm PCB envelope; strap mount and optical window need physical fit test",
+      "source": "https://www.waveshare.com/ov2735-2mp-usb-camera-a.htm",
+      "dimensionalStatus": "board-edgeconnector orientedDOWN;30mmdownwardplug/wirezone;housingdetailreference",
       "explode": [
         0,
-        0.01,
-        0
+        0.04,
+        -0.025
       ],
-      "group": "sensors",
+      "group": "camera-usb",
       "printable": false,
       "notes": [],
       "meshNames": [
-        "tof-perimeter-0"
+        "camera-front-usb"
       ],
       "quantity": 1,
       "color": [
-        0.06,
-        0.35,
-        0.2,
+        0.55,
+        0.59,
+        0.61,
         1
       ],
       "boundingBoxMm": {
         "min": [
-          115.5,
-          -6.5,
-          77.0
+          -5.0,
+          109.5,
+          134.5
         ],
         "max": [
-          117.5,
-          6.5,
-          95.0
+          5.0,
+          114.0,
+          142.5
         ],
         "size": [
-          2.0,
-          13.0,
-          18.0
+          10.0,
+          4.5,
+          8.0
         ]
       },
-      "volumeMm3": 468.0,
-      "solidCount": 1,
-      "validSolid": true
-    },
-    {
-      "id": "tof-perimeter-60",
-      "name": "VL53L1X perimeter ToF reference",
-      "kind": "purchased",
-      "source": "https://www.pololu.com/product/3415",
-      "dimensionalStatus": "vendor13x18x2mm PCB envelope; strap mount and optical window need physical fit test",
-      "explode": [
-        0,
-        0.01,
-        0
-      ],
-      "group": "sensors",
-      "printable": false,
-      "notes": [],
-      "meshNames": [
-        "tof-perimeter-60"
-      ],
-      "quantity": 1,
-      "color": [
-        0.06,
-        0.35,
-        0.2,
-        1
-      ],
-      "boundingBoxMm": {
-        "min": [
-          52.12083487540116,
-          96.77593413710265,
-          77.0
-        ],
-        "max": [
-          64.37916512459887,
-          105.00798494467153,
-          95.0
-        ],
-        "size": [
-          12.258330249197712,
-          8.232050807568882,
-          18.0
-        ]
-      },
-      "volumeMm3": 468.0,
-      "solidCount": 1,
-      "validSolid": true
-    },
-    {
-      "id": "tof-perimeter-120",
-      "name": "VL53L1X perimeter ToF reference",
-      "kind": "purchased",
-      "source": "https://www.pololu.com/product/3415",
-      "dimensionalStatus": "vendor13x18x2mm PCB envelope; strap mount and optical window need physical fit test",
-      "explode": [
-        0,
-        0.01,
-        0
-      ],
-      "group": "sensors",
-      "printable": false,
-      "notes": [],
-      "meshNames": [
-        "tof-perimeter-120"
-      ],
-      "quantity": 1,
-      "color": [
-        0.06,
-        0.35,
-        0.2,
-        1
-      ],
-      "boundingBoxMm": {
-        "min": [
-          -64.37916512459883,
-          96.77593413710267,
-          77.0
-        ],
-        "max": [
-          -52.12083487540112,
-          105.00798494467155,
-          95.0
-        ],
-        "size": [
-          12.258330249197705,
-          8.232050807568882,
-          18.0
-        ]
-      },
-      "volumeMm3": 468.0,
-      "solidCount": 1,
-      "validSolid": true
-    },
-    {
-      "id": "tof-perimeter-180",
-      "name": "VL53L1X perimeter ToF reference",
-      "kind": "purchased",
-      "source": "https://www.pololu.com/product/3415",
-      "dimensionalStatus": "vendor13x18x2mm PCB envelope; strap mount and optical window need physical fit test",
-      "explode": [
-        0,
-        0.01,
-        0
-      ],
-      "group": "sensors",
-      "printable": false,
-      "notes": [],
-      "meshNames": [
-        "tof-perimeter-180"
-      ],
-      "quantity": 1,
-      "color": [
-        0.06,
-        0.35,
-        0.2,
-        1
-      ],
-      "boundingBoxMm": {
-        "min": [
-          -117.5,
-          -6.499999999999986,
-          77.0
-        ],
-        "max": [
-          -115.5,
-          6.500000000000014,
-          95.0
-        ],
-        "size": [
-          2.0,
-          13.0,
-          18.0
-        ]
-      },
-      "volumeMm3": 468.0,
-      "solidCount": 1,
-      "validSolid": true
-    },
-    {
-      "id": "tof-perimeter-240",
-      "name": "VL53L1X perimeter ToF reference",
-      "kind": "purchased",
-      "source": "https://www.pololu.com/product/3415",
-      "dimensionalStatus": "vendor13x18x2mm PCB envelope; strap mount and optical window need physical fit test",
-      "explode": [
-        0,
-        0.01,
-        0
-      ],
-      "group": "sensors",
-      "printable": false,
-      "notes": [],
-      "meshNames": [
-        "tof-perimeter-240"
-      ],
-      "quantity": 1,
-      "color": [
-        0.06,
-        0.35,
-        0.2,
-        1
-      ],
-      "boundingBoxMm": {
-        "min": [
-          -64.3791651245989,
-          -105.00798494467152,
-          77.0
-        ],
-        "max": [
-          -52.1208348754012,
-          -96.77593413710262,
-          95.0
-        ],
-        "size": [
-          12.258330249197698,
-          8.232050807568896,
-          18.0
-        ]
-      },
-      "volumeMm3": 468.0,
-      "solidCount": 1,
-      "validSolid": true
-    },
-    {
-      "id": "tof-perimeter-300",
-      "name": "VL53L1X perimeter ToF reference",
-      "kind": "purchased",
-      "source": "https://www.pololu.com/product/3415",
-      "dimensionalStatus": "vendor13x18x2mm PCB envelope; strap mount and optical window need physical fit test",
-      "explode": [
-        0,
-        0.01,
-        0
-      ],
-      "group": "sensors",
-      "printable": false,
-      "notes": [],
-      "meshNames": [
-        "tof-perimeter-300"
-      ],
-      "quantity": 1,
-      "color": [
-        0.06,
-        0.35,
-        0.2,
-        1
-      ],
-      "boundingBoxMm": {
-        "min": [
-          52.120834875401165,
-          -105.00798494467153,
-          77.0
-        ],
-        "max": [
-          64.37916512459887,
-          -96.77593413710265,
-          95.0
-        ],
-        "size": [
-          12.258330249197705,
-          8.232050807568882,
-          18.0
-        ]
-      },
-      "volumeMm3": 468.0,
-      "solidCount": 1,
-      "validSolid": true
-    },
-    {
-      "id": "tof-cliff-30",
-      "name": "Downward cliff ToF reference",
-      "kind": "purchased",
-      "source": "https://www.pololu.com/product/3415",
-      "dimensionalStatus": "vendor13x18x2mm;50deg outward/42mm tangent offset; stair-safety unvalidated",
-      "explode": [
-        0,
-        -0.02,
-        0
-      ],
-      "group": "sensors",
-      "printable": false,
-      "notes": [],
-      "meshNames": [
-        "tof-cliff-30"
-      ],
-      "quantity": 1,
-      "color": [
-        0.06,
-        0.35,
-        0.2,
-        1
-      ],
-      "boundingBoxMm": {
-        "min": [
-          63.74897206557871,
-          80.10675637184573,
-          31.377923510040105
-        ],
-        "max": [
-          81.31251515186005,
-          100.63937754604711,
-          42.62207648995991
-        ],
-        "size": [
-          17.563543086281342,
-          20.53262117420138,
-          11.244152979919804
-        ]
-      },
-      "volumeMm3": 468.0,
-      "solidCount": 1,
-      "validSolid": true
-    },
-    {
-      "id": "tof-cliff-150",
-      "name": "Downward cliff ToF reference",
-      "kind": "purchased",
-      "source": "https://www.pololu.com/product/3415",
-      "dimensionalStatus": "vendor13x18x2mm;50deg outward/42mm tangent offset; stair-safety unvalidated",
-      "explode": [
-        0,
-        -0.02,
-        0
-      ],
-      "group": "sensors",
-      "printable": false,
-      "notes": [],
-      "meshNames": [
-        "tof-cliff-150"
-      ],
-      "quantity": 1,
-      "color": [
-        0.06,
-        0.35,
-        0.2,
-        1
-      ],
-      "boundingBoxMm": {
-        "min": [
-          -123.31251515186005,
-          7.360622453952872,
-          31.377923510040105
-        ],
-        "max": [
-          -105.74897206557873,
-          27.893243628154256,
-          42.62207648995991
-        ],
-        "size": [
-          17.563543086281328,
-          20.532621174201385,
-          11.244152979919804
-        ]
-      },
-      "volumeMm3": 468.0,
-      "solidCount": 1,
-      "validSolid": true
-    },
-    {
-      "id": "tof-cliff-270",
-      "name": "Downward cliff ToF reference",
-      "kind": "purchased",
-      "source": "https://www.pololu.com/product/3415",
-      "dimensionalStatus": "vendor13x18x2mm;50deg outward/42mm tangent offset; stair-safety unvalidated",
-      "explode": [
-        0,
-        -0.02,
-        0
-      ],
-      "group": "sensors",
-      "printable": false,
-      "notes": [],
-      "meshNames": [
-        "tof-cliff-270"
-      ],
-      "quantity": 1,
-      "color": [
-        0.06,
-        0.35,
-        0.2,
-        1
-      ],
-      "boundingBoxMm": {
-        "min": [
-          32.99999999999997,
-          -112.9441639060815,
-          31.377923510040105
-        ],
-        "max": [
-          50.99999999999998,
-          -103.05583609391853,
-          42.62207648995991
-        ],
-        "size": [
-          18.000000000000007,
-          9.88832781216297,
-          11.244152979919804
-        ]
-      },
-      "volumeMm3": 468.0,
+      "volumeMm3": 360.0,
       "solidCount": 1,
       "validSolid": true
     },
@@ -5978,118 +4875,145 @@
   ],
   "fasteners": [
     {
+      "id": "hardware_m3x45",
       "item": "M3x45 socket cap screw",
       "quantity": 12,
       "use": "four through-bolts per two-station motor cradle"
     },
     {
+      "id": "hardware_m3_nut",
       "item": "M3 nut",
       "quantity": 12,
       "use": "motor cradle lower hex traps"
     },
     {
+      "id": "hardware_m3x12",
       "item": "M3x12 socket cap screw",
       "quantity": 4,
-      "use": "front/rear deck seam splice plates; centre usesM3x14throughIMUcarrier"
+      "use": "outerdecksplices;threecamera frontsplice usesM3x14;stereo adds4camera screws"
     },
     {
+      "id": "hardware_m3x10",
       "item": "M3x10 socket cap screw",
       "quantity": 38,
-      "use": "6shell+8lid+8trayrisers+4camera+4driverrisers+2stop+2mainpanel+4spares"
+      "use": "34commoninstalled+4spares;threecamera adds8sidecamera+4hubriser bottom"
     },
     {
+      "id": "hardware_m3x16",
       "item": "M3x16 socket cap screw",
       "quantity": 8,
       "use": "6bumpercarrier+2spares"
     },
     {
+      "id": "hardware_m3x14",
       "item": "M3x14 socket cap screw",
-      "quantity": 20,
-      "use": "6cliff+2Pico+2PiPower+2disconnect+4mux+2IMU/splice+2spares"
+      "quantity": 10,
+      "use": "2Pico+2PiPower+2disconnect+2IMU/splice+2spares;threecamera adds2DFR/frontsplice"
     },
     {
-      "item": "ruthexRX-M3Sx4.0SHORT OD4.6/L4.0, nominal4.0bore",
+      "id": "hardware_inserts",
+      "item": "ruthexRX-M3Sx4.0SHORT OD4.6/L4.0 nominal4.0bore",
       "quantity": 40,
-      "use": "6splices+6shellposts+8lidpads+8trayrisers+4cameratower+4driverrisers+2stopcolumns+2mainpanel"
+      "use": "40common;threecamera adds8sidetower+8hubriser"
     },
     {
+      "id": "hardware_nyloc",
       "item": "M3 nut/nyloc",
-      "quantity": 30,
-      "use": "22carrier/power+6bumperguidebolts+2spares"
+      "quantity": 20,
+      "use": "12carrier/power+6bumperguides+2spares;stereo adds4camera nuts"
     },
     {
+      "id": "hardware_washers",
       "item": "M3 washer",
-      "quantity": 52,
-      "use": "12motorcradle+6bumperguides+28carrier/power+6spares"
+      "quantity": 42,
+      "use": "printed joints, guides and spare allowance;check washer clearance at each interface"
     },
     {
+      "id": "hardware_m3x25",
       "item": "M3x25 screw",
       "quantity": 6,
-      "use": "bumper guide sleeves and retaining washers; verify free3mmtravel"
+      "use": "bumper guide sleeves and retaining washers"
     },
     {
+      "id": "hardware_m2x20",
       "item": "M2x20 screw and nut",
       "quantity": 6,
-      "use": "Omron lever switch throughbody+carrier+deck adjustable slots"
+      "use": "Omron switches throughbody+carrier+deckslots"
     },
     {
+      "id": "hardware_camera_m2x10",
+      "item": "M2x10 screw and nut",
+      "quantity": 4,
+      "use": "four exact21x21mm mountingholes perOV2735"
+    },
+    {
+      "id": "bumper_sleeves",
       "item": "5OD/3.2ID x16mm steel sleeve",
       "quantity": 6,
-      "use": "bumper guide-bearing spacers"
+      "use": "bumper guide spacers"
     },
     {
+      "id": "bumper_springs",
       "item": "MISUMI AUA2-20 extension spring",
       "quantity": 6,
-      "use": "OD2/free20;21mmrest/24mmpressed;nominal0.162/0.258N"
+      "use": "21mmrest/24mmpressed,0.162/0.258N nominal"
     },
     {
+      "id": "spring_pins",
       "item": "1mmdiameter x10mmsteelpin",
       "quantity": 12,
-      "use": "springanchorloaddirection;fittedthrough1.1mmprintedbore"
+      "use": "springanchorload through1.1mmbore"
     },
     {
+      "id": "hardware_pi_m25",
       "item": "M2.5x8 screw",
       "quantity": 4,
-      "use": "Pi to printed standoffs; selftap only after pilot coupon"
+      "use": "Pi mounting;pilot fitcoupon required"
     },
     {
+      "id": "hardware_wheel_screws",
       "item": "M3x10 countersunk screw",
       "quantity": 9,
-      "use": "three vendor hub-to-wheel screws perwheel; verify head seat and rear clearance"
+      "use": "hub/wheelweb stack conditionalphysicalfit"
     },
     {
+      "id": "hardware_wheel_nuts",
       "item": "M3lowprofile nut",
       "quantity": 9,
-      "use": "wheel/hub mounting,conditionalactualwheelwebstack"
+      "use": "hub/wheelweb stack conditionalphysicalfit"
     },
     {
+      "id": "hardware_set_screws",
       "item": "M3 set screw",
       "quantity": 3,
-      "use": "Nexus hub supplied/set-screw length vendor verified at purchase"
+      "use": "Nexus supplied hubshaftretention"
     },
     {
+      "id": "battery_straps",
       "item": "15x250mm hook-and-loop strap",
       "quantity": 2,
       "use": "battery retention"
     },
     {
+      "id": "hardware_ties",
       "item": "2.5mm cable tie",
-      "quantity": 40,
-      "use": "9ToF sensor boards, camera/USB/electronics harness"
+      "quantity": 20,
+      "use": "USB/power/electronics harness and strapcradles"
     },
     {
-      "item": "1mm closed-cell foam adhesive pad",
+      "id": "camera_foam",
+      "item": "1mm insulating foam/pad sheet",
       "quantity": 1,
-      "use": "camera saddle vibration isolation; cut-to-fit"
+      "use": "strap-mounted electronics protection;cut-to-fit"
     }
   ],
   "checks": {
     "status": "PASS",
     "issues": [],
-    "validPartInstances": 124,
-    "partInstances": 124,
-    "printedInstances": 51,
-    "uniquePrintableStls": 31,
+    "validPartInstances": 100,
+    "partInstances": 100,
+    "printedInstances": 40,
+    "uniquePrintableStls": 27,
     "contactPoints": [
       {
         "wheelAngleDeg": 30,
@@ -6137,11 +5061,6 @@
         "pair": "motor face / hub barrel",
         "nominalMm": 1.0,
         "basis": "radial face102; hub begins103"
-      },
-      {
-        "pair": "camera / padded saddle width",
-        "nominalMm": 4.0,
-        "basis": "95mm insidewidth vs91mm camera"
       },
       {
         "pair": "battery / locating pocket width",
@@ -6202,14 +5121,6 @@
       },
       {
         "parts": [
-          "oak-body",
-          "camera-saddle"
-        ],
-        "intersectionMm3": 0.0,
-        "passed": true
-      },
-      {
-        "parts": [
           "battery",
           "stop-tower"
         ],
@@ -6220,22 +5131,6 @@
         "parts": [
           "battery",
           "electronics-tray"
-        ],
-        "intersectionMm3": 0.0,
-        "passed": true
-      },
-      {
-        "parts": [
-          "camera-saddle",
-          "camera-tower--43"
-        ],
-        "intersectionMm3": 0.0,
-        "passed": true
-      },
-      {
-        "parts": [
-          "camera-saddle",
-          "camera-tower-43"
         ],
         "intersectionMm3": 0.0,
         "passed": true
@@ -6298,22 +5193,6 @@
       },
       {
         "parts": [
-          "i2c-mux-0",
-          "camera-tower--43"
-        ],
-        "intersectionMm3": 0.0,
-        "passed": true
-      },
-      {
-        "parts": [
-          "i2c-mux-1",
-          "camera-tower-43"
-        ],
-        "intersectionMm3": 0.0,
-        "passed": true
-      },
-      {
-        "parts": [
           "imu",
           "pi-tray"
         ],
@@ -6332,6 +5211,38 @@
         "parts": [
           "microcontroller",
           "shell-left"
+        ],
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "parts": [
+          "camera-front-pcb",
+          "camera-mount-front"
+        ],
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "parts": [
+          "camera-front-usb",
+          "camera-mount-front"
+        ],
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "parts": [
+          "camera-mount-front",
+          "lid-left"
+        ],
+        "intersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "parts": [
+          "camera-mount-front",
+          "lid-right"
         ],
         "intersectionMm3": 0.0,
         "passed": true
@@ -6359,7 +5270,7 @@
       {
         "parts": [
           "deck-left",
-          "camera-tower--43"
+          "camera-front-tower--43"
         ],
         "intersectionMm3": 0.0,
         "passed": true,
@@ -6431,15 +5342,6 @@
       {
         "parts": [
           "deck-left",
-          "mux-carrier"
-        ],
-        "intersectionMm3": 0.0,
-        "passed": true,
-        "intersectionBoundsMm": null
-      },
-      {
-        "parts": [
-          "deck-left",
           "imu-carrier"
         ],
         "intersectionMm3": 0.0,
@@ -6476,7 +5378,7 @@
       {
         "parts": [
           "deck-right",
-          "camera-tower-43"
+          "camera-front-tower-43"
         ],
         "intersectionMm3": 0.0,
         "passed": true,
@@ -6548,15 +5450,6 @@
       {
         "parts": [
           "deck-right",
-          "mux-carrier"
-        ],
-        "intersectionMm3": 0.0,
-        "passed": true,
-        "intersectionBoundsMm": null
-      },
-      {
-        "parts": [
-          "deck-right",
           "imu-carrier"
         ],
         "intersectionMm3": 0.0,
@@ -6567,24 +5460,6 @@
         "parts": [
           "deck-right",
           "main-switch-panel"
-        ],
-        "intersectionMm3": 0.0,
-        "passed": true,
-        "intersectionBoundsMm": null
-      },
-      {
-        "parts": [
-          "clamp-upper-30",
-          "cliff-mount-30"
-        ],
-        "intersectionMm3": 0.0,
-        "passed": true,
-        "intersectionBoundsMm": null
-      },
-      {
-        "parts": [
-          "clamp-upper-150",
-          "cliff-mount-150"
         ],
         "intersectionMm3": 0.0,
         "passed": true,
@@ -6629,7 +5504,7 @@
       {
         "parts": [
           "shell-left",
-          "camera-tower--43"
+          "camera-front-tower--43"
         ],
         "intersectionMm3": 0.0,
         "passed": true,
@@ -6638,34 +5513,7 @@
       {
         "parts": [
           "shell-left",
-          "camera-saddle"
-        ],
-        "intersectionMm3": 0.0,
-        "passed": true,
-        "intersectionBoundsMm": null
-      },
-      {
-        "parts": [
-          "shell-left",
-          "tof-mount-120"
-        ],
-        "intersectionMm3": 0.0,
-        "passed": true,
-        "intersectionBoundsMm": null
-      },
-      {
-        "parts": [
-          "shell-left",
-          "tof-mount-180"
-        ],
-        "intersectionMm3": 0.0,
-        "passed": true,
-        "intersectionBoundsMm": null
-      },
-      {
-        "parts": [
-          "shell-left",
-          "tof-mount-240"
+          "camera-mount-front"
         ],
         "intersectionMm3": 0.0,
         "passed": true,
@@ -6746,7 +5594,7 @@
       {
         "parts": [
           "lid-left",
-          "camera-saddle"
+          "camera-mount-front"
         ],
         "intersectionMm3": 0.0,
         "passed": true,
@@ -6791,7 +5639,7 @@
       {
         "parts": [
           "shell-right",
-          "camera-tower-43"
+          "camera-front-tower-43"
         ],
         "intersectionMm3": 0.0,
         "passed": true,
@@ -6800,43 +5648,7 @@
       {
         "parts": [
           "shell-right",
-          "camera-saddle"
-        ],
-        "intersectionMm3": 0.0,
-        "passed": true,
-        "intersectionBoundsMm": null
-      },
-      {
-        "parts": [
-          "shell-right",
-          "camera-relief"
-        ],
-        "intersectionMm3": 0.0,
-        "passed": true,
-        "intersectionBoundsMm": null
-      },
-      {
-        "parts": [
-          "shell-right",
-          "tof-mount-0"
-        ],
-        "intersectionMm3": 0.0,
-        "passed": true,
-        "intersectionBoundsMm": null
-      },
-      {
-        "parts": [
-          "shell-right",
-          "tof-mount-60"
-        ],
-        "intersectionMm3": 0.0,
-        "passed": true,
-        "intersectionBoundsMm": null
-      },
-      {
-        "parts": [
-          "shell-right",
-          "tof-mount-300"
+          "camera-mount-front"
         ],
         "intersectionMm3": 0.0,
         "passed": true,
@@ -6899,16 +5711,7 @@
       {
         "parts": [
           "lid-right",
-          "camera-saddle"
-        ],
-        "intersectionMm3": 0.0,
-        "passed": true,
-        "intersectionBoundsMm": null
-      },
-      {
-        "parts": [
-          "lid-right",
-          "camera-relief"
+          "camera-mount-front"
         ],
         "intersectionMm3": 0.0,
         "passed": true,
@@ -6935,34 +5738,7 @@
       {
         "parts": [
           "trim-left",
-          "camera-tower--43"
-        ],
-        "intersectionMm3": 0.0,
-        "passed": true,
-        "intersectionBoundsMm": null
-      },
-      {
-        "parts": [
-          "trim-left",
-          "tof-mount-120"
-        ],
-        "intersectionMm3": 0.0,
-        "passed": true,
-        "intersectionBoundsMm": null
-      },
-      {
-        "parts": [
-          "trim-left",
-          "tof-mount-180"
-        ],
-        "intersectionMm3": 0.0,
-        "passed": true,
-        "intersectionBoundsMm": null
-      },
-      {
-        "parts": [
-          "trim-left",
-          "tof-mount-240"
+          "camera-front-tower--43"
         ],
         "intersectionMm3": 0.0,
         "passed": true,
@@ -7052,34 +5828,7 @@
       {
         "parts": [
           "trim-right",
-          "camera-tower-43"
-        ],
-        "intersectionMm3": 0.0,
-        "passed": true,
-        "intersectionBoundsMm": null
-      },
-      {
-        "parts": [
-          "trim-right",
-          "tof-mount-0"
-        ],
-        "intersectionMm3": 0.0,
-        "passed": true,
-        "intersectionBoundsMm": null
-      },
-      {
-        "parts": [
-          "trim-right",
-          "tof-mount-60"
-        ],
-        "intersectionMm3": 0.0,
-        "passed": true,
-        "intersectionBoundsMm": null
-      },
-      {
-        "parts": [
-          "trim-right",
-          "tof-mount-300"
+          "camera-front-tower-43"
         ],
         "intersectionMm3": 0.0,
         "passed": true,
@@ -7159,8 +5908,8 @@
       },
       {
         "parts": [
-          "camera-tower--43",
-          "tof-mount-120"
+          "camera-front-tower--43",
+          "camera-mount-front"
         ],
         "intersectionMm3": 0.0,
         "passed": true,
@@ -7168,7 +5917,7 @@
       },
       {
         "parts": [
-          "camera-tower--43",
+          "camera-front-tower--43",
           "bumper-90"
         ],
         "intersectionMm3": 0.0,
@@ -7177,8 +5926,8 @@
       },
       {
         "parts": [
-          "camera-tower-43",
-          "tof-mount-60"
+          "camera-front-tower-43",
+          "camera-mount-front"
         ],
         "intersectionMm3": 0.0,
         "passed": true,
@@ -7186,62 +5935,8 @@
       },
       {
         "parts": [
-          "camera-tower-43",
+          "camera-front-tower-43",
           "bumper-90"
-        ],
-        "intersectionMm3": 0.0,
-        "passed": true,
-        "intersectionBoundsMm": null
-      },
-      {
-        "parts": [
-          "tof-mount-0",
-          "bumper-330"
-        ],
-        "intersectionMm3": 0.0,
-        "passed": true,
-        "intersectionBoundsMm": null
-      },
-      {
-        "parts": [
-          "tof-mount-60",
-          "bumper-90"
-        ],
-        "intersectionMm3": 0.0,
-        "passed": true,
-        "intersectionBoundsMm": null
-      },
-      {
-        "parts": [
-          "tof-mount-120",
-          "bumper-90"
-        ],
-        "intersectionMm3": 0.0,
-        "passed": true,
-        "intersectionBoundsMm": null
-      },
-      {
-        "parts": [
-          "tof-mount-180",
-          "bumper-210"
-        ],
-        "intersectionMm3": 0.0,
-        "passed": true,
-        "intersectionBoundsMm": null
-      },
-      {
-        "parts": [
-          "tof-mount-240",
-          "bumper-210"
-        ],
-        "intersectionMm3": 0.0,
-        "passed": true,
-        "intersectionBoundsMm": null
-      },
-      {
-        "parts": [
-          "tof-mount-300",
-          "bumper-330"
         ],
         "intersectionMm3": 0.0,
         "passed": true,
@@ -7320,7 +6015,7 @@
         "intersectionBoundsMm": null
       }
     ],
-    "printedPairCandidates": 1275,
+    "printedPairCandidates": 780,
     "structuralMountChecks": [
       {
         "group": "stop",
@@ -7413,42 +6108,6 @@
         "passed": true
       },
       {
-        "group": "mux",
-        "pointMm": [
-          -31,
-          66
-        ],
-        "shaftPathIntersectionMm3": 0.0,
-        "passed": true
-      },
-      {
-        "group": "mux",
-        "pointMm": [
-          31,
-          66
-        ],
-        "shaftPathIntersectionMm3": 0.0,
-        "passed": true
-      },
-      {
-        "group": "mux",
-        "pointMm": [
-          -31,
-          84
-        ],
-        "shaftPathIntersectionMm3": 0.0,
-        "passed": true
-      },
-      {
-        "group": "mux",
-        "pointMm": [
-          31,
-          84
-        ],
-        "shaftPathIntersectionMm3": 0.0,
-        "passed": true
-      },
-      {
         "group": "mainPanel",
         "pointMm": [
           -27,
@@ -7465,11 +6124,29 @@
         ],
         "shaftPathIntersectionMm3": 0.0,
         "passed": true
+      },
+      {
+        "group": "cameraFront",
+        "pointMm": [
+          -43,
+          94
+        ],
+        "shaftPathIntersectionMm3": 0.0,
+        "passed": true
+      },
+      {
+        "group": "cameraFront",
+        "pointMm": [
+          43,
+          94
+        ],
+        "shaftPathIntersectionMm3": 0.0,
+        "passed": true
       }
     ],
     "notValidated": [
       "bumper switch actuation and return spring force",
-      "cliff floor detection and drop-edge stopping",
+      "camera-only obstacle/drop-edge detection and stopping",
       "physicalprint/fit",
       "vendor exact electronics mounting",
       "hub set-screw retention/load",
@@ -7478,7 +6155,7 @@
       "roller traction",
       "tip/stability with moving loads",
       "thermal performance",
-      "sensor optical behavior",
+      "camera calibration, USB current, bandwidth and cable clearances",
       "electrical safety and emergency stop function"
     ],
     "intentionalMating": [
@@ -7488,8 +6165,8 @@
       "shellflange/post sharez61",
       "Pi PCB/standoff sharez107",
       "battery/rails supportz58",
-      "camera/bottom saddle sharez138",
-      "sensor straps/foam not rigid booleans"
+      "cameraPCB/standoff sharey114",
+      "camera frame/tower sharez134"
     ]
   },
   "qualification": "Prototype CAD only. Export validity and listed clearances do not establish printability, assembly, device, or physical safety."

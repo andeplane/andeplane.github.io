@@ -1,0 +1,460 @@
+{
+  "checkedAt": "2026-10-21",
+  "variant": "stereo",
+  "name": "Stereo camera pair",
+  "currencyNote": "Common parts shared by all three vision-only robots. Add the camera row from the selected variant. Prices checked 20–21 October 2026; final stock, shipping and tax treatment need checkout confirmation.",
+  "items": [
+    {
+      "id": "motor",
+      "category": "Drive",
+      "name": "Pololu 4866: 75:1 25D MP 12V encoder motor",
+      "quantity": 3,
+      "unit": "each",
+      "currency": "USD",
+      "url": "https://www.pololu.com/product/4866",
+      "note": "4mm D shaft ×12.5mm; 100rpm; 1.8A stall. Buy the MP variant; stock quantity unconfirmed.",
+      "status": "Backorders allowed",
+      "price": 53.95
+    },
+    {
+      "id": "wheel",
+      "category": "Drive",
+      "name": "Nexus 14145 60mm double omni wheel",
+      "quantity": 3,
+      "unit": "each",
+      "currency": "USD",
+      "url": "https://www.robotshop.com/products/60mm-aluminum-omni-wheel",
+      "note": "Use 25.6mm overall drawing width; web text says12mm. Alternate Mexico seller shows10 at MXN820 incl IVA; Norway delivery unverified.",
+      "status": "Restocking; ETA unavailable",
+      "price": 15.95,
+      "alternatives": [
+        {
+          "url": "https://sandorobotics.com.mx/producto/14145/",
+          "price": 820,
+          "currency": "MXN",
+          "status": "10 shown; Norway delivery unverified"
+        },
+        {
+          "url": "https://ozrobotics.com/shop/omni-wheel-double-aluminum-basic-60mm-14145/",
+          "price": 15,
+          "currency": "USD",
+          "status": "Listed; stock unconfirmed; ships from China"
+        }
+      ]
+    },
+    {
+      "id": "hub",
+      "category": "Drive",
+      "name": "Nexus 18018 4mm hub for 14145",
+      "quantity": 3,
+      "unit": "each",
+      "currency": "USD",
+      "url": "https://www.robotshop.com/products/4mm-aluminum-mounting-hub-60mm-omni-wheel",
+      "note": "16mm long, 28mm flange. Proposed11.5mm shaft engagement with1mm face gap needs physical fit verification.",
+      "status": "16 in stock shown",
+      "price": 7.76
+    },
+    {
+      "id": "driver",
+      "category": "Drive",
+      "name": "Pololu 2997 TB9051FTG motor driver",
+      "quantity": 3,
+      "unit": "each",
+      "currency": "USD",
+      "url": "https://www.pololu.com/product/2997",
+      "note": "2.6A continuous vs estimated1.89A motor stall at12.6V. 5V logic supply; 3.3V controls; DIAG needs its own divider.",
+      "status": "Backorders allowed",
+      "price": 12.95
+    },
+    {
+      "id": "pi",
+      "category": "Compute",
+      "name": "Raspberry Pi 5 4GB SC1111 / SC1431",
+      "quantity": 1,
+      "unit": "each",
+      "currency": "USD",
+      "url": "https://www.pishop.us/product/raspberry-pi-5-4gb/",
+      "note": "Wi-Fi computer; observed retailer price, not launch MSRP.",
+      "status": "Listed",
+      "price": 110
+    },
+    {
+      "id": "cooler",
+      "category": "Compute",
+      "name": "Raspberry Pi Active Cooler SC1148",
+      "quantity": 1,
+      "unit": "each",
+      "currency": "USD",
+      "url": "https://www.pishop.us/product-category/raspberry-pi/raspberry-pi-cooling/",
+      "note": "Dedicated Pi5 clip-on cooler; printed enclosure needs ventilation.",
+      "status": "Add to cart shown",
+      "price": 10.95
+    },
+    {
+      "id": "mcu",
+      "category": "Compute",
+      "name": "Raspberry Pi Pico 2 with headers SC1632",
+      "quantity": 1,
+      "unit": "each",
+      "currency": "USD",
+      "url": "https://www.sparkfun.com/raspberry-pi-pico-2-with-headers.html",
+      "note": "Motor PID and watchdog; Micro-B USB. Encoder5V requires level dividers.",
+      "status": "In stock shown",
+      "price": 6.6
+    },
+    {
+      "id": "imu",
+      "category": "Sensing",
+      "name": "Pololu 2798 LSM6DSO base IMU",
+      "quantity": 1,
+      "unit": "each",
+      "currency": "USD",
+      "url": "https://www.pololu.com/product/2798",
+      "note": "Separate six-axis IMU avoids relying on camera batch IMU.13×23×3mm.",
+      "status": "Backorders allowed",
+      "price": 19.95
+    },
+    {
+      "id": "bumper_switch",
+      "category": "Sensing",
+      "name": "Omron D2F-01L NC lever microswitch",
+      "quantity": 3,
+      "unit": "each",
+      "currency": "USD",
+      "url": "https://www.digikey.com/en/products/detail/omron-electronics-inc-emc-div/D2F-01L/83264",
+      "note": "Gold microload NC contact. Use the specified 5V wetting and 2N7000G 3.3V input circuit; direct 3.3V/10k sensing is below its documented microload range. Adjustable M2 mounting.",
+      "status": "81625 in stock shown",
+      "price": 0.93
+    },
+    {
+      "id": "buck5",
+      "category": "Power",
+      "name": "Pololu 2866 D24V90F5 5V regulator",
+      "quantity": 1,
+      "unit": "each",
+      "currency": "USD",
+      "url": "https://www.pololu.com/product/2866",
+      "note": "Qualify6A total output at9.9–12.6V input. Feed both Pi5V pins; no PD negotiation; never parallel bench USB-C supply.",
+      "status": "Rationed; backorder allowed",
+      "price": 36.82
+    },
+    {
+      "id": "selfoff",
+      "category": "Power",
+      "name": "Pololu 2813 HP pushbutton power switch",
+      "quantity": 1,
+      "unit": "each",
+      "currency": "USD",
+      "url": "https://www.pololu.com/product/2813",
+      "note": "Firmware can remove power after orderly low-battery shutdown. Separate mechanical main disconnect required.",
+      "status": "Rationed; backorder allowed",
+      "price": 8.95
+    },
+    {
+      "id": "main_switch",
+      "category": "Power",
+      "name": "Carling V1D1B60B-CMC00-000 main rocker",
+      "quantity": 1,
+      "unit": "each",
+      "currency": "USD",
+      "url": "https://www.digikey.com/en/products/detail/carling-technologies/V1D1B60B-CMC00-000/3025047",
+      "note": "Complete20A4–14VDC assembly;36.83×21.08mm cutout,6.3mm spades. Family drawing:37.57mm below panel, reserve60mm with terminals/bend;49.09×24.38 face. Verify exact physical assembly.",
+      "status": "892 in stock shown; Norway delivery unverified",
+      "price": 12.61
+    },
+    {
+      "id": "stop",
+      "category": "Power",
+      "name": "IDEC YW1B-V4E01R latching NC stop",
+      "quantity": 1,
+      "unit": "each",
+      "currency": "NOK",
+      "url": "https://www.digikey.no/en/products/detail/apem-inc/YW1B-V4E01R/15216547",
+      "note": "NOK291.80exVAT /364.75incl shown.22.3mm hole. Hardwired logic EN loop disables all three drivers; motor supply remains live.",
+      "status": "440 in stock shown",
+      "price": 291.8
+    },
+    {
+      "id": "battery",
+      "category": "Power",
+      "name": "Gens ace G-Tech 3S 2200mAh 45C XT60",
+      "quantity": 1,
+      "unit": "each",
+      "currency": "NOK",
+      "url": "https://www.elefun.no/vare-64255/batteri-lipo-3s-2200mah-45c-gens-ace-g-tech-xt60",
+      "note": "GEA223S45X6GT / B-45C-2200-3S1P-XT60-GT.105×34×23mm; stock and final VAT mode unconfirmed.",
+      "status": "Stock and final VAT unconfirmed",
+      "price": 349
+    },
+    {
+      "id": "charger",
+      "category": "Power",
+      "name": "Gens ace iMars Mini G-Tech 60W GEA60WE1 kit",
+      "quantity": 1,
+      "unit": "kit",
+      "currency": "NOK",
+      "url": "https://www.elefun.no/vare-59757/computerlader-gens-ace-imars-mini-g-tech-2-4s-60w",
+      "note": "Includes65W USB-C AC supply;2–4S LiPo; XT60 and XH balance. Check included leads. Its5V3A supply is not the Pi5 mobile supply.",
+      "status": "10–25 in stock shown; VAT unconfirmed",
+      "price": 649
+    },
+    {
+      "id": "small_parts",
+      "category": "Assembly",
+      "name": "Cables, fuses, SD card, bench supply, hardware and filament",
+      "quantity": 1,
+      "unit": "allowance",
+      "currency": "USD",
+      "url": "https://www.pololu.com/",
+      "note": "Allowance for wiring, fuses, microSD, bench supply, printed parts and fasteners. Exact print and fastener quantities are in the selected model assembly guide.",
+      "status": "Specification list; final cart required"
+    },
+    {
+      "id": "heatset",
+      "category": "Assembly",
+      "name": "ruthex RX-M3Sx4.0 SHORT, GE-M3Sx40-002",
+      "quantity": 1,
+      "unit": "100pack",
+      "price": 8.99,
+      "currency": "EUR",
+      "url": "https://www.ruthex.de/en/products/ruthex-gewindeeinsatz-m3s-100stuck-rx-m3x4-0-short-messing-gewindebuchsen-fur-3d-druck",
+      "note": "100-pack; 40 inserts used by this model. OD 4.6 mm, length 4 mm; nominal 4 mm bore with 5 mm blind depth. Print the fit coupon first. This pack is outside the materials allowance.",
+      "status": "Add to cart; 2–4 days Germany shown"
+    },
+    {
+      "id": "power_harness",
+      "category": "Assembly",
+      "name": "Molex Micro-Fit3.0 paired power harness and Samtec GPIO socket",
+      "quantity": 1,
+      "unit": "set",
+      "currency": "USD",
+      "url": "https://www.molex.com/en-us/products/part-detail/430300007",
+      "note": "43025-0400 +43020-0401;4 female43030-0007 +4 male43031-0007; paired20AWG wires; SSW-120-01-G-D socket. Included in allowance; exact pinout in wiring.md.",
+      "status": "Exact parts specified; final cart unquoted"
+    },
+    {
+      "id": "bumper_springs",
+      "category": "Assembly",
+      "name": "MISUMI AUA2-20 extra-light extension spring",
+      "quantity": 6,
+      "unit": "each",
+      "currency": "EUR",
+      "url": "https://uk.misumi-ec.com/vona2/detail/110302603670/?HissuCode=AUA2-20",
+      "note": "SUS304, OD2mm, wire0.2mm, free overall20mm ±1mm; k0.032N/mm and initial tension0.13N are reference values. Nominal0.162N at21mm /0.258N at24mm. Use1mm steel anchor pins,12×10mm. Physical return/force test required; included in allowance.",
+      "status": "Exact SKU selected; business-only seller; price, lead time and Norway checkout unverified"
+    },
+    {
+      "id": "bumper_input_fet",
+      "category": "Sensing",
+      "name": "onsemi 2N7000G TO-92 bumper input MOSFET",
+      "quantity": 3,
+      "unit": "each",
+      "currency": "USD",
+      "url": "https://www.onsemi.com/download/data-sheet/pdf/2n7000-d.pdf",
+      "note": "5V/4.7k contact wetting, high-impedance gate, 3.3V/10k drain pull-up; 10k gate series + 1M pull-down + 10nF filter. Healthy HIGH; pressed/broken loop LOW. Included in allowance.",
+      "status": "Exact part specified; retail price/stock unquoted"
+    },
+    {
+      "id": "camera",
+      "category": "Sensing",
+      "name": "Waveshare AR0144 Stereo USB Camera (A) · 32695",
+      "quantity": 1,
+      "unit": "each",
+      "price": 66.99,
+      "currency": "USD",
+      "url": "https://www.waveshare.com/ar0144-stereo-usb-camera-a.htm",
+      "note": "Two synchronized global-shutter cameras on one USB 2 Type-C module, 52 mm apart. Calibrate and compute depth on the Pi or home computer; no factory calibration file or onboard depth processor has been verified. Confirm delivered color/mono specification before buying.",
+      "status": "Manufacturer price checked 21 October 2026; final stock and delivery unconfirmed"
+    },
+    {
+      "id": "hardware_m3x45",
+      "category": "Assembly",
+      "name": "M3x45 socket cap screw",
+      "quantity": 12,
+      "unit": "each",
+      "url": "/hardware/kiwi/cad/stereo/assembly-guide.md",
+      "note": "12 required, including the spares in the assembly guide. Included in the materials allowance; check fit and screw engagement on the physical assembly.",
+      "status": "Quantity from this model’s CAD assembly schedule; retail cart unquoted"
+    },
+    {
+      "id": "hardware_m3_nut",
+      "category": "Assembly",
+      "name": "M3 nut",
+      "quantity": 12,
+      "unit": "each",
+      "url": "/hardware/kiwi/cad/stereo/assembly-guide.md",
+      "note": "12 required, including the spares in the assembly guide. Included in the materials allowance; check fit and screw engagement on the physical assembly.",
+      "status": "Quantity from this model’s CAD assembly schedule; retail cart unquoted"
+    },
+    {
+      "id": "hardware_m3x12",
+      "category": "Assembly",
+      "name": "M3x12 socket cap screw",
+      "quantity": 8,
+      "unit": "each",
+      "url": "/hardware/kiwi/cad/stereo/assembly-guide.md",
+      "note": "8 required, including the spares in the assembly guide. Included in the materials allowance; check fit and screw engagement on the physical assembly.",
+      "status": "Quantity from this model’s CAD assembly schedule; retail cart unquoted"
+    },
+    {
+      "id": "hardware_m3x10",
+      "category": "Assembly",
+      "name": "M3x10 socket cap screw",
+      "quantity": 38,
+      "unit": "each",
+      "url": "/hardware/kiwi/cad/stereo/assembly-guide.md",
+      "note": "38 required, including the spares in the assembly guide. Included in the materials allowance; check fit and screw engagement on the physical assembly.",
+      "status": "Quantity from this model’s CAD assembly schedule; retail cart unquoted"
+    },
+    {
+      "id": "hardware_m3x16",
+      "category": "Assembly",
+      "name": "M3x16 socket cap screw",
+      "quantity": 8,
+      "unit": "each",
+      "url": "/hardware/kiwi/cad/stereo/assembly-guide.md",
+      "note": "8 required, including the spares in the assembly guide. Included in the materials allowance; check fit and screw engagement on the physical assembly.",
+      "status": "Quantity from this model’s CAD assembly schedule; retail cart unquoted"
+    },
+    {
+      "id": "hardware_m3x14",
+      "category": "Assembly",
+      "name": "M3x14 socket cap screw",
+      "quantity": 10,
+      "unit": "each",
+      "url": "/hardware/kiwi/cad/stereo/assembly-guide.md",
+      "note": "10 required, including the spares in the assembly guide. Included in the materials allowance; check fit and screw engagement on the physical assembly.",
+      "status": "Quantity from this model’s CAD assembly schedule; retail cart unquoted"
+    },
+    {
+      "id": "hardware_nyloc",
+      "category": "Assembly",
+      "name": "M3 nut/nyloc",
+      "quantity": 24,
+      "unit": "each",
+      "url": "/hardware/kiwi/cad/stereo/assembly-guide.md",
+      "note": "24 required, including the spares in the assembly guide. Included in the materials allowance; check fit and screw engagement on the physical assembly.",
+      "status": "Quantity from this model’s CAD assembly schedule; retail cart unquoted"
+    },
+    {
+      "id": "hardware_washers",
+      "category": "Assembly",
+      "name": "M3 washer",
+      "quantity": 42,
+      "unit": "each",
+      "url": "/hardware/kiwi/cad/stereo/assembly-guide.md",
+      "note": "42 required, including the spares in the assembly guide. Included in the materials allowance; check fit and screw engagement on the physical assembly.",
+      "status": "Quantity from this model’s CAD assembly schedule; retail cart unquoted"
+    },
+    {
+      "id": "hardware_m3x25",
+      "category": "Assembly",
+      "name": "M3x25 screw",
+      "quantity": 6,
+      "unit": "each",
+      "url": "/hardware/kiwi/cad/stereo/assembly-guide.md",
+      "note": "6 required, including the spares in the assembly guide. Included in the materials allowance; check fit and screw engagement on the physical assembly.",
+      "status": "Quantity from this model’s CAD assembly schedule; retail cart unquoted"
+    },
+    {
+      "id": "hardware_m2x20",
+      "category": "Assembly",
+      "name": "M2x20 screw and nut",
+      "quantity": 6,
+      "unit": "sets",
+      "url": "/hardware/kiwi/cad/stereo/assembly-guide.md",
+      "note": "6 required, including the spares in the assembly guide. Included in the materials allowance; check fit and screw engagement on the physical assembly.",
+      "status": "Quantity from this model’s CAD assembly schedule; retail cart unquoted"
+    },
+    {
+      "id": "bumper_sleeves",
+      "category": "Assembly",
+      "name": "5OD/3.2ID x16mm steel sleeve",
+      "quantity": 6,
+      "unit": "each",
+      "url": "/hardware/kiwi/cad/stereo/assembly-guide.md",
+      "note": "6 required, including the spares in the assembly guide. Included in the materials allowance; check fit and screw engagement on the physical assembly.",
+      "status": "Quantity from this model’s CAD assembly schedule; retail cart unquoted"
+    },
+    {
+      "id": "spring_pins",
+      "category": "Assembly",
+      "name": "1mmdiameter x10mmsteelpin",
+      "quantity": 12,
+      "unit": "each",
+      "url": "/hardware/kiwi/cad/stereo/assembly-guide.md",
+      "note": "12 required, including the spares in the assembly guide. Included in the materials allowance; check fit and screw engagement on the physical assembly.",
+      "status": "Quantity from this model’s CAD assembly schedule; retail cart unquoted"
+    },
+    {
+      "id": "hardware_pi_m25",
+      "category": "Assembly",
+      "name": "M2.5x8 screw",
+      "quantity": 4,
+      "unit": "each",
+      "url": "/hardware/kiwi/cad/stereo/assembly-guide.md",
+      "note": "4 required, including the spares in the assembly guide. Included in the materials allowance; check fit and screw engagement on the physical assembly.",
+      "status": "Quantity from this model’s CAD assembly schedule; retail cart unquoted"
+    },
+    {
+      "id": "hardware_wheel_screws",
+      "category": "Assembly",
+      "name": "M3x10 countersunk screw",
+      "quantity": 9,
+      "unit": "each",
+      "url": "/hardware/kiwi/cad/stereo/assembly-guide.md",
+      "note": "9 required, including the spares in the assembly guide. Included in the materials allowance; check fit and screw engagement on the physical assembly.",
+      "status": "Quantity from this model’s CAD assembly schedule; retail cart unquoted"
+    },
+    {
+      "id": "hardware_wheel_nuts",
+      "category": "Assembly",
+      "name": "M3lowprofile nut",
+      "quantity": 9,
+      "unit": "each",
+      "url": "/hardware/kiwi/cad/stereo/assembly-guide.md",
+      "note": "9 required, including the spares in the assembly guide. Included in the materials allowance; check fit and screw engagement on the physical assembly.",
+      "status": "Quantity from this model’s CAD assembly schedule; retail cart unquoted"
+    },
+    {
+      "id": "hardware_set_screws",
+      "category": "Assembly",
+      "name": "M3 set screw",
+      "quantity": 3,
+      "unit": "each",
+      "url": "/hardware/kiwi/cad/stereo/assembly-guide.md",
+      "note": "3 required, including the spares in the assembly guide. Included in the materials allowance; check fit and screw engagement on the physical assembly.",
+      "status": "Quantity from this model’s CAD assembly schedule; retail cart unquoted"
+    },
+    {
+      "id": "battery_straps",
+      "category": "Assembly",
+      "name": "15x250mm hook-and-loop strap",
+      "quantity": 2,
+      "unit": "each",
+      "url": "/hardware/kiwi/cad/stereo/assembly-guide.md",
+      "note": "2 required, including the spares in the assembly guide. Included in the materials allowance; check fit and screw engagement on the physical assembly.",
+      "status": "Quantity from this model’s CAD assembly schedule; retail cart unquoted"
+    },
+    {
+      "id": "hardware_ties",
+      "category": "Assembly",
+      "name": "2.5mm cable tie",
+      "quantity": 20,
+      "unit": "each",
+      "url": "/hardware/kiwi/cad/stereo/assembly-guide.md",
+      "note": "20 required, including the spares in the assembly guide. Included in the materials allowance; check fit and screw engagement on the physical assembly.",
+      "status": "Quantity from this model’s CAD assembly schedule; retail cart unquoted"
+    },
+    {
+      "id": "camera_foam",
+      "category": "Assembly",
+      "name": "1mm insulating foam/pad sheet",
+      "quantity": 1,
+      "unit": "each",
+      "url": "/hardware/kiwi/cad/stereo/assembly-guide.md",
+      "note": "1 required, including the spares in the assembly guide. Included in the materials allowance; check fit and screw engagement on the physical assembly.",
+      "status": "Quantity from this model’s CAD assembly schedule; retail cart unquoted"
+    }
+  ]
+}

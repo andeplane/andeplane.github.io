@@ -1,10 +1,10 @@
 {
   "status": "PASS",
   "issues": [],
-  "validPartInstances": 124,
-  "partInstances": 124,
-  "printedInstances": 51,
-  "uniquePrintableStls": 31,
+  "validPartInstances": 100,
+  "partInstances": 100,
+  "printedInstances": 40,
+  "uniquePrintableStls": 27,
   "contactPoints": [
     {
       "wheelAngleDeg": 30,
@@ -52,11 +52,6 @@
       "pair": "motor face / hub barrel",
       "nominalMm": 1.0,
       "basis": "radial face102; hub begins103"
-    },
-    {
-      "pair": "camera / padded saddle width",
-      "nominalMm": 4.0,
-      "basis": "95mm insidewidth vs91mm camera"
     },
     {
       "pair": "battery / locating pocket width",
@@ -117,14 +112,6 @@
     },
     {
       "parts": [
-        "oak-body",
-        "camera-saddle"
-      ],
-      "intersectionMm3": 0.0,
-      "passed": true
-    },
-    {
-      "parts": [
         "battery",
         "stop-tower"
       ],
@@ -135,22 +122,6 @@
       "parts": [
         "battery",
         "electronics-tray"
-      ],
-      "intersectionMm3": 0.0,
-      "passed": true
-    },
-    {
-      "parts": [
-        "camera-saddle",
-        "camera-tower--43"
-      ],
-      "intersectionMm3": 0.0,
-      "passed": true
-    },
-    {
-      "parts": [
-        "camera-saddle",
-        "camera-tower-43"
       ],
       "intersectionMm3": 0.0,
       "passed": true
@@ -213,22 +184,6 @@
     },
     {
       "parts": [
-        "i2c-mux-0",
-        "camera-tower--43"
-      ],
-      "intersectionMm3": 0.0,
-      "passed": true
-    },
-    {
-      "parts": [
-        "i2c-mux-1",
-        "camera-tower-43"
-      ],
-      "intersectionMm3": 0.0,
-      "passed": true
-    },
-    {
-      "parts": [
         "imu",
         "pi-tray"
       ],
@@ -247,6 +202,38 @@
       "parts": [
         "microcontroller",
         "shell-left"
+      ],
+      "intersectionMm3": 0.0,
+      "passed": true
+    },
+    {
+      "parts": [
+        "camera-front-pcb",
+        "camera-mount-front"
+      ],
+      "intersectionMm3": 0.0,
+      "passed": true
+    },
+    {
+      "parts": [
+        "camera-front-usb",
+        "camera-mount-front"
+      ],
+      "intersectionMm3": 0.0,
+      "passed": true
+    },
+    {
+      "parts": [
+        "camera-mount-front",
+        "lid-left"
+      ],
+      "intersectionMm3": 0.0,
+      "passed": true
+    },
+    {
+      "parts": [
+        "camera-mount-front",
+        "lid-right"
       ],
       "intersectionMm3": 0.0,
       "passed": true
@@ -274,7 +261,7 @@
     {
       "parts": [
         "deck-left",
-        "camera-tower--43"
+        "camera-front-tower--43"
       ],
       "intersectionMm3": 0.0,
       "passed": true,
@@ -346,15 +333,6 @@
     {
       "parts": [
         "deck-left",
-        "mux-carrier"
-      ],
-      "intersectionMm3": 0.0,
-      "passed": true,
-      "intersectionBoundsMm": null
-    },
-    {
-      "parts": [
-        "deck-left",
         "imu-carrier"
       ],
       "intersectionMm3": 0.0,
@@ -391,7 +369,7 @@
     {
       "parts": [
         "deck-right",
-        "camera-tower-43"
+        "camera-front-tower-43"
       ],
       "intersectionMm3": 0.0,
       "passed": true,
@@ -463,15 +441,6 @@
     {
       "parts": [
         "deck-right",
-        "mux-carrier"
-      ],
-      "intersectionMm3": 0.0,
-      "passed": true,
-      "intersectionBoundsMm": null
-    },
-    {
-      "parts": [
-        "deck-right",
         "imu-carrier"
       ],
       "intersectionMm3": 0.0,
@@ -482,24 +451,6 @@
       "parts": [
         "deck-right",
         "main-switch-panel"
-      ],
-      "intersectionMm3": 0.0,
-      "passed": true,
-      "intersectionBoundsMm": null
-    },
-    {
-      "parts": [
-        "clamp-upper-30",
-        "cliff-mount-30"
-      ],
-      "intersectionMm3": 0.0,
-      "passed": true,
-      "intersectionBoundsMm": null
-    },
-    {
-      "parts": [
-        "clamp-upper-150",
-        "cliff-mount-150"
       ],
       "intersectionMm3": 0.0,
       "passed": true,
@@ -544,7 +495,7 @@
     {
       "parts": [
         "shell-left",
-        "camera-tower--43"
+        "camera-front-tower--43"
       ],
       "intersectionMm3": 0.0,
       "passed": true,
@@ -553,34 +504,7 @@
     {
       "parts": [
         "shell-left",
-        "camera-saddle"
-      ],
-      "intersectionMm3": 0.0,
-      "passed": true,
-      "intersectionBoundsMm": null
-    },
-    {
-      "parts": [
-        "shell-left",
-        "tof-mount-120"
-      ],
-      "intersectionMm3": 0.0,
-      "passed": true,
-      "intersectionBoundsMm": null
-    },
-    {
-      "parts": [
-        "shell-left",
-        "tof-mount-180"
-      ],
-      "intersectionMm3": 0.0,
-      "passed": true,
-      "intersectionBoundsMm": null
-    },
-    {
-      "parts": [
-        "shell-left",
-        "tof-mount-240"
+        "camera-mount-front"
       ],
       "intersectionMm3": 0.0,
       "passed": true,
@@ -661,7 +585,7 @@
     {
       "parts": [
         "lid-left",
-        "camera-saddle"
+        "camera-mount-front"
       ],
       "intersectionMm3": 0.0,
       "passed": true,
@@ -706,7 +630,7 @@
     {
       "parts": [
         "shell-right",
-        "camera-tower-43"
+        "camera-front-tower-43"
       ],
       "intersectionMm3": 0.0,
       "passed": true,
@@ -715,43 +639,7 @@
     {
       "parts": [
         "shell-right",
-        "camera-saddle"
-      ],
-      "intersectionMm3": 0.0,
-      "passed": true,
-      "intersectionBoundsMm": null
-    },
-    {
-      "parts": [
-        "shell-right",
-        "camera-relief"
-      ],
-      "intersectionMm3": 0.0,
-      "passed": true,
-      "intersectionBoundsMm": null
-    },
-    {
-      "parts": [
-        "shell-right",
-        "tof-mount-0"
-      ],
-      "intersectionMm3": 0.0,
-      "passed": true,
-      "intersectionBoundsMm": null
-    },
-    {
-      "parts": [
-        "shell-right",
-        "tof-mount-60"
-      ],
-      "intersectionMm3": 0.0,
-      "passed": true,
-      "intersectionBoundsMm": null
-    },
-    {
-      "parts": [
-        "shell-right",
-        "tof-mount-300"
+        "camera-mount-front"
       ],
       "intersectionMm3": 0.0,
       "passed": true,
@@ -814,16 +702,7 @@
     {
       "parts": [
         "lid-right",
-        "camera-saddle"
-      ],
-      "intersectionMm3": 0.0,
-      "passed": true,
-      "intersectionBoundsMm": null
-    },
-    {
-      "parts": [
-        "lid-right",
-        "camera-relief"
+        "camera-mount-front"
       ],
       "intersectionMm3": 0.0,
       "passed": true,
@@ -850,34 +729,7 @@
     {
       "parts": [
         "trim-left",
-        "camera-tower--43"
-      ],
-      "intersectionMm3": 0.0,
-      "passed": true,
-      "intersectionBoundsMm": null
-    },
-    {
-      "parts": [
-        "trim-left",
-        "tof-mount-120"
-      ],
-      "intersectionMm3": 0.0,
-      "passed": true,
-      "intersectionBoundsMm": null
-    },
-    {
-      "parts": [
-        "trim-left",
-        "tof-mount-180"
-      ],
-      "intersectionMm3": 0.0,
-      "passed": true,
-      "intersectionBoundsMm": null
-    },
-    {
-      "parts": [
-        "trim-left",
-        "tof-mount-240"
+        "camera-front-tower--43"
       ],
       "intersectionMm3": 0.0,
       "passed": true,
@@ -967,34 +819,7 @@
     {
       "parts": [
         "trim-right",
-        "camera-tower-43"
-      ],
-      "intersectionMm3": 0.0,
-      "passed": true,
-      "intersectionBoundsMm": null
-    },
-    {
-      "parts": [
-        "trim-right",
-        "tof-mount-0"
-      ],
-      "intersectionMm3": 0.0,
-      "passed": true,
-      "intersectionBoundsMm": null
-    },
-    {
-      "parts": [
-        "trim-right",
-        "tof-mount-60"
-      ],
-      "intersectionMm3": 0.0,
-      "passed": true,
-      "intersectionBoundsMm": null
-    },
-    {
-      "parts": [
-        "trim-right",
-        "tof-mount-300"
+        "camera-front-tower-43"
       ],
       "intersectionMm3": 0.0,
       "passed": true,
@@ -1074,8 +899,8 @@
     },
     {
       "parts": [
-        "camera-tower--43",
-        "tof-mount-120"
+        "camera-front-tower--43",
+        "camera-mount-front"
       ],
       "intersectionMm3": 0.0,
       "passed": true,
@@ -1083,7 +908,7 @@
     },
     {
       "parts": [
-        "camera-tower--43",
+        "camera-front-tower--43",
         "bumper-90"
       ],
       "intersectionMm3": 0.0,
@@ -1092,8 +917,8 @@
     },
     {
       "parts": [
-        "camera-tower-43",
-        "tof-mount-60"
+        "camera-front-tower-43",
+        "camera-mount-front"
       ],
       "intersectionMm3": 0.0,
       "passed": true,
@@ -1101,62 +926,8 @@
     },
     {
       "parts": [
-        "camera-tower-43",
+        "camera-front-tower-43",
         "bumper-90"
-      ],
-      "intersectionMm3": 0.0,
-      "passed": true,
-      "intersectionBoundsMm": null
-    },
-    {
-      "parts": [
-        "tof-mount-0",
-        "bumper-330"
-      ],
-      "intersectionMm3": 0.0,
-      "passed": true,
-      "intersectionBoundsMm": null
-    },
-    {
-      "parts": [
-        "tof-mount-60",
-        "bumper-90"
-      ],
-      "intersectionMm3": 0.0,
-      "passed": true,
-      "intersectionBoundsMm": null
-    },
-    {
-      "parts": [
-        "tof-mount-120",
-        "bumper-90"
-      ],
-      "intersectionMm3": 0.0,
-      "passed": true,
-      "intersectionBoundsMm": null
-    },
-    {
-      "parts": [
-        "tof-mount-180",
-        "bumper-210"
-      ],
-      "intersectionMm3": 0.0,
-      "passed": true,
-      "intersectionBoundsMm": null
-    },
-    {
-      "parts": [
-        "tof-mount-240",
-        "bumper-210"
-      ],
-      "intersectionMm3": 0.0,
-      "passed": true,
-      "intersectionBoundsMm": null
-    },
-    {
-      "parts": [
-        "tof-mount-300",
-        "bumper-330"
       ],
       "intersectionMm3": 0.0,
       "passed": true,
@@ -1235,7 +1006,7 @@
       "intersectionBoundsMm": null
     }
   ],
-  "printedPairCandidates": 1275,
+  "printedPairCandidates": 780,
   "structuralMountChecks": [
     {
       "group": "stop",
@@ -1328,42 +1099,6 @@
       "passed": true
     },
     {
-      "group": "mux",
-      "pointMm": [
-        -31,
-        66
-      ],
-      "shaftPathIntersectionMm3": 0.0,
-      "passed": true
-    },
-    {
-      "group": "mux",
-      "pointMm": [
-        31,
-        66
-      ],
-      "shaftPathIntersectionMm3": 0.0,
-      "passed": true
-    },
-    {
-      "group": "mux",
-      "pointMm": [
-        -31,
-        84
-      ],
-      "shaftPathIntersectionMm3": 0.0,
-      "passed": true
-    },
-    {
-      "group": "mux",
-      "pointMm": [
-        31,
-        84
-      ],
-      "shaftPathIntersectionMm3": 0.0,
-      "passed": true
-    },
-    {
       "group": "mainPanel",
       "pointMm": [
         -27,
@@ -1380,11 +1115,29 @@
       ],
       "shaftPathIntersectionMm3": 0.0,
       "passed": true
+    },
+    {
+      "group": "cameraFront",
+      "pointMm": [
+        -43,
+        94
+      ],
+      "shaftPathIntersectionMm3": 0.0,
+      "passed": true
+    },
+    {
+      "group": "cameraFront",
+      "pointMm": [
+        43,
+        94
+      ],
+      "shaftPathIntersectionMm3": 0.0,
+      "passed": true
     }
   ],
   "notValidated": [
     "bumper switch actuation and return spring force",
-    "cliff floor detection and drop-edge stopping",
+    "camera-only obstacle/drop-edge detection and stopping",
     "physicalprint/fit",
     "vendor exact electronics mounting",
     "hub set-screw retention/load",
@@ -1393,7 +1146,7 @@
     "roller traction",
     "tip/stability with moving loads",
     "thermal performance",
-    "sensor optical behavior",
+    "camera calibration, USB current, bandwidth and cable clearances",
     "electrical safety and emergency stop function"
   ],
   "intentionalMating": [
@@ -1403,7 +1156,7 @@
     "shellflange/post sharez61",
     "Pi PCB/standoff sharez107",
     "battery/rails supportz58",
-    "camera/bottom saddle sharez138",
-    "sensor straps/foam not rigid booleans"
+    "cameraPCB/standoff sharey114",
+    "camera frame/tower sharez134"
   ]
 }

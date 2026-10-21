@@ -8,7 +8,7 @@ export default function Hardware() {
     <p className="kiwi-lead">Things to print, assemble, and make move. CAD, components, and the experiments needed to turn a design into something real.</p>
     <Link to="/hardware/kiwi" className="hardware-project">
       <img src="/hardware/kiwi/concept.webp" alt="AI-generated concept of Kiwi, a small white three-wheel robot with a stereo camera" />
-      <div><span className="kiwi-eyebrow">01 / ROBOTICS · PROTOTYPE DESIGN</span><h2>Kiwi</h2><p>A small robot for the house. Three omni wheels, stereo depth, and a model that chooses what to do next.</p><span className="kiwi-text-link">Explore the project ↗</span></div>
+      <div><span className="kiwi-eyebrow">01 / ROBOTICS · PROTOTYPE DESIGN</span><h2>Kiwi</h2><p>A small robot for the house. Three omni wheels and three vision-only camera options, each with its own model, parts and price.</p><span className="kiwi-text-link">Choose a robot ↗</span></div>
     </Link>
   </div>
 }

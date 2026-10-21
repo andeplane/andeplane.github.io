@@ -1,125 +1,103 @@
-# Kiwi: sensing and autonomy reference architecture
+# Kiwi: three vision-only variants
 
-Research checked against primary documentation on 20 October 2026. This is an engineering proposal for the 270–290 mm indoor platform. Package integration, Pi performance, stopping distances, depth quality and navigation have not yet been measured on the physical robot.
+Camera and algorithm research checked against primary sources on 21 October 2026. All three variants use cameras for observing the house, with wheel encoders and a base IMU for internal motion feedback and physical contact bumpers. No external electronic range or distance sensors are included. Software integration and physical performance remain untested.
 
-## Camera recommendation
+## Choose the camera capability
 
-Use one **fixed-focus Luxonis OAK-D Lite**, connected by USB 3 to the Pi 5. One enclosure already contains an RGB camera and two synchronized monochrome cameras for stereo depth. A second ordinary RGB camera is unnecessary for the first build. The product is RVC2 based and performs stereo matching on the device. Confirm the exact autofocus/fixed-focus SKU and supplied cable before ordering. [Luxonis hardware documentation](https://docs.luxonis.com/hardware/products/OAK-D%20Lite), [official product listing](https://checkout.luxonis.com/products/oak-d-lite-1).
-
-| Option | Useful capability | What we would still have to solve | Recommendation |
+| Variant | Proposed hardware | Useful first capability | What it does not establish |
 | --- | --- | --- | --- |
-| One ordinary RGB camera | Teleoperation, recognizing people/objects, visual landmarks | Dense metric depth needs additional constraints or a learned estimate; no direct range measurement | Good minimum-cost teleoperation prototype |
-| Two separate Pi cameras | Can produce real stereo depth after calibration | Rigid baseline, camera intrinsics/extrinsics, synchronization, rectification, stereo matching, exposure behavior, Pi processing | Interesting camera-development project; more integration work |
-| Calibrated OAK-D Lite stereo unit | RGB plus metric stereo depth in a ready-mounted sensor | Driver integration, robot-to-camera calibration, confidence filtering and scene testing | Preferred first autonomous prototype |
+| A — Front RGB | One Waveshare OV2735 2MP USB Camera (A), SKU 33122 | Live view, recognizing objects, visual landmarks and inexpensive experiments | A single image does not provide calibrated obstacle distance |
+| B — Front + sides | Three of the same RGB modules, facing front, left and right | Observe sideways motion with less turning; choose the relevant view for a task | Independent views are not a synchronized stereo system; rear coverage is still absent |
+| C — Front stereo RGB | One Waveshare AR0144 Stereo USB Camera (A), SKU 32695 | Two synchronized color views for host-computed metric depth after calibration | It is an image-streaming module, not a guaranteed calibrated depth-output camera |
 
-Two camera connectors are available on Pi 5. Raspberry Pi also documents software camera synchronization, so DIY stereo is possible; simply plugging in two cameras does not create a calibrated depth system. [Pi camera hardware](https://www.raspberrypi.com/documentation/accessories/camera.html), [camera synchronization](https://www.raspberrypi.com/documentation/computers/camera_software.html#software-camera-synchronisation).
+**Start with A for the lowest-cost starting point. Choose B if looking sideways is the priority. Choose C if experimenting with measured front-facing depth and mapping is the priority.** These are alternative camera builds, not three simultaneous camera purchases.
 
-Monocular models such as Depth Anything V2 have both relative-depth and metric fine-tuned variants. A learned metric prediction can be useful for scene understanding, but it remains an inference from appearance and training. It should not be the sole braking or stair detector on this robot. That last restriction is our engineering choice. [Authors' project and model descriptions](https://depth-anything-v2.github.io/), [paper](https://arxiv.org/abs/2406.09414).
+The OV2735 module is fixed focus with a rolling shutter, USB 2.0 and MJPEG/YUY2 image formats. Its published 96° field of view is diagonal, not a promise of 96° horizontal coverage. The camera board is approximately 25 × 25 × 22.1 mm; the current listing is USD 14.99 each. [Manufacturer specifications](https://www.waveshare.com/ov2735-2mp-usb-camera-a.htm).
 
-## What depth means on this robot
+The AR0144 module has two global-shutter color cameras, hardware synchronization and a 52 mm baseline. Published dimensions are 66 × 30 × 17.72 mm, with 65° horizontal/74° diagonal field of view and USB 2.0. The proposed process computes depth on the Pi or home Mac. No factory calibration file or ready-made depth output is assumed. [Manufacturer product](https://www.waveshare.com/product/ar0144-stereo-usb-camera-a.htm), [capture formats and host examples](https://www.waveshare.com/wiki/AR0144_Stereo_USB_Camera_%28A%29).
 
-Rectified stereo finds the horizontal pixel separation, or disparity, of the same feature in two images:
+## A: useful vision with one camera
 
-`Z = fx × B / d`
+The immediate software stack is simple: show the camera stream, track a few visual landmarks, recognize objects on the home Mac, and move through short known-clear routes using wheel/IMU feedback. Printed AprilTag/ArUco markers are a practical first way to identify a room, tray or dock. Known marker dimensions and calibrated camera intrinsics let OpenCV estimate a marker's pose in metric units. [OpenCV marker detection and pose estimation](https://docs.opencv.org/4.13.0/d5/dae/tutorial_aruco_detection.html).
 
-Here `Z` is distance in metres, `fx` is calibrated focal length in pixels, `B` is the baseline in metres, and `d` is disparity in pixels. For an illustrative `fx = 440 px`, `B = 0.075 m`, and `d = 33 px`, the result is `Z = 1.0 m`. Use the calibration returned by the actual camera rather than these illustrative numbers. With decreasing disparity, small matching errors produce larger distance errors. Unknown or invalid depth is not free space. [Luxonis stereo configuration and derivation](https://docs.luxonis.com/hardware/platform/depth/configuring-stereo-depth).
+For more general visual tracking, **ORB-SLAM3** is an established candidate supporting monocular, stereo and visual-inertial configurations. Its upstream camera-calibration and integration work still has to be done; its supplied ROS examples are not proof of a ready-to-install Jazzy/Pi package. [Authors' repository](https://github.com/UZ-SLAMLab/ORB_SLAM3).
 
-The Lite's baseline is **75 mm**. Its stereo sensors are 480P-class OV7251 sensors. Luxonis lists approximately 20 cm minimum depth with 400P plus extended disparity, depending on configuration; other settings have a larger minimum. Its advertised useful range is room scale. These figures are manufacturer guidance, not our acceptance results. The product page currently contains a conflicting “75cm” baseline sentence; the depth-accuracy documentation explicitly identifies Lite's baseline as 75 mm. [Hardware and minimum-depth settings](https://docs.luxonis.com/hardware/products/OAK-D%20Lite), [75 mm baseline and accuracy categories](https://docs.luxonis.com/hardware/platform/depth/depth-accuracy).
+A monocular visual map has an unknown scale: a small room viewed nearby can produce the same image geometry as a larger room viewed farther away. Camera intrinsics correct projection and distortion; they do not independently solve that scene-scale ambiguity. Kiwi can obtain metric scale by deliberately aligning/fusing visual motion with calibrated wheel odometry, known-size landmarks, or another known geometric quantity. Camera-to-base calibration and synchronized measurements matter. Merely placing an unscaled visual pose into a standard EKF does not fix its scale. [Visual–inertial–wheel odometry research](https://www.sciencedirect.com/science/article/pii/S0921889024000691), [known camera-height/ground-plane scale research](https://arxiv.org/abs/1903.00912).
 
-Passive stereo needs visual texture. Blank walls, glossy floors, glass, dark surfaces and poor lighting can leave holes or inaccurate matches. The Lite has no IR dot projector. Enabling extended disparity improves close-range reach but does not make the immediate bumper area observable. Start with lower-resolution depth and inspect validity/confidence in the actual house. [Depth sensing and texture limitations](https://docs.luxonis.com/hardware/platform/depth/configuring-stereo-depth), [Lite hardware](https://docs.luxonis.com/hardware/products/OAK-D%20Lite).
+A simple illustration: if a calibrated, non-slipping straight motion is 0.40 m while the visual tracker reports 2.0 arbitrary units, the initial scale estimate is 0.20 m per unit. Repeated motion, outlier rejection and drift handling are needed for a useful system. Omni-wheel slip can bias that estimate. A car/differential-drive wheel-fusion implementation must not silently impose zero sideways velocity on this robot.
 
-Mount the camera rigidly on the removable upper body, clear of the bumper and shell, at approximately 140–180 mm optical height with adjustable pitch during commissioning. These are proposed packaging targets, subject to the actual CAD envelope and floor-view test. Lock the final pitch and measure its transform to `base_link`. Reserve a service loop and strain relief for USB. A forward camera does not see behind the robot when it drives sideways or reverses.
+Monocular learned-depth models such as **Depth Anything V2** can add a relative-depth display or a metric prediction from their fine-tuned variants. They infer depth from learned appearance, and their predicted metres are not a guaranteed clearance measurement in this house. They are useful experiments above the local control layer. [Authors' model descriptions](https://depth-anything-v2.github.io/), [paper](https://arxiv.org/abs/2406.09414).
 
-## Additional sensing is still needed
+## B: more viewpoints, not automatic stereo
 
-The proposed first build uses wheel encoders, a gyro/accelerometer, perimeter short-range ToF assistance, a segmented contact bumper and downward-facing cliff sensors. They solve different problems:
+Run the same front-camera pipeline and add independent left/right images for scene understanding and lateral inspection. Give the model the view that matters, or a clearly labeled set of snapshots. Side views can also supply visual features, but multi-camera SLAM requires its own calibration and estimator support; three independent monocular trackers cannot simply be merged into one consistent map.
 
-| Input | Job | Important limit |
+The proposed cameras face different directions. A useful stereo pair must observe matching scene content with known relative geometry and sufficiently aligned exposure times. Non-overlapping views mainly improve coverage. Three USB cameras without documented synchronization should not be marketed as a three-camera depth system. Calibrate each lens and its mounting transform even when using the views independently. [OpenCV camera and stereo geometry](https://docs.opencv.org/4.13.0/d9/d0c/group__calib3d.html).
+
+Avoid adding advertised diagonal fields of view to claim 360° coverage. Inspect the actual horizontal fields, mount occlusion and close floor visibility. The rear still requires turning to inspect; a sideways-capable base does not imply it can see every direction.
+
+## C: synchronized stereo and metric depth
+
+The AR0144's fixed baseline and synchronized global-shutter images make it a sensible budget stereo starting point. The host pipeline is:
+
+1. Capture its combined image and verify which half belongs to each eye.
+2. Calibrate both cameras and their relative pose at the exact capture resolution; save the measured baseline/intrinsics/distortion.
+3. Rectify the pair with OpenCV so matching points lie on corresponding image rows.
+4. Run **StereoSGBM** or StereoBM, reject inconsistent/low-confidence matches, and convert valid disparity to depth.
+5. Use the resulting depth and camera calibration with a stereo/RGB-D mapping pipeline such as RTAB-Map.
+
+OpenCV supplies the calibration, rectification and stereo correspondence building blocks; this still requires implementing and testing the image pipeline. [OpenCV calibration reference](https://docs.opencv.org/4.13.0/d9/d0c/group__calib3d.html), [stereo depth tutorial](https://docs.opencv.org/4.13.0/dd/d53/tutorial_py_depthmap.html), [RTAB-Map ROS 2](https://github.com/introlab/rtabmap_ros/blob/ros2/README.md).
+
+Stereo depth follows `Z = fx × B / disparity`: with illustrative `fx = 500 px`, `B = 0.052 m` and disparity `26 px`, the depth is 1.0 m. Use the actual calibration, not that example focal length. The near/far usable envelope depends on focus, capture mode and disparity settings. No minimum-depth number from a different camera is carried over to AR0144.
+
+Stereo still needs texture and useful lighting. Blank surfaces, reflections, glass and occluded regions can leave invalid matches. Invalid depth remains unknown space. This variant measures depth only within the overlapping front view, including its unmeasured close blind region. It does not become an all-direction depth sensor.
+
+## Practical image rates and power
+
+These are starting targets to profile on the actual Pi, not measured performance promises:
+
+| Variant | Initial processing target | Practical qualification |
 | --- | --- | --- |
-| Three motor encoders | Wheel-speed feedback and short-term motion estimate | Omni roller slip causes drift |
-| Six-axis IMU | Rotation-rate measurement and local motion fusion | No absolute position; gyro yaw drifts |
-| Perimeter ToF | Samples near obstacles around the chassis | Discrete cones leave gaps and can miss thin objects |
-| Contact bumper | Last-resort contact detection | Detects contact after it occurs |
-| Downward ToF/reflectance | Detect change from expected floor | Floor finish, mounting lead and stopping distance must be tested |
-| Forward stereo camera | Depth, mapping, visual landmarks, semantics | Forward field of view, minimum range, lighting and texture limits |
+| A | Front image about 640 × 360 at 15–20 processed frames/s | Capture a supported 16:9 mode and downscale without distorting geometry |
+| B | Front about 640 × 360 at 15 frames/s; each side about 10 frames/s | Process the newest images; keep model snapshots event driven |
+| C | About 640 × 480 per eye; begin with 10–15 depth updates/s | Verify side-by-side split, calibration and stereo CPU load in the chosen mode |
 
-For a VL53L1X implementation, ST specifies 27° typical full field of view and up to 50 Hz ranging. Six such sensors cannot claim uninterrupted 360° coverage. Time-stagger overlapping emitters and validate each sensor's window/crosstalk behavior in its finished mount. Perimeter ToF is assistance, not a complete side/back depth camera. [ST VL53L1X specification](https://www.st.com/en/imaging-and-photonics-solutions/vl53l1x.html).
+For OV2735, the manufacturer explicitly lists 720p/1080p MJPEG at 30 frames/s. If the device does not negotiate a lower-resolution/rate mode, capture that supported mode and process selected downscaled frames; this does not reduce the USB capture bandwidth automatically. For AR0144, a documented starting transport is combined 1280 × 480 YUY2 at 15 frames/s, approximately 18.4 MB/s before overhead. Verify the actual left/right layout before calibrating. The product's advertised maximum capture rate is not a Pi stereo-processing benchmark. [OV2735 modes](https://www.waveshare.com/ov2735-2mp-usb-camera-a.htm), [AR0144 modes](https://www.waveshare.com/wiki/AR0144_Stereo_USB_Camera_%28A%29).
 
-**Do not assume every OAK-D Lite includes an IMU.** Luxonis lists BMI270 on current hardware but explicitly says Kickstarter-backed units omitted it. Check the purchased unit/SKU and detected hardware. A separately specified base IMU avoids depending on camera stock history. If using camera IMU data, establish the camera-to-IMU and robot transforms before fusion. [Luxonis IMU caveat](https://docs.luxonis.com/hardware/products/OAK-D%20Lite), [driver extrinsics behavior](https://docs.luxonis.com/software-v3/depthai/ros/driver).
+Prefer MJPEG for multiple RGB streams if supported reliably, while measuring decoding cost and image age. Do not send every full-resolution frame through a language-model API. Publish a live preview locally and send selected compressed snapshots to the home Mac/cloud when there is a useful decision to make.
 
-Until coverage has been measured, allow only low-speed lateral/reverse travel through recently observed clear space; rotate the camera to inspect a new direction before committing. Stairs remain physically excluded during commissioning. Cliff detection becomes an accepted capability only after loaded braking tests show it stops before any supporting wheel crosses the edge in every travel direction. A compact round base gives little sensor-to-wheel lead.
+Camera current consumption is not established by these mode tables. Three USB cameras plus the Pico must fit the Pi's aggregate USB budget and supply/harness limits; reserve and measure each device's startup and operating current. An independently powered USB hub is an option if necessary, with a reviewed power path that does not back-feed the Pi. [Official Pi USB power guidance](https://www.raspberrypi.com/documentation/hardware/raspberrypi/usb/configuration.html).
 
-For commissioning, calculate the required detection lead from:
+## Motion control stays local
 
-`d_stop = v × t_reaction + v² / (2 × a_brake) + margin`
+The three timescales remain the same:
 
-For example, `v = 0.10 m/s`, measured reaction time `0.10 s` and measured deceleration `0.50 m/s²` already require `20 mm + margin`. These reaction/deceleration values are illustrative, not measured. A 200 Hz control loop does not make a 20 Hz range sensor update at 200 Hz. [Nav2 stopping-zone formulation](https://docs.nav2.org/rolling/tutorials/general_tutorials/using_collision_monitor/using_collision_monitor/).
+| Layer | Runs on | Responsibility |
+| --- | --- | --- |
+| Wheel control | Pico MCU, proposed 100–200 Hz | Encoder PID, PWM, acceleration limits, heartbeat timeout and bumper inputs |
+| Vision/navigation | Pi, proposed 10–30 Hz where feasible | Track the robot, inspect images/depth as available, choose a local trajectory |
+| Intent/semantics | Home Mac or cloud, event driven | Interpret requests, identify objects and select known tasks/destinations |
 
-## Algorithms and where they run
+A physical stop opens the motor-driver enable loop; the main switch provides power isolation. The MCU stops when commands expire. Camera/model delay does not control wheel PWM directly. Initial operation is slow on a bounded flat floor; the chosen viewpoints and their floor blind regions do not establish stair-avoidance capability.
 
-The design uses three timescales. Rates below are **design targets**, not benchmarks.
+Use the **ROS 2 Jazzy omni wheel controller** for three equally spaced omni wheels, and **robot_localization** to fuse metric wheel velocities with base IMU measurements. Keep actual sideways velocity in the state. CAD uses +Y forward/+X right, whereas ROS uses +X forward/+Y left: `vx_ros = vy_cad`, `vy_ros = -vx_cad`, with unchanged yaw rate. [Omni controller](https://control.ros.org/jazzy/doc/ros2_controllers/omni_wheel_drive_controller/doc/userdoc.html), [EKF configuration](https://github.com/cra-ros-pkg/robot_localization/blob/rolling-devel/doc/configuring_robot_localization.rst).
 
-| Layer | Runs on | Target | Responsibility |
-| --- | --- | --- | --- |
-| Wheel control and stop enforcement | MCU | 100–200 Hz | Encoder PID, PWM, acceleration limits, heartbeat expiry, bumper/cliff stop inputs |
-| Perception and navigation | Pi 5 | 10–30 Hz where feasible | Read depth, update obstacles, track trajectory; reduce mapping/image rates if CPU requires it |
-| Intent and semantic decisions | Home Mac or cloud service | Event driven; slower | Interpret a request or scene, select a destination/task, ask for clarification |
+For stereo C, RTAB-Map can build a metric map and occupancy grid after the stereo pipeline is qualified. Nav2 can use a holonomic planner/controller such as NavFn/Smac 2D with DWB or Omni MPPI. For A/B, start with known routes, wheel/IMU localization and visual landmarks; a sparse monocular map or an object detector alone is not a complete obstacle costmap. Camera-based floor segmentation/ground projection is a possible later experiment, with its flat-floor assumptions explicit. [RTAB-Map capabilities](https://github.com/introlab/rtabmap_ros/blob/ros2/README.md), [Nav2 navigation plugins](https://docs.nav2.org/rolling/configuration_and_development/navigation_plugins/).
 
-The MCU must stop on its own if Pi commands expire. A physical stop switch interrupts motor enable/power through a suitable hardware path. Navigation and model latency do not define the braking loop. Sensor timing and stopping behavior still need physical validation.
+Use **Ubuntu Server 24.04 arm64 / ROS 2 Jazzy** as the integration target. Verify UVC capture and actual arm64 package installation on the Pi. Pin working versions after calibration and recorded-data replay. Package documentation does not establish this combined build's performance. [ROS maintainers' Pi guide](https://github.com/ros2/ros2_documentation/blob/jazzy/source/How-To-Guides/Installing-on-Raspberry-Pi.rst).
 
-The reference software pipeline is:
+## Model decisions
 
-1. **DepthAI ROS driver:** publish synchronized RGB, aligned depth and calibration; enable only the streams we need. The official v3 driver has an RTAB-Map launch example, but RTAB-Map is installed separately. [Driver and launch files](https://docs.luxonis.com/software-v3/depthai/ros/driver).
-2. **`ros2_control` omni wheel controller:** convert body `vx`, `vy`, `wz` to three wheel velocities and calculate encoder odometry. The controller explicitly supports three or more equally spaced omni wheels and stamped velocity commands. Use feedback, not open-loop odometry. Set a command timeout. [Jazzy controller documentation](https://control.ros.org/jazzy/doc/ros2_controllers/omni_wheel_drive_controller/doc/userdoc.html).
-3. **`robot_localization` EKF:** combine encoder-derived planar velocities and IMU gyro data in `two_d_mode`. Do not copy a differential-drive configuration that forces lateral velocity to zero; `vy` is real on a kiwi drive. Tune covariances from measurements and avoid treating derived wheel pose and velocity as independent evidence. [Maintainers' configuration guide](https://github.com/cra-ros-pkg/robot_localization/blob/rolling-devel/doc/configuring_robot_localization.rst).
-4. **RTAB-Map:** build a visual RGB-D/stereo map, recognize revisited places, and output an occupancy grid for navigation. Start by supplying fused wheel/IMU odometry; visual odometry is an additional option to evaluate. The package supports external odometry, occupancy grids and Nav2 examples. Record data before attempting to tune the whole stack live. [RTAB-Map ROS 2 documentation](https://github.com/introlab/rtabmap_ros/blob/ros2/README.md).
-5. **Nav2:** use a 2D holonomic global planner such as NavFn or Smac 2D; use DWB for the first local-controller bring-up with lateral velocity samples enabled. MPPI with the Omni model is an alternative after profiling and tuning. A differential-drive or Ackermann configuration would discard this platform's lateral motion. [Navigation plugins](https://docs.nav2.org/rolling/configuration_and_development/navigation_plugins/), [DWB Jazzy implementation](https://raw.githubusercontent.com/ros-navigation/navigation2/jazzy/nav2_dwb_controller/README.md), [MPPI Jazzy implementation](https://raw.githubusercontent.com/ros-navigation/navigation2/jazzy/nav2_mppi_controller/README.md).
-6. **Collision Monitor plus independent MCU stop:** apply obstacle slow/stop zones after the planner using depth points and range messages. This is an additional local software layer; it does not replace independent stops or prove a safety-rated system. [Nav2 Collision Monitor](https://docs.nav2.org/rolling/configuration_and_development/configuration_guide/core_servers/collision_monitor/configuring_collision_monitor_node/).
+OpenAI's documentation distinguishes **Decisions** typed choices/predicates/scores from **Responses** structured outputs/function calling for parameterized actions. A model can choose `wait`, `visit_kitchen` or `return_home`; a local adapter validates the result and turns it into a bounded robot task. Local models use their own adapter rather than assumed Decisions compatibility. Provider credentials stay on the trusted gateway/server. [Decisions guide](https://developers.openai.com/api/docs/guides/decisions), [function calling](https://developers.openai.com/api/docs/guides/function-calling).
 
-Use one owner for each dynamic TF transform: RTAB-Map owns `map → odom`; the EKF owns `odom → base_link`; the robot description owns the fixed camera/motor/sensor transforms. Disable the omni controller's duplicate odometry TF when the EKF publishes it. Use the complete shell/bumper footprint and configured clearance in costmaps. Depth samples without valid range must not clear unseen obstacles.
+For “go to the kitchen,” the camera provides scene context; wheel/IMU and calibrated visual localization estimate movement; navigation resolves a known destination; the MCU controls wheels. Stereo adds geometric front depth. More model confidence does not create missing metric scale or unseen camera coverage.
 
-Optional printed AprilTag/ArUco landmarks make the first room/dock demonstrations easier: identify the tag, use known marker dimensions and calibrated intrinsics, then solve its camera-relative pose. This is a useful reference/docking aid, not a replacement for general obstacle sensing. [OpenCV marker detection and pose estimation](https://docs.opencv.org/4.13.0/d5/dae/tutorial_aruco_detection.html).
+## First demonstrations
 
-## Pi OS and package compatibility
+1. Verify wheels, encoder signs, stop switch, contact bumpers and watchdog with wheels raised.
+2. Teleoperate on a flat enclosed floor; measure loaded stopping distance and camera visibility.
+3. Calibrate the chosen camera build and record images with encoder/IMU timestamps.
+4. A/B: demonstrate known visual landmarks and short repeatable routes. C: demonstrate validated stereo depth, then one-room mapping.
+5. Add model-selected known goals; test poor images, lost tracking, slow responses and Wi-Fi loss.
 
-Use **Ubuntu Server 24.04 64-bit with ROS 2 Jazzy** as the first integration target. ROS's Pi guide recommends a Tier 1 arm64 Ubuntu configuration for binary packages; Raspberry Pi OS is a different Debian-based integration path, often using Ubuntu ROS containers. The existence of Pi binaries does not prove this entire camera/navigation combination has been installed. [ROS maintainers' Raspberry Pi guide](https://github.com/ros2/ros2_documentation/blob/jazzy/source/How-To-Guides/Installing-on-Raspberry-Pi.rst).
-
-DepthAI v3 currently documents Humble/Jazzy packages with the `_v3` suffix, e.g. `depthai_ros_driver_v3` and Debian package `ros-jazzy-depthai-ros-v3`. Its newest Humble/Jazzy packages can require ROS's testing apt repository before a stable sync. Kilted uses unsuffixed v3 names. Pin the chosen driver and DepthAI dependency versions after installation; do not mix v2 examples with v3 APIs. Prefer a stable-synced release when available; otherwise document and test the chosen source/testing build. [Luxonis distribution and package guidance](https://docs.luxonis.com/software-v3/depthai/ros).
-
-RTAB-Map lists ROS 2 Jazzy on Ubuntu 24.04 and documents binary installation. Verify actual arm64 package availability on the flashed Pi, run a camera stream/USB soak test, inspect synchronization/TF, and replay a recorded mapping bag before claiming compatibility. MPPI parameter schemas differ across ROS releases: Jazzy uses `motion_model: Omni`, whereas newer rolling documentation can show plugin-style motion-model configuration. [RTAB-Map support matrix](https://github.com/introlab/rtabmap_ros/blob/ros2/README.md), [Jazzy MPPI configuration](https://raw.githubusercontent.com/ros-navigation/navigation2/jazzy/nav2_mppi_controller/README.md), [later Nav2 migration](https://docs.nav2.org/rolling/configuration_and_development/migration_guides/kilted/Kilted/).
-
-Keep camera, stop enforcement and routine navigation on the robot. Offload semantic inference and optional offline map optimization to the home Mac. Keeping the Pi's immediate control path local means a slow Wi-Fi/model service can pause the task without preventing a local stop.
-
-## OpenAI Decisions and a local model adapter
-
-The current **OpenAI Decisions API** accepts text/images and typed questions. As checked on 20 October 2026, it is public beta, supports `gpt-6-luna`, and uses `POST /v1/decisions`. Request fields are `model`, `input`, and `questions`; the returned `answers` contain predicate probabilities, choices from supplied options, or rubric scores. This fits selecting a **fixed high-level intent**, such as `wait`, `visit_kitchen`, `return_home`, or `needs_help`. Handle refusals, unknown choices and low confidence by waiting. [Official Decisions guide](https://developers.openai.com/api/docs/guides/decisions).
-
-For arbitrary parameterized actions, use a separate model adapter backed by Responses structured output/function calling, or a local model with validated output. Decisions is not an arbitrary JSON-action or tool-calling endpoint. [Structured Outputs](https://developers.openai.com/api/docs/guides/structured-outputs), [function calling](https://developers.openai.com/api/docs/guides/function-calling).
-
-The following is our **internal, provider-neutral action envelope**, not a claim about an OpenAI or local-model HTTP schema:
-
-```json
-{
-  "request_id": "example-17",
-  "action": "navigate_to_named_place",
-  "place_id": "kitchen_entry",
-  "map_revision": "home-map-03",
-  "issued_at": "2026-10-20T12:00:00Z",
-  "expires_at": "2026-10-20T12:00:05Z"
-}
-```
-
-A trusted gateway verifies authentication, allowed action/place names, map revision, timestamps and replay/duplicate requests. The robot resolves a known place into a Nav2 goal and reports progress. The model never supplies motor PWM or overrides the stop layer. Keep provider credentials on the home gateway/server, outside the public webpage, downloadable CAD and robot-facing browser code. A local service implements its own adapter; compatibility with OpenAI Decisions is not assumed.
-
-Give the model selected RGB snapshots and a compact state summary, including current named location, battery state, task progress, valid sensor coverage, confidence and recent failures. Keep dense depth and wheel feedback local. Model confidence is not a calibrated physical-clearance guarantee. For “go to the kitchen,” the model chooses `visit_kitchen`; navigation finds the route; the MCU controls wheel speeds and enforces timeouts.
-
-## Acceptance sequence
-
-1. Wheels raised: verify encoder signs, individual wheel direction, current limit, stop switch, watchdog and disconnect handling.
-2. Closed flat test area: measure forward, sideways and rotation response; characterize slip, odometry and loaded braking distances.
-3. Record RGB/depth/IMU/encoder data; inspect timestamps, calibration, scene texture and near-field gaps.
-4. Teleoperate one room, build a map, replay data, and verify relocation/map consistency before autonomous goals.
-5. Test known-place navigation, obstacle appearance, blocked routes, stale sensors, lost Wi-Fi and model timeout/refusal.
-6. Validate individual bumper, perimeter and floor sensors in final mounts. Treat stair avoidance and unattended use as unaccepted until physical evidence supports them.
-
-The first useful milestone is a teleoperated robot with a working independent stop. The next is repeatable one-room mapping and named-place navigation. Natural-language decisions sit above that verified motion stack.
+This is a staged route to a useful vision-based robot. The documents and viewer remain design/research artifacts until the selected variant is assembled and tested.

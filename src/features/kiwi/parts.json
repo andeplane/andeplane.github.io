@@ -1,8 +1,4 @@
 {
-  "checkedAt": "2026-10-21",
-  "currencyNote": "Observed store currencies; shipping/import/final VAT unverified. Prices per unit. Mixed-currency totals are not checkout quotes.",
-  "usdCoreSubtotal": 975.7,
-  "nokDisplayedSubtotal": 1289.8,
   "items": [
     {
       "id": "motor",
@@ -103,42 +99,6 @@
       "price": 6.6
     },
     {
-      "id": "camera",
-      "category": "Sensing",
-      "name": "Luxonis OAK-D Lite Fixed-Focus A00532",
-      "quantity": 1,
-      "unit": "each",
-      "currency": "USD",
-      "url": "https://checkout.luxonis.com/products/oak-d-lite-1",
-      "note": "RGB plus stereo pair;91×28×17.5mm; up to5W. Confirm fixed-focus variant at checkout.",
-      "status": "100+ shown; confirm variant",
-      "price": 269
-    },
-    {
-      "id": "tof",
-      "category": "Sensing",
-      "name": "Pololu 3415 VL53L1X distance sensor",
-      "quantity": 9,
-      "unit": "each",
-      "currency": "USD",
-      "url": "https://www.pololu.com/product/3415",
-      "note": "Six perimeter plus three downward.13×18×2mm;40mA peak each. This is not continuous360-degree coverage.",
-      "status": "Backorders allowed",
-      "price": 22.95
-    },
-    {
-      "id": "mux",
-      "category": "Sensing",
-      "name": "Adafruit 2717 TCA9548A I2C multiplexer",
-      "quantity": 2,
-      "unit": "each",
-      "currency": "USD",
-      "url": "https://www.adafruit.com/product/2717",
-      "note": "Set addresses0x70 and0x71; one ToF per channel. Board30.6×17.6mm.",
-      "status": "In stock shown",
-      "price": 6.95
-    },
-    {
       "id": "imu",
       "category": "Sensing",
       "name": "Pololu 2798 LSM6DSO base IMU",
@@ -173,18 +133,6 @@
       "note": "Qualify6A total output at9.9–12.6V input. Feed both Pi5V pins; no PD negotiation; never parallel bench USB-C supply.",
       "status": "Rationed; backorder allowed",
       "price": 36.82
-    },
-    {
-      "id": "buck33",
-      "category": "Power",
-      "name": "Pololu 5432 D45V5F3 3.3V regulator",
-      "quantity": 1,
-      "unit": "each",
-      "currency": "USD",
-      "url": "https://www.pololu.com/product/5432",
-      "note": "Dedicated500mA sensor rail. Nine ToF sensors need up to360mA; do not power them from Pico accessory rail.",
-      "status": "Backorders allowed",
-      "price": 5.75
     },
     {
       "id": "selfoff",
@@ -254,7 +202,7 @@
       "unit": "allowance",
       "currency": "USD",
       "url": "https://www.pololu.com/",
-      "note": "USD100–180 unquoted allowance, excluding separately quoted ruthex pack. Detailed quantities in parts.md; spring SKU selected but price and Norway delivery unverified.",
+      "note": "Allowance for wiring, fuses, microSD, bench supply, printed parts and fasteners. Exact print and fastener quantities are in the selected model assembly guide.",
       "status": "Specification list; final cart required"
     },
     {
@@ -266,7 +214,7 @@
       "price": 8.99,
       "currency": "EUR",
       "url": "https://www.ruthex.de/en/products/ruthex-gewindeeinsatz-m3s-100stuck-rx-m3x4-0-short-messing-gewindebuchsen-fur-3d-druck",
-      "note": "100-pack, 40 used / 60 spare. OD4.6mm, length4.0mm; nominal4.0mm bore with5.0mm blind depth. Print the fit coupon before installing. Separate EUR price is excluded from the small-parts allowance.",
+      "note": "100-pack; 40 inserts used by this model. OD 4.6 mm, length 4 mm; nominal 4 mm bore with 5 mm blind depth. Print the fit coupon first. This pack is outside the materials allowance.",
       "status": "Add to cart; 2–4 days Germany shown"
     },
     {
@@ -281,17 +229,6 @@
       "status": "Exact parts specified; final cart unquoted"
     },
     {
-      "id": "clamp_bolts",
-      "category": "Assembly",
-      "name": "M3×45 motor clamp screws, nuts and washers",
-      "quantity": 12,
-      "unit": "sets",
-      "currency": "USD",
-      "url": "https://www.pololu.com/category/60/nuts-and-screws",
-      "note": "Twelve sets required by final split clamp stack. Included in hardware allowance.",
-      "status": "Known quantity; final fastener shop unquoted"
-    },
-    {
       "id": "bumper_springs",
       "category": "Assembly",
       "name": "MISUMI AUA2-20 extra-light extension spring",
@@ -303,138 +240,6 @@
       "status": "Exact SKU selected; business-only seller; price, lead time and Norway checkout unverified"
     },
     {
-      "id": "hardware_24",
-      "category": "Assembly",
-      "name": "M3×12 seam splice screws",
-      "quantity": 4,
-      "unit": "each",
-      "currency": "USD",
-      "url": "https://www.pololu.com/category/60/nuts-and-screws",
-      "note": "Front/rear splices; center splice shares the M3×14 IMU carrier fasteners.",
-      "status": "CAD quantity fixed; exact cart unquoted"
-    },
-    {
-      "id": "hardware_25",
-      "category": "Assembly",
-      "name": "M3×10 shell, lid, riser, camera and panel screws",
-      "quantity": 38,
-      "unit": "each",
-      "currency": "USD",
-      "url": "https://www.pololu.com/category/60/nuts-and-screws",
-      "note": "Final CAD: shell6 + lid8 + Pi risers8 + camera4 + driver risers4 + stop2 + rocker panel2 + spares4.",
-      "status": "CAD quantity fixed; exact cart unquoted"
-    },
-    {
-      "id": "hardware_26",
-      "category": "Assembly",
-      "name": "M3×16 bumper carrier screws",
-      "quantity": 8,
-      "unit": "each",
-      "currency": "USD",
-      "url": "https://www.pololu.com/category/60/nuts-and-screws",
-      "note": "Six bumper-carrier screws plus two spares; other carriers use M3×14 in the final export.",
-      "status": "CAD quantity fixed; exact cart unquoted"
-    },
-    {
-      "id": "hardware_27",
-      "category": "Assembly",
-      "name": "M3×25 bumper guide screws",
-      "quantity": 6,
-      "unit": "each",
-      "currency": "USD",
-      "url": "https://www.pololu.com/category/60/nuts-and-screws",
-      "note": "Six translating guides. Included in the unquoted hardware allowance.",
-      "status": "CAD quantity fixed; exact cart unquoted"
-    },
-    {
-      "id": "hardware_28",
-      "category": "Assembly",
-      "name": "M3 nyloc nuts",
-      "quantity": 30,
-      "unit": "each",
-      "currency": "USD",
-      "url": "https://www.pololu.com/category/60/nuts-and-screws",
-      "note": "Final CAD: 22 carrier/power + 6 bumper guides + 2 spares. Motor cradle nuts are included in the separate 12 clamp sets.",
-      "status": "CAD quantity fixed; exact cart unquoted"
-    },
-    {
-      "id": "hardware_29",
-      "category": "Assembly",
-      "name": "M3 plain washers",
-      "quantity": 52,
-      "unit": "each",
-      "currency": "USD",
-      "url": "https://www.pololu.com/category/60/nuts-and-screws",
-      "note": "12 motor cradle + 6 bumper guide + 28 carrier/power + 6 spares.",
-      "status": "CAD quantity fixed; exact cart unquoted"
-    },
-    {
-      "id": "hardware_30",
-      "category": "Assembly",
-      "name": "M3×10 countersunk wheel hub screws with nuts",
-      "quantity": 9,
-      "unit": "each",
-      "currency": "USD",
-      "url": "https://www.pololu.com/category/60/nuts-and-screws",
-      "note": "Conditional on actual purchased wheel web seating. Included in the unquoted hardware allowance.",
-      "status": "CAD quantity fixed; exact cart unquoted"
-    },
-    {
-      "id": "hardware_31",
-      "category": "Assembly",
-      "name": "M2×20 bumper switch screws with nuts",
-      "quantity": 6,
-      "unit": "each",
-      "currency": "USD",
-      "url": "https://www.pololu.com/category/60/nuts-and-screws",
-      "note": "Switch/carrier/deck through stack. Included in the unquoted hardware allowance.",
-      "status": "CAD quantity fixed; exact cart unquoted"
-    },
-    {
-      "id": "hardware_32",
-      "category": "Assembly",
-      "name": "M2.5×8 Raspberry Pi screws",
-      "quantity": 4,
-      "unit": "each",
-      "currency": "USD",
-      "url": "https://www.pololu.com/category/60/nuts-and-screws",
-      "note": "Pi mount. Included in the unquoted hardware allowance.",
-      "status": "CAD quantity fixed; exact cart unquoted"
-    },
-    {
-      "id": "hardware_33",
-      "category": "Assembly",
-      "name": "Guide sleeves OD5 / ID3.2 / L16mm",
-      "quantity": 6,
-      "unit": "each",
-      "currency": "USD",
-      "url": "https://www.pololu.com/category/60/nuts-and-screws",
-      "note": "Cut and deburr tube to length. Included in the unquoted hardware allowance.",
-      "status": "CAD quantity fixed; exact cart unquoted"
-    },
-    {
-      "id": "hardware_m3x14",
-      "category": "Assembly",
-      "name": "M3×14 sensor, control and power carrier screws",
-      "quantity": 20,
-      "unit": "each",
-      "currency": "USD",
-      "url": "/hardware/kiwi/cad/assembly-guide.md",
-      "note": "Final CAD: cliff6 + Pico2 + Pi power2 + disconnect2 + mux4 + IMU/splice2 + spares2. Included in small-parts allowance.",
-      "status": "Length matched to CAD; physical engagement test pending"
-    },
-    {
-      "id": "bumper_anchor_pins",
-      "category": "Assembly",
-      "name": "Ø1mm ×10mm steel spring anchor pins",
-      "quantity": 12,
-      "unit": "each",
-      "currency": "USD",
-      "url": "/hardware/kiwi/cad/assembly-guide.md",
-      "note": "Cut-to-length steel wire pins, axially retained. Fits the MISUMI spring hook; do not substitute an M3 shank. Included in allowance.",
-      "status": "Stock material; fit and retention test pending"
-    },
-    {
       "id": "bumper_input_fet",
       "category": "Sensing",
       "name": "onsemi 2N7000G TO-92 bumper input MOSFET",
@@ -444,7 +249,218 @@
       "url": "https://www.onsemi.com/download/data-sheet/pdf/2n7000-d.pdf",
       "note": "5V/4.7k contact wetting, high-impedance gate, 3.3V/10k drain pull-up; 10k gate series + 1M pull-down + 10nF filter. Healthy HIGH; pressed/broken loop LOW. Included in allowance.",
       "status": "Exact part specified; retail price/stock unquoted"
+    },
+    {
+      "id": "camera",
+      "category": "Sensing",
+      "name": "Waveshare OV2735 2MP USB Camera (A) · 33122",
+      "quantity": 1,
+      "unit": "each",
+      "price": 14.99,
+      "currency": "USD",
+      "url": "https://www.waveshare.com/ov2735-2mp-usb-camera-a.htm",
+      "note": "Basic 2 MP fixed-focus color camera, 96° diagonal view, USB 2 Type-C. The same module is used once or three times. Complete-module current is unpublished; measure USB draw and verify capture settings. Independent modules are not synchronized stereo.",
+      "status": "Manufacturer price checked 21 October 2026; final stock and delivery unconfirmed"
+    },
+    {
+      "id": "hardware_m3x45",
+      "category": "Assembly",
+      "name": "M3x45 socket cap screw",
+      "quantity": 12,
+      "unit": "each",
+      "url": "/hardware/kiwi/cad/front-camera/assembly-guide.md",
+      "note": "12 required, including the spares in the assembly guide. Included in the materials allowance; check fit and screw engagement on the physical assembly.",
+      "status": "Quantity from this model’s CAD assembly schedule; retail cart unquoted"
+    },
+    {
+      "id": "hardware_m3_nut",
+      "category": "Assembly",
+      "name": "M3 nut",
+      "quantity": 12,
+      "unit": "each",
+      "url": "/hardware/kiwi/cad/front-camera/assembly-guide.md",
+      "note": "12 required, including the spares in the assembly guide. Included in the materials allowance; check fit and screw engagement on the physical assembly.",
+      "status": "Quantity from this model’s CAD assembly schedule; retail cart unquoted"
+    },
+    {
+      "id": "hardware_m3x12",
+      "category": "Assembly",
+      "name": "M3x12 socket cap screw",
+      "quantity": 4,
+      "unit": "each",
+      "url": "/hardware/kiwi/cad/front-camera/assembly-guide.md",
+      "note": "4 required, including the spares in the assembly guide. Included in the materials allowance; check fit and screw engagement on the physical assembly.",
+      "status": "Quantity from this model’s CAD assembly schedule; retail cart unquoted"
+    },
+    {
+      "id": "hardware_m3x10",
+      "category": "Assembly",
+      "name": "M3x10 socket cap screw",
+      "quantity": 38,
+      "unit": "each",
+      "url": "/hardware/kiwi/cad/front-camera/assembly-guide.md",
+      "note": "38 required, including the spares in the assembly guide. Included in the materials allowance; check fit and screw engagement on the physical assembly.",
+      "status": "Quantity from this model’s CAD assembly schedule; retail cart unquoted"
+    },
+    {
+      "id": "hardware_m3x16",
+      "category": "Assembly",
+      "name": "M3x16 socket cap screw",
+      "quantity": 8,
+      "unit": "each",
+      "url": "/hardware/kiwi/cad/front-camera/assembly-guide.md",
+      "note": "8 required, including the spares in the assembly guide. Included in the materials allowance; check fit and screw engagement on the physical assembly.",
+      "status": "Quantity from this model’s CAD assembly schedule; retail cart unquoted"
+    },
+    {
+      "id": "hardware_m3x14",
+      "category": "Assembly",
+      "name": "M3x14 socket cap screw",
+      "quantity": 10,
+      "unit": "each",
+      "url": "/hardware/kiwi/cad/front-camera/assembly-guide.md",
+      "note": "10 required, including the spares in the assembly guide. Included in the materials allowance; check fit and screw engagement on the physical assembly.",
+      "status": "Quantity from this model’s CAD assembly schedule; retail cart unquoted"
+    },
+    {
+      "id": "hardware_nyloc",
+      "category": "Assembly",
+      "name": "M3 nut/nyloc",
+      "quantity": 20,
+      "unit": "each",
+      "url": "/hardware/kiwi/cad/front-camera/assembly-guide.md",
+      "note": "20 required, including the spares in the assembly guide. Included in the materials allowance; check fit and screw engagement on the physical assembly.",
+      "status": "Quantity from this model’s CAD assembly schedule; retail cart unquoted"
+    },
+    {
+      "id": "hardware_washers",
+      "category": "Assembly",
+      "name": "M3 washer",
+      "quantity": 42,
+      "unit": "each",
+      "url": "/hardware/kiwi/cad/front-camera/assembly-guide.md",
+      "note": "42 required, including the spares in the assembly guide. Included in the materials allowance; check fit and screw engagement on the physical assembly.",
+      "status": "Quantity from this model’s CAD assembly schedule; retail cart unquoted"
+    },
+    {
+      "id": "hardware_m3x25",
+      "category": "Assembly",
+      "name": "M3x25 screw",
+      "quantity": 6,
+      "unit": "each",
+      "url": "/hardware/kiwi/cad/front-camera/assembly-guide.md",
+      "note": "6 required, including the spares in the assembly guide. Included in the materials allowance; check fit and screw engagement on the physical assembly.",
+      "status": "Quantity from this model’s CAD assembly schedule; retail cart unquoted"
+    },
+    {
+      "id": "hardware_m2x20",
+      "category": "Assembly",
+      "name": "M2x20 screw and nut",
+      "quantity": 6,
+      "unit": "sets",
+      "url": "/hardware/kiwi/cad/front-camera/assembly-guide.md",
+      "note": "6 required, including the spares in the assembly guide. Included in the materials allowance; check fit and screw engagement on the physical assembly.",
+      "status": "Quantity from this model’s CAD assembly schedule; retail cart unquoted"
+    },
+    {
+      "id": "hardware_camera_m2x10",
+      "category": "Assembly",
+      "name": "M2x10 screw and nut",
+      "quantity": 4,
+      "unit": "sets",
+      "url": "/hardware/kiwi/cad/front-camera/assembly-guide.md",
+      "note": "4 required, including the spares in the assembly guide. Included in the materials allowance; check fit and screw engagement on the physical assembly.",
+      "status": "Quantity from this model’s CAD assembly schedule; retail cart unquoted"
+    },
+    {
+      "id": "bumper_sleeves",
+      "category": "Assembly",
+      "name": "5OD/3.2ID x16mm steel sleeve",
+      "quantity": 6,
+      "unit": "each",
+      "url": "/hardware/kiwi/cad/front-camera/assembly-guide.md",
+      "note": "6 required, including the spares in the assembly guide. Included in the materials allowance; check fit and screw engagement on the physical assembly.",
+      "status": "Quantity from this model’s CAD assembly schedule; retail cart unquoted"
+    },
+    {
+      "id": "spring_pins",
+      "category": "Assembly",
+      "name": "1mmdiameter x10mmsteelpin",
+      "quantity": 12,
+      "unit": "each",
+      "url": "/hardware/kiwi/cad/front-camera/assembly-guide.md",
+      "note": "12 required, including the spares in the assembly guide. Included in the materials allowance; check fit and screw engagement on the physical assembly.",
+      "status": "Quantity from this model’s CAD assembly schedule; retail cart unquoted"
+    },
+    {
+      "id": "hardware_pi_m25",
+      "category": "Assembly",
+      "name": "M2.5x8 screw",
+      "quantity": 4,
+      "unit": "each",
+      "url": "/hardware/kiwi/cad/front-camera/assembly-guide.md",
+      "note": "4 required, including the spares in the assembly guide. Included in the materials allowance; check fit and screw engagement on the physical assembly.",
+      "status": "Quantity from this model’s CAD assembly schedule; retail cart unquoted"
+    },
+    {
+      "id": "hardware_wheel_screws",
+      "category": "Assembly",
+      "name": "M3x10 countersunk screw",
+      "quantity": 9,
+      "unit": "each",
+      "url": "/hardware/kiwi/cad/front-camera/assembly-guide.md",
+      "note": "9 required, including the spares in the assembly guide. Included in the materials allowance; check fit and screw engagement on the physical assembly.",
+      "status": "Quantity from this model’s CAD assembly schedule; retail cart unquoted"
+    },
+    {
+      "id": "hardware_wheel_nuts",
+      "category": "Assembly",
+      "name": "M3lowprofile nut",
+      "quantity": 9,
+      "unit": "each",
+      "url": "/hardware/kiwi/cad/front-camera/assembly-guide.md",
+      "note": "9 required, including the spares in the assembly guide. Included in the materials allowance; check fit and screw engagement on the physical assembly.",
+      "status": "Quantity from this model’s CAD assembly schedule; retail cart unquoted"
+    },
+    {
+      "id": "hardware_set_screws",
+      "category": "Assembly",
+      "name": "M3 set screw",
+      "quantity": 3,
+      "unit": "each",
+      "url": "/hardware/kiwi/cad/front-camera/assembly-guide.md",
+      "note": "3 required, including the spares in the assembly guide. Included in the materials allowance; check fit and screw engagement on the physical assembly.",
+      "status": "Quantity from this model’s CAD assembly schedule; retail cart unquoted"
+    },
+    {
+      "id": "battery_straps",
+      "category": "Assembly",
+      "name": "15x250mm hook-and-loop strap",
+      "quantity": 2,
+      "unit": "each",
+      "url": "/hardware/kiwi/cad/front-camera/assembly-guide.md",
+      "note": "2 required, including the spares in the assembly guide. Included in the materials allowance; check fit and screw engagement on the physical assembly.",
+      "status": "Quantity from this model’s CAD assembly schedule; retail cart unquoted"
+    },
+    {
+      "id": "hardware_ties",
+      "category": "Assembly",
+      "name": "2.5mm cable tie",
+      "quantity": 20,
+      "unit": "each",
+      "url": "/hardware/kiwi/cad/front-camera/assembly-guide.md",
+      "note": "20 required, including the spares in the assembly guide. Included in the materials allowance; check fit and screw engagement on the physical assembly.",
+      "status": "Quantity from this model’s CAD assembly schedule; retail cart unquoted"
+    },
+    {
+      "id": "camera_foam",
+      "category": "Assembly",
+      "name": "1mm insulating foam/pad sheet",
+      "quantity": 1,
+      "unit": "each",
+      "url": "/hardware/kiwi/cad/front-camera/assembly-guide.md",
+      "note": "1 required, including the spares in the assembly guide. Included in the materials allowance; check fit and screw engagement on the physical assembly.",
+      "status": "Quantity from this model’s CAD assembly schedule; retail cart unquoted"
     }
-  ],
-  "eurQuotedSubtotal": 8.99
+  ]
 }
