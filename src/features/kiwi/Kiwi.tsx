@@ -74,14 +74,14 @@ function CameraDiagram({ variant }: { variant: RobotVariant }) {
 
 export default function Kiwi() {
   const { variant: variantId } = useParams()
+  const [assumptions, setAssumptions] = useState(defaultAssumptions)
   const variant = variants.find(v => v.id === (variantId ?? 'front-camera'))
   if (!variant) return <Navigate to="/hardware/kiwi/front-camera/" replace />
-  return <KiwiVersion key={variant.id} variant={variant} />
+  return <KiwiVersion key={variant.id} variant={variant} assumptions={assumptions} onAssumptionsChange={setAssumptions} />
 }
 
-function KiwiVersion({ variant }: { variant: RobotVariant }) {
+function KiwiVersion({ variant, assumptions, onAssumptionsChange }: { variant: RobotVariant; assumptions: Required<Assumptions>; onAssumptionsChange: (next: Required<Assumptions>) => void }) {
   const [open, setOpen] = useState<string | null>('vision')
-  const [assumptions, setAssumptions] = useState(defaultAssumptions)
   const { hash } = useLocation()
   const totalCost = calculateBudget(variant.items, assumptions).total
   const files = variantAssets(variant), cadFiles = variantCad(variant)
@@ -97,7 +97,7 @@ function KiwiVersion({ variant }: { variant: RobotVariant }) {
       <div className="kiwi-hero-copy"><span className="kiwi-eyebrow"><span className="kiwi-status-dot" /> OPTION {variant.number} / VISION ONLY</span><h1>Kiwi<span>{variant.label}.</span></h1><p>{variant.description}</p><HeroCost total={totalCost} /><div className="kiwi-actions"><a className="kiwi-primary" href="#design">Explore this design <ArrowDown size={16} /></a><a className="kiwi-secondary" href="#parts">Find the parts <ArrowUpRight size={16} /></a></div><div className="kiwi-specs"><div><strong>~29 cm</strong><span>overall wheel envelope</span></div><div><strong>3 wheels</strong><span>move in any direction</span></div><div><strong>Vision only</strong><span>no distance sensors</span></div></div></div>
       <figure className="kiwi-hero-model"><Suspense fallback={<div className="kiwi-loading">Loading this robot's CAD…</div>}><CadViewer assetPath={cadFiles} compact /></Suspense><figcaption>{variant.label} · actual CAD assembly, not a built robot</figcaption></figure>
     </header>
-    <Budget items={variant.items} assumptions={assumptions} onChange={setAssumptions} cameraLabel={variant.cameraLabel} />
+    <Budget items={variant.items} assumptions={assumptions} onChange={onAssumptionsChange} cameraLabel={variant.cameraLabel} />
     <div className="kiwi-project-state"><span className="kiwi-state-tag">REV B</span><p>Vision-only prototype design. The selected camera hardware, model and parts list belong to this version. Print fit, electronics and driving still need physical testing.</p></div>
     <nav className="kiwi-section-nav" aria-label="Project sections"><a href="#budget">Cost</a><a href="#design">01 Design</a><a href="#movement">02 Movement</a><a href="#sensing">03 Sensing</a><a href="#brain">04 Intelligence</a><a href="#parts">05 Parts</a><a href="#build">06 Build</a><a href="#upgrades">07 Arm & dock</a></nav>
 
