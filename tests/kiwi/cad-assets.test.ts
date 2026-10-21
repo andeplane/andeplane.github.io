@@ -72,4 +72,23 @@ test(`${variant}: actual model contains its selected cameras and no distance har
   assert.equal(ids.includes('camera-usb-hub'), variant === 'three-cameras')
   assert.equal(ids.includes('camera-power-buck'), variant === 'three-cameras')
 })
+
+test(`${variant}: cameras are inset below the lid and three-camera axes face diagonally forward`, () => {
+  assert.deepEqual(manifest.cameraPlacement.map(p => p.yawDegFromFront).sort((a, b) => a - b), variant === 'three-cameras' ? [-45, 0, 45] : [0])
+  for (const camera of manifest.cameraPlacement) {
+    assert.equal(camera.boardInternal, true)
+    assert.ok(camera.port.glassSetbackMm >= 1)
+    assert.ok(camera.port.planningRadialMarginMm > 0)
+    const pcb = manifest.parts.find(p => p.id === `camera-${camera.label}-pcb`)
+    assert.ok(pcb.boundingBoxMm.max[2] < manifest.parameters.shell_top)
+    assert.ok(pcb.boundingBoxMm.min[2] > manifest.parameters.shell_bottom)
+    assert.equal(camera.centerZMm, 117)
+    const [x, y, z] = camera.boardCenterCadMm
+    assert.deepEqual(camera.boardCenterGlbM, [x / 1000, z / 1000, -y / 1000].map(n => Math.round(n * 1e6) / 1e6))
+  }
+  for (const key of ['cameraEnvelopeChecks', 'cameraPlugChecks', 'opticalPortChecks', 'cameraFastenerChecks']) {
+    assert.ok(manifest.checks[key].length, key)
+    assert.ok(manifest.checks[key].every(check => check.passed), key)
+  }
+})
 }

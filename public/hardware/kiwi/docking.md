@@ -57,7 +57,7 @@ Charging current should decrease or stop if the pack thermistor reports an unacc
 
 ## Docking algorithms
 
-Use **Nav2's Jazzy Docking Server** after regular navigation reaches a known staging pose. A fiducial detector refines dock pose, then a low-speed local approach controller seats the contacts. The framework provides docking plugins, detection timeouts, retries, and charge confirmation. It is separate from simply navigating to a map coordinate. The normal forward/turn docking behavior can be used by this omni base; lateral capability does not need to be exploited in the final contact approach. Integration is still pending. [Nav2 docking tutorial](https://docs.nav2.org/jazzy/tutorials/general_tutorials/using_docking/).
+On the Mac mini, use **Nav2's Jazzy Docking Server** after regular navigation reaches a known staging pose. A fiducial tracker on the Mac mini refines dock pose, then a low-speed local approach controller seats the contacts. The framework provides docking plugins, detection timeouts, retries, and charge confirmation. It is separate from simply navigating to a map coordinate. The normal forward/turn docking behavior can be used by this omni base; lateral capability does not need to be exploited in the final contact approach. Integration is still pending. [Nav2 docking tutorial](https://docs.nav2.org/jazzy/tutorials/general_tutorials/using_docking/).
 
 Proposed sequence:
 

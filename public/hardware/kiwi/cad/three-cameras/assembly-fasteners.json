@@ -22,8 +22,8 @@
     {
       "id": "hardware_m3x10",
       "item": "M3x10 socket cap screw",
-      "quantity": 50,
-      "use": "34commoninstalled+4spares;threecamera adds8sidecamera+4hubriser bottom"
+      "quantity": 40,
+      "use": "34commoninstalled+4spares;threecamera adds4hubriserbottom and upgrades2tray screws toM3x14"
     },
     {
       "id": "hardware_m3x8",
@@ -40,14 +40,14 @@
     {
       "id": "hardware_m3x14",
       "item": "M3x14 socket cap screw",
-      "quantity": 12,
-      "use": "2Pico+2PiPower+2disconnect+2IMU/splice+2spares;threecamera adds2DFR/frontsplice"
+      "quantity": 14,
+      "use": "2Pico+2PiPower+2disconnect+2IMU/splice+2spares;threecamera adds2DFR/frontsplice and2oblique/tray attachments"
     },
     {
       "id": "hardware_inserts",
       "item": "ruthexRX-M3Sx4.0SHORT OD4.6/L4.0 nominal4.0bore",
-      "quantity": 56,
-      "use": "40common;threecamera adds8sidetower+8hubriser"
+      "quantity": 48,
+      "use": "40common;threecamera adds8hubriser"
     },
     {
       "id": "hardware_nyloc",
@@ -58,7 +58,7 @@
     {
       "id": "hardware_washers",
       "item": "M3 washer",
-      "quantity": 58,
+      "quantity": 50,
       "use": "printed joints, guides and spare allowance;check washer clearance at each interface"
     },
     {

@@ -79,18 +79,20 @@ Initial operating rules are therefore **park before manipulation; fold before tr
 
 Keep the selected fixed cameras on the body for mapping and overview; add one small RGB camera beside the gripper for close alignment. **This is two viewpoints, not automatically a stereo camera pair.** A moving wrist and fixed body camera require calibration and synchronization before combined triangulation could be trusted.
 
-selected body camera stereo can reach approximately 20 cm minimum depth in a suitable configuration, while its fixed-focus color variant is recommended from 50 cm. The final centimeters of a grasp can be occluded or outside useful depth/focus range. The wrist camera addresses view and close focus; it does not produce metric depth by itself. [Luxonis depth/focus guidance](https://checkout.luxonis.com/products/oak-d-lite-1).
+The selected AR0144 body camera’s useful close-depth range has not been measured. The final centimeters of a grasp can be occluded or outside useful depth/focus range. The wrist camera adds a close view for the offboard vision model; it does not produce metric depth by itself.
 
 Start with a **known working plane / tray and a few known-sized objects**. Calibrate camera intrinsics, the body camera to robot transform, the wrist camera to gripper transform, and joint zeros. AprilTags on the tray and/or wrist provide scale and pose checks. OpenCV hand-eye calibration estimates the camera/gripper relationship; AprilTag pose estimation requires known tag size and camera intrinsics. [OpenCV calibration functions](https://docs.opencv.org/4.13.0/d9/d0c/group__calib3d.html), [AprilRobotics pose estimation](https://github.com/AprilRobotics/apriltag/blob/master/apriltag_estimate_tag_pose.docstring).
 
-Then use overview depth for a coarse target and wrist RGB visual servoing for small final alignment steps. Only close the gripper after local workspace, geometry and contact checks pass. Servo current can flag a blocked gripper but is not a calibrated force/pressure sensor. If arbitrary close-range 3D grasping later becomes important, evaluate a dedicated near-field depth camera as another upgrade rather than assuming the RGB wrist camera solves it.
+On the Mac mini, use qualified stereo overview depth for a coarse target and offboard wrist-image feedback for small final alignment steps. Only close the gripper after local workspace, geometry and contact checks pass. Servo current can flag a blocked gripper but is not a calibrated force/pressure sensor. If arbitrary close-range 3D grasping later becomes important, evaluate a dedicated near-field depth camera as another upgrade rather than assuming the RGB wrist camera solves it.
 
 ## Decisions API, algorithms and the actual data path
 
 ```text
-OAK overview + wrist RGB + joint feedback
-  → calibrated object / tray estimates on Pi
-  → model chooses a bounded task or candidate grasp
+Selected body camera(s) + wrist RGB + joint feedback
+  → Pi streams images and motion feedback
+  → Mac mini computes calibrated geometry / tray pose
+  → offboard vision LLM interprets images
+  → Mac/cloud decision model chooses a bounded task or candidate grasp
   → local feasibility + stability + collision checks
   → inverse kinematics and timed joint trajectory
   → bus servos execute with encoder feedback
@@ -99,7 +101,7 @@ OAK overview + wrist RGB + joint feedback
 
 The OpenAI **Decisions API** currently returns a predicate, a supplied choice or a rubric score from text/images. It can choose among locally generated grasp candidates such as `grasp_A`, `grasp_B`, `rescan`, `wait`, or classify whether the object is visibly held. It does not generate an arbitrary joint trajectory or general JSON command. For parameterized `pick(object_id, destination_id)` calls, use Responses strict function calling or a local-model adapter that validates the same internal action schema. A schema-correct response can still be physically wrong; the local controller must reject unreachable, stale, colliding or unstable requests. [Official Decisions guide](https://developers.openai.com/api/docs/guides/decisions), [official function-calling guide](https://developers.openai.com/api/docs/guides/function-calling).
 
-Practical first algorithms: AprilTag / OpenCV for calibrated tray pose; geometric object segmentation on a known plane; forward/inverse kinematics; short collision-checked trajectories; wrist image alignment; gripper state checks. MoveIt 2 is suitable when the ROS integration is ready, but requires our robot model, joint limits, driver and collision geometry. Its planning scene handles robot/world collision checks; it does not automatically know Kiwi's support polygon or certify stability. [MoveIt planning scene documentation](https://moveit.picknik.ai/main/doc/examples/planning_scene/planning_scene_tutorial.html).
+Offboard geometric processing on the Mac mini: AprilTag / OpenCV for calibrated tray pose; validated vision-LLM object observations on a known tray plane; forward/inverse kinematics; short collision-checked trajectories; wrist image alignment; gripper state checks. MoveIt 2 is suitable when the ROS integration is ready, but requires our robot model, joint limits, driver and collision geometry. Its planning scene handles robot/world collision checks; it does not automatically know Kiwi's support polygon or certify stability. [MoveIt planning scene documentation](https://moveit.picknik.ai/main/doc/examples/planning_scene/planning_scene_tutorial.html).
 
 LeRobot is useful for leader teleoperation, recording demonstrations and later ACT/SmolVLA experiments trained on our hardware/tasks. It is not evidence that a generic vision-language model can already pick arbitrary household objects. Verify the deployment hardware and policy on recorded data before enabling motion. [Seeed LeRobot workflow and camera examples](https://wiki.seeedstudio.com/lerobot_so100m_new/).
 

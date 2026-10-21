@@ -37,7 +37,7 @@
     "depthMm": 17.72,
     "baselineMm": 52,
     "currentMa": null,
-    "note": "Two synchronized global-shutter cameras on one USB 2 Type-C module, 52 mm apart. Calibrate and compute depth on the Pi or home computer; no factory calibration file or onboard depth processor has been verified. Confirm delivered color/mono specification before buying.",
+    "note": "Two synchronized global-shutter cameras on one USB 2 Type-C module, 52 mm apart. Calibrate and compute depth on the Mac mini; no factory calibration file or onboard depth processor has been verified. Confirm delivered color/mono specification before buying.",
     "mount": {
       "drawingUrl": "https://www.waveshare.com/img/devkit/accBoard/AR0144-Stereo-USB-Camera-A/AR0144-Stereo-USB-Camera-A-details-size.jpg",
       "drawingStatus": "Manufacturer outline reproduced by Spotpear; visually checked. Published 17.72mm side dimension appears to exclude rear USB projection. Allocate 22mm bare depth provisionally and measure actual module.",

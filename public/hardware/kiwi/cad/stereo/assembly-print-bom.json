@@ -27,26 +27,26 @@
     },
     {
       "id": "camera-front-towers",
-      "name": "Front camera structural tower",
+      "name": "Internal front camera structural fork",
       "stl": "stl/camera-front-tower--43.stl",
       "quantity": 2,
       "material": "PETG starting point",
       "printBoundingBoxMm": [
         11.0,
-        38.0,
-        80.0
+        28.0,
+        42.0
       ]
     },
     {
-      "id": "camera-front-mount",
+      "id": "camera-mount-front",
       "name": "front camera open-back mounting frame",
       "stl": "stl/camera-mount-front.stl",
       "quantity": 1,
       "material": "PETG starting point",
       "printBoundingBoxMm": [
         100.0,
-        27.0,
-        52.0
+        28.0,
+        51.0
       ]
     },
     {
@@ -161,7 +161,7 @@
       "material": "PETG starting point",
       "printBoundingBoxMm": [
         125.15,
-        244.904,
+        250.8,
         3.6
       ]
     },
@@ -173,7 +173,7 @@
       "material": "PETG starting point",
       "printBoundingBoxMm": [
         125.15,
-        244.904,
+        250.8,
         3.6
       ]
     },

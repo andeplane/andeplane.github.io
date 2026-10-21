@@ -218,7 +218,7 @@
       "price": 8.99,
       "currency": "EUR",
       "url": "https://www.ruthex.de/en/products/ruthex-gewindeeinsatz-m3s-100stuck-rx-m3x4-0-short-messing-gewindebuchsen-fur-3d-druck",
-      "note": "100-pack; 56 inserts used by this model. OD 4.6 mm, length 4 mm; nominal 4 mm bore with 5 mm blind depth. Print the fit coupon first. This pack is outside the materials allowance.",
+      "note": "100-pack; 48 inserts used by this model. OD 4.6 mm, length 4 mm; nominal 4 mm bore with 5 mm blind depth. Print the fit coupon first. This pack is outside the materials allowance.",
       "status": "Add to cart; 2–4 days Germany shown"
     },
     {
@@ -341,10 +341,10 @@
       "id": "hardware_m3x10",
       "category": "Assembly",
       "name": "M3x10 socket cap screw",
-      "quantity": 50,
+      "quantity": 40,
       "unit": "each",
       "url": "/hardware/kiwi/cad/three-cameras/assembly-guide.md",
-      "note": "50 required, including the spares in the assembly guide. Included in the materials allowance; check fit and screw engagement on the physical assembly.",
+      "note": "40 required, including the spares in the assembly guide. Included in the materials allowance; check fit and screw engagement on the physical assembly.",
       "status": "Quantity from this model’s CAD assembly schedule; retail cart unquoted"
     },
     {
@@ -371,10 +371,10 @@
       "id": "hardware_m3x14",
       "category": "Assembly",
       "name": "M3x14 socket cap screw",
-      "quantity": 12,
+      "quantity": 14,
       "unit": "each",
       "url": "/hardware/kiwi/cad/three-cameras/assembly-guide.md",
-      "note": "12 required, including the spares in the assembly guide. Included in the materials allowance; check fit and screw engagement on the physical assembly.",
+      "note": "14 required, including the spares in the assembly guide. Included in the materials allowance; check fit and screw engagement on the physical assembly.",
       "status": "Quantity from this model’s CAD assembly schedule; retail cart unquoted"
     },
     {
@@ -391,10 +391,10 @@
       "id": "hardware_washers",
       "category": "Assembly",
       "name": "M3 washer",
-      "quantity": 58,
+      "quantity": 50,
       "unit": "each",
       "url": "/hardware/kiwi/cad/three-cameras/assembly-guide.md",
-      "note": "58 required, including the spares in the assembly guide. Included in the materials allowance; check fit and screw engagement on the physical assembly.",
+      "note": "50 required, including the spares in the assembly guide. Included in the materials allowance; check fit and screw engagement on the physical assembly.",
       "status": "Quantity from this model’s CAD assembly schedule; retail cart unquoted"
     },
     {

@@ -30,12 +30,12 @@ Selected camera: 3 × [Waveshare OV2735 2MP USB Camera (A)](https://www.waveshar
 | 12 | [M3x45 socket cap screw](/hardware/kiwi/cad/three-cameras/assembly-guide.md) | In materials allowance |
 | 12 | [M3 nut](/hardware/kiwi/cad/three-cameras/assembly-guide.md) | In materials allowance |
 | 2 | [M3x12 socket cap screw](/hardware/kiwi/cad/three-cameras/assembly-guide.md) | In materials allowance |
-| 50 | [M3x10 socket cap screw](/hardware/kiwi/cad/three-cameras/assembly-guide.md) | In materials allowance |
+| 40 | [M3x10 socket cap screw](/hardware/kiwi/cad/three-cameras/assembly-guide.md) | In materials allowance |
 | 4 | [M3x8 socket cap screw](/hardware/kiwi/cad/three-cameras/assembly-guide.md) | In materials allowance |
 | 8 | [M3x16 socket cap screw](/hardware/kiwi/cad/three-cameras/assembly-guide.md) | In materials allowance |
-| 12 | [M3x14 socket cap screw](/hardware/kiwi/cad/three-cameras/assembly-guide.md) | In materials allowance |
+| 14 | [M3x14 socket cap screw](/hardware/kiwi/cad/three-cameras/assembly-guide.md) | In materials allowance |
 | 20 | [M3 nut/nyloc](/hardware/kiwi/cad/three-cameras/assembly-guide.md) | In materials allowance |
-| 58 | [M3 washer](/hardware/kiwi/cad/three-cameras/assembly-guide.md) | In materials allowance |
+| 50 | [M3 washer](/hardware/kiwi/cad/three-cameras/assembly-guide.md) | In materials allowance |
 | 6 | [M3x25 screw](/hardware/kiwi/cad/three-cameras/assembly-guide.md) | In materials allowance |
 | 6 | [M2x20 screw and nut](/hardware/kiwi/cad/three-cameras/assembly-guide.md) | In materials allowance |
 | 12 | [M2x10 screw and nut](/hardware/kiwi/cad/three-cameras/assembly-guide.md) | In materials allowance |

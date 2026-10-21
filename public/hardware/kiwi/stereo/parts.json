@@ -263,7 +263,7 @@
       "price": 66.99,
       "currency": "USD",
       "url": "https://www.waveshare.com/ar0144-stereo-usb-camera-a.htm",
-      "note": "Two synchronized global-shutter cameras on one USB 2 Type-C module, 52 mm apart. Calibrate and compute depth on the Pi or home computer; no factory calibration file or onboard depth processor has been verified. Confirm delivered color/mono specification before buying.",
+      "note": "Two synchronized global-shutter cameras on one USB 2 Type-C module, 52 mm apart. Calibrate and compute depth on the Mac mini; no factory calibration file or onboard depth processor has been verified. Confirm delivered color/mono specification before buying.",
       "status": "Manufacturer price checked 21 October 2026; final stock and delivery unconfirmed"
     },
     {
