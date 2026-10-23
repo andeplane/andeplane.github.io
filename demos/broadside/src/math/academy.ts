@@ -3,7 +3,8 @@ import { Rng } from "../sim/rng";
 export type OperatorId = "add" | "subtract" | "multiply" | "divide";
 export type Stars = 1 | 2 | 3;
 export const QUESTIONS_PER_LEVEL = 10;
-export const GOLD_PER_CHEST = 100;
+export const GOLD_PER_QUESTION = 100;
+export const GOLD_PER_CHEST = QUESTIONS_PER_LEVEL * GOLD_PER_QUESTION;
 export const SAVE_KEY = "broadside.math.v1";
 
 export const OPERATORS = [
@@ -74,7 +75,7 @@ function makeQuestion(p: Pack, rng: Rng): Question {
   let left: number, right: number, answer: number;
   if (p.operator === "add") {
     const total = rng.int(2, p.limit!);
-    left = rng.int(0, total);
+    left = rng.int(1, total - 1);
     right = total - left;
     answer = total;
   } else if (p.operator === "subtract") {
@@ -111,7 +112,7 @@ function makeQuestion(p: Pack, rng: Rng): Question {
   }
   return { operator: p.operator, left, right, answer };
 }
-/** Keep the original sequence for saved voyages started before the new mix. */
+/** Keep non-addition sequences for saved voyages started before the new mix. */
 function legacyQuestions(p: Pack, rng: Rng): Question[] {
   const questions: Question[] = [], seen = new Set<string>();
   while (questions.length < QUESTIONS_PER_LEVEL) {
@@ -179,7 +180,9 @@ function questionBank(p: Pack, rng: Rng): Question[] {
 /** Seeded, weighted practice: ten distinct facts, with at most one easy review. */
 export function questionsFor(packId: string, seed: number, questionSet: 1 | 2 = 2): Question[] {
   const p = getPack(packId), rng = new Rng(seed);
-  if (questionSet === 1) return legacyQuestions(p, rng);
+  // Zero-addition facts were common in the old generator. Even a live legacy
+  // run must use the positive practice bank instead of keeping that defect.
+  if (questionSet === 1 && p.operator !== "add") return legacyQuestions(p, rng);
   let bank = questionBank(p, rng).map((question) => ({ question, weight: factWeight(p, question) }));
   const questions: Question[] = [];
   while (questions.length < QUESTIONS_PER_LEVEL) {
@@ -198,6 +201,8 @@ export interface Voyage {
   seed: number;
   solved: number;
   mistakes: number;
+  problemMistakes: number;
+  earnedGold: number;
   questionSet: 1 | 2;
 }
 export interface Track {
@@ -208,11 +213,11 @@ export interface Track {
 export interface MathChest {
   id: number;
   operator: OperatorId;
-  gold: typeof GOLD_PER_CHEST;
+  gold: number;
   delivered: boolean;
 }
 export interface MathProgress {
-  version: 3;
+  version: 4;
   solved: number;
   chests: number;
   cargo: MathChest[];
@@ -221,12 +226,14 @@ export interface MathProgress {
   banks: Record<OperatorId, number>;
   tracks: Record<string, Track>;
 }
-export const freshProgress = (): MathProgress => ({ version: 3, solved: 0, chests: 0, cargo: [], operator: "add", pack: "add-10", banks: { add: 0, subtract: 0, multiply: 0, divide: 0 }, tracks: {} });
+export const freshProgress = (): MathProgress => ({ version: 4, solved: 0, chests: 0, cargo: [], operator: "add", pack: "add-10", banks: { add: 0, subtract: 0, multiply: 0, divide: 0 }, tracks: {} });
 export const pendingMathChests = (p: MathProgress) => p.cargo.filter((chest) => !chest.delivered);
 export const cargoGold = (p: MathProgress) => pendingMathChests(p).reduce((sum, chest) => sum + chest.gold, 0);
 export const bankedGold = (p: MathProgress) => bankGold(p).reduce((sum, gold) => sum + gold, 0);
-/** Total earned gold includes the chests still aboard the ship. */
-export const goldTotal = (p: MathProgress) => bankedGold(p) + cargoGold(p);
+export const voyageGold = (p: MathProgress) => Object.values(p.tracks).reduce((sum, track) =>
+  sum + Object.values(track.runs).reduce((total, run) => total + (run.earnedGold ?? 0), 0), 0);
+/** Earned gold includes unfinished levels and the chests still aboard the ship. */
+export const goldTotal = (p: MathProgress) => bankedGold(p) + cargoGold(p) + voyageGold(p);
 export const chestCount = (p: MathProgress) => p.chests;
 // Banks store actual gold so existing 1,000-gold chests retain their value.
 export const bankGold = (p: MathProgress) => OPERATORS.map((o) => p.banks[o.id]);
@@ -245,37 +252,51 @@ export function startVoyage(p: MathProgress, packId: string, level: number, seed
   if (!PACKS.some((pack) => pack.id === packId)) return null;
   const track = trackFor(p, packId);
   if (!Number.isSafeInteger(level) || level < 1 || level > track.cleared + 1) return null;
-  return track.runs[level] ??= { level, seed: seed >>> 0, solved: 0, mistakes: 0, questionSet: 2 };
+  const run = track.runs[level] ??= { level, seed: seed >>> 0, solved: 0, mistakes: 0, problemMistakes: 0, earnedGold: 0, questionSet: 2 };
+  run.problemMistakes ??= run.mistakes > 0 ? 1 : 0;
+  run.earnedGold ??= 0;
+  if (getPack(packId).operator === "add") run.questionSet = 2;
+  return run;
 }
 export interface AnswerResult {
   correct: boolean;
   chestEarned: boolean;
   levelComplete: boolean;
   stars: Stars;
+  goldEarned: number;
+  questionGoldLost: number;
+  levelGold: number;
 }
 export function answerQuestion(p: MathProgress, packId: string, level: number, answer: number): AnswerResult | null {
   const track = p.tracks[packId], run = track?.runs[level];
   if (!run || !Number.isSafeInteger(answer) || answer < 0) return null;
+  run.problemMistakes ??= run.mistakes > 0 ? 1 : 0;
+  run.earnedGold ??= 0;
   const question = questionsFor(packId, run.seed, run.questionSet)[run.solved]!;
   if (answer !== question.answer) {
+    const questionGoldLost = run.problemMistakes === 0 ? GOLD_PER_QUESTION : 0;
     run.mistakes++;
-    return { correct: false, chestEarned: false, levelComplete: false, stars: 1 };
+    run.problemMistakes++;
+    return { correct: false, chestEarned: false, levelComplete: false, stars: 1, goldEarned: 0, questionGoldLost, levelGold: run.earnedGold };
   }
+  const goldEarned = run.problemMistakes === 0 ? GOLD_PER_QUESTION : 0;
+  run.earnedGold += goldEarned;
+  run.problemMistakes = 0;
   run.solved++;
   p.solved++;
   const stars: Stars = run.mistakes === 0 ? 3 : run.mistakes <= 3 ? 2 : 1;
   const levelComplete = run.solved === QUESTIONS_PER_LEVEL;
-  const chestEarned = levelComplete && run.mistakes === 0;
+  const chestEarned = levelComplete && run.earnedGold > 0;
   if (chestEarned) {
     p.chests++;
-    p.cargo.push({ id: p.chests, operator: getPack(packId).operator, gold: GOLD_PER_CHEST, delivered: false });
+    p.cargo.push({ id: p.chests, operator: getPack(packId).operator, gold: run.earnedGold, delivered: false });
   }
   if (levelComplete) {
     track.cleared = Math.max(track.cleared, level);
     track.stars[level] = Math.max(track.stars[level] ?? 1, stars) as Stars;
     delete track.runs[level];
   }
-  return { correct: true, chestEarned, levelComplete, stars };
+  return { correct: true, chestEarned, levelComplete, stars, goldEarned, questionGoldLost: 0, levelGold: run.earnedGold };
 }
 
 const integer = (value: unknown, min = 0, max = Number.MAX_SAFE_INTEGER): value is number =>
@@ -286,7 +307,7 @@ export function readMathProgress(storage?: Pick<Storage, "getItem">): MathProgre
   const p = freshProgress();
   try {
     const raw: unknown = JSON.parse(storage?.getItem(SAVE_KEY) ?? "null");
-    if (!record(raw) || (raw.version !== 1 && raw.version !== 2 && raw.version !== 3)) return p;
+    if (!record(raw) || (raw.version !== 1 && raw.version !== 2 && raw.version !== 3 && raw.version !== 4)) return p;
     p.solved = integer(raw.solved) ? raw.solved : 0;
     const selected = PACKS.find((pack) => pack.id === raw.pack);
     if (selected) { p.pack = selected.id; p.operator = selected.operator; }
@@ -306,13 +327,19 @@ export function readMathProgress(storage?: Pick<Storage, "getItem">): MathProgre
     }
     // Previous versions banked rewards immediately. Never turn that gold back
     // into cargo: only newly earned v3 chests need to make the trip home.
-    if (raw.version === 3 && Array.isArray(raw.cargo)) {
+    if ((raw.version === 3 || raw.version === 4) && Array.isArray(raw.cargo)) {
       const ids = new Set<number>();
       for (const chest of raw.cargo) {
-        if (!record(chest) || !integer(chest.id, 1) || ids.has(chest.id) || chest.gold !== GOLD_PER_CHEST ||
+        if (!record(chest) || !integer(chest.id, 1) || ids.has(chest.id) ||
+            !integer(chest.gold, GOLD_PER_QUESTION, GOLD_PER_CHEST) || chest.gold % GOLD_PER_QUESTION ||
+            (raw.version === 3 && chest.gold !== 100) ||
             typeof chest.delivered !== "boolean" || !OPERATORS.some((o) => o.id === chest.operator)) continue;
         ids.add(chest.id);
-        p.cargo.push({ id: chest.id, operator: chest.operator as OperatorId, gold: GOLD_PER_CHEST, delivered: chest.delivered });
+        // v3 incorrectly paid 100 for a perfect ten-problem level. Repair only
+        // its identifiable, undelivered rewards; old cave balances stay intact.
+        // Once saved as v4, a legitimate 100-gold chest keeps its actual value.
+        const gold = raw.version === 3 && !chest.delivered ? GOLD_PER_CHEST : chest.gold;
+        p.cargo.push({ id: chest.id, operator: chest.operator as OperatorId, gold, delivered: chest.delivered });
         p.chests = Math.max(p.chests, chest.id);
       }
     }
@@ -328,7 +355,13 @@ export function readMathProgress(storage?: Pick<Storage, "getItem">): MathProgre
           run.level !== Number(key) || !integer(run.seed, 0, 0xffffffff) || !integer(run.solved, 0, 9) || !integer(run.mistakes)) continue;
         track.runs[key] = {
           level: Number(key), seed: run.seed, solved: run.solved, mistakes: run.mistakes,
-          questionSet: run.questionSet === 2 ? 2 : 1,
+          // Older saves cannot identify which prior answers were first-try
+          // correct. Preserve their money and resume without retroactive pay.
+          earnedGold: raw.version === 4 && integer(run.earnedGold, 0, run.solved * GOLD_PER_QUESTION) && run.earnedGold % GOLD_PER_QUESTION === 0 ? run.earnedGold : 0,
+          problemMistakes: raw.version === 4 && integer(run.problemMistakes, 0, run.mistakes) ? run.problemMistakes : run.mistakes > 0 ? 1 : 0,
+          // Keep the level position and reward eligibility, but never resume
+          // the old zero-heavy addition generator after an app update.
+          questionSet: pack.operator === "add" || run.questionSet === 2 ? 2 : 1,
         };
       }
       p.tracks[pack.id] = track;

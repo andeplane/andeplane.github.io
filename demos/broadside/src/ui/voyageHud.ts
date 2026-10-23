@@ -20,8 +20,9 @@ import {
 import { generateVoyage } from "../game/voyage";
 import type { Progress } from "../game/progress";
 import { icon } from "./icons";
-import { backButton, mainMenuActions, mapLabel, menuBrand, menuHeader } from "./menuChrome";
+import { backButton, mapLabel, menuBrand, menuHeader } from "./menuChrome";
 import { PRIVATE_PEARL } from "../privatePearl";
+import { homeMenu } from "./homeMenu";
 import { touchSteeringTurn } from "../input/touchSteering";
 import { worldArt, pirateShipArt } from "./worldArt";
 import { Controls } from "../input/controls";
@@ -81,7 +82,17 @@ export class VoyageHud {
     r.innerHTML = `${menuHeader({ className: "voyage-header", brand: menuBrand({ title: "BROADSIDE", subtitle: "A LITTLE CAPTAIN’S COLLECTION", className: "voyage-brand" }), actions: `<button id="v-home" class="round" aria-label="Choose levels">${icon("map")}</button><button id="v-pause" class="round" aria-label="Pause voyage">${icon("pause")}</button>` })}
     <section id="captain-menu" class="captain-menu">
       <div class="menu-atmosphere" aria-hidden="true"><div class="moon"></div><div class="distant-rocks"></div><div class="hero-ship">${pirateShipArt()}</div><div class="ocean-mist"></div><div class="menu-embers"></div></div>
-      <div id="main-menu" class="menu-page"><div class="title-crest">${icon("wheel")}</div><span class="eyebrow">A PIRATE’S TREASURE ADVENTURE</span><h1>Broadside</h1><p class="menu-tagline">Brave the seas. Bring home the treasure.</p>${mainMenuActions([{ id: "menu-play", label: "Play", icon: "play", primary: true }, { id: "menu-settings", label: "Settings", icon: "wheel" }, { id: "menu-cave", label: "Cave", icon: "chest" }])}</div>
+      <div id="main-menu" class="menu-page">${homeMenu({
+        title: ["Broadside"],
+        eyebrow: "A PIRATE’S TREASURE ADVENTURE",
+        description: "Brave the seas. Bring home the treasure.",
+        illustration: pirateShipArt(),
+        primary: { id: "menu-play", label: "Play", detail: "Choose your next voyage" },
+        ship: { id: "home-ship", icon: "ship", title: "Your ship", value: "No chests aboard", detail: "Your next reward goes here" },
+        cave: { id: "menu-cave", icon: "chest", title: "Your cave", value: "0 gold saved", detail: "Explore your treasure" },
+        settings: { id: "menu-settings" },
+        rule: "Find treasure. Bring your chests home.",
+      })}</div>
       <div id="world-menu" class="menu-page" hidden><div class="menu-heading"><span class="eyebrow">CHART YOUR COURSE</span><h1>The pirate seas</h1><p>Choose an island. Chart your adventure.</p></div><div class="world-map" role="group" aria-label="Pirate sea chart"><svg class="map-route" viewBox="0 0 1000 1000" preserveAspectRatio="none" aria-hidden="true"><path class="route-wide" d="M370 930 C280 885 90 720 170 520 S250 90 410 190 S440 650 650 480 S735 90 865 135"/><path class="route-tall" d="M170 930 C110 810 110 710 245 635 S815 810 755 545 S80 525 245 185 S570 290 755 150"/></svg><button id="map-cave" class="map-cave" aria-label="Visit treasure cave"><img class="cave-art" src="${import.meta.env.BASE_URL}assets/map/treasure-cave.webp" width="640" height="640" alt="" draggable="false" decoding="async" /><span>Your cave</span></button><div id="world-packs"></div></div><p class="map-footnote">Gold in every level. A special treasure in every world.</p></div>
       <div id="level-menu" class="menu-page" hidden><div class="menu-heading"><span class="eyebrow" id="world-number"></span><h1 id="world-name"></h1><p id="pack-caption"></p></div><div class="level-board"><div id="level-world-art"></div><div id="voyage-levels"></div><p class="level-note">1,000 gold per level · Complete the world for its special treasure.</p></div></div>
       <div id="settings-menu" class="menu-page" hidden><div class="menu-heading"><span class="eyebrow">THE CAPTAIN’S ORDERS</span><h1>Settings</h1></div><div class="settings-board"><label class="coin-sounds-choice"><input id="coin-sounds" type="checkbox"> Coin sound effects</label><p id="coin-sounds-note">Clinks when coins tumble and land.</p><p>Steer with the wheel. Tap BOOM to fire.<br>Your treasures and stars are saved automatically.</p><p class="art-credit">Black Pearl model by <a href="https://www.thingiverse.com/thing:4951578" target="_blank" rel="noopener">DeltaX_F</a> · <a href="https://creativecommons.org/licenses/by/4.0/" target="_blank" rel="noopener">CC BY 4.0</a><br>Adapted for Broadside.</p></div></div>
@@ -144,6 +155,7 @@ export class VoyageHud {
     q("#v-resume").onclick = h.pause;
     q("#v-anchor").onclick = h.anchor;
     q("#menu-play").onclick = () => this.showMenu("worlds");
+    q("#home-ship").onclick = () => h.travel("hold");
     q("#menu-settings").onclick = () => this.showMenu("settings");
     q("#menu-cave").onclick = q("#map-cave").onclick = () => h.travel("cave");
     q("#visit-ship").onclick = () => h.travel("ship");
@@ -303,6 +315,12 @@ export class VoyageHud {
     this.q("#hold-ui").hidden = this.q("#unload-ui").hidden = true;
     this.q("#menu-hold").textContent = `${PRIVATE_PEARL ? "Treasure room" : "Treasure hold"}${cargoChests(this.progress).length ? ` · ${(cargoChests(this.progress).length * 1000).toLocaleString()} gold aboard` : ""}`;
     this.menuPage = page;
+    if (page === "main") {
+      const count = cargoChests(this.progress).length;
+      this.q('[data-home-destination="ship"] strong').textContent = count ? `${count.toLocaleString()} ${count === 1 ? "chest" : "chests"} aboard` : "No chests aboard";
+      this.q('[data-home-destination="ship"] small').textContent = count ? `${(count * 1000).toLocaleString()} gold to bring home` : "Your next reward goes here";
+      this.q('[data-home-destination="chest"] strong').textContent = `${goldTotal(caveProgress(this.progress)).toLocaleString()} gold saved`;
+    }
     this.q("#captain-menu").hidden = false;
     this.q("#cave-ui").hidden =
       this.q("#voyage-play").hidden =

@@ -2,7 +2,7 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { Controls } from "../input/controls";
 import { readProgress } from "../game/progress";
-import { awardVoyage } from "../game/rewards";
+import { awardVoyage, deliverChest } from "../game/rewards";
 import { VoyageHud } from "./voyageHud";
 
 const ship = vi.hoisted(() => ({ private: false }));
@@ -27,10 +27,14 @@ function setup(privateShip: boolean, cargo = false) {
 afterEach(() => { document.body.replaceChildren(); ship.private = false; });
 
 describe.each([false, true])("treasure navigation with private ship %s", (privateShip) => {
-  it("keeps the ship under Play and travels to cave from either chart", () => {
+  it("labels home destinations and travels to the ship or cave without duplicate controls", () => {
     const { hud, handlers, button } = setup(privateShip);
-    expect([...hud.root.querySelectorAll(".main-actions button")].map(b => b.textContent?.trim()))
-      .toEqual(["Play", "Settings", "Cave"]);
+    expect(button("#menu-play").textContent).toContain("Play");
+    expect(button("#menu-settings").textContent).toBe("Settings");
+    expect(button("#menu-cave").textContent).toContain("Your cave");
+    button("#home-ship").click();
+    expect(handlers.travel).toHaveBeenLastCalledWith("hold");
+    handlers.travel.mockClear();
     expect(hud.root.querySelector("#main-menu #visit-ship")).toBeNull();
     expect(button("#ship-panel").hidden).toBe(true);
     button("#menu-cave").click();
@@ -53,6 +57,17 @@ describe.each([false, true])("treasure navigation with private ship %s", (privat
     expect(button("#map-ship").getAttribute("aria-expanded")).toBe("false");
     expect(handlers.home).not.toHaveBeenCalled();
     expect(handlers.harbour).not.toHaveBeenCalled();
+  });
+
+  it("separates cargo aboard from saved cave gold and refreshes home after delivery", () => {
+    const { hud, button, progress } = setup(privateShip, true);
+    expect(button("#home-ship").textContent).toContain("1 chest aboard");
+    expect(button("#home-ship").textContent).toContain("1,000 gold to bring home");
+    expect(button("#menu-cave").textContent).toContain("0 gold saved");
+    deliverChest(progress, 0);
+    hud.showMenu("main");
+    expect(button("#home-ship").textContent).toContain("No chests aboard");
+    expect(button("#menu-cave").textContent).toContain("1,000 gold saved");
   });
 
   it("offers unloading aboard and removes that action inside the cave", () => {

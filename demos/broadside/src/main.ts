@@ -1,3 +1,4 @@
+import { installMenuPreview } from "./ui/menuPreview";
 import { coinSounds, installCoinSounds } from "./game/coinSounds";
 import { Vector3 } from "@babylonjs/core/Maths/math.vector.js";
 import { DeckWalk } from "./game/deckWalk";
@@ -1027,6 +1028,7 @@ async function main() {
   else if (qaQuery === "free") freeSail();
   else if (qa) void start(Number(qaQuery));
 }
+installMenuPreview();
 void main().catch((err) => {
   console.error(err);
   const el = document.querySelector("#loading");

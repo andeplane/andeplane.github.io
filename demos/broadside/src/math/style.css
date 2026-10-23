@@ -1,6 +1,6 @@
 @font-face { font-family: "DM Sans"; font-weight: 400 700; font-display: swap; src: url("/assets/fonts/dm-sans.woff2"); }
 @font-face { font-family: "Pirata One"; font-display: swap; src: url("/assets/fonts/pirata-one.woff2"); }
-:root { font-family: "DM Sans", sans-serif; color: #f9e8c7; background: #101f29; --gold: #e9bf73; --ink: #173b3b; --muted: #a4b6b6; --safe-bottom: env(safe-area-inset-bottom, 0px); }
+:root { font-family: "DM Sans", sans-serif; color: #f9e8c7; background: #101f29; --gold: #e9bf73; --ink: #173b3b; --muted: #a4b6b6; --safe-bottom: var(--pirate-safe-bottom); }
 * { box-sizing: border-box; }
 html, body { width: 100%; height: 100%; margin: 0; overflow: hidden; overscroll-behavior: none; }
 body { -webkit-tap-highlight-color: transparent; }
@@ -15,8 +15,8 @@ h1, h2 { font-family: "Pirata One", Georgia, serif; font-weight: 400; }
 #academy[data-screen="cave"], #academy[data-screen="reward"], #academy[data-screen="ship"], #academy[data-screen="unloading"] { background: transparent; pointer-events: none; }
 #academy[data-screen="cave"] button, #academy[data-screen="reward"] button, #academy[data-screen="ship"] button, #academy[data-screen="unloading"] button { pointer-events: auto; }
 #treasure-scene { position: fixed; inset: 0; width: 100%; height: 100%; outline: none; touch-action: none; }
-#main-content { position: absolute; inset: calc(88px + env(safe-area-inset-top, 0px)) 0 0; overflow-y: auto; overflow-x: hidden; scrollbar-color: #79958a transparent; scrollbar-width: thin; }
-.topbar { height: calc(88px + env(safe-area-inset-top, 0px)); padding: calc(18px + env(safe-area-inset-top, 0px)) var(--pirate-menu-inset) 18px; display: flex; justify-content: space-between; align-items: center; gap: 12px; position: relative; z-index: 5; }
+#main-content { position: absolute; inset: calc(88px + var(--pirate-safe-top)) 0 0; overflow-y: auto; overflow-x: hidden; scrollbar-color: #79958a transparent; scrollbar-width: thin; }
+.topbar { height: calc(88px + var(--pirate-safe-top)); padding: calc(18px + var(--pirate-safe-top)) var(--pirate-menu-inset) 18px; display: flex; justify-content: space-between; align-items: center; gap: 12px; position: relative; z-index: 5; }
 .pirate-menu-header-left, .pirate-menu-header-actions { display: flex; gap: 20px; align-items: center; }
 .pirate-menu-header-actions { gap: 12px; }
 .brand { display: flex; align-items: center; gap: 10px; text-align: left; background: none; border: 0; padding: 0; }
@@ -242,8 +242,8 @@ h1, h2 { font-family: "Pirata One", Georgia, serif; font-weight: 400; }
   .trail-heading > span:last-child { font-size: 9px; }
 }
 @media (max-width: 600px) {
-  #main-content { inset-block-start: calc(76px + env(safe-area-inset-top, 0px)); }
-  .topbar { height: calc(76px + env(safe-area-inset-top, 0px)); padding: calc(14px + env(safe-area-inset-top, 0px)) 16px 14px; gap: 8px; }
+  #main-content { inset-block-start: calc(76px + var(--pirate-safe-top)); }
+  .topbar { height: calc(76px + var(--pirate-safe-top)); padding: calc(14px + var(--pirate-safe-top)) 16px 14px; gap: 8px; }
   .brand > .icon { width: 29px; height: 29px; }
   .brand > b { font-size: 8px; letter-spacing: .11em; }
   .brand small { font-size: 5.5px; letter-spacing: .1em; }
@@ -453,3 +453,87 @@ h1, h2 { font-family: "Pirata One", Georgia, serif; font-weight: 400; }
 
 .unload-status { width: auto; max-width: calc(100% - 36px); padding: 10px 16px; font-size: 11px; }
 .ship-view .cave-bottom > .text-button { width: 100%; }
+
+/* Home owns its one full-screen composition; inner pages keep the navigation row. */
+#academy[data-screen="home"] #main-content { inset: 0; }
+#academy .topbar .pirate-menu-header-actions { gap: 8px; }
+#academy .topbar .pirate-menu-header-left { gap: 0; }
+#academy .topbar { padding-left: calc(var(--pirate-menu-inset) + var(--pirate-safe-left)); padding-right: calc(var(--pirate-menu-inset) + var(--pirate-safe-right)); }
+#academy:not([data-screen="home"]) #main-content { inset-inline: var(--pirate-safe-left) var(--pirate-safe-right); }
+
+/* Each operation is an actual place, with its own landscape and chart palette. */
+.operator-view .page-heading { padding-bottom: 15px; }
+.operator-view .operator-grid { margin-top: 12px; }
+.operator-card.world-card { min-height: 340px; padding: 0; border-color: color-mix(in srgb, var(--accent), transparent 55%); background: var(--world-ocean); }
+.operator-card.world-card:hover { transform: translateY(-3px); }
+.operator-world-art { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; pointer-events: none; }
+.operator-world-shade { position: absolute; inset: 0; background: linear-gradient(180deg, #06162108 5%, #07121a08 30%, #07121ad6 63%, #07121af5); }
+.world-card .operator-symbol { position: absolute; top: 17px; left: 17px; width: 48px; height: 48px; font-size: 31px; background: #071b26d4; border-color: #f6f2df55; color: #fff1d7; box-shadow: 0 3px 14px #04101930; }
+.operator-copy { position: absolute; inset: auto 18px 17px; }
+.operator-world-name { display: block; color: #d1ded4; font: 400 11px/1.35 "DM Sans", sans-serif; }
+.world-card h2 { margin-top: 6px; color: #fff0d1; font: 700 24px/1.15 "DM Sans", sans-serif; }
+.world-card .example { margin-top: 12px; color: var(--accent); font-size: 18px; letter-spacing: .035em; }
+.world-card .operator-footer { margin-top: 14px; padding-top: 12px; align-items: center; color: #bfd0c8; font-size: 10px; border-color: #f0e7ca2b; }
+.operator-footer .icon { width: 17px; height: 17px; color: var(--accent); }
+#academy[data-screen="map"] #main-content { overflow: hidden; }
+.map-view.operation-world { height: 100%; min-height: 0; padding: 0 16px calc(14px + var(--pirate-safe-bottom, env(safe-area-inset-bottom, 0px))); display: flex; flex-direction: column; overflow: hidden; }
+.world-map-heading { flex: 0 0 auto; padding: 12px 12px 15px; text-align: center; }
+.world-map-heading .eyebrow { color: var(--world-accent); font-size: 10px; }
+.world-map-heading h1 { margin-top: 6px; font-size: clamp(28px, 4vw, 40px); line-height: 1.1; }
+.world-map-heading p { margin-top: 6px; font-size: 12px; color: #b9ceca; }
+.world-map-viewport { position: relative; flex: 1 1 auto; min-height: 0; width: 100%; overflow: hidden; border: 1px solid color-mix(in srgb, var(--world-accent), transparent 65%); border-radius: 13px; background: var(--world-ocean); isolation: isolate; touch-action: none; cursor: grab; box-shadow: 0 10px 30px #06131a70; }
+.world-map-viewport:active { cursor: grabbing; }
+.world-map-viewport:focus-visible { outline: 2px solid var(--world-accent); outline-offset: -3px; }
+.world-map-plane { position: absolute; top: 0; left: 0; width: 1200px; height: 1800px; transform-origin: 0 0; will-change: transform; }
+.world-map-art { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; pointer-events: none; user-select: none; }
+.world-map-texture { position: absolute; inset: 0; background: linear-gradient(#0a20251f, #0a20251f), repeating-linear-gradient(0deg, transparent 0 109px, #ffffed09 110px 111px); pointer-events: none; }
+.world-pack-route { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; pointer-events: none; filter: drop-shadow(0 1px 2px #10272e); }
+.world-pack-route path { fill: none; stroke: #fcf3cfb0; stroke-width: 4; stroke-dasharray: 8 13; stroke-linecap: round; }
+.world-pack-stop { position: absolute; width: 190px; padding: 0; border: 0; background: transparent; color: var(--world-ink); transform: translate(-50%, -50%); text-align: center; touch-action: none; }
+.world-pack-pin { display: grid; place-items: center; margin: 0 auto -12px; position: relative; z-index: 1; width: 44px; height: 44px; border: 2px solid #fffae5; border-radius: 50%; background: var(--world-ocean); color: #fff0d1; font: 700 17px/1 "DM Sans", sans-serif; box-shadow: 0 4px 10px #061d294f; }
+.world-pack-label { display: block; padding: 23px 12px 12px; border: 1px solid #fff0cb8c; border-radius: 11px; background: var(--world-paper); box-shadow: 0 7px 18px #06192470, inset 0 1px #fff7; }
+.world-pack-label b { display: block; font: 700 20px/1.25 "DM Sans", sans-serif; }
+.world-pack-label small { display: block; margin-top: 4px; font-size: 11px; line-height: 1.35; }
+.world-pack-label > span { display: block; margin-top: 9px; font-weight: 700; font-size: 14px; }
+.world-pack-label em { display: flex; align-items: center; justify-content: center; gap: 6px; margin-top: 10px; padding-top: 8px; border-top: 1px solid #44675524; font: 400 10px/1.4 "DM Sans", sans-serif; }
+.world-pack-label em .icon { width: 14px; height: 14px; }
+.world-pack-stop:hover .world-pack-label { filter: brightness(1.06); }
+.world-map-tools { position: absolute; z-index: 4; bottom: 10px; left: 10px; right: 10px; display: flex; gap: 10px; align-items: center; justify-content: space-between; color: #edf2dc; pointer-events: none; }
+.world-map-tools > span { padding: 8px 10px; border-radius: 7px; background: #0c1b27d9; font-size: 10px; }
+.world-map-tools button { display: flex; align-items: center; justify-content: center; gap: 6px; min-height: 44px; padding: 8px 12px; border: 1px solid #ecdcab59; border-radius: 8px; background: #0c1b27eb; color: #edf2dc; font-size: 11px; pointer-events: auto; }
+.world-map-tools button .icon { width: 17px; height: 17px; color: var(--world-accent); }
+@media (max-width: 700px) {
+  .operator-view { padding-inline: 14px; }
+  .operator-view .page-heading { padding: 10px 2px 12px; }
+  .operator-view .page-heading h1 { font-size: 32px; }
+  .operator-view .page-heading p { font-size: 11px; }
+  .operator-view .operator-grid { gap: 12px; margin-block: 8px 16px; }
+  .operator-card.world-card { min-height: 245px; }
+  .world-card .operator-symbol { top: 12px; left: 12px; width: 40px; height: 40px; font-size: 27px; }
+  .operator-copy { inset: auto 12px 12px; }
+  .operator-world-name { font-size: 10px; }
+  .world-card h2 { margin-top: 5px; font-size: clamp(17px, 4.6vw, 22px); }
+  .world-card .example { margin-top: 10px; font-size: 16px; }
+  .world-card .operator-footer { margin-top: 11px; padding-top: 9px; font-size: 9px; }
+  .map-view.operation-world { padding: 0 10px calc(10px + var(--pirate-safe-bottom, env(safe-area-inset-bottom, 0px))); }
+  .world-map-heading { padding-top: 5px; padding-bottom: 12px; }
+  .world-map-heading h1 { font-size: 30px; }
+  .world-map-heading p { font-size: 11px; }
+  .world-map-tools { left: 8px; right: 8px; bottom: 8px; gap: 6px; }
+  .world-map-tools > span { font-size: 9px; padding-inline: 8px; }
+  .world-map-tools button { font-size: 10px; padding-inline: 9px; }
+}
+@media (max-width: 350px), (max-height: 700px) and (max-width: 700px) {
+  .operator-card.world-card { min-height: 214px; }
+  .operator-view .operator-grid { gap: 10px; }
+  .operator-copy { inset-inline: 10px; }
+  .world-card h2 { font-size: 17px; }
+  .world-map-heading h1 { font-size: 27px; }
+  .world-map-tools > span { max-width: 105px; }
+}
+@media (max-height: 480px) and (min-width: 651px) {
+  .operator-card.world-card { min-height: 240px; }
+  .world-map-heading { padding-block: 2px 7px; }
+  .world-map-heading h1 { font-size: 27px; }
+  .world-map-heading p { display: none; }
+}

@@ -1,6 +1,11 @@
+import { installMenuPreview } from "../ui/menuPreview";
 import { icon } from "../ui/icons";
-import { backButton, mainMenuActions, mapLabel, menuBrand, menuHeader } from "../ui/menuChrome";
+import { backButton, mapLabel, menuHeader } from "../ui/menuChrome";
 import { pirateShipArt } from "../ui/worldArt";
+import { homeMenu } from "../ui/homeMenu";
+import { worldFor } from "./worlds";
+import { expeditionTrail, extendTrailWindow, initialTrailWindow, REGION_HEIGHT, LEVELS_PER_REGION, type TrailWindow } from "../ui/expeditionTrail";
+import { mountMapPan, type MapCamera, type MapPanController } from "../ui/mapPan";
 import {
   OPERATORS, getOperator, getPack, packsFor,
   readMathProgress, saveMathProgress, trackFor, startVoyage, questionsFor,
@@ -11,6 +16,7 @@ import type { GoldCave } from "./goldCave";
 import "./style.css";
 
 type Screen = "home" | "operators" | "map" | "levels" | "question" | "reward" | "ship" | "unloading" | "complete" | "cave" | "settings";
+installMenuPreview();
 const root = document.querySelector<HTMLDivElement>("#academy")!;
 const canvas = document.querySelector<HTMLCanvasElement>("#treasure-scene")!;
 const qa = import.meta.env.DEV && new URLSearchParams(location.search).get("qa") === "true";
@@ -18,6 +24,12 @@ let storage: Storage | undefined;
 try { storage = qa ? sessionStorage : localStorage; } catch { /* Playing still works when storage is unavailable. */ }
 const progress = readMathProgress(storage);
 if (qa) {
+  const previewCleared = Math.max(0, Math.min(120, Math.floor(Number(new URLSearchParams(location.search).get("cleared")) || 0)));
+  if (previewCleared && progress.solved === 0) {
+    const track = trackFor(progress, progress.pack);
+    track.cleared = previewCleared;
+    for (let n = 1; n <= previewCleared; n++) track.stars[n] = 3;
+  }
   const fixtureCount = Math.max(0, Math.min(20, Number(new URLSearchParams(location.search).get("cargo")) || 0));
   if (fixtureCount && progress.chests === 0) {
     for (let i = 0; i < fixtureCount; i++) {
@@ -28,18 +40,26 @@ if (qa) {
   }
 }
 let screen: Screen = "home", returnScreen: Screen = "home", caveReturn: Screen = "home";
-let operator = progress.operator, packId = progress.pack, level = 1, page = 0;
+let operator = progress.operator, packId = progress.pack, level = 1;
+let trailWindow: TrailWindow = initialTrailWindow(1);
+let trailCamera: MapCamera | undefined;
+let mapPan: MapPanController | null = null;
+const packCameras = new Map<OperatorId, MapCamera>();
 let voyage: Voyage | null = null, question: Question | null = null, outcome: AnswerResult | null = null;
 let answer = "", feedback = "", hinted = false, accepted = false, saveFailed = false;
 let cave: GoldCave | null = null, sceneError = false, sceneLoading = false, revealReady = false, viewId = 0;
 const art = (file: string, cls = "", alt = "") => `<img class="${cls}" src="${import.meta.env.BASE_URL}assets/map/${file}.webp" alt="${alt}" draggable="false" />`;
 const format = (value: number) => value.toLocaleString("en-GB");
-const compactGold = (value: number) => value < 10000 ? format(value) : new Intl.NumberFormat("en-GB", { notation: "compact", maximumFractionDigits: 1 }).format(value);
 const stars = (count: number) => `<span class="stars" aria-label="${count} stars">${[1, 2, 3].map((i) => `<span class="${i <= count ? "earned" : ""}">★</span>`).join("")}</span>`;
 const lock = `<svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><rect x="5" y="10" width="14" height="11" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/><path d="M12 14v3"/></svg>`;
 const persist = () => { const saved = saveMathProgress(progress, storage); saveFailed = !qa && !saved; };
 const selectedPack = () => getPack(packId);
 const packTrail = () => trackFor(progress, packId);
+const resumeRun = () => {
+  const track = packTrail();
+  if (voyage && track.runs[voyage.level] === voyage) return voyage;
+  return track.runs[track.cleared + 1] ?? Object.values(track.runs).sort((a, b) => b.level - a.level)[0];
+};
 const seed = () => {
   const value = new Uint32Array(1);
   try { return crypto.getRandomValues(value)[0]!; }
@@ -48,41 +68,80 @@ const seed = () => {
 const coins = (count: number, spent = 0) => `<span class="hint-coins">${Array.from({ length: count }, (_, i) => `<i class="little-coin ${i < spent ? "spent" : ""}" aria-hidden="true"></i>`).join("")}${count === 0 ? "No coins" : ""}</span>`;
 
 function header(): string {
+  if (screen === "home") return "";
   const backLabels: Partial<Record<Screen, string>> = {
-    operators: "Home", map: "Operators", levels: "Islands", question: "Map", cave: "Map", settings: "Back", complete: "Map", reward: "Map", ship: "Map", unloading: "Map",
+    operators: "Home", map: "Operators", levels: "Islands", question: "Map", cave: "Map", settings: "menu", complete: "Map", reward: "Map", ship: "Map", unloading: "Map",
   };
+  const pending = pendingMathChests(progress).length;
   return menuHeader({
     className: "topbar",
-    back: screen !== "home" ? backButton({ action: "back", destination: backLabels[screen] ?? "menu" }) : undefined,
-    brand: menuBrand({ action: "home", title: "CAPTAIN CALCULUS", subtitle: "A PIRATE MATH ADVENTURE", className: "brand" }),
-    actions: `<button class="round-button" data-action="ship" aria-label="Visit your ship, ${pendingMathChests(progress).length} chests aboard">${icon("ship")}</button><button class="gold-bank" data-action="cave" aria-label="Visit your cave, ${format(goldTotal(progress))} gold">${icon("chest")}<span>${compactGold(goldTotal(progress))}<small>gold</small></span></button><button class="round-button" data-action="settings" aria-label="Settings">${icon("wheel")}</button>`,
+    back: backButton({ action: "back", destination: backLabels[screen] ?? "menu" }),
+    brand: "",
+    actions: `<button class="pirate-nav-link" data-action="ship" aria-label="Ship, ${pending} ${pending === 1 ? "chest" : "chests"} aboard">${icon("ship")}<span>Ship<small>${pending} ${pending === 1 ? "chest" : "chests"}</small></span></button><button class="pirate-nav-link" data-action="cave" aria-label="Cave, ${format(bankedGold(progress))} gold banked${pending ? `, unload ${pending} ${pending === 1 ? "chest" : "chests"}` : ""}">${icon("chest")}<span>Cave<small>${format(bankedGold(progress))} gold</small></span></button>`,
   });
 }
 function home(): string {
-  const run = packTrail().runs[packTrail().cleared + 1];
-  return `<section class="home-view"><div class="night-sky" aria-hidden="true"><div class="moon"></div><div class="moon-glimmer"></div><div class="ocean-lines"></div></div><div class="hero-ship" aria-hidden="true">${pirateShipArt("calculus")}</div><div class="home-copy"><span class="eyebrow">LITTLE SUMS. GRAND ADVENTURES.</span><h1>Captain<br /><span>Calculus</span></h1><p class="tagline">A clever captain. A sea of numbers.<br />A cave full of treasure.</p>${mainMenuActions([{ action: "play", label: "Play", icon: "play", primary: true }, { action: "settings", label: "Settings", icon: "wheel" }, { action: "cave", label: "Cave", icon: "chest" }])}${run?.solved ? `<button class="resume-button" data-action="resume">${icon("ship")} Resume ${getOperator(selectedPack().operator).name.toLowerCase()} · ${run.solved}/10 solved</button>` : ""}</div><div class="home-note"><span>10 right first time</span><i>◆</i><span>100 gold</span><i>◆</i><span>Endless adventures</span></div></section>`;
+  const run = resumeRun();
+  const pending = pendingMathChests(progress).length;
+  const canResume = !!run;
+  return `<section class="pirate-home-shell">${homeMenu({
+    title: ["Captain", "Calculus"],
+    eyebrow: "A PIRATE MATH ADVENTURE",
+    description: "Solve a little. Bring home a fortune.",
+    illustration: pirateShipArt("calculus"),
+    primary: canResume
+      ? { action: "resume", label: "Continue", detail: `${getOperator(selectedPack().operator).name} · Level ${format(run.level)} · ${run.solved}/10 solved` }
+      : { action: "play", label: "Play", detail: "Choose what to practise" },
+    chooseLevels: canResume ? { action: "play", label: "Choose another level" } : undefined,
+    ship: { action: "ship", icon: "ship", title: "Your ship", value: pending ? `${format(pending)} ${pending === 1 ? "chest" : "chests"} aboard` : "No chests aboard", detail: pending ? `${format(cargoGold(progress))} gold to bring home` : "Your next reward goes here" },
+    cave: { action: "cave", icon: "chest", title: "Your cave", value: `${format(bankedGold(progress))} gold saved`, detail: pending ? `Unload ${pending} ${pending === 1 ? "chest" : "chests"} here` : "Explore your treasure" },
+    settings: { action: "settings", label: "How to play" },
+    rule: "100 gold per first-try answer. Up to 1,000 per level.",
+  })}</section>`;
 }
 function operatorView(): string {
-  return `<section class="operator-view"><div class="page-heading"><span class="eyebrow">FIRST, CHOOSE YOUR COURSE</span><h1>Which waters, Captain?</h1><p>Four ways to find the treasure. Choose what to practice.</p></div><div class="operator-grid">${OPERATORS.map((o, i) => {
+  return `<section class="operator-view"><div class="page-heading"><span class="eyebrow">FOUR WORLDS TO EXPLORE</span><h1>Choose your adventure</h1><p>Each kind of maths has its own corner of the world.</p></div><div class="operator-grid">${OPERATORS.map((o) => {
+    const world = worldFor(o.id);
     const cleared = packsFor(o.id).reduce((sum, p) => sum + (progress.tracks[p.id]?.cleared ?? 0), 0);
-    return `<button class="operator-card" data-operator="${o.id}" style="--accent:${o.color}">${art(["first-sails", "pirate-waters", "whirlpool-straits", "glowing-deep"][i]!, "operator-island")}<span class="operator-symbol">${o.symbol}</span><h2>${o.name}</h2><p>${o.verb}</p><span class="example">${o.sample} = ?</span><span class="operator-footer">${cleared ? `${format(cleared)} levels explored` : "Set off on an adventure"} <span>→</span></span></button>`;
-  }).join("")}</div><p class="small-note">Earn 100 gold for ten answers right first time. Hints are free.</p></section>`;
+    return `<button class="operator-card world-card" data-operator="${o.id}" style="--accent:${world.accent};--world-ocean:${world.ocean}" aria-label="${o.name}: ${world.name}"><img class="operator-world-art" src="${import.meta.env.BASE_URL}${world.image}" alt="" draggable="false" /><span class="operator-world-shade" aria-hidden="true"></span><span class="operator-symbol">${o.symbol}</span><span class="operator-copy"><small class="operator-world-name">${world.name}</small><h2>${o.name}</h2><span class="example">${o.sample} = ?</span><span class="operator-footer">${cleared ? `${format(cleared)} ${cleared === 1 ? "level" : "levels"} sailed` : "Explore this world"} ${icon("arrow")}</span></span></button>`;
+  }).join("")}</div><p class="small-note">Four different worlds. The same 100 gold for every first-try answer.</p></section>`;
 }
 function mapView(): string {
-  const op = getOperator(operator);
-  return `<section class="map-view"><div class="page-heading"><span class="eyebrow">${op.symbol} ${op.name.toUpperCase()}</span><h1>Choose your difficulty</h1><p>Tap an island to choose a level.</p></div><div class="sea-chart"><svg class="chart-route" viewBox="0 0 1000 520" preserveAspectRatio="none" aria-hidden="true"><path class="route-wide" d="M85 440 C150 475 135 210 280 130 S400 490 500 325 S650 40 710 160 S775 430 890 340"/><path class="route-tall" d="M210 95 C900 100 800 190 430 200 S70 270 240 310 S950 380 770 420 S160 460 300 505"/></svg><span class="chart-sea-label" aria-hidden="true">THE SEA OF POSSIBILITIES</span>${packsFor(operator).map((p, i) => {
-    const track = progress.tracks[p.id], cleared = track?.cleared ?? 0;
-    return `<button class="map-island island-${i + 1}" data-pack="${p.id}" aria-label="${p.label}: ${p.description}">${art(p.island, "island-art")}${mapLabel({ className: "island-label", title: p.label, subtitle: p.name, detailHtml: cleared ? `${format(cleared)} levels sailed ${icon("flag")}` : `${p.example} = ?` })}</button>`;
-  }).join("")}<button class="map-cave" data-action="cave" aria-label="Visit your own treasure cave">${art("treasure-cave")}<span>Your cave</span></button></div><div class="map-legend">${icon("compass")} All difficulties are open. Start where you feel ready.</div></section>`;
+  const op = getOperator(operator), world = worldFor(operator), packs = packsFor(operator);
+  const stops = [{x:350,y:1450},{x:850,y:1130},{x:380,y:890},{x:860,y:620},{x:390,y:330}];
+  const chosen = Math.max(0, packs.findIndex(p => p.id === packId)), focus = stops[chosen]!;
+  return `<section class="map-view operation-world" style="--world-accent:${world.accent};--world-ocean:${world.ocean};--world-paper:${world.paper};--world-ink:${world.ink}"><div class="world-map-heading"><span class="eyebrow">${op.symbol} ${op.name.toUpperCase()}</span><h1>${world.name}</h1><p>Drag the map. Choose your difficulty.</p></div><div class="world-map-viewport" data-map-viewport data-focus-x="${focus.x}" data-focus-y="${focus.y}" data-map-scale="1" tabindex="0" aria-label="${world.name} difficulty map. Drag in any direction or use arrow keys."><div class="world-map-plane" data-map-world><img class="world-map-art" src="${import.meta.env.BASE_URL}${world.image}" alt="" draggable="false" /><div class="world-map-texture" aria-hidden="true"></div><svg class="world-pack-route" viewBox="0 0 1200 1800" aria-hidden="true"><path d="M350 1450 C520 1440 700 1170 850 1130 S540 980 380 890 S690 700 860 620 S560 410 390 330" /></svg>${packs.map((p, i) => {
+    const cleared = progress.tracks[p.id]?.cleared ?? 0, stop = stops[i]!;
+    return `<button class="world-pack-stop" data-pack="${p.id}" style="left:${stop.x}px;top:${stop.y}px" aria-label="${p.label}: ${p.description}"><span class="world-pack-pin" aria-hidden="true">${i + 1}</span><span class="world-pack-label"><b>${p.label}</b><small>${world.chapterNames[i]}</small><span>${p.example} = ?</span><em>${cleared ? `${format(cleared)} ${cleared === 1 ? "level" : "levels"} sailed` : "Start exploring"} ${icon("arrow")}</em></span></button>`;
+  }).join("")}</div><div class="world-map-tools" data-map-control><span>Five difficulties · all open</span><button type="button" data-map-center>${icon("compass")} Current island</button></div></div></section>`;
 }
 function levelsView(): string {
-  const p = selectedPack(), op = getOperator(p.operator), track = packTrail();
-  const next = track.cleared + 1, first = page * 12 + 1;
-  return `<section class="levels-view"><div class="page-heading"><span class="eyebrow">${op.symbol} ${op.name.toUpperCase()} · ${p.label.toUpperCase()}</span><h1>${p.name}</h1><p>${p.description}</p></div><div class="level-board"><div class="level-illustration">${art(p.island)}<span class="island-caption">TEN PROBLEMS PER VOYAGE</span></div><div class="level-trail"><div class="trail-heading"><span>Levels ${format(first)}–${format(first + 11)}</span><span>${icon("chest")} 100 gold · no mistakes</span></div><div class="level-grid">${Array.from({ length: 12 }, (_, i) => {
-    const n = first + i, locked = n > next, score = track.stars[n] ?? 0, partial = track.runs[n]?.solved;
-    return `<button class="level-tile ${n === next ? "current" : ""} ${score ? "completed" : ""}" data-level="${n}" ${locked ? "disabled" : ""} aria-label="Level ${n}${locked ? ", locked" : score ? `, ${score} stars, replay` : partial ? `, resume, ${partial} of 10 solved` : ", start"}"><span class="tile-number" style="font-size:${Math.min(23, Math.max(8, Math.floor(74 / String(n).length)))}px">${n}</span>${locked ? lock : partial ? `<span class="tile-partial">${partial}/10</span>` : n === next ? `<span class="tile-flag">${icon("flag")}</span>` : ""}${stars(score)}</button>`;
-  }).join("")}</div><div class="trail-pagination"><button class="text-button" data-action="prev-page" ${page === 0 ? "disabled" : ""}>‹ Earlier levels</button><button class="text-button" data-action="next-page" ${page >= Math.floor(track.cleared / 12) ? "disabled" : ""}>More adventures ›</button></div><button class="wood-button primary set-sail" data-level="${next}">${track.runs[next]?.solved ? "Continue" : "Set sail"} · Level ${format(next)} ${icon("ship")}</button><p class="small-note">The trail keeps going. There is always another voyage.</p></div></div></section>`;
+  const p = selectedPack(), op = getOperator(p.operator);
+  const practiceRule = p.operator === "add" ? `Sums stay at ${p.limit} or below, however far you sail.` : "Explore new shores. The maths stays at this difficulty.";
+  return expeditionTrail({ operator: p.operator, packName: p.name, packLabel: p.label, operatorName: op.name, practiceRule, baseUrl: import.meta.env.BASE_URL, window: trailWindow, track: packTrail() });
 }
+function mountMathMap(scroller: HTMLElement): void {
+  scroller.scrollTop = scroller.scrollLeft = 0;
+  const viewport = scroller.querySelector<HTMLElement>("[data-map-viewport]");
+  const world = viewport?.querySelector<HTMLElement>("[data-map-world]");
+  if (!viewport || !world) return;
+  const isTrail = screen === "levels", mapOperator = operator;
+  mapPan = mountMapPan(viewport, world, {
+    focus: { x: Number(viewport.dataset.focusX) || world.offsetWidth / 2, y: Number(viewport.dataset.focusY) || world.offsetHeight / 2 },
+    scale: Number(viewport.dataset.mapScale) || 1,
+    state: isTrail ? trailCamera : packCameras.get(mapOperator),
+    onChange: state => { if (isTrail) trailCamera = state; else packCameras.set(mapOperator, state); },
+    onCenter: isTrail ? () => openLevels() : undefined,
+  });
+}
+function exploreTrail(direction: "earlier" | "further"): void {
+  const previous = trailWindow;
+  const camera = mapPan?.getState();
+  trailWindow = extendTrailWindow(trailWindow, direction);
+  if (camera) trailCamera = { ...camera, y: camera.y + (trailWindow.first - previous.first) / LEVELS_PER_REGION * REGION_HEIGHT * camera.scale };
+  render();
+}
+
 function hintView(q: Question): string {
   if (q.operator === "add") return `<p>Put the two piles together. Count all the coins.</p><div class="hint-piles"><div><b>${q.left}</b>${coins(q.left)}</div><span>+</span><div><b>${q.right}</b>${coins(q.right)}</div></div>`;
   if (q.operator === "subtract" && q.left <= 20) return `<p>Start with ${q.left} coins. Cross out ${q.right}. Count what's left.</p>${coins(q.left, q.right)}`;
@@ -95,9 +154,11 @@ function hintView(q: Question): string {
 }
 function questionView(): string {
   const p = selectedPack(), op = getOperator(p.operator), q = question!, solved = voyage!.solved;
-  const rewardAvailable = voyage!.mistakes === 0;
-  const message = accepted ? outcome?.chestEarned ? "Ten right first time! You've earned 100 gold, Captain!" : outcome?.levelComplete ? "Voyage complete! Try the next level for 100 gold." : ["Aye, that's right!", "Clever sailing, Captain!", "Another treasure found!"][solved % 3] : feedback || "Take your time, Captain. You've got this.";
-  return `<section class="question-view"><div class="voyage-status"><span>${op.symbol} ${op.name} <i>·</i> ${p.label}</span><b>Level ${format(level)}</b></div><div class="question-progress" aria-label="${solved} of 10 problems solved">${Array.from({ length: 10 }, (_, i) => `<span class="${i < solved ? "solved" : i === solved ? "active" : ""}">${i < solved ? "✓" : i + 1}</span>`).join("")}<span class="progress-chest">${icon("chest")}</span></div><div class="math-card ${accepted ? "correct" : feedback ? "try-again" : ""}"><div class="question-heading"><span class="eyebrow">${accepted && outcome?.levelComplete ? "VOYAGE COMPLETE" : `PROBLEM ${Math.min(solved + (accepted ? 0 : 1), 10)} OF 10`}</span><button class="hint-button" data-action="hint" aria-expanded="${hinted}" ${accepted ? "disabled" : ""}>${icon("compass")} ${hinted ? "Hide hint" : "A little help"}</button></div><div class="equation" aria-label="${q.left} ${op.name === "Addition" ? "plus" : op.name === "Subtraction" ? "minus" : op.name === "Multiplication" ? "times" : "divided by"} ${q.right} equals what?"><span class="term left-term">${q.left}</span><span class="equation-operator">${op.symbol}</span><span class="term right-term">${q.right}</span><span class="equals">=</span><output id="answer" class="answer-box ${answer ? "filled" : ""}" aria-label="Your answer" aria-live="polite">${answer || "?"}</output></div><p id="answer-feedback" class="answer-feedback ${accepted ? "success" : feedback ? "retry" : ""}" role="status">${message}</p><div class="hint-panel" ${hinted ? "" : "hidden"}>${hinted ? hintView(q) : ""}</div><div class="number-pad" aria-label="Number pad">${[1, 2, 3, 4, 5, 6, 7, 8, 9].map((n) => `<button data-key="${n}" ${accepted ? "disabled" : ""}>${n}</button>`).join("")}<button class="key-clear" data-key="clear" aria-label="Clear answer" ${accepted ? "disabled" : ""}>Clear</button><button data-key="0" ${accepted ? "disabled" : ""}>0</button><button class="key-delete" data-key="delete" aria-label="Delete last digit" ${accepted ? "disabled" : ""}>⌫</button></div><button id="check-answer" class="wood-button primary check-answer" data-action="${accepted ? "continue" : "check"}" ${!accepted && !answer ? "disabled" : ""}>${accepted ? outcome?.chestEarned ? `Open your chest ${icon("chest")}` : outcome?.levelComplete ? `See your stars ${icon("star")}` : `Next problem ${icon("arrow")}` : `Check answer ${icon("arrow")}`}</button></div><div class="chest-distance">${icon("chest")}<span>${accepted && outcome?.chestEarned ? "100 gold earned!" : rewardAvailable ? "100 gold at stake · one mistake loses this reward" : "0 gold this level · keep practising for the next voyage"}</span><small>Keyboard: numbers & Enter</small></div></section>`;
+  const earned = voyage!.earnedGold;
+  const rewardAvailable = voyage!.problemMistakes === 0;
+  const stake = accepted ? outcome?.goldEarned ? "+100 gold for this answer" : "No gold for this answer · the next problem offers 100" : rewardAvailable ? "100 gold at stake for this problem · first try only" : "This problem’s 100 gold is lost · retries cost nothing more";
+  const message = accepted ? outcome?.levelComplete ? `Level complete! ${format(outcome.levelGold)} gold earned, Captain!` : outcome?.goldEarned ? "Aye, that’s right! +100 gold." : "That’s right. The next problem offers a fresh 100 gold." : feedback || "Take your time, Captain. You’ve got this.";
+  return `<section class="question-view"><div class="voyage-status"><span>${op.symbol} ${op.name} <i>·</i> ${p.label}</span><b>Level ${format(level)}</b></div><div class="question-progress" aria-label="${solved} of 10 problems solved">${Array.from({ length: 10 }, (_, i) => `<span class="${i < solved ? "solved" : i === solved ? "active" : ""}">${i < solved ? "✓" : i + 1}</span>`).join("")}<span class="progress-chest">${icon("chest")}</span></div><div class="math-card ${accepted ? "correct" : feedback ? "try-again" : ""}"><div class="question-heading"><span class="eyebrow">${accepted && outcome?.levelComplete ? "VOYAGE COMPLETE" : `PROBLEM ${Math.min(solved + (accepted ? 0 : 1), 10)} OF 10`}</span><button class="hint-button" data-action="hint" aria-expanded="${hinted}" ${accepted ? "disabled" : ""}>${icon("compass")} ${hinted ? "Hide hint" : "A little help"}</button></div><div class="equation" aria-label="${q.left} ${op.name === "Addition" ? "plus" : op.name === "Subtraction" ? "minus" : op.name === "Multiplication" ? "times" : "divided by"} ${q.right} equals what?"><span class="term left-term">${q.left}</span><span class="equation-operator">${op.symbol}</span><span class="term right-term">${q.right}</span><span class="equals">=</span><output id="answer" class="answer-box ${answer ? "filled" : ""}" aria-label="Your answer" aria-live="polite">${answer || "?"}</output></div><p id="answer-feedback" class="answer-feedback ${accepted ? "success" : feedback ? "retry" : ""}" role="status">${message}</p><div class="hint-panel" ${hinted ? "" : "hidden"}>${hinted ? hintView(q) : ""}</div><div class="number-pad" aria-label="Number pad">${[1, 2, 3, 4, 5, 6, 7, 8, 9].map((n) => `<button data-key="${n}" ${accepted ? "disabled" : ""}>${n}</button>`).join("")}<button class="key-clear" data-key="clear" aria-label="Clear answer" ${accepted ? "disabled" : ""}>Clear</button><button data-key="0" ${accepted ? "disabled" : ""}>0</button><button class="key-delete" data-key="delete" aria-label="Delete last digit" ${accepted ? "disabled" : ""}>⌫</button></div><button id="check-answer" class="wood-button primary check-answer" data-action="${accepted ? "continue" : "check"}" ${!accepted && !answer ? "disabled" : ""}>${accepted ? outcome?.chestEarned ? `Open your chest ${icon("chest")}` : outcome?.levelComplete ? `See your stars ${icon("star")}` : `Next problem ${icon("arrow")}` : `Check answer ${icon("arrow")}`}</button></div><div class="chest-distance">${icon("chest")}<span><b>${format(earned)} / 1,000 gold earned this level</b><br />${stake}</span><small>Keyboard: numbers & Enter</small></div></section>`;
 }
 function shipView(reward: boolean): string {
   const pending = pendingMathChests(progress);
@@ -105,7 +166,7 @@ function shipView(reward: boolean): string {
     <div class="cave-heading"><span class="eyebrow">ABOARD THE BLACK PEARL</span><h1>${reward ? "Treasure, Captain!" : "The treasure hold"}</h1><p>${pending.length} ${pending.length === 1 ? "open chest" : "open chests"} aboard · ${format(cargoGold(progress))} gold coming home</p>${reward && outcome ? stars(outcome.stars) : ""}</div>
     <div class="cave-loading" role="status" ${!sceneLoading ? "hidden" : ""}>${icon("chest")} Boarding your ship…</div>
     ${sceneError ? `<div class="cave-fallback">${art("first-sails")}<p>Your chests are saved aboard. Try returning to the cave again.</p></div>` : ""}
-    <div class="cave-bottom"><div class="hoard-total"><span class="eyebrow">${reward ? "+100 GOLD STOWED ABOARD" : "YOUR SAVED CARGO"}</span><strong>${format(cargoGold(progress))} <span>gold aboard</span></strong><p>${format(bankedGold(progress))} gold already in your cave</p></div><button class="wood-button primary" data-action="unload" ${!pending.length || sceneLoading ? "disabled" : ""}>Return to cave ${icon("chest")}</button><button class="text-button" data-action="${reward ? "reward-next" : "levels"}">${reward ? "Next voyage" : "Keep practising"} ${icon("ship")}</button></div>
+    <div class="cave-bottom"><div class="hoard-total"><span class="eyebrow">${reward ? `+${format(outcome?.levelGold ?? pending[pending.length - 1]?.gold ?? 0)} GOLD STOWED ABOARD` : "YOUR SAVED CARGO"}</span><strong>${format(cargoGold(progress))} <span>gold aboard</span></strong><p>${format(bankedGold(progress))} gold already in your cave</p></div><button class="wood-button primary" data-action="unload" ${!pending.length || sceneLoading ? "disabled" : ""}>Return to cave ${icon("chest")}</button><button class="text-button" data-action="${reward ? "reward-next" : "levels"}">${reward ? "Explore next island" : "Keep practising"} ${icon("ship")}</button></div>
   </section>`;
 }
 function caveView(unloading: boolean): string {
@@ -125,19 +186,22 @@ function caveView(unloading: boolean): string {
   </section>`;
 }
 function completeView(): string {
-  return `<section class="complete-view"><span class="eyebrow">${selectedPack().name.toUpperCase()}</span><h1>Well sailed, Captain!</h1>${stars(outcome?.stars ?? 1)}<p>You solved all ten problems in level ${format(level)}.<br />No gold this time: a mistake forfeited the 100-gold reward.<br />The next voyage offers a fresh 100 gold.</p><div class="completion-ship" aria-hidden="true">${pirateShipArt("complete")}</div><button class="wood-button primary" data-action="reward-next">Next voyage ${icon("ship")}</button></section>`;
+  return `<section class="complete-view"><span class="eyebrow">${selectedPack().name.toUpperCase()}</span><h1>Well sailed, Captain!</h1>${stars(outcome?.stars ?? 1)}<p>You solved all ten problems in level ${format(level)}.<br />No gold this time. Each first-try answer on the next island earns 100 gold.<br />Ten problems can earn up to 1,000 gold.</p><div class="completion-ship" aria-hidden="true">${pirateShipArt("complete")}</div><button class="wood-button primary" data-action="reward-next">Explore next island ${icon("ship")}</button></section>`;
 }
 function settingsView(): string {
-  return `<section class="settings-view"><div class="page-heading"><span class="eyebrow">THE CAPTAIN'S ORDERS</span><h1>Settings</h1></div><div class="settings-card"><div class="captains-guide"><h2>A little captain's guide</h2><p>Pick an operator, choose a difficulty island, and solve ten problems in each level. New levels keep appearing as you sail.</p><p>Each level offers a chest of 100 gold. Answer all ten problems correctly on your first try to earn it. The first wrong answer forfeits that level’s entire 100-gold reward. Earned chests collect aboard your ship. Return to the cave to pour them out one by one. Gold already in your cave stays safe.</p><p>Take your time and use the free hints before answering. After a mistake, keep practising to finish the level and unlock the next one. Leaving or closing the app does not restore the lost reward. A fresh voyage offers another chance to earn 100 gold.</p><div class="guide-footer">${icon("anchor")} ${saveFailed ? "This browser couldn't save. Keep this tab open to keep your progress." : "Your progress and gold are saved on this device."}</div></div></div></section>`;
+  return `<section class="settings-view"><div class="page-heading"><span class="eyebrow">THE CAPTAIN'S ORDERS</span><h1>How to play</h1></div><div class="settings-card"><div class="captains-guide"><h2>A little captain's guide</h2><p>Pick an operator, choose a difficulty island, and solve ten problems in each level. New levels keep appearing as you sail.</p><p>Each problem offers 100 gold for a correct answer on your first try. A wrong answer loses only that problem’s 100 gold. Repeated wrong attempts on that same problem cost nothing more. The other problems still offer their own 100 gold, so ten first-try answers earn 1,000 gold. Earned chests collect aboard your ship. Return to the cave to pour them out one by one. Gold already in your cave stays safe.</p><p>Take your time and use the free hints before answering. After a mistake, keep practising to finish the level and unlock the next one. Leaving or closing the app does not restore a problem’s lost reward. Each new problem offers a fresh 100 gold.</p><div class="guide-footer">${icon("anchor")} ${saveFailed ? "This browser couldn't save. Keep this tab open to keep your progress." : "Your progress and gold are saved on this device."}</div></div></div></section>`;
 }
 function render(): void {
+  mapPan?.destroy(); mapPan = null;
   root.dataset.screen = screen;
   root.dataset.operator = operator;
   root.innerHTML = `${header()}<main id="main-content">${{
     home, operators: operatorView, map: mapView, levels: levelsView, question: questionView,
     reward: () => shipView(true), ship: () => shipView(false), unloading: () => caveView(true), cave: () => caveView(false), complete: completeView, settings: settingsView,
   }[screen]()}</main>${saveFailed && screen !== "settings" ? `<div class="save-notice" role="status">Progress can't be saved in this browser. Keep this tab open.</div>` : ""}`;
-  document.querySelector("#main-content")!.scrollTop = 0;
+  const scroller = document.querySelector<HTMLElement>("#main-content")!;
+  if (screen === "levels" || screen === "map") mountMathMap(scroller);
+  else scroller.scrollTop = 0;
 }
 function show(next: Screen): void {
   viewId++;
@@ -180,7 +244,8 @@ async function showTreasure(request: "reward" | "ship" | "cave", unload = true):
 const showGold = (reward: boolean) => showTreasure(reward ? "reward" : "cave");
 function openLevels(): void {
   operator = selectedPack().operator;
-  page = Math.floor(packTrail().cleared / 12);
+  trailWindow = initialTrailWindow(packTrail().cleared + 1);
+  trailCamera = undefined;
   show("levels");
 }
 function beginLevel(n: number): void {
@@ -210,12 +275,12 @@ function enterKey(key: string): void {
 }
 function checkAnswer(): void {
   if (screen !== "question" || accepted || !answer) return;
-  const firstMistake = voyage!.mistakes === 0;
+  const firstMistake = voyage!.problemMistakes === 0;
   const result = answerQuestion(progress, packId, level, Number(answer));
   if (!result) return;
   persist();
   if (result.correct) { accepted = true; outcome = result; }
-  else { feedback = firstMistake ? "Not quite. You lost this level’s 100 gold. Take your time and try again; hints are free." : "Not quite. Try a free hint and work it out. A new voyage offers another 100 gold."; answer = ""; }
+  else { feedback = firstMistake ? "Not quite. This problem’s 100 gold is lost. Take your time; the next problem still offers 100 gold." : "Not quite. No more gold is lost on this problem. Try a free hint and work it out."; answer = ""; }
   render();
 }
 function continueAfterAnswer(): void {
@@ -226,7 +291,7 @@ function continueAfterAnswer(): void {
 }
 function nextVoyage(): void {
   if (screen === "reward" && !revealReady && !sceneError) return;
-  if (outcome?.levelComplete) beginLevel(Math.max(level + 1, packTrail().cleared + 1));
+  if (outcome?.levelComplete) openLevels();
   else if (voyage && packTrail().runs[level]) nextProblem();
   else openLevels();
 }
@@ -266,9 +331,9 @@ root.addEventListener("click", (event) => {
     case "cave-map": operator = selectedPack().operator; show("map"); break;
     case "cave-reset": cave?.resetCamera(); break;
     case "cave-inspect": cave?.inspect(); break;
-    case "resume": beginLevel(packTrail().cleared + 1); break;
-    case "prev-page": page = Math.max(0, page - 1); render(); break;
-    case "next-page": page = Math.min(Math.floor(packTrail().cleared / 12), page + 1); render(); break;
+    case "resume": beginLevel(resumeRun()?.level ?? packTrail().cleared + 1); break;
+    case "trail-earlier": exploreTrail("earlier"); break;
+    case "trail-further": exploreTrail("further"); break;
     case "levels": openLevels(); break;
     case "hint": hinted = !hinted; render(); break;
     case "check": checkAnswer(); break;
@@ -292,6 +357,7 @@ document.addEventListener("keydown", (event) => {
 render();
 if (qa) {
   const view = new URLSearchParams(location.search).get("view");
-  if (view === "ship") void showTreasure("ship");
+  if (view === "levels") openLevels();
+  else if (view === "ship") void showTreasure("ship");
   else if (view === "unload") void showTreasure("cave");
 }

@@ -9,7 +9,7 @@ import { CaveWalkControls } from "../input/caveWalk";
 import { CaveGesture } from "../input/caveGesture";
 import { readProgress } from "../game/progress";
 import { CargoQueue } from "../game/cargoQueue";
-import { OPERATORS, GOLD_PER_CHEST, bankGold, pendingMathChests, deliverMathChest, type MathProgress, type MathChest } from "./academy";
+import { OPERATORS, bankGold, pendingMathChests, deliverMathChest, type MathProgress, type MathChest } from "./academy";
 
 /** The same textured, walkable Broadside cave, with an independent math bank. */
 export class GoldCave {
@@ -149,7 +149,8 @@ export class GoldCave {
     this.active = true; this.reward = true; this.mode = "ship"; this.progress = progress;
     this.clearControls(); this.releaseCave(); this.resize(); this.reported = false;
     if (!this.hold) this.hold = new ShipHold(this.engine, generateVoyage(OPERATORS.findIndex(o => o.id === progress.operator) * LEVELS_PER_WORLD));
-    this.hold.openCargo(pendingMathChests(progress).length, GOLD_PER_CHEST, reveal);
+    const pending = pendingMathChests(progress);
+    this.hold.openCargo(pending.length, pending[pending.length - 1]?.gold ?? 0, reveal);
     if (!reveal) { this.reported = true; queueMicrotask(this.onReady); }
   }
   show(progress: MathProgress, unload: boolean): void {
