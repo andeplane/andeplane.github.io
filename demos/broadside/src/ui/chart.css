@@ -117,8 +117,10 @@
 }
 #world-menu .world-label b {
   color: #352618;
-  font-size: clamp(18px, 2vw, 27px);
-  line-height: 1.1;
+  font-family: "DM Sans", sans-serif;
+  font-size: clamp(17px, 2vw, 23px);
+  font-weight: 700;
+  line-height: 1.25;
 }
 #world-menu .world-label > span {
   color: #654626;
@@ -247,16 +249,16 @@
   }
   #world-menu .world-label {
     margin-top: -3px;
-    padding: 5px 2px 6px;
+    padding: 7px 5px 8px;
   }
   #world-menu .world-label b {
-    font-size: 19px;
+    font-size: 17px;
   }
   #world-menu .world-label small {
-    font-size: 8px;
+    font-size: 10px;
   }
   #world-menu .world-label > span {
-    font-size: 10px;
+    font-size: 12px;
   }
   #world-menu .map-cave {
     left: 7%;
@@ -269,11 +271,6 @@
     right: 28px;
     font-size: 10px;
     line-height: 1.4;
-  }
-  [data-screen="worlds"] #menu-back {
-    left: 20px;
-    bottom: 18px;
-    min-width: 85px;
   }
 }
 @media (max-width: 650px) and (max-height: 650px) {

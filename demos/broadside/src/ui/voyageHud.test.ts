@@ -76,6 +76,24 @@ describe.each([false, true])("treasure navigation with private ship %s", (privat
 });
 
 describe("regional island journeys", () => {
+  it("keeps an open regional chart and its ship mounted when setting sail", () => {
+    const { hud, button } = setup(false);
+    hud.showMenu("worlds");
+    button('[data-pack="0"]').click();
+    const chart = button("#level-menu"), firstIsland = button('[data-level="0"]');
+    const ship = button("#level-ship");
+    expect(chart.hidden).toBe(false);
+    expect(ship.hidden).toBe(false);
+    const show = vi.spyOn(hud, "showMenu");
+    hud.beginTravel({ kind: "port" }, { kind: "course", index: 0 }, "Setting sail…");
+    expect(show).not.toHaveBeenCalled();
+    expect(button('[data-level="0"]')).toBe(firstIsland);
+    expect(button("#level-ship")).toBe(ship);
+    expect(chart.hidden).toBe(false);
+    expect(ship.hidden).toBe(false);
+    expect(hud.root.dataset.screen).toBe("levels");
+    expect(button("#chart-travel").hidden).toBe(false);
+  });
   it("shows ten islands, preserves locks, stars and destinations", () => {
     const { hud, handlers, button } = setup(false, true);
     hud.showMenu("worlds");
@@ -130,6 +148,28 @@ describe("regional island journeys", () => {
 });
 
 describe('sailing deck controls',()=>{
+  it('steers gently from the thumb-down location and releases only the steering finger',()=>{
+    const { handlers, button } = setup(false);
+    const wheel = button('#v-wheel');
+    wheel.setPointerCapture = vi.fn();
+    const pointer = (type: string, id: number, x: number, y: number) =>
+      wheel.dispatchEvent(new PointerEvent(type, {pointerId:id,clientX:x,clientY:y,bubbles:true}));
+    pointer('pointerdown', 1, 80, 140);
+    expect(handlers.steer).toHaveBeenLastCalledWith(0);
+    pointer('pointermove', 1, 92, 140);
+    expect(handlers.steer.mock.lastCall![0]).toBeGreaterThan(0);
+    expect(handlers.steer.mock.lastCall![0]).toBeLessThan(0.01);
+    pointer('pointermove', 1, 80, 80);
+    expect(handlers.steer).toHaveBeenLastCalledWith(0);
+    pointer('pointermove', 1, 20, 140);
+    expect(handlers.steer).toHaveBeenLastCalledWith(-0.75);
+    pointer('pointerdown', 2, 200, 200);
+    pointer('pointerup', 2, 200, 200);
+    expect(handlers.steer).toHaveBeenLastCalledWith(-0.75);
+    pointer('pointerup', 1, 20, 140);
+    expect(handlers.steer).toHaveBeenLastCalledWith(null);
+    expect(button('#v-stick').style.transform).toBe('');
+  });
   it('offers walking while sailing and only allows returning at the real wheel',()=>{
     const {hud,handlers,button}=setup(false);
     hud.play(0);hud.deck(false,true,false,'idle',null,0);

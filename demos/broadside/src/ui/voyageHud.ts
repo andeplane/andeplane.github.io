@@ -21,6 +21,7 @@ import { generateVoyage } from "../game/voyage";
 import type { Progress } from "../game/progress";
 import { icon } from "./icons";
 import { PRIVATE_PEARL } from "../privatePearl";
+import { touchSteeringTurn } from "../input/touchSteering";
 import { worldArt, pirateShipArt } from "./worldArt";
 import { Controls } from "../input/controls";
 import { angleDiff, headingTo, distance, seaDistance, wrapCoordinate } from "../sim/math";
@@ -49,7 +50,7 @@ interface Handlers {
   select: (index: number, goldWorld: number) => void;
   pause: () => void;
   fire: () => void;
-  steer: (heading: number | null) => void;
+  steer: (turn: number | null) => void;
   anchor: () => void;
 }
 export class VoyageHud {
@@ -87,14 +88,14 @@ export class VoyageHud {
     </section>
     <section id="cave-ui" hidden><div class="cave-title"><span class="eyebrow">YOUR SECRET HIDEOUT</span><h1>The treasure cave</h1><p id="cave-count"></p></div><div id="relic-info"><span class="eyebrow" id="relic-number"></span><h2 id="relic-title"></h2><p id="relic-story"></p><div id="relic-stars"></div><button id="cave-sail" class="text-button">Find this treasure ${icon("arrow")}</button></div><div class="gallery-hint">WASD walk · Arrows look · Space jump</div><button id="cave-overview" class="cave-overview">‹ Keep exploring</button><div id="cave-crosshair" aria-hidden="true">+</div><div id="cave-pad" role="group" aria-label="Move around the cave"><span id="cave-thumb"></span><small>MOVE</small></div><button id="cave-jump" aria-label="Jump">↑<small>JUMP</small></button><button id="cave-inspect" hidden>Inspect treasure</button><button id="harbour-chart" class="harbour-chart" hidden>Set sail ${icon("map")}</button><button id="cave-back" class="menu-back">‹ <span>Back</span></button></section>
     <section id="voyage-play" hidden><div class="voyage-status"><span>${icon("heart")}<div class="health-track"><i id="v-hull"></i></div><b id="v-health">100%</b></span><span class="gem-count">◆ <b id="v-gems">0 / 3</b></span></div><div class="voyage-mission"><small id="v-level"></small><strong id="v-objective"></strong><div class="voyage-track"><i id="v-travel"></i><span>✦</span></div></div><div id="v-weather" aria-label="Weather and wind"><span id="v-wind-arrow" aria-hidden="true">↑</span><span id="v-weather-name"></span><small id="v-gust"></small></div><div id="v-targets"></div><div id="v-wheel" aria-label="Drag the wheel to steer" role="group"><div class="wheel-ring"></div><span id="v-stick">${icon("wheel")}</span><small>STEER</small></div><button id="v-anchor" class="round" aria-label="Stop or start sailing">${icon("anchor")}</button><button id="v-fire" aria-label="Fire cannons"><span>${icon("cannon")}</span><b>BOOM!</b><small id="v-fire-label">TAP TO FIRE</small></button><div id="v-compass"><span id="v-arrow">↑</span><b>TREASURE</b><small id="v-distance"></small></div><div id="v-tip"></div></section>
-    <section id="v-result" class="voyage-overlay" hidden role="dialog" aria-modal="true" aria-labelledby="result-title"><div class="result-top"><span class="eyebrow" id="result-eyebrow">A NEW TREASURE FOR YOUR CAVE</span><h1 id="result-title"></h1><div id="result-stars"></div><p id="result-detail"></p></div><div class="result-bottom"><p class="collection-confirmation">${icon("chest")} Added to your cave</p><div class="result-actions"><button id="result-retry" class="secondary">Retry</button><button id="result-next" class="primary">Next level ${icon("arrow")}</button><button id="result-menu" class="text-button">Back to menu</button></div></div></section>
+    <section id="v-result" class="voyage-overlay" hidden role="dialog" aria-modal="true" aria-labelledby="result-title"><button id="result-menu" class="menu-back" aria-label="Back to menu">‹ <span>Back</span></button><div class="result-top"><span class="eyebrow" id="result-eyebrow">A NEW TREASURE FOR YOUR CAVE</span><h1 id="result-title"></h1><div id="result-stars"></div><p id="result-detail"></p></div><div class="result-bottom"><p class="collection-confirmation">${icon("chest")} Added to your cave</p><div class="result-actions"><button id="result-retry" class="secondary">Retry</button><button id="result-next" class="primary">Next level ${icon("arrow")}</button></div></div></section>
     <section id="v-paused" class="voyage-overlay pause-screen" hidden role="dialog" aria-modal="true" aria-labelledby="pause-title"><div><span class="eyebrow">A LITTLE SHORE LEAVE</span><h1 id="pause-title">Ready when you are.</h1><button id="v-resume" class="primary">Keep sailing ${icon("play")}</button><button id="v-return" class="secondary">Choose levels</button></div></section>`;
     document.body.append(r);
     const q = (id: string) => r.querySelector<HTMLElement>(id)!;
     q(".voyage-header > div").insertAdjacentHTML("afterbegin", `<button id="v-camera" class="round" aria-label="Switch to captain view" title="Captain view · C" hidden>${icon("ship")}</button>`);
     q("#world-menu").insertAdjacentHTML("beforeend", `<button id="menu-free" class="free-chart-button">${icon("compass")} <span>Open world<small>Resume your voyage</small></span></button>`);
     q("#voyage-play").insertAdjacentHTML("beforeend", `<div id="v-captain-help" hidden><span id="v-look-hint"></span><button id="v-look-centre" aria-label="Look ahead">${icon("compass")} Ahead</button></div><div id="v-sea-chart" hidden><canvas width="240" height="240" aria-label="Nearby islands navigation chart"></canvas><button id="v-chart-open">Sea chart</button></div>`);
-    r.insertAdjacentHTML("beforeend", `<section id="sea-chart-menu" hidden role="dialog" aria-modal="true" aria-labelledby="sea-chart-title"><div class="sea-chart-heading"><span class="eyebrow">THE CAPTAIN’S CHART</span><h1 id="sea-chart-title">The open sea</h1><p>One world. Your own adventure.</p></div><canvas width="1024" height="1024" aria-label="Full open world sea chart"></canvas><p class="sea-chart-note">East meets west. North meets south. Keep sailing to circle the world.</p><div class="sea-chart-actions"><button id="sea-chart-close" class="primary">Keep sailing ${icon("ship")}</button><button id="sea-chart-back" class="text-button">Back to menu</button></div></section>`);
+    r.insertAdjacentHTML("beforeend", `<section id="sea-chart-menu" hidden role="dialog" aria-modal="true" aria-labelledby="sea-chart-title"><button id="sea-chart-back" class="menu-back" aria-label="Back to menu">‹ <span>Back</span></button><div class="sea-chart-heading"><span class="eyebrow">THE CAPTAIN’S CHART</span><h1 id="sea-chart-title">The open sea</h1><p>One world. Your own adventure.</p></div><canvas width="1024" height="1024" aria-label="Full open world sea chart"></canvas><p class="sea-chart-note">East meets west. North meets south. Keep sailing to circle the world.</p><div class="sea-chart-actions"><button id="sea-chart-close" class="primary">Keep sailing ${icon("ship")}</button></div></section>`);
     q("#menu-free").onclick = () => h.freeSail();
     q(".voyage-header > div").insertAdjacentHTML("afterbegin", '<button id="v-deck" hidden>Walk deck</button>');
     q("#v-deck").onclick = h.deck;
@@ -118,7 +119,7 @@ export class VoyageHud {
     q("#ship-close").onclick = () => this.closeShipPanel();
     q("#ship-cave").onclick = () => h.travel("cave");
     q(".result-actions").insertAdjacentHTML("beforeend", '<button id="result-unload" class="hold-unload primary" hidden>Return to cave</button>');
-    r.insertAdjacentHTML("beforeend", `<section id="hold-ui" hidden><div class="hold-heading"><span class="eyebrow">ABOARD THE BLACK PEARL</span><h1>The treasure hold</h1><p id="hold-count"></p></div><div class="hold-actions"><button id="hold-unload" class="primary">Return to cave ${icon("chest")}</button><button id="hold-sail" class="secondary">Keep sailing ${icon("map")}</button><button id="hold-back" class="text-button">Back to menu</button></div></section><section id="unload-ui" hidden><div class="hold-heading"><span class="eyebrow">BRINGING YOUR FORTUNE HOME</span><h1 id="unload-title">Unloading the ship</h1><p id="unload-count"></p></div><div class="hold-actions"><button id="unload-explore" class="primary" hidden>Explore your cave</button><button id="unload-menu" class="text-button">Back to menu</button><small id="unload-safe">Any unopened chests stay safely aboard.</small></div></section>`);
+    r.insertAdjacentHTML("beforeend", `<section id="hold-ui" hidden><button id="hold-back" class="menu-back" aria-label="Back to menu">‹ <span>Back</span></button><div class="hold-heading"><span class="eyebrow">ABOARD THE BLACK PEARL</span><h1>The treasure hold</h1><p id="hold-count"></p></div><div class="hold-actions"><button id="hold-unload" class="primary">Return to cave ${icon("chest")}</button><button id="hold-sail" class="secondary">Keep sailing ${icon("map")}</button></div></section><section id="unload-ui" hidden><button id="unload-menu" class="menu-back" aria-label="Back to menu">‹ <span>Back</span></button><div class="hold-heading"><span class="eyebrow">BRINGING YOUR FORTUNE HOME</span><h1 id="unload-title">Unloading the ship</h1><p id="unload-count"></p></div><div class="hold-actions"><button id="unload-explore" class="primary" hidden>Explore your cave</button><small id="unload-safe">Any unopened chests stay safely aboard.</small></div></section>`);
     q("#cave-ui").insertAdjacentHTML("beforeend", `<button id="harbour-unload" class="harbour-chart" hidden>Return to cave ${icon("chest")}</button>`);
     if (PRIVATE_PEARL) {
       q(".art-credit").innerHTML = 'Black Pearl model by <a href="https://www.cgtrader.com/3d-models/watercraft/recreational-watercraft/black-pearl-pirate-ship" target="_blank" rel="noopener">CrispierCone</a> · purchased for private family use.<br>Cabin and treasure display adapted for Broadside.';
@@ -249,23 +250,26 @@ export class VoyageHud {
     const wheel = q("#v-wheel"),
       stick = q("#v-stick");
     let pointer: number | null = null;
+    let originX = 0, originY = 0;
     const move = (e: PointerEvent) => {
       if (e.pointerId !== pointer) return;
-      const rect = wheel.getBoundingClientRect(),
-        x = e.clientX - rect.left - rect.width / 2,
-        y = e.clientY - rect.top - rect.height / 2,
+      const x = e.clientX - originX,
+        y = e.clientY - originY,
         d = Math.hypot(x, y);
       stick.style.transform = `translate(${x * Math.min(1, 27 / Math.max(d, 1))}px,${y * Math.min(1, 27 / Math.max(d, 1))}px)`;
-      h.steer(d < 10 ? null : Math.atan2(x, -y));
+      h.steer(touchSteeringTurn(x));
     };
     wheel.onpointerdown = (e) => {
       e.preventDefault();
+      if (pointer !== null) return;
       pointer = e.pointerId;
+      originX = e.clientX; originY = e.clientY;
       wheel.setPointerCapture(pointer);
       move(e);
     };
     wheel.onpointermove = move;
-    const stop = () => {
+    const stop = (e: PointerEvent) => {
+      if (e.pointerId !== pointer) return;
       pointer = null;
       stick.style.transform = "";
       h.steer(null);
@@ -492,8 +496,13 @@ export class VoyageHud {
     }
   }
   beginTravel(from: ShipLocation, to: ShipLocation, label: string): void {
+    const previousPack = this.pack;
     this.pack = locationWorld(to);
-    this.showMenu(to.kind === "course" && locationWorld(from) === this.pack ? "levels" : "worlds");
+    const page = to.kind === "course" && locationWorld(from) === this.pack ? "levels" : "worlds";
+    // Keep an already visible chart mounted. Hiding it or replacing its islands
+    // restarts the entry zoom/fade just as the ship is supposed to start sailing.
+    if (this.q("#captain-menu").hidden || this.menuPage !== page || previousPack !== this.pack) this.showMenu(page);
+    else this.closeShipPanel();
     this.q("#level-ship").hidden = false;
     this.q("#chart-travel").hidden = false;
     this.q("#chart-travel").textContent = label;

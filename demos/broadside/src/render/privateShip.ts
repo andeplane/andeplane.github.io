@@ -20,9 +20,9 @@ import { PearlDeck, type PearlManifest } from '../input/pearlDeck';
 import { isPhoneRendering } from './quality';
 import { privatePearlUrl, privatePearlModelUrl } from '../privatePearl';
 import type { Progress } from '../game/progress';
-import { goldTotal, WORLD_RELICS } from '../game/rewards';
+import { cargoChests, WORLD_RELICS } from '../game/rewards';
+import { CargoChests } from './cargoChests';
 import { Ocean } from './water';
-import { doubloonMaterial, doubloonMesh } from './coin';
 import { buildRelic } from './relics';
 
 /** Full-size purchased ship, with a connected lantern-lit stern treasure room. */
@@ -33,6 +33,7 @@ export class PrivateShip {
   private ocean: Ocean;
   private time=0;
   private treasures: TransformNode | null=null;
+  private cargo: CargoChests;
   private shadows: ShadowGenerator;
   private constructor(engine: Engine, readonly deck: PearlDeck) {
     const s=this.scene=new Scene(engine); s.useRightHandedSystem=true;
@@ -57,6 +58,7 @@ export class PrivateShip {
       (x,z)=>deck.floor(x,z,this.walker?.feet ?? 4.5) ?? this.walker?.feet ?? 4.5,
       (x,z)=>deck.walkable(x,z,this.walker.feet));
     this.ocean=new Ocean(s,[],s.fogDensity); this.ocean.setChapter(0);
+    this.cargo = new CargoChests(s, 'Pearl cargo');
     this.buildCabin(); this.enter();
   }
   static async load(engine: Engine): Promise<PrivateShip> {
@@ -136,16 +138,11 @@ export class PrivateShip {
       const scale=1.5/Math.max(size.x,size.y,size.z); relic.scaling.setAll(scale);
       relic.position.set(-3.2+i*2.15,5.8-bounds.min.y*scale,-20);
     }
-    const gold=goldTotal(progress);
-    if(gold>0) {
-      const coin=doubloonMesh(this.scene,'doubloon hoard'); coin.material=doubloonMaterial(this.scene); coin.parent=root;
-      const count=Math.min(600,Math.ceil(gold/70));
-      for(let i=0;i<count;i++) {
-        const m=i===0?coin:coin.createInstance('earned doubloon');m.parent=root;
-        const angle=i*2.39996, radius=1.7*Math.sqrt(((i*53)%count)/count);
-        m.position.set(2.2+Math.cos(angle)*radius,4.58+.7*(1-radius/1.7)+(i%7)*.035,-16.2+Math.sin(angle)*radius);
-        m.rotation.set((i%5)*.12,i*.73,(i%3)*.09);
-      }
-    }
+    // Chests stay individually visible aboard until their gold is delivered to the cave.
+    this.cargo.show(cargoChests(progress).map((_, i) => ({
+      x: i % 2 ? 3.1 : -3.1, y: 4.54 + Math.floor(i / 12) * 1.05,
+      z: -12.8 - Math.floor(i % 12 / 2) * 1.15, scale: .37,
+    })));
+
   }
 }

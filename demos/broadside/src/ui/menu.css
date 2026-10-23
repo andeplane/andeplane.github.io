@@ -188,10 +188,6 @@
   font-size: 13px;
   font-weight: 700;
 }
-#captain-menu > .menu-back {
-  top: auto;
-  bottom: 20px;
-}
 .menu-heading {
   text-align: center;
   padding: 15px 20px 0;
@@ -698,9 +694,6 @@
   .menu-back {
     left: 16px;
     top: 17px;
-  }
-  #captain-menu > .menu-back {
-    bottom: 14px;
   }
   .level-tile {
     width: 88px;

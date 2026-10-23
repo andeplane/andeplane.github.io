@@ -157,8 +157,9 @@ export class CoinHoard {
     bank.worker = worker;
     const finish = async (surface?: number[]) => {
       bank.depositing = false; bank.requested = false;
-      bank.moving.setEnabled(false); bank.moving.thinInstanceCount = 0;
       this.freezeSurface(bank, bank.count, surface);
+      // Publish the complete settled pile before retiring the animated batch.
+      bank.moving.setEnabled(false); bank.moving.thinInstanceCount = 0;
       this.rebuildHeight(bank, world, bank.count);
       this.changed();
       await saveGoldLayout(world, bank.poses, this.persistent);
@@ -188,7 +189,11 @@ export class CoinHoard {
       bank.previousFrame = bank.poses.slice(bank.depositFrom * COIN_POSE_STRIDE, (bank.depositFrom + bank.spawned) * COIN_POSE_STRIDE);
       bank.poses.set(poses, bank.depositFrom * COIN_POSE_STRIDE);
       bank.spawned = poses.length / COIN_POSE_STRIDE; bank.frameAge = 0; bank.frameUploaded = false;
-      bank.moving.setEnabled(true); bank.moving.thinInstanceCount = bank.spawned;
+      // A worker message can arrive just before rendering. Do not expose the
+      // zero-filled/new GPU slots until their first real poses are uploaded.
+      for (let i = bank.depositFrom; i < bank.depositFrom + bank.spawned; i++) this.compose(bank, i, 0);
+      bank.moving.thinInstancePartialBufferUpdate("matrix", bank.spawned, 0);
+      bank.moving.thinInstanceCount = bank.spawned; bank.moving.setEnabled(true);
       if (done) {
         worker.terminate(); bank.worker = null;
         void finish(event.data.surface).catch(error => console.error("Saving gold bank:", error));

@@ -202,6 +202,8 @@ async function main() {
     if (unloadingIndex !== null) {
       unloadingIndex = null; unloadQueue = [];
       getCave().refresh(caveProgress(progress));
+      getCave().showCargo([]);
+      getCave().endReveal();
     }
   };
   const prepareChest = () => {
@@ -214,7 +216,8 @@ async function main() {
     const world = chestWorld(progress,unloadingIndex);
     if (unloadingIndex >= 0) banked.voyages[unloadingIndex] = progress.voyages[unloadingIndex]!;
     else banked.fishing.chests.push({...progress.fishing.chests[-unloadingIndex-1]!,delivered:true});
-    getCave().refresh(banked, world); getCave().beginUnload(world);
+    getCave().showCargo(cargoChests(progress), unloadingIndex, unloadQueue.length === unloadTotal - 1);
+    getCave().refresh(banked, world); getCave().beginUnload(world, unloadingIndex);
     hud.unloading(unloadTotal - unloadQueue.length, unloadTotal);
   };
   const unloadAtCave = () => {
@@ -299,7 +302,7 @@ async function main() {
       canvas.dataset.caveGeometry = JSON.stringify(getCave().walkingGeometry);
     stepper.reset();
   };
-  const menu = () => {
+  const menu = (preserveChart = false) => {
     stashSea(); resetDeck();
     journey.cancel(); travelAction = null;
     hud.endTravel(journey.location);
@@ -318,7 +321,7 @@ async function main() {
     controls.clear();
     hud.paused(false);
     hud.root.classList.remove("loading-voyage");
-    hud.showMenu();
+    if (!preserveChart) hud.showMenu();
     stepper.reset();
   };
   const visitShip = async (treasure = false) => {
@@ -510,7 +513,7 @@ async function main() {
   const travelTo = (action: "cave" | "ship" | "hold" | "unload" | number) => {
     if (journey.trip || (typeof action === "number" && !levelUnlocked(progress.voyages, action))) return;
     // Save open-sea position before choosing the chart origin. Nothing moves until arrival.
-    menu();
+    menu(true);
     const destination = typeof action === "number" ? { kind: "course" as const, index: action } :
       action === "cave" || action === "unload" ? { kind: "cave" as const } : journey.location;
     if (action === "ship" || action === "hold") {
@@ -554,16 +557,11 @@ async function main() {
     fire: () => {
       if (mode === "play" && !paused) pendingFire = true;
     },
-    steer: (h) => {
+    steer: (turn) => {
       if(deck?.active)return;
-      if (renderer?.captainCamera.enabled) {
-        helmTurn = h === null ? 0 : Math.sin(h);
-        heading = tapHeading = null;
-      } else {
-        heading = h;
-        if (h !== null) tapHeading = h;
-      }
-      if (h !== null) session.player.sail = 2;
+      helmTurn = turn ?? 0;
+      heading = tapHeading = null;
+      if (turn) session.player.sail = 2;
     },
     anchor: () => {
       if(deck?.active)return;
@@ -577,7 +575,7 @@ async function main() {
   const stepper = new FixedStepper(() => {
     if (mode !== "play" || paused) return;
     let intent = controls.readIntent();
-    if (renderer!.captainCamera.enabled && helmTurn) intent.turn = helmTurn;
+    if (helmTurn && !intent.turn) intent.turn = helmTurn;
     if (intent.turn) tapHeading = null;
     const direction = heading ?? tapHeading;
     if (direction !== null)
@@ -894,8 +892,8 @@ async function main() {
       if (unloadingIndex !== null && getCave().depositComplete) {
         deliverChest(progress,unloadingIndex);saveProgress(progress,storage);
         getCave().refresh(caveProgress(progress));
-        if (unloadQueue.length) arrive("unload");
-        else {unloadingIndex=null;hud.unloading(unloadTotal,unloadTotal,true);}
+        if (unloadQueue.length) prepareChest();
+        else {unloadingIndex=null;getCave().showCargo([]);hud.unloading(unloadTotal,unloadTotal,true);}
       }
     } else if (mode === "harbour" && harbour) {
       const look = walking.readLook();

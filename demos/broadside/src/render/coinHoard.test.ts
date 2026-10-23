@@ -58,6 +58,30 @@ describe('real coin sandbox banks',()=>{
     expect(saveGoldLayout).toHaveBeenLastCalledWith(0,expect.any(Float32Array),false);
     scene.dispose();engine.dispose();
   });
+  it('uploads valid pouring poses before showing them and publishes settled coins before hiding the pour',async()=>{
+    vi.stubGlobal('Worker',FakeWorker);
+    const engine=new NullEngine(),scene=new Scene(engine);
+    const h=new CoinHoard(scene,false,undefined,{areas:[{world:0,name:'ship',x:0,z:0,radius:3.8}],strictPhysics:true});
+    h.addBatch(0);h.startPour(0);await flush();
+    const worker=FakeWorker.all.at(-1)!, moving=scene.getMeshByName('ship pouring gold coins') as Mesh;
+    const settled=scene.getMeshByName('ship settled gold coins') as Mesh;
+    const enable=moving.setEnabled.bind(moving);
+    const upload=vi.spyOn(moving,'thinInstancePartialBufferUpdate');
+    vi.spyOn(moving,'setEnabled').mockImplementation((enabled)=>{
+      if(enabled){
+        expect(upload).toHaveBeenCalled();
+        expect(moving.thinInstanceGetWorldMatrices()[0]!.asArray()[15]).toBe(1);
+      }else{
+        expect(settled.isEnabled()).toBe(true);
+        expect(settled.thinInstanceCount).toBeGreaterThan(0);
+      }
+      return enable(enabled);
+    });
+    worker.emit(poses(),false);
+    worker.emit(poses(),true);await flush();
+    expect(h.drawnCounts[0]).toBeGreaterThan(0);
+    scene.dispose();engine.dispose();
+  });
   it('warms physics during carrying, sends chest motion, and waits for readiness before tilting',async()=>{
     vi.stubGlobal('Worker',FakeWorker);
     const engine=new NullEngine(),scene=new Scene(engine);
