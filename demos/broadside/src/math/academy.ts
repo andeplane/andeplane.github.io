@@ -3,7 +3,7 @@ import { Rng } from "../sim/rng";
 export type OperatorId = "add" | "subtract" | "multiply" | "divide";
 export type Stars = 1 | 2 | 3;
 export const QUESTIONS_PER_LEVEL = 10;
-export const GOLD_PER_CHEST = 1000;
+export const GOLD_PER_CHEST = 100;
 export const SAVE_KEY = "broadside.math.v1";
 
 export const OPERATORS = [
@@ -206,17 +206,19 @@ export interface Track {
   runs: Record<string, Voyage>;
 }
 export interface MathProgress {
-  version: 1;
+  version: 2;
   solved: number;
+  chests: number;
   operator: OperatorId;
   pack: string;
   banks: Record<OperatorId, number>;
   tracks: Record<string, Track>;
 }
-export const freshProgress = (): MathProgress => ({ version: 1, solved: 0, operator: "add", pack: "add-10", banks: { add: 0, subtract: 0, multiply: 0, divide: 0 }, tracks: {} });
-export const goldTotal = (p: MathProgress) => Math.floor(p.solved / QUESTIONS_PER_LEVEL) * GOLD_PER_CHEST;
-export const chestCount = (p: MathProgress) => Math.floor(p.solved / QUESTIONS_PER_LEVEL);
-export const bankGold = (p: MathProgress) => OPERATORS.map((o) => p.banks[o.id] * GOLD_PER_CHEST);
+export const freshProgress = (): MathProgress => ({ version: 2, solved: 0, chests: 0, operator: "add", pack: "add-10", banks: { add: 0, subtract: 0, multiply: 0, divide: 0 }, tracks: {} });
+export const goldTotal = (p: MathProgress) => bankGold(p).reduce((sum, gold) => sum + gold, 0);
+export const chestCount = (p: MathProgress) => p.chests;
+// Banks store actual gold so existing 1,000-gold chests retain their value.
+export const bankGold = (p: MathProgress) => OPERATORS.map((o) => p.banks[o.id]);
 export function trackFor(p: MathProgress, packId: string): Track {
   return p.tracks[packId] ??= { cleared: 0, stars: {}, runs: {} };
 }
@@ -242,10 +244,13 @@ export function answerQuestion(p: MathProgress, packId: string, level: number, a
   }
   run.solved++;
   p.solved++;
-  const chestEarned = p.solved % QUESTIONS_PER_LEVEL === 0;
-  if (chestEarned) p.banks[getPack(packId).operator]++;
   const stars: Stars = run.mistakes === 0 ? 3 : run.mistakes <= 3 ? 2 : 1;
   const levelComplete = run.solved === QUESTIONS_PER_LEVEL;
+  const chestEarned = levelComplete && run.mistakes === 0;
+  if (chestEarned) {
+    p.banks[getPack(packId).operator] += GOLD_PER_CHEST;
+    p.chests++;
+  }
   if (levelComplete) {
     track.cleared = Math.max(track.cleared, level);
     track.stars[level] = Math.max(track.stars[level] ?? 1, stars) as Stars;
@@ -262,17 +267,24 @@ export function readMathProgress(storage?: Pick<Storage, "getItem">): MathProgre
   const p = freshProgress();
   try {
     const raw: unknown = JSON.parse(storage?.getItem(SAVE_KEY) ?? "null");
-    if (!record(raw) || raw.version !== 1) return p;
+    if (!record(raw) || (raw.version !== 1 && raw.version !== 2)) return p;
     p.solved = integer(raw.solved) ? raw.solved : 0;
     const selected = PACKS.find((pack) => pack.id === raw.pack);
     if (selected) { p.pack = selected.id; p.operator = selected.operator; }
     if (OPERATORS.some((o) => o.id === raw.operator)) p.operator = raw.operator as OperatorId;
-    // Preserve older math saves, which recorded only the total gold.
     const banks = raw.banks;
-    if (record(banks) && OPERATORS.every((o) => integer(banks[o.id])) &&
-        OPERATORS.reduce((sum, o) => sum + (banks[o.id] as number), 0) === chestCount(p)) {
+    if (raw.version === 1) {
+      // Old banks counted 1,000-gold chests; earlier saves had only solved totals.
+      p.chests = Math.floor(p.solved / QUESTIONS_PER_LEVEL);
+      if (record(banks) && OPERATORS.every((o) => integer(banks[o.id], 0, Math.floor(Number.MAX_SAFE_INTEGER / 1000))) &&
+          OPERATORS.reduce((sum, o) => sum + (banks[o.id] as number), 0) === p.chests) {
+        for (const o of OPERATORS) p.banks[o.id] = (banks[o.id] as number) * 1000;
+      } else p.banks[p.operator] = p.chests * 1000;
+    } else if (record(banks) && OPERATORS.every((o) => integer(banks[o.id])) &&
+        Number.isSafeInteger(OPERATORS.reduce((sum, o) => sum + (banks[o.id] as number), 0))) {
+      p.chests = integer(raw.chests) ? raw.chests : 0;
       for (const o of OPERATORS) p.banks[o.id] = banks[o.id] as number;
-    } else p.banks[p.operator] = chestCount(p);
+    }
     if (record(raw.tracks)) for (const pack of PACKS) {
       const source = raw.tracks[pack.id];
       if (!record(source)) continue;

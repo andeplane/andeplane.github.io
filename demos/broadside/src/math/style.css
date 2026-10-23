@@ -23,8 +23,8 @@ h1, h2 { font-family: "Pirata One", Georgia, serif; font-weight: 400; }
 .brand > .icon { width: 37px; height: 37px; color: var(--gold); }
 .brand > span { font-weight: 700; font-size: 12px; letter-spacing: .15em; }
 .brand small { display: block; color: #aebeba; font-size: 7px; letter-spacing: .19em; padding-top: 5px; }
-.back-button { display: flex; gap: 8px; align-items: center; border: 0; border-left: 1px solid #d7d7c92b; background: none; padding: 5px 0 5px 18px; font-size: 24px; color: #c3d4cf; }
-.back-button span { font-size: 12px; }
+.back-button { display: flex; gap: 7px; align-items: center; justify-content: flex-start; flex-shrink: 0; min-width: 76px; min-height: 44px; border: 0; background: none; padding: 0; font-size: 14px; font-weight: 700; color: #f9e8c7; }
+.back-button span { font-size: 30px; line-height: 1; font-weight: 400; }
 .gold-bank { display: flex; align-items: center; gap: 10px; border-radius: 30px; padding: 9px 16px; border: 1px solid #eac77e4a; background: #142c32c9; color: var(--gold); font-size: 16px; font-weight: 700; }
 .gold-bank small { margin-left: 6px; font-size: 10px; font-weight: 400; color: #c5c3ad; }
 .round-button { display: grid; place-items: center; border: 1px solid #c4d2d32e; width: 43px; height: 43px; border-radius: 50%; background: #152d35b3; color: #c5d2cc; }
@@ -78,9 +78,9 @@ h1, h2 { font-family: "Pirata One", Georgia, serif; font-weight: 400; }
 .island-art { display: block; width: 100%; aspect-ratio: 1; object-fit: contain; filter: drop-shadow(0 7px 4px #1935224d); transition: transform .2s; }
 .map-island:hover .island-art { transform: translateY(-5px); }
 .island-label { position: relative; display: block; margin-top: -10px; padding: 7px 5px 6px; background: linear-gradient(90deg, #e9d5a3cc, #f2dfb7f5 16% 84%, #e9d5a3cc); border: 1px solid #5b543d57; border-radius: 4px; box-shadow: 0 3px 5px #29382133; }
-.island-label b { display: block; font-family: "Pirata One", Georgia, serif; font-size: 25px; line-height: 1.1; }
-.island-label small { display: block; font-size: 9px; margin-top: 4px; }
-.island-label > span { display: block; font-size: 9px; font-weight: 700; margin-top: 6px; color: #5f6244; }
+.island-label b { display: block; font-size: 20px; line-height: 1.25; font-weight: 700; }
+.island-label small { display: block; font-size: 11px; line-height: 1.35; margin-top: 4px; }
+.island-label > span { display: block; font-size: 12px; line-height: 1.35; font-weight: 700; margin-top: 6px; color: #465039; }
 .island-label .icon { width: 12px; height: 12px; }
 .island-1 { left: 15%; top: 58%; }
 .island-2 { left: 32%; top: 25%; }
@@ -231,7 +231,7 @@ h1, h2 { font-family: "Pirata One", Georgia, serif; font-weight: 400; }
   .topbar { padding-inline: 18px; }
   .brand > span { font-size: 10px; }
   .header-left { gap: 13px; }
-  .back-button { padding-left: 12px; }
+  .back-button { padding-left: 0; }
   .operator-grid { grid-template-columns: repeat(2, 1fr); gap: 14px; margin-top: 16px; }
   .operator-card { min-height: 240px; padding: 18px; }
   .operator-symbol { width: 52px; height: 52px; font-size: 34px; }
@@ -252,8 +252,9 @@ h1, h2 { font-family: "Pirata One", Georgia, serif; font-weight: 400; }
   .brand small { font-size: 5.5px; letter-spacing: .1em; }
   .brand { gap: 7px; }
   .header-left, .header-right { gap: 9px; }
-  .back-button { font-size: 24px; padding-left: 9px; gap: 4px; }
-  .back-button span { font-size: 9px; }
+  .back-button { font-size: 14px; padding-left: 0; gap: 7px; }
+  .back-button span { font-size: 30px; }
+  #academy:not([data-screen="home"]) .brand > span { display: none; }
   .gold-bank { padding: 8px 10px; font-size: 13px; gap: 6px; }
   .gold-bank .icon { width: 19px; height: 19px; }
   .gold-bank small { display: none; }
@@ -289,9 +290,10 @@ h1, h2 { font-family: "Pirata One", Georgia, serif; font-weight: 400; }
   .chart-route path { stroke-width: 4; stroke-dasharray: 8 13; }
   .map-island { width: 43%; max-width: 190px; }
   .island-label { margin-top: -20px; }
-  .island-label b { font-size: 24px; }
-  .island-label small { font-size: 8px; }
-  .island-label > span { font-size: 8px; margin-top: 4px; }
+  .island-label { padding: 9px 7px; }
+  .island-label b { font-size: 18px; }
+  .island-label small { font-size: 11px; }
+  .island-label > span { font-size: 12px; margin-top: 4px; }
   .island-1 { left: 29%; top: 17%; }
   .island-2 { left: 74%; top: 34%; }
   .island-3 { left: 28%; top: 51%; }
@@ -345,11 +347,11 @@ h1, h2 { font-family: "Pirata One", Georgia, serif; font-weight: 400; }
   .topbar { padding-inline: 12px; }
   .brand > .icon { width: 25px; height: 25px; }
   .brand > span { font-size: 7px; }
-  .back-button span { font-size: 8px; }
+  .back-button span { font-size: 30px; }
   .operator-card h2 { font-size: 22px; }
   .operator-footer { font-size: 7px; }
   .map-island { width: 44%; }
-  .island-label b { font-size: 22px; }
+  .island-label b { font-size: 17px; }
   .question-view { padding-inline: 12px; }
   .math-card { padding-inline: 12px; }
   .equation { gap: 7px; }
@@ -393,8 +395,6 @@ h1, h2 { font-family: "Pirata One", Georgia, serif; font-weight: 400; }
   .cave-actions .round-button { width: 32px; height: 32px; }
 }
 @media (max-height: 600px) and (max-width: 600px) {
-  #academy[data-screen="question"] .topbar { height: calc(64px + env(safe-area-inset-top, 0px)); padding-block: calc(8px + env(safe-area-inset-top, 0px)) 8px; }
-  #academy[data-screen="question"] #main-content { inset-block-start: calc(64px + env(safe-area-inset-top, 0px)); }
   .question-view { padding-bottom: calc(10px + var(--safe-bottom)); }
   .voyage-status { margin-bottom: 8px; }
   .question-progress { margin-bottom: 10px; }

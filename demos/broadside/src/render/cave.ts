@@ -249,10 +249,10 @@ export class TreasureCave {
     this.chest = new RewardChest(s);
     this.distance = this.overviewRadius();
   }
-  refresh(progress: Progress, depositWorld: number | null = null, bankGold?: readonly number[]): void {
+  refresh(progress: Progress, depositWorld: number | null = null, bankGold?: readonly number[], depositCoins = 1000): void {
     const count = (bankGold ? bankGold.reduce((sum, value) => sum + value, 0) : goldTotal(progress)) / GOLD_PER_LEVEL;
     const owned = [...(count ? [0] : []), ...progress.relics];
-    this.coins.refresh(progress, depositWorld, bankGold);
+    this.coins.refresh(progress, depositWorld, bankGold, depositCoins);
     const key = `${bankGold?.join(",") ?? Object.keys(progress.voyages).sort().join(",")}:${owned.join(",")}`;
     if (key === this.owned) return;
     this.owned = key;
@@ -432,6 +432,7 @@ export class TreasureCave {
     if (unboxing) {
       this.revealTime += dt;
       this.chest.animate(this.revealTime, 0, this.reducedMotion);
+      if (this.depositWorld !== null) this.chest.setCoinCount(this.coins.pouring(this.depositWorld).depositCoins);
       this.chest.root.position.z = -5;
     } else this.chest.hide();
     const portrait = innerWidth < 600;
@@ -468,7 +469,7 @@ export class TreasureCave {
         this.chest.root.rotation.set(0, Math.atan2(direction.x,direction.z) * (1 - lift), -Math.PI * turn * turn * (3 - 2 * turn));
         this.chest.carry(!this.reducedMotion && elapsed < 4.2,Math.max(0,Math.min(1,(4.2-elapsed)/.4)));
         this.chest.open(this.reducedMotion ? 1 : Math.max(0, Math.min(1, (elapsed-3.4)/.6)));
-        this.chest.setCoinCount(1000 - pour.spawned);
+        this.chest.setCoinCount(pour.depositCoins - pour.spawned);
         if (pour.done) {
           this.depositFinishedAt ??= this.revealTime;
           const fade = Math.min(1, (this.revealTime - this.depositFinishedAt) / .7);

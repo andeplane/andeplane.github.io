@@ -14,7 +14,7 @@ import { chestCoinPoses } from "../game/chestCoins";
 interface Bank {
   mesh: Mesh; proxy: Mesh; count: number; loaded: number;
   poses: Float32Array; matrices: Float32Array; heights: Map<string, number>;
-  peak: number; basePeak: number; version: number; depositFrom: number;
+  peak: number; basePeak: number; version: number; depositFrom: number; depositCoins: number;
   requested: boolean; depositing: boolean; ready: boolean; spawned: number; resting: number;
   worker: Worker | null; previousFrame: Float32Array; frameAge: number;
   frameUploaded: boolean;
@@ -34,22 +34,23 @@ export class CoinHoard {
       mesh.material = material; mesh.position.set(area.x, 0, area.z); mesh.isPickable = false; mesh.setEnabled(false);
       const proxy = MeshBuilder.CreateSphere(`${area.name} gold bank inspection`, { diameter: 2, segments: 12 }, scene);
       proxy.visibility = 0; proxy.metadata = { relicIndex: 0, goldWorld: area.world }; proxy.setEnabled(false);
-      return { mesh, proxy, count: 0, loaded: 0, poses: new Float32Array(), matrices: new Float32Array(), heights: new Map(), peak: 0, basePeak: 0, version: 0, depositFrom: 0, requested: false, depositing: false, ready: false, spawned: 0, resting: 0, worker: null, previousFrame: new Float32Array(), frameAge: 0, frameUploaded: false };
+      return { mesh, proxy, count: 0, loaded: 0, poses: new Float32Array(), matrices: new Float32Array(), heights: new Map(), peak: 0, basePeak: 0, version: 0, depositFrom: 0, depositCoins: 1000, requested: false, depositing: false, ready: false, spawned: 0, resting: 0, worker: null, previousFrame: new Float32Array(), frameAge: 0, frameUploaded: false };
     });
   }
-  refresh(progress: Progress, depositWorld: number | null = null, bankGold?: readonly number[]): void {
+  refresh(progress: Progress, depositWorld: number | null = null, bankGold?: readonly number[], depositCoins = 1000): void {
     this.banks.forEach((bank, world) => {
       // Endless voyages keep an exact ledger with a bounded visible pile.
       // Later chests still pour another thousand coins into that pile.
       const count = Math.min(10000, bankGold?.[world] ?? worldGold(progress, world));
       if (count === bank.count && !(bankGold && bankGold[world]! > 10000 && depositWorld === world && bank.ready && !bank.depositing)) return;
       // Keep the in-memory settled bank too: private browsing may block the cache.
-      const carry = depositWorld === world && bank.ready && !bank.worker && bank.loaded === count - 1000
+      const carry = depositWorld === world && bank.ready && !bank.worker && bank.loaded === count - depositCoins
         ? bank.poses.slice() : null;
       const version = ++bank.version;
       bank.worker?.terminate(); bank.worker = null;
       bank.count = count; bank.depositing = depositWorld === world; bank.ready = false; bank.requested = false; bank.spawned = 0;
-      bank.depositFrom = bank.depositing ? count - 1000 : count;
+      bank.depositCoins = Math.min(count, depositCoins);
+      bank.depositFrom = bank.depositing ? count - bank.depositCoins : count;
       if (!count) { bank.mesh.setEnabled(false); bank.proxy.setEnabled(false); bank.loaded = 0; bank.heights.clear(); return; }
       void (carry ? Promise.resolve(carry) : loadGoldLayout(world, bank.depositFrom, this.persistent, this.goldNamespace)).then((poses) => {
         if (version !== bank.version) return;
@@ -139,7 +140,7 @@ export class CoinHoard {
       }
     };
     void chestCoinPoses().then(chest => {
-      if (bank.worker === worker) worker.postMessage({world, previous: bank.poses.slice(0, bank.depositFrom * COIN_POSE_STRIDE), chest});
+      if (bank.worker === worker) worker.postMessage({world, previous: bank.poses.slice(0, bank.depositFrom * COIN_POSE_STRIDE), chest: chest.subarray(0, bank.depositCoins * COIN_POSE_STRIDE)});
     }).catch(fail);
   }
   private compose(bank: Bank, coin: number, blend = 1): void {
@@ -168,7 +169,7 @@ export class CoinHoard {
   }
   /** Leaving the reward screen never loses its deposit; the worker finishes in the background. */
   finishPours(): void { this.banks.forEach((bank, world) => { if (bank.depositing) this.startPour(world); }); }
-  pouring(world: number) { const bank = this.banks[world]!; return { ready: bank.ready, spawned: bank.spawned, done: !bank.depositing, chestY: bank.basePeak + 3.8, active: !!bank.worker }; }
+  pouring(world: number) { const bank = this.banks[world]!; return { ready: bank.ready, spawned: bank.spawned, done: !bank.depositing, chestY: bank.basePeak + 3.8, depositCoins: bank.depositCoins, active: !!bank.worker }; }
   center(world: number): Vector3 { const a = GOLD_AREAS[world]!; return new Vector3(a.x, this.banks[world]!.peak * .45 + .2, a.z); }
   span(world: number) { return { height: Math.max(.8, this.banks[world]!.peak), width: GOLD_AREAS[world]!.radius * 2 }; }
   get counts(): number[] { return this.banks.map((b) => b.mesh.isEnabled() ? b.mesh.thinInstanceCount : 0); }

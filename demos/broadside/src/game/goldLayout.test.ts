@@ -34,6 +34,16 @@ describe("settled world gold banks", () => {
       }
     }
   }, 30_000); // Validate all 220,000 poses on slower CI runners.
+  it("loads an exact 100-coin reward prefix without inventing a 100.bin asset", async () => {
+    const bytes = snapshot(0, 1000), fetch = vi.fn().mockResolvedValue({ ok: true, arrayBuffer: async () => bytes });
+    vi.stubGlobal("fetch", fetch);
+    try {
+      const coins = await loadGoldLayout(0, 100, false);
+      expect(coins).toEqual(new Float32Array(bytes.slice(0, 100 * COIN_POSE_STRIDE * 4)));
+      expect(validGoldLayout(coins.buffer as ArrayBuffer, 100, 0)).toBe(true);
+      expect(fetch.mock.calls[0]![0]).toContain("/1000.bin");
+    } finally { vi.unstubAllGlobals(); }
+  });
   it("rejects damaged or incorrectly sized saved poses instead of rendering broken geometry", () => {
     const good = snapshot(0, 1000);
     expect(validGoldLayout(good, 2000, 0)).toBe(false);

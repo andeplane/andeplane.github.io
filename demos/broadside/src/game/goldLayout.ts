@@ -1,7 +1,7 @@
 import { GOLD_AREAS, COIN_POSE_STRIDE, GOLD_POSE_VERSION } from "./goldAreas";
 
 export function validGoldLayout(data: ArrayBuffer, count: number, world: number): boolean {
-  if (!GOLD_AREAS[world] || count < 0 || count > 10000 || count % 1000 || data.byteLength !== count * COIN_POSE_STRIDE * 4) return false;
+  if (!GOLD_AREAS[world] || count < 0 || count > 10000 || count % 100 || data.byteLength !== count * COIN_POSE_STRIDE * 4) return false;
   const poses = new Float32Array(data);
   for (let i = 0; i < poses.length; i += COIN_POSE_STRIDE) {
     if (!Array.from(poses.subarray(i, i + COIN_POSE_STRIDE)).every(Number.isFinite)) return false;
@@ -57,9 +57,14 @@ export async function loadGoldLayout(world: number, count: number, persistent = 
   const key = `${GOLD_POSE_VERSION}:${world}:${count}`;
   const saved = persistent ? await savedLayout(key, namespace) : null;
   if (saved && validGoldLayout(saved, count, world)) return new Float32Array(saved);
-  const response = await fetch(`${import.meta.env.BASE_URL}assets/hoard/world-${world}/${count}.bin`);
+  // The baked thousand-coin layouts are prefix-stable; smaller math rewards
+  // use the exact earned prefix when no simulated snapshot has been saved.
+  const bakedCount = Math.ceil(count / 1000) * 1000;
+  const response = await fetch(`${import.meta.env.BASE_URL}assets/hoard/world-${world}/${bakedCount}.bin`);
   if (!response.ok) throw new Error("Could not load the gold bank");
-  const data = await response.arrayBuffer();
+  const baked = await response.arrayBuffer();
+  if (!validGoldLayout(baked, bakedCount, world)) throw new Error("Invalid settled coin poses");
+  const data = baked.slice(0, count * COIN_POSE_STRIDE * 4);
   if (!validGoldLayout(data, count, world)) throw new Error("Invalid settled coin poses");
   if (persistent) await storeLayout(key, data, namespace);
   return new Float32Array(data);

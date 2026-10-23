@@ -91,29 +91,51 @@ describe("endless voyages, rewards and isolated saves", () => {
     for (let i = 0; i < count; i++) result = answerQuestion(p, pack, level, questions[run.solved]!.answer);
     return result;
   };
-  it("only advances on a correct answer and awards exactly one chest per ten solved facts", () => {
+  it("forfeits the entire level reward after one wrong answer but still unlocks the next level", () => {
     const p = freshProgress();
     startVoyage(p, "add-10", 1, 27);
     const q = questionsFor("add-10", 27)[0]!;
     expect(answerQuestion(p, "add-10", 1, q.answer + 1)?.correct).toBe(false);
     expect(p.solved).toBe(0);
     expect(trackFor(p, "add-10").runs[1]!.solved).toBe(0);
-    solve(p, "add-10", 1, 9);
+    expect(solve(p, "add-10", 1)).toMatchObject({ chestEarned: false, levelComplete: true, stars: 2 });
     expect(goldTotal(p)).toBe(0);
-    const last = questionsFor("add-10", 27)[9]!;
-    expect(answerQuestion(p, "add-10", 1, last.answer)).toMatchObject({ chestEarned: true, levelComplete: true, stars: 2 });
-    expect(goldTotal(p)).toBe(1000);
-    expect(answerQuestion(p, "add-10", 1, last.answer)).toBeNull();
-    expect(goldTotal(p)).toBe(1000);
+    expect(chestCount(p)).toBe(0);
+    expect(trackFor(p, "add-10").cleared).toBe(1);
+    expect(answerQuestion(p, "add-10", 1, q.answer)).toBeNull();
+    expect(solve(p, "add-10", 2)).toMatchObject({ chestEarned: true, levelComplete: true, stars: 3 });
+    expect(goldTotal(p)).toBe(100);
   });
-  it("keeps reward credit when switching operators midway through a level", () => {
+  it("requires a whole perfect level, even when switching operators", () => {
     const p = freshProgress();
     solve(p, "add-10", 1, 9);
-    expect(solve(p, "divide-1", 1, 1)).toMatchObject({ chestEarned: true, levelComplete: false });
-    expect(chestCount(p)).toBe(1);
-    expect(bankGold(p)).toEqual([0, 0, 0, 1000]);
-    expect(trackFor(p, "add-10").runs[1]!.solved).toBe(9);
-    expect(trackFor(p, "divide-1").runs[1]!.solved).toBe(1);
+    expect(solve(p, "divide-1", 1, 1)).toMatchObject({ chestEarned: false, levelComplete: false });
+    expect(chestCount(p)).toBe(0);
+    expect(solve(p, "divide-1", 1, 9)).toMatchObject({ chestEarned: true, levelComplete: true });
+    expect(bankGold(p)).toEqual([0, 0, 0, 100]);
+    expect(solve(p, "add-10", 1, 1)?.chestEarned).toBe(true);
+    expect(bankGold(p)).toEqual([100, 0, 0, 100]);
+  });
+  it("persists forfeiture across reloads and switching islands without taking banked gold", () => {
+    const s = storage(), p = freshProgress();
+    solve(p, "add-10", 1);
+    solve(p, "add-10", 2, 4);
+    answerQuestion(p, "add-10", 2, 999);
+    saveMathProgress(p, s);
+    const loaded = readMathProgress(s);
+    solve(loaded, "multiply-1", 1);
+    expect(solve(loaded, "add-10", 2, 6)).toMatchObject({ chestEarned: false, levelComplete: true });
+    expect(bankGold(loaded)).toEqual([100, 0, 100, 0]);
+    expect(loaded.solved).toBe(30);
+    saveMathProgress(loaded, s);
+    expect(readMathProgress(s)).toEqual(loaded);
+  });
+  it("forfeits gold even when the only mistake is on the final question", () => {
+    const p = freshProgress();
+    solve(p, "add-10", 1, 9);
+    answerQuestion(p, "add-10", 1, 999);
+    expect(solve(p, "add-10", 1, 1)?.chestEarned).toBe(false);
+    expect(goldTotal(p)).toBe(0);
   });
   it("saves unfinished voyages and preserves the sailing game's save", () => {
     const s = storage(), p = freshProgress();
@@ -153,7 +175,7 @@ describe("endless voyages, rewards and isolated saves", () => {
     answerQuestion(p, "add-10", 1, 999);
     solve(p, "add-10", 1);
     expect(trackFor(p, "add-10").stars[1]).toBe(3);
-    expect(goldTotal(p)).toBe(2000);
+    expect(goldTotal(p)).toBe(100);
     const track = trackFor(p, "add-10");
     track.cleared = 1_000_000;
     expect(startVoyage(p, "add-10", 1_000_001, 789)?.level).toBe(1_000_001);
@@ -180,12 +202,20 @@ describe("endless voyages, rewards and isolated saves", () => {
     const p = freshProgress(), s = storage();
     for (let level = 1; level <= 25; level++) solve(p, "add-10", level);
     solve(p, "multiply-1", 1);
-    expect(goldTotal(p)).toBe(26000);
-    expect(bankGold(p)).toEqual([25000, 0, 1000, 0]);
+    expect(goldTotal(p)).toBe(2600);
+    expect(bankGold(p)).toEqual([2500, 0, 100, 0]);
     saveMathProgress(p, s);
     expect(readMathProgress(s).banks).toEqual(p.banks);
     s.setItem(SAVE_KEY, JSON.stringify({ version: 1, solved: 250, operator: "divide", pack: "divide-1" }));
     expect(bankGold(readMathProgress(s))).toEqual([0, 0, 0, 25000]);
+    s.setItem(SAVE_KEY, JSON.stringify({ version: 1, solved: 30, banks: { add: 1, subtract: 0, multiply: 2, divide: 0 } }));
+    const migrated = readMathProgress(s);
+    expect(bankGold(migrated)).toEqual([1000, 0, 2000, 0]);
+    expect(chestCount(migrated)).toBe(3);
+    solve(migrated, "add-10", 1);
+    expect(goldTotal(migrated)).toBe(3100);
+    saveMathProgress(migrated, s);
+    expect(readMathProgress(s)).toEqual(migrated);
     s.setItem(SAVE_KEY, JSON.stringify({ version: 1, solved: 10, banks: { add: -1, subtract: 8, multiply: 0, divide: 0 } }));
     expect(bankGold(readMathProgress(s))).toEqual([1000, 0, 0, 0]);
   });

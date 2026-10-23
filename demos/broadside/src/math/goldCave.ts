@@ -5,7 +5,7 @@ import { configureTextureQuality, displayRenderScale } from "../render/quality";
 import { CaveWalkControls } from "../input/caveWalk";
 import { CaveGesture } from "../input/caveGesture";
 import { readProgress } from "../game/progress";
-import { OPERATORS, bankGold, goldTotal, type MathProgress } from "./academy";
+import { OPERATORS, GOLD_PER_CHEST, bankGold, goldTotal, type MathProgress } from "./academy";
 
 /** The same textured, walkable Broadside cave, with an independent math bank. */
 export class GoldCave {
@@ -118,7 +118,7 @@ export class GoldCave {
       this.rewardGold = gold; this.reported = false;
       this.cave.endReveal();
       const world = OPERATORS.findIndex((o) => o.id === progress.operator);
-      this.cave.refresh(this.collection, world, banks);
+      this.cave.refresh(this.collection, world, banks, GOLD_PER_CHEST);
       this.cave.beginReveal(0, world);
     } else if (!reward) {
       this.cave.endReveal();

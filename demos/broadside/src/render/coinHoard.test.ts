@@ -56,6 +56,16 @@ describe("visible cave deposits", () => {
     expect(bank.restingCounts).toEqual([1000, 0, 0, 0]);
     expect(bank.pouring(0).done).toBe(true);
   });
+  it("pours exactly a 100-coin math reward and preserves the prior bank", async () => {
+    const bank = new CoinHoard(scene, false), p = readProgress();
+    bank.refresh(p, null, [1000, 0, 0, 0]); await drain();
+    bank.refresh(p, 0, [1100, 0, 0, 0], 100); await drain();
+    expect(bank.counts).toEqual([1000, 0, 0, 0]);
+    expect(bank.pouring(0).depositCoins).toBe(100);
+    bank.startPour(0); await drain();
+    expect(bank.counts).toEqual([1100, 0, 0, 0]);
+    expect(bank.pouring(0).done).toBe(true);
+  });
   it("opens new deposits after an endless bank reaches its visible limit", async () => {
     const bank = new CoinHoard(scene, false), p = readProgress();
     bank.refresh(p, null, [10000, 0, 0, 0]); await drain();
