@@ -56,7 +56,7 @@ export class PrivateShip {
         ...[0,1,2,3].map(i=>({x:-3.2+i*2.15,z:-20,rx:.65,rz:.65,top:5.8})),
       ],
       (x,z)=>deck.floor(x,z,this.walker?.feet ?? 4.5) ?? this.walker?.feet ?? 4.5,
-      (x,z)=>deck.walkable(x,z,this.walker.feet));
+      (x,z)=>deck.walkable(x,z,this.walker.feet), true);
     this.ocean=new Ocean(s,[],s.fogDensity); this.ocean.setChapter(0);
     this.cargo = new CargoChests(s, 'Pearl cargo');
     this.buildCabin(); this.enter();

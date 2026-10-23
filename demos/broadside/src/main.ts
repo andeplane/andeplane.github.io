@@ -46,6 +46,7 @@ import "./ui/fullscreen.css";
 import "./ui/sailing.css";
 import "./ui/journey.css";
 import "./ui/deck.css";
+import "./ui/liveHud.css";
 
 installGameSurface();
 installCoinSounds(new URLSearchParams(location.search));
@@ -229,7 +230,6 @@ async function main() {
     arrive("unload");
   };
   const visitHold = () => {
-    if (PRIVATE_PEARL) { void visitShip(true); return; }
     cancelUnloading(); clearArrival(); clearWalking(); gesture.clear(); controls.clear();
     cave?.endReveal();
     releaseCave();
@@ -935,7 +935,7 @@ async function main() {
         renderer!.captainCamera.yaw=deck.walker.yaw;renderer!.captainCamera.pitch=deck.walker.pitch;
       }
       controls.setPad(window.navigator.getGamepads?.().find((p) => p) ?? null);
-      const alpha = paused ? 1 : stepper.advance(dt);
+      const alpha = paused ? 1 : stepper.advance(qa && freeParams.get("still") === "true" ? 0 : dt);
       if (mode === "play") {
         renderer!.render(session, alpha, dt);
         if(deck&&renderer!.playerView)tackle?.update(fishing,renderer!.playerView,session.elapsed,reducedMotion.matches);

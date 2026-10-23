@@ -26,6 +26,63 @@ function setup(privateShip: boolean, cargo = false) {
 
 afterEach(() => { document.body.replaceChildren(); ship.private = false; });
 
+it("shows a recoverable ship-load failure in the redesigned home", () => {
+  const { hud } = setup(true);
+  hud.showMenu("main");
+  expect(() => hud.shipLoadFailed()).not.toThrow();
+  const message = hud.root.querySelector('.pirate-home-description');
+  expect(message?.textContent).toContain('The ship could not load');
+  expect(message?.getAttribute('role')).toBe('status');
+  expect(hud.root.dataset.screen).toBe('main');
+});
+
+it("keeps live actions out of the pause dialog's interaction layer", () => {
+  const { hud, button } = setup(false);
+  hud.paused(true);
+  expect(button('.voyage-header').inert).toBe(true);
+  expect(document.activeElement).toBe(button('#v-resume'));
+  hud.paused(false);
+  expect(button('.voyage-header').inert).toBe(false);
+});
+
+describe("ship chart details dialog", () => {
+  it("dismisses on an outside tap without activating the chart and restores focus to the ship", () => {
+    const { hud, handlers, button } = setup(false);
+    hud.showMenu("worlds");
+    button("#map-ship").click();
+    expect(button("#ship-panel").getAttribute("role")).toBe("dialog");
+    expect(button("#world-menu").inert).toBe(true);
+    expect(document.activeElement).toBe(button("#ship-close"));
+    button("#ship-place").click();
+    expect(button("#ship-panel").hidden).toBe(false);
+    button("#ship-panel-backdrop").click();
+    expect(button("#ship-panel").hidden).toBe(true);
+    expect(button("#ship-panel-backdrop").hidden).toBe(true);
+    expect(button("#world-menu").inert).toBe(false);
+    expect(document.activeElement).toBe(button("#map-ship"));
+    expect(handlers.travel).not.toHaveBeenCalled();
+    expect(hud.root.dataset.screen).toBe("worlds");
+  });
+
+  it("keeps Tab inside the dialog and lets Escape close details before global menu shortcuts", () => {
+    const { hud, button } = setup(false);
+    hud.showMenu("worlds"); button("#map-ship").click();
+    document.dispatchEvent(new KeyboardEvent("keydown", { key: "Tab", shiftKey: true, bubbles: true, cancelable: true }));
+    expect(document.activeElement).toBe(button("#ship-cave"));
+    document.dispatchEvent(new KeyboardEvent("keydown", { key: "Tab", bubbles: true, cancelable: true }));
+    expect(document.activeElement).toBe(button("#ship-close"));
+    const shortcut = vi.fn();
+    window.addEventListener("keydown", shortcut);
+    const escape = new KeyboardEvent("keydown", { key: "Escape", code: "Escape", bubbles: true, cancelable: true });
+    document.dispatchEvent(escape);
+    window.removeEventListener("keydown", shortcut);
+    expect(escape.defaultPrevented).toBe(true);
+    expect(shortcut).not.toHaveBeenCalled();
+    expect(button("#ship-panel").hidden).toBe(true);
+    expect(hud.root.dataset.screen).toBe("worlds");
+  });
+});
+
 describe.each([false, true])("treasure navigation with private ship %s", (privateShip) => {
   it("labels home destinations and travels to the ship or cave without duplicate controls", () => {
     const { hud, handlers, button } = setup(privateShip);
@@ -91,19 +148,35 @@ describe.each([false, true])("treasure navigation with private ship %s", (privat
 });
 
 describe("regional island journeys", () => {
+  it("keeps the ship details action outside level hit targets and makes the travelling boat decorative", () => {
+    const { hud, button } = setup(false);
+    hud.showMenu("worlds");
+    expect(button("#map-ship").closest(".world-map")).toBeNull();
+    button('[data-pack="0"]').click();
+    const chart = button(".level-board"), marker = button("#level-ship-marker");
+    expect(button("#level-ship").closest(".level-board")).toBeNull();
+    expect(chart.querySelectorAll("button")).toHaveLength(10);
+    expect(marker.tagName).toBe("SPAN");
+    expect(marker.getAttribute("aria-hidden")).toBe("true");
+    expect(marker.hasAttribute("inert")).toBe(true);
+    marker.click();
+    expect(button("#ship-panel").hidden).toBe(true);
+    button("#level-ship").click();
+    expect(button("#ship-panel").hidden).toBe(false);
+  });
   it("keeps an open regional chart and its ship mounted when setting sail", () => {
     const { hud, button } = setup(false);
     hud.showMenu("worlds");
     button('[data-pack="0"]').click();
     const chart = button("#level-menu"), firstIsland = button('[data-level="0"]');
-    const ship = button("#level-ship");
+    const ship = button("#level-ship-marker");
     expect(chart.hidden).toBe(false);
     expect(ship.hidden).toBe(false);
     const show = vi.spyOn(hud, "showMenu");
     hud.beginTravel({ kind: "port" }, { kind: "course", index: 0 }, "Setting sail…");
     expect(show).not.toHaveBeenCalled();
     expect(button('[data-level="0"]')).toBe(firstIsland);
-    expect(button("#level-ship")).toBe(ship);
+    expect(button("#level-ship-marker")).toBe(ship);
     expect(chart.hidden).toBe(false);
     expect(ship.hidden).toBe(false);
     expect(hud.root.dataset.screen).toBe("levels");
@@ -124,9 +197,10 @@ describe("regional island journeys", () => {
     expect(button(".level-route polyline").getAttribute("points")?.split(" ")).toHaveLength(10);
     hud.location({ kind: "course", index: 1 });
     expect(button("#ship-place").textContent).toContain("island 2");
-    expect(button("#level-ship").hidden).toBe(false);
+    expect(button("#level-ship-marker").hidden).toBe(false);
     hud.location({ kind: "sea", world: 3 });
-    expect(button("#level-ship").hidden).toBe(true);
+    expect(button("#level-ship-marker").hidden).toBe(true);
+    expect(button("#level-ship").hidden).toBe(false);
     hud.location({ kind: "cave" });
     expect(button("#ship-place").textContent).toBe("Anchored outside your cave");
   });
@@ -139,8 +213,8 @@ describe("regional island journeys", () => {
     vi.spyOn(chart, "getBoundingClientRect").mockReturnValue({ left: 10, top: 20, width: 320, height: 400 } as DOMRect);
     vi.spyOn(button('[data-level="0"]'), "getBoundingClientRect").mockReturnValue({ right: 106, top: 324, height: 35.2 } as DOMRect);
     hud.location({ kind: "course", index: 0 });
-    expect(parseFloat(button("#level-ship").style.left)).toBeCloseTo(140);
-    expect(parseFloat(button("#level-ship").style.top)).toBeCloseTo(408.6);
+    expect(parseFloat(button("#level-ship-marker").style.left)).toBeCloseTo(140);
+    expect(parseFloat(button("#level-ship-marker").style.top)).toBeCloseTo(408.6);
   });
   it("moves the marker on the active chart and closes ship details on leaving", () => {
     const { hud, button } = setup(false);
@@ -163,6 +237,21 @@ describe("regional island journeys", () => {
 });
 
 describe('sailing deck controls',()=>{
+  it('keeps labelled camera controls usable through view changes and reopens the next voyage tip',()=>{
+    const {hud,handlers,button}=setup(false);
+    hud.play(1);hud.camera(false);
+    expect(button('#v-camera').textContent).toBe('Captain');
+    button('#v-camera').click();expect(handlers.camera).toHaveBeenCalledOnce();
+    hud.camera(true);
+    expect(button('#v-camera').textContent).toBe('Overhead');
+    expect(button('#v-camera').getAttribute('aria-label')).toBe('Switch to overhead view');
+    expect(button('#v-captain-help').hidden).toBe(false);
+    button('#v-tip').classList.add('fade');
+    hud.play(2);
+    expect(button('#v-tip').classList.contains('fade')).toBe(false);
+    expect(button('#v-tip').textContent).toContain('headland');
+    expect(button('#v-home').textContent).toBe('Levels');
+  });
   it('steers gently from the thumb-down location and releases only the steering finger',()=>{
     const { handlers, button } = setup(false);
     const wheel = button('#v-wheel');
