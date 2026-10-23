@@ -19,7 +19,7 @@ interface Bank {
   metrics:CoinPhysicsMetrics;
   surfaceCount: number; mesh: Mesh; moving: Mesh; proxy: Mesh; count: number; loaded: number;
   poses: Float32Array; matrices: Float32Array; heights: Map<string, number>;
-  peak: number; basePeak: number; version: number; depositFrom: number;
+  peak: number; basePeak: number; version: number; depositFrom: number; depositCoins: number;
   requested: boolean; depositing: boolean; ready: boolean; spawned: number; resting: number;
   worker: Worker | null; previousFrame: Float32Array; frameAge: number;
   frameUploaded: boolean;
@@ -30,6 +30,7 @@ interface Bank {
 export interface CoinBankArea { world: number; name: string; x: number; z: number; radius: number; }
 export interface CoinHoardOptions {
   areas?: readonly CoinBankArea[];
+  goldNamespace?: string;
   /** Ship holds use a flat deck; the cave retains its actual rocky floor. */
   floorY?: number;
   strictPhysics?: boolean;
@@ -55,7 +56,7 @@ export class CoinHoard {
       moving.alwaysSelectAsActiveMesh = true;
       const proxy = MeshBuilder.CreateSphere(`${area.name} gold bank inspection`, { diameter: 2, segments: 12 }, scene);
       proxy.visibility = 0; proxy.metadata = { relicIndex: 0, goldWorld: area.world }; proxy.setEnabled(false);
-      return { metrics:{lastMs:0,meanMs:0,maxMs:0,staticTriangles:0}, surfaceCount: -1, mesh, moving, proxy, count: 0, loaded: 0, poses: new Float32Array(), matrices: new Float32Array(), heights: new Map(), peak: 0, basePeak: 0, version: 0, depositFrom: 0, requested: false, depositing: false, ready: false, spawned: 0, resting: 0, worker: null, previousFrame: new Float32Array(), frameAge: 0, frameUploaded: false, error: null, preparing:false, physicsReady:false, duration:0, turn:0, previousTurn:0, withdraw:0, previousWithdraw:0, poseAge:1, impacts:[], empty:false };
+      return { metrics:{lastMs:0,meanMs:0,maxMs:0,staticTriangles:0}, surfaceCount: -1, mesh, moving, proxy, count: 0, loaded: 0, poses: new Float32Array(), matrices: new Float32Array(), heights: new Map(), peak: 0, basePeak: 0, version: 0, depositFrom: 0, depositCoins: 1000, requested: false, depositing: false, ready: false, spawned: 0, resting: 0, worker: null, previousFrame: new Float32Array(), frameAge: 0, frameUploaded: false, error: null, preparing:false, physicsReady:false, duration:0, turn:0, previousTurn:0, withdraw:0, previousWithdraw:0, poseAge:1, impacts:[], empty:false };
     });
     scene.onDisposeObservable.add(() => {
       for (const bank of this.banks) {
@@ -64,37 +65,38 @@ export class CoinHoard {
       }
     });
   }
-  refresh(progress: Progress, depositWorld: number | null = null): void {
+  refresh(progress: Progress, depositWorld: number | null = null, bankGold?: readonly number[], depositCoins = 1000): void {
     this.banks.forEach((bank, world) => {
-      const count = worldGold(progress, world);
+      const count = bankGold?.[world] ?? worldGold(progress, world);
       if (count === bank.count) return;
       // Keep the in-memory settled bank too: private browsing may block the cache.
-      const carry = depositWorld === world && bank.ready && !bank.worker && bank.loaded === count - 1000
+      const carry = depositWorld === world && bank.ready && !bank.worker && bank.loaded === count - depositCoins
         ? bank.poses.slice() : null;
-      this.loadBank(bank, world, count, depositWorld === world, carry);
+      this.loadBank(bank, world, count, depositWorld === world, carry, depositCoins);
     });
   }
   /** Sandbox deposits retain their real settled poses entirely in memory. */
-  addBatch(world: number): void {
+  addBatch(world: number, depositCoins = 1000): void {
     const bank = this.banks[world]!;
     if (bank.depositing || bank.worker) throw new Error("A coin deposit is already running");
-    this.loadBank(bank, world, bank.count + 1000, true, bank.poses.slice());
+    this.loadBank(bank, world, bank.count + depositCoins, true, bank.poses.slice(), depositCoins);
   }
-  private loadBank(bank: Bank, world: number, count: number, depositing: boolean, carry: Float32Array | null): void {
+  private loadBank(bank: Bank, world: number, count: number, depositing: boolean, carry: Float32Array | null, depositCoins = 1000): void {
       const version = ++bank.version;
       bank.worker?.terminate(); bank.worker = null; bank.moving.setEnabled(false);
       bank.count = count; bank.depositing = depositing; bank.ready = false; bank.requested = false; bank.spawned = 0; bank.resting = 0; bank.error = null;
       bank.preparing=false;bank.physicsReady=false;bank.turn=bank.previousTurn=bank.withdraw=bank.previousWithdraw=0;bank.duration=0;
       bank.chestPose=undefined;bank.poseAge=1;bank.impacts=[];bank.empty=false;bank.metrics={lastMs:0,meanMs:0,maxMs:0,staticTriangles:0};
-      bank.depositFrom = bank.depositing ? count - 1000 : count;
+      bank.depositCoins = Math.min(count, depositCoins);
+      bank.depositFrom = bank.depositing ? count - bank.depositCoins : count;
       if (!count) { bank.mesh.setEnabled(false); bank.proxy.setEnabled(false); bank.loaded = 0; bank.heights.clear(); return; }
-      void (carry ? Promise.resolve(carry) : loadGoldLayout(world, bank.depositFrom, this.persistent)).then((poses) => {
+      void (carry ? Promise.resolve(carry) : loadGoldLayout(world, bank.depositFrom, this.persistent, this.options.goldNamespace)).then((poses) => {
         if (version !== bank.version) return;
         bank.poses = new Float32Array(count * COIN_POSE_STRIDE); bank.poses.set(poses);
         bank.loaded = count;
-        bank.matrices = new Float32Array(1000 * 16);
-        const colors = new Float32Array(1000 * 4);
-        for (let i = 0; i < 1000; i++) this.color(colors, i, bank.depositFrom + i);
+        bank.matrices = new Float32Array(bank.depositCoins * 16);
+        const colors = new Float32Array(bank.depositCoins * 4);
+        for (let i = 0; i < bank.depositCoins; i++) this.color(colors, i, bank.depositFrom + i);
         bank.moving.thinInstanceSetBuffer("matrix", bank.matrices, 16, false);
         bank.moving.thinInstanceSetBuffer("color", colors, 4, true);
         bank.moving.thinInstanceCount = 0;
@@ -162,14 +164,14 @@ export class CoinHoard {
       bank.moving.setEnabled(false); bank.moving.thinInstanceCount = 0;
       this.rebuildHeight(bank, world, bank.count);
       this.changed();
-      await saveGoldLayout(world, bank.poses, this.persistent);
+      await saveGoldLayout(world, bank.poses, this.persistent, this.options.goldNamespace);
     };
     const fail = () => {
       if (bank.worker !== worker) return;
       worker.terminate(); bank.worker = null;
       if (this.options.strictPhysics) { bank.error = "Coin physics failed. Reset this area to try again."; return; }
       // Offline physics poses also make the collection available if a worker cannot start.
-      void loadGoldLayout(world, bank.count, this.persistent).then(poses => {
+      void loadGoldLayout(world, bank.count, this.persistent, this.options.goldNamespace).then(poses => {
         if (bank.version !== version) return;
         bank.poses = poses; return finish();
       }).catch(console.error);
@@ -215,7 +217,7 @@ export class CoinHoard {
         }
         offset+=count*COIN_POSE_STRIDE;
       }
-      worker.postMessage({world, previous, surfacePrevious:bank.poses.subarray(0,bank.depositFrom*COIN_POSE_STRIDE), chest, floorY:this.options.floorY,chestY:bank.basePeak+3.8,pose:bank.chestPose,area:this.areas[world],obstacles:this.options.obstacles});
+      worker.postMessage({world, previous, surfacePrevious:bank.poses.subarray(0,bank.depositFrom*COIN_POSE_STRIDE), chest:chest.subarray(0,bank.depositCoins*COIN_POSE_STRIDE), floorY:this.options.floorY,chestY:bank.basePeak+3.8,pose:bank.chestPose,area:this.areas[world],obstacles:this.options.obstacles});
     }).catch(fail);
   }
   private compose(bank: Bank, coin: number, blend = 1, target = bank.matrices, slot = coin - bank.depositFrom): void {
@@ -259,7 +261,7 @@ export class CoinHoard {
   }
   /** Leaving the reward screen never loses its deposit; the worker finishes in the background. */
   finishPours(): void { this.banks.forEach((bank, world) => { if (bank.depositing) this.startPour(world); }); }
-  pouring(world: number) { const bank = this.banks[world]!; return { ready: bank.ready, physicsReady:bank.physicsReady, started:bank.requested, turn:bank.previousTurn+(bank.turn-bank.previousTurn)*Math.min(1,bank.frameAge*30), withdraw:bank.previousWithdraw+(bank.withdraw-bank.previousWithdraw)*Math.min(1,bank.frameAge*30), spawned: bank.spawned, empty: bank.empty, done: !bank.depositing, chestY: bank.basePeak + 3.8, active: !!bank.worker, error: bank.error }; }
+  pouring(world: number) { const bank = this.banks[world]!; return { ready: bank.ready, physicsReady:bank.physicsReady, started:bank.requested, turn:bank.previousTurn+(bank.turn-bank.previousTurn)*Math.min(1,bank.frameAge*30), withdraw:bank.previousWithdraw+(bank.withdraw-bank.previousWithdraw)*Math.min(1,bank.frameAge*30), spawned: bank.spawned, depositCoins:bank.depositCoins, empty: bank.empty, done: !bank.depositing, chestY: bank.basePeak + 3.8, active: !!bank.worker, error: bank.error }; }
   center(world: number): Vector3 { const a = this.areas[world]!; return new Vector3(a.x, this.banks[world]!.peak * .45 + .2, a.z); }
   span(world: number) { return { height: Math.max(.8, this.banks[world]!.peak), width: this.areas[world]!.radius * 2 }; }
   metrics(world:number):CoinPhysicsMetrics { return this.banks[world]!.metrics; }

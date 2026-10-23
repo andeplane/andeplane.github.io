@@ -1,0 +1,56 @@
+/* Shared menu contract for both game entrypoints. Scene layouts supply their content. */
+:root {
+  --pirate-menu-inset: 20px;
+  --pirate-back-width: 95px;
+  --pirate-touch-target: 44px;
+  --pirate-menu-font: "DM Sans", sans-serif;
+  --pirate-label-size: 20px;
+  --pirate-label-detail-size: 12px;
+  --pirate-label-small-size: 11px;
+}
+.pirate-menu-header-left,
+.pirate-menu-header-actions { display: flex; align-items: center; gap: 12px; }
+.pirate-menu-header-actions > button,
+button.pirate-menu-brand { min-width: var(--pirate-touch-target); min-height: var(--pirate-touch-target); }
+.pirate-menu-header-left.has-back { padding-left: calc(var(--pirate-back-width) + 12px); }
+.pirate-menu-brand { display: flex; align-items: center; gap: 10px; font-family: var(--pirate-menu-font); }
+.pirate-menu-brand small { display: block; }
+:is(#academy, #voyage-ui) button.pirate-menu-back {
+  position: fixed;
+  top: calc(var(--pirate-menu-inset) + env(safe-area-inset-top, 0px));
+  left: calc(var(--pirate-menu-inset) + env(safe-area-inset-left, 0px));
+  right: auto;
+  bottom: auto;
+  z-index: 65;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 10px;
+  width: var(--pirate-back-width);
+  min-width: var(--pirate-back-width);
+  height: var(--pirate-touch-target);
+  min-height: var(--pirate-touch-target);
+  padding: 2px 12px;
+  border: 1px solid #ab885158;
+  border-radius: 9px;
+  background: #101d29e8;
+  color: #fff1d5;
+  font: 700 13px/1 var(--pirate-menu-font);
+  pointer-events: auto;
+  touch-action: manipulation;
+}
+:is(#academy, #voyage-ui) .pirate-menu-back > span { font: 700 13px/1 var(--pirate-menu-font); }
+:is(#academy, #voyage-ui) .pirate-menu-back > .pirate-back-arrow { font-size: 28px; font-weight: 400; }
+.pirate-menu-actions { display: flex; flex-direction: column; gap: 12px; }
+.pirate-menu-action { min-height: 54px; font-family: var(--pirate-menu-font); }
+.pirate-map-label { font-family: var(--pirate-menu-font); }
+.pirate-map-label b { display: block; font-size: var(--pirate-label-size); line-height: 1.25; font-weight: 700; }
+.pirate-map-label small { display: block; font-size: var(--pirate-label-small-size); line-height: 1.35; }
+.pirate-map-label > span { display: block; font-size: var(--pirate-label-detail-size); line-height: 1.35; font-weight: 700; }
+@media (max-width: 650px), (max-height: 480px) {
+  :root { --pirate-menu-inset: 16px; --pirate-label-size: 18px; }
+}
+@media (max-width: 350px) {
+  :root { --pirate-label-size: 17px; }
+  #academy:not([data-screen="home"]) .pirate-menu-brand { display: none; }
+}

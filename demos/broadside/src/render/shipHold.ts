@@ -19,6 +19,7 @@ import { antialiasSamples, isPhoneRendering } from './quality';
 import type { VoyageDef } from '../game/voyage';
 import { cargoChests } from '../game/rewards';
 import { CargoChests, holdCargoPosition } from './cargoChests';
+import { shipHoldCamera } from './shipHoldCamera';
 import type { Progress } from '../game/progress';
 import { CoinHoard } from './coinHoard';
 import { chestCarry, chestExit, CHEST_EXIT_SECONDS, pourTilt } from '../game/coinPour';
@@ -105,13 +106,15 @@ export class ShipHold {
     pipeline.samples=antialiasSamples(engine);pipeline.fxaaEnabled=true;s.imageProcessingConfiguration.exposure=1.05;
   }
   open(progress: Progress, special: number | null, reveal = true): void {
-    this.revealTime=0;this.revealing=reveal;
-    this.coins=cargoChests(progress).length ? 1000 : 0;
-    this.special?.dispose(false,true);this.special=null;
+    this.openCargo(cargoChests(progress).length, 1000, reveal);
     if(special!==null) {this.special=buildRelic(this.scene,special);this.special.parent=this.chest.root;this.special.scaling.setAll(.3);const b=this.special.getHierarchyBoundingVectors(true);this.special.position.set(.1,1.25-b.min.y,-.04);}
-    const previous = Math.max(0, cargoChests(progress).length - 1);
-    this.cargo.show(Array.from({ length: previous }, (_, i) => holdCargoPosition(i)));
-
+  }
+  /** Both games use the same hold, open cargo geometry and latest-chest animation. */
+  openCargo(count: number, coinsPerChest = 1000, reveal = true): void {
+    this.revealTime=0;this.revealing=reveal;
+    this.coins=count ? coinsPerChest : 0;
+    this.special?.dispose(false,true);this.special=null;
+    this.cargo.show(Array.from({ length: Math.max(0, count - 1) }, (_, i) => holdCargoPosition(i)));
   }
   get pose() { return revealPose(this.revealTime,this.reducedMotion); }
   debugCoinBank(_world = 0, add = false): void {
@@ -134,9 +137,10 @@ export class ShipHold {
     this.time+=dt;if(this.revealing)this.revealTime+=dt;else this.revealTime=5;
     this.chest.animate(this.revealTime,0,reduced);this.chest.root.position.set(0,1.05,0);
     this.chest.setCoinCount(this.coins);
-    const bob=reduced?0:Math.sin(this.time*.75)*.035;
-    this.camera.position.set(.75+Math.sin(this.time*.35)*.015,5.4+bob,-6.8);
-    this.camera.fov=innerWidth<600?1.25:.85;this.camera.setTarget(new Vector3(0,2.05,.55));
+    const framing = shipHoldCamera(innerWidth < 600, this.time, reduced);
+    this.camera.position.set(framing.position.x,framing.position.y,framing.position.z);
+    this.camera.fov=framing.fov;
+    this.camera.setTarget(new Vector3(framing.target.x,framing.target.y,framing.target.z));
     if (this.debugHoard) {
       this.debugAge += dt;
       const pour = this.debugHoard.pouring(0), height = this.debugHoard.span(0).height;

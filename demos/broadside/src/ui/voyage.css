@@ -101,7 +101,7 @@ button:disabled {
   margin-top: 4px;
   font-weight: 400;
 }
-.voyage-header > div {
+.pirate-menu-header-actions {
   display: flex;
   gap: 8px;
 }

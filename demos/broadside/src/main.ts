@@ -16,6 +16,7 @@ import { newOpenSea, readOpenSea, openSeaVoyage, recordOpenSea, saveOpenSea } fr
 import { readProgress, saveProgress } from "./game/progress";
 import { awardVoyage, syncRewards, caveProgress, deliverChest, cargoChests, chestWorld, awardCatch, type VoyageReward } from "./game/rewards";
 import { ShipHold } from "./render/shipHold";
+import { CargoQueue } from "./game/cargoQueue";
 import { WorldJourney, nearestRegion, readJourney, saveJourney } from "./game/journey";
 import { TOTAL_LEVELS, levelUnlocked } from "./game/campaign";
 import { Controls } from "./input/controls";
@@ -135,7 +136,8 @@ async function main() {
   let harbour: Harbour | PrivateShip | null = null;
   let hold: ShipHold | null = null;
   let holdShowingResult = false;
-  let unloadQueue: number[] = [], unloadingIndex: number | null = null, unloadTotal = 0;
+  const unloadQueue = new CargoQueue<number>();
+  let unloadingIndex: number | null = null;
   let arrivalDestination: "hold" | "unload" = "hold", arrivalFromHold = false;
   let mode: "menu" | "cave" | "harbour" | "hold" | "unloading" | "play" | "arrival" | "result" | "loading" | "travel" =
       "menu",
@@ -200,15 +202,15 @@ async function main() {
   };
   const cancelUnloading = () => {
     if (unloadingIndex !== null) {
-      unloadingIndex = null; unloadQueue = [];
+      unloadingIndex = null; unloadQueue.reset([]);
       getCave().refresh(caveProgress(progress));
       getCave().showCargo([]);
       getCave().endReveal();
     }
   };
   const prepareChest = () => {
-    unloadingIndex = unloadQueue.shift() ?? null;
-    if (unloadingIndex === null) { hud.unloading(unloadTotal,unloadTotal,true); return; }
+    unloadingIndex = unloadQueue.current;
+    if (unloadingIndex === null) { hud.unloading(unloadQueue.total,unloadQueue.total,true); return; }
     // Arrival is fully covered here; release the ship before allocating the cave.
     hold?.scene.dispose(); hold = null;
     harbour?.scene.dispose(); harbour = null;
@@ -216,13 +218,13 @@ async function main() {
     const world = chestWorld(progress,unloadingIndex);
     if (unloadingIndex >= 0) banked.voyages[unloadingIndex] = progress.voyages[unloadingIndex]!;
     else banked.fishing.chests.push({...progress.fishing.chests[-unloadingIndex-1]!,delivered:true});
-    getCave().showCargo(cargoChests(progress), unloadingIndex, unloadQueue.length === unloadTotal - 1);
+    getCave().showCargo(cargoChests(progress), unloadingIndex, unloadQueue.completed === 0);
     getCave().refresh(banked, world); getCave().beginUnload(world, unloadingIndex);
-    hud.unloading(unloadTotal - unloadQueue.length, unloadTotal);
+    hud.unloading(unloadQueue.completed + 1, unloadQueue.total);
   };
   const unloadAtCave = () => {
     if (!cargoChests(progress).length) { home(); return; }
-    unloadQueue = cargoChests(progress); unloadTotal=unloadQueue.length;
+    unloadQueue.reset(cargoChests(progress));
     arrive("unload");
   };
   const visitHold = () => {
@@ -891,9 +893,10 @@ async function main() {
       getCave().render(carryPreview ? 0 : dt,true);
       if (unloadingIndex !== null && getCave().depositComplete) {
         deliverChest(progress,unloadingIndex);saveProgress(progress,storage);
+        unloadQueue.complete(unloadingIndex);
         getCave().refresh(caveProgress(progress));
-        if (unloadQueue.length) prepareChest();
-        else {unloadingIndex=null;getCave().showCargo([]);hud.unloading(unloadTotal,unloadTotal,true);}
+        if (unloadQueue.current !== null) prepareChest();
+        else {unloadingIndex=null;getCave().showCargo([]);hud.unloading(unloadQueue.total,unloadQueue.total,true);}
       }
     } else if (mode === "harbour" && harbour) {
       const look = walking.readLook();

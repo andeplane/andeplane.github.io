@@ -19,7 +19,7 @@ self.onmessage = async (event: MessageEvent<{ world: number; previous: Float32Ar
   try {
     await RAPIER.init();
     const surfacePrevious = event.data.surfacePrevious;
-    const { world, previous, chest, floorY, chestY } = event.data, area = event.data.area ?? GOLD_AREAS[world]!;
+    const { world, previous, chest, floorY, chestY } = event.data, count=chest.length/COIN_POSE_STRIDE, area = event.data.area ?? GOLD_AREAS[world]!;
     carryPose ??= event.data.pose ?? {position:{x:0,y:chestY,z:0},rotation:{x:0,y:0,z:0,w:1},lid:0};
     const floor = (x:number,z:number) => floorY ?? caveFloor(x + area.x, z + area.z);
     events = new RAPIER.EventQueue(true);
@@ -59,7 +59,7 @@ self.onmessage = async (event: MessageEvent<{ world: number; previous: Float32Ar
     const removed = new Set<RAPIER.RigidBody>();
     const coinBodies = new Map<number, RAPIER.RigidBody>();
     const speeds = new Map<number, number>(), lastImpact = new Map<number, number>();
-    const settledPoses = new Float32Array(1000 * COIN_POSE_STRIDE);
+    const settledPoses = new Float32Array(count * COIN_POSE_STRIDE);
     let duration=0, started=false, turnFrame=0, withdrawFrame:number|null=null;
     const withdrawal=()=>withdrawFrame===null?0:Math.min(1,(frame-withdrawFrame)/(60*CHEST_EXIT_SECONDS));
     const progress=()=>!started?0:duration>0?Math.min(1,(frame-turnFrame)/60/duration):1;
@@ -177,7 +177,7 @@ self.onmessage = async (event: MessageEvent<{ world: number; previous: Float32Ar
       started=true;duration=Math.max(0,seconds);turnFrame=frame;
       const pose=chestPose();
       hull.setTranslation(pose.position,true);hull.setRotation(pose.rotation,true);
-      for(let i=0;i<1000;i++)spawn();
+      for(let i=0;i<count;i++)spawn();
       tick();
     };
     self.postMessage({ready:true});

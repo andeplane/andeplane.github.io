@@ -79,7 +79,7 @@ export class TreasureCave {
   private debugWorld: number | null = null;
   private reducedMotion = matchMedia("(prefers-reduced-motion: reduce)")
     .matches;
-  constructor(engine: Engine, persistent = true, strictPhysics = false) {
+  constructor(engine: Engine, persistent = true, strictPhysics = false, goldNamespace = "broadside.coin-poses", bankLabels?: readonly string[]) {
     const s = (this.scene = new Scene(engine));
     s.clearColor = new Color4(0.012, 0.02, 0.035, 1);
     s.fogMode = Scene.FOGMODE_EXP2;
@@ -98,8 +98,8 @@ export class TreasureCave {
     hemi.groundColor = Color3.FromHexString("#16121a");
     hemi.intensity = 0.62;
     hemi.renderPriority = 7;
-    this.chamber = new Cavern(s, this.spots);
-    this.coins = new CoinHoard(s, persistent, () => bindLocalLights(this.chamber.lamps, this.scene.meshes), { strictPhysics, obstacles:this.chamber.obstacles });
+    this.chamber = new Cavern(s, this.spots, bankLabels);
+    this.coins = new CoinHoard(s, persistent, () => bindLocalLights(this.chamber.lamps, this.scene.meshes), { strictPhysics, obstacles:this.chamber.obstacles, goldNamespace });
     this.walker = new CaveWalker(this.chamber.obstacles, (x, z) =>
       Math.max(this.chamber.walkHeight(x, z), this.coins.walkHeight(x, z)),
     );
@@ -264,11 +264,11 @@ export class TreasureCave {
     this.cargo = new CargoChests(s, "cave entrance cargo");
     this.distance = this.overviewRadius();
   }
-  refresh(progress: Progress, depositWorld: number | null = null): void {
-    const count = goldTotal(progress) / GOLD_PER_LEVEL;
+  refresh(progress: Progress, depositWorld: number | null = null, bankGold?: readonly number[], depositCoins = 1000): void {
+    const count = (bankGold ? bankGold.reduce((sum,value)=>sum+value,0) : goldTotal(progress)) / GOLD_PER_LEVEL;
     const owned = [...(count ? [0] : []), ...progress.relics];
-    this.coins.refresh(progress, depositWorld);
-    const key = `${Object.keys(progress.voyages).sort().join(",")}:${owned.join(",")}`;
+    this.coins.refresh(progress, depositWorld, bankGold, depositCoins);
+    const key = `${bankGold?.join(",") ?? Object.keys(progress.voyages).sort().join(",")}:${owned.join(",")}`;
     if (key === this.owned) return;
     this.owned = key;
     this.relics.forEach((r) => r?.dispose(false, true));
@@ -476,6 +476,7 @@ export class TreasureCave {
     if (unboxing) {
       this.revealTime += dt;
       this.chest.animate(this.revealTime, 0, this.reducedMotion);
+      if (this.depositWorld !== null) this.chest.setCoinCount(this.coins.pouring(this.depositWorld).depositCoins);
       this.chest.root.position.z = -5;
     } else this.chest.hide();
     const portrait = innerWidth < 600;
@@ -547,7 +548,7 @@ export class TreasureCave {
         if(elapsed >= (this.reducedMotion ? .1 : this.unloadingOrigin ? 7.2 : 4.2) && !this.pourStarted && pour.physicsReady && !pour.error){
           this.coins.startPour(world,this.reducedMotion?0:2.2);this.pourStarted=true;
         }
-        this.chest.setCoinCount(1000 - pour.spawned);
+        this.chest.setCoinCount(pour.depositCoins - pour.spawned);
         // Continue independently after the physics worker sleeps. Never fade
         // or remove an empty chest while it is still in the player's view.
         if(this.chestExitAt===null&&(pour.withdraw>0||pour.done))

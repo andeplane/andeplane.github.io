@@ -167,27 +167,6 @@
   filter: brightness(1.15);
   transform: translateY(-2px);
 }
-.menu-back {
-  position: absolute;
-  left: 28px;
-  top: 22px;
-  z-index: 15;
-  border: 1px solid #ab885158;
-  background: #101d29cc;
-  border-radius: 9px;
-  min-width: 95px;
-  min-height: 44px;
-  font-size: 28px;
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  padding: 2px 15px;
-  pointer-events: auto;
-}
-.menu-back span {
-  font-size: 13px;
-  font-weight: 700;
-}
 .menu-heading {
   text-align: center;
   padding: 15px 20px 0;
@@ -272,13 +251,13 @@
 .world-label small {
   color: #b49d72;
   letter-spacing: 0.15em;
-  font-size: 9px;
+  font-size: var(--pirate-label-small-size);
 }
 .world-label b {
-  font: 23px "Pirata One";
+  font: 700 var(--pirate-label-size)/1.25 var(--pirate-menu-font);
 }
 .world-label > span {
-  font-size: 11px;
+  font-size: var(--pirate-label-detail-size);
   color: #dfb877;
 }
 .world-label .icon {
@@ -652,7 +631,7 @@
     width: 48%;
   }
   .world-label b {
-    font-size: 20px;
+    font-size: var(--pirate-label-size);
   }
   .world-label {
     width: 91%;
@@ -660,10 +639,10 @@
     gap: 3px;
   }
   .world-label small {
-    font-size: 8px;
+    font-size: var(--pirate-label-small-size);
   }
   .world-label > span {
-    font-size: 10px;
+    font-size: var(--pirate-label-detail-size);
   }
   .map-cave {
     width: 65px;
@@ -690,10 +669,6 @@
   .map-footnote {
     font-size: 9px;
     margin: 9px 25px 0;
-  }
-  .menu-back {
-    left: 16px;
-    top: 17px;
   }
   .level-tile {
     width: 88px;
@@ -762,7 +737,7 @@
     min-height: 315px;
   }
   .world-label b {
-    font-size: 17px;
+    font-size: var(--pirate-label-size);
   }
   .world-label {
     margin-top: -18px;
@@ -849,10 +824,10 @@
     margin-top: -17px;
   }
   .world-label b {
-    font-size: 18px;
+    font-size: var(--pirate-label-size);
   }
   .world-label small {
-    font-size: 7px;
+    font-size: var(--pirate-label-small-size);
   }
   .world-0 {
     top: 10%;
@@ -1041,11 +1016,6 @@
   #cave-ui .cave-title p {
     font-size: 10px;
     line-height: 1.35;
-  }
-  #cave-ui .menu-back {
-    padding: 10px;
-    font-size: 11px;
-    min-width: 62px;
   }
   #cave-ui .gallery-hint {
     bottom: 28px;

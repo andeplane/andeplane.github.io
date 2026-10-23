@@ -22,7 +22,7 @@ class FakeWorker {
   constructor(){FakeWorker.all.push(this);}
   postMessage(value:unknown){this.sent=value;this.messages.push(value);}
   terminate(){this.terminated=true;}
-  emit(poses:Float32Array,done:boolean,impacts:number[]=[]){this.onmessage?.({data:{poses,done,resting:done?1000:0,impacts}});}
+  emit(poses:Float32Array,done:boolean,impacts:number[]=[]){this.onmessage?.({data:{poses,done,resting:done?poses.length/7:0,impacts}});}
 }
 const flush=async()=>{await Promise.resolve();await Promise.resolve();};
 const poses=()=>{const p=new Float32Array(7000);for(let i=0;i<1000;i++){p[i*7]=i%10*.1;p[i*7+1]=.75+Math.floor(i/100)*.055;p[i*7+6]=1;}return p;};
@@ -55,7 +55,7 @@ describe('real coin sandbox banks',()=>{
       hoard.animate(2);expect(upload).not.toHaveBeenCalled();upload.mockRestore();
     }
     expect(loadGoldLayout).not.toHaveBeenCalled();
-    expect(saveGoldLayout).toHaveBeenLastCalledWith(0,expect.any(Float32Array),false);
+    expect(saveGoldLayout).toHaveBeenLastCalledWith(0,expect.any(Float32Array),false,undefined);
     scene.dispose();engine.dispose();
   });
   it('uploads valid pouring poses before showing them and publishes settled coins before hiding the pour',async()=>{
@@ -80,6 +80,26 @@ describe('real coin sandbox banks',()=>{
     worker.emit(poses(),false);
     worker.emit(poses(),true);await flush();
     expect(h.drawnCounts[0]).toBeGreaterThan(0);
+    scene.dispose();engine.dispose();
+  });
+  it('uses the same queued pour for an exact 100-coin math reward with isolated storage',async()=>{
+    vi.stubGlobal('Worker',FakeWorker);
+    const engine=new NullEngine(),scene=new Scene(engine);
+    const h=new CoinHoard(scene,false,undefined,{goldNamespace:'captain-calculus.coin-poses',strictPhysics:true});
+    // Two consecutive earned chests use the same worker and static-buffer path.
+    for(let chest=0;chest<2;chest++){
+      h.addBatch(0,100);h.preparePour(0);await flush();
+      const worker=FakeWorker.all.at(-1)!;
+      const initial=worker.sent as {chest:Float32Array;previous:Float32Array};
+      expect(initial.chest.length).toBe(700);
+      expect(initial.previous.length).toBe(chest*700);
+      expect(h.pouring(0).depositCoins).toBe(100);
+      h.startPour(0);worker.onmessage?.({data:{ready:true}});
+      worker.emit(poses().slice(0,700),true);await flush();
+      expect(h.counts[0]).toBe((chest+1)*100);
+      expect(h.restingCounts[0]).toBe((chest+1)*100);
+      expect(saveGoldLayout).toHaveBeenLastCalledWith(0,expect.any(Float32Array),false,'captain-calculus.coin-poses');
+    }
     scene.dispose();engine.dispose();
   });
   it('warms physics during carrying, sends chest motion, and waits for readiness before tilting',async()=>{

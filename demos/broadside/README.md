@@ -206,3 +206,63 @@ coin poses are kept in memory and are discarded on reload or Reset.
 
 The ship-floor pour is a sandbox preview; normal rewards still use the existing
 ship cargo and optional cave-unloading flow.
+## Captain Calculus
+
+The same app builds a separate, permanently silent pirate math game at **`/math/`**.
+Broadside remains at `/`; both follow `BASE_PATH` when hosted. Captain Calculus
+keeps the **Play / Settings / Cave** menu, illustrated sea map, and the current
+textured first-person `TreasureCave`. Its progress uses `broadside.math.v1` and
+its settled coin cache uses `captain-calculus.coin-poses`. Sailing progress and
+sailing coin layouts are independent.
+
+Choose an operator, then one of its five difficulty islands, then a level:
+
+| Operator | Difficulty islands |
+| --- | --- |
+| Addition | Totals up to 10, 20, 30, 40, or 50 |
+| Subtraction | Take away within 10; cross ten; two digits without borrowing; borrow within 100; three digits within 1,000 |
+| Multiplication | Twos; fives and tens; threes and fours; sixes to nines; mixed tables 1–12 |
+| Division | Share in twos; fives and tens; threes and fours; sixes to nines; all tables 1–12, with exact whole-number answers |
+
+Every island has an endless, sequential level trail. A level contains ten
+fresh problems; unfinished levels resume with the same questions. A complete
+level with no mistakes earns one chest of 100 gold. The first wrong answer
+forfeits that level's reward; finishing still unlocks the next level. Hints
+are free and there is no time limit. Mistakes persist across reloads and
+switching islands. Replaying a level offers another perfect-level reward
+and preserves its best stars.
+
+Both apps use the same menu components and the same ship and cave renderers.
+Earned chests accumulate aboard the ship. Returning to the cave shows the
+pending queue at the entrance and carries each chest to its operator's bank
+in turn. A chest is credited to the cave only when its deposit completes;
+leaving or reloading preserves undelivered cargo. Earlier math saves retain
+all previously banked gold, including old 1,000-gold chests.
+
+New levels favor larger sums within the selected limit and crossing a ten.
+Addition uses positive numbers; zero-addition questions are excluded. Easy
+facts such as adding/subtracting one, subtracting a number from itself, or
+times/division by one appear at most once in a level. Mixed times and division
+tables favor sixes to nines. Reversed addition/multiplication facts count as
+the same fact, so a level does not repeat them. Unfinished voyages retain
+their original question set when the game is updated.
+
+The gold ledger is unlimited. Both games share the same bounded coin renderer,
+static surface optimization, physics worker, and continuous deposit handoff.
+Captain Calculus pours 100 coins per chest; Broadside pours 1,000.
+
+In the cave, use WASD to walk, arrows or mouse drag to look, Space to jump,
+and E to inspect nearby treasure. Phones use a movement stick, swipe to look,
+and a Jump button. Walking, collisions, light, materials, and coin physics
+reuse Broadside's current implementation.
+
+Local math launch: http://localhost:5180/math/?mute=true (when Vite is running
+on port 5180). Development-only `?qa=true&mute=true` starts a temporary test
+session without reading or writing player progress or the coin pose cache.
+Production ignores the QA flag. `npm run check` covers both games and builds
+both entry points.
+
+Captain Calculus also has a separate offline iPhone/iPad app. Run
+`npm run calculus:ios:open` to open its native project; see [IOS.md](IOS.md#captain-calculus)
+for builds and updates. It uses `com.andeplane.captaincalculus`, its own Home
+Screen icon and on-device save, and can be installed alongside Broadside.

@@ -70,7 +70,7 @@
   .free-chart-button .icon { width: 28px; height: 28px; }
   #voyage-ui[data-screen="play"] .voyage-brand { font-size: 9px; letter-spacing: .1em; }
   #voyage-ui[data-screen="play"] .voyage-brand > .icon { width: 25px; height: 25px; }
-  #voyage-ui[data-screen="play"] .voyage-header > div { gap: 5px; }
+  #voyage-ui[data-screen="play"] .pirate-menu-header-actions { gap: 5px; }
   #v-captain-help { bottom: calc(171px + var(--safe)); max-width: 68%; font-size: 9px; }
   #v-sea-chart { bottom: calc(32px + var(--safe)); }
   #v-sea-chart canvas { width: 92px; height: 92px; }

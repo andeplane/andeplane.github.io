@@ -112,19 +112,19 @@
 }
 #world-menu .world-label small {
   color: #655033;
-  font-size: 9px;
+  font-size: var(--pirate-label-small-size);
   letter-spacing: 0.18em;
 }
 #world-menu .world-label b {
   color: #352618;
-  font-family: "DM Sans", sans-serif;
-  font-size: clamp(17px, 2vw, 23px);
+  font-family: var(--pirate-menu-font);
+  font-size: var(--pirate-label-size);
   font-weight: 700;
   line-height: 1.25;
 }
 #world-menu .world-label > span {
   color: #654626;
-  font-size: 11px;
+  font-size: var(--pirate-label-detail-size);
   font-weight: 700;
 }
 #world-menu .map-route {
@@ -252,13 +252,13 @@
     padding: 7px 5px 8px;
   }
   #world-menu .world-label b {
-    font-size: 17px;
+    font-size: var(--pirate-label-size);
   }
   #world-menu .world-label small {
-    font-size: 10px;
+    font-size: var(--pirate-label-small-size);
   }
   #world-menu .world-label > span {
-    font-size: 12px;
+    font-size: var(--pirate-label-detail-size);
   }
   #world-menu .map-cave {
     left: 7%;
@@ -303,7 +303,7 @@
     top: 0;
   }
   #world-menu .world-label b {
-    font-size: 17px;
+    font-size: var(--pirate-label-size);
   }
   #world-menu .map-cave {
     width: 95px;
@@ -349,7 +349,7 @@
     top: 0;
   }
   #world-menu .world-label b {
-    font-size: 18px;
+    font-size: var(--pirate-label-size);
   }
   #world-menu .world-label {
     padding: 4px 2px;
