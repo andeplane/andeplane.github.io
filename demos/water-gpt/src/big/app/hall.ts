@@ -45,7 +45,7 @@ const STAGE_HTML = /* html */ `
     <div class="bar"><div id="h-fill-bar"></div></div>
     <div class="fill-foot"><span id="h-fill-valves">0 valves set</span><span id="h-fill-src"></span></div>
   </div>
-  <div class="h-legend" id="h-legend">Each rectangle is one crossbar (a weight matrix), laid out layer by layer. Each dot is a valve: brightness is how far it is open, <span class="pos">blue</span> feeds a + collector, <span class="neg">orange</span> a − collector. Hover a valve to read it.</div>
+  <div class="h-legend" id="h-legend">Each rectangle is one crossbar (a weight matrix), laid out layer by layer. Each dot is a valve. Zoom in: its filled wedge shows how far it is open; moving water in the pipes shows flow. <span class="pos">Blue</span> feeds a + collector, <span class="neg">orange</span> a − collector. Hover a valve to read it.</div>
   <div class="h-zoomhint" id="h-zoomhint">scroll to zoom · drag to pan · double-click to dive</div>
   <div id="h-tour-mark" hidden><span></span></div>
   <div id="h-tour" hidden role="dialog" aria-live="polite" aria-labelledby="h-tour-title">
@@ -648,6 +648,7 @@ export class Hall {
       const L = s.bits === null ? 0 : (1 << s.bits) - 1
       const o = t.wmax > 0 ? Math.abs(w) / t.wmax : 0
       const stop = L ? Math.round(o * L) : null
+      const opening = stop === null ? o : stop / L
       const realised = t.pos[i * n + j]
       let flowLine = '<span class="dim">no water has flowed here yet</span>'
       const a = this.activity
@@ -660,7 +661,7 @@ export class Hall {
       body =
         `<div class="pl-w">${w >= 0 ? '+' : '−'}${Math.abs(w).toFixed(5)}</div>` +
         `<div class="pl-row">input ${h.row} → output ${h.col}${token}</div>` +
-        `<div class="pl-row">valve ${stop === null ? `${(o * 100).toFixed(1)}%` : `${stop}/${L}`} open on the <b class="${w >= 0 ? 'pos' : 'neg'}">${w >= 0 ? '+' : '−'}</b> collector · tile scale ${t.wmax.toFixed(4)}</div>` +
+        `<div class="pl-row">valve ${(opening * 100).toFixed(1)}% open${stop === null ? '' : ` (${stop}/${L} stops)`} on the <b class="${w >= 0 ? 'pos' : 'neg'}">${w >= 0 ? '+' : '−'}</b> collector · tile scale ${t.wmax.toFixed(4)}</div>` +
         `<div class="pl-row">as built (stops, setting error, manifold, calibration): ${realised >= 0 ? '+' : '−'}${Math.abs(realised).toFixed(5)}</div>` +
         `<div class="pl-row">${flowLine}</div>`
     }
