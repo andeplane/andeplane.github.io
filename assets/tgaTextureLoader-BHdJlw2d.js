@@ -1,0 +1,1 @@
+import{A as e,k as t}from"./game-BDsBrr22.js";var n=class{constructor(){this.supportCascades=!1}loadCubeData(){throw`.env not supported in Cube.`}loadData(n,r,i){let a=new Uint8Array(n.buffer,n.byteOffset,n.byteLength),o=t(a);i(o.width,o.height,r.generateMipMaps,!1,()=>{e(r,a)})}};export{n as _TGATextureLoader};

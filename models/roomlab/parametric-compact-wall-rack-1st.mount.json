@@ -1,0 +1,274 @@
+{
+  "schema": "original-compact-wall-rack-candidate/1",
+  "id": "parametric-compact-wall-rack-1st",
+  "type": "coat_rack",
+  "style": "1st",
+  "sourceSpecific": true,
+  "sourceRoomIds": [
+    "B:b-wr-b43"
+  ],
+  "scalingPolicy": "authored-parameters-only; no anisotropic GLB resizing",
+  "assetSha256": "e357ab539b8d3e636205933f2abbca25798fcc23838e3496e5d062e19fa21fc3",
+  "file": "parametric-compact-wall-rack-1st.glb",
+  "fixtureDims": [
+    0.6,
+    0.35,
+    1.9
+  ],
+  "front": "-Z",
+  "anchor": "wall",
+  "source": "original-parametric",
+  "aiReview": true,
+  "sourceRoomId": "B:b-wr-b43",
+  "sourcePins": {
+    "tools/roomlab/build_compact_wall_rack.py": "8a4ca8142ffbc9ec40805a94aa63e3cf1158c986d78c688596ea6cdbe8e1afe0",
+    "public/models/roomcity/manifest.json": "d0f62c16605b24d511a1b68768946db6bef90aa9fac34892e6d73103599d4a82",
+    "public/models/roomcity/block-062.json": "e9b26b5caa6d335518217b678406322c7f57d242b3c4866cfd0a4f524e71a2df",
+    "content/furnishing/requirements.json": "7e78789efa7f1972890a58ca1f9506f6c95704295c8d181b2f95b7d0549d3348",
+    "content/decks/B.json": "5a9217dd027ffa9448daa02ab9cf2b4e72bf7893c00373fed5a296a6cbb3ace8"
+  },
+  "sourceRoom": {
+    "id": "b-wr-b43",
+    "sourceId": "B:b-wr-b43",
+    "canonicalId": "B:b-wr-b43",
+    "deck": "B",
+    "name": "Wardrobe Room (B 43)",
+    "kind": "other",
+    "roomClass": "cloak",
+    "style": "1st",
+    "semanticType": "cloak",
+    "classificationProvenance": "furnish.room_class:cloak",
+    "polygon": [
+      [
+        0.0,
+        1.275
+      ],
+      [
+        0.0,
+        0.0
+      ],
+      [
+        1.393,
+        0.0
+      ],
+      [
+        1.393,
+        1.275
+      ]
+    ],
+    "height": 2.643,
+    "heightProvenance": "source nominal deck spacing minus slab and floor_dz; no hull fit or roof lowering",
+    "sourceOrigin": [
+      42.102,
+      -5.745
+    ],
+    "openings": [
+      {
+        "id": "d298",
+        "kind": "door",
+        "a": [
+          1.008,
+          0.0
+        ],
+        "b": [
+          0.429,
+          0.0
+        ],
+        "sill": 0.0,
+        "height": 2.0,
+        "hinge": [
+          1.008,
+          0.012
+        ],
+        "closed": [
+          0.429,
+          0.012
+        ],
+        "open": [
+          0.83,
+          0.563
+        ],
+        "sourceWall": "w140",
+        "provenance": "source-opening",
+        "sourceA": [
+          1.008,
+          0.012
+        ],
+        "sourceB": [
+          0.429,
+          0.012
+        ],
+        "boundaryProjectionError": 0.012
+      }
+    ],
+    "fixtures": [],
+    "walkable": true,
+    "templateUncertainty": [],
+    "geometryGroup": "1145e0c07546128cb00b",
+    "sourceWalkable": true,
+    "inspectionOpenings": [],
+    "accessFixtureCollision": "source-clear"
+  },
+  "authoritativeNeed": {
+    "id": "hanging",
+    "meets": [
+      "coat_rack",
+      "locker",
+      "wardrobe"
+    ],
+    "type": "coat_rack",
+    "size": [
+      0.9,
+      0.4
+    ],
+    "height": 1.9,
+    "minArea": 0.0,
+    "onlyWith": [],
+    "placement": "wall",
+    "aisle": 0.4,
+    "compact": [
+      [
+        0.6,
+        0.35
+      ]
+    ],
+    "label": "coat rack",
+    "count": 1,
+    "priority": 100,
+    "priorityRole": "required",
+    "mobility": "movable",
+    "mobilityClass": "movable",
+    "anchor": "wall-back",
+    "strategy": "usable-solid-wall-runs",
+    "relationships": [
+      {
+        "kind": "back-to-solid-wall",
+        "required": false,
+        "fallback": "clear-floor-candidates"
+      },
+      {
+        "kind": "clear-use-front",
+        "depthMetres": 0.4,
+        "required": true
+      }
+    ],
+    "origin": "legacy-minimum",
+    "satisfaction": {
+      "sources": [
+        "valid-primary",
+        "fixed-amenity",
+        "retained-purchased"
+      ],
+      "scope": "same-physical-room-and-level",
+      "meetsAnyType": [
+        "coat_rack",
+        "locker",
+        "wardrobe"
+      ]
+    },
+    "legacyCandidateSupport": "adapter-required",
+    "strategySupport": "shared generic strategies; actual asset/relationship/attachment validation still required"
+  },
+  "componentIds": [
+    "rack-backboard",
+    "hat-shelf",
+    "bracket-plate:-1",
+    "shelf-brace:-1",
+    "rail-brace:-1",
+    "bracket-plate:1",
+    "shelf-brace:1",
+    "rail-brace:1",
+    "hanging-rail",
+    "hanger:0",
+    "coat:0",
+    "coat-sleeve:0:-1",
+    "coat-sleeve:0:1",
+    "coat-button:0:0",
+    "coat-button:0:1",
+    "coat-button:0:2",
+    "coat-button:0:3",
+    "hanger:1",
+    "coat:1",
+    "coat-sleeve:1:-1",
+    "coat-sleeve:1:1",
+    "coat-button:1:0",
+    "coat-button:1:1",
+    "coat-button:1:2",
+    "coat-button:1:3"
+  ],
+  "mountComponents": [
+    {
+      "componentId": "rack-backboard",
+      "kind": "backboard",
+      "face": "wall-contact",
+      "outward": [
+        0,
+        1
+      ]
+    },
+    {
+      "componentId": "bracket-plate:-1",
+      "kind": "bracket",
+      "face": "wall-contact",
+      "outward": [
+        0,
+        1
+      ]
+    },
+    {
+      "componentId": "bracket-plate:1",
+      "kind": "bracket",
+      "face": "wall-contact",
+      "outward": [
+        0,
+        1
+      ]
+    }
+  ],
+  "supportSurfaces": [
+    {
+      "id": "hat-shelf:0",
+      "kind": "shelf",
+      "y": 1.875,
+      "polygon": [
+        [
+          -0.265,
+          -0.13999999999999999
+        ],
+        [
+          0.265,
+          -0.13999999999999999
+        ],
+        [
+          0.265,
+          0.10999999999999999
+        ],
+        [
+          -0.265,
+          0.10999999999999999
+        ]
+      ],
+      "clearance": 0.2,
+      "level": 0,
+      "componentId": "hat-shelf",
+      "face": "top"
+    }
+  ],
+  "mobility": "installed-wall-attachment",
+  "movableAfterDetachment": true,
+  "movementRequires": "Detach original mount and revalidate source wall/pose before attachment; never reuse an old proof",
+  "functionalGeometry": {
+    "closedBackboard": 1,
+    "closedBracketPlates": 2,
+    "diagonalShelfBraces": 2,
+    "hangingRail": 1,
+    "hangers": 2,
+    "coats": 2,
+    "hatShelf": 1,
+    "rearFacesOmitted": false
+  },
+  "dimensionsBasis": "Original compact interpretation from declared .6x.35 alternative; not measured Titanic joinery",
+  "activationAttempted": false,
+  "nativeRendered": false,
+  "visualAccepted": false
+}
