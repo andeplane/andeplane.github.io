@@ -1,0 +1,30 @@
+{
+  "version": "1.0",
+  "locale": "en-US",
+  "priceUSD": "3.99",
+  "baseTerritory": "USA",
+  "copyright": "2026 Anders Hafreager",
+  "supportUrl": "https://andeplane.github.io/demos/broadside/support.html",
+  "privacyPolicyUrl": "https://andeplane.github.io/demos/broadside/privacy.html",
+  "signInRequired": false,
+  "releaseType": "MANUAL",
+  "dataCollection": "No data collected",
+  "tracking": false,
+  "inAppPurchases": false,
+  "advertisements": false,
+  "minimumIOS": "18.3",
+  "devices": [
+    "iPhone",
+    "iPad"
+  ],
+  "name": "Captain Calculus",
+  "subtitle": "A pirate maths adventure",
+  "bundleId": "com.andeplane.captaincalculus",
+  "sku": "com.andeplane.captaincalculus",
+  "marketingUrl": "https://andeplane.github.io/demos/broadside/math/",
+  "promotionalText": "Solve a little. Bring home a fortune. Explore four maths worlds, choose your difficulty and earn treasure for your ship and secret cave. No ads or in-app purchases.",
+  "keywords": "math,maths,arithmetic,addition,subtraction,multiplication,division,kids,learning,offline,pirate",
+  "description": "Solve a little. Bring home a fortune.\n\nCaptain Calculus turns arithmetic practice into a pirate adventure. Choose addition, subtraction, multiplication or division, then pick one of five difficulty islands. Sail an endless trail of levels through four illustrated worlds, with ten problems in each level.\n\nEvery correct first-try answer earns 100 gold. Ten first-try answers bring home a 1,000-gold chest. A mistake costs only that problem’s reward: retries never take more gold, and every new problem offers a fresh 100. Free hints help you work it out at your own pace.\n\nEarned chests collect aboard your ship. Visit the treasure hold, then return to your cave and watch the coins, diamonds and coloured gems spill out through real physics. Your gold stays safe in the cave, with large fortunes stored in labelled gold-bar reserves.\n\n• Addition, subtraction, multiplication and division\n• Five difficulties for each operator\n• Endless levels with ten problems each\n• Free visual hints and unhurried practice\n• Treasure that you earn, carry home and explore\n• Touch controls for iPhone and iPad\n• Offline play and progress saved on your device\n• No advertisements, accounts or in-app purchases\n\nYour next island is waiting, Captain.",
+  "reviewNotes": "No account or sign-in is required. The game works offline with bundled assets. There are no ads, in-app purchases, tracking, multiplayer or user-generated content. The gold is in-game treasure only.\n\nChoose Play → an operator → a difficulty → a level. Enter an answer on the number pad and tap Check answer. A little help opens a free hint. Each first-try answer earns 100 gold; a mistake loses only the current problem’s 100 gold, and further retries cannot take more. Complete ten problems to unlock the next island.\n\nEarned chests remain aboard until you choose Return to cave. Delivery is recorded only after the physical coins and gems settle. Leaving during unloading keeps unfinished cargo aboard; the full saved gold balance is preserved. Privacy information is available in How to play → Privacy & support.",
+  "appStoreId": "6826634179"
+}

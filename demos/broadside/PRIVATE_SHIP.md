@@ -50,7 +50,7 @@ performance or installation on the physical phone.
 
 ## Public builds and license
 
-The paid export is for the purchaser's private family installation. The source listing
+The project owner confirmed on 24 October 2026 that the purchased model permits commercial distribution in the games. Preserve the applicable licence and receipt with the source archive; source-model redistribution remains separate from embedded runtime use. The source listing
 is [CrispierCone's Black Pearl on CGTrader](https://www.cgtrader.com/3d-models/watercraft/recreational-watercraft/black-pearl-pirate-ship).
 Keep the purchase receipt and applicable Royalty Free / no-AI license with the archive.
 The purchase does not make the source mesh or textures freely redistributable.

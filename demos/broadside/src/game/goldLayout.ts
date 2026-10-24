@@ -52,16 +52,28 @@ async function storeLayout(key: string, data: ArrayBuffer, namespace: string): P
   await new Promise<void>((resolve) => {
     try {
       const tx = db.transaction("banks", "readwrite");
-      tx.objectStore("banks").put(data, key);
+      const store=tx.objectStore("banks");
+      store.put(data,key);
+      // Keep the current snapshot and the newest previous/future snapshot for
+      // interrupted delivery recovery, rather than accumulating an endless history.
+      if(typeof store.getAllKeys === "function"){
+        const request=store.getAllKeys(),prefix=key.slice(0,key.lastIndexOf(':')+1);
+        request.onsuccess=()=>{
+          const keys=request.result.filter((k):k is string=>typeof k==='string'&&k.startsWith(prefix));
+          keys.sort((a,b)=>Number(b.slice(prefix.length))-Number(a.slice(prefix.length)));
+          const keep=new Set([key,...keys.slice(0,2)]);
+          for(const old of keys)if(!keep.has(old))store.delete(old);
+        };
+      }
       tx.oncomplete = () => resolve();
       tx.onerror = tx.onabort = () => resolve();
     } catch { resolve(); }
   });
 }
 /** Physics is baked once. Visitors load identical settled poses, never re-simulate their fortune. */
-export async function loadGoldLayout(world: number, count: number, persistent = true, namespace = "broadside.coin-poses"): Promise<Float32Array> {
+export async function loadGoldLayout(world: number, count: number, persistent = true, namespace = "broadside.coin-poses", balance = count): Promise<Float32Array> {
   if (!count) return new Float32Array();
-  const key = `${GOLD_POSE_VERSION}:${world}:${count}`;
+  const key = `${GOLD_POSE_VERSION}:${world}:${balance}`;
   const saved = persistent ? await savedLayout(key, namespace) : null;
   if (saved && validGoldLayout(saved, count, world)) return new Float32Array(saved);
   if(count > 10000) {
@@ -89,9 +101,9 @@ export async function loadGoldLayout(world: number, count: number, persistent = 
   return new Float32Array(data);
 }
 
-export async function saveGoldLayout(world: number, poses: Float32Array, persistent = true, namespace = "broadside.coin-poses"): Promise<void> {
+export async function saveGoldLayout(world: number, poses: Float32Array, persistent = true, namespace = "broadside.coin-poses", balance = poses.length / COIN_POSE_STRIDE): Promise<void> {
   const data = poses.slice().buffer;
   const count = poses.length / COIN_POSE_STRIDE;
   if (!validGoldLayout(data, count, world)) throw new Error("Invalid resting coin deposit");
-  if (persistent) await storeLayout(`${GOLD_POSE_VERSION}:${world}:${count}`, data, namespace);
+  if (persistent) await storeLayout(`${GOLD_POSE_VERSION}:${world}:${balance}`, data, namespace);
 }

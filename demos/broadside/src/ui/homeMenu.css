@@ -125,6 +125,7 @@
   .pirate-home-controls { grid-row: 2; }
 }
 @media (max-height: 480px) and (min-width: 600px) {
+  #voyage-ui[data-screen="main"] .pirate-home { padding-top: calc(70px + var(--pirate-safe-top, env(safe-area-inset-top, 0px))); }
   .pirate-home { padding: calc(18px + var(--pirate-safe-top, env(safe-area-inset-top, 0px))) max(24px, var(--pirate-safe-right, env(safe-area-inset-right, 0px))) calc(16px + var(--pirate-safe-bottom, env(safe-area-inset-bottom, 0px))) max(24px, var(--pirate-safe-left, env(safe-area-inset-left, 0px))); }
   .pirate-home-layout { min-height: 0; width: min(900px, 100%); grid-template-columns: minmax(0, .85fr) minmax(0, 1fr); grid-template-rows: auto; gap: 28px; align-items: center; }
   .pirate-home-intro { grid-column: 1; grid-row: 1; align-self: start; padding-top: 12px; text-align: left; }

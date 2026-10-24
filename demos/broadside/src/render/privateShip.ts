@@ -16,7 +16,7 @@ import { StandardMaterial } from '@babylonjs/core/Materials/standardMaterial.js'
 import { LoadAssetContainerAsync } from '@babylonjs/core/Loading/sceneLoader.js';
 import { TransformNode } from '@babylonjs/core/Meshes/transformNode.js';
 import { CaveWalker, type WalkIntent } from '../input/caveWalk';
-import { PearlDeck, type PearlManifest } from '../input/pearlDeck';
+import { PEARL_BOARDING, PearlDeck, type PearlManifest } from '../input/pearlDeck';
 import { isPhoneRendering } from './quality';
 import { privatePearlUrl, privatePearlModelUrl } from '../privatePearl';
 import type { Progress } from '../game/progress';
@@ -76,9 +76,10 @@ export class PrivateShip {
     } catch (error) {ship.scene.dispose(); throw error;}
   }
   enter(treasure=false): void {
-    this.walker.reset(); this.walker.x=treasure ? 0 : 2; this.walker.z=treasure ? -13 : -8;
+    this.walker.reset(); this.walker.x=treasure ? 0 : PEARL_BOARDING.x;
+    this.walker.z=treasure ? -13 : PEARL_BOARDING.z;
     this.walker.feet=this.deck.floor(this.walker.x,this.walker.z,5) ?? 4.5;
-    this.walker.yaw=treasure ? Math.PI : 0; this.walker.pitch=treasure ? .12 : -.15;
+    this.walker.yaw=treasure ? Math.PI : PEARL_BOARDING.yaw; this.walker.pitch=.08;
   }
   get room(): string {
     const w=this.walker;
@@ -118,6 +119,28 @@ export class PrivateShip {
     for(const x of [-3.1,3.1]) box('door bulkhead',x,7.3,-11.6,3.2,5.6,.18);
     box('door lintel',0,9.1,-11.6,3,2,.2,dark);
     box('door threshold',0,4.4,-11,2.3,.2,2);
+    // Place the sign in front of the purchased bulkhead, so the entrance is
+    // readable from the deck rather than hidden inside the authored joinery.
+    const signTexture=new DynamicTexture('treasure room entrance lettering',{width:1024,height:256},s,false);
+    const signCanvas=signTexture.getContext() as CanvasRenderingContext2D;
+    signCanvas.fillStyle='#25190f';signCanvas.fillRect(0,0,1024,256);
+    signCanvas.strokeStyle='#edc879';signCanvas.lineWidth=10;signCanvas.strokeRect(12,12,1000,232);
+    signCanvas.fillStyle='#fff0c4';signCanvas.textAlign='center';signCanvas.textBaseline='middle';
+    signCanvas.font='bold 110px Georgia';signCanvas.fillText('GOLD ROOM',512,95);
+    signCanvas.font='74px Georgia';signCanvas.fillText('Walk in',512,190);signTexture.update();
+    const signMaterial=new StandardMaterial('lit treasure room sign',s);
+    signMaterial.diffuseTexture=signTexture;signMaterial.emissiveTexture=signTexture;
+    signMaterial.emissiveColor=Color3.White();signMaterial.disableLighting=true;signMaterial.backFaceCulling=false;
+    const sign=MeshBuilder.CreatePlane('treasure room doorway sign',{width:1.6,height:.4},s);
+    sign.position.set(0,7.05,-9);sign.material=signMaterial;
+    for(const x of [-1.65,1.65]) {
+      const brass=new StandardMaterial('entrance lantern glow',s);
+      brass.diffuseColor=Color3.FromHexString('#ffcd77');brass.emissiveColor=Color3.FromHexString('#ffb34d');
+      const lantern=MeshBuilder.CreateCylinder('treasure doorway lantern',{diameter:.25,height:.5,tessellation:8},s);
+      lantern.position.set(x,6.65,-10.3);lantern.material=brass;
+      const light=new PointLight('warm light at treasure doorway',new Vector3(x,6.7,-10),s);
+      light.diffuse=Color3.FromHexString('#ffd69b');light.intensity=1.4;light.range=9;
+    }
     for(const z of [-12,-15,-18,-21]) {
       box('ceiling beam',0,10,z,9.4,.22,.25,dark);
       for(const x of [-4.5,4.5]) box('wall rib',x,7.3,z,.22,5.6,.25,dark);
@@ -125,7 +148,7 @@ export class PrivateShip {
     for(const [x,z] of [[-3.8,-13.5],[3.8,-17],[-3.8,-20]]) {
       const flame=new StandardMaterial('lantern honey light',s); flame.diffuseColor=Color3.FromHexString('#ffd083'); flame.emissiveColor=Color3.FromHexString('#ffb75e');
       const lamp=MeshBuilder.CreateCylinder('brass lantern',{diameter:.3,height:.55,tessellation:8},s); lamp.position.set(x!,8.1,z!); lamp.material=flame;
-      const light=new PointLight('treasure lantern',lamp.position.clone(),s); light.diffuse=Color3.FromHexString('#ffc783');light.intensity=.55;light.range=13;
+      const light=new PointLight('treasure lantern',lamp.position.clone(),s); light.diffuse=Color3.FromHexString('#ffc783');light.intensity=1.1;light.range=13;
     }
     for(let i=0;i<4;i++) box('keepsake pedestal',-3.2+i*2.15,5.15,-20,1.3,1.3,1.3,dark);
   }

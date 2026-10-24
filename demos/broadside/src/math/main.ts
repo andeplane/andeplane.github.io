@@ -1,3 +1,4 @@
+import { installPrivacy } from "../ui/privacy";
 import { installMenuPreview } from "../ui/menuPreview";
 import { icon } from "../ui/icons";
 import { backButton, mapLabel, menuHeader } from "../ui/menuChrome";
@@ -17,13 +18,21 @@ import "./style.css";
 
 type Screen = "home" | "operators" | "map" | "levels" | "question" | "reward" | "ship" | "unloading" | "complete" | "cave" | "settings";
 installMenuPreview();
+installPrivacy();
 const root = document.querySelector<HTMLDivElement>("#academy")!;
 const canvas = document.querySelector<HTMLCanvasElement>("#treasure-scene")!;
 const qa = import.meta.env.DEV && new URLSearchParams(location.search).get("qa") === "true";
 let storage: Storage | undefined;
-try { storage = qa ? sessionStorage : localStorage; } catch { /* Playing still works when storage is unavailable. */ }
+try { storage = qa ? new URLSearchParams(location.search).get("fresh") === "1" ? undefined : sessionStorage : localStorage; } catch { /* Playing still works when storage is unavailable. */ }
 const progress = readMathProgress(storage);
 if (qa) {
+  const fixturePack = new URLSearchParams(location.search).get("pack");
+  if (fixturePack && getPack(fixturePack).id === fixturePack) {
+    progress.pack = fixturePack; progress.operator = getPack(fixturePack).operator;
+  }
+  const fixtureBank = Number(new URLSearchParams(location.search).get("banked") ?? 0);
+  if (Number.isSafeInteger(fixtureBank) && fixtureBank > 0 && fixtureBank <= 1_000_000)
+    progress.banks[progress.operator] = fixtureBank;
   const previewCleared = Math.max(0, Math.min(120, Math.floor(Number(new URLSearchParams(location.search).get("cleared")) || 0)));
   if (previewCleared && progress.solved === 0) {
     const track = trackFor(progress, progress.pack);
@@ -53,7 +62,10 @@ const format = (value: number) => value.toLocaleString("en-GB");
 const navNumber = (value: number) => value < 1000 ? format(value) : new Intl.NumberFormat("en-GB", { notation: "compact", maximumFractionDigits: 1 }).format(value);
 const stars = (count: number) => `<span class="stars" aria-label="${count} stars">${[1, 2, 3].map((i) => `<span class="${i <= count ? "earned" : ""}">★</span>`).join("")}</span>`;
 const lock = `<svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><rect x="5" y="10" width="14" height="11" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/><path d="M12 14v3"/></svg>`;
-const persist = () => { const saved = saveMathProgress(progress, storage); saveFailed = !qa && !saved; };
+const persist = () => {
+  const saved = saveMathProgress(progress, storage);
+  saveFailed = qa ? new URLSearchParams(location.search).get("fail") === "save" : !saved;
+};
 const selectedPack = () => getPack(packId);
 const packTrail = () => trackFor(progress, packId);
 const resumeRun = () => {
@@ -164,33 +176,33 @@ function questionView(): string {
 function shipView(reward: boolean): string {
   const pending = pendingMathChests(progress);
   return `<section class="cave-view ship-view">
-    <div class="cave-heading"><span class="eyebrow">ABOARD THE BLACK PEARL</span><h1>${reward ? "Treasure, Captain!" : "The treasure hold"}</h1><p>${pending.length} ${pending.length === 1 ? "open chest" : "open chests"} aboard · ${format(cargoGold(progress))} gold coming home</p>${reward && outcome ? stars(outcome.stars) : ""}</div>
+    <div class="cave-heading"><span class="eyebrow">ABOARD THE BLACK PEARL</span><h1>${reward ? "Treasure, Captain!" : "The treasure hold"}</h1><p ${sceneError ? 'role="status"' : ''}>${sceneError ? "The ship view couldn't load. Your chests are saved. Use Back to try again." : `${pending.length} ${pending.length === 1 ? "open chest" : "open chests"} aboard · ${format(cargoGold(progress))} gold coming home`}</p>${reward && outcome ? stars(outcome.stars) : ""}</div>
     <div class="cave-loading" role="status" ${!sceneLoading ? "hidden" : ""}>${icon("chest")} Boarding your ship…</div>
-    ${sceneError ? `<div class="cave-fallback">${art("first-sails")}<p>Your chests are saved aboard. Try returning to the cave again.</p></div>` : ""}
+    ${sceneError ? `<div class="cave-fallback">${art("first-sails")}</div>` : ""}
     <div class="cave-bottom"><div class="hoard-total"><span class="eyebrow">${reward ? `+${format(outcome?.levelGold ?? pending[pending.length - 1]?.gold ?? 0)} GOLD STOWED ABOARD` : "YOUR SAVED CARGO"}</span><strong>${format(cargoGold(progress))} <span>gold aboard</span></strong><p>${format(bankedGold(progress))} gold already in your cave</p></div><button class="wood-button primary" data-action="unload" ${!pending.length || sceneLoading ? "disabled" : ""}>Return to cave ${icon("chest")}</button><button class="text-button" data-action="${reward ? "reward-next" : "levels"}" ${reward && !revealReady && !sceneError ? "disabled" : ""}>${reward ? "Explore next island" : "Keep practising"} ${icon("ship")}</button></div>
   </section>`;
 }
 function caveView(unloading: boolean): string {
   const gold = bankedGold(progress);
   const status = cave?.unloading;
-  const finished = unloading && revealReady;
+  const finished = unloading && revealReady && !sceneError;
   const pending = pendingMathChests(progress);
   const heading = unloading ? finished ? "Welcome home, Captain" : "Unloading the ship" : "The golden cave";
   const detail = unloading ? finished ? `${format(gold)} gold safely in your cave` : `Chest ${Math.min((status?.delivered ?? 0) + 1, status?.total ?? pending.length)} of ${status?.total ?? pending.length} · ${format(cargoGold(progress))} gold coming home` : "Explore your cave. Every coin was earned by your calculations.";
   const walkControls = `<div class="cave-walk-controls"><span class="cave-crosshair" aria-hidden="true">+</span><button id="math-cave-pad" aria-label="Move around the cave"><span id="math-cave-thumb"></span><small>Move</small></button><button id="math-cave-jump" aria-label="Jump">↑<small>Jump</small></button><button id="math-cave-inspect" class="text-button" data-action="cave-inspect" disabled>Inspect treasure</button></div>`;
   return `<section class="cave-view ${unloading ? "unloading-view" : "walking-view"}">
-    <div class="cave-heading"><span class="eyebrow">${unloading ? "BRINGING YOUR FORTUNE HOME" : "YOUR SECRET PIRATE HIDEOUT"}</span><h1>${heading}</h1><p>${detail}</p></div>
+    <div class="cave-heading"><span class="eyebrow">${unloading ? "BRINGING YOUR FORTUNE HOME" : "YOUR SECRET PIRATE HIDEOUT"}</span><h1>${heading}</h1><p ${sceneError ? 'role="status"' : ''}>${sceneError ? "The cave couldn't load. Your gold is safe. Use Back to try again." : detail}</p></div>
     <div class="cave-loading" role="status" ${!sceneLoading ? "hidden" : ""}>${icon("chest")} Lighting the lanterns…</div>
-    ${sceneError ? `<div class="cave-fallback">${art("treasure-cave")}<p>Your undelivered chests stay safely aboard. Return to try unloading them again.</p></div>` : ""}
+    ${sceneError ? `<div class="cave-fallback">${art("treasure-cave")}</div>` : ""}
     ${!unloading && !sceneError ? walkControls : ""}
-    ${unloading ? `<div class="cave-bottom unload-status">${finished ? `<button class="wood-button primary" data-action="stay-cave">Explore your cave ${icon("chest")}</button>` : `<p>Any unopened chests stay safely aboard.</p>`}</div>` : `<div class="cave-bottom"><div class="hoard-total"><span class="eyebrow">THE CAPTAIN'S BANKED GOLD</span><strong>${format(gold)} <span>gold</span></strong><p>${format(cargoGold(progress))} gold aboard · ${format(progress.solved)} problems solved</p></div><div class="cave-actions"><button class="round-button" data-action="cave-reset" aria-label="Return to the cave entrance">${icon("compass")}</button><button class="text-button" data-action="ship">Visit your ship ${icon("ship")}</button></div><p class="cave-controls"><span id="math-cave-room">Cave entrance</span><span class="cave-keyboard-instructions"> · WASD to walk · arrows to look · Space to jump</span><span class="cave-touch-instructions"> · Drag to look · Move and Jump below</span></p></div>`}
+    ${unloading ? `<div class="cave-bottom unload-status">${finished ? `<button class="wood-button primary" data-action="stay-cave">Explore your cave ${icon("chest")}</button>` : `<p>Any unopened chests stay safely aboard.</p>`}</div>` : `<div class="cave-bottom"><div class="hoard-total"><span class="eyebrow">THE CAPTAIN'S BANKED GOLD</span><strong>${format(gold)} <span>gold</span></strong><p id="math-cave-reserve" hidden></p><p>${format(cargoGold(progress))} gold aboard · ${format(progress.solved)} problems solved</p></div><div class="cave-actions"><button class="round-button" data-action="cave-reset" aria-label="Return to the cave entrance">${icon("compass")}</button><button class="text-button" data-action="ship">Visit your ship ${icon("ship")}</button></div><p class="cave-controls"><span id="math-cave-room">Cave entrance</span><span class="cave-keyboard-instructions"> · WASD to walk · arrows to look · Space to jump</span><span class="cave-touch-instructions"> · Drag to look · Move and Jump below</span></p></div>`}
   </section>`;
 }
 function completeView(): string {
   return `<section class="complete-view"><span class="eyebrow">${selectedPack().name.toUpperCase()}</span><h1>Well sailed, Captain!</h1>${stars(outcome?.stars ?? 1)}<p>Level ${format(level)} complete. No gold this time.<br />Each first-try answer on the next island earns 100 gold.</p><div class="completion-ship" aria-hidden="true">${pirateShipArt("complete")}</div><button class="wood-button primary" data-action="reward-next">Explore next island ${icon("ship")}</button></section>`;
 }
 function settingsView(): string {
-  return `<section class="settings-view"><div class="page-heading"><span class="eyebrow">THE CAPTAIN'S ORDERS</span><h1>How to play</h1></div><div class="settings-card"><div class="captains-guide"><h2>A little captain's guide</h2><p>Pick an operator, choose a difficulty island, and solve ten problems in each level. New levels keep appearing as you sail.</p><p>Each problem offers 100 gold for a correct answer on your first try. A wrong answer loses only that problem’s 100 gold. Repeated wrong attempts on that same problem cost nothing more. The other problems still offer their own 100 gold, so ten first-try answers earn 1,000 gold. Earned chests collect aboard your ship. Return to the cave to pour them out one by one. Gold already in your cave stays safe.</p><p>Take your time and use the free hints before answering. After a mistake, keep practising to finish the level and unlock the next one. Leaving or closing the app does not restore a problem’s lost reward. Each new problem offers a fresh 100 gold.</p><div class="guide-footer">${icon("anchor")} ${saveFailed ? "This browser couldn't save. Keep this tab open to keep your progress." : "Your progress and gold are saved on this device."}</div></div></div></section>`;
+  return `<section class="settings-view"><div class="page-heading"><span class="eyebrow">THE CAPTAIN'S ORDERS</span><h1>How to play</h1></div><div class="settings-card"><div class="captains-guide"><h2>A little captain's guide</h2><p>Pick an operator, choose a difficulty island, and solve ten problems in each level. New levels keep appearing as you sail.</p><p>Each problem offers 100 gold for a correct answer on your first try. A wrong answer loses only that problem’s 100 gold. Repeated wrong attempts on that same problem cost nothing more. The other problems still offer their own 100 gold, so ten first-try answers earn 1,000 gold. Earned chests collect aboard your ship. Return to the cave to pour them out one by one. Gold already in your cave stays safe.</p><p>Take your time and use the free hints before answering. After a mistake, keep practising to finish the level and unlock the next one. Leaving or closing the app does not restore a problem’s lost reward. Each new problem offers a fresh 100 gold.</p><button type="button" class="privacy-action" data-open-privacy>Privacy & support</button><div class="guide-footer">${icon("anchor")} ${saveFailed ? "This browser couldn't save. Keep this tab open to keep your progress." : "Your progress and gold are saved on this device."}</div></div></div></section>`;
 }
 function render(): void {
   mapPan?.destroy(); mapPan = null;
@@ -222,6 +234,11 @@ async function showTreasure(request: "reward" | "ship" | "cave", unload = true):
   // Babylon must measure the displayed canvas, never the hidden 300×150 fallback.
   canvas.hidden = false;
   try {
+    if (qa && new URLSearchParams(location.search).get("delay") === "1") {
+      await new Promise(resolve => setTimeout(resolve, 2500));
+      if (id !== viewId) return;
+    }
+    if (qa && new URLSearchParams(location.search).get("fail") === "scene") throw new Error("QA treasure scene failure");
     if (!cave) {
       const { GoldCave: Scene } = await import("./goldCave");
       if (id !== viewId) return;

@@ -417,3 +417,21 @@
     padding: 4px 10px 6px;
   }
 }
+
+@media (max-width: 650px) and (max-height: 650px) and (max-aspect-ratio: 4/3) {
+  #world-menu .world-map { --cave-space: 74px; }
+  #world-menu .map-cave {
+    left: 0; bottom: 8px; width: 45%; min-height: 44px;
+    display: grid; place-items: center;
+  }
+  #world-menu .map-cave .cave-art { display: none; }
+  #world-menu .map-cave span { min-height: 44px; display: grid; place-items: center; }
+  #world-menu .free-chart-button {
+    position: fixed; right: 12px;
+    bottom: calc(40px + var(--pirate-safe-bottom));
+    width: calc((100vw - 32px) / 2); height: 44px; min-height: 44px;
+    padding: 4px 8px; font-size: 16px; transform: none;
+  }
+  #world-menu .free-chart-button small { display: none; }
+  #world-menu .map-footnote { display: none; }
+}

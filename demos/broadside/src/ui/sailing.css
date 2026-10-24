@@ -39,6 +39,8 @@
   font-size: 10px;
 }
 #v-look-centre, #v-chart-open {
+  min-height: 44px;
+  min-width: 44px;
   border: 1px solid #cfa96d66;
   border-radius: 8px;
   padding: 6px 10px;
@@ -86,7 +88,7 @@
 }
 
 #sea-chart-menu {
-  --chart-size: min(90vw, calc(100dvh - 230px - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px)), 730px);
+  --chart-size: min(90vw, calc(100dvh - 300px - var(--pirate-safe-top) - var(--pirate-safe-bottom)), 730px);
   position: absolute;
   inset: 0;
   z-index: 80;
@@ -96,7 +98,7 @@
   align-items: center;
   flex-direction: column;
   justify-content: center;
-  padding: max(12px, env(safe-area-inset-top)) max(16px, env(safe-area-inset-right)) max(14px, env(safe-area-inset-bottom)) max(16px, env(safe-area-inset-left));
+  padding: calc(var(--pirate-safe-top) + var(--pirate-menu-inset) + 60px) calc(var(--pirate-safe-right) + 16px) calc(var(--pirate-safe-bottom) + 16px) calc(var(--pirate-safe-left) + 16px);
   gap: 10px;
   overflow: hidden;
   box-shadow: inset 0 0 90px #65482788;
@@ -119,7 +121,7 @@
 .sea-chart-note { margin: 2px 0; font-size: 11px; text-align: center; max-width: 400px; color: #594725; }
 .sea-chart-actions { display: flex; gap: 18px; align-items: center; }
 .sea-chart-actions .primary {
-  min-height: 42px;
+  min-height: 44px;
   border: 1px solid #79613c;
   border-radius: 6px;
   color: #352513;
@@ -133,6 +135,7 @@
     --chart-size: min(76dvh, 45vw, 360px);
     display: grid;
     grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+    padding: calc(var(--pirate-safe-top) + 12px) calc(var(--pirate-safe-right) + 16px) calc(var(--pirate-safe-bottom) + 14px) calc(var(--pirate-safe-left) + 16px);
     gap: 12px;
   }
   .sea-chart-heading { min-width: 0; }
@@ -140,4 +143,9 @@
   .sea-chart-note { display: none; }
   .sea-chart-actions { min-width: 0; flex-direction: column; gap: 10px; }
   .sea-chart-actions .primary { max-width: 100%; padding: 8px 12px; }
+}
+@media (max-width: 650px) and (max-height: 650px) and (orientation: portrait) {
+  #sea-chart-menu { --chart-size: min(90vw, calc(100dvh - var(--pirate-safe-top) - var(--pirate-safe-bottom) - 222px)); }
+  .sea-chart-heading h1 { font-size: 32px; }
+  .sea-chart-heading p, .sea-chart-note { display: none; }
 }

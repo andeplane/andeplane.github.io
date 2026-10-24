@@ -1,3 +1,4 @@
+import { gemCount, gemShape } from "./gems";
 import { exposedGold } from "./goldSurface";
 import { coinFloor } from "./coinFloor";
 import { CoinRestWindow } from "./coinRest";
@@ -11,7 +12,7 @@ let beginPour: ((duration: number) => void) | undefined;
 let carryPose: ChestPhysicsPose | undefined;
 
 /** Only the new chest is dynamic. The earned hoard is permanent collision geometry. */
-self.onmessage = async (event: MessageEvent<{ world: number; previous: Float32Array; surfacePrevious?: Float32Array; chest: Float32Array; floorY?: number; chestY: number; pose?: ChestPhysicsPose; area?: {x:number;z:number;radius:number}; obstacles?: {x:number;z:number;rx:number;rz:number;top:number}[] } | { start: true; duration: number } | { pose: ChestPhysicsPose }>) => {
+self.onmessage = async (event: MessageEvent<{ world: number; gems?: Float32Array; gemGold?: number; previous: Float32Array; surfacePrevious?: Float32Array; chest: Float32Array; floorY?: number; chestY: number; pose?: ChestPhysicsPose; area?: {x:number;z:number;radius:number}; obstacles?: {x:number;z:number;rx:number;rz:number;top:number}[] } | { start: true; duration: number } | { pose: ChestPhysicsPose }>) => {
   if ('start' in event.data) { beginPour?.(event.data.duration); return; }
   if (!('world' in event.data)) { carryPose=event.data.pose;return; }
   let physics: InstanceType<typeof RAPIER.World> | undefined;
@@ -46,6 +47,17 @@ self.onmessage = async (event: MessageEvent<{ world: number; previous: Float32Ar
     const staticTriangles=patches.reduce((n,p)=>n+p.indices.length/3,0);
     for(const {vertices,indices} of patches)
       physics.createCollider(RAPIER.ColliderDesc.trimesh(vertices,indices,RAPIER.TriMeshFlags.FIX_INTERNAL_EDGES|RAPIER.TriMeshFlags.MERGE_DUPLICATE_VERTICES).setFriction(.7));
+    const existingGems=event.data.gems ?? new Float32Array();
+    const gemTotal=gemCount(event.data.gemGold ?? 0), gemPoses=new Float32Array(gemTotal*7);
+    gemPoses.set(existingGems);
+    const gemCollider=(i:number)=>RAPIER.ColliderDesc.convexHull(gemShape(i%4).vertices)!.setFriction(.75).setRestitution(.12).setDensity(3.5);
+    for(let p=0;p<existingGems.length;p+=7){
+      const b=physics.createRigidBody(RAPIER.RigidBodyDesc.fixed().setTranslation(existingGems[p]!,existingGems[p+1]!,existingGems[p+2]!)
+        .setRotation({x:existingGems[p+3]!,y:existingGems[p+4]!,z:existingGems[p+5]!,w:existingGems[p+6]!}));
+      physics.createCollider(gemCollider(p/7),b);
+    }
+    const movingGems=new Map<RAPIER.RigidBody,number>();
+    const gemRests=new Map<RAPIER.RigidBody,CoinRestWindow>();
     // Real moving floor and walls of the open chest. Coins can contact its rim
     // while it tips, rather than appearing beneath an already inverted box.
     const hull=physics.createRigidBody(RAPIER.RigidBodyDesc.kinematicPositionBased()
@@ -85,12 +97,12 @@ self.onmessage = async (event: MessageEvent<{ world: number; previous: Float32Ar
     const restWindows = new Map<RAPIER.RigidBody,CoinRestWindow>();
     const tick = () => {
       const start = performance.now(), impacts: number[] = [];
-      if (!polishing && progress() === 1 && moving.size < 24) {
+      if (!polishing && progress() === 1 && moving.size + movingGems.size < 24) {
         polishing = true;
         // Only a handful of contacts remain. Extra solver accuracy and damping
         // stop a rim trapped between permanent coins from rattling forever.
         physics!.numSolverIterations = 12;
-        for (const b of moving.keys()) { b.setLinearDamping(8); b.setAngularDamping(16); }
+        for (const b of [...moving.keys(),...movingGems.keys()]) { b.setLinearDamping(8); b.setAngularDamping(16); }
       }
       // Advance in real time throughout the spill, including after all coins exist.
       const steps = 2;
@@ -155,9 +167,19 @@ self.onmessage = async (event: MessageEvent<{ world: number; previous: Float32Ar
           }
         }
       }
+      for (const [b,index] of movingGems) {
+        const p=b.translation(),q=b.rotation();
+        gemPoses.set([p.x,p.y,p.z,q.x,q.y,q.z,q.w],index*7);
+        let rest=gemRests.get(b);if(!rest){rest=new CoinRestWindow();gemRests.set(b,rest);}
+        const still=rest.sample({x:p.x,y:p.y,z:p.z,nx:q.x,ny:q.y,nz:q.z},.08,.025);
+        if(progress()===1&&p.y<chestY-1.5&&(b.isSleeping()||still)){
+          b.setBodyType(RAPIER.RigidBodyType.Fixed,false);movingGems.delete(b);gemRests.delete(b);
+        }
+      }
+      const gems=gemPoses.slice();
       const poses = settledPoses.slice(0, bodies.length * COIN_POSE_STRIDE);
       moving.forEach((i, b) => { const p = b.translation(), q = b.rotation(); poses.set([p.x,p.y,p.z,q.x,q.y,q.z,q.w], i * COIN_POSE_STRIDE); });
-      const done = moving.size === 0;
+      const done = moving.size === 0 && movingGems.size === 0;
       if(done)empty=true;
       const physicsMs=performance.now()-start;totalMs+=physicsMs;ticks++;maxMs=Math.max(maxMs,physicsMs);
       let surface: number[] | undefined;
@@ -168,7 +190,7 @@ self.onmessage = async (event: MessageEvent<{ world: number; previous: Float32Ar
         // the last coins stop. Physics retains every pose and collider.
         surface = exposedGold(all);
       }
-      self.postMessage({ surface, physicsMs, physicsMeanMs:totalMs/ticks, physicsMaxMs:maxMs, staticTriangles, poses, done, spawned: bodies.length, resting: bodies.length - moving.size, empty, withdraw:withdrawal(), time: frame / 60, turn: progress(), impacts: impacts.sort((a,b)=>b-a).slice(0,3) }, { transfer: [poses.buffer] });
+      self.postMessage({ gems, surface, physicsMs, physicsMeanMs:totalMs/ticks, physicsMaxMs:maxMs, staticTriangles, poses, done, spawned: bodies.length, resting: bodies.length - moving.size, empty, withdraw:withdrawal(), time: frame / 60, turn: progress(), impacts: impacts.sort((a,b)=>b-a).slice(0,3) }, { transfer: [poses.buffer,gems.buffer] });
       if (done) { events!.free(); events=undefined; physics!.free(); physics = undefined; }
       else setTimeout(tick, Math.max(0, 1000 / 30 - (performance.now() - start)));
     };
@@ -178,6 +200,14 @@ self.onmessage = async (event: MessageEvent<{ world: number; previous: Float32Ar
       const pose=chestPose();
       hull.setTranslation(pose.position,true);hull.setRotation(pose.rotation,true);
       for(let i=0;i<count;i++)spawn();
+      for(let i=existingGems.length/7;i<gemTotal;i++) {
+        const slot=i-existingGems.length/7;
+        const local=new Float32Array([(slot%4-1.5)*.6,1.75, (Math.floor(slot/4)%4-1.5)*.38,0,0,0,1]);
+        const g=carriedCoin(local,0,pose);
+        const b=physics!.createRigidBody(RAPIER.RigidBodyDesc.dynamic().setTranslation(g.position.x,g.position.y,g.position.z)
+          .setRotation(g.rotation).setCcdEnabled(true).setLinearDamping(.7).setAngularDamping(1.5));
+        physics!.createCollider(gemCollider(i),b);movingGems.set(b,i);
+      }
       tick();
     };
     self.postMessage({ready:true});

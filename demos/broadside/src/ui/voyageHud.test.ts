@@ -37,12 +37,17 @@ it("shows a recoverable ship-load failure in the redesigned home", () => {
 });
 
 it("keeps live actions out of the pause dialog's interaction layer", () => {
-  const { hud, button } = setup(false);
+  const { hud, button, handlers } = setup(false);
+  hud.root.dataset.screen = "play";
   hud.paused(true);
   expect(button('.voyage-header').inert).toBe(true);
   expect(document.activeElement).toBe(button('#v-resume'));
+  document.dispatchEvent(new KeyboardEvent('keydown',{key:'Tab',shiftKey:true,bubbles:true,cancelable:true}));
+  expect(document.activeElement).toBe(button('#v-return'));
+  button('#v-paused').click();expect(handlers.pause).toHaveBeenCalledOnce();
   hud.paused(false);
   expect(button('.voyage-header').inert).toBe(false);
+  expect(document.activeElement).toBe(button('#v-pause'));
 });
 
 describe("ship chart details dialog", () => {

@@ -97,7 +97,7 @@ export class VoyageHud {
       })}</div>
       <div id="world-menu" class="menu-page" hidden><div class="menu-heading"><span class="eyebrow">CHART YOUR COURSE</span><h1>The pirate seas</h1><p>Choose an island. Chart your adventure.</p></div><div class="world-map" role="group" aria-label="Pirate sea chart"><svg class="map-route" viewBox="0 0 1000 1000" preserveAspectRatio="none" aria-hidden="true"><path class="route-wide" d="M370 930 C280 885 90 720 170 520 S250 90 410 190 S440 650 650 480 S735 90 865 135"/><path class="route-tall" d="M170 930 C110 810 110 710 245 635 S815 810 755 545 S80 525 245 185 S570 290 755 150"/></svg><button id="map-cave" class="map-cave" aria-label="Visit treasure cave"><img class="cave-art" src="${import.meta.env.BASE_URL}assets/map/treasure-cave.webp" width="640" height="640" alt="" draggable="false" decoding="async" /><span>Your cave</span></button><div id="world-packs"></div></div><p class="map-footnote">Gold in every level. A special treasure in every world.</p></div>
       <div id="level-menu" class="menu-page" hidden><div class="menu-heading"><span class="eyebrow" id="world-number"></span><h1 id="world-name"></h1><p id="pack-caption"></p></div><div class="level-board"><div id="level-world-art"></div><div id="voyage-levels"></div><p class="level-note">1,000 gold per level · Complete the world for its special treasure.</p></div></div>
-      <div id="settings-menu" class="menu-page" hidden><div class="menu-heading"><span class="eyebrow">THE CAPTAIN’S ORDERS</span><h1>Settings</h1></div><div class="settings-board"><label class="coin-sounds-choice"><input id="coin-sounds" type="checkbox"> Coin sound effects</label><p id="coin-sounds-note">Clinks when coins tumble and land.</p><p>Steer with the wheel. Tap BOOM to fire.<br>Your treasures and stars are saved automatically.</p><p class="art-credit">Black Pearl model by <a href="https://www.thingiverse.com/thing:4951578" target="_blank" rel="noopener">DeltaX_F</a> · <a href="https://creativecommons.org/licenses/by/4.0/" target="_blank" rel="noopener">CC BY 4.0</a><br>Adapted for Broadside.</p></div></div>
+      <div id="settings-menu" class="menu-page" hidden><div class="menu-heading"><span class="eyebrow">THE CAPTAIN’S ORDERS</span><h1>Settings</h1></div><div class="settings-board"><label class="coin-sounds-choice"><input id="coin-sounds" type="checkbox"> Coin sound effects</label><p id="coin-sounds-note">Clinks when coins tumble and land.</p><p>Steer with the wheel. Tap BOOM to fire.<br>Your treasures and stars are saved automatically.</p><button type="button" class="privacy-action" data-open-privacy>Privacy & support</button><p class="art-credit">Black Pearl model by <a href="https://www.thingiverse.com/thing:4951578" target="_blank" rel="noopener">DeltaX_F</a> · <a href="https://creativecommons.org/licenses/by/4.0/" target="_blank" rel="noopener">CC BY 4.0</a><br>Adapted for Broadside.</p></div></div>
       ${backButton({ id: "menu-back", destination: "previous menu", hidden: true })}
     </section>
     <section id="cave-ui" hidden><div class="cave-title"><span class="eyebrow">YOUR SECRET HIDEOUT</span><h1>The treasure cave</h1><p id="cave-count"></p></div><div id="relic-info"><span class="eyebrow" id="relic-number"></span><h2 id="relic-title"></h2><p id="relic-story"></p><div id="relic-stars"></div><button id="cave-sail" class="text-button">Find this treasure ${icon("arrow")}</button></div><div class="gallery-hint">WASD walk · Arrows look · Space jump</div><button id="cave-overview" class="cave-overview">‹ Keep exploring</button><div id="cave-crosshair" aria-hidden="true">+</div><div id="cave-pad" role="group" aria-label="Move around the cave"><span id="cave-thumb"></span><small>MOVE</small></div><button id="cave-jump" aria-label="Jump">↑<small>JUMP</small></button><button id="cave-inspect" hidden>Inspect treasure</button><button id="harbour-chart" class="harbour-chart" hidden>Set sail ${icon("map")}</button>${backButton({ id: "cave-back", destination: "menu" })}</section>
@@ -170,7 +170,7 @@ export class VoyageHud {
     r.insertAdjacentHTML("beforeend", `<section id="hold-ui" hidden>${backButton({ id: "hold-back", destination: "menu" })}<div class="hold-heading"><span class="eyebrow">ABOARD THE BLACK PEARL</span><h1>The treasure hold</h1><p id="hold-count"></p></div><div class="hold-actions"><button id="hold-unload" class="primary">Return to cave ${icon("chest")}</button><button id="hold-sail" class="secondary">Keep sailing ${icon("map")}</button></div></section><section id="unload-ui" hidden>${backButton({ id: "unload-menu", destination: "menu" })}<div class="hold-heading"><span class="eyebrow">BRINGING YOUR FORTUNE HOME</span><h1 id="unload-title">Unloading the ship</h1><p id="unload-count"></p></div><div class="hold-actions"><button id="unload-explore" class="primary" hidden>Explore your cave</button><small id="unload-safe">Any unopened chests stay safely aboard.</small></div></section>`);
     q("#cave-ui").insertAdjacentHTML("beforeend", `<button id="harbour-unload" class="harbour-chart" hidden>Return to cave ${icon("chest")}</button>`);
     if (PRIVATE_PEARL) {
-      q(".art-credit").innerHTML = 'Black Pearl model by <a href="https://www.cgtrader.com/3d-models/watercraft/recreational-watercraft/black-pearl-pirate-ship" target="_blank" rel="noopener">CrispierCone</a> · purchased for private family use.<br>Cabin and treasure display adapted for Broadside.';
+      q(".art-credit").innerHTML = 'Black Pearl model by <a href="https://www.cgtrader.com/3d-models/watercraft/recreational-watercraft/black-pearl-pirate-ship" target="_blank" rel="noopener">CrispierCone</a> · licensed model.<br>Cabin and treasure display adapted for Broadside.';
     }
     q("#menu-hold").onclick = () => { this.closeShipPanel(); h.travel("hold"); };
     q("#result-unload").onclick = q("#hold-unload").onclick = h.unload;
@@ -189,6 +189,19 @@ export class VoyageHud {
     };
     q("#v-pause").onclick = h.pause;
     q("#v-resume").onclick = h.pause;
+    q("#v-paused").onclick = event => { if (event.target === q("#v-paused")) h.pause(); };
+    document.addEventListener("keydown", event => {
+      if (!r.isConnected || event.key !== "Tab") return;
+      const dialog = ["#v-paused", "#sea-chart-menu"].map(id => q(id)).find(el => !el.hidden);
+      if (!dialog) return;
+      const buttons = [...dialog.querySelectorAll<HTMLButtonElement>("button:not([disabled])")];
+      const first = buttons[0], last = buttons.at(-1);
+      if (event.shiftKey && (document.activeElement === first || !dialog.contains(document.activeElement))) {
+        event.preventDefault(); last?.focus();
+      } else if (!event.shiftKey && (document.activeElement === last || !dialog.contains(document.activeElement))) {
+        event.preventDefault(); first?.focus();
+      }
+    }, true);
     q("#v-anchor").onclick = h.anchor;
     q("#menu-play").onclick = () => this.showMenu("worlds");
     q("#home-ship").onclick = () => h.travel("hold");
@@ -490,7 +503,7 @@ export class VoyageHud {
         ? relic.name
         : "A world’s secret treasure";
     this.q("#relic-story").textContent = gold
-      ? `Levels and fishing chests from ${PACKS[world]!.name} each bring 1,000 doubloons to this bank. Every coin stays where it landed.`
+      ? `Levels and fishing chests from ${PACKS[world]!.name} each bring 1,000 doubloons to this bank. Fresh coins settle here. When the pile fills, its gold is secured as labelled reserve bars. Your full balance is always kept.`
       : owned
         ? relic.story
         : `Complete all ten levels in ${PACKS[world]!.name} to open this chest.`;
@@ -665,16 +678,21 @@ export class VoyageHud {
       : "Drag / arrows look · A D steer · W S sails · Space fire · C view";
   }
   paused(value: boolean): void {
+    const wasPaused = !this.q("#v-paused").hidden;
     this.q("#v-paused").hidden = !value;
     this.q("#voyage-play").inert = value;
     this.q(".voyage-header").inert = value;
     if (value) this.q("#v-resume").focus();
+    else if (wasPaused && this.root.dataset.screen === "play") this.q("#v-pause").focus();
   }
   seaChart(open: boolean, session?: VoyageSession): void {
+    const wasOpen = !this.q("#sea-chart-menu").hidden;
     this.q("#sea-chart-menu").hidden = !open;
     this.q("#voyage-play").inert = open;
     this.q(".voyage-header").inert = open;
     if (open && session) this.drawWorldChart(session);
+    if (open) this.q("#sea-chart-close").focus();
+    else if (wasOpen && this.root.dataset.screen === "play") this.q("#v-home").focus();
   }
   result(s: VoyageSession, reward?: VoyageReward): void {
     this.q("#v-camera").hidden = true;

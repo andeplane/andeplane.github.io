@@ -1,4 +1,6 @@
 type Point = [number, number, number];
+// Stand clear of the main mast and face the central passage into the stern room.
+export const PEARL_BOARDING = { x: 1.2, z: -4, yaw: Math.atan2(-1.2, -9) };
 export interface PearlManifest {
   version: number;
   floorTriangles: [Point, Point, Point][];

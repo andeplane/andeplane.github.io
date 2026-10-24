@@ -1,0 +1,30 @@
+{
+  "version": "1.0",
+  "locale": "en-US",
+  "priceUSD": "3.99",
+  "baseTerritory": "USA",
+  "copyright": "2026 Anders Hafreager",
+  "supportUrl": "https://andeplane.github.io/demos/broadside/support.html",
+  "privacyPolicyUrl": "https://andeplane.github.io/demos/broadside/privacy.html",
+  "signInRequired": false,
+  "releaseType": "MANUAL",
+  "dataCollection": "No data collected",
+  "tracking": false,
+  "inAppPurchases": false,
+  "advertisements": false,
+  "minimumIOS": "18.3",
+  "devices": [
+    "iPhone",
+    "iPad"
+  ],
+  "name": "Broadside: Pirate Adventures",
+  "subtitle": "Sail, battle & find treasure",
+  "bundleId": "com.andeplane.broadside",
+  "sku": "com.andeplane.broadside",
+  "appStoreId": "6826628802",
+  "marketingUrl": "https://andeplane.github.io/demos/broadside/",
+  "promotionalText": "Chart a course through four pirate seas. Sail your ship, brave cannon battles, explore the deck and bring real tumbling treasure home to your secret cave.",
+  "keywords": "pirate,ship,sailing,treasure,naval,battle,adventure,offline,cannon,physics",
+  "description": "A little captain’s adventure, with a ship to explore and a fortune to bring home.\n\nChart your course through 40 voyages across four different seas. Learn to steer between islands, outmanoeuvre pirate ships, face storms and discover the glowing deep. Drop anchor, walk your ship’s deck and find the marked doorway into your treasure room.\n\nEvery first-clear chest travels home aboard your ship. Return to your secret cave and watch the coins and coloured gems tumble out, collide and settle through real physics. Discover diamonds, rubies, emeralds and sapphires among the gold. Larger fortunes are kept in clearly labelled gold-bar reserves, with your full balance preserved.\n\n• Four pirate worlds and 40 campaign voyages\n• Open-water exploration and fishing\n• Overhead sailing and a captain’s view\n• A walkable ship, treasure room and cavern\n• Physical coins and gemstones, plus four special world treasures\n• Touch controls for iPhone and iPad\n• Offline play, local saved progress, no advertisements or in-app purchases\n\nTake your time, Captain. There is more sea to explore.",
+  "reviewNotes": "No account or sign-in is required. All game assets are bundled for offline play. There are no ads, in-app purchases, tracking, multiplayer or user-generated content.\n\nChoose Play, a world and an island to start. Settings includes the privacy information. Your ship details → Board the ship opens the walkable deck; the marked GOLD ROOM doorway leads into the treasure room. First-clear rewards stay aboard until Return to cave unloads them. Coin and gemstone simulation completes before delivery is credited. Large fortunes remain fully credited and are displayed as a floor pile plus labelled reserve bars.\n\nThe project owner has confirmed commercial-use rights for the purchased ship model and coin recording. Font and environment credits are bundled."
+}

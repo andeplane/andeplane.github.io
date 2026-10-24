@@ -1,10 +1,11 @@
 import { Engine } from "@babylonjs/core/Engines/engine.js";
+import { Capacitor } from "@capacitor/core";
 import "@babylonjs/core/Culling/ray.js";
 import { TreasureCave } from "../render/cave";
 import { ShipHold } from "../render/shipHold";
 import { generateVoyage } from "../game/voyage";
 import { LEVELS_PER_WORLD } from "../game/campaign";
-import { configureTextureQuality, displayRenderScale } from "../render/quality";
+import { configurePhoneRendering, configureTextureQuality, displayRenderScale, isPhoneRendering } from "../render/quality";
 import { CaveWalkControls } from "../input/caveWalk";
 import { CaveGesture } from "../input/caveGesture";
 import { readProgress } from "../game/progress";
@@ -32,6 +33,7 @@ export class GoldCave {
 
   constructor(private readonly canvas: HTMLCanvasElement, private readonly onReady: () => void, private readonly persistent = true, private readonly onChange: () => void = () => {}) {
     this.engine = new Engine(canvas, true, { stencil: true, preserveDrawingBuffer: false });
+    configurePhoneRendering(this.engine, Capacitor.isNativePlatform() || /Android|iPhone|iPad|iPod/i.test(navigator.userAgent));
     configureTextureQuality(this.engine);
     this.resize();
     window.addEventListener("resize", () => this.resize());
@@ -128,6 +130,9 @@ export class GoldCave {
       canvas.dataset.cavePosition = this.caveScene ? [this.caveScene.walker.x, this.caveScene.walker.eyeY, this.caveScene.walker.z].map((n) => n.toFixed(2)).join(",") : "";
       canvas.dataset.coinCounts = this.caveScene?.coinCounts.join(",") ?? "0,0,0,0";
       canvas.dataset.restingCoins = this.caveScene?.restingCoinCounts.join(",") ?? "0,0,0,0";
+      if (import.meta.env.DEV) canvas.dataset.gemStatus = this.caveScene?.gemStatus ?? "";
+      canvas.dataset.goldReserve = this.caveScene?.reserveCounts?.join(",") ?? "";
+      canvas.dataset.gemCounts = this.caveScene?.gemCounts.join(",") ?? "";
       canvas.dataset.goldPhysics = String(this.caveScene?.goldPhysicsActive ?? false);
       canvas.dataset.audio = "disabled";
       canvas.dataset.cargoCount = String(this.progress ? pendingMathChests(this.progress).length : 0);
@@ -197,7 +202,10 @@ export class GoldCave {
     this.controls.clear(); this.gesture.clear(); this.padPointer = null; this.drawPad(0, 0);
   }
   private resize(): void {
-    this.engine.setHardwareScalingLevel(displayRenderScale(innerWidth, innerHeight, devicePixelRatio, this.engine.getCaps().maxTextureSize));
+    const scale = displayRenderScale(innerWidth, innerHeight, devicePixelRatio,
+      this.engine.getCaps().maxRenderTextureSize, isPhoneRendering(this.engine));
+    this.engine.setHardwareScalingLevel(scale);
+    this.canvas.dataset.renderPixelRatio = (1 / scale).toFixed(2);
     this.engine.resize(); this.caveScene?.resize();
   }
   private movePad(x: number, y: number): void {
@@ -216,6 +224,19 @@ export class GoldCave {
   private updateHud(): void {
     const root = document.querySelector<HTMLElement>("#academy")!;
     root.dataset.caveView = this.cave.inspecting ? "inspect" : "walk";
+    const reserve=document.querySelector<HTMLElement>("#math-cave-reserve");
+    if(reserve){const amount=this.cave.reserveCounts.reduce((sum,n)=>sum+n,0);reserve.hidden=amount===0;reserve.textContent=`${amount.toLocaleString()} gold in secured reserve bars`;}
+    const footer=document.querySelector<HTMLElement>(".walking-view .cave-bottom");
+    if(footer){
+      const bounds=footer.getBoundingClientRect();
+      for(const id of ['math-cave-pad','math-cave-jump']){
+        const control=document.getElementById(id);if(!control)continue;
+        const r=control.getBoundingClientRect();
+        control.style.bottom=r.width>0&&r.right>bounds.left&&r.left<bounds.right
+          ? `${Math.ceil(innerHeight-bounds.top+12)}px`
+          : 'calc(32px + var(--safe-bottom) + var(--math-notice-space))';
+      }
+    }
     const room = document.querySelector<HTMLElement>("#math-cave-room");
     if (room) room.textContent = this.cave.room;
     const button = document.querySelector<HTMLButtonElement>("#math-cave-inspect");

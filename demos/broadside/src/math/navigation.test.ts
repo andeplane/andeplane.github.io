@@ -20,6 +20,16 @@ beforeEach(()=>{
 });
 afterEach(()=>{vi.restoreAllMocks();vi.unstubAllGlobals();});
 describe("Captain Calculus navigation destinations",()=>{
+  it("keeps cargo aboard and never claims unloading completed when the cave fails",async()=>{
+    vi.spyOn(console,"error").mockImplementation(()=>{});
+    history.replaceState(null,"","/?qa=true&fresh=1&cargo=1&view=unload&fail=scene");
+    await import("./main");
+    expect(root().textContent).toContain("The cave couldn't load");
+    expect(root().textContent).not.toContain("Welcome home, Captain");
+    expect(root().querySelector('[data-action="stay-cave"]')).toBeNull();
+    expect(root().querySelector('[data-action="ship"]')?.getAttribute('aria-label')).toContain('1 chest aboard');
+    click("back");expect(root().dataset.screen).toBe("home");
+  });
   it("returns Home → Ship → Back to Home",async()=>{
     await import("./main");click("ship");await vi.waitFor(()=>expect(runtime.created).toBe(1));
     expect(root().dataset.screen).toBe("ship");click("back");expect(root().dataset.screen).toBe("home");

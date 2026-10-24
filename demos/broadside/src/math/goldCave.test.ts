@@ -7,13 +7,15 @@ const scene = (engine: any) => {
 };
 vi.mock("@babylonjs/core/Engines/engine.js", () => ({ Engine: class {
   scenes: any[] = []; loop = () => {}; constructor() { runtime.engines.push(this); }
-  setHardwareScalingLevel() {} resize() {} getCaps() { return { maxTextureSize: 4096 }; }
+  scale = 1; setHardwareScalingLevel(scale: number) { this.scale = scale; }
+  resize() {} getCaps() { return { maxRenderTextureSize: 4096 }; }
   getDeltaTime() { return 100; } runRenderLoop(fn: () => void) { this.loop = fn; }
 } }));
-vi.mock("../render/quality", () => ({ configureTextureQuality() {}, displayRenderScale: () => 1 }));
+vi.mock("@capacitor/core", () => ({ Capacitor: { isNativePlatform: () => true } }));
+vi.mock("../render/quality", async () => ({ ...await vi.importActual<typeof import('../render/quality')>("../render/quality"), configureTextureQuality() {} }));
 vi.mock("../render/cave", () => ({ TreasureCave: class {
   scene: any; walker = { x: 0, eyeY: 2, z: 0 }; room = "Cave entrance"; inspecting = false;
-  coinCounts = [0,0,0,0]; restingCoinCounts = [0,0,0,0]; goldPhysicsActive = false; depositComplete = false;
+  reserveCounts = [0,0,0,0]; gemCounts = [0,0,0,0]; coinCounts = [0,0,0,0]; restingCoinCounts = [0,0,0,0]; goldPhysicsActive = false; depositComplete = false;
   refresh = vi.fn(); showCargo = vi.fn(); beginUnload = vi.fn(() => { this.depositComplete = false; });
   endReveal = vi.fn(); render = vi.fn(); enter = vi.fn(); resize() {} look() {} walk() {}
   constructor(engine: any) { this.scene = scene(engine); runtime.caves.push(this); }
@@ -36,11 +38,22 @@ const earnedCargo = (count: number, mistakeLevel = 0) => {
   return progress;
 };
 beforeEach(() => {
+  vi.unstubAllGlobals();
   runtime.engines.length=runtime.caves.length=runtime.holds.length=0;
   document.body.innerHTML='<main id="academy"></main><canvas id="test"></canvas>';
   vi.stubGlobal("matchMedia", () => ({ matches: false }));
 });
 describe("math cargo uses the shared ship and cave", () => {
+  it("keeps a 3x native iPhone within the mobile rendering budget", () => {
+    vi.stubGlobal("innerWidth", 402); vi.stubGlobal("innerHeight", 874); vi.stubGlobal("devicePixelRatio", 3);
+    const view=new GoldCave(document.querySelector("canvas")!,vi.fn(),false);
+    const ratio=1/runtime.engines[0].scale;
+    expect(402*874*ratio*ratio).toBeLessThanOrEqual(1_000_000);
+    expect(ratio).toBeLessThanOrEqual(1.5);
+    view.showShip(freshProgress(),false);
+    expect(1/runtime.engines[0].scale).toBe(ratio);
+    view.pause();
+  });
   it("stows earned chests, banks them one at a time, and keeps only one 3D scene alive", async () => {
     const progress=earnedCargo(3), changed=vi.fn(), ready=vi.fn();
     const view=new GoldCave(document.querySelector("canvas")!,ready,false,changed);

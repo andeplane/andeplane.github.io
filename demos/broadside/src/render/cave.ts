@@ -99,7 +99,11 @@ export class TreasureCave {
     hemi.intensity = 0.62;
     hemi.renderPriority = 7;
     this.chamber = new Cavern(s, this.spots, bankLabels);
-    this.coins = new CoinHoard(s, persistent, () => bindLocalLights(this.chamber.lamps, this.scene.meshes), { strictPhysics, obstacles:this.chamber.obstacles, goldNamespace });
+    this.coins = new CoinHoard(s, persistent, () => bindLocalLights(this.chamber.lamps, this.scene.meshes), { reserves:true, reserveObstacle:(obstacle,enabled)=>{
+      const index=this.chamber.obstacles.indexOf(obstacle);
+      if(enabled&&index<0)this.chamber.obstacles.push(obstacle);
+      else if(!enabled&&index>=0)this.chamber.obstacles.splice(index,1);
+    }, gems:true, strictPhysics, obstacles:this.chamber.obstacles, goldNamespace });
     this.walker = new CaveWalker(this.chamber.obstacles, (x, z) =>
       Math.max(this.chamber.walkHeight(x, z), this.coins.walkHeight(x, z)),
     );
@@ -331,6 +335,9 @@ export class TreasureCave {
   get coinCounts(): number[] { return this.coins.counts; }
   get restingCoinCounts(): number[] { return this.coins.restingCounts; }
   get coinPhysicsMetrics() { return this.coins.metrics(this.depositWorld??this.debugWorld??0); }
+  get reserveCounts(): number[] { return this.coins.reserveCounts; }
+  get gemStatus(): string { return this.coins.gemStatus; }
+  get gemCounts(): number[] { return this.coins.gemCounts; }
   get goldPhysicsActive(): boolean { return this.coins.physicsActive; }
   /** Debug-only controller supplies temporary banks, never player progress. */
   debugCoinBank(world: number, add = false): void {

@@ -187,7 +187,7 @@
   #voyage-ui[data-screen="play"] #v-arrow { font-size: 25px; }
   #voyage-ui[data-screen="play"] #v-distance { font-size: 9px; }
   #voyage-ui[data-screen="play"] #v-sea-chart canvas { width: 88px; height: 88px; }
-  #voyage-ui[data-screen="play"] #v-chart-open { min-height: 32px; }
+  #voyage-ui[data-screen="play"] #v-chart-open { min-height: 44px; min-width: 44px; }
   #voyage-ui[data-screen="play"] #v-captain-help {
     left: calc(var(--live-left) + 72px);
     right: calc(var(--live-right) + 12px);

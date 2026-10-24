@@ -1,3 +1,4 @@
+import { installPrivacy } from "./ui/privacy";
 import { installMenuPreview } from "./ui/menuPreview";
 import { coinSounds, installCoinSounds } from "./game/coinSounds";
 import { Vector3 } from "@babylonjs/core/Maths/math.vector.js";
@@ -99,11 +100,18 @@ async function main() {
     ? new URLSearchParams(location.search).get("qa")
     : null;
   const qa =
-    qaQuery === "collection" || qaQuery === "harbour" || qaQuery === "free" ||
+    qaQuery === "collection" || qaQuery === "harbour" || qaQuery === "free" || qaQuery === "menu" ||
     (qaQuery !== null &&
       /^(?:(?:reveal|hold|unload)-)?\d+$/.test(qaQuery) &&
       Number(qaQuery.replace(/^(reveal|hold|unload)-/, "")) < TOTAL_LEVELS);
   if (qa) storage = undefined;
+  if (qa) {
+    // Browser fixtures can exercise all four phone safe areas without device saves.
+    const safe = new URLSearchParams(location.search).get("safe")?.split(",").map(Number);
+    if (safe?.length === 4 && safe.every(n => Number.isFinite(n) && n >= 0 && n <= 60))
+      ["top", "right", "bottom", "left"].forEach((side, i) =>
+        document.documentElement.style.setProperty(`--pirate-safe-${side}`, `${safe[i]}px`));
+  }
   const carryPreview = qa && new URLSearchParams(location.search).get("preview") === "carry";
   const progress = readProgress(storage),
     controls = new Controls();
@@ -112,7 +120,7 @@ async function main() {
   const journey = new WorldJourney(readJourney(storage));
   let travelAction: "cave" | "ship" | "hold" | "unload" | number | null = null;
   const freePack = qa ? Number(freeParams.get("pack") ?? 0) : 0;
-  if (qaQuery === "collection") {
+  if (qaQuery === "collection" || qaQuery === "menu") {
     const cleared = new URLSearchParams(location.search).get("cleared");
     const count =
       cleared !== null && /^\d+$/.test(cleared)
@@ -230,6 +238,7 @@ async function main() {
     arrive("unload");
   };
   const visitHold = () => {
+    if (PRIVATE_PEARL) { void visitShip(true); return; }
     cancelUnloading(); clearArrival(); clearWalking(); gesture.clear(); controls.clear();
     cave?.endReveal();
     releaseCave();
@@ -339,6 +348,11 @@ async function main() {
     mode = "loading";
     hud.root.classList.add("loading-voyage");
     try {
+      if (qa && new URLSearchParams(location.search).get("delay") === "1") {
+        await new Promise(resolve => setTimeout(resolve, 2500));
+        if (id !== loadId) return;
+      }
+      if (qa && new URLSearchParams(location.search).get("fail") === "ship") throw new Error("QA ship asset failure");
       if (PRIVATE_PEARL) {
         // Avoid retaining two copies of the purchased textures on an iPhone.
         renderer?.scene.dispose(); renderer = null;
@@ -1004,7 +1018,10 @@ async function main() {
         hud.depositing(!!reward?.gold && p.time > 5.3);
       }
     }
-    canvas.dataset.goldPhysics = String(cave?.goldPhysicsActive ?? false);
+    if (import.meta.env.DEV) canvas.dataset.gemStatus = cave?.gemStatus ?? "";
+      canvas.dataset.goldReserve = cave?.reserveCounts?.join(",") ?? "";
+      canvas.dataset.gemCounts = cave?.gemCounts.join(",") ?? "";
+      canvas.dataset.goldPhysics = String(cave?.goldPhysicsActive ?? false);
     canvas.dataset.restingCoins = cave?.restingCoinCounts.join(",") ?? "";
     canvas.dataset.coinCounts = cave?.coinCounts.join(",") ?? "";
     canvas.dataset.fps = String(Math.round(engine.getFps()));
@@ -1023,8 +1040,16 @@ async function main() {
     getCave().refresh(caveProgress(progress));
     if(qaQuery!.startsWith("unload-")) { unloadAtCave(); }
     else { hold = new ShipHold(engine,session.voyage);hold.open(progress,reward.special);holdShowingResult=true;mode="hold";hud.result(session,reward); }
+  } else if (qaQuery === "menu") {
+    menu();
+    const view = new URLSearchParams(location.search).get("view");
+    if (view === "worlds" || view === "levels" || view === "settings") hud.showMenu(view);
   } else if (qaQuery === "collection") home();
-  else if (qaQuery === "harbour") void visitShip();
+  else if (qaQuery === "harbour") {
+    const cargo = Number(new URLSearchParams(location.search).get("cargo") ?? 0);
+    for (let i = 0; i < Math.min(TOTAL_LEVELS, Math.max(0, cargo)); i++) awardVoyage(progress, i, 3, 2);
+    void visitShip();
+  }
   else if (qaQuery === "free") freeSail();
   else if (qa) void start(Number(qaQuery));
 }
@@ -1035,3 +1060,5 @@ void main().catch((err) => {
   if (el)
     el.textContent = "The sea could not load. Please reload to try again.";
 });
+
+installPrivacy();

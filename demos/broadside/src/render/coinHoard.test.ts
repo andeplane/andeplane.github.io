@@ -4,6 +4,7 @@ import {Scene} from '@babylonjs/core/scene.js';
 import {StandardMaterial} from '@babylonjs/core/Materials/standardMaterial.js';
 import {Vector3} from '@babylonjs/core/Maths/math.vector.js';
 import {Mesh} from '@babylonjs/core/Meshes/mesh.js';
+vi.mock('./goldReserve',()=>({GoldReserve:class{update=vi.fn();}}));
 vi.mock('./coin',async(importOriginal)=>{
   const original=await importOriginal<typeof import('./coin')>();
   return {...original,doubloonMaterial:(scene:Scene)=>new StandardMaterial('test coins',scene)};
@@ -176,5 +177,24 @@ it('keeps discarded coins invisible, unsupported and absent from neighbouring co
   expect(vi.mocked(saveGoldLayout).mock.calls.at(-1)![1]).toEqual(removed);
   h.addBatch(0);h.startPour(0);await flush();
   expect((FakeWorker.all.at(-1)!.sent as {previous:Float32Array}).previous).toEqual(removed);
+  scene.dispose();engine.dispose();
+});
+
+it('keeps million-gold balances in reserves while pouring the full next 900-coin chest',async()=>{
+  vi.stubGlobal('Worker',FakeWorker);
+  const engine=new NullEngine(),scene=new Scene(engine);
+  const h=new CoinHoard(scene,false,undefined,{reserves:true,areas:[{world:0,name:'vault',x:-8,z:6,radius:3.8}],strictPhysics:true});
+  const {readProgress}=await import('../game/progress');
+  const p=poses(),initial=new Float32Array(70000);for(let i=0;i<10;i++)initial.set(p,i*7000);
+  vi.mocked(loadGoldLayout).mockResolvedValue(initial);
+  const balance=[1000000];h.refresh(readProgress(),null,balance);await flush();
+  expect(h.counts).toEqual([10000]);expect(h.reserveCounts).toEqual([990000]);expect(balance).toEqual([1000000]);
+  h.refresh(readProgress(),0,[1000900],900);h.preparePour(0);h.startPour(0);await flush();
+  const worker=FakeWorker.all.at(-1)!;
+  expect((worker.sent as {previous:Float32Array}).previous.length).toBe(0);
+  expect((worker.sent as {chest:Float32Array}).chest.length).toBe(900*7);
+  worker.emit(poses().slice(0,900*7),true);await flush();
+  expect(h.counts).toEqual([900]);expect(h.reserveCounts).toEqual([1000000]);
+  expect(saveGoldLayout).toHaveBeenLastCalledWith(0,expect.any(Float32Array),false,undefined,1000900);
   scene.dispose();engine.dispose();
 });

@@ -41,5 +41,22 @@ class GameViewController: CAPBridgeViewController {
         webView?.isOpaque = true
         webView?.backgroundColor = UIColor(red: 16 / 255, green: 46 / 255, blue: 54 / 255, alpha: 1)
         webView?.scrollView.bounces = false
+        #if targetEnvironment(simulator)
+        // Test fixtures seed valid game saves; the shipping device binary excludes this code.
+        if ProcessInfo.processInfo.arguments.contains("--game-qa-fixture"),
+           let json = ProcessInfo.processInfo.environment["GAME_QA_FIXTURE"],
+           let data = json.data(using: .utf8),
+           let fixture = try? JSONSerialization.jsonObject(with: data) as? [String: String],
+           let safeData = try? JSONSerialization.data(withJSONObject: fixture),
+           let payload = String(data: safeData, encoding: .utf8) {
+            let script = """
+            (() => { const fixture = \(payload); const marker = fixture['qa.fixture'];
+              if (marker && localStorage.getItem('qa.fixture') !== marker)
+                for (const [key, value] of Object.entries(fixture)) localStorage.setItem(key, value);
+            })();
+            """
+            webView?.configuration.userContentController.addUserScript(WKUserScript(source: script, injectionTime: .atDocumentStart, forMainFrameOnly: true))
+        }
+        #endif
     }
 }
