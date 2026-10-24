@@ -28,7 +28,7 @@ Both are version 1.0 for iPhone and iPad, minimum iOS 18.3, US base price $3.99,
 - The first iPad run had pauses/blank launches while multiple simulators were active. The sequential clean run passed; the initial failures remain in local evidence and are not counted as successful checks.
 - A wrong answer followed by nine first-try answers earned a 900-gold chest. Unloading interruption preserved two chests/1,900 aboard and 10,000 banked. Completed delivery and relaunch preserved 11,900 banked and zero cargo, on both tested form factors.
 - Browser: actual 320×568 with portrait safe areas and 568×320 with landscape safe areas, including a 1,000,000-gold bank, privacy scrolling/Escape/focus restoration and the corrected control spacing. Earlier reports inventory the broader empty/error/reward/navigation matrix for both games.
-- iOS 18.3 small-iPhone regression and required 6.3-inch App Store captures are in progress; results will be appended before final delivery.
+- Native iPhone SE, iOS 18.3: all five journeys passed, including maths/unloading persistence and short-landscape controls in the final Captain Calculus package. The required 6.3-inch App Store captures are being assembled separately.
 
 Native screenshot attachments are normalized using their recorded EXIF orientation and exported as opaque RGB PNGs. Raw attachments are preserved. App-only XCTest landscape captures were incorrectly cropped; they are superseded by full-display captures. The final evidence directory contains the raw result exports, reviewed screenshots and package hashes.
 

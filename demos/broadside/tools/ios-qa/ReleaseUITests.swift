@@ -191,7 +191,7 @@ final class ReleaseUITests: XCTestCase {
         capture("calculus-store-04-question",app:calculus)
         tap(calculus,"Ship,")
         XCTAssertTrue(button(calculus,"Return to cave").waitForExistence(timeout:45))
-        waitEnabled(button(calculus,"Explore next island"),seconds:30)
+        waitEnabled(button(calculus,"Return to cave"),seconds:30)
         capture("calculus-store-05-treasure",app:calculus)
         calculus.terminate()
     }
