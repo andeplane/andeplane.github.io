@@ -182,11 +182,6 @@
   z-index: -1;
 }
 
-[data-cave-view="inspect"] .gallery-hint {
-  top: auto !important;
-  bottom: 195px !important;
-  font-size: 9px;
-}
 [data-screen="cave"] #cave-overview {
   right: 16px;
   top: 80px;

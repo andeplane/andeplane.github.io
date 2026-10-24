@@ -6,7 +6,7 @@ import { Color3 } from "@babylonjs/core/Maths/math.color.js";
 import type { Scene } from "@babylonjs/core/scene.js";
 import { COIN_RADIUS, COIN_THICKNESS } from "../game/goldAreas";
 
-export function doubloonMaterial(scene: Scene): StandardMaterial {
+export function doubloonMaterial(scene: Scene, treasure = false): StandardMaterial {
   const texture = new DynamicTexture("hammered doubloon engraving", 256, scene, true);
   const c = texture.getContext() as CanvasRenderingContext2D;
   c.fillStyle = "#c79848";
@@ -59,7 +59,12 @@ export function doubloonMaterial(scene: Scene): StandardMaterial {
   material.bumpTexture = relief;
   material.diffuseColor = new Color3(.84, .77, .63);
   material.specularColor = Color3.FromHexString("#f4d58c");
-  material.specularPower = 52;
+  material.specularPower = treasure ? 86 : 52;
+  if (treasure) {
+    material.diffuseColor.set(.98, .88, .68);
+    material.specularColor.set(1, .91, .62);
+    material.emissiveColor.set(.065, .041, .008);
+  }
   material.maxSimultaneousLights = 6;
   return material;
 }

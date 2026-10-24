@@ -3,7 +3,7 @@ import {NullEngine} from '@babylonjs/core/Engines/nullEngine.js';
 import {MeshBuilder} from '@babylonjs/core/Meshes/meshBuilder.js';
 import {StandardMaterial} from '@babylonjs/core/Materials/standardMaterial.js';
 import {TransformNode} from '@babylonjs/core/Meshes/transformNode.js';
-import {Vector3} from '@babylonjs/core/Maths/math.vector.js';
+import {Vector3, Matrix} from '@babylonjs/core/Maths/math.vector.js';
 import type {Scene} from '@babylonjs/core/scene.js';
 vi.mock('./cavern',()=>({Cavern:class {
   stone:StandardMaterial;ledge:StandardMaterial;gold:StandardMaterial;wood:StandardMaterial;iron:StandardMaterial;
@@ -71,6 +71,36 @@ describe('cave chest presentation',()=>{
     expect(chest.isEnabled()).toBe(true);expect(chest.position.y).toBeGreaterThan(3.76);
     cave.render(2.3,true);expect(chest.position.y).toBeGreaterThan(3.76);
     cave.debugCoinBank(0);cave.render(.016,true);expect(chest.isEnabled()).toBe(false);close();
+  });
+  it('frames the whole raised chest and waiting queue in a phone portrait viewport',()=>{
+    const {engine,cave,close}=fixture();
+    vi.stubGlobal('innerWidth',393);vi.stubGlobal('innerHeight',852);
+    vi.spyOn(engine,'getRenderWidth').mockReturnValue(393);vi.spyOn(engine,'getRenderHeight').mockReturnValue(852);
+    cave.showCargo([0,1,2,3,4,5],0,true);cave.beginUnload(0,0);cave.render(1.4,true);
+    const viewport=cave.camera.viewport.toGlobal(393,852);
+    const project=(point:Vector3)=>Vector3.Project(point,Matrix.Identity(),cave.camera.getViewMatrix(true).multiply(cave.camera.getProjectionMatrix(true)),viewport);
+    // Fully open active chest, including lid; queue extends across both entrance rows.
+    const bounds=[{x:-2.8,y:3.8,z:-8.8,width:3.7,height:3.3,depth:2.8},
+      {x:2.8,y:.2,z:-8.8,width:1.85,height:1.65,depth:1.4},
+      {x:-2.8,y:.2,z:-6.2,width:1.85,height:1.65,depth:1.4}];
+    for(const b of bounds)for(const dx of [-1,1])for(const dy of [0,1])for(const dz of [-1,1]){
+      const screen=project(new Vector3(b.x+dx*b.width/2,b.y+dy*b.height,b.z+dz*b.depth/2));
+      expect(screen.x).toBeGreaterThan(0);expect(screen.x).toBeLessThan(393);
+      expect(screen.y).toBeGreaterThan(0);expect(screen.y).toBeLessThan(852);
+    }
+    close();
+  });
+  it('takes each queued chest from its own stable entrance position',()=>{
+    const {cave,close}=fixture(),chest=cave.scene.getTransformNodeByName("captain's treasure chest")!;
+    cave.showCargo([0,1],0,true);cave.beginUnload(0,0);cave.render(0,true);
+    expect(chest.position.x).toBe(-2.8);expect(chest.position.z).toBe(-8.8);
+    expect(chest.scaling.x).toBe(.5);
+    cave.render(1.2,true);
+    expect(chest.position.x).toBe(-2.8);expect(chest.position.z).toBe(-8.8);
+    expect(chest.position.y).toBeGreaterThan(3.7);
+    cave.showCargo([1],1);cave.beginUnload(0,1);cave.render(0,true);
+    expect(chest.position.x).toBe(2.8);expect(chest.position.z).toBe(-8.8);
+    close();
   });
   it('keeps the empty chest visible and moves it continuously out of view before completing',()=>{
     const {cave,close}=fixture(),chest=cave.scene.getTransformNodeByName("captain's treasure chest")!;

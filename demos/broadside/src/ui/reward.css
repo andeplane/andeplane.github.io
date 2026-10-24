@@ -31,12 +31,6 @@
   font-size: 14px;
   white-space: nowrap;
 }
-#v-result #result-menu {
-  grid-column: 1 / -1;
-  min-height: 44px;
-  font-size: 13px;
-  color: #efe0c5;
-}
 .result-actions.last-result {
   grid-template-columns: 1fr;
 }
@@ -61,7 +55,13 @@
 .hold-actions button { min-height:48px; }
 .hold-actions small { text-align:center; color:#c9b993; font-size:11px; }
 #v-result #result-unload { grid-column:1/-1; order:3; }
-#v-result #result-menu { order:4; }
+#unload-ui .hold-actions:has(#unload-explore[hidden]) {
+  width: auto;
+  max-width: calc(100% - 36px);
+  padding: 9px 14px;
+  border: 0;
+  background: #0b151cba;
+}
 #menu-hold { display:block; margin:4px auto; }
 @media(min-width:850px) {
   #v-result .result-top {top:110px;left:26px;right:auto;width:250px;}

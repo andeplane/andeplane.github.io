@@ -1,6 +1,10 @@
 import { describe, expect, it } from "vitest";
 import { CaveWalker, CaveWalkControls, type WalkIntent } from "./caveWalk";
 import { caveWalkable, caveRoom, caveFloor } from "./caveLayout";
+import { NullEngine } from "@babylonjs/core/Engines/nullEngine.js";
+import { Scene } from "@babylonjs/core/scene.js";
+import { FreeCamera } from "@babylonjs/core/Cameras/freeCamera.js";
+import { Matrix, Vector3 } from "@babylonjs/core/Maths/math.vector.js";
 const idle: WalkIntent = {
   forward: 0,
   right: 0,
@@ -12,6 +16,43 @@ const run = (w: CaveWalker, intent: Partial<WalkIntent>, seconds = 1) => {
   for (let n = 0; n < seconds * 120; n++)
     w.step({ ...idle, ...intent }, 1 / 120);
 };
+describe.each([false, true])("first-person screen directions, right-handed scene: %s", (rightHanded) => {
+  it.each([0, Math.PI / 2, Math.PI, -Math.PI / 2])("looks and strafes toward the requested screen direction at heading %s", (yaw) => {
+    const engine = new NullEngine({ renderWidth: 400, renderHeight: 800, textureSize: 512, deterministicLockstep: false, lockstepMaxSteps: 4 });
+    const scene = new Scene(engine);
+    scene.useRightHandedSystem = rightHanded;
+    try {
+      const w = new CaveWalker([], () => 0, () => true, rightHanded);
+      w.x = w.z = 0; w.yaw = yaw; w.pitch = 0;
+      const direction = () => new Vector3(Math.sin(w.yaw) * Math.cos(w.pitch), -Math.sin(w.pitch), Math.cos(w.yaw) * Math.cos(w.pitch));
+      const camera = new FreeCamera("first-person direction check", Vector3.Zero(), scene);
+      const forward = direction();
+      camera.setTarget(forward);
+      const transform = camera.getViewMatrix(true).multiply(camera.getProjectionMatrix(true));
+      const viewport = camera.viewport.toGlobal(400, 800);
+      const project = (point: Vector3) => Vector3.Project(point, Matrix.Identity(), transform, viewport);
+
+      // Assertions use the rendered screen, rather than assuming a yaw sign.
+      w.look(60, 0);
+      expect(project(direction().scale(10)).x).toBeGreaterThan(200);
+      w.yaw = yaw;
+      w.look(-60, 0);
+      expect(project(direction().scale(10)).x).toBeLessThan(200);
+      w.yaw = yaw;
+      w.look(0, -60);
+      expect(project(direction().scale(10)).y).toBeLessThan(400);
+      w.pitch = 0;
+      w.look(0, 60);
+      expect(project(direction().scale(10)).y).toBeGreaterThan(400);
+
+      w.pitch = 0;
+      run(w, { right: 1 }, .1);
+      expect(project(forward.scale(10).add(new Vector3(w.x, 0, w.z))).x).toBeGreaterThan(200);
+    } finally {
+      scene.dispose(); engine.dispose();
+    }
+  });
+});
 describe("Minecraft cave controls", () => {
   it("combines keyboard and touch, releases movement and consumes jumps once", () => {
     const c = new CaveWalkControls();

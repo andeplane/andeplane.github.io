@@ -1,0 +1,399 @@
+/* Exploration reserves one safe-area navigation row, then places the room below it. */
+#voyage-ui:not([data-screen="play"]) #game-fullscreen {
+  top: calc(var(--pirate-safe-top) + var(--pirate-menu-inset));
+  right: calc(var(--pirate-safe-right) + var(--pirate-menu-inset));
+  width: var(--pirate-touch-target);
+  height: var(--pirate-touch-target);
+}
+#voyage-ui[data-screen="cave"] > .voyage-header,
+#voyage-ui:is([data-screen="main"], [data-screen="worlds"], [data-screen="levels"], [data-screen="settings"]) > .voyage-header,
+#voyage-ui:is([data-screen="hold"], [data-screen="unloading"], [data-screen="result"]) > .voyage-header {
+  display: none;
+}
+/* A ship's location is decoration, never another target on top of a level. */
+#voyage-ui .chart-ship-marker,
+#voyage-ui .chart-ship-marker * { pointer-events: none; }
+#voyage-ui .chart-ship-marker { z-index: 1; }
+#voyage-ui #level-menu .level-tile { z-index: 2; }
+#voyage-ui .chart-ship-action {
+  position: fixed;
+  z-index: 65;
+  top: calc(var(--pirate-safe-top) + var(--pirate-menu-inset));
+  right: calc(var(--pirate-safe-right) + var(--pirate-menu-inset));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: var(--pirate-touch-target);
+  margin: 0;
+  padding: 10px 14px;
+  border: 1px solid #8b693d;
+  border-radius: 9px;
+  background: #f0dfb8;
+  color: #302615;
+  font: 700 13px/1.25 var(--pirate-menu-font);
+}
+#voyage-ui .chart-ship-action .icon { width: 20px; height: 20px; }
+#voyage-ui.chart-sailing .chart-ship-action { visibility: hidden; }
+#voyage-ui:has(#game-fullscreen:not([hidden])) .chart-ship-action {
+  right: calc(var(--pirate-safe-right) + var(--pirate-menu-inset) + 52px);
+}
+#voyage-ui:is([data-screen="worlds"], [data-screen="levels"], [data-screen="settings"]) #captain-menu .menu-heading {
+  position: absolute;
+  top: calc(var(--pirate-safe-top) + var(--pirate-menu-inset) + var(--pirate-touch-target) + 12px);
+  left: calc(var(--pirate-safe-left) + 16px);
+  right: calc(var(--pirate-safe-right) + 16px);
+  bottom: auto;
+  margin: 0;
+  padding: 0;
+}
+#voyage-ui:is([data-screen="worlds"], [data-screen="levels"], [data-screen="settings"]) #captain-menu .menu-heading h1 {
+  margin: 5px 0;
+  font-size: clamp(29px, 5vw, 42px);
+  line-height: 1.1;
+}
+#voyage-ui:is([data-screen="worlds"], [data-screen="levels"], [data-screen="settings"]) #captain-menu .menu-heading p { margin: 4px 0; }
+#voyage-ui[data-screen="worlds"] #world-menu .world-map {
+  top: calc(var(--pirate-safe-top) + var(--pirate-menu-inset) + var(--pirate-touch-target) + 112px);
+}
+#voyage-ui[data-screen="levels"] #level-menu { overflow-y: auto; }
+#voyage-ui #level-menu .route-landscape { display: none; }
+#voyage-ui[data-screen="levels"] #level-menu .level-board {
+  position: relative;
+  inset: auto;
+  width: calc(100% - var(--pirate-safe-left) - var(--pirate-safe-right) - 32px);
+  min-height: 360px;
+  height: max(360px, calc(100dvh - var(--pirate-safe-top) - var(--pirate-safe-bottom) - var(--pirate-menu-inset) - var(--pirate-touch-target) - 202px));
+  margin: calc(var(--pirate-safe-top) + var(--pirate-menu-inset) + var(--pirate-touch-target) + 112px) auto calc(var(--pirate-safe-bottom) + 90px);
+}
+#voyage-ui[data-screen="settings"] #settings-menu { overflow-y: auto; }
+#voyage-ui[data-screen="settings"] #settings-menu .settings-board {
+  margin-top: calc(var(--pirate-safe-top) + var(--pirate-menu-inset) + var(--pirate-touch-target) + 96px);
+  margin-bottom: calc(var(--pirate-safe-bottom) + 30px);
+}
+#voyage-ui[data-screen="cave"] #cave-ui .cave-title {
+  position: fixed;
+  top: calc(var(--pirate-safe-top) + var(--pirate-menu-inset) + var(--pirate-touch-target) + 16px);
+  left: calc(var(--pirate-menu-inset) + var(--pirate-safe-left));
+  right: calc(var(--pirate-menu-inset) + var(--pirate-safe-right));
+  width: auto;
+  transform: none;
+  text-align: left;
+  pointer-events: none;
+}
+#voyage-ui[data-screen="cave"] #cave-ui .cave-title .eyebrow {
+  display: block;
+  color: #f7d696;
+  font-size: 10px;
+  line-height: 1.3;
+  letter-spacing: .1em;
+}
+#voyage-ui[data-screen="cave"] #cave-ui .cave-title h1 {
+  margin: 5px 0;
+  color: #fff2d5;
+  font-size: clamp(24px, 4vw, 36px);
+  line-height: 1.15;
+  white-space: normal;
+  overflow-wrap: anywhere;
+}
+#voyage-ui[data-screen="cave"] #cave-ui .cave-title p {
+  display: block;
+  margin: 0;
+  max-width: 560px;
+  color: #f5e7cc;
+  font-size: 12px;
+  line-height: 1.5;
+}
+#voyage-ui[data-screen="cave"] #cave-ui::before {
+  content: "";
+  position: fixed;
+  inset: 0 0 auto;
+  height: calc(var(--pirate-safe-top) + 235px);
+  background: linear-gradient(#06121bea 0%, #07141dc7 65%, transparent);
+  pointer-events: none;
+}
+#voyage-ui[data-screen="cave"] #cave-ui #harbour-chart,
+#voyage-ui[data-screen="cave"] #cave-ui #cave-overview {
+  position: fixed;
+  top: calc(var(--pirate-safe-top) + var(--pirate-menu-inset));
+  right: calc(var(--pirate-menu-inset) + var(--pirate-safe-right));
+  bottom: auto;
+  min-height: var(--pirate-touch-target);
+  margin: 0;
+  padding: 10px 14px;
+  border: 1px solid #d2ba855e;
+  border-radius: 9px;
+  background: #101d29ed;
+  color: #fff0cf;
+  font: 700 13px/1.25 var(--pirate-menu-font);
+}
+#voyage-ui[data-screen="cave"]:has(#game-fullscreen:not([hidden])) #cave-ui #harbour-chart,
+#voyage-ui[data-screen="cave"]:has(#game-fullscreen:not([hidden])) #cave-ui #cave-overview {
+  right: calc(var(--pirate-menu-inset) + var(--pirate-safe-right) + 52px);
+}
+#voyage-ui[data-screen="cave"] #cave-ui #harbour-chart .icon { width: 18px; height: 18px; }
+#voyage-ui[data-screen="cave"] #cave-ui #harbour-unload {
+  top: auto;
+  right: auto;
+  left: 50%;
+  bottom: calc(var(--pirate-safe-bottom) + 214px);
+  transform: translateX(-50%);
+  min-height: var(--pirate-touch-target);
+  width: max-content;
+  max-width: calc(100% - 32px);
+  border-color: #efd499;
+  background: #edc77e;
+  color: #312715;
+  font-size: 13px;
+  font-weight: 700;
+}
+#voyage-ui[data-screen="cave"] #cave-ui .gallery-hint {
+  position: fixed;
+  top: auto;
+  right: auto;
+  left: 50%;
+  bottom: calc(var(--pirate-safe-bottom) + 154px);
+  transform: translateX(-50%);
+  width: max-content;
+  max-width: calc(100% - 32px);
+  padding: 6px 10px;
+  border-radius: 8px;
+  background: #08151de0;
+  color: #f4e5c7;
+  font-size: 11px;
+  line-height: 1.4;
+}
+#voyage-ui[data-screen="cave"] #cave-ui #cave-pad {
+  left: calc(var(--pirate-safe-left) + 24px);
+  bottom: calc(var(--pirate-safe-bottom) + 34px);
+}
+#voyage-ui[data-screen="cave"] #cave-ui #cave-pad small {
+  bottom: -20px;
+  font-size: 10px;
+  line-height: 14px;
+}
+#voyage-ui[data-screen="cave"] #cave-ui #cave-jump {
+  right: calc(var(--pirate-safe-right) + 24px);
+  bottom: calc(var(--pirate-safe-bottom) + 44px);
+}
+#voyage-ui[data-screen="cave"][data-cave-view="inspect"] #cave-ui .gallery-hint {
+  bottom: calc(var(--pirate-safe-bottom) + 10px);
+}
+#voyage-ui[data-screen="cave"][data-cave-view="inspect"] #cave-ui #relic-info {
+  position: fixed;
+  top: auto;
+  bottom: calc(var(--pirate-safe-bottom) + 54px);
+  left: 50%;
+  right: auto;
+  transform: translateX(-50%);
+  width: min(400px, calc(100% - 32px));
+  max-height: min(34vh, 280px);
+  overflow-y: auto;
+  padding: 16px;
+  border: 1px solid #d6b87c70;
+  border-radius: 14px;
+  background: #0b1e29ed;
+  text-align: left;
+  touch-action: pan-y;
+  pointer-events: auto;
+}
+#voyage-ui[data-screen="cave"][data-cave-view="inspect"] #cave-ui #relic-info h2 { margin: 6px 0; font-size: 28px; }
+#voyage-ui[data-screen="cave"][data-cave-view="inspect"] #cave-ui #relic-info p { color: #f2e4c7; font-size: 13px; }
+#voyage-ui :is(#hold-ui, #unload-ui) .hold-heading,
+#voyage-ui #v-result .result-top {
+  top: calc(var(--pirate-safe-top) + var(--pirate-menu-inset) + var(--pirate-touch-target) + 18px);
+}
+#voyage-ui #v-result .result-top {
+  padding: 14px;
+  border: 1px solid #c4d2c83b;
+  border-radius: 12px;
+  background: #102933ed;
+}
+#voyage-ui #v-result .result-top p { color: #f2e4c7; font-size: 12px; line-height: 1.45; }
+/* Your ship is a modal: outside taps dismiss it without triggering the chart below. */
+#voyage-ui #ship-panel-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 90;
+  display: grid;
+  place-items: center;
+  padding: calc(var(--pirate-safe-top) + 16px) calc(var(--pirate-safe-right) + 16px) calc(var(--pirate-safe-bottom) + 16px) calc(var(--pirate-safe-left) + 16px);
+  background: #020b13c9;
+  pointer-events: auto;
+}
+#voyage-ui #ship-panel {
+  position: relative;
+  inset: auto;
+  width: min(360px, 100%);
+  max-height: calc(100dvh - var(--pirate-safe-top) - var(--pirate-safe-bottom) - 32px);
+  overflow-y: auto;
+  padding: 22px;
+  border: 1px solid #d3b77d;
+  border-radius: 16px;
+  background: #102633;
+  color: #fff1d5;
+  box-shadow: 0 18px 65px #000a;
+  text-align: left;
+  touch-action: pan-y;
+}
+#voyage-ui #ship-panel .eyebrow { color: #edca83; font-size: 11px; }
+#voyage-ui #ship-panel h2 { margin: 8px 0; color: #fff1d5; font-size: 38px; }
+#voyage-ui #ship-panel p { margin: 0 0 20px; color: #f0e2c6; font-size: 14px; line-height: 1.5; }
+#voyage-ui #ship-panel .ship-panel-actions { display: grid; gap: 10px; }
+#voyage-ui #ship-panel .ship-panel-actions button {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  min-height: 48px;
+  margin: 0;
+  padding: 12px 14px;
+  border: 1px solid #bdd4d457;
+  border-radius: 9px;
+  background: #1b3947;
+  color: #fff1d5;
+  font-size: 14px;
+  font-weight: 700;
+}
+#voyage-ui #ship-panel #visit-ship { border-color: #f0d393; background: #edc77e; color: #302715; }
+#voyage-ui #ship-panel #ship-close {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  width: max-content;
+  min-height: 44px;
+  margin: -6px -6px 12px auto;
+  padding: 8px 10px;
+  border: 1px solid #bfd4d449;
+  border-radius: 8px;
+  background: #1b3947;
+  color: #fff1d5;
+  font-size: 13px;
+}
+#voyage-ui #ship-panel #ship-close span { font-size: 23px; line-height: 1; }
+@media (max-width: 650px) {
+  #voyage-ui[data-screen="cave"] #cave-ui .cave-title .eyebrow { font-size: 9px; }
+  #voyage-ui[data-screen="cave"] #cave-ui .cave-title h1 { font-size: 24px; }
+  #voyage-ui[data-screen="cave"] #cave-ui .cave-title p { font-size: 11px; }
+  #voyage-ui #ship-panel { padding: 18px; }
+}
+@media (max-width: 350px) {
+  #voyage-ui[data-screen="cave"] #cave-ui #cave-pad { left: calc(var(--pirate-safe-left) + 16px); }
+  #voyage-ui[data-screen="cave"] #cave-ui #cave-jump { right: calc(var(--pirate-safe-right) + 16px); }
+}
+@media (max-height: 500px) and (min-aspect-ratio: 4/3) {
+  #voyage-ui #v-result .result-bottom,
+  #voyage-ui :is(#hold-ui, #unload-ui) .hold-actions { right: calc(var(--pirate-safe-right) + 16px); }
+  #voyage-ui #v-result .result-top,
+  #voyage-ui :is(#hold-ui, #unload-ui) .hold-heading { left: calc(var(--pirate-safe-left) + 16px); }
+  #voyage-ui[data-screen="levels"] #level-menu .menu-heading p { display: none; }
+  #voyage-ui[data-screen="levels"] #level-menu { overflow-y: hidden; }
+  #voyage-ui[data-screen="levels"] #level-menu .level-board {
+    height: 180px;
+    min-height: 180px;
+    margin-top: calc(var(--pirate-safe-top) + 136px);
+    margin-bottom: calc(var(--pirate-safe-bottom) + 45px);
+  }
+  #voyage-ui[data-screen="levels"] #level-menu .level-tile { width: 44px; height: 44px; }
+  #voyage-ui[data-screen="levels"] #level-menu .level-tile:nth-of-type(-n+5) { top: 78%; }
+  #voyage-ui[data-screen="levels"] #level-menu .level-tile:nth-of-type(n+6) { top: 24%; }
+  #voyage-ui[data-screen="levels"] #level-menu .level-tile:is(:nth-of-type(1), :nth-of-type(10)) { left: 8%; }
+  #voyage-ui[data-screen="levels"] #level-menu .level-tile:is(:nth-of-type(2), :nth-of-type(9)) { left: 29%; }
+  #voyage-ui[data-screen="levels"] #level-menu .level-tile:is(:nth-of-type(3), :nth-of-type(8)) { left: 50%; }
+  #voyage-ui[data-screen="levels"] #level-menu .level-tile:is(:nth-of-type(4), :nth-of-type(7)) { left: 71%; }
+  #voyage-ui[data-screen="levels"] #level-menu .level-tile:is(:nth-of-type(5), :nth-of-type(6)) { left: 92%; }
+  #voyage-ui[data-screen="levels"] #level-menu .route-island { width: 80px; height: 54px; bottom: 0; }
+  #voyage-ui[data-screen="levels"] #level-menu .tile-stars { bottom: -19px; font-size: 11px; }
+  #voyage-ui[data-screen="levels"] #level-menu .level-note { left: 0; right: 0; bottom: -28px; font-size: 10px; }
+  #voyage-ui[data-screen="levels"] #level-menu .route-portrait { display: none; }
+  #voyage-ui[data-screen="levels"] #level-menu .route-landscape { display: block; }
+  #voyage-ui[data-screen="levels"] #level-ship-marker { display: none; }
+  #voyage-ui[data-screen="cave"] #cave-ui .cave-title {
+    top: calc(var(--pirate-safe-top) + var(--pirate-menu-inset) + var(--pirate-touch-target) + 8px);
+  }
+  #voyage-ui[data-screen="cave"] #cave-ui .cave-title h1 { font-size: 21px; margin: 3px 0; }
+  #voyage-ui[data-screen="cave"] #cave-ui .cave-title p { font-size: 10px; }
+  #voyage-ui[data-screen="cave"] #cave-ui .gallery-hint { display: none; }
+  #voyage-ui[data-screen="cave"] #cave-ui #harbour-unload { bottom: calc(var(--pirate-safe-bottom) + 24px); }
+}
+@media (max-width: 650px) and (max-height: 650px) and (max-aspect-ratio: 1/1) {
+  #voyage-ui[data-screen="levels"][data-level-scrolled="true"] #level-menu .menu-heading { visibility: hidden; }
+}
+@media (max-height: 500px) and (min-aspect-ratio: 4/3) {
+  /* The four worlds and the two other destinations get separate rows. */
+  #voyage-ui[data-screen="worlds"] #world-menu .world-map {
+    inset: calc(var(--pirate-safe-top) + 154px) calc(var(--pirate-safe-right) + 16px) calc(var(--pirate-safe-bottom) + 84px) calc(var(--pirate-safe-left) + 16px);
+    width: auto;
+    height: auto;
+    min-height: 0;
+    margin: 0;
+  }
+  #voyage-ui[data-screen="worlds"] #world-packs {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    align-items: start;
+    gap: 10px;
+  }
+  #voyage-ui[data-screen="worlds"] #world-menu .world-island {
+    position: relative;
+    inset: auto;
+    width: 100%;
+    max-width: none;
+    min-height: 44px;
+  }
+  #voyage-ui[data-screen="worlds"] #world-menu .world-art {
+    width: 100%;
+    height: clamp(30px, calc(100dvh - var(--pirate-safe-top) - var(--pirate-safe-bottom) - 299px), 70px);
+    max-height: 70px;
+    aspect-ratio: auto;
+  }
+  #voyage-ui[data-screen="worlds"] #world-menu .world-label {
+    min-height: 58px;
+    margin: 0;
+    padding: 5px;
+    gap: 2px;
+  }
+  #voyage-ui[data-screen="worlds"] #world-menu .world-label small { font-size: 9px; }
+  #voyage-ui[data-screen="worlds"] #world-menu .world-label b { font-size: 14px; line-height: 1.25; }
+  #voyage-ui[data-screen="worlds"] #world-menu .world-label > span { font-size: 11px; }
+  #voyage-ui[data-screen="worlds"] #world-menu :is(.map-route, .map-footnote, .cave-art, #map-ship-marker) { display: none; }
+  #voyage-ui[data-screen="worlds"] #world-menu :is(#map-cave, #menu-free) {
+    position: fixed;
+    top: auto;
+    bottom: calc(var(--pirate-safe-bottom) + 12px);
+    width: 144px;
+    height: 44px;
+    min-height: 44px;
+    margin: 0;
+    padding: 8px 12px;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    border: 1px solid #85683e;
+    border-radius: 8px;
+    background: #eedbb3;
+    color: #352818;
+    box-shadow: 0 2px 5px #30271930;
+    transform: none;
+    font: 700 13px/1.25 var(--pirate-menu-font);
+  }
+  #voyage-ui[data-screen="worlds"] #world-menu #map-cave { left: calc(50% - 154px); right: auto; }
+  #voyage-ui[data-screen="worlds"] #world-menu #menu-free { right: calc(50% - 154px); left: auto; }
+  #voyage-ui[data-screen="worlds"] #world-menu #map-cave span {
+    margin: 0;
+    padding: 0;
+    background: none;
+    clip-path: none;
+    font: inherit;
+  }
+  #voyage-ui[data-screen="worlds"] #world-menu #menu-free .icon { width: 20px; height: 20px; }
+  #voyage-ui[data-screen="worlds"] #world-menu #menu-free small { display: none; }
+}
+@media (max-height: 350px) and (min-aspect-ratio: 4/3) {
+  #voyage-ui[data-screen="worlds"] #world-menu .menu-heading p { display: none; }
+  #voyage-ui[data-screen="worlds"] #world-menu .world-map { top: calc(var(--pirate-safe-top) + 136px); }
+  #voyage-ui[data-screen="worlds"] #world-menu .world-label b { font-size: 12px; }
+}

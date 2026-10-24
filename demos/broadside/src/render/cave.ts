@@ -28,6 +28,8 @@ import {
   CAVE_ITEMS,
 } from "../game/rewards";
 import { RELICS } from "../game/voyage";
+import { CargoChests, entranceCargoPosition, type CargoPosition } from "./cargoChests";
+import { cargoCarry } from "../game/cargoCarry";
 
 /** One continuous cavern. Gold and world keepsakes share a permanent place in the same room. */
 export class TreasureCave {
@@ -65,6 +67,10 @@ export class TreasureCave {
   private relief: { lift: number; height: number; width: number }[] = [];
   private owned = "initial";
   private chest: RewardChest;
+  private cargo: CargoChests;
+  private cargoSlots = new Map<number, CargoPosition>();
+  private unloadingOrigin: CargoPosition | null = null;
+  private unloadCameraFrom: { position: Vector3; target: Vector3; fov: number } | null = null;
   private revealDais: TransformNode;
   private focus: Vector3 | null = null;
   private distance = 24;
@@ -73,7 +79,7 @@ export class TreasureCave {
   private debugWorld: number | null = null;
   private reducedMotion = matchMedia("(prefers-reduced-motion: reduce)")
     .matches;
-  constructor(engine: Engine, persistent = true, strictPhysics = false) {
+  constructor(engine: Engine, persistent = true, strictPhysics = false, goldNamespace = "broadside.coin-poses", bankLabels?: readonly string[]) {
     const s = (this.scene = new Scene(engine));
     s.clearColor = new Color4(0.012, 0.02, 0.035, 1);
     s.fogMode = Scene.FOGMODE_EXP2;
@@ -92,8 +98,12 @@ export class TreasureCave {
     hemi.groundColor = Color3.FromHexString("#16121a");
     hemi.intensity = 0.62;
     hemi.renderPriority = 7;
-    this.chamber = new Cavern(s, this.spots);
-    this.coins = new CoinHoard(s, persistent, () => bindLocalLights(this.chamber.lamps, this.scene.meshes), { strictPhysics, obstacles:this.chamber.obstacles });
+    this.chamber = new Cavern(s, this.spots, bankLabels);
+    this.coins = new CoinHoard(s, persistent, () => bindLocalLights(this.chamber.lamps, this.scene.meshes), { reserves:true, reserveObstacle:(obstacle,enabled)=>{
+      const index=this.chamber.obstacles.indexOf(obstacle);
+      if(enabled&&index<0)this.chamber.obstacles.push(obstacle);
+      else if(!enabled&&index>=0)this.chamber.obstacles.splice(index,1);
+    }, gems:true, strictPhysics, obstacles:this.chamber.obstacles, goldNamespace });
     this.walker = new CaveWalker(this.chamber.obstacles, (x, z) =>
       Math.max(this.chamber.walkHeight(x, z), this.coins.walkHeight(x, z)),
     );
@@ -255,13 +265,14 @@ export class TreasureCave {
     this.revealLight.renderPriority = 3;
     this.revealLight.setEnabled(false);
     this.chest = new RewardChest(s);
+    this.cargo = new CargoChests(s, "cave entrance cargo");
     this.distance = this.overviewRadius();
   }
-  refresh(progress: Progress, depositWorld: number | null = null): void {
-    const count = goldTotal(progress) / GOLD_PER_LEVEL;
+  refresh(progress: Progress, depositWorld: number | null = null, bankGold?: readonly number[], depositCoins = 1000): void {
+    const count = (bankGold ? bankGold.reduce((sum,value)=>sum+value,0) : goldTotal(progress)) / GOLD_PER_LEVEL;
     const owned = [...(count ? [0] : []), ...progress.relics];
-    this.coins.refresh(progress, depositWorld);
-    const key = `${Object.keys(progress.voyages).sort().join(",")}:${owned.join(",")}`;
+    this.coins.refresh(progress, depositWorld, bankGold, depositCoins);
+    const key = `${bankGold?.join(",") ?? Object.keys(progress.voyages).sort().join(",")}:${owned.join(",")}`;
     if (key === this.owned) return;
     this.owned = key;
     this.relics.forEach((r) => r?.dispose(false, true));
@@ -324,6 +335,9 @@ export class TreasureCave {
   get coinCounts(): number[] { return this.coins.counts; }
   get restingCoinCounts(): number[] { return this.coins.restingCounts; }
   get coinPhysicsMetrics() { return this.coins.metrics(this.depositWorld??this.debugWorld??0); }
+  get reserveCounts(): number[] { return this.coins.reserveCounts; }
+  get gemStatus(): string { return this.coins.gemStatus; }
+  get gemCounts(): number[] { return this.coins.gemCounts; }
   get goldPhysicsActive(): boolean { return this.coins.physicsActive; }
   /** Debug-only controller supplies temporary banks, never player progress. */
   debugCoinBank(world: number, add = false): void {
@@ -438,13 +452,25 @@ export class TreasureCave {
     this.revealTime = 0;
     this.revealing = true;
   }
-  beginUnload(world: number): void { this.beginReveal(0, world); this.revealTime = this.reducedMotion ? 1.4 : 5.3; }
+  showCargo(ids: number[], active: number | null = null, reset = false): void {
+    if (reset) this.cargoSlots.clear();
+    for (const id of ids) if (!this.cargoSlots.has(id)) this.cargoSlots.set(id, entranceCargoPosition(this.cargoSlots.size));
+    this.cargo.show(ids.filter(id => id !== active).map(id => this.cargoSlots.get(id)!));
+  }
+  beginUnload(world: number, chestId?: number): void {
+    this.unloadCameraFrom = this.unloadingOrigin ? { position: this.camera.position.clone(), target: this.camera.getTarget().clone(), fov: this.camera.fov } : null;
+    this.beginReveal(0, world);
+    this.unloadingOrigin = chestId === undefined ? null : this.cargoSlots.get(chestId) ?? null;
+    this.revealTime = this.reducedMotion ? 1.4 : 5.3;
+  }
   get depositComplete(): boolean { return this.depositFinishedAt !== null && this.chestExitAt !== null && this.revealTime-this.chestExitAt >= CHEST_EXIT_SECONDS; }
   endReveal(): void {
     this.revealing = false;
     this.coins.finishPours();
     this.depositWorld = null;
     this.chest.hide();
+    this.unloadingOrigin = null;
+    this.unloadCameraFrom = null;
   }
   get revealPose() {
     return revealPose(this.revealTime, this.reducedMotion);
@@ -457,6 +483,7 @@ export class TreasureCave {
     if (unboxing) {
       this.revealTime += dt;
       this.chest.animate(this.revealTime, 0, this.reducedMotion);
+      if (this.depositWorld !== null) this.chest.setCoinCount(this.coins.pouring(this.depositWorld).depositCoins);
       this.chest.root.position.z = -5;
     } else this.chest.hide();
     const portrait = innerWidth < 600;
@@ -480,14 +507,16 @@ export class TreasureCave {
         const area = GOLD_AREAS[world]!, pour = this.coins.pouring(world);
         // Arrive in the correct room. Carry a chest from its walking path to
         // the bank, rather than flying through walls to a deeper chamber.
-        const approach = world === 2 ? new Vector3(0,.5,43) : world === 3 ? new Vector3(28,.5,35) : new Vector3(0,.5,area.z-5);
+        const approach = this.unloadingOrigin ? new Vector3(this.unloadingOrigin.x,this.unloadingOrigin.y,this.unloadingOrigin.z) : world === 2 ? new Vector3(0,.5,43) : world === 3 ? new Vector3(28,.5,35) : new Vector3(0,.5,area.z-5);
         const direction = new Vector3(area.x-approach.x,0,area.z-approach.z).normalize();
         const carryCamera = approach.subtract(direction.scale(4.8)).add(new Vector3(0,2.7,0));
         this.camera.position.copyFrom(Vector3.Lerp(carryCamera, this.bankView(world).add(new Vector3(0,1.2,0)), blend));
         this.camera.fov = (portrait ? 1.6 : .95) + ((portrait ? 1.35 : .9) - (portrait ? 1.6 : .95)) * blend;
         this.camera.setTarget(Vector3.Lerp(approach.add(new Vector3(0,1.25,0)), center.add(new Vector3(0, span.height * .1, 0)), blend));
         const travel = this.reducedMotion ? 1 : Math.min(1, elapsed / 3.8), carry = travel * travel * (3 - 2 * travel);
-        const carried=chestCarry(elapsed,approach,{x:area.x,y:pour.chestY,z:area.z},this.reducedMotion);
+        const carried=this.unloadingOrigin
+          ? cargoCarry(elapsed,approach,{x:area.x,y:pour.chestY,z:area.z},world,this.reducedMotion)
+          : chestCarry(elapsed,approach,{x:area.x,y:pour.chestY,z:area.z},this.reducedMotion);
         this.chest.root.position.set(carried.x,carried.y,carried.z);
         // Follow the raised chest, then look down with its tilt. Lifting first
         // must not carry it above the frame before it reaches the bank.
@@ -496,16 +525,37 @@ export class TreasureCave {
         this.camera.position.y=Math.min(6.1,this.camera.position.y+(carried.y-approach.y)*(1-blend));
         this.camera.setTarget(aim);
         if (!this.reducedMotion && travel < 1) this.chest.root.position.y += Math.sin(elapsed*8)*.035*Math.sin(travel*Math.PI);
-        this.chest.root.scaling.setAll(1);
-        this.chest.root.rotation.set(0, Math.atan2(direction.x,direction.z) * (1 - carry), pourTilt(pour.turn));
-        const lid=this.reducedMotion ? 1 : Math.max(0, Math.min(1, (elapsed-3.4)/.6));
+        if (this.unloadingOrigin) {
+          // Follow the actual chest through the corridors; all waiting cargo stays at the entrance.
+          const endBlend = Math.max(0, Math.min(1, (elapsed - 6.1) / .7));
+          const trail = cargoCarry(Math.max(0,elapsed-2),approach,{x:area.x,y:pour.chestY,z:area.z},world,this.reducedMotion);
+          const following = Math.max(0,Math.min(1,(elapsed-2.4)/2));
+          // A portrait camera needs a broad, elevated establishing view: standing
+          // right behind the first chest hides the whole queue and clips its lid.
+          const overview = new Vector3(0,6.1,2);
+          const follow = Vector3.Lerp(overview,new Vector3(trail.x+.4,Math.min(6.1,trail.y+2.7),Math.max(-11.8,trail.z-1)),following);
+          this.camera.position.copyFrom(Vector3.Lerp(follow, this.bankView(world).add(new Vector3(0,1.2,0)), endBlend));
+          this.camera.fov = portrait ? 1.9 - .55*endBlend : 1.15 - .25*endBlend;
+          const queueTarget = new Vector3(0,2.5,-7);
+          const movingTarget = new Vector3(carried.x,carried.y + .8,carried.z);
+          const target = Vector3.Lerp(queueTarget,movingTarget,Math.max(following,endBlend));
+          if (this.unloadCameraFrom && !this.reducedMotion && elapsed < 1.2) {
+            const fraction = Math.min(1,elapsed/1.2), smooth = fraction*fraction*(3-2*fraction);
+            this.camera.position.copyFrom(Vector3.Lerp(this.unloadCameraFrom.position,this.camera.position,smooth));
+            this.camera.fov = this.unloadCameraFrom.fov + (this.camera.fov-this.unloadCameraFrom.fov)*smooth;
+            this.camera.setTarget(Vector3.Lerp(this.unloadCameraFrom.target,target,smooth));
+          } else this.camera.setTarget(target);
+          this.chest.root.scaling.setAll(this.unloadingOrigin.scale + (1-this.unloadingOrigin.scale)*Math.min(1,elapsed/1.2));
+        } else this.chest.root.scaling.setAll(1);
+        this.chest.root.rotation.set(0, this.unloadingOrigin ? 0 : Math.atan2(direction.x,direction.z) * (1 - carry), pourTilt(pour.turn));
+        const lid=this.unloadingOrigin ? 1 : this.reducedMotion ? 1 : Math.max(0, Math.min(1, (elapsed-3.4)/.6));
         this.chest.open(lid);
         this.coins.carryChest(world,this.chest.root.position,this.chest.root.rotation,lid,dt);
         this.coins.preparePour(world);
-        if(elapsed >= (this.reducedMotion ? .1 : 4.2) && !this.pourStarted && pour.physicsReady && !pour.error){
+        if(elapsed >= (this.reducedMotion ? .1 : this.unloadingOrigin ? 7.2 : 4.2) && !this.pourStarted && pour.physicsReady && !pour.error){
           this.coins.startPour(world,this.reducedMotion?0:2.2);this.pourStarted=true;
         }
-        this.chest.setCoinCount(1000 - pour.spawned);
+        this.chest.setCoinCount(pour.depositCoins - pour.spawned);
         // Continue independently after the physics worker sleeps. Never fade
         // or remove an empty chest while it is still in the player's view.
         if(this.chestExitAt===null&&(pour.withdraw>0||pour.done))

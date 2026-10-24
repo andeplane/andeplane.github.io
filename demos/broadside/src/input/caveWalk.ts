@@ -104,6 +104,7 @@ export class CaveWalker {
     readonly obstacles: CaveObstacle[],
     private readonly floor: (x: number, z: number) => number,
     private readonly walkable = caveWalkable,
+    private readonly rightHanded = false,
   ) {
     this.reset();
   }
@@ -120,9 +121,11 @@ export class CaveWalker {
     this.resolve();
   }
   look(dx: number, dy: number): void {
+    // Right-handed scenes have the opposite screen-right axis when facing +Z.
+    const horizontal = this.rightHanded ? -1 : 1;
     this.yaw = Math.atan2(
-      Math.sin(this.yaw + dx * 0.003),
-      Math.cos(this.yaw + dx * 0.003),
+      Math.sin(this.yaw + dx * 0.003 * horizontal),
+      Math.cos(this.yaw + dx * 0.003 * horizontal),
     );
     this.pitch = Math.max(-1.35, Math.min(1.35, this.pitch + dy * 0.0028));
   }
@@ -142,7 +145,7 @@ export class CaveWalker {
     const length = Math.max(1, Math.hypot(intent.forward, intent.right));
     const speed = intent.crouch ? 1.35 : intent.sprint ? 5.8 : 3.6;
     const f = intent.forward / length,
-      r = intent.right / length;
+      r = intent.right / length * (this.rightHanded ? -1 : 1);
     const dx = (Math.sin(this.yaw) * f + Math.cos(this.yaw) * r) * speed;
     const dz = (Math.cos(this.yaw) * f - Math.sin(this.yaw) * r) * speed;
     const steps = Math.max(1, Math.ceil(duration * 120)),

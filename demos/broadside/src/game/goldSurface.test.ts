@@ -10,6 +10,9 @@ describe('frozen pile surface', () => {
     expect(exposedGold(new Float32Array())).toEqual([]);
     expect(exposedGold(poses, 1)).toEqual([0]);
   });
+  it('keeps widely scattered gold without flooding a cavern-sized air volume', () => {
+    expect(exposedGold(new Float32Array([...coin(-15, .5, -19), ...coin(36, 30, 50)]))).toEqual([0, 1]);
+  });
   it('removes a buried coin but preserves the outside on top and on every side', () => {
     const values = coin(0, 1, 0);
     // A densely filled stack encloses its centre. Coins on the edges remain
@@ -26,6 +29,16 @@ describe('frozen pile surface', () => {
     expect(outer.some(p => p[1]! < .8)).toBe(true);
     expect(exposedGold(poses)).toEqual(visible);
     expect(poses).toEqual(before);
+  });
+  it('retains the centre of an open cavity hidden behind all six outer silhouettes', () => {
+    const values = coin(0, 1, 0);
+    // Six distant stacks hide the centre in cardinal projections, but leave
+    // open space and diagonal views all the way to the central coin.
+    for (const [x, y, z] of [[.7, 1, 0], [-.7, 1, 0], [0, 1.7, 0], [0, .3, 0], [0, 1, .7], [0, 1, -.7]]) {
+      for (let dx = -1; dx <= 1; dx++) for (let dz = -1; dz <= 1; dz++)
+        for (let dy = -2; dy <= 2; dy++) values.push(...coin(x! + dx * .07, y! + dy * .05, z! + dz * .07));
+    }
+    expect(exposedGold(new Float32Array(values))).toContain(0);
   });
   it('reduces a real 8,000-coin hoard without changing any saved pose', () => {
     const bytes = readFileSync(new URL('../../public/assets/hoard/world-0/8000.bin', import.meta.url));

@@ -112,17 +112,19 @@
 }
 #world-menu .world-label small {
   color: #655033;
-  font-size: 9px;
+  font-size: var(--pirate-label-small-size);
   letter-spacing: 0.18em;
 }
 #world-menu .world-label b {
   color: #352618;
-  font-size: clamp(18px, 2vw, 27px);
-  line-height: 1.1;
+  font-family: var(--pirate-menu-font);
+  font-size: var(--pirate-label-size);
+  font-weight: 700;
+  line-height: 1.25;
 }
 #world-menu .world-label > span {
   color: #654626;
-  font-size: 11px;
+  font-size: var(--pirate-label-detail-size);
   font-weight: 700;
 }
 #world-menu .map-route {
@@ -247,16 +249,16 @@
   }
   #world-menu .world-label {
     margin-top: -3px;
-    padding: 5px 2px 6px;
+    padding: 7px 5px 8px;
   }
   #world-menu .world-label b {
-    font-size: 19px;
+    font-size: var(--pirate-label-size);
   }
   #world-menu .world-label small {
-    font-size: 8px;
+    font-size: var(--pirate-label-small-size);
   }
   #world-menu .world-label > span {
-    font-size: 10px;
+    font-size: var(--pirate-label-detail-size);
   }
   #world-menu .map-cave {
     left: 7%;
@@ -269,11 +271,6 @@
     right: 28px;
     font-size: 10px;
     line-height: 1.4;
-  }
-  [data-screen="worlds"] #menu-back {
-    left: 20px;
-    bottom: 18px;
-    min-width: 85px;
   }
 }
 @media (max-width: 650px) and (max-height: 650px) {
@@ -306,7 +303,7 @@
     top: 0;
   }
   #world-menu .world-label b {
-    font-size: 17px;
+    font-size: var(--pirate-label-size);
   }
   #world-menu .map-cave {
     width: 95px;
@@ -352,7 +349,7 @@
     top: 0;
   }
   #world-menu .world-label b {
-    font-size: 18px;
+    font-size: var(--pirate-label-size);
   }
   #world-menu .world-label {
     padding: 4px 2px;
@@ -419,4 +416,22 @@
     font-size: 18px;
     padding: 4px 10px 6px;
   }
+}
+
+@media (max-width: 650px) and (max-height: 650px) and (max-aspect-ratio: 4/3) {
+  #world-menu .world-map { --cave-space: 74px; }
+  #world-menu .map-cave {
+    left: 0; bottom: 8px; width: 45%; min-height: 44px;
+    display: grid; place-items: center;
+  }
+  #world-menu .map-cave .cave-art { display: none; }
+  #world-menu .map-cave span { min-height: 44px; display: grid; place-items: center; }
+  #world-menu .free-chart-button {
+    position: fixed; right: 12px;
+    bottom: calc(40px + var(--pirate-safe-bottom));
+    width: calc((100vw - 32px) / 2); height: 44px; min-height: 44px;
+    padding: 4px 8px; font-size: 16px; transform: none;
+  }
+  #world-menu .free-chart-button small { display: none; }
+  #world-menu .map-footnote { display: none; }
 }

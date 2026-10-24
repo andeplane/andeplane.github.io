@@ -34,6 +34,16 @@ describe("settled world gold banks", () => {
       }
     }
   }, 30_000); // Validate all 220,000 poses on slower CI runners.
+  it("loads an exact 100-coin reward prefix without inventing a 100.bin asset", async () => {
+    const bytes = snapshot(0, 1000), fetch = vi.fn().mockResolvedValue({ ok: true, arrayBuffer: async () => bytes });
+    vi.stubGlobal("fetch", fetch);
+    try {
+      const coins = await loadGoldLayout(0, 100, false);
+      expect(coins).toEqual(new Float32Array(bytes.slice(0, 100 * COIN_POSE_STRIDE * 4)));
+      expect(validGoldLayout(coins.buffer as ArrayBuffer, 100, 0)).toBe(true);
+      expect(fetch.mock.calls[0]![0]).toContain("/1000.bin");
+    } finally { vi.unstubAllGlobals(); }
+  });
   it("rejects damaged or incorrectly sized saved poses instead of rendering broken geometry", () => {
     const good = snapshot(0, 1000);
     expect(validGoldLayout(good, 2000, 0)).toBe(false);
@@ -55,6 +65,35 @@ describe("settled world gold banks", () => {
 
 
 describe("persistent coin poses", () => {
+  it("keeps Captain Calculus deposits in a separate database from sailing gold", async () => {
+    vi.resetModules();
+    const { loadGoldLayout, saveGoldLayout } = await import("./goldLayout");
+    const databases = new Map<string, Map<string, ArrayBuffer>>();
+    const opened: string[] = [];
+    vi.stubGlobal("indexedDB", { open: (name: string) => {
+      opened.push(name);
+      const records = databases.get(name) ?? new Map<string, ArrayBuffer>();
+      databases.set(name, records);
+      const db = { transaction: () => {
+        const tx: any = { objectStore: () => ({
+          put: (data: ArrayBuffer, key: string) => { records.set(key, data.slice(0)); queueMicrotask(() => tx.oncomplete?.()); },
+          get: (key: string) => { const request: any = { result: records.get(key) }; queueMicrotask(() => request.onsuccess?.()); return request; },
+        }) }; return tx;
+      } };
+      const request: any = { result: db }; queueMicrotask(() => request.onsuccess?.()); return request;
+    } });
+    const fetch = vi.fn(); vi.stubGlobal("fetch", fetch);
+    try {
+      const sailing = new Float32Array(snapshot(0, 1000)), math = sailing.slice();
+      math[0] = math[0]! + .02;
+      await saveGoldLayout(0, sailing);
+      await saveGoldLayout(0, math, true, "captain-calculus.coin-poses");
+      expect(await loadGoldLayout(0, 1000)).toEqual(sailing);
+      expect(await loadGoldLayout(0, 1000, true, "captain-calculus.coin-poses")).toEqual(math);
+      expect(opened).toEqual(["broadside.coin-poses", "captain-calculus.coin-poses"]);
+      expect(fetch).not.toHaveBeenCalled();
+    } finally { vi.unstubAllGlobals(); }
+  });
   it("restores the exact simulated positions and rotations without fetching or moving them", async () => {
     const records = new Map<string, ArrayBuffer>();
     const db = { transaction: () => {

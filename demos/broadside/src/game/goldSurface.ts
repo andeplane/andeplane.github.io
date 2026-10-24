@@ -4,7 +4,7 @@ const CELL = .07;
 const STRIDE_Y = 4096, STRIDE_Z = STRIDE_Y * 1024;
 
 
-/** Keep the outside of a frozen pile, including its sides and underside.
+/** Keep every exterior surface of a frozen pile, including open cavities.
  * Occupancy is used only for rendering: every surviving pose remains in saves,
  * walking support and physics. Never run this on moving coins or every frame.
  */
@@ -33,31 +33,48 @@ export function exposedGold(poses: Float32Array, count = poses.length / COIN_POS
       }
     }
   }
-  // Six orthographic silhouettes retain top/bottom and all four sides. Small
-  // cavities inside the stack do not make buried coins count as exposed.
-  const axes = [new Map<number, [number, number]>(), new Map<number, [number, number]>(), new Map<number, [number, number]>()];
-  const decode = (key: number) => {
-    const x = key % STRIDE_Y, y = Math.floor(key / STRIDE_Y) % 1024, z = Math.floor(key / STRIDE_Z);
-    return [x, y, z];
-  };
-  for (const key of occupied.keys()) {
-    const [x, y, z] = decode(key) as [number, number, number];
-    const columns = [y + z * 1024, x + z * STRIDE_Y, x + y * STRIDE_Y], values = [x, y, z];
-    for (let a = 0; a < 3; a++) {
-      const bounds = axes[a]!.get(columns[a]!);
-      if (!bounds) axes[a]!.set(columns[a]!, [values[a]!, values[a]!]);
-      else { bounds[0] = Math.min(bounds[0], values[a]!); bounds[1] = Math.max(bounds[1], values[a]!); }
-    }
-  }
+  // Only hide coins fully enclosed by other coins. Cardinal silhouettes
+  // incorrectly remove the centre of cavities visible through diagonal gaps.
+  // Flood exterior air so sealed microscopic pockets do not defeat culling.
   const visible = new Uint8Array(count);
-  for (const [key, coin] of occupied) {
-    if (visible[coin]) continue;
-    const [x, y, z] = decode(key) as [number, number, number];
-    const columns = [y + z * 1024, x + z * STRIDE_Y, x + y * STRIDE_Y], values = [x, y, z];
-    for (let a = 0; a < 3; a++) {
-      const [lo, hi] = axes[a]!.get(columns[a]!)!;
-      if (values[a] === lo || values[a] === hi) { visible[coin] = 1; break; }
+  if (!occupied.size) return [];
+  const decode = (key: number) => [key % STRIDE_Y, Math.floor(key / STRIDE_Y) % 1024, Math.floor(key / STRIDE_Z)];
+  const lo = [Infinity, Infinity, Infinity], hi = [-Infinity, -Infinity, -Infinity];
+  for (const key of occupied.keys()) {
+    const cell = decode(key);
+    for (let a = 0; a < 3; a++) { lo[a] = Math.min(lo[a]!, cell[a]! - 1); hi[a] = Math.max(hi[a]!, cell[a]! + 1); }
+  }
+  const strides = [1, STRIDE_Y, STRIDE_Z];
+  // A few escaped coins can span the cavern. Bound temporary air traversal;
+  // retaining extra cavity faces is safer than hiding gold or allocating a
+  // cavern-sized voxel volume on a phone.
+  const volume = (hi[0]! - lo[0]! + 1) * (hi[1]! - lo[1]! + 1) * (hi[2]! - lo[2]! + 1);
+  if (volume > 4_000_000) {
+    for (const [key, coin] of occupied) {
+      if (strides.some(stride => !occupied.has(key - stride) || !occupied.has(key + stride))) visible[coin] = 1;
     }
+    return Array.from(visible.keys()).filter(coin => visible[coin]);
+  }
+  const width = hi[0]! - lo[0]! + 1, height = hi[1]! - lo[1]! + 1, depth = hi[2]! - lo[2]! + 1;
+  // Dense typed buffers bound memory to eight bytes per cell, rather than
+  // allocating a Set entry and boxed queue value for every empty voxel.
+  const cells = new Int32Array(volume), queue = new Uint32Array(volume);
+  for (const [key, coin] of occupied) {
+    const [x, y, z] = decode(key);
+    cells[x! - lo[0]! + (y! - lo[1]!) * width + (z! - lo[2]!) * width * height] = coin + 1;
+  }
+  cells[0] = -1;
+  let tail = 1;
+  for (let head = 0; head < tail; head++) {
+    const index = queue[head]!, x = index % width, y = Math.floor(index / width) % height, z = Math.floor(index / (width * height));
+    const visit = (neighbour: number) => {
+      const owner = cells[neighbour]!;
+      if (owner > 0) visible[owner - 1] = 1;
+      else if (owner === 0) { cells[neighbour] = -1; queue[tail++] = neighbour; }
+    };
+    if (x) visit(index - 1); if (x + 1 < width) visit(index + 1);
+    if (y) visit(index - width); if (y + 1 < height) visit(index + width);
+    if (z) visit(index - width * height); if (z + 1 < depth) visit(index + width * height);
   }
   const indices: number[] = [];
   for (let i = 0; i < count; i++) if (visible[i]) indices.push(i);

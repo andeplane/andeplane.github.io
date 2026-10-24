@@ -3,7 +3,6 @@ import type { Engine } from '@babylonjs/core/Engines/engine.js';
 import { FreeCamera } from '@babylonjs/core/Cameras/freeCamera.js';
 import { Vector3 } from '@babylonjs/core/Maths/math.vector.js';
 import { Color3, Color4 } from '@babylonjs/core/Maths/math.color.js';
-import { Mesh } from '@babylonjs/core/Meshes/mesh.js';
 import { MeshBuilder } from '@babylonjs/core/Meshes/meshBuilder.js';
 import { StandardMaterial } from '@babylonjs/core/Materials/standardMaterial.js';
 import { DynamicTexture } from '@babylonjs/core/Materials/Textures/dynamicTexture.js';
@@ -19,6 +18,8 @@ import { buildRelic } from './relics';
 import { antialiasSamples, isPhoneRendering } from './quality';
 import type { VoyageDef } from '../game/voyage';
 import { cargoChests } from '../game/rewards';
+import { CargoChests, holdCargoPosition } from './cargoChests';
+import { shipHoldCamera } from './shipHoldCamera';
 import type { Progress } from '../game/progress';
 import { CoinHoard } from './coinHoard';
 import { chestCarry, chestExit, CHEST_EXIT_SECONDS, pourTilt } from '../game/coinPour';
@@ -33,7 +34,7 @@ export class ShipHold {
   private time = 0;
   private revealTime = 0;
   private special: ReturnType<typeof buildRelic> | null = null;
-  private cargoMeshes: Mesh[] = [];
+  private cargo: CargoChests;
   private wood: StandardMaterial;
   private metal: StandardMaterial;
   private revealing = true;
@@ -99,24 +100,21 @@ export class ShipHold {
     const island = [...voyage.level.islands].filter(i=>i.kind==='sand').sort((a,b)=>Math.hypot(a.pos.x-voyage.finish.x,a.pos.z-voyage.finish.z)-Math.hypot(b.pos.x-voyage.finish.x,b.pos.z-voyage.finish.z))[0];
     this.islands=buildIslands(s,island?[{...island,pos:{x:0,z:island.radius+29}}]:[],shadows,voyage.level.seed,voyage.pack);
     this.chest=new RewardChest(s);
+    this.cargo = new CargoChests(s, 'shipboard cargo');
     const pipeline=new DefaultRenderingPipeline('golden light in the treasure hold', !isPhoneRendering(engine),s,[this.camera]);
     pipeline.bloomEnabled=true;pipeline.bloomThreshold=1.1;pipeline.bloomWeight=.1;pipeline.bloomKernel=24;
     pipeline.samples=antialiasSamples(engine);pipeline.fxaaEnabled=true;s.imageProcessingConfiguration.exposure=1.05;
   }
   open(progress: Progress, special: number | null, reveal = true): void {
-    this.revealTime=0;this.revealing=reveal;
-    this.coins=cargoChests(progress).length ? 1000 : 0;
-    this.special?.dispose(false,true);this.special=null;
+    this.openCargo(cargoChests(progress).length, 1000, reveal);
     if(special!==null) {this.special=buildRelic(this.scene,special);this.special.parent=this.chest.root;this.special.scaling.setAll(.3);const b=this.special.getHierarchyBoundingVectors(true);this.special.position.set(.1,1.25-b.min.y,-.04);}
-    this.cargoMeshes.forEach(m=>m.dispose());this.cargoMeshes=[];
-    const timber:Mesh[]=[],fittings:Mesh[]=[];
-    for(let i=0;i<Math.max(0,cargoChests(progress).length-1);i++) {
-      const side=i%2?-1:1, n=Math.floor(i/2),x=side*3.25,z=4.4-(n%7)*1.35,y=.78+Math.floor(n/7)*1.04;
-      const crate=MeshBuilder.CreateBox('stowed chest of one thousand gold',{width:1.3,height:.74,depth:.92},this.scene);crate.position.set(x,y+.37,z);crate.material=this.wood;timber.push(crate);
-      const lid=MeshBuilder.CreateCylinder('stowed rounded chest lid',{height:1.3,diameter:.92,arc:.5,enclose:true,tessellation:16},this.scene);lid.rotation.set(Math.PI/2,Math.PI/2,0);lid.position.set(x,y+.74,z);lid.material=this.wood;timber.push(lid);
-      for(const dx of [-.4,.4]) {const band=MeshBuilder.CreateBox('stowed chest brass strap',{width:.055,height:.78,depth:.96},this.scene);band.position.set(x+dx,y+.37,z);band.material=this.metal;fittings.push(band);}
-    }
-    for(const meshes of [timber,fittings]) if(meshes.length) {const m=Mesh.MergeMeshes(meshes,true,true)!;m.receiveShadows=true;this.cargoMeshes.push(m);}
+  }
+  /** Both games use the same hold, open cargo geometry and latest-chest animation. */
+  openCargo(count: number, coinsPerChest = 1000, reveal = true): void {
+    this.revealTime=0;this.revealing=reveal;
+    this.coins=count ? coinsPerChest : 0;
+    this.special?.dispose(false,true);this.special=null;
+    this.cargo.show(Array.from({ length: Math.max(0, count - 1) }, (_, i) => holdCargoPosition(i)));
   }
   get pose() { return revealPose(this.revealTime,this.reducedMotion); }
   debugCoinBank(_world = 0, add = false): void {
@@ -139,9 +137,10 @@ export class ShipHold {
     this.time+=dt;if(this.revealing)this.revealTime+=dt;else this.revealTime=5;
     this.chest.animate(this.revealTime,0,reduced);this.chest.root.position.set(0,1.05,0);
     this.chest.setCoinCount(this.coins);
-    const bob=reduced?0:Math.sin(this.time*.75)*.035;
-    this.camera.position.set(.75+Math.sin(this.time*.35)*.015,5.4+bob,-6.8);
-    this.camera.fov=innerWidth<600?1.25:.85;this.camera.setTarget(new Vector3(0,2.05,.55));
+    const framing = shipHoldCamera(innerWidth < 600, this.time, reduced);
+    this.camera.position.set(framing.position.x,framing.position.y,framing.position.z);
+    this.camera.fov=framing.fov;
+    this.camera.setTarget(new Vector3(framing.target.x,framing.target.y,framing.target.z));
     if (this.debugHoard) {
       this.debugAge += dt;
       const pour = this.debugHoard.pouring(0), height = this.debugHoard.span(0).height;

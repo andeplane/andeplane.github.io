@@ -1,0 +1,249 @@
+/* Live controls get their own layout. Menu typography never occupies the sea. */
+#voyage-ui:has(#v-paused:not([hidden])) > .voyage-header { visibility: hidden; pointer-events: none; }
+#voyage-ui[data-screen="play"] {
+  --live-top: var(--pirate-safe-top, env(safe-area-inset-top, 0px));
+  --live-bottom: var(--pirate-safe-bottom, env(safe-area-inset-bottom, 0px));
+  --live-left: var(--pirate-safe-left, env(safe-area-inset-left, 0px));
+  --live-right: var(--pirate-safe-right, env(safe-area-inset-right, 0px));
+  --live-column: min(340px, calc((100% - var(--live-left) - var(--live-right) - 36px) / 2));
+}
+#voyage-ui[data-screen="play"] .voyage-header,
+#voyage-ui[data-screen="play"]:has(#game-fullscreen:not([hidden])) .voyage-header {
+  top: calc(var(--live-top) + 12px);
+  left: auto;
+  right: calc(var(--live-right) + 12px);
+  width: var(--live-column);
+  display: block;
+  margin: 0;
+}
+#voyage-ui[data-screen="play"]:has(#game-fullscreen:not([hidden])) .voyage-header {
+  right: calc(var(--live-right) + 64px);
+  width: calc(var(--live-column) - 52px);
+}
+#voyage-ui[data-screen="play"] .voyage-header .pirate-menu-header-left { display: none; }
+#voyage-ui[data-screen="play"] .pirate-menu-header-actions {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 6px;
+  width: 100%;
+}
+#voyage-ui[data-screen="play"] .pirate-menu-header-actions > button {
+  width: 100%;
+  height: 48px;
+  min-height: 44px;
+  min-width: 0;
+  padding: 5px 2px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  gap: 3px;
+  border: 1px solid #b5d5d04d;
+  border-radius: 11px;
+  color: #f5e3bd;
+  background: #102933ed;
+  box-shadow: 0 2px 10px #03151c33;
+  font-size: 10px;
+  line-height: 1;
+  white-space: nowrap;
+}
+#voyage-ui[data-screen="play"] .pirate-menu-header-actions > button .icon { width: 19px; height: 19px; }
+#voyage-ui[data-screen="play"] #v-camera[aria-pressed="true"] { background: #28504b; border-color: #d6c18b; }
+#voyage-ui:not([data-screen="play"]) :is(#v-home, #v-pause, #v-camera, #v-deck) > span { display: none; }
+#voyage-ui[data-screen="play"] #game-fullscreen {
+  top: calc(var(--live-top) + 12px);
+  right: calc(var(--live-right) + 12px);
+  width: 44px;
+  height: 48px;
+  border-radius: 11px;
+}
+#voyage-ui[data-screen="play"] .live-voyage-hud {
+  position: absolute;
+  top: calc(var(--live-top) + 12px);
+  left: calc(var(--live-left) + 12px);
+  width: var(--live-column);
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  z-index: 10;
+}
+#voyage-ui[data-screen="play"] .voyage-summary {
+  padding: 9px 12px 10px;
+  border: 1px solid #b5d5d040;
+  border-radius: 12px;
+  color: #f4e6c8;
+  background: #102933e8;
+  box-shadow: 0 3px 15px #03151c26;
+}
+#voyage-ui[data-screen="play"] .voyage-status {
+  position: static;
+  width: auto;
+  padding: 0 0 8px;
+  border: 0;
+  border-radius: 0;
+  background: none;
+  justify-content: space-between;
+  gap: 12px;
+  font-size: 11px;
+  line-height: 16px;
+}
+#voyage-ui[data-screen="play"] .voyage-status > span { gap: 7px; min-width: 0; }
+#voyage-ui[data-screen="play"] .voyage-status .icon { width: 15px; height: 15px; }
+#voyage-ui[data-screen="play"] .health-track { width: clamp(62px, 20vw, 120px); height: 5px; }
+#voyage-ui[data-screen="play"] .gem-count { white-space: nowrap; }
+#voyage-ui[data-screen="play"] .voyage-mission {
+  position: static;
+  width: auto;
+  transform: none;
+  text-align: left;
+}
+#voyage-ui[data-screen="play"] .voyage-mission > small {
+  display: block;
+  margin-bottom: 3px;
+  font-size: 8px;
+  line-height: 1.3;
+  letter-spacing: .11em;
+  color: #a9c9c5;
+  text-shadow: none;
+}
+#voyage-ui[data-screen="play"] .voyage-mission > strong {
+  font-size: 23px;
+  line-height: 1.08;
+  text-wrap: balance;
+  text-shadow: none;
+}
+#voyage-ui[data-screen="play"] .voyage-track { height: 3px; margin: 9px 4px 1px 0; background: #c6dfcf26; }
+#voyage-ui[data-screen="play"] .voyage-track span { top: -6px; right: -4px; font-size: 13px; }
+#voyage-ui[data-screen="play"] #v-weather {
+  position: static;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px 8px;
+  margin-top: 8px;
+  padding: 6px 0 0;
+  border: 0;
+  border-top: 1px solid #b5d5d02b;
+  border-radius: 0;
+  background: none;
+  font-size: 10px;
+  line-height: 1.2;
+}
+#voyage-ui[data-screen="play"] #v-wind-arrow { font-size: 16px; line-height: 1; }
+#voyage-ui[data-screen="play"] #v-gust { font-size: 8px; }
+#voyage-ui[data-screen="play"] #v-tip {
+  position: static;
+  width: 100%;
+  max-width: none;
+  transform: none;
+  margin: 0;
+  padding: 9px 12px;
+  border: 1px solid #dfd39b4d;
+  border-radius: 10px;
+  background: #173a43f2;
+  color: #fff0cb;
+  font-size: 12px;
+  line-height: 1.4;
+  text-align: left;
+  text-wrap: pretty;
+  transition: opacity .3s;
+}
+#voyage-ui[data-screen="play"] #v-tip:empty { display: none; }
+#voyage-ui[data-screen="play"] #v-wheel { left: calc(var(--live-left) + 16px); bottom: calc(var(--live-bottom) + 28px); }
+#voyage-ui[data-screen="play"] #v-fire { right: calc(var(--live-right) + 16px); bottom: calc(var(--live-bottom) + 28px); }
+#voyage-ui[data-screen="play"] #v-anchor { left: calc(var(--live-left) + 172px); bottom: calc(var(--live-bottom) + 46px); min-width: 44px; min-height: 44px; }
+#voyage-ui[data-screen="play"] #v-compass { bottom: calc(var(--live-bottom) + 30px); }
+#voyage-ui[data-screen="play"] #v-sea-chart { bottom: calc(var(--live-bottom) + 28px); }
+#voyage-ui[data-screen="play"] #v-captain-help { bottom: calc(var(--live-bottom) + 175px); }
+#voyage-ui[data-screen="play"] #v-look-centre { min-height: 44px; }
+#voyage-ui[data-screen="play"][data-on-deck="true"] :is(#v-fire, #v-compass, #v-sea-chart) { display: none; }
+#voyage-ui[data-screen="play"] #deck-pad { left: calc(var(--live-left) + 16px); bottom: calc(var(--live-bottom) + 30px); }
+#voyage-ui[data-screen="play"] #deck-jump { left: calc(var(--live-left) + 138px); bottom: calc(var(--live-bottom) + 42px); }
+#voyage-ui[data-screen="play"] #fishing-ui { right: calc(var(--live-right) + 16px); bottom: calc(var(--live-bottom) + 28px); width: min(210px, 30%); }
+#voyage-ui[data-screen="play"] #fish-status:empty { display: none; }
+
+@media (max-width: 650px) and (orientation: portrait) {
+  #voyage-ui[data-screen="play"] .voyage-header,
+  #voyage-ui[data-screen="play"]:has(#game-fullscreen:not([hidden])) .voyage-header {
+    left: calc(var(--live-left) + 12px);
+    right: calc(var(--live-right) + 12px);
+    width: auto;
+    top: calc(var(--live-top) + 8px);
+  }
+  #voyage-ui[data-screen="play"]:has(#game-fullscreen:not([hidden])) .voyage-header { right: calc(var(--live-right) + 62px); }
+  #voyage-ui[data-screen="play"] #game-fullscreen { top: calc(var(--live-top) + 8px); height: 44px; }
+  #voyage-ui[data-screen="play"] .pirate-menu-header-actions > button { height: 44px; font-size: 9px; gap: 3px; }
+  #voyage-ui[data-screen="play"] .pirate-menu-header-actions > button .icon { width: 17px; height: 17px; }
+  #voyage-ui[data-screen="play"] .live-voyage-hud { top: calc(var(--live-top) + 60px); right: calc(var(--live-right) + 12px); width: auto; }
+  #voyage-ui[data-screen="play"] .voyage-mission > strong { font-size: 22px; }
+  #voyage-ui[data-screen="play"] #v-tip { font-size: 11px; padding: 8px 11px; }
+  #voyage-ui[data-screen="play"] #v-wheel { width: 104px; height: 104px; left: calc(var(--live-left) + 12px); }
+  #voyage-ui[data-screen="play"] #v-stick { width: 62px; height: 62px; }
+  #voyage-ui[data-screen="play"] #v-stick > .icon { width: 36px; height: 36px; }
+  #voyage-ui[data-screen="play"] #v-fire { width: 104px; height: 104px; right: calc(var(--live-right) + 12px); }
+  #voyage-ui[data-screen="play"] #v-anchor { left: calc(var(--live-left) + 12px); bottom: calc(var(--live-bottom) + 148px); }
+  #voyage-ui[data-screen="play"] #v-compass { width: 76px; padding: 8px 3px; bottom: calc(var(--live-bottom) + 35px); }
+  #voyage-ui[data-screen="play"] #v-compass b { font-size: 7px; letter-spacing: .08em; }
+  #voyage-ui[data-screen="play"] #v-arrow { font-size: 25px; }
+  #voyage-ui[data-screen="play"] #v-distance { font-size: 9px; }
+  #voyage-ui[data-screen="play"] #v-sea-chart canvas { width: 88px; height: 88px; }
+  #voyage-ui[data-screen="play"] #v-chart-open { min-height: 44px; min-width: 44px; }
+  #voyage-ui[data-screen="play"] #v-captain-help {
+    left: calc(var(--live-left) + 72px);
+    right: calc(var(--live-right) + 12px);
+    bottom: calc(var(--live-bottom) + 148px);
+    width: auto;
+    max-width: none;
+    transform: none;
+    flex-direction: row;
+    justify-content: flex-end;
+    gap: 8px;
+    font-size: 9px;
+    text-align: right;
+  }
+  #voyage-ui[data-screen="play"] #v-look-centre { flex-shrink: 0; }
+  #voyage-ui[data-screen="play"] #deck-pad { width: 96px; height: 96px; left: calc(var(--live-left) + 12px); }
+  #voyage-ui[data-screen="play"] #deck-thumb { left: 26px; top: 26px; }
+  #voyage-ui[data-screen="play"] #deck-jump { left: calc(var(--live-left) + 120px); width: 44px; }
+  #voyage-ui[data-screen="play"] #deck-helm { display: none; }
+  #voyage-ui[data-screen="play"] #fishing-ui { right: calc(var(--live-right) + 12px); width: calc(100% - var(--live-left) - var(--live-right) - 188px); }
+  #voyage-ui[data-screen="play"] #fishing-ui button { padding: 9px 10px; font-size: 11px; }
+  #voyage-ui[data-screen="play"] #fish-status { font-size: 10px; }
+}
+@media (max-width: 350px) and (orientation: portrait) {
+  #voyage-ui[data-screen="play"] #v-wheel,
+  #voyage-ui[data-screen="play"] #v-fire { width: 96px; height: 96px; }
+  #voyage-ui[data-screen="play"] #v-fire b { font-size: 18px; }
+  #voyage-ui[data-screen="play"] #v-fire small { font-size: 6px; }
+  #voyage-ui[data-screen="play"] #v-fire .icon { width: 28px; height: 28px; }
+  #voyage-ui[data-screen="play"] .voyage-summary { padding: 8px 10px; }
+  #voyage-ui[data-screen="play"] .voyage-status { font-size: 10px; padding-bottom: 6px; }
+  #voyage-ui[data-screen="play"] .voyage-mission > strong { font-size: 20px; }
+}
+@media (max-height: 500px) and (orientation: landscape) {
+  #voyage-ui[data-screen="play"] { --live-column: calc((100% - var(--live-left) - var(--live-right) - 36px) / 2); }
+  #voyage-ui[data-screen="play"] .voyage-header,
+  #voyage-ui[data-screen="play"]:has(#game-fullscreen:not([hidden])) .voyage-header,
+  #voyage-ui[data-screen="play"] .live-voyage-hud,
+  #voyage-ui[data-screen="play"] #game-fullscreen { top: calc(var(--live-top) + 8px); }
+  #voyage-ui[data-screen="play"] .pirate-menu-header-actions > button { height: 44px; font-size: 9px; }
+  #voyage-ui[data-screen="play"] #game-fullscreen { height: 44px; }
+  #voyage-ui[data-screen="play"] .voyage-summary { padding: 7px 10px; }
+  #voyage-ui[data-screen="play"] .voyage-status { padding-bottom: 5px; font-size: 10px; }
+  #voyage-ui[data-screen="play"] .voyage-mission > strong { font-size: 20px; }
+  #voyage-ui[data-screen="play"] #v-weather { margin-top: 5px; padding-top: 4px; }
+  #voyage-ui[data-screen="play"] #v-tip { padding: 7px 10px; font-size: 10px; }
+  #voyage-ui[data-screen="play"] #v-wheel,
+  #voyage-ui[data-screen="play"] #v-fire { width: 90px; height: 90px; bottom: calc(var(--live-bottom) + 24px); }
+  #voyage-ui[data-screen="play"] #v-stick { width: 56px; height: 56px; }
+  #voyage-ui[data-screen="play"] #v-stick .icon { width: 34px; height: 34px; }
+  #voyage-ui[data-screen="play"] #v-anchor { left: calc(var(--live-left) + 120px); bottom: calc(var(--live-bottom) + 34px); }
+  #voyage-ui[data-screen="play"] #v-compass { bottom: calc(var(--live-bottom) + 24px); }
+  #voyage-ui[data-screen="play"] #v-captain-help { bottom: calc(var(--live-bottom) + 123px); }
+  #voyage-ui[data-screen="play"] #v-sea-chart { bottom: calc(var(--live-bottom) + 20px); }
+  #voyage-ui[data-screen="play"] #v-sea-chart canvas { width: 72px; height: 72px; }
+  #voyage-ui[data-screen="play"] #deck-pad { width: 90px; height: 90px; bottom: calc(var(--live-bottom) + 25px); }
+  #voyage-ui[data-screen="play"] #deck-jump { left: calc(var(--live-left) + 118px); bottom: calc(var(--live-bottom) + 34px); }
+  #voyage-ui[data-screen="play"] #fishing-ui { width: 190px; bottom: calc(var(--live-bottom) + 25px); }
+  #voyage-ui[data-screen="play"] #deck-helm { bottom: calc(var(--live-bottom) + 123px); }
+}

@@ -17,9 +17,9 @@
   top: calc(80px + env(safe-area-inset-top, 0px));
   right: calc(20px + env(safe-area-inset-right, 0px));
 }
-#voyage-ui #cave-back {
-  top: calc(20px + env(safe-area-inset-top, 0px));
-  left: calc(20px + env(safe-area-inset-left, 0px));
+#voyage-ui:has(#menu-back:not([hidden])) .voyage-header,
+#voyage-ui:is([data-screen="hold"], [data-screen="unloading"], [data-screen="result"]) .voyage-header {
+  left: calc(var(--pirate-menu-inset) + var(--pirate-back-width) + 16px + env(safe-area-inset-left, 0px));
 }
 #voyage-ui #cave-ui .cave-title { top: calc(22px + env(safe-area-inset-top, 0px)); }
 #voyage-ui #cave-pad { left: calc(24px + env(safe-area-inset-left, 0px)); }
@@ -53,10 +53,18 @@
   #voyage-ui:has(#game-fullscreen:not([hidden])) .voyage-header {
     right: calc(60px + env(safe-area-inset-right, 0px));
   }
-  #voyage-ui #cave-back {
-    top: calc(15px + env(safe-area-inset-top, 0px));
-    left: calc(12px + env(safe-area-inset-left, 0px));
+  #voyage-ui:has(#menu-back:not([hidden])) .voyage-header,
+  #voyage-ui:is([data-screen="hold"], [data-screen="unloading"], [data-screen="result"]) .voyage-header {
+    left: calc(var(--pirate-menu-inset) + var(--pirate-back-width) + 16px + env(safe-area-inset-left, 0px));
   }
+  #voyage-ui #cave-ui .cave-title {
+    left: calc(var(--pirate-menu-inset) + var(--pirate-back-width) + 16px + env(safe-area-inset-left, 0px));
+    right: calc(60px + env(safe-area-inset-right, 0px));
+    width: auto;
+    transform: none;
+    text-align: left;
+  }
+  #voyage-ui #cave-ui .cave-title h1 { font-size: 18px; }
   #voyage-ui .harbour-chart {
     top: calc(72px + env(safe-area-inset-top, 0px));
     right: calc(12px + env(safe-area-inset-right, 0px));

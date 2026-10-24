@@ -1,0 +1,49 @@
+.expedition-view { position: absolute; inset: 0; overflow: hidden; background: var(--shore-sea); }
+.expedition-map-viewport { position: absolute; inset: 0; background: linear-gradient(#10293633, #10293644), var(--operation-world) center / cover; }
+.expedition-map { overflow: visible; }
+.expedition-intro { position: absolute; z-index: 8; top: 10px; left: 16px; right: 16px; max-width: 530px; margin: auto; padding: 11px 14px 12px; border: 1px solid #d2e0ca33; border-radius: 15px; background: #102a37e8; box-shadow: 0 6px 18px #051c3140; text-align: center; pointer-events: none; }
+.expedition-intro .eyebrow { font-size: 10px; letter-spacing: .1em; }
+.expedition-intro h1 { margin: 4px 0 5px; font-size: 27px; }
+.expedition-intro p { color: #c8d7cc; font-size: 11px; line-height: 1.4; }
+.expedition-region { position: relative; isolation: isolate; background: var(--shore-sea); }
+.expedition-world-art { position: absolute; inset: 0; z-index: -2; background: var(--operation-world) center / cover no-repeat; transform: scaleX(var(--region-reflection, 1)); mask-image: linear-gradient(transparent, #000 130px, #000 calc(100% - 130px), transparent); -webkit-mask-image: linear-gradient(transparent, #000 130px, #000 calc(100% - 130px), transparent); }
+.expedition-region::before { content: ""; position: absolute; inset: 0; z-index: -1; pointer-events: none; background: linear-gradient(#1029363d, transparent 20% 80%, #1029364d); }
+.expedition-region::after { content: ""; position: absolute; bottom: -1px; inset-inline: 0; height: 130px; background: linear-gradient(transparent, var(--shore-sea)); pointer-events: none; }
+.expedition-region-title { position: absolute; z-index: 3; top: 18px; left: 18px; right: 18px; width: fit-content; max-width: calc(100% - 36px); margin: auto; padding: 12px 22px; border: 1px solid #d9d7ab3b; border-radius: 14px; background: #122f3dd9; box-shadow: 0 7px 18px #0a233f38; text-align: center; }
+.expedition-region-title > span { color: var(--shore-glow); font-size: 8px; letter-spacing: .17em; font-weight: 700; }
+.expedition-region-title h2 { margin: 5px 0; font-size: 27px; color: #f8e7c8; }
+.expedition-region-title > small { color: #b7d1ca; font-size: 9px; line-height: 1.4; }
+.expedition-route { position: absolute; width: 100%; height: 100%; inset: 0; overflow: visible; }
+.expedition-route path { fill: none; stroke-linecap: round; vector-effect: non-scaling-stroke; }
+.expedition-route .route-shadow { stroke: #092b3d80; stroke-width: 16px; }
+.expedition-route .route-line { stroke: #bed0bc70; stroke-width: 8px; stroke-dasharray: 2 12; }
+.expedition-route .route-line.is-travelled { stroke: #e6d39c; stroke-width: 9px; stroke-dasharray: none; }
+.expedition-stop { position: absolute; z-index: 4; width: 72px; transform: translate(-50%, -50%); text-align: center; }
+#academy .expedition-node { position: relative; display: grid; place-items: center; width: 64px; height: 64px; min-height: 64px; padding: 0; margin: auto; border: 2px solid #c0e6c5a3; border-radius: 50%; background: linear-gradient(145deg, #72b49a, #307b70); color: #f9edc9; font-weight: 700; box-shadow: inset 0 3px #fff3, 0 5px 0 #143f4a, 0 8px 13px #092f3a63; }
+#academy .is-current .expedition-node { width: 72px; height: 72px; min-height: 72px; border-color: #ffe8af; background: linear-gradient(145deg, #f5dc9f, #d8a659); color: #443c29; box-shadow: inset 0 3px #fff7, 0 5px 0 #8d693e, 0 0 0 7px #e8d49b26, 0 10px 18px #082f3f73; }
+#academy .expedition-node:disabled { opacity: 1; border-color: #b8cdc559; background: linear-gradient(145deg, #5b8790, #3b626e); color: #c0d4cc; box-shadow: inset 0 2px #ffffff18, 0 4px 0 #153e4e; }
+.expedition-node:hover:not(:disabled) { filter: brightness(1.1); }
+.expedition-node-lock { position: absolute; right: -3px; top: -3px; display: grid; place-items: center; width: 22px; height: 22px; background: #244e60; border: 1px solid #9bb8b063; border-radius: 50%; }
+.expedition-node-lock .icon { width: 13px; height: 13px; }
+.expedition-here { display: block; position: absolute; bottom: calc(100% + 13px); left: 50%; transform: translateX(-50%); padding: 5px 9px; border-radius: 20px; white-space: nowrap; background: #fff0c4; color: #3b4939; box-shadow: 0 2px 7px #0d314c44; font-size: 8px; font-weight: 700; letter-spacing: .06em; }
+.expedition-node-stars { display: flex; justify-content: center; gap: 2px; position: absolute; top: calc(100% + 5px); left: 0; right: 0; font-size: 16px; }
+.expedition-node-stars i { color: #194d59; -webkit-text-stroke: .5px #acd2c185; font-style: normal; }
+.expedition-node-stars i.earned { color: #ffdc84; -webkit-text-stroke: 0; text-shadow: 0 2px #8a6d3d; }
+.expedition-solved { position: absolute; top: calc(100% + 9px); left: -15px; right: -15px; color: #f3e0af; font-size: 10px; font-weight: 700; }
+.expedition-sea-mark { position: absolute; z-index: -1; color: var(--shore-glow); opacity: .22; pointer-events: none; }
+.sea-mark-one { top: 43%; left: 7%; font-size: 38px; }
+.sea-mark-two { top: 85%; right: 10%; font-size: 74px; }
+.expedition-more { position: absolute; left: 50%; transform: translateX(-50%); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 7px; width: 260px; min-height: 90px; padding: 16px; border: 1px solid #e1d2a66b; border-radius: 18px; background: #153242ed; color: #f0dcad; font-size: 16px; font-weight: 700; box-shadow: 0 8px 20px #09243366; }
+.expedition-more > small { font-size: 11px; color: #c0d4ce; font-weight: 400; }
+.expedition-more .icon { width: 23px; height: 23px; }
+.expedition-map-tools { position: absolute; z-index: 12; right: 14px; bottom: calc(128px + var(--pirate-safe-bottom)); display: flex; flex-direction: column; gap: 7px; }
+.expedition-map-tools button { display: grid; place-items: center; min-width: 44px; width: 44px; height: 44px; border: 1px solid #c4d2c870; border-radius: 11px; background: #122e3ce8; color: #f3e5c7; box-shadow: 0 4px 12px #08233440; font-size: 23px; font-weight: 700; }
+.expedition-map-tools button:first-child { margin-bottom: 4px; color: #efcf8c; }
+.expedition-drag-hint { position: absolute; z-index: 10; left: 14px; bottom: calc(123px + var(--pirate-safe-bottom)); padding: 7px 11px; border: 1px solid #b3d3c929; border-radius: 20px; background: #173340cc; color: #cfdbcc; font-size: 10px; pointer-events: none; }
+.map-keyboard-help { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); }
+.expedition-dock { position: absolute; z-index: 15; bottom: 0; left: 0; right: 0; padding: 14px 18px calc(14px + var(--pirate-safe-bottom)); background: linear-gradient(transparent, #102a36ed 18%, #102a36); pointer-events: none; }
+.expedition-dock > div { max-width: 450px; margin: auto; }
+.expedition-dock small { display: block; margin: 0 0 8px; text-align: center; font-size: 11px; line-height: 1.4; color: #d4ddc9; }
+.expedition-dock button { width: 100%; min-height: 52px; pointer-events: auto; }
+@media (max-width: 350px) { .expedition-intro { left: 10px; right: 10px; padding: 10px; } .expedition-intro h1 { font-size: 24px; } .expedition-drag-hint { font-size: 9px; } }
+@media (max-height: 520px) { .expedition-intro { right: 80px; max-width: 430px; } .expedition-intro h1 { font-size: 23px; } .expedition-intro p { display: none; } .expedition-map-tools { bottom: calc(108px + var(--pirate-safe-bottom)); } .expedition-drag-hint { display: none; } }
