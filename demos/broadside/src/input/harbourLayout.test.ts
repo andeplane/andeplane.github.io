@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
-import { CaveWalker, type WalkIntent } from "./caveWalk";
-import { harbourFloor, harbourWalkable, harbourObstacles, harbourRoom, HARBOUR_BUILDINGS } from "./harbourLayout";
+import { CaveWalker, type WalkIntent } from "../shared/pirate-world/input/caveWalk";
+import { harbourFloor, harbourWalkable, harbourObstacles, harbourRoom, HARBOUR_BUILDINGS } from "../shared/pirate-world/input/harbourLayout";
 const idle: WalkIntent = { forward:0, right:0, sprint:false, crouch:false, jump:false };
 function walker(x: number, z: number) {
   const w=new CaveWalker(harbourObstacles(),harbourFloor,harbourWalkable);

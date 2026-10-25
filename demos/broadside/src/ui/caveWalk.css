@@ -232,3 +232,6 @@
     display: none;
   }
 }
+
+/* Helm and inspection share a full-size touch target in every viewport. */
+#voyage-ui #cave-ui #cave-inspect { min-width:44px; min-height:44px; }

@@ -3,8 +3,8 @@
 import RAPIER from '@dimforge/rapier3d-compat';
 import ts from 'typescript';
 import {readFile} from 'node:fs/promises';
-const source=(await readFile(new URL('../../src/game/goldCollision.ts',import.meta.url),'utf8'))
-  .replace('"./goldAreas"',JSON.stringify(new URL('../../src/game/goldAreas.ts',import.meta.url).href));
+const source=(await readFile(new URL('../../src/shared/pirate-world/game/goldCollision.ts',import.meta.url),'utf8'))
+  .replace('"./goldAreas"',JSON.stringify(new URL('../../src/shared/pirate-world/game/goldAreas.ts',import.meta.url).href));
 const js=ts.transpileModule(source,{compilerOptions:{target:ts.ScriptTarget.ES2022,module:ts.ModuleKind.ESNext}}).outputText;
 const {settledGoldCollision,settledGoldPatches}=await import('data:text/javascript;base64,'+Buffer.from(js).toString('base64'));
 await RAPIER.init();

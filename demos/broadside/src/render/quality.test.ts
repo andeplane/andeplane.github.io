@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { displayRenderScale, antialiasSamples, configurePhoneRendering } from "./quality";
+import { displayRenderScale, antialiasSamples, configurePhoneRendering } from "../shared/pirate-world/render/quality";
 import type { AbstractEngine } from "@babylonjs/core/Engines/abstractEngine.js";
 
 const buffer = (width: number, height: number, dpr: number, max = 16384, phone = false) => {

@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { CargoQueue } from "./cargoQueue";
+import { CargoQueue } from "../shared/pirate-world/game/cargoQueue";
 
 describe("shared ship-to-cave delivery sequence", () => {
   it("keeps the active chest until its deposit completes and rejects duplicate or out-of-order completion", () => {

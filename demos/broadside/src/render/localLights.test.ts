@@ -4,7 +4,7 @@ import { Scene } from "@babylonjs/core/scene";
 import { MeshBuilder } from "@babylonjs/core/Meshes/meshBuilder";
 import { PointLight } from "@babylonjs/core/Lights/pointLight";
 import { Vector3 } from "@babylonjs/core/Maths/math.vector";
-import { bindLocalLights } from "./localLights";
+import { bindLocalLights } from "../shared/pirate-world/render/localLights";
 
 describe("cave lantern lighting", () => {
   it("keeps both chambers lit with bounded local lights, including rebuilt geometry", () => {

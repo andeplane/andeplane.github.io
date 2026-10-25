@@ -1,5 +1,5 @@
 import type { ShipIntent } from '../sim/ships';
-import { CaveWalker, type WalkIntent } from '../input/caveWalk';
+import { CaveWalker, type WalkIntent } from '../shared/pirate-world/input/caveWalk';
 
 export interface DeckGeometry {
   length: number; beam: number;

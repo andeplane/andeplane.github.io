@@ -5,7 +5,7 @@ import {StandardMaterial} from '@babylonjs/core/Materials/standardMaterial.js';
 import {TransformNode} from '@babylonjs/core/Meshes/transformNode.js';
 import {Vector3, Matrix} from '@babylonjs/core/Maths/math.vector.js';
 import type {Scene} from '@babylonjs/core/scene.js';
-vi.mock('./cavern',()=>({Cavern:class {
+vi.mock('../shared/pirate-world/render/cavern',()=>({Cavern:class {
   stone:StandardMaterial;ledge:StandardMaterial;gold:StandardMaterial;wood:StandardMaterial;iron:StandardMaterial;
   obstacles=[];lamps=[];shadow={addShadowCaster:vi.fn()};
   constructor(private scene:Scene){this.stone=this.ledge=this.gold=this.wood=this.iron=new StandardMaterial('test rock',scene);}
@@ -14,21 +14,21 @@ vi.mock('./cavern',()=>({Cavern:class {
 }}));
 vi.mock('@babylonjs/core/PostProcesses/RenderPipeline/Pipelines/defaultRenderingPipeline.js',()=>({DefaultRenderingPipeline:class {imageProcessing={};}}));
 const pourState=vi.hoisted(()=>({spawned:0,empty:false,done:false,withdraw:0,chestY:3.8}));
-vi.mock('./coinHoard',()=>({CoinHoard:class {
+vi.mock('../shared/pirate-world/render/coinHoard',()=>({CoinHoard:class {
   counts=[0,0,0,0];restingCounts=[0,0,0,0];physicsActive=false;
   addBatch(){}startPour(){}preparePour(){}carryChest(){}finishPours(){}animate(){}walkHeight(){return 0;}
   pouring(){return {ready:true,physicsReady:true,turn:0,...pourState,active:false,error:null};}
   center(world:number){return new Vector3(world===3?28:world===1?8:-8,.2,world>=2?43:6);}
   span(){return {height:.8,width:7.6};}
 }}));
-vi.mock('./chest',()=>({revealPose:()=>({rise:0,discovered:false}),RewardChest:class {
+vi.mock('../shared/pirate-world/render/chest',()=>({revealPose:()=>({rise:0,discovered:false}),RewardChest:class {
   root:TransformNode;
   constructor(scene:Scene){this.root=new TransformNode("captain's treasure chest",scene);this.root.setEnabled(false);}
   hide(){this.root.setEnabled(false);}
   animate(){this.root.setEnabled(true);}
   setCoinCount(){}open(){}fade(){}
 }}));
-import {TreasureCave} from './cave';
+import {TreasureCave} from '../shared/pirate-world/render/cave';
 afterEach(()=>{vi.unstubAllGlobals();pourState.spawned=0;pourState.empty=false;pourState.done=false;pourState.withdraw=0;pourState.chestY=3.8;});
 const fixture=()=>{
   vi.stubGlobal('matchMedia',()=>({matches:false}));vi.stubGlobal('innerWidth',1440);vi.stubGlobal('innerHeight',900);

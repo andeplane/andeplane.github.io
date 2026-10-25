@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
-import { CaveWalker, CaveWalkControls, type WalkIntent } from "./caveWalk";
-import { caveWalkable, caveRoom, caveFloor } from "./caveLayout";
+import { CaveWalker, CaveWalkControls, type WalkIntent } from "../shared/pirate-world/input/caveWalk";
+import { caveWalkable, caveRoom, caveFloor } from "../shared/pirate-world/input/caveLayout";
 import { NullEngine } from "@babylonjs/core/Engines/nullEngine.js";
 import { Scene } from "@babylonjs/core/scene.js";
 import { FreeCamera } from "@babylonjs/core/Cameras/freeCamera.js";

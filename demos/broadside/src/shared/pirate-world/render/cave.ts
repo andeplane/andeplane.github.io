@@ -20,14 +20,8 @@ import { RewardChest, revealPose } from "./chest";
 import { buildRelic } from "./relics";
 import { CaveWalker, type WalkIntent } from "../input/caveWalk";
 import { caveRoom } from "../input/caveLayout";
-import type { Progress } from "../game/progress";
-import {
-  goldTotal,
-  GOLD_PER_LEVEL,
-  WORLD_RELICS,
-  CAVE_ITEMS,
-} from "../game/rewards";
-import { RELICS } from "../game/voyage";
+import type { PirateConfig, TreasureState } from "../types";
+import { RELICS } from "../catalog";
 import { CargoChests, entranceCargoPosition, type CargoPosition } from "./cargoChests";
 import { cargoCarry } from "../game/cargoCarry";
 
@@ -79,12 +73,12 @@ export class TreasureCave {
   private debugWorld: number | null = null;
   private reducedMotion = matchMedia("(prefers-reduced-motion: reduce)")
     .matches;
-  constructor(engine: Engine, persistent = true, strictPhysics = false, goldNamespace = "broadside.coin-poses", bankLabels?: readonly string[]) {
+  constructor(engine: Engine, persistent = true, strictPhysics = false, goldNamespace = "broadside.coin-poses", bankLabels?: readonly string[], private config?: PirateConfig) {
     const s = (this.scene = new Scene(engine));
-    s.clearColor = new Color4(0.012, 0.02, 0.035, 1);
+    s.clearColor = config?.theme ? Color4.FromHexString(config.theme.fog+"ff") : new Color4(0.012, 0.02, 0.035, 1);
     s.fogMode = Scene.FOGMODE_EXP2;
     s.fogDensity = 0.009;
-    s.fogColor = Color3.FromHexString("#07111c");
+    s.fogColor = Color3.FromHexString(config?.theme?.fog ?? "#07111c");
     this.camera = new FreeCamera("cave camera", new Vector3(0, 14, -22), s);
     this.camera.inputs.clear();
     this.camera.fov = 0.8;
@@ -98,19 +92,19 @@ export class TreasureCave {
     hemi.groundColor = Color3.FromHexString("#16121a");
     hemi.intensity = 0.62;
     hemi.renderPriority = 7;
-    this.chamber = new Cavern(s, this.spots, bankLabels);
+    this.chamber = new Cavern(s, this.spots, bankLabels, config?.areas);
     this.coins = new CoinHoard(s, persistent, () => bindLocalLights(this.chamber.lamps, this.scene.meshes), { reserves:true, reserveObstacle:(obstacle,enabled)=>{
       const index=this.chamber.obstacles.indexOf(obstacle);
       if(enabled&&index<0)this.chamber.obstacles.push(obstacle);
       else if(!enabled&&index>=0)this.chamber.obstacles.splice(index,1);
-    }, gems:true, strictPhysics, obstacles:this.chamber.obstacles, goldNamespace });
+    }, gems:true, strictPhysics, obstacles:this.chamber.obstacles, sounds:config?.sound, goldNamespace, persistence:config?.poses, areas:config?.areas });
     this.walker = new CaveWalker(this.chamber.obstacles, (x, z) =>
       Math.max(this.chamber.walkHeight(x, z), this.coins.walkHeight(x, z)),
     );
     const { stone, ledge: plinthMat, gold, wood, iron } = this.chamber;
     // Treasures rest on broad, broken rock shelves, not matching display stands.
     this.spots.forEach((p, i) => {
-      const displayed = WORLD_RELICS.includes(i as 2 | 5 | 8 | 11);
+      const displayed = (this.config?.relicSlots ?? [2,5,8,11]).includes(i);
       const height = p.y + 0.15,
         sy = height / 1.25;
       const obstacleCount = this.chamber.obstacles.length;
@@ -268,18 +262,19 @@ export class TreasureCave {
     this.cargo = new CargoChests(s, "cave entrance cargo");
     this.distance = this.overviewRadius();
   }
-  refresh(progress: Progress, depositWorld: number | null = null, bankGold?: readonly number[], depositCoins = 1000): void {
-    const count = (bankGold ? bankGold.reduce((sum,value)=>sum+value,0) : goldTotal(progress)) / GOLD_PER_LEVEL;
-    const owned = [...(count ? [0] : []), ...progress.relics];
-    this.coins.refresh(progress, depositWorld, bankGold, depositCoins);
-    const key = `${bankGold?.join(",") ?? Object.keys(progress.voyages).sort().join(",")}:${owned.join(",")}`;
+  refresh(state: TreasureState, depositWorld: number | null = null, depositCoins = 1000): void {
+    const bankGold = state.bankGold;
+    const count = bankGold.reduce((sum,value)=>sum+value,0);
+    const owned = [...(count ? [0] : []), ...state.relics];
+    this.coins.refresh(bankGold, depositWorld, depositCoins);
+    const key = `${bankGold.join(",")}:${owned.join(",")}`;
     if (key === this.owned) return;
     this.owned = key;
     this.relics.forEach((r) => r?.dispose(false, true));
     this.relief = [];
     this.relics = RELICS.map((_, i) => {
       this.closed[i]!.setEnabled(
-        WORLD_RELICS.includes(i as 2 | 5 | 8 | 11) && !owned.includes(i),
+        (this.config?.relicSlots ?? [2,5,8,11]).includes(i) && !owned.includes(i),
       );
       if (!owned.includes(i)) {
         this.relief[i] = { lift: 0, height: 1.3, width: 1.5 };
@@ -321,7 +316,7 @@ export class TreasureCave {
     });
   }
   private bankView(world: number): Vector3 {
-    const a = GOLD_AREAS[world]!, span = this.coins.span(world);
+    const a = (this.config?.areas ?? GOLD_AREAS)[world]!, span = this.coins.span(world);
     return new Vector3(world === 3 ? 28 : 0, Math.min(6.1, span.height + 2.7), a.z - (world === 3 ? 9 : 8));
   }
   get activeLanterns(): string {
@@ -352,6 +347,8 @@ export class TreasureCave {
       this.chest.hide();
     }
   }
+  get presentationError():string|null { return this.coins.error ?? this.chest.error; }
+  get presentationReady():boolean { return this.coins.ready && this.chest.ready; }
   get coinError(): string | null { return this.depositWorld === null ? null : this.coins.pouring(this.depositWorld).error; }
   get walkingGeometry() {
     return this.chamber.walkingGeometry;
@@ -360,7 +357,8 @@ export class TreasureCave {
     return this.focus !== null;
   }
   get room(): string {
-    return caveRoom(this.walker.x, this.walker.z);
+    const room=caveRoom(this.walker.x, this.walker.z);
+    return this.config?.roomLabels?.[room] ?? room;
   }
   enter(): void {
     this.coins.finishPours();
@@ -429,7 +427,7 @@ export class TreasureCave {
       hit &&
       hit.distance <= 5.5 &&
       typeof i === "number" &&
-      CAVE_ITEMS.includes(i)
+      (this.config?.inspectItems ?? [0,2,5,8,11]).includes(i)
       ? i
       : null;
   }
@@ -440,7 +438,7 @@ export class TreasureCave {
     return hit &&
       hit.distance <= 5.5 &&
       typeof i === "number" &&
-      CAVE_ITEMS.includes(i)
+      (this.config?.inspectItems ?? [0,2,5,8,11]).includes(i)
       ? i
       : null;
   }
@@ -476,6 +474,7 @@ export class TreasureCave {
     return revealPose(this.revealTime, this.reducedMotion);
   }
   render(dt: number, reveal = false): void {
+    this.reducedMotion = matchMedia("(prefers-reduced-motion: reduce)").matches;
     this.time += dt;
     const unboxing = reveal && this.revealing;
     this.revealDais.setEnabled(reveal && this.debugWorld === null);
@@ -504,7 +503,7 @@ export class TreasureCave {
         const world = this.depositWorld!, center = this.coins.center(world), span = this.coins.span(world);
         const elapsed = this.revealTime - (this.reducedMotion ? 1.4 : 5.3);
         const t = this.reducedMotion ? 1 : Math.min(1, elapsed / 3.8), blend = t * t * (3 - 2 * t);
-        const area = GOLD_AREAS[world]!, pour = this.coins.pouring(world);
+        const area = (this.config?.areas ?? GOLD_AREAS)[world]!, pour = this.coins.pouring(world);
         // Arrive in the correct room. Carry a chest from its walking path to
         // the bank, rather than flying through walls to a deeper chamber.
         const approach = this.unloadingOrigin ? new Vector3(this.unloadingOrigin.x,this.unloadingOrigin.y,this.unloadingOrigin.z) : world === 2 ? new Vector3(0,.5,43) : world === 3 ? new Vector3(28,.5,35) : new Vector3(0,.5,area.z-5);
@@ -605,7 +604,7 @@ export class TreasureCave {
     }
     // Visibility must not depend on refresh having populated the relic array.
     this.closed.forEach((root,i) => root.setEnabled(
-      WORLD_RELICS.includes(i as 2 | 5 | 8 | 11) && !this.relics[i] && !reveal,
+      (this.config?.relicSlots ?? [2,5,8,11]).includes(i) && !this.relics[i] && !reveal,
     ));
     this.relics.forEach((r, i) => {
       if (!r) return;

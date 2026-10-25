@@ -18,11 +18,9 @@ import { TransformNode } from '@babylonjs/core/Meshes/transformNode.js';
 import { CaveWalker, type WalkIntent } from '../input/caveWalk';
 import { PEARL_BOARDING, PearlDeck, type PearlManifest } from '../input/pearlDeck';
 import { isPhoneRendering } from './quality';
-import { privatePearlUrl, privatePearlModelUrl } from '../privatePearl';
-import type { Progress } from '../game/progress';
-import { cargoChests, WORLD_RELICS } from '../game/rewards';
+import type { TreasureState } from "../types";
 import { CargoChests } from './cargoChests';
-import { Ocean } from './water';
+import { Ocean } from '../../../render/water';
 import { buildRelic } from './relics';
 
 /** Full-size purchased ship, with a connected lantern-lit stern treasure room. */
@@ -61,14 +59,14 @@ export class PrivateShip {
     this.cargo = new CargoChests(s, 'Pearl cargo');
     this.buildCabin(); this.enter();
   }
-  static async load(engine: Engine): Promise<PrivateShip> {
-    const response=await fetch(privatePearlUrl.replace('.glb','.json'));
+  static async load(engine: Engine, source: {manifestUrl:string;modelUrl:string}): Promise<PrivateShip> {
+    const response=await fetch(source.manifestUrl);
     if (!response.ok) throw new Error('Purchased Pearl deck manifest is missing');
     const manifest: PearlManifest=await response.json();
     if (manifest.version!==1 || !manifest.floorTriangles?.length) throw new Error('Invalid Pearl deck manifest');
     const ship=new PrivateShip(engine,new PearlDeck(manifest));
     try {
-      const asset=await LoadAssetContainerAsync(privatePearlModelUrl(isPhoneRendering(engine)),ship.scene);
+      const asset=await LoadAssetContainerAsync(source.modelUrl,ship.scene);
       asset.addAllToScene();
       for (const mesh of asset.meshes) { mesh.receiveShadows=true; mesh.isPickable=false; ship.shadows.addShadowCaster(mesh); }
       ship.shadows.getShadowMap()!.refreshRate=0;
@@ -152,17 +150,17 @@ export class PrivateShip {
     }
     for(let i=0;i<4;i++) box('keepsake pedestal',-3.2+i*2.15,5.15,-20,1.3,1.3,1.3,dark);
   }
-  refresh(progress: Progress): void {
+  refresh(state: TreasureState, relicSlots:readonly number[]): void {
     this.treasures?.dispose(false,true); const root=this.treasures=new TransformNode('earned treasures aboard',this.scene);
-    for(let i=0;i<WORLD_RELICS.length;i++) {
-      const id=WORLD_RELICS[i]!; if(!progress.relics.includes(id)) continue;
+    for(let i=0;i<relicSlots.length;i++) {
+      const id=relicSlots[i]!; if(!state.relics.includes(id)) continue;
       const relic=buildRelic(this.scene,id); relic.parent=root;
       const bounds=relic.getHierarchyBoundingVectors(true); const size=bounds.max.subtract(bounds.min);
       const scale=1.5/Math.max(size.x,size.y,size.z); relic.scaling.setAll(scale);
       relic.position.set(-3.2+i*2.15,5.8-bounds.min.y*scale,-20);
     }
     // Chests stay individually visible aboard until their gold is delivered to the cave.
-    this.cargo.show(cargoChests(progress).map((_, i) => ({
+    this.cargo.show(state.pending.map((_, i) => ({
       x: i % 2 ? 3.1 : -3.1, y: 4.54 + Math.floor(i / 12) * 1.05,
       z: -12.8 - Math.floor(i % 12 / 2) * 1.15, scale: .37,
     })));

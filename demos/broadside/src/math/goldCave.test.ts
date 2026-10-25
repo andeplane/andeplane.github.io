@@ -11,20 +11,20 @@ vi.mock("@babylonjs/core/Engines/engine.js", () => ({ Engine: class {
   resize() {} getCaps() { return { maxRenderTextureSize: 4096 }; }
   getDeltaTime() { return 100; } runRenderLoop(fn: () => void) { this.loop = fn; }
 } }));
-vi.mock("@capacitor/core", () => ({ Capacitor: { isNativePlatform: () => true } }));
-vi.mock("../render/quality", async () => ({ ...await vi.importActual<typeof import('../render/quality')>("../render/quality"), configureTextureQuality() {} }));
-vi.mock("../render/cave", () => ({ TreasureCave: class {
-  scene: any; walker = { x: 0, eyeY: 2, z: 0 }; room = "Cave entrance"; inspecting = false;
+vi.mock("@capacitor/core", () => ({ Capacitor: { isNativePlatform: () => false } }));
+vi.mock("../shared/pirate-world/render/quality", async () => ({ ...await vi.importActual<typeof import('../shared/pirate-world/render/quality')>("../shared/pirate-world/render/quality"), configureTextureQuality() {} }));
+vi.mock("../shared/pirate-world/render/cave", () => ({ TreasureCave: class {
+  scene: any; walker = { x: 0, eyeY: 2, z: 0, yaw:0 }; room = "Cave entrance"; inspecting = false;
   reserveCounts = [0,0,0,0]; gemCounts = [0,0,0,0]; coinCounts = [0,0,0,0]; restingCoinCounts = [0,0,0,0]; goldPhysicsActive = false; depositComplete = false;
   refresh = vi.fn(); showCargo = vi.fn(); beginUnload = vi.fn(() => { this.depositComplete = false; });
   endReveal = vi.fn(); render = vi.fn(); enter = vi.fn(); resize() {} look() {} walk() {}
   constructor(engine: any) { this.scene = scene(engine); runtime.caves.push(this); }
 } }));
-vi.mock("../render/shipHold", () => ({ ShipHold: class {
+vi.mock("../shared/pirate-world/render/shipHold", () => ({ ShipHold: class {
   scene: any; pose = { discovered: true }; openCargo = vi.fn(); render = vi.fn();
   constructor(engine: any) { this.scene = scene(engine); runtime.holds.push(this); }
 } }));
-vi.mock("../game/voyage", () => ({ generateVoyage: () => ({}) }));
+vi.mock("../game/voyage", () => ({ generateVoyage: () => ({pack:0,level:{islands:[],seed:1},finish:{x:0,z:0}}) }));
 import { GoldCave } from "./goldCave";
 import { answerQuestion, bankedGold, freshProgress, pendingMathChests, questionsFor, startVoyage } from "./academy";
 const earnedCargo = (count: number, mistakeLevel = 0) => {
@@ -45,6 +45,7 @@ beforeEach(() => {
 });
 describe("math cargo uses the shared ship and cave", () => {
   it("keeps a 3x native iPhone within the mobile rendering budget", () => {
+    vi.stubGlobal("navigator",{userAgent:"iPhone"});
     vi.stubGlobal("innerWidth", 402); vi.stubGlobal("innerHeight", 874); vi.stubGlobal("devicePixelRatio", 3);
     const view=new GoldCave(document.querySelector("canvas")!,vi.fn(),false);
     const ratio=1/runtime.engines[0].scale;
@@ -59,14 +60,14 @@ describe("math cargo uses the shared ship and cave", () => {
     const view=new GoldCave(document.querySelector("canvas")!,ready,false,changed);
     expect(runtime.caves).toHaveLength(0);
     view.showShip(progress,false); await Promise.resolve(); ready.mockClear();
-    expect(runtime.holds[0].openCargo).toHaveBeenCalledWith(3,1000,false);
+    expect(runtime.holds[0].openCargo).toHaveBeenCalledWith(3,1000,false,null);
     expect(bankedGold(progress)).toBe(0);
     expect(runtime.engines[0].scenes).toHaveLength(1);
     view.show(progress,true);
     expect(runtime.holds[0].scene.dispose).toHaveBeenCalledOnce();
     const cave=runtime.caves[0], ids=pendingMathChests(progress).map(c=>c.id);
     expect(cave.showCargo).toHaveBeenLastCalledWith(ids,ids[0],true);
-    expect(cave.refresh).toHaveBeenLastCalledWith(expect.anything(),0,[1000,0,0,0],1000);
+    expect(cave.refresh).toHaveBeenLastCalledWith(expect.objectContaining({bankGold:[1000,0,0,0]}),0,1000);
     for(let i=0;i<3;i++) {
       cave.depositComplete=true; runtime.engines[0].loop();
       expect(bankedGold(progress)).toBe((i+1)*1000);
@@ -100,13 +101,13 @@ describe("math cargo uses the shared ship and cave", () => {
     expect(pendingMathChests(progress).map(c=>c.gold)).toEqual([900,1000]);
     const view=new GoldCave(document.querySelector("canvas")!,vi.fn(),false);
     view.showShip(progress,false);
-    expect(runtime.holds[0].openCargo).toHaveBeenCalledWith(2,1000,false);
+    expect(runtime.holds[0].openCargo).toHaveBeenCalledWith(2,1000,false,null);
     view.show(progress,true);
     const cave=runtime.caves[0];
-    expect(cave.refresh).toHaveBeenLastCalledWith(expect.anything(),0,[900,0,0,0],900);
+    expect(cave.refresh).toHaveBeenLastCalledWith(expect.objectContaining({bankGold:[900,0,0,0]}),0,900);
     cave.depositComplete=true;runtime.engines[0].loop();
     expect(bankedGold(progress)).toBe(900);
-    expect(cave.refresh).toHaveBeenLastCalledWith(expect.anything(),0,[1900,0,0,0],1000);
+    expect(cave.refresh).toHaveBeenLastCalledWith(expect.objectContaining({bankGold:[1900,0,0,0]}),0,1000);
     cave.depositComplete=true;runtime.engines[0].loop();
     expect(bankedGold(progress)).toBe(1900);expect(pendingMathChests(progress)).toHaveLength(0);
     view.pause();
@@ -116,7 +117,7 @@ describe("math cargo uses the shared ship and cave", () => {
     const progress=earnedCargo(1,1),view=new GoldCave(document.querySelector("canvas")!,vi.fn(),false);
     expect(pendingMathChests(progress)[0]?.gold).toBe(900);
     view.showShip(progress,false);
-    expect(runtime.holds[0].openCargo).toHaveBeenCalledWith(1,900,false);
+    expect(runtime.holds[0].openCargo).toHaveBeenCalledWith(1,900,false,null);
     view.pause();
   });
 

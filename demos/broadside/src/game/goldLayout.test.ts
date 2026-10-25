@@ -1,10 +1,10 @@
 import { describe, expect, it, vi } from "vitest";
 import { readFileSync } from "node:fs";
-import { validGoldLayout, saveGoldLayout, loadGoldLayout } from "./goldLayout";
-import { GOLD_AREAS, COIN_POSE_STRIDE } from "./goldAreas";
+import { validGoldLayout, saveGoldLayout, loadGoldLayout } from "../shared/pirate-world/game/goldLayout";
+import { GOLD_AREAS, COIN_POSE_STRIDE } from "../shared/pirate-world/game/goldAreas";
 import { readProgress } from "./progress";
 import { awardVoyage, worldGold } from "./rewards";
-import { caveFloor } from "../input/caveLayout";
+import { caveFloor } from "../shared/pirate-world/input/caveLayout";
 
 const snapshot = (world: number, count: number): ArrayBuffer => {
   const bytes = readFileSync(new URL(`../../public/assets/hoard/world-${world}/${count}.bin`, import.meta.url));
@@ -67,7 +67,7 @@ describe("settled world gold banks", () => {
 describe("persistent coin poses", () => {
   it("keeps Captain Calculus deposits in a separate database from sailing gold", async () => {
     vi.resetModules();
-    const { loadGoldLayout, saveGoldLayout } = await import("./goldLayout");
+    const { loadGoldLayout, saveGoldLayout } = await import("../shared/pirate-world/game/goldLayout");
     const databases = new Map<string, Map<string, ArrayBuffer>>();
     const opened: string[] = [];
     vi.stubGlobal("indexedDB", { open: (name: string) => {
@@ -122,7 +122,7 @@ describe("persistent coin poses", () => {
   });
   it("can visit the same physics-built pile when browser storage is blocked", async () => {
     vi.resetModules();
-    const {loadGoldLayout} = await import("./goldLayout");
+    const {loadGoldLayout} = await import("../shared/pirate-world/game/goldLayout");
     const bytes = snapshot(1, 1000);
     vi.stubGlobal("indexedDB", {open: () => {throw new Error("Storage blocked");}});
     vi.stubGlobal("fetch", vi.fn().mockResolvedValue({ok:true,arrayBuffer:async()=>bytes}));

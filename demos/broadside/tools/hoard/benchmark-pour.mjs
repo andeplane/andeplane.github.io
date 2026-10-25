@@ -25,7 +25,7 @@ globalThis.self=Object.assign(Object.create(globalThis),{postMessage:data=>{
  if(data.done)resolveDone();
  if(++steps%150===0&&final)console.log('progress',JSON.stringify({time:final.time,resting:final.resting,meanMs:final.physicsMeanMs,maxMs:final.physicsMaxMs}));
 }});
-await import(await compile(new URL('../../src/game/goldPhysics.worker.ts',import.meta.url)));
+await import(await compile(new URL('../../src/shared/pirate-world/game/goldPhysics.worker.ts',import.meta.url)));
 await self.onmessage({data:{world:0,previous,chest,chestY:peak+3.8}});await ready;
 // Preserve simulation dt. Only remove artificial real-time sleeping from this benchmark.
 globalThis.setTimeout=fn=>{queueMicrotask(fn);return 0;};

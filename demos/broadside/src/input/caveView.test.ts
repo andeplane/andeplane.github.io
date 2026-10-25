@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { caveCameraPosition } from "./caveView";
+import { caveCameraPosition } from "../shared/pirate-world/input/caveView";
 
 describe("cave camera stays beneath the roof", () => {
   it("keeps a dragged overview and a zoomed-out close-up inside the cave", () => {

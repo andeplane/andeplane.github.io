@@ -1,5 +1,5 @@
 import {afterEach,describe,expect,it,vi} from 'vitest';
-import {CoinSounds} from './coinSounds';
+import {CoinSounds} from '../shared/pirate-world/game/coinSounds';
 const flush=async()=>{for(let i=0;i<8;i++)await Promise.resolve();};
 function fixture() {
   const recording={duration:4.584,numberOfChannels:2} as AudioBuffer;

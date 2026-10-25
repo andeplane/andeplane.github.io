@@ -1,7 +1,7 @@
 import { removedCoinPose, GOLD_AREAS, COIN_POSE_STRIDE, GOLD_POSE_VERSION } from "./goldAreas";
 
 export function validGoldLayout(data: ArrayBuffer, count: number, world: number): boolean {
-  if (!GOLD_AREAS[world] || count < 0 || count > 100000 || count % 100 || data.byteLength !== count * COIN_POSE_STRIDE * 4) return false;
+  if (!GOLD_AREAS[world] || !Number.isSafeInteger(count) || count < 0 || count > 100000 || data.byteLength !== count * COIN_POSE_STRIDE * 4) return false;
   const poses = new Float32Array(data);
   for (let i = 0; i < poses.length; i += COIN_POSE_STRIDE) {
     if (!Array.from(poses.subarray(i, i + COIN_POSE_STRIDE)).every(Number.isFinite)) return false;

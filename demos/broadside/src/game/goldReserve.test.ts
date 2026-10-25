@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import { defaultReserve, reservePlan, readGoldReserve, saveGoldReserve, GOLD_PILE_CAPACITY } from './goldReserve';
+import { defaultReserve, reservePlan, readGoldReserve, saveGoldReserve, GOLD_PILE_CAPACITY } from '../shared/pirate-world/game/goldReserve';
 afterEach(()=>vi.unstubAllGlobals());
 describe('gold reserve without monetary caps',()=>{
   it.each([0,100,900,10000,10100,1000000,900000000])('contains a %s-gold fortune and preserves every unit of value',gold=>{

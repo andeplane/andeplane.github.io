@@ -11,16 +11,14 @@ import { DirectionalLight } from '@babylonjs/core/Lights/directionalLight.js';
 import { PointLight } from '@babylonjs/core/Lights/pointLight.js';
 import { ShadowGenerator } from '@babylonjs/core/Lights/Shadows/shadowGenerator.js';
 import { DefaultRenderingPipeline } from '@babylonjs/core/PostProcesses/RenderPipeline/Pipelines/defaultRenderingPipeline.js';
-import { Ocean } from './water';
-import { buildIslands, type IslandsView } from './islands';
+import { Ocean } from '../../../render/water';
+import { buildIslands, type IslandsView } from '../../../render/islands';
 import { RewardChest, revealPose } from './chest';
 import { buildRelic } from './relics';
 import { antialiasSamples, isPhoneRendering } from './quality';
-import type { VoyageDef } from '../game/voyage';
-import { cargoChests } from '../game/rewards';
+import type { ShipPresentation } from "../types";
 import { CargoChests, holdCargoPosition } from './cargoChests';
 import { shipHoldCamera } from './shipHoldCamera';
-import type { Progress } from '../game/progress';
 import { CoinHoard } from './coinHoard';
 import { chestCarry, chestExit, CHEST_EXIT_SECONDS, pourTilt } from '../game/coinPour';
 
@@ -45,7 +43,7 @@ export class ShipHold {
   private debugFinished: number | null = null;
   private debugExitAt:number|null=null;
   private debugPour = false;
-  constructor(engine: Engine, voyage: VoyageDef) {
+  constructor(engine: Engine, ship: ShipPresentation) {
     const s = this.scene = new Scene(engine);
     s.clearColor = Color4.FromHexString('#839aabff');
     s.fogMode = Scene.FOGMODE_EXP2; s.fogDensity = .0015; s.fogColor = Color3.FromHexString('#839aab');
@@ -94,28 +92,27 @@ export class ShipHold {
       for(const y of [1,1.8]) {const band=MeshBuilder.CreateTorus('barrel iron hoop',{diameter:.94,thickness:.05,tessellation:20},s);band.position.set(x,y,5);band.material=dark;}
       const coil=MeshBuilder.CreateTorus('coiled rope on deck',{diameter:1.1,thickness:.09,tessellation:32},s);coil.position.set(x,.8,-5);coil.material=rope;
     }
-    this.ocean=new Ocean(s,[],s.fogDensity);this.ocean.setChapter(voyage.pack);
+    this.ocean=new Ocean(s,[],s.fogDensity);this.ocean.setChapter(ship.chapter);
     // The cabin is above the waterline, even at the crest of a swell.
     this.ocean.mesh.position.y=-3;
-    const island = [...voyage.level.islands].filter(i=>i.kind==='sand').sort((a,b)=>Math.hypot(a.pos.x-voyage.finish.x,a.pos.z-voyage.finish.z)-Math.hypot(b.pos.x-voyage.finish.x,b.pos.z-voyage.finish.z))[0];
-    this.islands=buildIslands(s,island?[{...island,pos:{x:0,z:island.radius+29}}]:[],shadows,voyage.level.seed,voyage.pack);
+    const island = ship.island;
+    this.islands=buildIslands(s,island?[{...island,pos:{x:0,z:island.radius+29}}]:[],shadows,ship.seed,ship.chapter);
     this.chest=new RewardChest(s);
     this.cargo = new CargoChests(s, 'shipboard cargo');
     const pipeline=new DefaultRenderingPipeline('golden light in the treasure hold', !isPhoneRendering(engine),s,[this.camera]);
     pipeline.bloomEnabled=true;pipeline.bloomThreshold=1.1;pipeline.bloomWeight=.1;pipeline.bloomKernel=24;
     pipeline.samples=antialiasSamples(engine);pipeline.fxaaEnabled=true;s.imageProcessingConfiguration.exposure=1.05;
   }
-  open(progress: Progress, special: number | null, reveal = true): void {
-    this.openCargo(cargoChests(progress).length, 1000, reveal);
-    if(special!==null) {this.special=buildRelic(this.scene,special);this.special.parent=this.chest.root;this.special.scaling.setAll(.3);const b=this.special.getHierarchyBoundingVectors(true);this.special.position.set(.1,1.25-b.min.y,-.04);}
-  }
   /** Both games use the same hold, open cargo geometry and latest-chest animation. */
-  openCargo(count: number, coinsPerChest = 1000, reveal = true): void {
+  openCargo(count: number, coinsPerChest = 1000, reveal = true, special: number | null = null): void {
     this.revealTime=0;this.revealing=reveal;
     this.coins=count ? coinsPerChest : 0;
     this.special?.dispose(false,true);this.special=null;
+    if(special!==null) {this.special=buildRelic(this.scene,special);this.special.parent=this.chest.root;this.special.scaling.setAll(.3);const b=this.special.getHierarchyBoundingVectors(true);this.special.position.set(.1,1.25-b.min.y,-.04);}
     this.cargo.show(Array.from({ length: Math.max(0, count - 1) }, (_, i) => holdCargoPosition(i)));
   }
+  get presentationError():string|null { return this.chest.error; }
+  get presentationReady():boolean { return this.chest.ready; }
   get pose() { return revealPose(this.revealTime,this.reducedMotion); }
   debugCoinBank(_world = 0, add = false): void {
     this.debugHoard ??= new CoinHoard(this.scene, false, undefined, {

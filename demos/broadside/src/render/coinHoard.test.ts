@@ -4,17 +4,17 @@ import {Scene} from '@babylonjs/core/scene.js';
 import {StandardMaterial} from '@babylonjs/core/Materials/standardMaterial.js';
 import {Vector3} from '@babylonjs/core/Maths/math.vector.js';
 import {Mesh} from '@babylonjs/core/Meshes/mesh.js';
-vi.mock('./goldReserve',()=>({GoldReserve:class{update=vi.fn();}}));
-vi.mock('./coin',async(importOriginal)=>{
-  const original=await importOriginal<typeof import('./coin')>();
+vi.mock('../shared/pirate-world/render/goldReserve',()=>({GoldReserve:class{update=vi.fn();}}));
+vi.mock('../shared/pirate-world/render/coin',async(importOriginal)=>{
+  const original=await importOriginal<typeof import('../shared/pirate-world/render/coin')>();
   return {...original,doubloonMaterial:(scene:Scene)=>new StandardMaterial('test coins',scene)};
 });
-vi.mock('../game/goldLayout',()=>({loadGoldLayout:vi.fn(),saveGoldLayout:vi.fn().mockResolvedValue(undefined)}));
-vi.mock('../game/chestCoins',()=>({chestCoinPoses:vi.fn().mockResolvedValue(new Float32Array(7000))}));
-import {CoinHoard} from './coinHoard';
-import {DOUBLOON_RENDER_TRIANGLES} from './coin';
-import {coinSounds} from '../game/coinSounds';
-import {loadGoldLayout,saveGoldLayout} from '../game/goldLayout';
+vi.mock('../shared/pirate-world/game/goldLayout',()=>({loadGoldLayout:vi.fn(),saveGoldLayout:vi.fn().mockResolvedValue(undefined)}));
+vi.mock('../shared/pirate-world/game/chestCoins',()=>({chestCoinPoses:vi.fn().mockResolvedValue(new Float32Array(7000))}));
+import {CoinHoard} from '../shared/pirate-world/render/coinHoard';
+import {DOUBLOON_RENDER_TRIANGLES} from '../shared/pirate-world/render/coin';
+import {coinSounds} from '../shared/pirate-world/game/coinSounds';
+import {loadGoldLayout,saveGoldLayout} from '../shared/pirate-world/game/goldLayout';
 class FakeWorker {
   static all:FakeWorker[]=[];
   terminated=false;sent:unknown;messages:unknown[]=[];
@@ -83,22 +83,22 @@ describe('real coin sandbox banks',()=>{
     expect(h.drawnCounts[0]).toBeGreaterThan(0);
     scene.dispose();engine.dispose();
   });
-  it('uses the same queued pour for an exact 100-coin math reward with isolated storage',async()=>{
+  it.each([100,900,1000])('uses the same queued pour for an exact %s-coin reward with isolated storage',async(amount)=>{
     vi.stubGlobal('Worker',FakeWorker);
     const engine=new NullEngine(),scene=new Scene(engine);
     const h=new CoinHoard(scene,false,undefined,{goldNamespace:'captain-calculus.coin-poses',strictPhysics:true});
     // Two consecutive earned chests use the same worker and static-buffer path.
     for(let chest=0;chest<2;chest++){
-      h.addBatch(0,100);h.preparePour(0);await flush();
+      h.addBatch(0,amount);h.preparePour(0);await flush();
       const worker=FakeWorker.all.at(-1)!;
       const initial=worker.sent as {chest:Float32Array;previous:Float32Array};
-      expect(initial.chest.length).toBe(700);
-      expect(initial.previous.length).toBe(chest*700);
-      expect(h.pouring(0).depositCoins).toBe(100);
+      expect(initial.chest.length).toBe(amount*7);
+      expect(initial.previous.length).toBe(chest*amount*7);
+      expect(h.pouring(0).depositCoins).toBe(amount);
       h.startPour(0);worker.onmessage?.({data:{ready:true}});
-      worker.emit(poses().slice(0,700),true);await flush();
-      expect(h.counts[0]).toBe((chest+1)*100);
-      expect(h.restingCounts[0]).toBe((chest+1)*100);
+      worker.emit(poses().slice(0,amount*7),true);await flush();
+      expect(h.counts[0]).toBe((chest+1)*amount);
+      expect(h.restingCounts[0]).toBe((chest+1)*amount);
       expect(saveGoldLayout).toHaveBeenLastCalledWith(0,expect.any(Float32Array),false,'captain-calculus.coin-poses');
     }
     scene.dispose();engine.dispose();
@@ -187,9 +187,9 @@ it('keeps million-gold balances in reserves while pouring the full next 900-coin
   const {readProgress}=await import('../game/progress');
   const p=poses(),initial=new Float32Array(70000);for(let i=0;i<10;i++)initial.set(p,i*7000);
   vi.mocked(loadGoldLayout).mockResolvedValue(initial);
-  const balance=[1000000];h.refresh(readProgress(),null,balance);await flush();
+  const balance=[1000000];h.refresh(balance);await flush();
   expect(h.counts).toEqual([10000]);expect(h.reserveCounts).toEqual([990000]);expect(balance).toEqual([1000000]);
-  h.refresh(readProgress(),0,[1000900],900);h.preparePour(0);h.startPour(0);await flush();
+  h.refresh([1000900],0,900);h.preparePour(0);h.startPour(0);await flush();
   const worker=FakeWorker.all.at(-1)!;
   expect((worker.sent as {previous:Float32Array}).previous.length).toBe(0);
   expect((worker.sent as {chest:Float32Array}).chest.length).toBe(900*7);

@@ -1,5 +1,5 @@
 import {describe,expect,it} from 'vitest';
-import {CoinRestWindow} from './coinRest';
+import {CoinRestWindow} from '../shared/pirate-world/game/coinRest';
 const sample=(x:number,y=1,nx=0)=>({x,y,z:0,nx,ny:Math.sqrt(1-nx*nx),nz:0});
 describe('coin displacement settling window',()=>{
   it('finishes millimetre contact oscillations within half a second',()=>{

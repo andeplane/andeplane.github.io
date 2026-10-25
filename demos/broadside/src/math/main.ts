@@ -245,7 +245,11 @@ async function showTreasure(request: "reward" | "ship" | "cave", unload = true):
       cave = new Scene(canvas, () => {
         if (!["reward", "ship", "unloading"].includes(screen)) return;
         revealReady = true; render();
-      }, !qa, () => { persist(); if (screen === "unloading") render(); });
+      }, !qa, () => { if (screen === "unloading") render(); }, next => {
+        const saved=saveMathProgress(next,storage); saveFailed=!qa&&!saved; return qa||saved;
+      }, error => {
+        console.error(error); sceneError=true; sceneLoading=false; revealReady=true; render();
+      });
     }
     if (id !== viewId) return;
     if (next === "reward" || next === "ship") cave.showShip(progress, next === "reward");

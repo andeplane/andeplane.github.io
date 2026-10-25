@@ -2,8 +2,8 @@ import { describe, expect, it } from 'vitest';
 import { NullEngine } from '@babylonjs/core/Engines/nullEngine.js';
 import { Scene } from '@babylonjs/core/scene.js';
 import { VertexBuffer } from '@babylonjs/core/Buffers/buffer.js';
-import { doubloonMesh, DOUBLOON_RENDER_TRIANGLES } from './coin';
-import { COIN_RADIUS } from '../game/goldAreas';
+import { doubloonMesh, DOUBLOON_RENDER_TRIANGLES } from '../shared/pirate-world/render/coin';
+import { COIN_RADIUS } from '../shared/pirate-world/game/goldAreas';
 
 describe('round visual doubloons', () => {
   it('retains a circular silhouette with bevels for close-up piles and chest contents', () => {

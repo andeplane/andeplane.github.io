@@ -1,7 +1,7 @@
 import { existsSync, readFileSync } from 'node:fs';
 import { expect, it } from 'vitest';
-import { PEARL_BOARDING, PearlDeck } from './pearlDeck';
-import { CaveWalker } from './caveWalk';
+import { PEARL_BOARDING, PearlDeck } from '../shared/pirate-world/input/pearlDeck';
+import { CaveWalker } from '../shared/pirate-world/input/caveWalk';
 
 const path='.private/black-pearl.json';
 // Runs locally after importing. CI has no purchased files and skips this check.

@@ -30,6 +30,8 @@ export function revealPose(seconds: number, reducedMotion = false) {
 
 /** A hollow chest with a real rear hinge, curved planked lid and animated light. */
 export class RewardChest {
+  error: string | null = null;
+  get ready():boolean { return this.coinsReady; }
   readonly root: TransformNode;
   private lid: TransformNode;
   private contents: Mesh;
@@ -129,7 +131,7 @@ export class RewardChest {
       }
       this.contents.thinInstanceSetBuffer("matrix", coins, 16, true);
       this.coinsReady = true; this.setCoinCount(this.coinCount);
-    }).catch(error => console.error("Chest contents:", error));
+    }).catch(error => { this.error=String(error); console.error("Chest contents:", error); });
     this.light = new PointLight("chest's hidden glow", new Vector3(0, 2, -0.4), scene);
     this.light.renderPriority = 4;
     this.light.parent = this.root; this.light.diffuse = Color3.FromHexString("#ffcc75"); this.light.range = 8;

@@ -134,7 +134,7 @@ export class VoyageHud {
     q("#v-look-centre").onclick = h.centreLook;
     q("#v-chart-open").onclick = () => h.seaChart(true);
     q("#sea-chart-close").onclick = () => h.seaChart(false);
-    q("#sea-chart-back").onclick = h.menu;
+    q("#sea-chart-back").onclick = () => h.menu();
     q("#captain-menu").insertAdjacentHTML("beforeend", `<div id="ship-panel-backdrop" hidden><aside id="ship-panel" hidden role="dialog" aria-modal="true" aria-labelledby="ship-panel-title" aria-describedby="ship-place" tabindex="-1"><button id="ship-close" class="ship-panel-close" aria-label="Close ship details"><span aria-hidden="true">×</span> Close</button><span class="eyebrow">THE BLACK PEARL</span><h2 id="ship-panel-title">Your ship</h2><p id="ship-place"></p><div class="ship-panel-actions"><button id="visit-ship">Board the ship ${icon("arrow")}</button><button id="menu-hold">Treasure hold</button><button id="ship-cave">Sail to your cave</button></div></aside></div><div id="chart-travel" hidden role="status"></div>`);
     const shipMarker = (id: string) => `<span id="${id}" class="chart-ship chart-ship-marker" aria-hidden="true" inert>${pirateShipArt(id)}</span>`;
     const shipAction = (id: string) => `<button id="${id}" class="chart-ship-action" aria-label="Your ship details" aria-expanded="false" aria-controls="ship-panel">${icon("ship")}<span>Your ship</span></button>`;
@@ -175,7 +175,7 @@ export class VoyageHud {
     q("#menu-hold").onclick = () => { this.closeShipPanel(); h.travel("hold"); };
     q("#result-unload").onclick = q("#hold-unload").onclick = h.unload;
     q("#hold-sail").onclick = () => { h.menu(); this.showMenu("worlds"); };
-    q("#hold-back").onclick = q("#unload-menu").onclick = h.menu;
+    q("#hold-back").onclick = q("#unload-menu").onclick = () => h.menu();
     q("#harbour-unload").onclick = h.unload;
     q("#unload-explore").onclick = h.home;
     q("#v-home").onclick = () => {

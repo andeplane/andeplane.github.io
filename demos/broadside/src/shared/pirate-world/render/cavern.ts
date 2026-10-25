@@ -1,3 +1,4 @@
+import { PIRATE_ASSETS, pirateAsset } from "../assets";
 import "@babylonjs/core/Meshes/thinInstanceMesh.js";
 import { GOLD_AREAS } from "../game/goldAreas";
 import { caveFloor } from "../input/caveLayout";
@@ -20,7 +21,7 @@ import { SpotLight } from "@babylonjs/core/Lights/spotLight.js";
 import { ShadowGenerator } from "@babylonjs/core/Lights/Shadows/shadowGenerator.js";
 import "@babylonjs/core/Lights/Shadows/shadowGeneratorSceneComponent.js";
 import { ParticleSystem } from "@babylonjs/core/Particles/particleSystem.js";
-import { Rng } from "../sim/rng";
+import { Rng } from "../../../sim/rng";
 
 /** Sculpted, open-front chamber: real relief, overhead daylight and a growing hoard. */
 export class Cavern {
@@ -40,6 +41,7 @@ export class Cavern {
     private scene: Scene,
     spots: Vector3[],
     bankLabels?: readonly string[],
+    areas:readonly {world:number;name:string;x:number;z:number;radius:number}[] = GOLD_AREAS,
   ) {
     const s = scene,
       rng = new Rng(7164);
@@ -52,11 +54,11 @@ export class Cavern {
       return m;
     };
     const albedo = new Texture(
-      `${import.meta.env.BASE_URL}textures/cave/rock-color.jpg`,
+      pirateAsset(PIRATE_ASSETS.rockColor),
       s,
     );
     const normal = new Texture(
-      `${import.meta.env.BASE_URL}textures/cave/rock-normal.jpg`,
+      pirateAsset(PIRATE_ASSETS.rockNormal),
       s,
     );
     normal.level = 0.5;
@@ -439,7 +441,7 @@ export class Cavern {
     dust.start();
 
     buildDeepCave(this, s);
-    for (const area of GOLD_AREAS) {
+    for (const area of areas) {
       const hanging = new Vector3(area.x - 2.4, 5.2, area.z - 2.2);
       this.lantern(hanging, flame);
       const lamp = new PointLight(`${area.name} bank lantern`, hanging.add(new Vector3(0, -.75, 0)), s);

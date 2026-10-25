@@ -6,7 +6,7 @@ import { StandardMaterial } from "@babylonjs/core/Materials/standardMaterial.js"
 import { PointLight } from "@babylonjs/core/Lights/pointLight.js";
 import type { Scene } from "@babylonjs/core/scene.js";
 import type { Cavern } from "./cavern";
-import { Rng } from "../sim/rng";
+import { Rng } from "../../../sim/rng";
 
 /** A lantern passage, a flooded vault and a side grotto, connected in the same scene. */
 export function buildDeepCave(c: Cavern, s: Scene): void {

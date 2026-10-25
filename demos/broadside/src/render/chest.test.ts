@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { revealPose } from "./chest";
+import { revealPose } from "../shared/pirate-world/render/chest";
 
 describe("treasure chest choreography", () => {
   it("keeps the treasure concealed until the lid has opened", () => {

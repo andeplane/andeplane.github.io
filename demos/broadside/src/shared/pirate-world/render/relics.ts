@@ -5,7 +5,7 @@ import { Color3 } from "@babylonjs/core/Maths/math.color.js";
 import { Vector3 } from "@babylonjs/core/Maths/math.vector.js";
 import type { Scene } from "@babylonjs/core/scene.js";
 import { doubloonMaterial, doubloonMesh } from "./coin";
-import { RELICS } from "../game/voyage";
+import { RELICS } from "../catalog";
 
 /** Sculpted, lit 3D keepsakes: no flat artwork or emoji stand-ins. */
 export function buildRelic(

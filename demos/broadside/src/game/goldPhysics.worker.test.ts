@@ -5,14 +5,14 @@ afterEach(()=>{
   vi.clearAllTimers();vi.useRealTimers();vi.unstubAllGlobals();vi.restoreAllMocks();
 });
 describe('live Rapier chest physics',()=>{
-  it.each([[2.2,1000],[0,1000],[2.2,100]])('stays idle while closed then empties the chest with a %s second turn and %s coins',async(duration,count)=>{
+  it.each([[2.2,1000],[0,1000],[2.2,100],[0,900]])('stays idle while closed then empties the chest with a %s second turn and %s coins',async(duration,count)=>{
     vi.resetModules();
     vi.useFakeTimers({toFake:['setTimeout','clearTimeout']});
     const frames:{poses?:Float32Array;ready?:boolean;turn?:number;error?:string;done?:boolean;resting?:number;empty?:boolean;time?:number;impacts?:number[]}[]=[];
     // Rapier obtains its WASM random seed from self.crypto in a worker.
     const worker=Object.assign(Object.create(globalThis),{onmessage:null as null|((event:{data:unknown})=>Promise<void>),postMessage:(data:typeof frames[number])=>frames.push(data)});
     vi.stubGlobal('self',worker);
-    await import('./goldPhysics.worker');
+    await import('../shared/pirate-world/game/goldPhysics.worker');
     const bytes=readFileSync(new URL('../../public/assets/hoard/chest.bin',import.meta.url));
     const chest=new Float32Array(bytes.buffer.slice(bytes.byteOffset,bytes.byteOffset+count!*7*4));
     const pose={position:{x:8,y:.5,z:-5},rotation:{x:0,y:0,z:0,w:1},lid:0};
@@ -48,7 +48,7 @@ describe('live Rapier chest physics',()=>{
       vi.resetModules();
       const frames:{surface?:number[];poses?:Float32Array;ready?:boolean;done?:boolean;resting?:number;time?:number;error?:string}[]=[];
       const worker=Object.assign(Object.create(globalThis),{onmessage:null as null|((event:{data:unknown})=>Promise<void>),postMessage:(data:typeof frames[number])=>frames.push(data)});
-      vi.stubGlobal('self',worker);await import('./goldPhysics.worker');
+      vi.stubGlobal('self',worker);await import('../shared/pirate-world/game/goldPhysics.worker');
       let peak=0;for(let i=1;i<previous.length;i+=7)peak=Math.max(peak,previous[i]!);
       await worker.onmessage!({data:{world:0,previous,surfacePrevious:previous,chest,chestY:peak+3.8}});
       await worker.onmessage!({data:{start:true,duration:2.2}});
@@ -76,7 +76,7 @@ describe('live Rapier chest physics',()=>{
       frames.push(data);
       if(data.poses&&target){discarded.push(!target.isValid());target=undefined;}
     }});
-    vi.stubGlobal('self',worker);await import('./goldPhysics.worker');
+    vi.stubGlobal('self',worker);await import('../shared/pirate-world/game/goldPhysics.worker');
     const b=readFileSync(new URL('../../public/assets/hoard/chest.bin',import.meta.url));
     const chest=new Float32Array(b.buffer.slice(b.byteOffset,b.byteOffset+b.byteLength));
     await worker.onmessage!({data:{world:0,previous:new Float32Array(),chest,chestY:4.5,floorY:.7}});

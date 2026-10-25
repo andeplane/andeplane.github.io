@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { NullEngine } from '@babylonjs/core/Engines/nullEngine.js';
 import { Scene } from '@babylonjs/core/scene.js';
-import { CargoChests, entranceCargoPosition } from './cargoChests';
+import { CargoChests, entranceCargoPosition } from '../shared/pirate-world/render/cargoChests';
 
 describe('visible waiting cargo', () => {
   it('batches forty open chests with visible gold and releases previous geometry when the queue advances', () => {
