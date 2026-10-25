@@ -2,35 +2,31 @@
 
 ## Current experience
 
-The animation route contains only a sky, lifelines, stars, and people's names.
-Header, narrative copy, timeline, controls, editor, captions, and loading prose
-have been removed. It starts automatically, holds the ending, fades, and loops.
-
-Remembered stars shrink and desaturate. Continuing relatives travel through the
-upper frame while their trails remain visible. SVG coordinate height adapts to
-the viewport without stretching circles or text.
+Autoplaying sky with names, lifelines, a LEFT scrolling age y-axis, and brief
+in-scene explanation. Five-year marks and the highlighted current age remain
+visible. Active family heads align with the current-age plane. The final
+constellation has the reference's title and two italic lines beneath it.
+There is no page banner, sidebar, bottom playback timeline, or control UI.
 
 ## Checks performed
 
-- Local browser: automatic progress after reload, natural looping, and zero
-  buttons, inputs, selects, navigation, headers, footers, headings, or paragraphs
-  in the animation page. Visible text consists only of people's names.
-- Visual review at 1280 × 800 desktop, 390 × 844 phone, 320 × 740 narrow phone,
-  and 844 × 390 short landscape. Resize/orientation changes retained playback.
-  No page overflow at the measured sizes.
+- Actual local browser animation: visible age ticks, current-age highlight,
+  friendship explanation, and final title/text. No buttons or editing controls.
+- Visually reviewed ending at 1280 × 800 desktop, 390 × 844 phone,
+  320 × 740 narrow phone, and 844 × 390 landscape. Text fits beneath the
+  constellation, axis numbers remain visible, and ongoing family trails pass
+  upward. Resizing retained playback without page overflow.
 - Simulated safe areas: 44 px top, 34 px bottom, 24 px left/right at 320 × 740.
-  Main bounds matched the viewport and the SVG adapted to its content box.
-  The temporary override was removed; shipped CSS uses environment safe insets.
-- Observed friendship entry, disappearing friends, muted memorial stars, younger
-  generations, and continuing paths. No captured browser warnings/errors.
-- Label contrast: neutral memorial labels are 5.09:1 against the brightest
-  nominal nebula color, 6.67:1 against the base sky.
-- Eleven model tests passed locally and on home-mini/home-m1. TypeScript, Vite
-  production bundle, and HTML-shell generation passed on the home workers.
-- Current screenshots were saved in `/tmp/constellation-distance-review/`.
-  The project preview is an actual capture of the animation-only page.
+  Axis and explanation remained visible; measured horizontal overflow was false.
+  Temporary override removed. Shipped CSS uses environment safe insets.
+- Fourteen model tests passed locally and on home-m1, covering age ticks,
+  lifeline alignment, ending explanation, friends, continuing generations,
+  subdued memorial stars, path continuity, and saved-data migration.
+- TypeScript, production Vite build, and SEO shell generation passed on home-m1.
+  Final repository CI covers the final rendering/style refinements.
+- Representative actual browser captures: `/tmp/constellation-axis-review/`.
+  Project preview is the desktop ending capture including the age axis.
 
-Final repository CI and live deployment results are reported in the chat.
-Physical iPhone/Safari rendering and real device safe areas remain unverified.
-No song has been created or added. The removed editor and audio-picker checks
-from earlier versions are not claims about the current interface.
+Final CI and live deployment are checked separately in the chat. Physical
+phone/Safari behavior and real device safe areas remain unverified.
+No song has been created or added.

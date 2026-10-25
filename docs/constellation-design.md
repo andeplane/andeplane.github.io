@@ -1,37 +1,47 @@
 # The light we leave
 
-A full-screen animated sky. The page contains only stars, lifelines, and people's
-names. There is no banner, narrative column, timeline, editor, button, caption,
-or loading text. Animation starts automatically on page load.
+A full-screen animated sky with lifelines, names, a scrolling age y-axis, and
+brief in-scene story text. Animation starts automatically on page load.
+There is no banner, narrative sidebar, playback timeline, editor, or button.
+
+## Essential story content
+
+The LEFT age y-axis is core content. It must never be removed when simplifying
+page chrome. Show a moving window of roughly twenty years, five-year ticks, and
+a highlighted current age aligned with every active lifeline. Do not display
+the entire lifetime as a static scale. Keep the axis visible through the ending.
+
+Short messages appear within the animation, one at a time. The final
+constellation leaves room below it for the reference's closing message:
+
+> Life is a journey
+>
+> Some walk with you for a while.
+> Others stay in your sky forever.
 
 ## Sequence
 
 The 48-second fictional life includes parents and grandparents, a childhood
 friend (ages 5–28) and college friends who drift away, a wife, a son, his wife,
-and two grandchildren. Friendships fade out without becoming memorial stars.
-Remembered family forms a subdued constellation. Younger relatives move past
-that generation and through the upper edge of the frame, with their continuing
-trails spanning the sky and small upward name tags.
+and two grandchildren. Friendships fade without becoming memorial stars.
+Remembered family forms a subdued constellation. Younger relatives continue
+past that generation and through the upper edge, leaving trails and upward
+name tags. Their moving heads remain aligned with the same chronological age.
 
-Remembered stars lose their original color over four narrative years, settle
-into neutral silver, shrink, and lose most of their halo. Labels remain readable
-and neutral. Living colors are softened. The background is a quiet midnight sky.
+Remembered stars lose color over four narrative years, settle into neutral
+silver, shrink, and lose most of their halo. Labels remain neutral and readable.
+Living colors are softened against a quiet midnight sky.
 
-The ending holds briefly, fades out, and loops with a soft fade-in. Time pauses
-while the document is hidden and resumes on return. Resizing changes the SVG's
-coordinate height, preserving circles and text rather than stretching a square
-image. Phone safe areas are reserved without introducing visible chrome.
+The ending holds briefly, fades, and loops. Time pauses while the document is
+hidden. Resizing changes SVG coordinate height, preserving circles and text.
+Phone safe areas are reserved without visible chrome.
 
 ## Data and later music
 
-Existing browser-local family data is preserved and read; the public animation
-has no editing interface. The sample lives in `story.ts`. No personal data or
-media is uploaded. The exact old sample upgrades automatically; customized
-legacy names and ages remain intact.
+Existing browser-local family data is preserved. The public animation has no
+editor. The sample in `story.ts` is fictional; no personal data is uploaded.
+The exact old sample upgrades automatically; custom legacy data remains intact.
 
-A future song can be integrated as an asset. There is no audio picker or other
-music UI on the clean page. No song service has been contacted.
-
-The visual concept is inspired by the family-lifeline reference supplied by the
-user, credited to @creaconbruno on the project's detail page. Code and rendering
-are original. See `constellation-review.md` for verification boundaries.
+A future song can be integrated as an asset. No song service has been contacted.
+The concept is inspired by the user's @creaconbruno Instagram reference,
+credited on the project detail page. Code and rendering are original.

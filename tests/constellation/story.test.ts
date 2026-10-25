@@ -1,6 +1,6 @@
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
-import { CHAPTERS, DEFAULT_DURATION, MAX_PEOPLE, SAMPLE, chapterAt, personAppearance, personOpacity, readPeople, restorePeople, starPosition, storyAge, trailPath } from '../../src/features/constellation/story.ts'
+import { CHAPTERS, DEFAULT_DURATION, MAX_PEOPLE, SAMPLE, YEAR_SPACING, ageAxis, chapterAt, personAppearance, personOpacity, readPeople, restorePeople, starPosition, storyAge, storyMessage, trailPath } from '../../src/features/constellation/story.ts'
 
 const person = (id: string) => SAMPLE.find(p => p.id === id)!
 const atAge = (age: number) => age / 100 * .9
@@ -113,4 +113,37 @@ test('one-person and maximum-size skies remain finite through the reveal', () =>
       assert.ok(Number.isFinite(position.x) && Number.isFinite(position.y))
     }
   }
+})
+
+
+test('the age y-axis stays present throughout the story and ending, with a local five-year window', () => {
+  for (const progress of [0, .1, .3, .6, .8, .9, .95, 1]) {
+    const axis = ageAxis(progress)
+    assert.equal(axis.opacity, 1)
+    assert.equal(axis.age, storyAge(progress))
+    assert.ok(axis.ticks.length >= 2 && axis.ticks.length <= 5)
+    assert.ok(axis.ticks.every(tick => tick.age % 5 === 0))
+    assert.ok(Math.max(...axis.ticks.map(tick => tick.age)) - Math.min(...axis.ticks.map(tick => tick.age)) <= 20)
+  }
+})
+
+test('every moving family light is aligned with the current age on the y-axis', () => {
+  for (const progress of [.05, .3, .6, .73, .8, .9, 1]) {
+    const axis = ageAxis(progress)
+    SAMPLE.forEach((p, index) => {
+      if (p.exit !== 'fade' && storyAge(progress) >= p.start && (p.end === null || storyAge(progress) < p.end)) {
+        assert.ok(Math.abs(starPosition(p, index, SAMPLE.length, progress, SAMPLE).y - axis.y) < 1e-7)
+      }
+    })
+    axis.ticks.forEach(tick => assert.ok(Math.abs(tick.y - (axis.y + (axis.age - tick.age) * YEAR_SPACING)) < 1e-7))
+  }
+})
+
+test('the short explanation returns inside the animation, including the reference ending', () => {
+  assert.equal(storyMessage(.1), null)
+  assert.match(storyMessage(.20)!.lines[0], /stars/)
+  assert.match(storyMessage(.30)!.lines[0], /while/)
+  assert.equal(storyMessage(.95)!.title, 'Life is a journey')
+  assert.deepEqual(storyMessage(1)!.lines, ['Some walk with you for a while.', 'Others stay in your sky forever.'])
+  assert.equal(storyMessage(.95)!.opacity, 1)
 })

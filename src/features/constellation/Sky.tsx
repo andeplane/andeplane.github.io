@@ -1,5 +1,5 @@
 import type { Person } from './story'
-import { personAppearance, smooth, starPosition, storyAge, trailPath } from './story'
+import { ageAxis, personAppearance, smooth, starPosition, storyAge, trailPath } from './story'
 
 // Seeded points avoid a different sky on every render and need no image assets.
 const stars = Array.from({ length: 240 }, (_, i) => ({
@@ -8,9 +8,10 @@ const stars = Array.from({ length: 240 }, (_, i) => ({
   r: i % 13 === 0 ? 1.3 : i % 4 === 0 ? 0.8 : 0.5,
 }))
 
-export default function Sky({ people, progress, width = 800, viewHeight = 800, id = 'sky', title = 'Family lifelines becoming a constellation' }: { people: Person[], progress: number, width?: number, viewHeight?: number, id?: string, title?: string }) {
-  const verticalScale = viewHeight / 800
+export default function Sky({ people, progress, width = 800, viewHeight = 800, sceneScale = 1, id = 'sky', title = 'Family lifelines becoming a constellation' }: { people: Person[], progress: number, width?: number, viewHeight?: number, sceneScale?: number, id?: string, title?: string }) {
+  const verticalScale = viewHeight * sceneScale / 800
   const fontSize = Math.min(28, 18 * 800 / width)
+  const axis = ageAxis(progress)
   const age = storyAge(progress)
   const constellation = smooth((progress - 0.9) / 0.1)
   const positions = people.map((p, i) => { const point = starPosition(p, i, people.length, progress, people); return { ...point, y: point.y * verticalScale } })
@@ -29,16 +30,16 @@ export default function Sky({ people, progress, width = 800, viewHeight = 800, i
     const passed = person.end === null && positions[i].y < 65
     if (passed) lines[0] = '↑ ' + lines[0]
     const width = Math.max(...lines.map(line => line.length)) * fontSize * .6
-    const x = Math.max(width / 2 + 10, Math.min(790 - width / 2, positions[i].x))
+    const x = Math.max(width / 2 + 90, Math.min(790 - width / 2, positions[i].x))
     const lineHeight = fontSize * .95
     const height = fontSize + (lines.length - 1) * lineHeight + 6
     const fits = (cx: number, cy: number) => {
       const box = { left: cx - width / 2, right: cx + width / 2, top: cy - fontSize, bottom: cy + height - fontSize }
-      return box.top >= 25 && box.bottom <= viewHeight - 25 && !labelBoxes.some(b => box.left < b.right + 12 && box.right > b.left - 12 && box.top < b.bottom + 10 && box.bottom > b.top - 10)
+      return box.top >= 25 && box.bottom <= viewHeight * sceneScale - 25 && !labelBoxes.some(b => box.left < b.right + 12 && box.right > b.left - 12 && box.top < b.bottom + 10 && box.bottom > b.top - 10)
     }
     const preferredY = passed ? 35 + (Math.max(0, living.findIndex(p => p.id === person.id)) % 4) * (fontSize + 18) : positions[i].y - (fontSize + 6)
     const candidates = Array.from({ length: 12 }, (_, n) => ({ x, y: preferredY - n * 60 }))
-    const grid = Array.from({ length: Math.max(70, Math.floor(viewHeight / 65) * 7) }, (_, n) => ({ x: Math.max(width / 2 + 10, Math.min(790 - width / 2, 70 + n % 7 * 110)), y: 65 + Math.floor(n / 7) * 65 }))
+    const grid = Array.from({ length: Math.max(70, Math.floor(viewHeight / 65) * 7) }, (_, n) => ({ x: Math.max(width / 2 + 90, Math.min(790 - width / 2, 90 + n % 7 * 110)), y: 65 + Math.floor(n / 7) * 65 }))
       .sort((a, b) => Math.hypot(a.x - x, a.y - preferredY) - Math.hypot(b.x - x, b.y - preferredY))
     const chosen = [...candidates, ...grid].find(candidate => fits(candidate.x, candidate.y)) ?? { x, y: 65 }
     const y = chosen.y
@@ -56,6 +57,15 @@ export default function Sky({ people, progress, width = 800, viewHeight = 800, i
     </defs>
     <ellipse cx="410" cy={viewHeight * .32} rx="480" ry={viewHeight * .55} fill={`url(#${id}-nebula)`} />
     <g fill="#d4deed">{stars.map((s, i) => <circle key={i} cx={s.x} cy={s.y * verticalScale} r={s.r} opacity={i % 3 === 0 ? 0.6 : 0.26} />)}</g>
+    <g className="cl-age-axis" opacity={axis.opacity} fontFamily="system-ui, sans-serif" fontSize={Math.min(30, 13 * 800 / width)} fill="#a4afbd">
+      <path d={`M80 25V${viewHeight * .96}`} stroke="#8391a3" strokeOpacity=".25" strokeWidth=".8" />
+      {axis.ticks.map(tick => <g key={tick.age} opacity={tick.age === Math.floor(axis.age) || Math.abs(tick.y - axis.y) < 24 ? 0 : 1}>
+        <path d={`M71 ${tick.y * verticalScale}h9`} stroke="#a4afbd" strokeOpacity=".55" />
+        <text x="64" y={tick.y * verticalScale} dy=".35em" textAnchor="end">{tick.age}</text>
+      </g>)}
+      <circle cx="80" cy={Math.max(25, axis.y * verticalScale)} r="3" fill="#d4c5a4" />
+      <text className="cl-current-age" x="64" y={Math.max(25, axis.y * verticalScale)} dy=".35em" textAnchor="end" fill="#e1d2af">{Math.floor(axis.age)}</text>
+    </g>
     <g mask={`url(#${id}-mask)`} fill="none">
       {people.map((p, i) => <g key={p.id} stroke={appearances[i].color} opacity={positions[i].opacity * (p.end === null ? 1 : (1 - constellation) * (p.exit === 'fade' ? 1 : 1 - smooth((age - p.end) / 8)))}>
         <path d={paths[i]} strokeWidth="8" opacity=".04" />
