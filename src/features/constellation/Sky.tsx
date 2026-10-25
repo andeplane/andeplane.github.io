@@ -11,20 +11,32 @@ const stars = Array.from({ length: 240 }, (_, i) => ({
 export default function Sky({ people, progress, id = 'sky', title = 'Family lifelines becoming a constellation' }: { people: Person[], progress: number, id?: string, title?: string }) {
   const age = storyAge(progress)
   const constellation = smooth((progress - 0.9) / 0.1)
-  const positions = people.map((p, i) => starPosition(p, i, people.length, progress))
+  const positions = people.map((p, i) => starPosition(p, i, people.length, progress, people))
+  const paths = people.map((p, i) => trailPath(p, i, people.length, progress, people))
+  const remembered = positions.filter((_, i) => people[i].exit !== 'fade' && people[i].end !== null)
+  const constellationPath = remembered.length === 6
+    ? [0, 2, 4, 5, 3, 1, 0].map((n, i) => `${i ? 'L' : 'M'}${remembered[n].x} ${remembered[n].y}`).join(' ')
+    : remembered.map((p, i) => `${i ? 'L' : 'M'}${p.x} ${p.y}`).join(' ')
   const labelBoxes: { left: number, right: number, top: number, bottom: number }[] = []
   const labels = people.map((person, i) => {
-    const lines = person.name.match(/.{1,12}/g) ?? ['']
-    const width = Math.max(...lines.map(line => line.length)) * 14
+    const spaces = [...person.name.matchAll(/ /g)].map(match => match.index)
+    const split = spaces.sort((a, b) => Math.abs(a - person.name.length / 2) - Math.abs(b - person.name.length / 2))[0] ?? 12
+    const lines = person.name.length <= 14 ? [person.name] : [person.name.slice(0, split), person.name.slice(split + (spaces.length ? 1 : 0))]
+    const width = Math.max(...lines.map(line => line.length)) * 16
     const x = Math.max(width / 2 + 10, Math.min(790 - width / 2, positions[i].x))
-    let y = positions[i].y - 27
-    for (let attempt = 0; attempt < 12; attempt++) {
-      const box = { left: x - width / 2, right: x + width / 2, top: y - 25, bottom: y + (lines.length - 1) * 25 + 6 }
-      const collision = labelBoxes.find(b => box.left < b.right + 12 && box.right > b.left - 12 && box.top < b.bottom + 10 && box.bottom > b.top - 10)
-      if (!collision) { if (positions[i].visible) labelBoxes.push(box); break }
-      y = collision.top - (lines.length - 1) * 25 - 16
+    const height = 25 + (lines.length - 1) * 25 + 6
+    const fits = (cx: number, cy: number) => {
+      const box = { left: cx - width / 2, right: cx + width / 2, top: cy - 25, bottom: cy + height - 25 }
+      return box.top >= 35 && box.bottom <= 695 && !labelBoxes.some(b => box.left < b.right + 12 && box.right > b.left - 12 && box.top < b.bottom + 10 && box.bottom > b.top - 10)
     }
-    return { x, y, lines }
+    const preferredY = positions[i].y - 27
+    const candidates = Array.from({ length: 12 }, (_, n) => ({ x, y: preferredY - n * 60 }))
+    const grid = Array.from({ length: 70 }, (_, n) => ({ x: Math.max(width / 2 + 10, Math.min(790 - width / 2, 70 + n % 7 * 110)), y: 65 + Math.floor(n / 7) * 65 }))
+      .sort((a, b) => Math.hypot(a.x - x, a.y - preferredY) - Math.hypot(b.x - x, b.y - preferredY))
+    const chosen = [...candidates, ...grid].find(candidate => fits(candidate.x, candidate.y)) ?? { x, y: 65 }
+    const y = chosen.y
+    if (positions[i].visible) labelBoxes.push({ left: chosen.x - width / 2, right: chosen.x + width / 2, top: y - 25, bottom: y + height - 25 })
+    return { x: chosen.x, y, lines }
   })
   return <svg className="cl-sky-svg" viewBox="0 0 800 800" role="img" aria-labelledby={`${id}-title`} xmlns="http://www.w3.org/2000/svg">
     <title id={`${id}-title`}>{title}</title>
@@ -36,26 +48,21 @@ export default function Sky({ people, progress, id = 'sky', title = 'Family life
     </defs>
     <ellipse cx="410" cy="250" rx="480" ry="420" fill={`url(#${id}-nebula)`} />
     <g fill="#d4deed">{stars.map((s, i) => <circle key={i} cx={s.x} cy={s.y} r={s.r} opacity={i % 3 === 0 ? 0.6 : 0.26} />)}</g>
-    <g opacity={1 - constellation} fontFamily="system-ui, sans-serif" fontSize="11" fill="#a0aec3">
-      <path d="M33 90V720" stroke="#a0aec3" strokeOpacity=".18" />
-      {[0, 10, 20, 30, 40, 50, 60, 70, 80].map(t => { const y = 510 + (age - t) * 7; return y > 90 && y < 720 ? <g key={t}><path d={`M28 ${y}h5`} stroke="#a0aec3" strokeOpacity=".4" /><text x="21" y={y + 4} textAnchor="end">{t}</text></g> : null })}
-      <circle cx="33" cy="510" r="3" fill="#f7ce85" />
-      <text x="17" y="75" letterSpacing="2" fontSize="9">AGE</text>
-    </g>
-    <g mask={`url(#${id}-mask)`} opacity={1 - constellation} fill="none">
-      {people.map((p, i) => <g key={p.id} stroke={p.color}>
-        <path d={trailPath(p, i, people.length, progress)} strokeWidth="8" opacity=".035" />
-        <path d={trailPath(p, i, people.length, progress)} strokeWidth="3.5" opacity=".16" />
-        <path d={trailPath(p, i, people.length, progress)} strokeWidth="1.3" opacity=".85" />
+    <g mask={`url(#${id}-mask)`} fill="none">
+      {people.map((p, i) => <g key={p.id} stroke={p.color} opacity={positions[i].opacity * (p.end === null ? 1 : (1 - constellation) * (p.exit === 'fade' ? 1 : 1 - smooth((age - p.end) / 8)))}>
+        <path d={paths[i]} strokeWidth="8" opacity=".04" />
+        <path d={paths[i]} strokeWidth="3.5" opacity=".2" />
+        <path d={paths[i]} strokeWidth="1.5" opacity=".9" />
+        {p.end === null && <path d={`M${positions[i].x} ${positions[i].y - 18}l-5 8m5-8 5 8`} strokeWidth="1.3" opacity={constellation * .8} />}
       </g>)}
     </g>
-    <path d={`${positions.map((p, i) => `${i ? 'L' : 'M'}${p.x} ${p.y}`).join(' ')} Z`} fill="none" stroke="#e0dbce" strokeWidth=".8" opacity={constellation * 0.5} />
-    {people.map((p, i) => { const pos = positions[i]; const ended = p.end !== null && age >= p.end; return <g key={p.id} opacity={pos.visible ? 1 : 0}>
+    <path d={constellationPath} fill="none" stroke="#e0dbce" strokeWidth=".8" opacity={constellation * .5} />
+    {people.map((p, i) => { const pos = positions[i]; if (!pos.visible) return null; const ended = p.end !== null && age >= p.end; return <g key={p.id} opacity={pos.opacity} aria-hidden={!pos.visible}>
       <circle cx={pos.x} cy={pos.y} r="36" fill={`url(#${id}-glow-${p.id})`} />
       <circle cx={pos.x} cy={pos.y} r="3.5" fill="#fff8e9" />
-      <path d={`M${pos.x - 9} ${pos.y}h18 M${pos.x} ${pos.y - 9}v18`} stroke={p.color} strokeWidth=".7" opacity={ended ? 0.9 : constellation} />
-      <text className="cl-star-label" x={labels[i].x} y={labels[i].y} fill={p.color} textAnchor="middle" fontFamily="system-ui, sans-serif" fontSize="25"><title>{p.name}</title>{labels[i].lines.map((line, n) => <tspan key={n} x={labels[i].x} dy={n ? 25 : 0}>{line}</tspan>)}</text>
+      <path d={`M${pos.x - 9} ${pos.y}h18 M${pos.x} ${pos.y - 9}v18`} stroke={p.color} strokeWidth=".7" opacity={ended && p.exit !== 'fade' ? .9 : 0} />
+      <text className="cl-star-label" x={labels[i].x} y={labels[i].y} fill={p.color} textAnchor="middle" fontFamily="system-ui, sans-serif" fontSize="28"><title>{p.name}</title>{labels[i].lines.map((line, n) => <tspan key={n} x={labels[i].x} dy={n ? 25 : 0}>{line}</tspan>)}</text>
     </g> })}
-    <text x="400" y="704" textAnchor="middle" fill="#d7c6a2" fontFamily="Georgia, serif" fontSize="22" fontStyle="italic" opacity={constellation}>The people we love become part of us.</text>
+    {constellation > 0 && <text x="400" y="730" textAnchor="middle" fill="#d7c6a2" fontFamily="Georgia, serif" fontSize="22" fontStyle="italic" opacity={constellation} aria-hidden={constellation === 0}>We become their stars. They keep going.</text>}
   </svg>
 }
