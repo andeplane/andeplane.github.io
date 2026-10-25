@@ -10,6 +10,7 @@ export interface Person {
 }
 
 export const DEFAULT_DURATION = 48
+export const YEAR_SPACING = 40
 export const MAX_PEOPLE = 16
 export const COLORS = ['#c9b9f6', '#bedddd', '#ff9c8e', '#90baff', '#f3b4d1', '#f7ce85', '#81e0e8', '#c1dea3', '#aabace', '#c4c3a4', '#a6d5bf', '#d8b9ed', '#f0bf9f', '#9dcad9', '#c4d5a5', '#d6b4bf']
 export const SAMPLE: Person[] = [
@@ -42,6 +43,26 @@ export const clamp = (value: number, min = 0, max = 1) => Math.max(min, Math.min
 export const smooth = (value: number) => { const t = clamp(value); return t * t * (3 - 2 * t) }
 export const storyAge = (progress: number) => clamp(progress / .9) * 100
 export const chapterAt = (progress: number) => CHAPTERS.reduce((index, chapter, i) => progress >= chapter.at ? i : index, 0)
+
+export function ageAxis(progress: number) {
+  const age = storyAge(progress)
+  const onward = smooth((progress - .72) / .28)
+  const y = 505 + (-85 - 505) * onward
+  const ticks = Array.from({ length: 25 }, (_, index) => index * 5).map(value => ({ age: value, y: y + (age - value) * YEAR_SPACING })).filter(tick => tick.y > 30 && tick.y < 770)
+  return { age, y, ticks, opacity: 1 }
+}
+
+export function storyMessage(progress: number) {
+  const messages = [
+    { from: .16, to: .23, title: '', lines: ['Some become stars in our sky.'] },
+    { from: .24, to: .40, title: '', lines: ['Some walk with us for a while.'] },
+    { from: .72, to: .88, title: '', lines: ['Their story keeps going.'] },
+    { from: .90, to: 2, title: 'Life is a journey', lines: ['Some walk with you for a while.', 'Others stay in your sky forever.'] },
+  ]
+  const message = messages.find(item => progress >= item.from && progress < item.to)
+  if (!message) return null
+  return { ...message, opacity: smooth((progress - message.from) / .02) * (1 - smooth((progress - message.to + .02) / .02)) }
+}
 const laneX = (person: Person, index: number, count: number) => 45 + (person.lane ?? (.06 + index * .88 / Math.max(1, count - 1))) * 710
 
 function pathX(person: Person, index: number, count: number, age: number, people?: Person[]) {
@@ -87,7 +108,7 @@ export function starPosition(person: Person, index: number, count: number, progr
   const age = storyAge(progress)
   const end = Math.min(age, person.end ?? 100)
   let x = pathX(person, index, count, end, people)
-  let y = 505
+  let y = person.exit === 'fade' ? 505 + (age - end) * YEAR_SPACING : ageAxis(Math.min(age, person.end ?? 100) / 100 * .9).y
   const blend = smooth((progress - .9) / .1)
   const remembered = people?.filter(p => p.exit !== 'fade' && p.end !== null) ?? []
   const rank = remembered.findIndex(p => p.id === person.id)
@@ -100,14 +121,14 @@ export function starPosition(person: Person, index: number, count: number, progr
   const finalX = continuing ? (remembered.length ? 545 : 90) + livingRank * ((remembered.length ? 195 : 620) / Math.max(1, living.length - 1)) : final[0]
   // Younger lives travel well beyond the remembered generation, through the
   // upper edge of the frame, instead of stopping as another set of stars.
-  const finalY = continuing ? -85 - (livingRank % 4) * 55 : final[1]
+  const finalY = continuing ? -85 : final[1]
   if (person.end !== null && person.exit !== 'fade') {
     const settle = smooth((age - person.end) / 5)
     x += (finalX - x) * settle
     y += (finalY - y) * settle
   }
   const morph = person.exit === 'fade' ? 0 : continuing ? smooth((progress - .72) / .28) : blend
-  return { x: x + (finalX - x) * morph, y: y + (finalY - y) * morph, visible: personOpacity(person, progress) > 0, opacity: personOpacity(person, progress) }
+  return { x: x + (finalX - x) * morph, y: person.end === null || age < person.end ? ageAxis(progress).y : y + (finalY - y) * morph, visible: personOpacity(person, progress) > 0, opacity: personOpacity(person, progress) }
 }
 
 export function trailPath(person: Person, index: number, count: number, progress: number, people?: Person[], verticalScale = 1) {
@@ -118,7 +139,7 @@ export function trailPath(person: Person, index: number, count: number, progress
   const headX = pathX(person, index, count, end, people)
   const continuing = person.end === null
   const perspective = continuing ? smooth((progress - .72) / .28) : 0
-  const pitch = 10 + (Math.max(10, (900 - head.y) / Math.max(1, end - person.start)) - 10) * perspective
+  const pitch = YEAR_SPACING + (Math.max(YEAR_SPACING, (900 - head.y) / Math.max(1, end - person.start)) - YEAR_SPACING) * perspective
   const points = []
   for (let t = Math.max(person.start, end - (continuing ? 100 : 48)); t < end; t += .5) {
     points.push(`${pathX(person, index, count, t, people) + head.x - headX},${(head.y + (end - t) * pitch) * verticalScale}`)
