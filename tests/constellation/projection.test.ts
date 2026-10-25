@@ -66,3 +66,9 @@ test('the camera holds at the viewer’s life while generations travel into the 
  assert.ok(later.some(l=>l.id==='future-0-0'))
  assert.ok(Math.max(...later.map(l=>l.generation))>Math.max(...early.map(l=>l.generation)))
 })
+
+test('future lives form close pairs before their paths branch into another generation',()=>{
+ const pair=(year:number)=>{const lives=futureLives(progressAtAge(year));return Math.abs(lives.find(l=>l.id==='future-0-0')!.head.x-lives.find(l=>l.id==='future-0-1')!.head.x)}
+ assert.ok(pair(122)<pair(110)/2)
+ assert.ok(pair(122)<30)
+})

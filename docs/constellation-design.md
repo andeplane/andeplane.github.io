@@ -1,199 +1,172 @@
-# The light we leave — generic story and timing
+# The light we leave — experience and relationship plan
 
-Current implementation specification, 25 October 2026. A generic life with
-a personal dedication to Mikael at the end.
+Current specification, 25 October 2026. A generic life addressed as **You**, with
+the exact personal dedication to Mikael at the end. The existing 119.97-second
+instrumental is unchanged: no lyrics, voice or humming.
 
-## Experience plan
+## Who moves, and why
 
-The emotional thread is that life is already flowing when Me arrives, changes
-through love and distance, and keeps flowing after Me’s life ends. Brother has
-shared living years before his early loss; that loss is a quiet moment rather
-than a spectacle. The dedication is personal, while the main story is generic.
+- Mom and Dad keep a steady paired course. You leave their cluster in adolescence,
+  reach your greatest independence in your twenties, then move closer in your forties.
+- Childhood friend approaches from an existing life outside the right edge. You
+  travel very close through childhood. The friendship grows more distant as college
+  friendship becomes important, then continues out of view without a death marker.
+- First love approaches from the left and stays closer to You than to either friend.
+  Their departure keeps moving in time; it never falls behind as a dead person's endpoint.
+- College friend approaches from the left, becomes a close companion in the twenties,
+  and gradually leaves during early parenthood. The two friendships trade prominence.
+- Girlfriend or Boyfriend approaches from an existing life at 26, becomes Wife or
+  Husband at 29, and stays adjacent. Children arrive at 30 and 32. Parenting spreads
+  the household; the couple gradually finds closeness again.
+- Children move with the household while young. Their own paths bend outward as
+  teenagers and adults; their parents are not pushed away to manufacture that distance.
+- Brother is two years older and dies at 40, when You are 38. No birth or new encounter
+  competes with that moment. His light holds briefly, other paths dim, then his quiet
+  star joins the remembered lives. The rest of the family continues.
+- Sister is born when You are eight and remains on the original-family side.
 
-| Elapsed time | Story and direction |
+Names have fixed tiers and bounded eased corrections. Vertical gaps do not trigger
+unnecessary horizontal separation: You and companions keep their names near their
+own dots. Living paths keep their colors; remembered lives become restrained silver.
+
+## Text and attention budget
+
+Six short cards, **30 words total**, followed by the requested personal dedication.
+The first frame has no caption; the opening fades in after 0.6 seconds. There are
+no banners, sidebars, playback controls or lyric overlays. The age axis stays visible.
+
+| Seconds | Text |
 |---|---|
-| 0–5 s | Parents, grandparents and the older brother already have ongoing paths. |
-| 5–11 s | Me arrives with one gentle warm bloom and the birth caption. |
-| 11–90 s | Relationships move through childhood, independence, love, parenting and reunion. Approximately one second per year. |
-| 43–49 s | Brother’s early death gets one generic caption; his light becomes a quiet star. |
-| 90–96 s | Me’s trail ends at 85. Living people keep moving ahead in 2D. |
-| 96–116 s | The view lowers toward the time plane while living dots continue moving. |
-| 108–117 s | The care reminder appears beneath the flowing scene. |
-| 118 s onward | The exact dedication arrives as the score resolves. |
-| 120 s onward | The music has ended, but time, moving heads, births and twinkling continue. No restart. |
-| Around 150 s / year 120 | Time begins accelerating smoothly; more generations spread into more lines. The held camera angle glides forward with the future window. |
+| 0.6–4.5 | Life is already moving. |
+| 5–10 | Then you arrive. |
+| 31–35 | Some paths become home. |
+| 35.75–40.5 | And your world grows. |
+| 43–49 | Sometimes people die young. |
+| 108–117 | Take care of the people around you. / While you still can. |
+| 118 onward | And to my brother, Mikael: I miss you every day. |
 
-The instrumental remains 119.97 seconds, preserving its original opening and
-identity. No lyrics or voice were added. Browser audible autoplay is requested
-by default, with no tap instruction or click-to-mute handler. A blocked policy
-can retry in sync on interaction; webpage code cannot override a browser denial.
+## Ending and continuing time
 
-## Text budget
+You die at 85, 90 seconds into the score. The surviving family continues in 2D.
+From 94 to 110 seconds the view tilts down to a perspective 30 degrees above the
+time plane. Its position stays anchored at your life. It does not follow descendants.
 
-Three brief story captions, twenty words total, plus the explicitly requested
-personal dedication. No running commentary, banner, sidebar, playback bar or
-button bar. The age axis remains visible, with the heading Years after Me dies.
+Acceleration begins at year 92 (104 seconds), easing from half a year per second
+toward six. About a century passes over the following twenty seconds. At the end
+of the score the world has reached year 166. There is no replay or stop:
+lives form pairs, new children branch from their parents' actual paths, older
+lives remain behind, and the growing family travels into the distance. The first
+generations remain as visible ancestry. The moving frontier keeps generating
+births and twinkling indefinitely, with a bounded 384 rendered lives.
 
-| Elapsed time | Text |
-|---|---|
-| 5–11 s | Life was moving. You arrived. |
-| 43–49 s | Sometimes people die young. |
-| 108–117 s | Take care of the people around you. / While you still can. |
-| 118 s onward | And to my brother, Mikael: I miss you every day. |
+## Year-by-year audit of the actual model
 
-## Relationship and label order
+Distances below are **diagram units**, not a measurement of love. The nearest
+three living, named connections are calculated from the same paths as the renderer.
+Unmet people, departing friendships and remembered stars are excluded from this
+ranking. Motion is the actual horizontal change in that year; a rightward move
+away from the parents is made by You, not by moving the parents left.
 
-The narrator is the anchor. Parents remain a paired cluster, siblings occupy
-the original-family side, the partner stays adjacent, children form a household
-between their parents and then move outward, and their partners/children form
-later clusters. Sister stays closer to Me than to Son. Brother and Childhood
-friend never share a lane: the sibling is on the family side, the friend on the
-other side. Friendship departures fade and do not become death stars.
+| Your age | Nearest living connections (distance) | Your movement | Other large movements |
+|---|---|---|---|
+| 0 | Dad (11), Mom (19), Brother (72) | Steady | Steady shared travel |
+| 1 | Dad (12), Mom (19), Brother (72) | Steady | Steady shared travel |
+| 2 | Dad (13), Mom (19), Brother (72) | Steady | Steady shared travel |
+| 3 | Dad (14), Mom (19), Brother (72) | Steady | Steady shared travel |
+| 4 | Dad (15), Mom (19), Brother (71) | Steady | Steady shared travel |
+| 5 | Dad (16), Mom (18), Childhood friend (40) | Steady | Childhood friend: left 84 |
+| 6 | Dad (18), Mom (18), Childhood friend (40) | Steady | Steady shared travel |
+| 7 | Mom (17), Dad (19), Childhood friend (41) | Steady | Steady shared travel |
+| 8 | Mom (16), Dad (20), Sister (40) | Steady | Steady shared travel |
+| 9 | Dad (12), Mom (24), Childhood friend (43) | Right 8 | Childhood friend: right 9 |
+| 10 | Dad (6), Mom (43), Childhood friend (44) | Right 19 | Childhood friend: right 20; Brother: left 9 |
+| 11 | Dad (25), Childhood friend (45), Mom (61) | Right 19 | Childhood friend: right 20; Brother: left 12 |
+| 12 | Dad (33), Childhood friend (46), Mom (69) | Right 9 | Brother: left 12; Childhood friend: right 9 |
+| 13 | Dad (45), Childhood friend (47), Mom (80) | Right 12 | Childhood friend: right 13; Brother: left 9 |
+| 14 | Childhood friend (48), Dad (74), Mom (108) | Right 29 | Childhood friend: right 30 |
+| 15 | First love (17), Childhood friend (49), Dad (109) | Right 35 | First love: right 105; Childhood friend: right 36 |
+| 16 | First love (17), Childhood friend (51), Dad (138) | Right 29 | Childhood friend: right 30; First love: right 29 |
+| 17 | First love (17), Childhood friend (51), Dad (151) | Right 13 | Childhood friend: right 13; First love: right 13; Sister: left 9 |
+| 18 | First love (18), Childhood friend (59), College friend (87) | Right 5 | College friend: right 77; Childhood friend: right 13; Sister: left 11 |
+| 19 | First love (19), Childhood friend (67), College friend (83) | Right 12 | Childhood friend: right 20; College friend: right 16; Sister: left 11 |
+| 20 | First love (22), College friend (74), Childhood friend (79) | Right 15 | Childhood friend: right 26; College friend: right 24; First love: right 13 |
+| 21 | College friend (69), Childhood friend (100), Dad (201) | Right 15 | Childhood friend: right 36; College friend: right 20; Sister: left 9 |
+| 22 | College friend (56), Childhood friend (111), Dad (213) | Right 12 | College friend: right 25; Childhood friend: right 23 |
+| 23 | College friend (43), Childhood friend (119), Dad (219) | Right 5 | College friend: right 18; Childhood friend: right 13 |
+| 24 | College friend (43), Childhood friend (135), Dad (218) | Steady | Childhood friend: right 15 |
+| 25 | College friend (43), Childhood friend (144), Dad (215) | Left 3 | Brother: right 9 |
+| 26 | Girlfriend (21), College friend (43), Childhood friend (155) | Left 5 | Wife: left 29; Brother: right 11 |
+| 27 | Girlfriend (22), College friend (43), Childhood friend (176) | Left 5 | Childhood friend: right 16; Brother: right 9 |
+| 28 | Girlfriend (24), College friend (42), Dad (199) | Left 5 | Steady shared travel |
+| 29 | Wife (26), College friend (42), Dad (195) | Left 4 | Brother: right 10 |
+| 30 | Son (7), Wife (29), College friend (44) | Steady | Brother: right 24 |
+| 31 | Son (11), Wife (35), College friend (44) | Left 5 | Brother: right 29 |
+| 32 | Son (17), Daughter (30), Wife (47) | Left 12 | Brother: right 25; College friend: left 16 |
+| 33 | Son (20), Daughter (33), Wife (53) | Left 14 | College friend: left 23; Daughter: left 11; Son: left 11 |
+| 34 | Son (23), Daughter (36), Wife (59) | Left 12 | Daughter: left 9; Son: left 9 |
+| 35 | Son (28), Daughter (41), Wife (71) | Left 5 | Sister: right 12; Brother: right 10 |
+| 36 | Son (31), Daughter (44), Wife (76) | Left 10 | Sister: right 16; Brother: right 12 |
+| 37 | Son (32), Daughter (45), Wife (78) | Left 17 | Sister: right 17; Son: left 17; Daughter: left 16 |
+| 38 | Son (33), Daughter (47), Wife (81) | Left 9 | Sister: right 16; Son: left 8 |
+| 39 | Son (35), Daughter (49), Wife (84) | Left 5 | Sister: right 11 |
+| 40 | Son (35), Daughter (50), Wife (85) | Left 13 | Son: left 12; Wife: left 12; Daughter: left 11 |
+| 41 | Son (38), Daughter (52), Dad (71) | Left 15 | Wife: left 14; Daughter: left 14; Son: left 12 |
+| 42 | Son (46), Daughter (53), Dad (59) | Left 12 | Daughter: left 11; Wife: left 10 |
+| 43 | Son (53), Dad (54), Daughter (59) | Left 5 | Steady shared travel |
+| 44 | Son (53), Dad (54), Daughter (68) | Steady | Daughter: right 9 |
+| 45 | Dad (54), Son (62), Daughter (75) | Steady | Wife: left 9 |
+| 46 | Dad (53), Wife (69), Daughter (76) | Steady | Son: right 22; Wife: left 9 |
+| 47 | Dad (52), Wife (65), Mom (82) | Steady | Son: right 24; Daughter: right 17 |
+| 48 | Dad (51), Wife (61), Mom (81) | Steady | Daughter: right 41; Son: right 9 |
+| 49 | Dad (51), Wife (52), Mom (80) | Steady | Daughter: right 39; Wife: left 10 |
+| 50 | Wife (43), Dad (52), Mom (80) | Steady | Son: right 20; Daughter: right 16; Wife: left 9 |
+| 51 | Wife (39), Dad (52), Mom (80) | Steady | Son: right 27; Daughter: right 15 |
+| 52 | Wife (38), Dad (50), Mom (78) | Left 2 | Daughter: right 39; Son: right 22 |
+| 53 | Wife (34), Dad (48), Mom (76) | Left 3 | Daughter: right 45 |
+| 54 | Wife (30), Dad (46), Mom (74) | Left 3 | Daughter: right 37 |
+| 55 | Wife (27), Mom (73), Sister (86) | Steady | Daughter: right 14; Son: right 12 |
+| 56 | Wife (26), Mom (73), Sister (84) | Steady | His wife: left 24 |
+| 57 | Wife (27), Mom (70), Sister (80) | Left 3 | Steady shared travel |
+| 58 | Wife (28), Mom (66), Sister (76) | Left 5 | Steady shared travel |
+| 59 | Wife (29), Mom (62), Sister (70) | Left 5 | Steady shared travel |
+| 60 | Wife (30), Mom (58), Sister (65) | Left 5 | Steady shared travel |
+| 61 | Wife (31), Mom (55), Sister (61) | Left 4 | Steady shared travel |
+| 62 | Wife (31), Mom (53), Sister (59) | Steady | Steady shared travel |
+| 63 | Wife (32), Mom (52), Sister (56) | Steady | Steady shared travel |
+| 64 | Wife (32), Mom (49), Sister (53) | Left 3 | Steady shared travel |
+| 65 | Wife (32), Mom (46), Sister (50) | Left 3 | Steady shared travel |
+| 66 | Wife (32), Sister (48), Granddaughter (249) | Steady | Steady shared travel |
+| 67 | Wife (32), Sister (48), Granddaughter (247) | Steady | Steady shared travel |
+| 68 | Wife (31), Sister (48), Granddaughter (246) | Steady | Steady shared travel |
+| 69 | Wife (30), Sister (48), Granddaughter (246) | Steady | Steady shared travel |
+| 70 | Wife (29), Sister (49), Granddaughter (246) | Steady | Steady shared travel |
+| 71 | Wife (28), Sister (50), Granddaughter (245) | Steady | Steady shared travel |
+| 72 | Wife (27), Sister (51), Granddaughter (243) | Steady | Steady shared travel |
+| 73 | Wife (26), Sister (52), Granddaughter (242) | Steady | Steady shared travel |
+| 74 | Wife (25), Sister (54), Granddaughter (241) | Steady | Steady shared travel |
+| 75 | Wife (24), Sister (55), Granddaughter (238) | Steady | Steady shared travel |
+| 76 | Wife (23), Sister (57), Granddaughter (231) | Steady | Steady shared travel |
+| 77 | Wife (23), Sister (58), Granddaughter (223) | Steady | Steady shared travel |
+| 78 | Wife (22), Sister (59), Granddaughter (214) | Steady | Granddaughter: left 9 |
+| 79 | Wife (22), Sister (60), Granddaughter (205) | Steady | Granddaughter: left 9 |
+| 80 | Wife (22), Sister (61), Granddaughter (197) | Steady | Steady shared travel |
+| 81 | Wife (22), Sister (62), Granddaughter (192) | Steady | Steady shared travel |
+| 82 | Wife (22), Sister (62), Granddaughter (190) | Steady | Steady shared travel |
+| 83 | Wife (23), Sister (62), Granddaughter (190) | Steady | Steady shared travel |
+| 84 | Wife (24), Sister (62), Granddaughter (190) | Steady | Steady shared travel |
+| 85 | Wife (24), Sister (62), Granddaughter (190) | Steady | Grandson: right 8 |
 
-Each person owns a stable label tier. No per-frame nearest-cell search remains.
-A persistent layout follows the star and eases collision corrections, capped
-at 55 CSS pixels per second. Short landscape uses its own fixed tier map rather
-than clamping several names onto one bottom row. Names fade during a death’s
-brief transit and return at the settled star; they do not hop between slots.
+## Sound and reference
 
-Living paths and labels use their actual colors, as in the reference. Deceased
-people gradually become smaller and neutral. Me gets one warm birth bloom.
+Audible playback is requested automatically. If the browser blocks a fresh visit,
+the first touch release, click or keyboard interaction retries at the current story
+time. Touch-down alone is not sufficient on touch browsers. The experience does
+not rewind on recovery, and the score never loops.
 
-## Year-by-year actions
-
-Elapsed time is approximate and follows the actual track. The only caption
-windows are the three listed above. After 85, the year means years since birth.
-
-| Narrator age / story year | Elapsed | Action and relationship movement |
-|---|---|---|
-| 0 | 5 s | Me is born. Brother is already two. Mom and Dad are a close pair around the narrator. |
-| 1 | 6 s | Your path stays almost touching Mom and Dad. Brother travels just beside you. |
-| 2 | 7 s | The four paths move as one small group. Grandparents remain another close pair nearby. |
-| 3 | 8 s | The childhood family remains tightly grouped; Sister has not been born yet. |
-| 4 | 9 s | You and Brother stay close to both parents. Sister has not arrived yet. |
-| 5 | 10 s | Childhood friend enters beside you, outside the family cluster. |
-| 6 | 11 s | You and the childhood friend run almost parallel. Parents remain close. |
-| 7 | 12 s | Friendship becomes familiar; siblings and parents still surround your path. |
-| 8 | 13 s | Sister is born and her path begins inside the family cluster. |
-| 9 | 14 s | Your path begins tiny excursions away from your parents, returning close. |
-| 10 | 15 s | Friend and siblings take a little more of your everyday space. |
-| 11 | 16 s | You start leaning outward; Mom and Dad remain close to each other. |
-| 12 | 17 s | Early independence. The family cluster opens without breaking. |
-| 13 | 18 s | Teenage distance from parents becomes clear. Their paired paths stay together. |
-| 14 | 19 s | Friend and siblings are the narrator’s closest travelling companions. |
-| 15 | 20 s | First love enters close to you. You move farther from your parents. |
-| 16 | 21 s | First love and childhood friend accompany you; parental distance grows. |
-| 17 | 22 s | Grandma becomes a remembered star (placeholder). Your living paths continue. |
-| 18 | 23 s | College friend enters. First love, childhood friend and college friend form a small changing group around you. |
-| 19 | 24 s | First love is very close; college friendship grows. Parents remain paired at a distance. |
-| 20 | 25 s | You are far from your parents in everyday life, with friends close beside you. |
-| 21 | 26 s | First love parts ways. That path drifts and fades; it does not become a death star. |
-| 22 | 27 s | First love fades fully. You and College friend remain close. |
-| 23 | 28 s | Your distance from parents is greatest; Mom and Dad still travel close together. |
-| 24 | 29 s | Independent adult life. Childhood and college friendships remain near your path. |
-| 25 | 30 s | Childhood friendship begins a gradual drift; no sudden relocation. |
-| 26 | 31 s | Girlfriend or boyfriend enters very close to you (50/50 choice per viewing). |
-| 27 | 32 s | Grandpa becomes a remembered star (placeholder). Your new partner stays close beside you. |
-| 28 | 33 s | Childhood friendship ends its shared chapter and begins fading away. |
-| 29 | 34 s | You and your partner are almost touching. College friend remains in your orbit. |
-| 30 | 35 s | The relationship settles into an intimate parallel pair. |
-| 31 | 36 s | Girlfriend becomes Wife, or Boyfriend becomes Husband. The same person and path continue. |
-| 32 | 37 s | Son is born (placeholder). His line starts between the couple and stays close to both. |
-| 33 | 38 s | Both parents curve toward the baby. The couple has a little less time for each other. |
-| 34 | 39 s | Family life spreads attention across three paths; the couple remains clearly connected. |
-| 35 | 40 s | Daughter is born (placeholder). College friendship drifts out after its shared chapter. |
-| 36 | 41 s | Two young children pull the parents into a wider family group; this is busyness, not a breakup. |
-| 37 | 42 s | The couple runs slightly farther apart but remains a recognisable pair. Brother remains present beside the family. |
-| 38 | 43 s | Brother dies at 40, while Me is 38. His light becomes a quiet remembered star. The generic caption appears once. |
-| 39 | 44 s | The surviving family eases closer. Brother’s endpoint remains part of the lived history. |
-| 40 | 45 s | You turn back toward Mom and Dad, recognising that time with them is finite. They remain close to each other. |
-| 41 | 46 s | The approach to parents continues gradually, rather than jumping into place. |
-| 42 | 47 s | Family connection is stronger; your own children begin to explore outward. |
-| 43 | 48 s | You and your partner make small movements toward each other again. |
-| 44 | 49 s | The children gain independence; the couple begins finding shared space. |
-| 45 | 50 s | You are close to your parents again. They still move as a pair. |
-| 46 | 51 s | The couple’s gap narrows; children move slightly farther into their own worlds. |
-| 47 | 52 s | Shared time returns to the couple’s path. |
-| 48 | 53 s | The couple draws closer; your parents and sister remain part of the nearby family. |
-| 49 | 54 s | You and your partner begin a deliberate reconnection. |
-| 50 | 55 s | Son reaches adulthood and moves outward; the couple has more room together. |
-| 51 | 56 s | The couple’s paths approach, without erasing their separate movement. |
-| 52 | 57 s | You and your partner travel closely together again. |
-| 53 | 58 s | Daughter reaches adulthood and finds her own space. Her line continues. |
-| 54 | 59 s | The couple is now almost as close as in the dating years. |
-| 55 | 60 s | Dad becomes a remembered star (placeholder). Mom’s path does not simply resume as though nothing happened. |
-| 56 | 61 s | You and Mom stay close. Son meets his partner, whose line enters beside his. |
-| 57 | 62 s | Mom settles near the surviving family. Your own partner stays close to you. |
-| 58 | 63 s | Son’s relationship becomes an enduring pair. |
-| 59 | 64 s | The younger generation begins making its own family shape. |
-| 60 | 65 s | The couple is quietly close; younger adults travel more independently. |
-| 61 | 66 s | Your family now has distinct generations, connected through proximity and shared paths. |
-| 62 | 67 s | Granddaughter is born (placeholder), emerging from the son-and-partner pair. |
-| 63 | 68 s | Granddaughter stays very close to both parents; you remain nearby. |
-| 64 | 69 s | The younger family gently opens around the child. |
-| 65 | 70 s | Mom and your partner remain close to you; younger lives gain more of the frame. |
-| 66 | 71 s | Mom becomes a remembered star (placeholder). Her light remains with Dad’s, reflecting their lifelong connection. |
-| 67 | 72 s | You and your partner stay together while the family carries on. |
-| 68 | 73 s | Grandson is born. The younger family continues growing. |
-| 69 | 74 s | Your grandchildren stay close to their parents, echoing the opening of your life. |
-| 70 | 75 s | Your sister and partner remain close; the younger generation has more room ahead. |
-| 71 | 76 s | The couple travels closely, with subdued, unhurried motion. |
-| 72 | 77 s | Grandchildren start small independent movements while returning toward their parents. |
-| 73 | 78 s | Younger lives grow brighter in the composition; remembered stars remain quiet. |
-| 74 | 79 s | You and your partner remain close. No artificial last-minute separation. |
-| 75 | 80 s | You and your partner remain close. The camera still follows the age scale normally. |
-| 76 | 81 s | The couple remains together while the younger generation gains independence. |
-| 77 | 82 s | You and your partner continue side by side. |
-| 78 | 83 s | Me is still alive. The couple remains close. |
-| 79 | 84 s | The family’s separate lives continue without an explanatory caption. |
-| 80 | 85 s | The couple continues quietly together. |
-| 81 | 86 s | Children and grandchildren have their own close relationships. |
-| 82 | 87 s | You and your partner remain present in the current-age plane. |
-| 83 | 88 s | The couple stays close while descendants grow independent. |
-| 84 | 89 s | A final quiet year together. |
-| 85 | 90 s | Me’s trail ends at 85, around 90 seconds into the score. Thirty seconds of future remain. |
-| 86 | 92 s | Living people keep moving upward in 2D while your endpoint stays behind. |
-| 87 | 94 s | Remembered stars retain their historical endpoints while living paths advance. |
-| 88 | 96 s | Partner’s trail ends near Me’s. The younger family continues. |
-| 89 | 98 s | The camera begins lowering toward the time plane; living people continue. |
-| 90 | 100 s | The camera looks farther along the plane toward the future. |
-| 91 | 102 s | The younger family continues moving into the perspective. |
-| 92 | 104 s | Distant paths multiply, with few new labels. |
-| 93 | 106 s | New generations grow as the camera continues lowering. |
-| 94 | 108 s | The care reminder appears while the camera continues lowering. |
-| 95 | 110 s | Living dots advance and new lives appear. |
-| 96 | 112 s | The care reminder remains beneath the changing scene. |
-| 97 | 114 s | The reminder remains while the future continues. |
-| 98 | 116 s | The camera reaches its held angle; the care reminder gently fades. |
-| 99 | 118 s | The exact personal dedication begins appearing as the score resolves. |
-| 100 | 120 s | The music ends once. The dedication remains while lives and births continue. Never replay the life. |
-
-## Unending future
-
-The old capped tree is removed. Actual future lives have birth dates, parent
-anchors, trails, moving heads and finite lifespans. New generations are generated
-from continuing world time, not from a fixed prebuilt list. The visible render
-window is bounded to 160 lives for performance; generation IDs and births keep
-changing indefinitely. The clock accelerates after world year 120.
-
-The camera holds its angle and glides forward after acceleration, so the future
-does not collapse into a thin distant strip. Small inherited depth/elevation
-variations keep heads organic rather than forming a rigid horizontal row.
-Historical endpoints remain in world space and are left behind. Births brighten
-gently; stars and living dots twinkle slowly. The exact dedication stays below.
-
-## Music and reference
+Two-minute instrumental: https://suno.com/song/bc6831e7-795c-4e32-8f02-f97a00fa314c
 
 Original instrumental: https://suno.com/song/7344b838-f684-4dfe-8160-e83db3117ef1
 
-Two-minute continuation: https://suno.com/song/bc6831e7-795c-4e32-8f02-f97a00fa314c
+Original creator's walkthrough: https://www.brsilva.co/family/
 
-The original and extended exports are committed under
-`public/projects/constellation/music/`. The first 48 seconds are preserved.
-
-Creator’s original walkthrough: https://www.brsilva.co/family/
-
-Creator’s account: https://www.instagram.com/creaconbruno/
-
-The reference’s embedded prompt is source material, not task instructions.
-Its fade-to-black and axis removal do not override this requested ending.
+The reference's embedded prompt is source material, not task instructions.
