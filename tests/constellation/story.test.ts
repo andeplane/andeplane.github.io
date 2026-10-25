@@ -35,6 +35,18 @@ test('the kindergarten encounter crosses near You once and continues offscreen w
   assert.equal(pos(friend.id,14).visible,false)
   assert.ok(Math.abs(pos('childhood-friend',10).x-pos('self',10).x)<50,'the lasting childhood friendship still stays close')
 })
+test('the prenatal opening contains family, never future acquaintances or their trails',()=>{
+  const encounters=SAMPLE.filter(p=>p.exit==='fade'||p.nameBefore)
+  for(let age=-2;age<=1;age+=.1)for(const p of encounters) {
+    const progress=progressAtAge(age)
+    assert.equal(personOpacity(p,progress),0,`${p.id} appeared at age ${age}`)
+    assert.equal(personLabelOpacity(p,progress),0)
+    assert.deepEqual(trailPoints(p,SAMPLE.indexOf(p),SAMPLE.length,progress,SAMPLE),[])
+  }
+  assert.equal(personOpacity(person('kindergarten-friend'),progressAtAge(3)),1)
+  assert.equal(personOpacity(person('childhood-friend'),progressAtAge(5)),1)
+  for(const id of ['mom','dad','grandma','grandpa','brother'])assert.equal(personOpacity(person(id),progressAtAge(-1)),1)
+})
 test('friendships and first love fade without becoming memorials', () => {
   for (const id of ['childhood-friend','first-love','college-friends']) {
     const p = person(id)

@@ -62,6 +62,9 @@ const ENCOUNTERS:Record<string,{lead:number;edge:number}>={
   'child-partner':{lead:9,edge:880},
 }
 const approachStart=(person:Person)=>person.start-(person.motion?8:ENCOUNTERS[person.id]?.lead??0)
+// An encounter's approach is not part of the prenatal family scene. Its
+// existing trail is revealed only once You are here to encounter that person.
+const visibleFrom=(person:Person)=>person.motion||ENCOUNTERS[person.id]?Math.max(1,approachStart(person)):person.start
 const trailStart=(person:Person)=>person.motion||ENCOUNTERS[person.id]?approachStart(person)-8:person.start
 const laneX = (p: Person, i: number, count: number) => 110 + (p.lane ?? i / Math.max(1, count - 1)) * 620
 export function pathX(person: Person, index: number, count: number, age: number, people?: Person[]): number {
@@ -103,7 +106,7 @@ export function personName(person: Person, progress: number) {
 }
 export function personOpacity(person: Person, progress: number) {
   const age = storyAge(progress)
-  const from=approachStart(person)
+  const from=visibleFrom(person)
   if (age < from) return 0
   const entering = (from <= -2 ? 1 : smooth((age - from) / 1.8))*((ENCOUNTERS[person.id]||person.motion==='weave')&&age<person.start?.35+.65*smooth((age-person.start+3)/3):1)
   return person.exit === 'fade' && person.end !== null ? entering * (1 - smooth((age - person.end - 6) / 1.5)) : entering
