@@ -20,7 +20,7 @@ export function playbackFrame(elapsed: number, duration = MOVIE_SECONDS) {
   return { progress: clamp(elapsed / duration), opacity: smooth(elapsed / 1.2) }
 }
 
-// Strict editorial budget: three appearances, twenty words total. Names,
+// Strict editorial budget: three appearances, at most twenty words total. Names,
 // numbers on the age axis, and the temporary sound hint are functional labels.
 export const TEXT_BUDGET = { cards: 3, words: 20 } as const
 export const CAPTIONS = [

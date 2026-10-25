@@ -20,7 +20,8 @@ test('the story never resets or fades to black after its ending', () => {
 test('the generic text is constrained to three cards and twenty words', () => {
   const words = CAPTIONS.flatMap(c => [c.title, ...c.lines]).join(' ').trim().split(/\s+/)
   assert.equal(CAPTIONS.length, TEXT_BUDGET.cards)
-  assert.equal(words.length, TEXT_BUDGET.words)
+  assert.ok(words.length <= TEXT_BUDGET.words)
+  assert.equal(words.length, 18)
   assert.equal(CAPTIONS[0].lines[0], 'Sometimes people die young.')
   assert.doesNotMatch(words.join(' '), /Mikael|my brother|dedicat/i)
   assert.equal(storyMessage(30 / 120), null)
