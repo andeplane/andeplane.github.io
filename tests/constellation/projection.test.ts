@@ -1,12 +1,12 @@
 import {test} from 'node:test'
 import assert from 'node:assert/strict'
-import {continuingYear,progressAtAge} from '../../src/features/constellation/clock.ts'
+import {continuingYear,progressAtAge,frameAtYear} from '../../src/features/constellation/clock.ts'
 import {SAMPLE,starPosition} from '../../src/features/constellation/story.ts'
 import {CAMERA_ANGLE_DEGREES,cameraAmount,futureLives,projectPoint} from '../../src/features/constellation/projection.ts'
 
 test('living dots move onward in 2D before the camera lowers, then continue in 3D',()=>{
  assert.equal(cameraAmount(93/120),0)
- assert.equal(cameraAmount(116/120),1)
+ assert.equal(cameraAmount(118/120),1)
  const son=SAMPLE.find(p=>p.id==='child')!,i=SAMPLE.indexOf(son)
  const first=starPosition(son,i,SAMPLE.length,progressAtAge(85),SAMPLE)
  const second=starPosition(son,i,SAMPLE.length,progressAtAge(88),SAMPLE)
@@ -25,14 +25,15 @@ test('historic endpoints stay behind while the camera comes to rest',()=>{
  const brother=SAMPLE.find(p=>p.id==='brother')!,i=SAMPLE.indexOf(brother)
  assert.equal(starPosition(brother,i,SAMPLE.length,1,SAMPLE,300).year,38)
 })
-test('time accelerates from year 92, showing roughly a century in twenty seconds',()=>{
- assert.equal(continuingYear(104/120),92)
- assert.ok(continuingYear(105/120)-92<2)
- assert.ok(continuingYear(1,4)>185&&continuingYear(1,4)<200)
- assert.ok(continuingYear(1,40)-continuingYear(1,39)>5.9)
+test('time accelerates only after year 100 with a gradual change of speed',()=>{
+ assert.equal(continuingYear(1),100)
+ assert.equal(continuingYear(119/120),99.5)
+ assert.ok(continuingYear(1,1)>100.5&&continuingYear(1,1)<101)
+ assert.ok(continuingYear(1,28)>200&&continuingYear(1,28)<210)
+ assert.ok(continuingYear(1,40)-continuingYear(1,39)<5)
  for(let t=1;t<1000;t++)assert.ok(continuingYear(1,t)>continuingYear(1,t-1))
 })
-test('new generations and twinkling continue indefinitely without a capped tree',()=>{
+test('the early future model is bounded and its moving dots do not flash',()=>{
  assert.equal(futureLives(.7).length,0)
  assert.ok(futureLives(1,60).length>futureLives(1).length)
  for(const seconds of [0,30,120,600,3600,36000]) {
@@ -45,7 +46,7 @@ test('new generations and twinkling continue indefinitely without a capped tree'
  assert.ok(Math.max(...b.map(l=>l.generation))>Math.max(...a.map(l=>l.generation)))
 })
 test('a future child starts exactly on its parent’s ongoing line',()=>{
- const lives=futureLives(1,0)
+ const lives=futureLives(1,15)
  const child=lives.find(l=>l.id==='future-1-0')!,parent=lives.find(l=>l.id===child.parent)!
  assert.ok(child&&parent)
  const point=parent.points.find(p=>p.year===child.born)!
@@ -68,7 +69,7 @@ test('the camera holds at the viewer’s life while generations travel into the 
 })
 
 test('future lives form close pairs before their paths branch into another generation',()=>{
- const pair=(year:number)=>{const lives=futureLives(progressAtAge(year));return Math.abs(lives.find(l=>l.id==='future-0-0')!.head.x-lives.find(l=>l.id==='future-0-1')!.head.x)}
+ const pair=(year:number)=>{const lives=futureLives(frameAtYear(year).progress,frameAtYear(year).afterEnding);return Math.abs(lives.find(l=>l.id==='future-0-0')!.head.x-lives.find(l=>l.id==='future-0-1')!.head.x)}
  assert.ok(pair(122)<pair(110)/2)
  assert.ok(pair(122)<30)
 })

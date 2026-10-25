@@ -3,10 +3,10 @@ import assert from 'node:assert/strict'
 import { relationshipX } from '../../src/features/constellation/relationships.ts'
 const distance = (a: string, b: string, age: number) => Math.abs(relationshipX(a, age)! - relationshipX(b, age)!)
 test('parents remain a close pair through childhood, teenage distance and reunion', () => {
-  for (let year = 0; year <= 55; year++) assert.ok(distance('mom', 'dad', year) <= 33)
+  for (let year = 0; year <= 55; year++) assert.ok(distance('mom', 'dad', year) <= 45)
   assert.ok(distance('self', 'mom', 6) < 25)
   assert.ok(distance('self', 'dad', 6) < 25)
-  assert.ok(distance('self', 'mom', 23) > 220)
+  assert.ok(distance('self', 'mom', 23) > 150)
   assert.ok(distance('self', 'mom', 43) < distance('self', 'mom', 33))
   assert.ok(distance('self', 'dad', 45) < 70)
 })
@@ -48,17 +48,17 @@ test('Brother and Childhood friend never occupy the same side or lane', () => {
   for(let age=5;age<=28;age+=.1) {
     const brother=relationshipX('brother',age)!, me=relationshipX('self',age)!, friend=relationshipX('childhood-friend',age)!
     assert.ok(brother<me && friend>me)
-    assert.ok(friend-brother>100)
+    assert.ok(friend-brother>95)
   }
 })
 
 test('the narrator leaves and returns; the parents do not move away from their child',()=>{
  const shift=(id:string,a:number,b:number)=>relationshipX(id,b)!-relationshipX(id,a)!
- assert.ok(shift('self',8,23)>220)
+ assert.ok(shift('self',8,23)>135)
  assert.ok(Math.abs(shift('mom',8,23))<4&&Math.abs(shift('dad',8,23))<4)
- assert.ok(shift('self',30,45)<-125)
+ assert.ok(shift('self',30,45)<-75)
  assert.ok(Math.abs(shift('mom',30,45))<4)
- assert.ok(shift('child',44,53)>120)
+ assert.ok(distance('child','self',53)-distance('child','self',44)>80)
  assert.ok(Math.abs(shift('self',44,53))<25)
 })
 test('first love is closest to Me, across from childhood friend, while college friendship grows',()=>{
@@ -75,9 +75,9 @@ test('first love is closest to Me, across from childhood friend, while college f
 })
 
 test('the son makes a later outward bend while the parents stay on their course',()=>{
-  assert.ok(relationshipX('child',77)!-relationshipX('child',68)!>180)
+  assert.ok(relationshipX('child',77)!-relationshipX('child',68)!>120)
   assert.ok(Math.abs(relationshipX('self',77)!-relationshipX('self',68)!)<4)
   assert.ok(Math.abs(relationshipX('partner',77)!-relationshipX('partner',68)!)<4)
-  assert.ok(distance('child','self',77)>280)
+  assert.ok(distance('child','self',77)>195)
   assert.ok(distance('child','child-partner',77)<35)
 })

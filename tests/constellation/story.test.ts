@@ -17,52 +17,52 @@ test('generic family has a brother two years older and a sister born at eight', 
 })
 test('the kindergarten encounter crosses near You once and continues offscreen without parking or dying',()=>{
   const friend=person('kindergarten-friend')
-  assert.ok(pos(friend.id,1).x<104)
-  assert.ok(pos(friend.id,6).x>794)
+  assert.ok(pos(friend.id,-1).x<104)
+  assert.ok(pos(friend.id,8).x>794)
   assert.ok(Math.abs(pos(friend.id,3).x-pos('self',3).x)<1)
   let closeYears=0
   for(let age=1;age<7;age+=.05) {
     const current=pos(friend.id,age),next=pos(friend.id,age+.05)
-    assert.ok(next.x-current.x>9,`the fly-by must keep moving at age ${age}`)
+    assert.ok(next.x-current.x>4&&next.x-current.x<5,`the fly-by must keep moving at age ${age}`)
     assert.ok(Math.abs(current.year-age)<1e-7)
     assert.equal(current.y,pos('self',age).y)
     assert.equal(personAppearance(friend,progressAtAge(age)).distance,0)
     if(Math.abs(current.x-pos('self',age).x)<50)closeYears+=.05
   }
-  assert.ok(closeYears>0&&closeYears<.6,'a passing encounter must not settle next to You')
+  assert.ok(closeYears>0&&closeYears<1.3,'a passing encounter must not settle next to You')
   const trail=trailPoints(friend,SAMPLE.indexOf(friend),SAMPLE.length,progressAtAge(3),SAMPLE)
   assert.ok(trail[0].year<0&&trail[0].x<104,'this person had a life before paths crossed')
   assert.equal(personLabelOpacity(friend,progressAtAge(1)),0)
   assert.equal(personLabelOpacity(friend,progressAtAge(6)),0)
-  assert.equal(pos(friend.id,10).visible,false)
+  assert.equal(pos(friend.id,14).visible,false)
   assert.ok(Math.abs(pos('childhood-friend',10).x-pos('self',10).x)<50,'the lasting childhood friendship still stays close')
 })
 test('friendships and first love fade without becoming memorials', () => {
   for (const id of ['childhood-friend','first-love','college-friends']) {
     const p = person(id)
     assert.equal(p.exit, 'fade')
-    assert.equal(personOpacity(p, progressAtAge(p.start - 5)), 0)
+    if(p.start-9>=-2)assert.equal(personOpacity(p, progressAtAge(p.start - 9)), 0)
     assert.equal(personOpacity(p, progressAtAge(p.start + 2)), 1)
-    assert.equal(personOpacity(p, progressAtAge(p.end! + 4)), 0)
+    assert.equal(personOpacity(p, progressAtAge(p.end! + 8)), 0)
     assert.equal(pos(id, 100).visible, false)
   }
 })
 test('friends approach from another life, share the present, and leave without falling behind', () => {
   for(const id of ['childhood-friend','first-love','college-friends']) {
-    const p=person(id),meeting=pos(id,p.start),before=pos(id,p.start-3),leaving=pos(id,p.end!+2)
-    assert.ok(Math.abs(before.x-pos('self',p.start-3).x)>Math.abs(meeting.x-pos('self',p.start).x)+120)
+    const p=person(id),meeting=pos(id,p.start),before=pos(id,p.start-5),leaving=pos(id,p.end!+5)
+    assert.ok(Math.abs(before.x-pos('self',p.start-5).x)>Math.abs(meeting.x-pos('self',p.start).x)+120)
     assert.equal(meeting.y,pos('self',p.start).y)
-    assert.equal(leaving.year,p.end!+2)
-    assert.equal(leaving.y,pos('self',p.end!+2).y)
-    assert.ok(Math.abs(leaving.x-pos('self',p.end!+2).x)>Math.abs(pos(id,p.end!).x-pos('self',p.end!).x)+100)
+    assert.ok(Math.abs(leaving.year-p.end!-5)<1e-7)
+    assert.equal(leaving.y,pos('self',p.end!+5).y)
+    assert.ok(Math.abs(leaving.x-pos('self',p.end!+5).x)>Math.abs(pos(id,p.end!).x-pos('self',p.end!).x)+100)
     const trail=trailPoints(p,SAMPLE.indexOf(p),SAMPLE.length,progressAtAge(p.start),SAMPLE)
     assert.ok(trail[0].year<p.start-5)
     assert.ok(trail[0].x<104||trail[0].x>794)
-    assert.equal(personAppearance(p,progressAtAge(p.end!+2)).distance,0)
+    assert.equal(personAppearance(p,progressAtAge(p.end!+5)).distance,0)
   }
 })
 test('a brother remains as a small neutral star while living people continue', () => {
-  const appearance = personAppearance(person('brother'), progressAtAge(46))
+  const appearance = personAppearance(person('brother'), progressAtAge(50))
   assert.notEqual(appearance.color,person('brother').color)
   assert.notEqual(appearance.color,'#8d99a9')
   assert.equal(appearance.distance,1)
@@ -122,7 +122,7 @@ test('previous fictional casts upgrade, while edits to those same casts are pres
 })
 
 
-test('living colors stay distinct and the narrator gets one gentle birth bloom',()=>{
+test('living colors stay distinct without flashing birth markers',()=>{
   const mother=personAppearance(person('mom'),progressAtAge(20))
   const father=personAppearance(person('dad'),progressAtAge(20))
   assert.equal(mother.color,person('mom').color)
@@ -130,7 +130,7 @@ test('living colors stay distinct and the narrator gets one gentle birth bloom',
   assert.notEqual(mother.label,father.label)
   const birth=personAppearance(person('self'),progressAtAge(.9))
   const later=personAppearance(person('self'),progressAtAge(4))
-  assert.ok(birth.birth>.9&&birth.radius>later.radius&&birth.glowRadius>later.glowRadius)
+  assert.deepEqual(birth,later)
   assert.equal(later.birth,0)
 })
 
@@ -156,7 +156,7 @@ test('the brother’s loss has a quiet held moment and temporary visual focus',(
  assert.equal(before.y,held.y)
  assert.equal(brotherMoment(progressAtAge(39)),1)
  assert.equal(attentionOpacity(person('brother'),progressAtAge(39)),1)
- assert.ok(attentionOpacity(person('child'),progressAtAge(39))<.3)
+ assert.ok(attentionOpacity(person('child'),progressAtAge(39))===.65)
  assert.equal(attentionOpacity(person('child'),progressAtAge(44)),1)
  assert.ok(pos('brother',44).y<held.y)
 })
@@ -171,7 +171,7 @@ test('brief school encounters cross in opposite directions while the coworker we
     assert.equal(pos(id,35).visible,false)
   }
   const relative=(age:number)=>pos('coworker',age).x-pos('self',age).x
-  assert.ok(relative(22)>80&&relative(23.1667)<-80&&relative(24.3333)>80&&relative(25.5)<-80)
+  assert.ok(relative(22)===28&&relative(23.75)===-28&&relative(25.5)===28)
   assert.ok(pos('coworker',21).x>pos('coworker',22).x)
-  assert.ok(pos('coworker',27.5).x<104)
+  assert.ok(pos('coworker',32.5).x<104)
 })

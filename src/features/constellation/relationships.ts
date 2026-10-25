@@ -14,23 +14,23 @@ export const PARENT_DISTANCE: readonly Keyframe[] = [[-2,0],[8,0],[12,55],[17,17
 export const PARTNER_DISTANCE: readonly Keyframe[] = [[26,24],[29,26],[30,28],[33,50],[36,72],[40,82],[43,88],[47,68],[51,44],[56,28],[85,26]]
 
 export function relationshipX(id: string, age: number): number | undefined {
-  const parents=300+Math.sin(age*.055)*3
-  const me=parents+curve(age,PARENT_DISTANCE)
+  const parents=440+Math.sin(age*.055)*3
+  const me=parents+curve(age,PARENT_DISTANCE)*.60
   const partner=me+curve(age,PARTNER_DISTANCE)
   const home=(me+partner)/2
   // Young children move with their household. As teenagers they are the ones
   // who curve outward, while their parents keep their own adult course.
-  const son=home-8+curve(age,[[30,0],[40,0],[44,20],[48,100],[53,190],[56,200],[62,110],[68,110],[70,150],[73,250],[77,300],[100,300]])
-  const daughter=home+9+curve(age,[[32,0],[42,0],[46,30],[50,160],[55,330],[70,350],[100,350]])
+  const son=home-8+.65*curve(age,[[30,0],[40,0],[44,20],[48,100],[53,190],[56,200],[62,110],[68,110],[70,150],[73,250],[77,300],[100,300]])
+  const daughter=home+9+.65*curve(age,[[32,0],[42,0],[46,30],[50,160],[55,330],[70,350],[100,350]])
   const sonPartner=son+curve(age,[[56,12],[60,32],[100,30]])
   const positions:Record<string,number>={
     self:me,
-    mom:parents-16,
-    dad:parents+16,
-    grandma:145+Math.sin(age*.07)*4,
-    grandpa:181+Math.sin(age*.07)*4,
-    brother:parents+curve(age,[[-2,-68],[8,-68],[14,-120],[23,-125],[28,-85],[33,15],[38,55]]),
-    sister:parents+curve(age,[[8,-45],[14,-70],[23,-135],[33,-100],[40,-20],[55,-25],[100,-30]]),
+    mom:parents-22,
+    dad:parents+22,
+    grandma:190+Math.sin(age*.07)*4,
+    grandpa:710+Math.sin(age*.07)*4,
+    brother:parents+.85*curve(age,[[-2,-68],[8,-68],[14,-120],[23,-125],[28,-85],[33,15],[38,55]]),
+    sister:parents+.85*curve(age,[[8,-45],[14,-70],[23,-135],[33,-100],[40,-20],[55,-25],[100,-30]]),
     partner,child:son,daughter,'child-partner':sonPartner,
     'grandchild-1':(son+sonPartner)/2+curve(age,[[62,-5],[68,-25],[74,-25],[82,-70],[100,-100]]),
     'grandchild-2':(son+sonPartner)/2+curve(age,[[68,5],[74,18],[82,35],[90,85],[100,100]]),

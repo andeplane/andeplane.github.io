@@ -14,7 +14,7 @@ test('two minutes includes one second per year and thirty seconds after death', 
 
 test('the story never resets or fades to black after its ending', () => {
   for (const elapsed of [120, 180, 300, 3600]) assert.deepEqual(playbackFrame(elapsed), { progress: 1, opacity: 1 })
-  assert.ok(storyAge(playbackFrame(1000).progress)>160)
+  assert.equal(storyAge(playbackFrame(1000).progress),100)
 })
 
 test('the generic text is constrained to six brief cards and thirty words', () => {
