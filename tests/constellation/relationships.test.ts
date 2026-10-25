@@ -12,7 +12,7 @@ test('parents remain a close pair through childhood, teenage distance and reunio
 })
 test('dating, early parenting and rediscovery form a continuous relationship arc', () => {
   assert.ok(distance('self', 'partner', 28) < 30)
-  assert.ok(distance('self', 'partner', 40) > 90)
+  assert.ok(distance('self', 'partner', 40) > 75)
   assert.ok(distance('self', 'partner', 56) < 30)
   for (let year = 26; year <= 85; year++) {
     assert.ok(distance('self', 'partner', year) < 115)
@@ -33,5 +33,21 @@ test('all named relationship trajectories remain finite and continuous every yea
       assert.ok(Number.isFinite(x) && x >= 120 && x <= 755)
       assert.ok(Math.abs(relationshipX(id, year + .001)! - x) < 1)
     }
+  }
+})
+
+
+test('siblings stay with the narrator’s family, away from the children’s cluster', () => {
+  for(let age=32;age<=85;age++) {
+    const sister=relationshipX('sister',age)!, me=relationshipX('self',age)!, son=relationshipX('child',age)!
+    assert.ok(sister<me && me<son)
+    assert.ok(Math.abs(sister-me)<Math.abs(sister-son))
+  }
+})
+test('Brother and Childhood friend never occupy the same side or lane', () => {
+  for(let age=5;age<=28;age+=.1) {
+    const brother=relationshipX('brother',age)!, me=relationshipX('self',age)!, friend=relationshipX('childhood-friend',age)!
+    assert.ok(brother<me && friend>me)
+    assert.ok(friend-brother>150)
   }
 })

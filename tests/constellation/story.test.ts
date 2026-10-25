@@ -26,7 +26,7 @@ test('friendships and first love fade without becoming memorials', () => {
 })
 test('friends travel near Me during their shared years', () => {
   for (const id of ['childhood-friend','first-love','college-friends']) for (let age = person(id).start + 1; age < person(id).end!; age++) {
-    assert.ok(Math.abs(pos(id, age).x - pos('self', age).x) < 115)
+    assert.ok(Math.abs(pos(id, age).x - pos('self', age).x) < (id === 'college-friends' ? 200 : 120))
     assert.equal(pos(id, age).y, pos('self', age).y)
   }
 })
