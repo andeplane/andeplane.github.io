@@ -105,7 +105,7 @@ export function trailPoints(person: Person, index: number, count: number, progre
   if (personOpacity(person, progress) === 0) return []
   const head = starPosition(person, index, count, progress, people,afterEnding)
   const points: StoryPoint[] = []
-  for (let year = Math.max(-2, person.start,head.year-110); year < head.year; year += .5) points.push({ x: pathX(person, index, count, year, people), y: head.y + (head.year - year) * YEAR_SPACING, year })
+  for (let year = Math.max(person.start,head.year-110); year < head.year; year += .5) points.push({ x: pathX(person, index, count, year, people), y: head.y + (head.year - year) * YEAR_SPACING, year })
   points.push(head)
   return points
 }

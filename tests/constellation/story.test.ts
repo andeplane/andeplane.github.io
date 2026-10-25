@@ -100,3 +100,13 @@ test('living colors stay distinct and the narrator gets one gentle birth bloom',
   assert.ok(birth.birth>.9&&birth.radius>later.radius&&birth.glowRadius>later.glowRadius)
   assert.equal(later.birth,0)
 })
+
+
+test('the family already has ongoing life trails before Me is born',()=>{
+ const progress=progressAtAge(-1)
+ assert.equal(personOpacity(person('self'),progress),0)
+ for(const id of ['mom','dad','grandma','grandpa']) {
+  const p=person(id),points=trailPoints(p,SAMPLE.indexOf(p),SAMPLE.length,progress,SAMPLE)
+  assert.ok(points.length>20&&points[0].year< -2)
+ }
+})
