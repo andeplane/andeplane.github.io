@@ -9,7 +9,7 @@ export interface Person {
   near?: string
 }
 
-export const DEFAULT_DURATION = 48
+export const DEFAULT_DURATION = 114
 export const YEAR_SPACING = 40
 export const MAX_PEOPLE = 16
 export const COLORS = ['#c9b9f6', '#bedddd', '#ff9c8e', '#90baff', '#f3b4d1', '#f7ce85', '#81e0e8', '#c1dea3', '#aabace', '#c4c3a4', '#a6d5bf', '#d8b9ed', '#f0bf9f', '#9dcad9', '#c4d5a5', '#d6b4bf']

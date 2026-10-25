@@ -5,8 +5,10 @@ import { CHAPTERS, DEFAULT_DURATION, MAX_PEOPLE, SAMPLE, YEAR_SPACING, ageAxis, 
 const person = (id: string) => SAMPLE.find(p => p.id === id)!
 const atAge = (age: number) => age / 100 * .9
 
-test('the faster story has deterministic chapter boundaries and room for the ending', () => {
-  assert.equal(DEFAULT_DURATION, 48)
+test('the two-minute story leaves time to follow the family after the narrator dies', () => {
+  assert.equal(DEFAULT_DURATION, 114)
+  const deathAt = atAge(person('self').end!) * DEFAULT_DURATION
+  assert.ok(DEFAULT_DURATION - deathAt >= 30, 'at least thirty seconds follow the narrator’s death')
   CHAPTERS.forEach((chapter, index) => assert.equal(chapterAt(chapter.at), index))
   assert.equal(chapterAt(.899), CHAPTERS.length - 2)
   assert.equal(chapterAt(1), CHAPTERS.length - 1)
