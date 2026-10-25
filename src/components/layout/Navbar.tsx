@@ -1,16 +1,42 @@
-import { NavLink } from 'react-router-dom'
+import { useEffect, useRef, useState } from 'react'
+import { Link, NavLink, useLocation } from 'react-router-dom'
+import { ChevronDown } from 'lucide-react'
+import { projectCategories } from '@/lib/projectCategories'
+import './navbar.css'
 
 const links = [
   { to: '/', label: 'Home' },
   { to: '/projects', label: 'Projects' },
-  { to: '/games', label: 'Games' },
-  { to: '/hardware', label: 'Hardware' },
   { to: '/interests', label: 'Interests' },
   { to: '/blog', label: 'Blog' },
   { to: '/about', label: 'About' },
 ]
 
 export default function Navbar() {
+  const [open, setOpen] = useState(false)
+  const menu = useRef<HTMLLIElement>(null)
+  const toggle = useRef<HTMLButtonElement>(null)
+  const location = useLocation()
+  const projectsActive = /^\/(projects|hardware|games)(\/|$)/.test(location.pathname)
+  useEffect(() => { setOpen(false) }, [location])
+  useEffect(() => {
+    if (!open) return
+    const dismiss = (event: PointerEvent) => {
+      if (event.target instanceof Node && !menu.current?.contains(event.target)) setOpen(false)
+    }
+    const escape = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') {
+        setOpen(false)
+        if (menu.current?.contains(document.activeElement)) toggle.current?.focus()
+      }
+    }
+    document.addEventListener('pointerdown', dismiss)
+    document.addEventListener('keydown', escape)
+    return () => {
+      document.removeEventListener('pointerdown', dismiss)
+      document.removeEventListener('keydown', escape)
+    }
+  }, [open])
   return (
     <header
       style={{
@@ -23,10 +49,12 @@ export default function Navbar() {
       }}
     >
       <nav
+        aria-label="Main navigation"
         style={{
           maxWidth: '1200px',
           margin: '0 auto',
-          padding: '0 clamp(0.75rem, 4vw, 1.5rem)',
+          paddingLeft: 'max(clamp(0.75rem, 4vw, 1.5rem), env(safe-area-inset-left))',
+          paddingRight: 'max(clamp(0.75rem, 4vw, 1.5rem), env(safe-area-inset-right))',
           minHeight: '60px',
           flexWrap: 'wrap',
           gap: '0.5rem',
@@ -44,22 +72,37 @@ export default function Navbar() {
         </NavLink>
 
         <ul style={{ display: 'flex', gap: '0.25rem', flexWrap: 'wrap', listStyle: 'none', margin: 0, padding: 0 }}>
-          {links.map(({ to, label }) => (
+          {links.map(({ to, label }) => to === '/projects' ? (
+            <li key={to} ref={menu} className="projects-nav"
+              onPointerEnter={event => { if (event.pointerType === 'mouse') setOpen(true) }}
+              onPointerLeave={event => { if (event.pointerType === 'mouse' && !event.currentTarget.contains(document.activeElement)) setOpen(false) }}
+              onBlur={event => { if (!event.currentTarget.contains(event.relatedTarget)) setOpen(false) }}>
+              <div className={`projects-nav-control${projectsActive ? ' is-active' : ''}`}>
+                <Link to="/projects" className="site-nav-item" aria-current={location.pathname === '/projects' && !location.search ? 'page' : undefined}>Projects</Link>
+                <button ref={toggle} type="button" className="projects-nav-toggle" aria-label="Show project categories"
+                  aria-expanded={open} aria-controls="project-categories"
+                  onClick={() => setOpen(value => !value)}
+                  onKeyDown={event => {
+                    if (event.key === 'ArrowDown') {
+                      event.preventDefault()
+                      setOpen(true)
+                      requestAnimationFrame(() => menu.current?.querySelector<HTMLAnchorElement>('.projects-dropdown a')?.focus())
+                    }
+                  }}><ChevronDown size={14} aria-hidden="true" /></button>
+              </div>
+              <div id="project-categories" className="projects-dropdown" hidden={!open}>
+                <nav aria-label="Project categories">
+                  <Link to="/projects">All projects</Link>
+                  {projectCategories.map(category => (
+                    <Link key={category.id} to={`/projects?category=${category.id}`}
+                      aria-current={location.pathname === '/projects' && new URLSearchParams(location.search).get('category') === category.id ? 'page' : undefined}>{category.label}</Link>
+                  ))}
+                </nav>
+              </div>
+            </li>
+          ) : (
             <li key={to}>
-              <NavLink
-                to={to}
-                end={to === '/'}
-                style={({ isActive }) => ({
-                  padding: '0.375rem clamp(0.25rem, 1.5vw, 0.875rem)',
-                  borderRadius: '6px',
-                  fontSize: 'clamp(0.75rem, 2.1vw, 0.9rem)',
-                  fontWeight: isActive ? 600 : 400,
-                  color: isActive ? '#fff' : 'var(--color-text-muted)',
-                  background: isActive ? 'var(--color-surface-2)' : 'transparent',
-                  textDecoration: 'none',
-                  transition: 'color 0.15s, background 0.15s',
-                })}
-              >
+              <NavLink to={to} end={to === '/'} className={({ isActive }) => `site-nav-item${isActive ? ' is-active' : ''}`}>
                 {label}
               </NavLink>
             </li>
