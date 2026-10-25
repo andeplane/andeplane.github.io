@@ -3,7 +3,10 @@ import { COLORS, SAMPLE, pathX, presentY } from './story.ts'
 import type { Person, StoryPoint } from './story.ts'
 export const cameraAmount=(progress:number)=>smooth((progress*120-96)/20)
 export function projectPoint(point:StoryPoint,progress:number,viewHeight:number,viewYear=100) {
- const forward=Math.max(0,viewYear-120)*smooth((viewYear-120)/40)
+ // Move along the plane after year 120, holding the tilt. Keep roughly fifty
+ // years ahead of the camera so the future fills the scene instead of
+ // shrinking into a remote strip as the clock advances.
+ const forward=Math.max(0,viewYear-50)*smooth((viewYear-120)/60)
  const tilt=cameraAmount(progress),depth=(point.year-10-forward)/18
  const scale=Math.min(3,1/Math.max(.1,.6+depth*.55))
  const targetX=430+(point.x-430)*scale,targetY=viewHeight*(.16+.44*scale)-(point.elevation??0)*scale
