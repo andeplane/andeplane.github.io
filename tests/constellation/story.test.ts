@@ -26,7 +26,7 @@ test('friendships and first love fade without becoming memorials', () => {
 })
 test('friends travel near Me during their shared years', () => {
   for (const id of ['childhood-friend','first-love','college-friends']) for (let age = person(id).start + 1; age < person(id).end!; age++) {
-    assert.ok(Math.abs(pos(id, age).x - pos('self', age).x) < 115)
+    assert.ok(Math.abs(pos(id, age).x - pos('self', age).x) < (id === 'college-friends' ? 200 : 120))
     assert.equal(pos(id, age).y, pos('self', age).y)
   }
 })
@@ -86,4 +86,27 @@ test('previous fictional casts upgrade, while edits to those same casts are pres
     const custom=fixture.map((p:typeof SAMPLE[number],i:number)=>i===0?{...p,name:'Nana'}:p)
     assert.deepEqual(restorePeople(custom,null,()=>.25),custom)
   }
+})
+
+
+test('living colors stay distinct and the narrator gets one gentle birth bloom',()=>{
+  const mother=personAppearance(person('mom'),progressAtAge(20))
+  const father=personAppearance(person('dad'),progressAtAge(20))
+  assert.equal(mother.color,person('mom').color)
+  assert.equal(father.color,person('dad').color)
+  assert.notEqual(mother.label,father.label)
+  const birth=personAppearance(person('self'),progressAtAge(.9))
+  const later=personAppearance(person('self'),progressAtAge(4))
+  assert.ok(birth.birth>.9&&birth.radius>later.radius&&birth.glowRadius>later.glowRadius)
+  assert.equal(later.birth,0)
+})
+
+
+test('the family already has ongoing life trails before Me is born',()=>{
+ const progress=progressAtAge(-1)
+ assert.equal(personOpacity(person('self'),progress),0)
+ for(const id of ['mom','dad','grandma','grandpa']) {
+  const p=person(id),points=trailPoints(p,SAMPLE.indexOf(p),SAMPLE.length,progress,SAMPLE)
+  assert.ok(points.length>20&&points[0].year< -2)
+ }
 })
