@@ -73,3 +73,11 @@ test('first love is closest to Me, across from childhood friend, while college f
  assert.ok(distance('college-friends','self',23)<distance('college-friends','self',18))
  assert.ok(distance('childhood-friend','self',23)>distance('childhood-friend','self',18))
 })
+
+test('the son makes a later outward bend while the parents stay on their course',()=>{
+  assert.ok(relationshipX('child',77)!-relationshipX('child',68)!>180)
+  assert.ok(Math.abs(relationshipX('self',77)!-relationshipX('self',68)!)<4)
+  assert.ok(Math.abs(relationshipX('partner',77)!-relationshipX('partner',68)!)<4)
+  assert.ok(distance('child','self',77)>280)
+  assert.ok(distance('child','child-partner',77)<35)
+})

@@ -224,5 +224,901 @@
       "lane": 0.68,
       "near": "self"
     }
+  ],
+  [
+    {
+      "id": "grandma",
+      "name": "Grandma",
+      "color": "#c9b9f6",
+      "start": -58,
+      "end": 17,
+      "lane": 0.12
+    },
+    {
+      "id": "grandpa",
+      "name": "Grandpa",
+      "color": "#bedddd",
+      "start": -60,
+      "end": 27,
+      "lane": 0.32
+    },
+    {
+      "id": "mom",
+      "name": "Mom",
+      "color": "#ff9c8e",
+      "start": -30,
+      "end": 66,
+      "lane": 0.22
+    },
+    {
+      "id": "dad",
+      "name": "Dad",
+      "color": "#90baff",
+      "start": -32,
+      "end": 55,
+      "lane": 0.78
+    },
+    {
+      "id": "partner",
+      "name": "Wife",
+      "color": "#f3b4d1",
+      "start": 26,
+      "end": 88,
+      "lane": 0.6,
+      "near": "self",
+      "nameBefore": "Girlfriend",
+      "renameAt": 29
+    },
+    {
+      "id": "self",
+      "name": "You",
+      "color": "#f7ce85",
+      "start": 0,
+      "end": 85,
+      "lane": 0.56
+    },
+    {
+      "id": "brother",
+      "name": "Brother",
+      "color": "#9dcad9",
+      "start": -2,
+      "end": 38,
+      "lane": 0.46,
+      "near": "self"
+    },
+    {
+      "id": "sister",
+      "name": "Sister",
+      "color": "#c4d5a5",
+      "start": 8,
+      "end": null,
+      "lane": 0.75,
+      "near": "self"
+    },
+    {
+      "id": "child",
+      "name": "Son",
+      "color": "#81e0e8",
+      "start": 30,
+      "end": null,
+      "lane": 0.66,
+      "near": "self"
+    },
+    {
+      "id": "daughter",
+      "name": "Daughter",
+      "color": "#d6b4bf",
+      "start": 32,
+      "end": null,
+      "lane": 0.9,
+      "near": "partner"
+    },
+    {
+      "id": "child-partner",
+      "name": "His wife",
+      "color": "#c1dea3",
+      "start": 56,
+      "end": null,
+      "lane": 0.82,
+      "near": "child"
+    },
+    {
+      "id": "grandchild-1",
+      "name": "Granddaughter",
+      "color": "#a6d5bf",
+      "start": 62,
+      "end": null,
+      "lane": 0.74,
+      "near": "child"
+    },
+    {
+      "id": "grandchild-2",
+      "name": "Grandson",
+      "color": "#d8b9ed",
+      "start": 68,
+      "end": null,
+      "lane": 0.94,
+      "near": "child-partner"
+    },
+    {
+      "id": "childhood-friend",
+      "name": "Childhood friend",
+      "color": "#aabace",
+      "start": 5,
+      "end": 28,
+      "exit": "fade",
+      "lane": 0.38,
+      "near": "self"
+    },
+    {
+      "id": "first-love",
+      "name": "First love",
+      "color": "#f0bf9f",
+      "start": 15,
+      "end": 21,
+      "exit": "fade",
+      "lane": 0.62,
+      "near": "self"
+    },
+    {
+      "id": "college-friends",
+      "name": "College friend",
+      "color": "#c4c3a4",
+      "start": 18,
+      "end": 34,
+      "exit": "fade",
+      "lane": 0.68,
+      "near": "self"
+    }
+  ],
+  [
+    {
+      "id": "grandma",
+      "name": "Grandma",
+      "color": "#c9b9f6",
+      "start": -58,
+      "end": 17,
+      "lane": 0.12
+    },
+    {
+      "id": "grandpa",
+      "name": "Grandpa",
+      "color": "#bedddd",
+      "start": -60,
+      "end": 27,
+      "lane": 0.32
+    },
+    {
+      "id": "mom",
+      "name": "Mom",
+      "color": "#ff9c8e",
+      "start": -30,
+      "end": 66,
+      "lane": 0.22
+    },
+    {
+      "id": "dad",
+      "name": "Dad",
+      "color": "#90baff",
+      "start": -32,
+      "end": 55,
+      "lane": 0.78
+    },
+    {
+      "id": "partner",
+      "name": "Husband",
+      "color": "#f3b4d1",
+      "start": 26,
+      "end": 88,
+      "lane": 0.6,
+      "near": "self",
+      "nameBefore": "Boyfriend",
+      "renameAt": 29
+    },
+    {
+      "id": "self",
+      "name": "You",
+      "color": "#f7ce85",
+      "start": 0,
+      "end": 85,
+      "lane": 0.56
+    },
+    {
+      "id": "brother",
+      "name": "Brother",
+      "color": "#9dcad9",
+      "start": -2,
+      "end": 38,
+      "lane": 0.46,
+      "near": "self"
+    },
+    {
+      "id": "sister",
+      "name": "Sister",
+      "color": "#c4d5a5",
+      "start": 8,
+      "end": null,
+      "lane": 0.75,
+      "near": "self"
+    },
+    {
+      "id": "child",
+      "name": "Son",
+      "color": "#81e0e8",
+      "start": 30,
+      "end": null,
+      "lane": 0.66,
+      "near": "self"
+    },
+    {
+      "id": "daughter",
+      "name": "Daughter",
+      "color": "#d6b4bf",
+      "start": 32,
+      "end": null,
+      "lane": 0.9,
+      "near": "partner"
+    },
+    {
+      "id": "child-partner",
+      "name": "His wife",
+      "color": "#c1dea3",
+      "start": 56,
+      "end": null,
+      "lane": 0.82,
+      "near": "child"
+    },
+    {
+      "id": "grandchild-1",
+      "name": "Granddaughter",
+      "color": "#a6d5bf",
+      "start": 62,
+      "end": null,
+      "lane": 0.74,
+      "near": "child"
+    },
+    {
+      "id": "grandchild-2",
+      "name": "Grandson",
+      "color": "#d8b9ed",
+      "start": 68,
+      "end": null,
+      "lane": 0.94,
+      "near": "child-partner"
+    },
+    {
+      "id": "childhood-friend",
+      "name": "Childhood friend",
+      "color": "#aabace",
+      "start": 5,
+      "end": 28,
+      "exit": "fade",
+      "lane": 0.38,
+      "near": "self"
+    },
+    {
+      "id": "first-love",
+      "name": "First love",
+      "color": "#f0bf9f",
+      "start": 15,
+      "end": 21,
+      "exit": "fade",
+      "lane": 0.62,
+      "near": "self"
+    },
+    {
+      "id": "college-friends",
+      "name": "College friend",
+      "color": "#c4c3a4",
+      "start": 18,
+      "end": 34,
+      "exit": "fade",
+      "lane": 0.68,
+      "near": "self"
+    }
+  ],
+  [
+    {
+      "id": "grandma",
+      "name": "Grandma",
+      "color": "#c9b9f6",
+      "start": -58,
+      "end": 17,
+      "lane": 0.12
+    },
+    {
+      "id": "grandpa",
+      "name": "Grandpa",
+      "color": "#bedddd",
+      "start": -60,
+      "end": 27,
+      "lane": 0.32
+    },
+    {
+      "id": "mom",
+      "name": "Mom",
+      "color": "#ff9c8e",
+      "start": -30,
+      "end": 66,
+      "lane": 0.22
+    },
+    {
+      "id": "dad",
+      "name": "Dad",
+      "color": "#90baff",
+      "start": -32,
+      "end": 55,
+      "lane": 0.78
+    },
+    {
+      "id": "partner",
+      "name": "Wife",
+      "color": "#f3b4d1",
+      "start": 26,
+      "end": 88,
+      "lane": 0.6,
+      "near": "self",
+      "nameBefore": "Girlfriend",
+      "renameAt": 31
+    },
+    {
+      "id": "self",
+      "name": "Me",
+      "color": "#f7ce85",
+      "start": 0,
+      "end": 85,
+      "lane": 0.56
+    },
+    {
+      "id": "brother",
+      "name": "Brother",
+      "color": "#9dcad9",
+      "start": -2,
+      "end": 38,
+      "lane": 0.46,
+      "near": "self"
+    },
+    {
+      "id": "sister",
+      "name": "Sister",
+      "color": "#c4d5a5",
+      "start": 8,
+      "end": null,
+      "lane": 0.75,
+      "near": "self"
+    },
+    {
+      "id": "child",
+      "name": "Son",
+      "color": "#81e0e8",
+      "start": 32,
+      "end": null,
+      "lane": 0.66,
+      "near": "self"
+    },
+    {
+      "id": "daughter",
+      "name": "Daughter",
+      "color": "#d6b4bf",
+      "start": 35,
+      "end": null,
+      "lane": 0.9,
+      "near": "partner"
+    },
+    {
+      "id": "child-partner",
+      "name": "His wife",
+      "color": "#c1dea3",
+      "start": 56,
+      "end": null,
+      "lane": 0.82,
+      "near": "child"
+    },
+    {
+      "id": "grandchild-1",
+      "name": "Granddaughter",
+      "color": "#a6d5bf",
+      "start": 62,
+      "end": null,
+      "lane": 0.74,
+      "near": "child"
+    },
+    {
+      "id": "grandchild-2",
+      "name": "Grandson",
+      "color": "#d8b9ed",
+      "start": 68,
+      "end": null,
+      "lane": 0.94,
+      "near": "child-partner"
+    },
+    {
+      "id": "childhood-friend",
+      "name": "Childhood friend",
+      "color": "#aabace",
+      "start": 5,
+      "end": 28,
+      "exit": "fade",
+      "lane": 0.38,
+      "near": "self"
+    },
+    {
+      "id": "first-love",
+      "name": "First love",
+      "color": "#f0bf9f",
+      "start": 15,
+      "end": 21,
+      "exit": "fade",
+      "lane": 0.62,
+      "near": "self"
+    },
+    {
+      "id": "college-friends",
+      "name": "College friend",
+      "color": "#c4c3a4",
+      "start": 18,
+      "end": 35,
+      "exit": "fade",
+      "lane": 0.68,
+      "near": "self"
+    }
+  ],
+  [
+    {
+      "id": "grandma",
+      "name": "Grandma",
+      "color": "#c9b9f6",
+      "start": -58,
+      "end": 17,
+      "lane": 0.12
+    },
+    {
+      "id": "grandpa",
+      "name": "Grandpa",
+      "color": "#bedddd",
+      "start": -60,
+      "end": 27,
+      "lane": 0.32
+    },
+    {
+      "id": "mom",
+      "name": "Mom",
+      "color": "#ff9c8e",
+      "start": -30,
+      "end": 66,
+      "lane": 0.22
+    },
+    {
+      "id": "dad",
+      "name": "Dad",
+      "color": "#90baff",
+      "start": -32,
+      "end": 55,
+      "lane": 0.78
+    },
+    {
+      "id": "partner",
+      "name": "Husband",
+      "color": "#f3b4d1",
+      "start": 26,
+      "end": 88,
+      "lane": 0.6,
+      "near": "self",
+      "nameBefore": "Boyfriend",
+      "renameAt": 31
+    },
+    {
+      "id": "self",
+      "name": "Me",
+      "color": "#f7ce85",
+      "start": 0,
+      "end": 85,
+      "lane": 0.56
+    },
+    {
+      "id": "brother",
+      "name": "Brother",
+      "color": "#9dcad9",
+      "start": -2,
+      "end": 38,
+      "lane": 0.46,
+      "near": "self"
+    },
+    {
+      "id": "sister",
+      "name": "Sister",
+      "color": "#c4d5a5",
+      "start": 8,
+      "end": null,
+      "lane": 0.75,
+      "near": "self"
+    },
+    {
+      "id": "child",
+      "name": "Son",
+      "color": "#81e0e8",
+      "start": 32,
+      "end": null,
+      "lane": 0.66,
+      "near": "self"
+    },
+    {
+      "id": "daughter",
+      "name": "Daughter",
+      "color": "#d6b4bf",
+      "start": 35,
+      "end": null,
+      "lane": 0.9,
+      "near": "partner"
+    },
+    {
+      "id": "child-partner",
+      "name": "His wife",
+      "color": "#c1dea3",
+      "start": 56,
+      "end": null,
+      "lane": 0.82,
+      "near": "child"
+    },
+    {
+      "id": "grandchild-1",
+      "name": "Granddaughter",
+      "color": "#a6d5bf",
+      "start": 62,
+      "end": null,
+      "lane": 0.74,
+      "near": "child"
+    },
+    {
+      "id": "grandchild-2",
+      "name": "Grandson",
+      "color": "#d8b9ed",
+      "start": 68,
+      "end": null,
+      "lane": 0.94,
+      "near": "child-partner"
+    },
+    {
+      "id": "childhood-friend",
+      "name": "Childhood friend",
+      "color": "#aabace",
+      "start": 5,
+      "end": 28,
+      "exit": "fade",
+      "lane": 0.38,
+      "near": "self"
+    },
+    {
+      "id": "first-love",
+      "name": "First love",
+      "color": "#f0bf9f",
+      "start": 15,
+      "end": 21,
+      "exit": "fade",
+      "lane": 0.62,
+      "near": "self"
+    },
+    {
+      "id": "college-friends",
+      "name": "College friend",
+      "color": "#c4c3a4",
+      "start": 18,
+      "end": 35,
+      "exit": "fade",
+      "lane": 0.68,
+      "near": "self"
+    }
+  ],
+  [
+    {
+      "id": "grandma",
+      "name": "Grandma",
+      "color": "#c9b9f6",
+      "start": -58,
+      "end": 17,
+      "lane": 0.12
+    },
+    {
+      "id": "grandpa",
+      "name": "Grandpa",
+      "color": "#bedddd",
+      "start": -60,
+      "end": 27,
+      "lane": 0.32
+    },
+    {
+      "id": "mom",
+      "name": "Mom",
+      "color": "#ff9c8e",
+      "start": -30,
+      "end": 66,
+      "lane": 0.22
+    },
+    {
+      "id": "dad",
+      "name": "Dad",
+      "color": "#90baff",
+      "start": -32,
+      "end": 55,
+      "lane": 0.78
+    },
+    {
+      "id": "partner",
+      "name": "Wife",
+      "color": "#f3b4d1",
+      "start": 26,
+      "end": 88,
+      "lane": 0.6,
+      "near": "self",
+      "nameBefore": "Girlfriend",
+      "renameAt": 29
+    },
+    {
+      "id": "self",
+      "name": "You",
+      "color": "#f7ce85",
+      "start": 0,
+      "end": 85,
+      "lane": 0.56
+    },
+    {
+      "id": "brother",
+      "name": "Brother",
+      "color": "#9dcad9",
+      "start": -2,
+      "end": 38,
+      "lane": 0.46,
+      "near": "self"
+    },
+    {
+      "id": "sister",
+      "name": "Sister",
+      "color": "#c4d5a5",
+      "start": 8,
+      "end": null,
+      "lane": 0.75,
+      "near": "self"
+    },
+    {
+      "id": "child",
+      "name": "Son",
+      "color": "#81e0e8",
+      "start": 30,
+      "end": null,
+      "lane": 0.66,
+      "near": "self"
+    },
+    {
+      "id": "daughter",
+      "name": "Daughter",
+      "color": "#d6b4bf",
+      "start": 32,
+      "end": null,
+      "lane": 0.9,
+      "near": "partner"
+    },
+    {
+      "id": "child-partner",
+      "name": "His wife",
+      "color": "#c1dea3",
+      "start": 56,
+      "end": null,
+      "lane": 0.82,
+      "near": "child"
+    },
+    {
+      "id": "grandchild-1",
+      "name": "Granddaughter",
+      "color": "#a6d5bf",
+      "start": 62,
+      "end": null,
+      "lane": 0.74,
+      "near": "child"
+    },
+    {
+      "id": "grandchild-2",
+      "name": "Grandson",
+      "color": "#d8b9ed",
+      "start": 68,
+      "end": null,
+      "lane": 0.94,
+      "near": "child-partner"
+    },
+    {
+      "id": "childhood-friend",
+      "name": "Childhood friend",
+      "color": "#aabace",
+      "start": 5,
+      "end": 28,
+      "exit": "fade",
+      "lane": 0.38,
+      "near": "self"
+    },
+    {
+      "id": "first-love",
+      "name": "First love",
+      "color": "#f0bf9f",
+      "start": 15,
+      "end": 21,
+      "exit": "fade",
+      "lane": 0.62,
+      "near": "self"
+    },
+    {
+      "id": "college-friends",
+      "name": "College friend",
+      "color": "#c4c3a4",
+      "start": 18,
+      "end": 34,
+      "exit": "fade",
+      "lane": 0.68,
+      "near": "self"
+    },
+    {
+      "id": "kindergarten-friend",
+      "name": "Kindergarten friend",
+      "color": "#c4c3a4",
+      "start": 3,
+      "end": 6,
+      "exit": "fade",
+      "motion": "pass",
+      "near": "self"
+    }
+  ],
+  [
+    {
+      "id": "grandma",
+      "name": "Grandma",
+      "color": "#c9b9f6",
+      "start": -58,
+      "end": 17,
+      "lane": 0.12
+    },
+    {
+      "id": "grandpa",
+      "name": "Grandpa",
+      "color": "#bedddd",
+      "start": -60,
+      "end": 27,
+      "lane": 0.32
+    },
+    {
+      "id": "mom",
+      "name": "Mom",
+      "color": "#ff9c8e",
+      "start": -30,
+      "end": 66,
+      "lane": 0.22
+    },
+    {
+      "id": "dad",
+      "name": "Dad",
+      "color": "#90baff",
+      "start": -32,
+      "end": 55,
+      "lane": 0.78
+    },
+    {
+      "id": "partner",
+      "name": "Wife",
+      "color": "#f3b4d1",
+      "start": 26,
+      "end": 82,
+      "lane": 0.6,
+      "near": "self",
+      "nameBefore": "Girlfriend",
+      "renameAt": 29
+    },
+    {
+      "id": "self",
+      "name": "You",
+      "color": "#f7ce85",
+      "start": 0,
+      "end": 85,
+      "lane": 0.56
+    },
+    {
+      "id": "brother",
+      "name": "Brother",
+      "color": "#9dcad9",
+      "start": -2,
+      "end": 38,
+      "lane": 0.46,
+      "near": "self"
+    },
+    {
+      "id": "sister",
+      "name": "Sister",
+      "color": "#c4d5a5",
+      "start": 8,
+      "end": null,
+      "lane": 0.75,
+      "near": "self"
+    },
+    {
+      "id": "child",
+      "name": "Son",
+      "color": "#81e0e8",
+      "start": 30,
+      "end": null,
+      "lane": 0.66,
+      "near": "self"
+    },
+    {
+      "id": "daughter",
+      "name": "Daughter",
+      "color": "#d6b4bf",
+      "start": 32,
+      "end": null,
+      "lane": 0.9,
+      "near": "partner"
+    },
+    {
+      "id": "child-partner",
+      "name": "His wife",
+      "color": "#c1dea3",
+      "start": 56,
+      "end": null,
+      "lane": 0.82,
+      "near": "child"
+    },
+    {
+      "id": "grandchild-1",
+      "name": "Granddaughter",
+      "color": "#a6d5bf",
+      "start": 62,
+      "end": null,
+      "lane": 0.74,
+      "near": "child"
+    },
+    {
+      "id": "grandchild-2",
+      "name": "Grandson",
+      "color": "#d8b9ed",
+      "start": 68,
+      "end": null,
+      "lane": 0.94,
+      "near": "child-partner"
+    },
+    {
+      "id": "childhood-friend",
+      "name": "Childhood friend",
+      "color": "#aabace",
+      "start": 5,
+      "end": 28,
+      "exit": "fade",
+      "lane": 0.38,
+      "near": "self"
+    },
+    {
+      "id": "first-love",
+      "name": "First love",
+      "color": "#f0bf9f",
+      "start": 15,
+      "end": 21,
+      "exit": "fade",
+      "lane": 0.62,
+      "near": "self"
+    },
+    {
+      "id": "college-friends",
+      "name": "College friend",
+      "color": "#c4c3a4",
+      "start": 18,
+      "end": 34,
+      "exit": "fade",
+      "lane": 0.68,
+      "near": "self"
+    },
+    {
+      "id": "kindergarten-friend",
+      "name": "Kindergarten friend",
+      "color": "#c4c3a4",
+      "start": 3,
+      "end": 6,
+      "exit": "fade",
+      "motion": "pass",
+      "near": "self"
+    }
   ]
 ]
