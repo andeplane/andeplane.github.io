@@ -36,7 +36,7 @@ export default function Sky({people,progress,width=800,viewHeight=800,afterEndin
   const lives=abstraction<1?futureLives(progress,afterEnding,people):[]
   const hasDescendants=people.some(p=>p.id==='grandchild-1'||p.id==='grandchild-2')&&people.some(p=>p.id==='self')
   const flow=hasDescendants?futureFlow(age,seconds,viewHeight):[]
-  const canopy=hasDescendants?descendantCanopy(age,viewHeight,people.filter(p=>p.id==='self'||p.id==='partner').map(p=>p.id)):[]
+  const canopy=hasDescendants?descendantCanopy(age,viewHeight,people.filter(p=>p.id==='self'||p.id==='partner').map(p=>p.id),tilt):[]
   const constellation=constellationSegments(people,progress,afterEnding)
   return <svg className="cl-sky-svg" viewBox={`0 0 800 ${viewHeight}`} role="img" aria-label={title} xmlns="http://www.w3.org/2000/svg">
     <rect width="800" height={viewHeight} fill="#080e1b"/>

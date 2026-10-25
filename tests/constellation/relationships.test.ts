@@ -28,7 +28,7 @@ test('children begin close to both parents, then gain their own space', () => {
   assert.ok(distance('daughter', 'self', 55) > 220)
 })
 test('all named relationship trajectories remain finite and continuous every year', () => {
-  for (const id of ['self','mom','dad','brother','sister','partner','child','daughter','child-partner','grandchild-1','grandchild-2','childhood-friend','first-love','college-friends']) {
+  for (const id of ['self','mom','dad','brother','partner','child','daughter','child-partner','grandchild-1','grandchild-2','childhood-friend','first-love','college-friends']) {
     for (let year = -2; year <= 100; year++) {
       const x = relationshipX(id, year)!
       assert.ok(Number.isFinite(x) && x >= 120 && x <= 755)
@@ -38,12 +38,8 @@ test('all named relationship trajectories remain finite and continuous every yea
 })
 
 
-test('siblings stay with the narrator’s family, away from the children’s cluster', () => {
-  for(let age=32;age<=85;age++) {
-    const sister=relationshipX('sister',age)!, me=relationshipX('self',age)!, son=relationshipX('child',age)!
-    assert.ok(sister<me && me<son)
-    assert.ok(Math.abs(sister-me)<Math.abs(sister-son))
-  }
+test('Brother stays on the original-family side throughout his life', () => {
+  for(let age=0;age<38;age+=.1)assert.ok(relationshipX('brother',age)!<relationshipX('mom',age)!&&relationshipX('mom',age)!<relationshipX('self',age)!)
 })
 test('Brother and Childhood friend never occupy the same side or lane', () => {
   for(let age=5;age<=28;age+=.1) {

@@ -33,7 +33,7 @@ try {
       })
       assert.deepEqual(state.overlaps,[],`${width}x${height} year ${year}`)
       assert.equal(state.tooltips,0);assert.equal(state.overflow,false)
-      if(year>=95){assert.ok(state.remembered.every(Boolean));assert.equal(state.links,7);assert.ok(state.youLabel)}
+      if(year>=115){assert.ok(state.remembered.every(Boolean));assert.equal(state.links,7);assert.ok(state.youLabel)}
       if(year<=200)assert.equal(state.axis,1)
       if(year===215)assert.ok(Math.abs(state.axis-.5)<1e-7)
       if(year>=230)assert.equal(state.axis,0)

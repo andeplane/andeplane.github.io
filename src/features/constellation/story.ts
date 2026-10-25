@@ -105,7 +105,7 @@ export function personOpacity(person: Person, progress: number) {
   const age = storyAge(progress)
   const from=approachStart(person)
   if (age < from) return 0
-  const entering = (from <= -2 ? 1 : smooth((age - from) / 1.8))*(ENCOUNTERS[person.id]&&age<person.start?.35+.65*smooth((age-person.start+3)/3):1)
+  const entering = (from <= -2 ? 1 : smooth((age - from) / 1.8))*((ENCOUNTERS[person.id]||person.motion==='weave')&&age<person.start?.35+.65*smooth((age-person.start+3)/3):1)
   return person.exit === 'fade' && person.end !== null ? entering * (1 - smooth((age - person.end - 6) / 1.5)) : entering
 }
 export function personLabelOpacity(person: Person, progress: number, people=SAMPLE) {
@@ -117,7 +117,7 @@ export function personLabelOpacity(person: Person, progress: number, people=SAMP
     opacity*=smooth((x-104)/160)*smooth((788-x)/160)
     if(person.motion!=='weave')opacity*=smooth((160-Math.abs(age-person.start)*90)/70)
   }
-  if(ENCOUNTERS[person.id])opacity*=smooth((age-person.start+.4)/1.2)
+  if(ENCOUNTERS[person.id]||person.motion==='weave')opacity*=smooth((age-person.start+.4)/1.2)
   if(person.end!==null&&since>=0) {
     if(person.exit==='fade') opacity*=1-smooth(since/.65)
     else if(person.id!=='self') {

@@ -45,3 +45,8 @@
 }
 .cl-sound-prompt:focus-visible { outline: 2px solid #e1d2af; outline-offset: 3px; }
 @keyframes cl-sound-appear { from { opacity: 0; } to { opacity: 1; } }
+@media (max-height: 500px) and (min-width: 701px) {
+  .cl-story-message { left: 15%; right: 27%; bottom: 7%; }
+  .cl-story-ending, .cl-story-dedication { left: 18%; right: 18%; bottom: auto; }
+  .cl-sound-prompt { left: auto; right: 0; transform: none; }
+}

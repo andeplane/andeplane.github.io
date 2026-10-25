@@ -12,7 +12,7 @@ const canopyPoint=(level:number,index:number,height:number)=>({
 })
 // The canopy belongs to this family. Its two roots are the remembered couple;
 // each fork shares its parent's exact endpoint. There are no unrelated emitters.
-export function descendantCanopy(year:number,height:number,ancestors=['self','partner']) {
+export function descendantCanopy(year:number,height:number,ancestors=['self','partner'],tilt=1) {
   const amount=futureAbstraction(year)
   if(amount===0)return[]
   const point=(level:number,index:number)=>canopyPoint(level,index,height)
@@ -20,7 +20,7 @@ export function descendantCanopy(year:number,height:number,ancestors=['self','pa
   const root=point(0,0)
   const branches=ancestors.map((id,i)=>({
     id,from:id,to:'descendants',
-    path:connect(projectMemorial({...MEMORIAL_SKY[id],year:85},1,height),root),
+    path:connect(projectMemorial({...MEMORIAL_SKY[id],year:85},tilt,height),root),
     opacity:amount*.22,color:PALETTE[i],
   }))
   for(let level=1;level<=5;level++)for(let index=0;index<2**level;index++) {
