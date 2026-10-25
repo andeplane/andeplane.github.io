@@ -2,7 +2,7 @@ import { useRef } from 'react'
 import type { Person } from './story'
 import { YEAR_SPACING, ageAxis, attentionOpacity, personAppearance, personLabelOpacity, personName, smooth, starPosition, trailPoints } from './story'
 import { cameraAmount, futureLives, projectPoint, projectPerson } from './projection.ts'
-import { futureAbstraction, futureFlow } from './futureFlow.ts'
+import { futureAbstraction, futureFlow, descendantCanopy } from './futureFlow.ts'
 import { continuingYear } from './clock.ts'
 import { constellationSegments, memorialState } from './memorial.ts'
 import { StableLabelLayout } from './labels.ts'
@@ -17,7 +17,7 @@ export default function Sky({people,progress,width=800,viewHeight=800,afterEndin
   const positions=points.map((p,i)=>({...p,...projectPerson(p,people[i],progress,viewHeight,afterEnding)}))
   const abstraction=futureAbstraction(age)
   const appearances=people.map(p=>personAppearance(p,progress))
-  const paths=people.map((p,i)=>trailPoints(p,i,people.length,progress,people,afterEnding).map(point=>projectPoint(point,progress,viewHeight,age))).map(flowingPath)
+  const paths=abstraction===1?people.map(()=>''):people.map((p,i)=>trailPoints(p,i,people.length,progress,people,afterEnding).map(point=>projectPoint(point,progress,viewHeight,age))).map(flowingPath)
   const labelItems=people.map((p,i)=>({id:p.id,name:personName(p,progress),singleLine:!!p.motion&&p.motion!=='weave',foreground:p.id==='self'||(p.id==='brother'&&progress*120>=110),x:positions[i].x,y:positions[i].y,memorial:p.end!==null&&p.exit!=='fade'&&age>p.end+(p.id==='brother'?1.8:.7),opacity:personLabelOpacity(p,progress,people),visible:positions[i].visible && personLabelOpacity(p,progress,people)>.002}))
   const stableLabels=useRef(new StableLabelLayout())
   const previousTime=useRef(progress*120+afterEnding)
@@ -35,6 +35,7 @@ export default function Sky({people,progress,width=800,viewHeight=800,afterEndin
   })
   const lives=abstraction<1?futureLives(progress,afterEnding,people):[]
   const flow=futureFlow(age,seconds,viewHeight)
+  const canopy=descendantCanopy(age,viewHeight)
   const constellation=constellationSegments(people,progress,afterEnding)
   return <svg className="cl-sky-svg" viewBox={`0 0 800 ${viewHeight}`} role="img" aria-label={title} xmlns="http://www.w3.org/2000/svg">
     <rect width="800" height={viewHeight} fill="#080e1b"/>
@@ -56,7 +57,10 @@ export default function Sky({people,progress,width=800,viewHeight=800,afterEndin
     </g>
     <g mask={`url(#${id}-mask)`} fill="none">
       {lives.map(life=>{const points=life.points.map(point=>projectPoint(point,progress,viewHeight,age)),head=projectPoint(life.head,progress,viewHeight,age);return <g key={life.id} data-future-life={life.id} opacity={life.opacity*(1-abstraction)}><path d={flowingPath(points)} stroke={life.color} strokeWidth="1" vectorEffect="non-scaling-stroke" opacity=".42"/><circle cx={head.x} cy={head.y} r="1.2" fill={life.color} opacity=".8"/></g>})}
-      {people.map((p,i)=>{const since=age-(p.end??age);const opacity=p.exit==='fade'?positions[i].opacity:p.end!==null&&since>=0?positions[i].opacity*((1-smooth(since/8))*(1-tilt)+.14*tilt):positions[i].opacity;return <g key={p.id} stroke={appearances[i].color} opacity={opacity*attentionOpacity(p,progress)*(1-abstraction)}><path d={paths[i]} strokeWidth="9" vectorEffect="non-scaling-stroke" opacity=".06"/><path d={paths[i]} strokeWidth="4" vectorEffect="non-scaling-stroke" opacity=".2"/><path d={paths[i]} strokeWidth={1.8*(1-.45*tilt)} vectorEffect="non-scaling-stroke" opacity=".95"/></g>})}
+      {abstraction<1&&people.map((p,i)=>{const since=age-(p.end??age);const opacity=p.exit==='fade'?positions[i].opacity:p.end!==null&&since>=0?positions[i].opacity*((1-smooth(since/8))*(1-tilt)+.14*tilt):positions[i].opacity;return <g key={p.id} data-living-trail={p.id} stroke={appearances[i].color} opacity={opacity*attentionOpacity(p,progress)*(1-abstraction)}><path d={paths[i]} strokeWidth="9" vectorEffect="non-scaling-stroke" opacity=".06"/><path d={paths[i]} strokeWidth="4" vectorEffect="non-scaling-stroke" opacity=".2"/><path d={paths[i]} strokeWidth={1.8*(1-.45*tilt)} vectorEffect="non-scaling-stroke" opacity=".95"/></g>})}
+    </g>
+    <g data-descendant-canopy="true" fill="none" strokeWidth="1" pointerEvents="none">
+      {canopy.map(branch=><path key={branch.id} data-ancestor={branch.from} d={branch.path} stroke={branch.color} opacity={branch.opacity} vectorEffect="non-scaling-stroke"/>)}
     </g>
     <g data-future-flow="true" fill="none" strokeLinecap="round" pointerEvents="none">
       {flow.map(ribbon=><g key={ribbon.id} opacity={ribbon.opacity}><path d={ribbon.path} stroke={ribbon.color} strokeWidth="5" vectorEffect="non-scaling-stroke" opacity=".025"/><path d={ribbon.path} stroke={ribbon.color} strokeWidth="1.15" vectorEffect="non-scaling-stroke" opacity=".24"/></g>)}
@@ -64,7 +68,7 @@ export default function Sky({people,progress,width=800,viewHeight=800,afterEndin
     <g data-memorial-constellation="true" clipPath={`url(#${id}-bounds)`} fill="none" stroke="#c5ccdc" strokeWidth=".75" opacity={.45}>
       {constellation.map(segment=>{const a=positions[people.findIndex(p=>p.id===segment.from)],b=positions[people.findIndex(p=>p.id===segment.to)];return <path key={`${segment.from}-${segment.to}`} data-memorial-link={`${segment.from}-${segment.to}`} vectorEffect="non-scaling-stroke" d={`M${a.x} ${a.y}L${a.x+(b.x-a.x)*segment.draw} ${a.y+(b.y-a.y)*segment.draw}`}/>})}
     </g>
-    {people.map((p,i)=>{const pos=positions[i];if(!pos.visible)return null;const ended=p.end!==null&&p.exit!=='fade'&&age>=p.end;const size=Math.max(.25,Math.min(1.2,pos.scale));const a=appearances[i];const memorial=memorialState(p,progress,afterEnding);return <g key={p.id} data-person={p.id} opacity={pos.opacity*attentionOpacity(p,progress)*(ended?1:1-abstraction)}><g clipPath={`url(#${id}-bounds)`}><circle cx={pos.x} cy={pos.y} r={a.glowRadius*800/width*size} fill={`url(#${id}-glow-${p.id})`}/><circle cx={pos.x} cy={pos.y} r={Math.min(a.radius,3.2*800/width)*size} fill={a.core}/>{ended&&<path d={`M${pos.x-7*size} ${pos.y}h${14*size} M${pos.x} ${pos.y-7*size}v${14*size}`} stroke={a.color} strokeWidth=".8" vectorEffect="non-scaling-stroke" opacity={.8*memorial.cross}/>}</g></g>})}
+    {people.map((p,i)=>{const pos=positions[i];if(!pos.visible)return null;const ended=p.end!==null&&p.exit!=='fade'&&age>=p.end;if(!ended&&abstraction===1)return null;const size=Math.max(.25,Math.min(1.2,pos.scale));const a=appearances[i];const memorial=memorialState(p,progress,afterEnding);return <g key={p.id} data-person={p.id} opacity={pos.opacity*attentionOpacity(p,progress)*(ended?1:1-abstraction)}><g clipPath={`url(#${id}-bounds)`}><circle cx={pos.x} cy={pos.y} r={a.glowRadius*800/width*size} fill={`url(#${id}-glow-${p.id})`}/><circle cx={pos.x} cy={pos.y} r={Math.min(a.radius,3.2*800/width)*size} fill={a.core}/>{ended&&<path d={`M${pos.x-7*size} ${pos.y}h${14*size} M${pos.x} ${pos.y-7*size}v${14*size}`} stroke={a.color} strokeWidth=".8" vectorEffect="non-scaling-stroke" opacity={.8*memorial.cross}/>}</g></g>})}
     {labels.map(label=>{const i=people.findIndex(p=>p.id===label.id),p=people[i],pos=positions[i],a=appearances[i];return <g key={label.id} data-label={label.id} opacity={labelItems[i].opacity*attentionOpacity(p,progress)}><path d={`M${pos.x} ${pos.y}L${label.leader.x} ${label.leader.y}`} fill="none" stroke={a.label} strokeWidth=".55" opacity=".27"/><text className="cl-star-label" x={label.x} y={label.y} fill={a.label} textAnchor="middle" fontFamily="system-ui, sans-serif" fontWeight="500" paintOrder="stroke" stroke="#080e1b" strokeWidth="2" strokeLinejoin="round" fontSize={label.font}>{label.lines.map((line,n)=><tspan key={n} x={label.x} dy={n?label.lineHeight:0}>{line}</tspan>)}</text></g>})}
   </svg>
 }
