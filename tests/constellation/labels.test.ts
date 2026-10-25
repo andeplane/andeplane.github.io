@@ -51,3 +51,14 @@ test('Mom, Dad and Brother labels have no frame-to-frame slot jumps', async () =
     }
   }
 })
+
+test('the names for You and close companions stay near their own dots',()=>{
+ for(const age of [8,16,19,24,28]) {
+  const progress=progressAtAge(age),viewHeight=800*820/366
+  const items=SAMPLE.map((p,i)=>{const point=starPosition(p,i,SAMPLE.length,progress,SAMPLE);return{id:p.id,name:personName(p,progress),...point,...projectPoint(point,progress,viewHeight),memorial:p.end!==null&&p.exit!=='fade'&&storyAge(progress)>p.end+(p.id==='brother'?1.8:.7),opacity:personLabelOpacity(p,progress),visible:point.visible&&personLabelOpacity(p,progress)>.002}})
+  for(const label of layoutLabels(items,366,viewHeight).filter(l=>['self','first-love','college-friends'].includes(l.id))) {
+   const point=items.find(i=>i.id===label.id)!
+   assert.ok(Math.abs(label.x-point.x)<60,`${age}: ${label.id} is displaced from its own dot`)
+  }
+ }
+})
