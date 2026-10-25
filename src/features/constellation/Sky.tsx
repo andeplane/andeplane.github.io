@@ -3,7 +3,7 @@ import { YEAR_SPACING, ageAxis, personAppearance, personName, smooth, starPositi
 import { cameraAmount, futureBranches, projectPoint } from './projection.ts'
 import { layoutLabels } from './labels.ts'
 const stars = Array.from({length:240},(_,i)=>({x:((Math.sin(i*127.1+311.7)*43758.5453)%1+1)%1*800,y:((Math.sin(i*269.5+183.3)*43758.5453)%1+1)%1,r:i%13===0?1.3:i%4===0?.8:.5}))
-interface Props { people: Person[]; progress: number; width?: number; viewHeight?: number; afterEnding?: number; sceneScale?: number; id?: string; title?: string }
+interface Props { people: Person[]; progress: number; width?: number; viewHeight?: number; afterEnding?: number; id?: string; title?: string }
 export default function Sky({people,progress,width=800,viewHeight=800,afterEnding=0,id='sky',title='A life among family and friends, continuing into the future'}:Props) {
   const age=storyAge(progress)
   const tilt=cameraAmount(progress)
