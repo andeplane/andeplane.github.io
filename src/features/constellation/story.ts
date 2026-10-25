@@ -20,8 +20,8 @@ export const COLORS = ['#c9b9f6', '#bedddd', '#ff9c8e', '#90baff', '#f3b4d1', '#
 export const SAMPLE: Person[] = [
   { id: 'grandma', name: 'Grandma', color: COLORS[0], start: -58, end: 17, lane: .12 },
   { id: 'grandpa', name: 'Grandpa', color: COLORS[1], start: -60, end: 27, lane: .32 },
-  { id: 'mom', name: 'Mom', color: COLORS[2], start: -30, end: 72, lane: .22 },
-  { id: 'dad', name: 'Dad', color: COLORS[3], start: -32, end: 68, lane: .78 },
+  { id: 'mom', name: 'Mom', color: COLORS[2], start: -30, end: 66, lane: .22 },
+  { id: 'dad', name: 'Dad', color: COLORS[3], start: -32, end: 55, lane: .78 },
   { id: 'partner', name: 'Wife', color: COLORS[4], start: 26, end: 88, lane: .60, near: 'self', nameBefore: 'Girlfriend', renameAt: 31 },
   { id: 'self', name: 'Me', color: COLORS[5], start: 0, end: 85, lane: .56 },
   { id: 'brother', name: 'Brother', color: COLORS[13], start: -2, end: 38, lane: .46, near: 'self' },

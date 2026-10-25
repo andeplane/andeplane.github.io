@@ -77,3 +77,13 @@ test('saved custom families survive and invalid ages or duplicate identities are
   assert.deepEqual(restorePeople(custom, null), custom)
   for (const bad of [[],null,[...SAMPLE,SAMPLE[0]],Array(MAX_PEOPLE + 1).fill(SAMPLE[0]),[{...SAMPLE[0],start:-101}],[{...SAMPLE[0],start:NaN}],[{...SAMPLE[0],color:'red'}],[{...SAMPLE[0],name:''}],[{...SAMPLE[0],end:101}]]) assert.equal(readPeople(bad), null)
 })
+
+test('previous fictional casts upgrade, while edits to those same casts are preserved', async () => {
+  const {readFileSync}=await import('node:fs')
+  const fixtures=JSON.parse(readFileSync(new URL('./previous-samples.json',import.meta.url),'utf8'))
+  for(const fixture of fixtures) {
+    assert.deepEqual(restorePeople(fixture,null,()=>.25),SAMPLE)
+    const custom=fixture.map((p:typeof SAMPLE[number],i:number)=>i===0?{...p,name:'Nana'}:p)
+    assert.deepEqual(restorePeople(custom,null,()=>.25),custom)
+  }
+})
