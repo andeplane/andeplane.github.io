@@ -89,7 +89,7 @@ export function personLabelOpacity(person: Person, progress: number) {
   let opacity=personOpacity(person,progress)
   if(ENCOUNTERS[person.id])opacity*=smooth((age-person.start+.4)/1.2)
   if(person.end!==null&&since>=0) {
-    opacity*=person.exit==='fade'?1-smooth(since/.65):(1-smooth(since/.65))+smooth((since-3.4)/.6)
+    opacity*=person.exit==='fade'?1-smooth(since/.65):person.id==='brother'?(1-smooth((since-1.2)/.6))+smooth((since-5.8)/.6):(1-smooth(since/.65))+smooth((since-3.4)/.6)
   }
   if(person.id!=='brother') opacity*=1-smooth((progress*120-94)/4)
   return opacity
@@ -98,18 +98,24 @@ function mixColor(from: string, to: string, amount: number) {
   const channel = (hex: string, offset: number) => parseInt(hex.slice(offset, offset + 2), 16)
   return '#' + [1, 3, 5].map(offset => Math.round(channel(from, offset) * (1 - amount) + channel(to, offset) * amount).toString(16).padStart(2, '0')).join('')
 }
+export function brotherMoment(progress:number) {
+  const age=storyAge(progress)
+  return smooth((age-37.6)/.4)*(1-smooth((age-40.5)/1.5))
+}
+export const attentionOpacity=(person:Person,progress:number)=>person.id==='brother'?1:1-.72*brotherMoment(progress)
 export function personAppearance(person: Person, progress: number) {
   const distance = person.end !== null && person.exit !== 'fade' ? smooth((storyAge(progress) - person.end) / 4) : 0
   const quietColor = person.color
+  const focus=person.id==='brother'?brotherMoment(progress):0
   const birthAge=storyAge(progress)-person.start
   const birth=person.id==='self'&&birthAge>=0&&birthAge<1.8?Math.sin(Math.PI*birthAge/1.8):0
-  return { distance, birth, color: mixColor(quietColor, '#8d99a9', distance), label: mixColor(mixColor(person.color,'#ffffff',.14), '#8d99a9', distance), core: mixColor(mixColor(person.color,'#ffffff',.75), '#a5b0bf', distance), radius: 3.3 - distance * 1.5 + birth * 2.5, glowRadius: 30 - distance * 16 + birth * 45, glowOpacity: .4 - distance * .32 + birth * .25 }
+  return { distance, birth, color: mixColor(quietColor, '#8d99a9', distance), label: mixColor(mixColor(person.color,'#ffffff',.14), '#8d99a9', distance), core: mixColor(mixColor(person.color,'#ffffff',.75), '#a5b0bf', distance), radius: 3.3 - distance * 1.5 + birth * 2.5, glowRadius: 30 - distance * 16 + birth * 45 + focus*12, glowOpacity: .4 - distance * .32 + birth * .25 + focus*.15 }
 }
 export interface StoryPoint { x: number; y: number; year: number; elevation?: number }
 export function starPosition(person: Person, index: number, count: number, progress: number, people?: Person[], afterEnding=0) {
   const age = continuingYear(progress,afterEnding)
   const year = person.exit==='fade'?age:Math.min(age, person.end ?? age)
-  const settle = person.end !== null && person.exit !== 'fade' ? smooth((age - person.end) / 4) : 0
+  const settle = person.end !== null && person.exit !== 'fade' ? smooth((age - person.end - (person.id==='brother'?1.8:0)) / 4) : 0
   const y = person.exit === 'fade' ? presentY(age) + (age - year) * YEAR_SPACING : person.end!==null&&age>=person.end ? person.end>=85?presentY(person.end):505-(225+(85-year)*2)*settle : presentY(age)
   const opacity=personOpacity(person,progress)*(person.end===null?1-smooth((age-person.start-90)/30):1)
   return { x: pathX(person, index, count, year, people), y, year, visible: opacity > 0, opacity }

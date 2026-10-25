@@ -20,11 +20,13 @@ export function playbackFrame(elapsed: number, duration = MOVIE_SECONDS) {
   return { progress: clamp(elapsed / duration), opacity: smooth(elapsed / 1.2) }
 }
 
-// Strict editorial budget: three appearances, at most twenty words total. Names,
-// numbers on the age axis, and the temporary sound hint are functional labels.
-export const TEXT_BUDGET = { cards: 3, words: 20 } as const
+// Six brief beats, thirty words total. The personal dedication is separate.
+export const TEXT_BUDGET = { cards: 6, words: 30 } as const
 export const CAPTIONS = [
-  { from: 5, to: 11, title: '', lines: ['Life was moving. You arrived.'] },
+  { from: .6, to: 4.5, title: '', lines: ['Life is already moving.'] },
+  { from: 5, to: 10, title: '', lines: ['Then you arrive.'] },
+  { from: 31, to: 35, title: '', lines: ['Some paths become home.'] },
+  { from: 35.75, to: 40.5, title: '', lines: ['And your world grows.'] },
   { from: 43, to: 49, title: '', lines: ['Sometimes people die young.'] },
   { from: 108, to: 117, title: 'Take care of the people around you.', lines: ['While you still can.'] },
 ]

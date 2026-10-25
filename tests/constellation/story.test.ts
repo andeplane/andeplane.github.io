@@ -1,6 +1,6 @@
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
-import { COLORS, MAX_PEOPLE, SAMPLE, YEAR_SPACING, ageAxis, personAppearance, personName, personOpacity, progressAtAge, readPeople, restorePeople, starPosition, storyAge, trailPoints } from '../../src/features/constellation/story.ts'
+import { COLORS, MAX_PEOPLE, SAMPLE, YEAR_SPACING, ageAxis, attentionOpacity, brotherMoment, personAppearance, personName, personOpacity, progressAtAge, readPeople, restorePeople, starPosition, storyAge, trailPoints } from '../../src/features/constellation/story.ts'
 const person = (id: string) => SAMPLE.find(p => p.id === id)!
 const pos = (id: string, age: number) => { const p = person(id); return starPosition(p, SAMPLE.indexOf(p), SAMPLE.length, progressAtAge(age), SAMPLE) }
 
@@ -124,4 +124,14 @@ test('parenthood has a quiet interval before the brother’s death',()=>{
  assert.equal(person('daughter').start,32)
  const loss=person('brother').end!
  assert.ok(SAMPLE.filter(p=>p.id!=='brother').every(p=>Math.abs(p.start-loss)>=5))
+})
+
+test('the brother’s loss has a quiet held moment and temporary visual focus',()=>{
+ const before=pos('brother',38),held=pos('brother',39)
+ assert.equal(before.y,held.y)
+ assert.equal(brotherMoment(progressAtAge(39)),1)
+ assert.equal(attentionOpacity(person('brother'),progressAtAge(39)),1)
+ assert.ok(attentionOpacity(person('child'),progressAtAge(39))<.3)
+ assert.equal(attentionOpacity(person('child'),progressAtAge(44)),1)
+ assert.ok(pos('brother',44).y<held.y)
 })

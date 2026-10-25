@@ -17,19 +17,19 @@ test('the story never resets or fades to black after its ending', () => {
   assert.equal(storyAge(playbackFrame(1000).progress), 100)
 })
 
-test('the generic text is constrained to three cards and twenty words', () => {
+test('the generic text is constrained to six brief cards and thirty words', () => {
   const words = CAPTIONS.flatMap(c => [c.title, ...c.lines]).join(' ').trim().split(/\s+/)
   assert.equal(CAPTIONS.length, TEXT_BUDGET.cards)
   assert.ok(words.length <= TEXT_BUDGET.words)
-  assert.equal(words.length, 20)
-  assert.equal(CAPTIONS[1].lines[0], 'Sometimes people die young.')
-  assert.equal(storyMessage(7/120)!.lines[0], 'Life was moving. You arrived.')
+  assert.equal(words.length, 30)
+  assert.equal(CAPTIONS[4].lines[0], 'Sometimes people die young.')
+  assert.equal(storyMessage(7/120)!.lines[0], 'Then you arrive.')
   assert.doesNotMatch(words.join(' '), /Mikael|my brother|dedicat/i)
   assert.equal(storyMessage(30 / 120), null)
   assert.equal(storyMessage(70 / 120), null)
   assert.equal(storyMessage(100 / 120), null)
   assert.equal(storyMessage(1)!.opacity, 1)
-  assert.ok(CAPTIONS[1].from - CAPTIONS[0].to >= 30)
+  assert.ok(CAPTIONS[2].from - CAPTIONS[1].to >= 20)
 })
 
 
@@ -37,4 +37,14 @@ test('the requested dedication is the final message while the future keeps movin
   assert.equal(DEDICATION_TEXT,'And to my brother, Mikael: I miss you every day.')
   assert.equal(storyMessage(1,12)!.lines[0],DEDICATION_TEXT)
   assert.equal(storyMessage(1,300)!.opacity,1)
+})
+
+test('opening fades in after loading; love and parenthood get distinct short beats',()=>{
+ assert.equal(storyMessage(0),null)
+ assert.equal(storyMessage(.6/120)!.opacity,0)
+ assert.ok(storyMessage(1.2/120)!.opacity>0&&storyMessage(1.2/120)!.opacity<1)
+ assert.equal(storyMessage(2/120)!.lines[0],'Life is already moving.')
+ assert.equal(storyMessage(32/120)!.lines[0],'Some paths become home.')
+ assert.equal(storyMessage(38/120)!.lines[0],'And your world grows.')
+ assert.equal(storyMessage(42/120),null)
 })
