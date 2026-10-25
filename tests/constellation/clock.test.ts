@@ -34,8 +34,8 @@ test('the generic text is constrained to six brief cards and thirty words', () =
 
 
 test('the requested dedication is the final message while the future keeps moving',()=>{
-  assert.equal(DEDICATION_TEXT,'And to my brother, Mikael: I miss you every day.')
-  assert.equal(storyMessage(1,12)!.lines[0],DEDICATION_TEXT)
+  assert.equal(DEDICATION_TEXT,'To my brother, Mikael. I miss you every day.')
+  assert.deepEqual(storyMessage(1,12)!.lines,['To my brother, Mikael.','I miss you every day.'])
   assert.equal(storyMessage(1,300)!.opacity,1)
 })
 

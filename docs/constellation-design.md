@@ -58,7 +58,7 @@ no banners, sidebars, playback controls or lyric overlays. The age axis stays vi
 | 35.75–40.5 | And your world grows. |
 | 43–49 | Sometimes people die young. |
 | 108–117 | Take care of the people around you. / While you still can. |
-| 118 onward | And to my brother, Mikael: I miss you every day. |
+| 118 onward | To my brother, Mikael. / I miss you every day. |
 
 ## Ending and continuing time
 
