@@ -68,7 +68,7 @@ test('a brother remains as a small neutral star while living people continue', (
   assert.equal(pos('brother', 100).visible, true)
   assert.ok(Math.abs(pos('brother', 50).x - pos('brother', 100).x) < 1e-8)
   assert.equal(pos('brother', 50).year, 38)
-  assert.equal(pos('child', 100).year, 100)
+  assert.ok(Math.abs(pos('child', 100).year-100)<1e-8)
 })
 test('wife or husband is the same continuous dating partner', () => {
   for (const gender of [.25,.75]) {

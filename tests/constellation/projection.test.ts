@@ -6,7 +6,7 @@ import {CAMERA_ANGLE_DEGREES,cameraAmount,futureLives,projectPoint} from '../../
 
 test('living dots move onward in 2D before the camera lowers, then continue in 3D',()=>{
  assert.equal(cameraAmount(93/120),0)
- assert.equal(cameraAmount(118/120),1)
+ assert.equal(cameraAmount(106/120),1)
  const son=SAMPLE.find(p=>p.id==='child')!,i=SAMPLE.indexOf(son)
  const first=starPosition(son,i,SAMPLE.length,progressAtAge(85),SAMPLE)
  const second=starPosition(son,i,SAMPLE.length,progressAtAge(88),SAMPLE)
@@ -25,13 +25,13 @@ test('historic endpoints stay behind while the camera comes to rest',()=>{
  const brother=SAMPLE.find(p=>p.id==='brother')!,i=SAMPLE.indexOf(brother)
  assert.equal(starPosition(brother,i,SAMPLE.length,1,SAMPLE,300).year,38)
 })
-test('time accelerates only after year 100 with a gradual change of speed',()=>{
- assert.equal(continuingYear(1),100)
- assert.equal(continuingYear(119/120),99.5)
- assert.ok(continuingYear(1,1)>100.5&&continuingYear(1,1)<101)
- assert.ok(continuingYear(1,28)>200&&continuingYear(1,28)<210)
- assert.ok(continuingYear(1,40)-continuingYear(1,39)<5)
- for(let t=1;t<1000;t++)assert.ok(continuingYear(1,t)>continuingYear(1,t-1))
+test('time accelerates immediately after death and reaches the future pace in five seconds',()=>{
+ assert.equal(continuingYear(90/120),85)
+ assert.equal(continuingYear(95/120),98.75)
+ assert.ok(continuingYear(91/120)>86&&continuingYear(91/120)<86.2)
+ assert.ok(Math.abs(continuingYear(96/120)-continuingYear(95/120)-4.5)<1e-9)
+ assert.equal(continuingYear(1),211.25)
+ for(let t=91;t<300;t++)assert.ok(continuingYear(Math.min(t/120,1),Math.max(0,t-120))>continuingYear(Math.min((t-1)/120,1),Math.max(0,t-121)))
 })
 test('the early future model is bounded and its moving dots do not flash',()=>{
  assert.equal(futureLives(.7).length,0)
