@@ -1,58 +1,68 @@
 # The light we leave
 
-## Intent and art direction
+## Story and visual direction
 
-A family story told with light: a nearly black midnight sky, fine wandering paths,
-restrained pastel stars, warm ivory serif typography, and gold accents. The stars
-and trails are SVG, keeping the core image crisp, editable, and exportable. No
-external fonts or generated images are required. The reference is the sequence of
-Instagram screenshots supplied by the user, credited to @creaconbruno. All copy,
-layout, and implementation here are original.
+A life told through the paths of people who share it. Midnight sky, fine luminous
+trails, warm serif type, and distinct pastel lights. The SVG sky is live graphics;
+no generated bitmap or external font is required. The supplied reference is
+credited to @creaconbruno. Layout, prose, and implementation are original.
 
-Desktop pairs a quiet editorial column with a large sky. Phone portrait stacks
-the narrative above the sky and retains ordinary page scrolling. The experience
-has its own full-width route at `/experiments/constellation` and a project entry.
+Following the first preview, the story was revised to run in **48 seconds**, with
+no age axis. A small current-age cue provides context without turning the sky
+into a chart. Desktop pairs narrative and sky; phone portrait compacts the intro
+once the story starts. Playback, seeking, and chapter stepping remain explicit.
 
-## Story and future song brief
+## People enter, leave, and carry on
 
-The default silent story lasts 96 seconds. A user-selected audio file replaces
-that duration; narrative and graphics follow its playback clock. No upload or
-music service integration is involved. Audio must be selected again on a later
-visit. Playback starts only after a user action and pauses when the tab hides.
+The fictional sample contains twelve paths:
 
-| Chapter | Cue at 96 seconds | Narrative / visual direction |
+- Grandma, Grandpa, Mom, Dad, Wife, and Me: ended trails become remembered stars.
+- A childhood friend joins at narrator age 5, walks alongside youth, drifts toward
+  the edge near age 28, then fades completely. This is a relationship drifting,
+  not a memorial or a suggestion that the friend died.
+- College friends enter at 18 and drift away around 35.
+- A son enters at 32. His wife enters at 56, a granddaughter at 62, and a grandson
+  at 68. Their paths remain alive after the narrator's trail ends at 78.
+- In the final composition, remembered family forms a constellation on the left;
+  the son, his partner, and grandchildren keep luminous trails on the right,
+  reaching onward. Living paths never dissolve into memorial stars.
+
+New paths curve in from the edge or branch from a related person's path. Ended
+friendships disappear from both the visible sky and its accessible content.
+
+## Timing and later song brief
+
+| Chapter | Cue at 48 seconds | Direction |
 | --- | --- | --- |
-| Before us | 0:00 | One life begins inside an existing family; intimate, sparse opening. |
-| A small world | 0:13 | Childhood paths grow; a gentle motif finds its shape. |
-| Paths meet | 0:29 | A partner’s light enters; warmth and harmonic expansion. |
-| A new light | 0:40 | A child’s light appears; a restrained emotional lift. |
-| The changing sky | 1:02 | Some trails end and their stars remain; space, tenderness, no dramatic sting. |
-| Always here | 1:26 | Trails dissolve; stars ease into one constellation; resolve and let the final chord breathe. |
+| Before us | 0:00 | Family already surrounds the narrator. Sparse, intimate opening. |
+| Childhood | 0:03 | A childhood friend joins the path. A small playful motif. |
+| A wider world | 0:08 | College friendships arrive; early friendships begin to drift. |
+| Love | 0:12 | A partner's path bends toward the narrator's. Add warmth. |
+| A new life | 0:14 | A son's path branches into the story. Gentle lift. |
+| New branches | 0:26 | A partner for the son and two grandchildren enter. Open the harmony. |
+| Our stars | 0:34 | The narrator and wife become remembered stars; younger lives continue. |
+| Life goes on | 0:43 | Memorial constellation and ongoing generations share the sky. Resolve warmly. |
 
-For the later AI song: instrumental piano, soft felt texture, restrained strings,
-slow and intimate, wonder rather than tragedy. A melody that can return with more
-warmth at the final reveal. Avoid vocals competing with the on-screen writing.
-Target approximately 96 seconds, but the app accommodates other lengths. The
-user has not yet requested song creation or any interaction with a song service.
+Suggested later song: felt piano, restrained strings, a returning melody, warmth
+and wonder rather than tragedy, no competing vocals. Approximately 48 seconds.
+No song service has been contacted. A selected local track replaces the default
+duration; all cues scale to that track's actual audio clock, including seeking,
+pause, mute, and speed. Audio is not uploaded or saved between visits.
 
-## Interaction and privacy
+## Personalization and privacy
 
-- Explicit play/pause, restart, speed, chapter navigation, and continuous seeking.
-- Edit up to eight names and entry/ending ages, expressed in the narrator’s age.
-  Endings are optional. Sample ages are illustrative, never predictions. Chapter
-  prose is the sample narrative; edits personalize the sky, not generated prose.
-- Save names and ages locally using a validated, versioned localStorage record.
-  A blocked storage write still permits an in-memory experience.
-- The native dialog provides focus containment and Escape dismissal; backdrop
-  and close-button dismissal also work. Playback pauses while editing.
-- Load a local audio file, mute it, or remove it. Playback follows the actual
-  audio clock, including seeking and speed. No audio is sent to a server.
-- Export the final constellation as a standalone SVG with a dark background.
-- Respect reduced-motion preferences by removing decorative copy transitions;
-  the main story animates only on explicit play and supports chapter stepping.
+Edit up to sixteen people. Ages refer to the narrator's age; a blank ending means
+the person's life continues beyond the narrator's story. For an ending, choose
+“Become a star” or “Drift away”. Sample data is fictional, never a prediction.
+Edits personalize the sky; chapter prose remains the example family's narrative.
 
-## Verification
+Names and event ages stay in versioned browser storage. The exact old default
+sample upgrades to the expanded cast; customized old names and ages are
+preserved. If saving is unavailable, the sky still works during the visit.
 
-See `constellation-review.md` for the checks actually performed and evidence
-boundaries. Unit tests cover timeline boundaries, trail/head continuity, saved
-data validation, and minimum/maximum constellation sizes.
+The editor is a native focus-contained dialog with close, Escape, and backdrop
+dismissal. The final SVG export retains stars and continuing generations.
+Reduced-motion preferences remove decorative copy transitions; chapter stepping
+provides a still alternative to playback.
+
+See `constellation-review.md` for verification and proof boundaries.

@@ -4,66 +4,123 @@ export interface Person {
   color: string
   start: number
   end: number | null
+  exit?: 'star' | 'fade'
+  lane?: number
+  near?: string
 }
 
-export const COLORS = ['#c9b9f6', '#bedddd', '#ff9c8e', '#90baff', '#f3b4d1', '#f7ce85', '#81e0e8', '#c1dea3']
+export const DEFAULT_DURATION = 48
+export const MAX_PEOPLE = 16
+export const COLORS = ['#c9b9f6', '#bedddd', '#ff9c8e', '#90baff', '#f3b4d1', '#f7ce85', '#81e0e8', '#c1dea3', '#aabace', '#c4c3a4', '#a6d5bf', '#d8b9ed', '#f0bf9f', '#9dcad9', '#c4d5a5', '#d6b4bf']
 export const SAMPLE: Person[] = [
-  { id: 'grandma', name: 'Grandma', color: COLORS[0], start: 0, end: 19 },
-  { id: 'grandpa', name: 'Grandpa', color: COLORS[1], start: 0, end: 28 },
-  { id: 'mom', name: 'Mom', color: COLORS[2], start: 0, end: 66 },
-  { id: 'dad', name: 'Dad', color: COLORS[3], start: 0, end: 54 },
-  { id: 'partner', name: 'My love', color: COLORS[4], start: 25, end: null },
-  { id: 'self', name: 'Me', color: COLORS[5], start: 0, end: null },
-  { id: 'child', name: 'Our child', color: COLORS[6], start: 32, end: null },
+  { id: 'grandma', name: 'Grandma', color: COLORS[0], start: 0, end: 17, lane: .12 },
+  { id: 'grandpa', name: 'Grandpa', color: COLORS[1], start: 0, end: 27, lane: .32 },
+  { id: 'mom', name: 'Mom', color: COLORS[2], start: 0, end: 66, lane: .22 },
+  { id: 'dad', name: 'Dad', color: COLORS[3], start: 0, end: 55, lane: .78 },
+  { id: 'partner', name: 'Wife', color: COLORS[4], start: 26, end: 82, lane: .43, near: 'self' },
+  { id: 'self', name: 'Me', color: COLORS[5], start: 0, end: 78, lane: .56 },
+  { id: 'child', name: 'Son', color: COLORS[6], start: 32, end: null, lane: .66, near: 'self' },
+  { id: 'child-partner', name: 'His wife', color: COLORS[7], start: 56, end: null, lane: .82, near: 'child' },
+  { id: 'grandchild-1', name: 'Granddaughter', color: COLORS[10], start: 62, end: null, lane: .74, near: 'child' },
+  { id: 'grandchild-2', name: 'Grandson', color: COLORS[11], start: 68, end: null, lane: .94, near: 'child-partner' },
+  { id: 'childhood-friend', name: 'Childhood friend', color: COLORS[8], start: 5, end: 28, exit: 'fade', lane: .38, near: 'self' },
+  { id: 'college-friends', name: 'College friends', color: COLORS[9], start: 18, end: 35, exit: 'fade', lane: .68, near: 'self' },
 ]
 
 export const CHAPTERS = [
-  { at: 0, label: 'Before us', title: 'We begin in someone else’s light.', text: 'Before we have a story of our own, there are people who make a place for us in theirs.' },
-  { at: 0.14, label: 'A small world', title: 'At first, they are our whole sky.', text: 'The hands we hold. The voices we know. The ordinary days that quietly become everything.' },
-  { at: 0.30, label: 'Paths meet', title: 'Then a stranger becomes home.', text: 'One path finds another. Two lives bend toward the same small corner of the universe.' },
-  { at: 0.42, label: 'A new light', title: 'And the sky makes room for someone new.', text: 'A new light arrives. For a while, we get to be the centre of someone else’s world.' },
-  { at: 0.65, label: 'The changing sky', title: 'Some trails become stars.', text: 'We cannot keep every hand in ours. But what they gave us keeps travelling through our lives.' },
-  { at: 0.90, label: 'Always here', title: 'Look at all the light we leave.', text: 'A life is more than a line through time. It is the people who become part of our sky.' },
+  { at: 0, label: 'Before us', title: 'We begin in someone else’s light.', text: 'A small world. Familiar voices. The people who are there before our story begins.' },
+  { at: .055, label: 'Childhood', title: 'Then the world gets a little bigger.', text: 'A childhood friend finds our path. For years, it feels as though we will always walk together.' },
+  { at: .17, label: 'A wider world', title: 'Some people belong to a chapter.', text: 'College friends. Shared rooms. Entire little worlds. Some paths stay close; some gently drift away.' },
+  { at: .24, label: 'Love', title: 'And one person becomes home.', text: 'Among all the paths we cross, one begins to run beside our own.' },
+  { at: .30, label: 'A new life', title: 'Suddenly, we are someone’s whole sky.', text: 'A son arrives. Our story makes room for a life that will become its own.' },
+  { at: .55, label: 'New branches', title: 'Their world begins to grow, too.', text: 'He finds his person. Then come the grandchildren. More hands to hold. More stories beginning.' },
+  { at: .70, label: 'Our stars', title: 'One day, we become their stars.', text: 'Our own trails grow quiet. The love we passed along keeps moving.' },
+  { at: .90, label: 'Life goes on', title: 'And their story goes on.', text: 'Children. Their partners. Their children. We are part of their sky, while they keep finding their way.' },
 ]
 
 export const clamp = (value: number, min = 0, max = 1) => Math.max(min, Math.min(max, value))
 export const smooth = (value: number) => { const t = clamp(value); return t * t * (3 - 2 * t) }
-export const storyAge = (progress: number) => clamp(progress / 0.9) * 80
+export const storyAge = (progress: number) => clamp(progress / .9) * 100
 export const chapterAt = (progress: number) => CHAPTERS.reduce((index, chapter, i) => progress >= chapter.at ? i : index, 0)
+const laneX = (person: Person, index: number, count: number) => 45 + (person.lane ?? (.06 + index * .88 / Math.max(1, count - 1))) * 710
 
-// Coordinates are shared by the animated SVG and the downloadable keepsake.
-export function starPosition(person: Person, index: number, count: number, progress: number) {
-  const age = storyAge(progress)
-  const end = Math.min(age, person.end ?? 80)
-  const lane = 90 + index * (620 / Math.max(1, count - 1))
-  const x = lane + Math.sin(end * 0.13 + index * 2) * 9
-  const y = 510 - Math.max(0, age - end) * 4.6
-  const finalX = 400 + Math.cos(-Math.PI / 2 + index / count * Math.PI * 2) * (index % 2 ? 235 : 265)
-  const finalY = 330 + Math.sin(-Math.PI / 2 + index / count * Math.PI * 2) * 220
-  const blend = smooth((progress - 0.90) / 0.10)
-  return { x: x + (finalX - x) * blend, y: y + (finalY - y) * blend, visible: age >= person.start }
+function pathX(person: Person, index: number, count: number, age: number, people?: Person[]) {
+  const lane = laneX(person, index, count)
+  const anchorIndex = people?.findIndex(p => p.id === person.near) ?? -1
+  const anchor = anchorIndex >= 0 && people ? laneX(people[anchorIndex], anchorIndex, count) : lane
+  const entry = person.exit === 'fade' ? (index % 2 ? 810 : -10) : person.near ? anchor : lane
+  let x = entry + (lane - entry) * smooth((age - person.start) / 7)
+  if (person.exit === 'fade' && person.end !== null) {
+    x += ((index % 2 ? 810 : -10) - x) * smooth((age - person.end + 5) / 7)
+  }
+  return x + Math.sin(age * .2 + index * 2) * 8
 }
 
-export function trailPath(person: Person, index: number, count: number, progress: number) {
+export function personOpacity(person: Person, progress: number) {
   const age = storyAge(progress)
-  if (age < person.start) return ''
-  const end = Math.min(age, person.end ?? 80)
-  const lane = 90 + index * (620 / Math.max(1, count - 1))
-  const points = []
-  for (let t = person.start; t < end; t += 0.4) {
-    points.push(`${lane + Math.sin(t * 0.13 + index * 2) * 9},${510 - (age - end) * 4.6 + (end - t) * 7}`)
+  const entering = smooth((age - person.start) / 1.5)
+  if (age < person.start) return 0
+  if (person.exit === 'fade' && person.end !== null) return entering * (1 - smooth((age - person.end) / 3))
+  return person.start === 0 ? 1 : entering
+}
+
+export function starPosition(person: Person, index: number, count: number, progress: number, people?: Person[]) {
+  const age = storyAge(progress)
+  const end = Math.min(age, person.end ?? 100)
+  let x = pathX(person, index, count, end, people)
+  let y = 505
+  const blend = smooth((progress - .9) / .1)
+  const remembered = people?.filter(p => p.exit !== 'fade' && p.end !== null) ?? []
+  const rank = remembered.findIndex(p => p.id === person.id)
+  const memorialPoints = [[105, 180], [405, 130], [90, 355], [430, 340], [205, 470], [350, 560]]
+  const angle = -Math.PI / 2 + (rank >= 0 ? rank : index) / Math.max(1, remembered.length || count) * Math.PI * 2
+  const final = remembered.length === 6 ? memorialPoints[Math.max(0, rank)] : [260 + Math.cos(angle) * 185, 335 + Math.sin(angle) * 210]
+  const continuing = person.end === null
+  const living = people?.filter(p => p.end === null) ?? []
+  const livingRank = Math.max(0, living.findIndex(p => p.id === person.id))
+  const finalX = continuing ? (remembered.length ? 545 : 90) + livingRank * ((remembered.length ? 195 : 620) / Math.max(1, living.length - 1)) : final[0]
+  const finalY = continuing ? 260 - (livingRank % 4) * 50 : final[1]
+  if (person.end !== null && person.exit !== 'fade') {
+    const settle = smooth((age - person.end) / 5)
+    x += (finalX - x) * settle
+    y += (finalY - y) * settle
   }
-  points.push(`${lane + Math.sin(end * 0.13 + index * 2) * 9},${510 - (age - end) * 4.6}`)
-  // Ended trails climb into the sky while the present remains at y=510.
+  const morph = person.exit === 'fade' ? 0 : blend
+  return { x: x + (finalX - x) * morph, y: y + (finalY - y) * morph, visible: personOpacity(person, progress) > 0, opacity: personOpacity(person, progress) }
+}
+
+export function trailPath(person: Person, index: number, count: number, progress: number, people?: Person[]) {
+  const age = storyAge(progress)
+  if (personOpacity(person, progress) === 0) return ''
+  const end = Math.min(age, person.end ?? 100)
+  const head = starPosition(person, index, count, progress, people)
+  const headX = pathX(person, index, count, end, people)
+  const points = []
+  for (let t = Math.max(person.start, end - 48); t < end; t += .5) {
+    points.push(`${pathX(person, index, count, t, people) + head.x - headX},${head.y + (end - t) * 10}`)
+  }
+  points.push(`${head.x},${head.y}`)
   return `M${points.join(' L')}`
 }
 
 export function readPeople(value: unknown): Person[] | null {
-  if (!Array.isArray(value) || value.length < 1 || value.length > 8) return null
+  if (!Array.isArray(value) || value.length < 1 || value.length > MAX_PEOPLE) return null
   const ids = new Set<string>()
   for (const p of value) {
-    if (!p || typeof p.id !== 'string' || ids.has(p.id) || typeof p.name !== 'string' || !p.name.trim() || p.name.length > 24 || !COLORS.includes(p.color) || !Number.isFinite(p.start) || p.start < 0 || p.start > 79 || (p.end !== null && (!Number.isFinite(p.end) || p.end <= p.start || p.end > 80))) return null
+    if (!p || typeof p.id !== 'string' || ids.has(p.id) || typeof p.name !== 'string' || !p.name.trim() || p.name.length > 24 || !COLORS.includes(p.color) || !Number.isFinite(p.start) || p.start < 0 || p.start > 99 || (p.end !== null && (!Number.isFinite(p.end) || p.end <= p.start || p.end > 100)) || (p.exit !== undefined && p.exit !== 'star' && p.exit !== 'fade') || (p.lane !== undefined && (!Number.isFinite(p.lane) || p.lane < 0 || p.lane > 1)) || (p.near !== undefined && typeof p.near !== 'string')) return null
     ids.add(p.id)
   }
   return value as Person[]
+}
+
+export function restorePeople(saved: unknown, legacy: unknown): Person[] {
+  const current = readPeople(saved)
+  if (current) return current
+  const previous = readPeople(legacy)
+  // Upgrade only the exact old fictional sample; preserve actual user edits.
+  const legacyNames = ['Grandma', 'Grandpa', 'Mom', 'Dad', 'My love', 'Me', 'Our child']
+  const legacyEnds = [19, 28, 66, 54, null, null, null]
+  const legacyStarts = [0, 0, 0, 0, 25, 0, 32]
+  if (previous && !(previous.length === 7 && previous.every((p, i) => p.name === legacyNames[i] && p.start === legacyStarts[i] && p.end === legacyEnds[i]))) return previous
+  return SAMPLE.map(p => ({ ...p }))
 }

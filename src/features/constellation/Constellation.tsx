@@ -2,13 +2,13 @@ import { useEffect, useRef, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { ArrowLeft, ArrowRight, Check, Download, Maximize2, Minimize2, Music2, Pause, Play, Plus, RotateCcw, Settings2, Sparkles, Trash2, Volume2, VolumeX, X } from 'lucide-react'
 import Sky from './Sky'
-import { CHAPTERS, COLORS, SAMPLE, chapterAt, clamp, readPeople, storyAge } from './story'
+import { CHAPTERS, COLORS, DEFAULT_DURATION, MAX_PEOPLE, SAMPLE, chapterAt, clamp, readPeople, restorePeople, storyAge } from './story'
 import type { Person } from './story'
 import './constellation.css'
 
-const KEY = 'the-light-we-leave-v1'
+const KEY = 'the-light-we-leave-v2'
 function loadPeople() {
-  try { return readPeople(JSON.parse(localStorage.getItem(KEY) ?? 'null')) ?? SAMPLE.map(p => ({ ...p })) } catch { return SAMPLE.map(p => ({ ...p })) }
+  try { return restorePeople(JSON.parse(localStorage.getItem(KEY) ?? 'null'), JSON.parse(localStorage.getItem('the-light-we-leave-v1') ?? 'null')) } catch { return SAMPLE.map(p => ({ ...p })) }
 }
 
 export default function Constellation() {
@@ -17,7 +17,7 @@ export default function Constellation() {
   const [editing, setEditing] = useState(false)
   const [progress, setProgress] = useState(0)
   const [playing, setPlaying] = useState(false)
-  const [duration, setDuration] = useState(96)
+  const [duration, setDuration] = useState(DEFAULT_DURATION)
   const [song, setSong] = useState<{ url: string, name: string } | null>(null)
   const [muted, setMuted] = useState(false)
   const [speed, setSpeed] = useState(1)
@@ -85,7 +85,7 @@ export default function Constellation() {
   function updatePerson(index: number, update: Partial<Person>) { setDraft(old => old.map((p, i) => i === index ? { ...p, ...update } : p)) }
   function save() {
     const normalized = draft.map(p => ({ ...p, name: p.name.trim() }))
-    if (!readPeople(normalized)) { setError('Give each person a name. Ages must be 0–79, with an ending later than the beginning and no later than 80.'); return }
+    if (!readPeople(normalized)) { setError('Give each person a name. Ages must be 0–99, with an ending later than the beginning and no later than 100.'); return }
     setPeople(normalized)
     try { localStorage.setItem(KEY, JSON.stringify(normalized)); setStorageMessage('Your sky is saved on this browser.') } catch { setStorageMessage('Your sky works for this visit. This browser could not save it.') }
     setError(''); setEditing(false); seek(0)
@@ -120,20 +120,20 @@ export default function Constellation() {
     <div className="cl-experience">
       <section className="cl-narrative" aria-label="Story">
         <div className="cl-eyebrow"><span /> AN INTERACTIVE SHORT STORY</div>
-        <h1>The light<br />{'we '}<em>leave.</em></h1>
+        <h1>The light<br />{' we '}<em>leave.</em></h1>
         <div className="cl-chapter-copy" key={chapter}>
           <p className="cl-chapter-number">{String(chapter + 1).padStart(2, '0')} <span>/</span> {current.label}</p>
           <h2>{current.title}</h2>
           <p className="cl-description">{current.text}</p>
         </div>
         {!finished ? <button className="cl-primary" onClick={togglePlay}>{playing ? <Pause size={15} fill="currentColor" /> : <Play size={15} fill="currentColor" />}{playing ? 'Pause for a moment' : progress > 0 ? 'Continue the story' : 'Begin the story'}<ArrowRight size={17} /></button> : <button className="cl-primary" onClick={downloadSky}><Download size={16} /> Keep this constellation</button>}
-        <p className="cl-footnote">{song ? 'Your soundtrack. Your sky.' : 'A quiet moment. About a minute and a half.'}</p>
+        <p className="cl-footnote">{song ? 'Your soundtrack. Your sky.' : 'A whole life. In less than a minute.'}</p>
       </section>
 
       <section className="cl-stage" aria-label="Animated family sky">
-        <div className="cl-stage-caption"><span>{finished ? 'A CONSTELLATION OF US' : 'EVERY LINE, A LIFE TOUCHED'}</span><span className="cl-live-dot" />{finished ? 'Always here' : `Age ${Math.floor(storyAge(progress))}`}</div>
+        <div className="cl-stage-caption"><span>{finished ? 'THEIR STORY KEEPS GOING' : 'EVERY LINE, A LIFE TOUCHED'}</span><span className="cl-live-dot" />{finished ? 'Onward' : `Age ${Math.floor(storyAge(progress))}`}</div>
         <Sky people={people} progress={progress} />
-        <div className="cl-sky-caption"><span className="cl-caption-line" />{finished ? 'Different paths. One sky.' : 'Watch the paths. Remember the people.'}</div>
+        <div className="cl-sky-caption"><span className="cl-caption-line" />{finished ? 'Our light stays. Their lives go on.' : 'Watch the paths. Remember the people.'}</div>
       </section>
     </div>
 
@@ -158,16 +158,16 @@ export default function Constellation() {
     <dialog className="cl-dialog" ref={dialog} aria-labelledby="cl-editor-title" onCancel={() => setEditing(false)} onClick={e => { if (e.target === e.currentTarget) setEditing(false) }}>
       <div className="cl-editor">
         <header><div><p className="cl-eyebrow">EVERY SKY IS DIFFERENT</p><h2 id="cl-editor-title">Make room for your people.</h2></div><button aria-label="Close editor" onClick={() => setEditing(false)}><X size={20} /></button></header>
-        <p className="cl-editor-intro">Start with names. Ages are <strong>your age</strong> when someone enters your story or their trail ends. A blank ending keeps them beside you. The sample is fictional, never a prediction.</p>
+        <p className="cl-editor-intro">Start with names. Ages are <strong>your age</strong> when someone enters your story or their trail ends. Leave the ending blank for a life that continues beyond yours. Choose whether an ended trail becomes a star or drifts away. The sample is fictional, never a prediction.</p>
         <div className="cl-editor-labels"><span>Person</span><span>Enters at</span><span>Ends at</span><span /></div>
-        {draft.map((p, i) => <div key={p.id} className="cl-person-row">
+        {draft.map((p, i) => <div key={p.id} className="cl-person-entry"><div className="cl-person-row">
           <label className="cl-name"><span style={{ background: p.color }} /><input aria-label={`Person ${i + 1} name`} maxLength={24} value={p.name} onChange={e => updatePerson(i, { name: e.target.value })} /></label>
-          <input aria-label={`${p.name || `Person ${i + 1}`} enters at age`} type="number" min="0" max="79" value={Number.isFinite(p.start) ? p.start : ''} onChange={e => updatePerson(i, { start: e.target.value === '' ? NaN : Number(e.target.value) })} />
-          <input aria-label={`${p.name || `Person ${i + 1}`} trail ends at age`} type="number" min="1" max="80" placeholder="—" value={p.end ?? ''} onChange={e => updatePerson(i, { end: e.target.value === '' ? null : Number(e.target.value) })} />
+          <input aria-label={`${p.name || `Person ${i + 1}`} enters at age`} type="number" min="0" max="99" value={Number.isFinite(p.start) ? p.start : ''} onChange={e => updatePerson(i, { start: e.target.value === '' ? NaN : Number(e.target.value) })} />
+          <input aria-label={`${p.name || `Person ${i + 1}`} trail ends at age`} type="number" min="1" max="100" placeholder="—" value={p.end ?? ''} onChange={e => updatePerson(i, { end: e.target.value === '' ? null : Number(e.target.value) })} />
           <button aria-label={`Remove ${p.name || `person ${i + 1}`}`} disabled={draft.length === 1} onClick={() => setDraft(old => old.filter((_, n) => n !== i))}><Trash2 size={15} /></button>
-        </div>)}
-        <button className="cl-text-button cl-add-person" disabled={draft.length >= 8} onClick={() => { const color = COLORS.find(c => !draft.some(p => p.color === c)) ?? COLORS[0]; setDraft(old => [...old, { id: crypto.randomUUID(), name: '', color, start: 0, end: null }]) }}><Plus size={16} />{draft.length >= 8 ? 'Your sky has eight people' : 'Add someone'}</button>
-        <div className="cl-song-box"><Music2 size={21} /><div><h3>A song for this sky</h3><p>{song ? song.name : 'Bring your song later. The story follows its duration.'}</p><label className="cl-upload">{song ? 'Choose another song' : 'Choose an audio file'}<input type="file" accept="audio/*,.mp3,.m4a,.wav" onChange={e => { chooseSong(e.target.files?.[0]); e.target.value = '' }} /></label>{song && <button className="cl-remove-song" onClick={() => { setSong(null); setDuration(96); setError(''); seek(0) }}>Remove song</button>}</div></div>
+        </div>{p.end !== null && <label className="cl-exit-choice"><span>When {p.name || 'their trail'} leaves</span><select aria-label={`${p.name || `Person ${i + 1}`} ending`} value={p.exit ?? 'star'} onChange={e => updatePerson(i, { exit: e.target.value as 'star' | 'fade' })}><option value="star">Become a star</option><option value="fade">Drift away</option></select></label>}</div>)}
+        <button className="cl-text-button cl-add-person" disabled={draft.length >= MAX_PEOPLE} onClick={() => { const color = COLORS.find(c => !draft.some(p => p.color === c)) ?? COLORS[0]; setDraft(old => [...old, { id: crypto.randomUUID(), name: '', color, start: 0, end: null }]) }}><Plus size={16} />{draft.length >= MAX_PEOPLE ? 'Your sky has sixteen people' : 'Add someone'}</button>
+        <div className="cl-song-box"><Music2 size={21} /><div><h3>A song for this sky</h3><p>{song ? song.name : 'Bring your song later. The story follows its duration.'}</p><label className="cl-upload">{song ? 'Choose another song' : 'Choose an audio file'}<input type="file" accept="audio/*,.mp3,.m4a,.wav" onChange={e => { chooseSong(e.target.files?.[0]); e.target.value = '' }} /></label>{song && <button className="cl-remove-song" onClick={() => { setSong(null); setDuration(DEFAULT_DURATION); setError(''); seek(0) }}>Remove song</button>}</div></div>
         <p className="cl-privacy">Names stay in this browser. Audio stays on your device and is not saved between visits.</p>
         {error && <p className="cl-inline-error" role="alert">{error}</p>}
         <footer><button className="cl-text-button" onClick={() => { setDraft(SAMPLE.map(p => ({ ...p }))); setError('') }}>Reset sample</button><button className="cl-primary" onClick={save}><Check size={16} /> Save my sky</button></footer>

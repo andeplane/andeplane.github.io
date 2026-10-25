@@ -37,6 +37,11 @@ compact the phone intro after playback begins; preserve input padding beside
 color dots; provide an accessible name for the phone song icon; use 44 px editor
 remove controls and return focus from the dialog.
 
+A final computed-size audit caught a 24 px timeline hit area and a small credit
+link. The timeline keeps its thin track inside a 44 px input; transparent padding
+enlarges the credit link. Both have at least 44 px targets, and their dimensions and timeline keyboard interaction were
+rechecked after the fix.
+
 Representative screenshots were saved locally under `/tmp/constellation-review/`.
 This is simulated viewport evidence, not physical iPhone/Safari validation.
 
@@ -55,3 +60,34 @@ other than the WAV fixture, storage-quota failure, native fullscreen across
 browsers, assistive-technology speech, and runtime reduced-motion emulation.
 Reduced-motion copy styling and storage/audio failure handling are implemented
 but do not count as browser-tested claims.
+
+## Expanded living-story revision
+
+The current version is 48 seconds and eight chapters, with no SVG age axis.
+It adds a childhood friend (5–28, then fading), college friends (18–35, then
+fading), the son's wife, and two grandchildren. The narrator and wife become
+stars; four younger relatives retain their paths in the final sky.
+
+Revised checks performed:
+
+- Natural silent playback completed at 48 seconds and progress 1. Desktop final
+  composition was visually inspected at 1280 × 900; no browser errors/warnings.
+- 390 px and 320 px portrait: transient friends, next-generation ending,
+  revised chapter navigation, and long-name wrapping. No full age scale remains.
+- A maximum sixteen-person saved sky was inspected at 320 px. Adding a
+  seventeenth was disabled; labels were spaced without horizontal overflow.
+- Ending selector changed a childhood friend into a remembered star. Reset
+  restored fading; after reload the friend was absent by the new-life chapter,
+  while college friends still appeared. Exact legacy sample upgrade and custom
+  name/age preservation are covered by tests.
+- Revised editor and native ending selectors inspected in short 844 × 390
+  landscape. Local WAV fixture remained synchronized: Love at progress 0.24
+  sought to 1.92 seconds of an eight-second file.
+- Nine focused model tests passed locally and on home-m1. The first revised
+  site bundle, TypeScript, and HTML-shell generation passed on home-m1 (exit 0).
+  Later rendering refinements are included in the subsequent repository CI run.
+- Computed interactive targets were audited; the timeline is 44 px high and
+  the credit link has transparent padding to meet the same target size.
+
+The earlier physical-device and codec limitations still apply. The current
+version's final CI and deployment outcomes are reported in the chat.

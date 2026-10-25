@@ -3,13 +3,13 @@ import type { ProjectMeta } from '@/types'
 const project: ProjectMeta = {
   slug: 'constellation',
   title: 'The light we leave',
-  description: 'An interactive short story about the people who become part of our sky. Watch a family’s lifelines turn into a constellation, then make it your own.',
+  description: 'A life in 48 seconds. Friends drift in and out, a family grows, and the next generation carries on beneath the stars we leave.',
   tags: ['Interactive story', 'SVG', 'Creative coding'],
   liveUrl: '/experiments/constellation',
   screenshot: '/projects/constellation/preview.svg',
-  longDescription: `A quiet, six-chapter story about family, time, and the light people leave in our lives. Glowing trails grow through an imagined life, and the people along the way become a constellation.
+  longDescription: `An eight-chapter story about family, friendship, and the lives that continue after ours. A childhood friend walks beside us from five to twenty-eight, college friends drift through, and a family grows through a son, his wife, and grandchildren. Some paths fade away; others become stars. The next generation keeps its glowing trails.
 
-Play it, pause for a moment, or move through the chapters at your own pace. Personalize the names and the ages at which people enter your story. Your edits stay in your browser. A local audio file can become the soundtrack, with the story adapting to its duration. Save the final sky as an SVG keepsake.
+Play it, pause for a moment, or move through the chapters at your own pace. Personalize up to sixteen people, when they enter, and whether their ending becomes a star or drifts away. Your edits stay in your browser. A local audio file can become the soundtrack, with the story adapting to its duration. Save the final sky as an SVG keepsake.
 
 The sample is fictional, not a prediction of anyone’s life. Inspired by the family lifeline animation shared by @creaconbruno on Instagram; this version uses original code, design, and writing.`,
 }
