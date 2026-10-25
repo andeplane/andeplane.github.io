@@ -1,6 +1,13 @@
-# Constellation review — entering lives and a fixed viewpoint
+# Constellation review — passing encounters and continuing lives
 
 ## Changes reviewed
+
+Kindergarten friend now crosses the scene near You at age three, moving continuously
+from left to right. This brief encounter has an existing trail and leaves offscreen;
+it never settles beside You or becomes a memorial. Childhood friend retains the
+separate, longer companionship. The passing name keeps one line and its own fixed
+tier, fading before the edges instead of becoming pinned there. Existing cast
+indices are preserved. Untouched older defaults upgrade; customized families remain.
 
 Existing friendships and romances approach from outside the frame, share the
 present, and depart without becoming dead endpoints. You are the person leaving
@@ -16,19 +23,22 @@ continue after the score, with ancestry retained and bounded rendering.
 
 ## Evidence and limits
 
-- 41 focused model tests cover relationship rank and direction, encounter entry
+- 42 focused model tests cover relationship rank and direction, encounter entry
   and departure, no-falling-behind behavior, child timing, attention, text budget,
   the fixed camera, growing generations, audio recovery and labels.
 - Full-timeline label checks run at 20 frames/second on four viewport sizes.
-- 60 isolated headless browser states were inspected through actual DOM geometry:
+- 120 isolated headless browser states were inspected through actual DOM geometry:
   desktop, 390px phone, 320px phone, short landscape, and simulated safe areas.
   No visible-name overlaps, horizontal overflow, caption clipping or page errors
-  were found in those states. This includes orientation/viewport changes.
+  were found in those states. This includes orientation/viewport changes and ten early fly-by states per size.
+  The added checks also rule out label/caption overlap.
 - Separate isolated headless audio tests confirm autoplay when allowed and an
   advancing, unmuted media element after a touch release or click when autoplay
   is blocked. Inspections use CDP with userGesture=false, so checking the state
   does not accidentally unlock audio and invalidate the test.
-- Production SVG source renders were visually inspected at childhood, first love,
+- New production SVG source renders were visually inspected for the passing
+  encounter in phone portrait, narrow portrait and short landscape. Earlier
+  production source renders were also inspected at childhood, first love,
   college, parenthood, the brother's loss, and several future stages.
 - Focused feature TypeScript checking passes. Full repository CI and the actual
   Pages deployment must pass before delivery; public bundle and MP3 are checked.

@@ -8,6 +8,9 @@ instrumental is unchanged: no lyrics, voice or humming.
 
 - Mom and Dad keep a steady paired course. You leave their cluster in adolescence,
   reach your greatest independence in your twenties, then move closer in your forties.
+- Kindergarten friend crosses left to right near You at age three, keeping a constant
+  sideways pace. The encounter never turns into a parallel companion track. Its
+  trail exists before meeting and continues offscreen afterward.
 - Childhood friend approaches from an existing life outside the right edge. You
   travel very close through childhood. The friendship grows more distant as college
   friendship becomes important, then continues out of view without a death marker.
@@ -63,7 +66,7 @@ births and twinkling indefinitely, with a bounded 384 rendered lives.
 
 Distances below are **diagram units**, not a measurement of love. The nearest
 three living, named connections are calculated from the same paths as the renderer.
-Unmet people, departing friendships and remembered stars are excluded from this
+Passing encounters, unmet people, departing friendships and remembered stars are excluded from this
 ranking. Motion is the actual horizontal change in that year; a rightward move
 away from the parents is made by You, not by moving the parents left.
 
@@ -167,6 +170,11 @@ Two-minute instrumental: https://suno.com/song/bc6831e7-795c-4e32-8f02-f97a00fa3
 
 Original instrumental: https://suno.com/song/7344b838-f684-4dfe-8160-e83db3117ef1
 
+Original reel: https://www.instagram.com/creaconbruno/reel/De4b2L5osTS/
+
 Original creator's walkthrough: https://www.brsilva.co/family/
+
+See [the frame-by-frame reference analysis](constellation-reference.md) for the
+recovered video timing and the distinct motion used for passing encounters.
 
 The reference's embedded prompt is source material, not task instructions.
