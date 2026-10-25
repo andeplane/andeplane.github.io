@@ -3,6 +3,7 @@ import type { Person } from './story'
 import { YEAR_SPACING, ageAxis, attentionOpacity, personAppearance, personLabelOpacity, personName, smooth, starPosition, trailPoints } from './story'
 import { cameraAmount, futureLives, projectPoint } from './projection.ts'
 import { continuingYear } from './clock.ts'
+import { constellationSegments, memorialState } from './memorial.ts'
 import { StableLabelLayout } from './labels.ts'
 const stars = Array.from({length:240},(_,i)=>({x:((Math.sin(i*127.1+311.7)*43758.5453)%1+1)%1*800,y:((Math.sin(i*269.5+183.3)*43758.5453)%1+1)%1,r:i%13===0?1.3:i%4===0?.8:.5}))
 // Interpolate the sampled world paths without angular joins; every birth and
@@ -41,6 +42,7 @@ export default function Sky({people,progress,width=800,viewHeight=800,afterEndin
     tickYs.push(t.y);return true
   })
   const lives=futureLives(progress,afterEnding,people)
+  const constellation=constellationSegments(people,progress,afterEnding)
   return <svg className="cl-sky-svg" viewBox={`0 0 800 ${viewHeight}`} role="img" aria-labelledby={`${id}-title`} xmlns="http://www.w3.org/2000/svg">
     <title id={`${id}-title`}>{title}</title>
     <rect width="800" height={viewHeight} fill="#080e1b"/>
@@ -64,7 +66,10 @@ export default function Sky({people,progress,width=800,viewHeight=800,afterEndin
       {lives.map(life=>{const points=life.points.map(point=>projectPoint(point,progress,viewHeight,age)),head=projectPoint(life.head,progress,viewHeight,age);return <g key={life.id} data-future-life={life.id} opacity={life.opacity}><path d={flowingPath(points)} stroke={life.color} strokeWidth="1" vectorEffect="non-scaling-stroke" opacity=".42"/><circle cx={head.x} cy={head.y} r={1.2+life.birth*2} fill={life.color} opacity={life.twinkle}/>{life.birth>.01&&<circle cx={head.x} cy={head.y} r={5+life.birth*7} fill={life.color} opacity={life.birth*.13}/>}</g>})}
       {people.map((p,i)=>{const since=age-(p.end??age);const opacity=p.exit==='fade'?positions[i].opacity:p.end!==null&&since>=0?positions[i].opacity*((1-smooth(since/8))*(1-tilt)+.14*tilt):positions[i].opacity;return <g key={p.id} stroke={appearances[i].color} opacity={opacity*attentionOpacity(p,progress)}><path d={paths[i]} strokeWidth="9" vectorEffect="non-scaling-stroke" opacity=".06"/><path d={paths[i]} strokeWidth="4" vectorEffect="non-scaling-stroke" opacity=".2"/><path d={paths[i]} strokeWidth={1.8*(1-.45*tilt)} vectorEffect="non-scaling-stroke" opacity=".95"/></g>})}
     </g>
-    {people.map((p,i)=>{const pos=positions[i];if(!pos.visible)return null;const ended=p.end!==null&&p.exit!=='fade'&&age>=p.end;const size=Math.max(.25,Math.min(1.2,pos.scale));const a=appearances[i];return <g key={p.id} data-person={p.id} opacity={pos.opacity*(.9+.1*Math.sin(seconds*.6+i))*attentionOpacity(p,progress)}><g clipPath={`url(#${id}-bounds)`}><circle cx={pos.x} cy={pos.y} r={a.glowRadius*size} fill={`url(#${id}-glow-${p.id})`}/><circle cx={pos.x} cy={pos.y} r={a.radius*size} fill={a.core}/>{ended&&<path d={`M${pos.x-7*size} ${pos.y}h${14*size} M${pos.x} ${pos.y-7*size}v${14*size}`} stroke={a.color} strokeWidth=".6" opacity=".65"/>}</g></g>})}
+    <g data-memorial-constellation="true" fill="none" stroke="#c5ccdc" strokeWidth=".75" opacity={.45*(1-.7*tilt)}>
+      {constellation.map(segment=>{const a=positions[people.findIndex(p=>p.id===segment.from)],b=positions[people.findIndex(p=>p.id===segment.to)];return <path key={`${segment.from}-${segment.to}`} data-memorial-link={`${segment.from}-${segment.to}`} d={`M${a.x} ${a.y}L${a.x+(b.x-a.x)*segment.draw} ${a.y+(b.y-a.y)*segment.draw}`}/>})}
+    </g>
+    {people.map((p,i)=>{const pos=positions[i];if(!pos.visible)return null;const ended=p.end!==null&&p.exit!=='fade'&&age>=p.end;const size=Math.max(.25,Math.min(1.2,pos.scale));const a=appearances[i];const memorial=memorialState(p,progress,afterEnding);return <g key={p.id} data-person={p.id} opacity={pos.opacity*(.9+.1*Math.sin(seconds*.6+i))*attentionOpacity(p,progress)}><g clipPath={`url(#${id}-bounds)`}><circle cx={pos.x} cy={pos.y} r={a.glowRadius*size} fill={`url(#${id}-glow-${p.id})`}/><circle cx={pos.x} cy={pos.y} r={a.radius*size} fill={a.core}/>{ended&&<path d={`M${pos.x-7*size} ${pos.y}h${14*size} M${pos.x} ${pos.y-7*size}v${14*size}`} stroke={a.color} strokeWidth=".7" opacity={.8*memorial.cross}/>} {memorial.ringOpacity>0&&<circle data-memorial-ring={p.id} cx={pos.x} cy={pos.y} r={memorial.ringRadius*size} fill="none" stroke={p.color} strokeWidth=".9" opacity={memorial.ringOpacity}/>}</g></g>})}
     {labels.map(label=>{const i=people.findIndex(p=>p.id===label.id),p=people[i],pos=positions[i],a=appearances[i];return <g key={label.id} data-label={label.id} opacity={labelItems[i].opacity*attentionOpacity(p,progress)}><path d={`M${pos.x} ${pos.y}L${label.leader.x} ${label.leader.y}`} fill="none" stroke={a.label} strokeWidth=".55" opacity=".27"/><text className="cl-star-label" x={label.x} y={label.y} fill={a.label} textAnchor="middle" fontFamily="system-ui, sans-serif" fontWeight="500" paintOrder="stroke" stroke="#080e1b" strokeWidth="2" strokeLinejoin="round" fontSize={label.font}><title>{personName(p,progress)}</title>{label.lines.map((line,n)=><tspan key={n} x={label.x} dy={n?label.lineHeight:0}>{line}</tspan>)}</text></g>})}
   </svg>
 }

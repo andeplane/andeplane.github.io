@@ -3,7 +3,7 @@ import { COLORS, SAMPLE, pathX, presentY } from './story.ts'
 import type { Person, StoryPoint } from './story.ts'
 // The position stays anchored to the viewer's life. Only the angle changes.
 export const CAMERA_ANGLE_DEGREES=30
-export const cameraAmount=(progress:number)=>smooth((progress*120-94)/16)
+export const cameraAmount=(progress:number)=>smooth((progress*120-98)/16)
 export function projectPoint(point:StoryPoint,progress:number,viewHeight:number,_viewYear=100) {
  const tilt=cameraAmount(progress),angle=CAMERA_ANGLE_DEGREES*Math.PI/180
  const eyeHeight=288,behind=eyeHeight/Math.tan(angle),focal=624

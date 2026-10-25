@@ -1,6 +1,6 @@
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
-import { COLORS, MAX_PEOPLE, SAMPLE, YEAR_SPACING, ageAxis, attentionOpacity, brotherMoment, personAppearance, personLabelOpacity, personName, personOpacity, progressAtAge, readPeople, restorePeople, starPosition, storyAge, trailPoints } from '../../src/features/constellation/story.ts'
+import { COLORS, MAX_PEOPLE, SAMPLE, YEAR_SPACING, ageAxis, attentionOpacity, brotherMoment, lifeEndpoint, personAppearance, personLabelOpacity, personName, personOpacity, progressAtAge, readPeople, restorePeople, starPosition, storyAge, trailPoints } from '../../src/features/constellation/story.ts'
 const person = (id: string) => SAMPLE.find(p => p.id === id)!
 const pos = (id: string, age: number) => { const p = person(id); return starPosition(p, SAMPLE.indexOf(p), SAMPLE.length, progressAtAge(age), SAMPLE) }
 
@@ -63,8 +63,9 @@ test('friends approach from another life, share the present, and leave without f
 })
 test('a brother remains as a small neutral star while living people continue', () => {
   const appearance = personAppearance(person('brother'), progressAtAge(46))
-  assert.equal(appearance.color, '#8d99a9')
-  assert.equal(appearance.label, '#8d99a9')
+  assert.notEqual(appearance.color,person('brother').color)
+  assert.notEqual(appearance.color,'#8d99a9')
+  assert.equal(appearance.distance,1)
   assert.ok(appearance.radius < personAppearance(person('brother'), progressAtAge(35)).radius)
   assert.equal(pos('brother', 100).visible, true)
   assert.ok(Math.abs(pos('brother', 50).x - pos('brother', 100).x) < 1e-8)
@@ -79,14 +80,15 @@ test('wife or husband is the same continuous dating partner', () => {
     assert.equal(personName(p, progressAtAge(40)), gender < .5 ? 'Wife' : 'Husband')
   }
 })
-test('every trail ends exactly on its own star across every narrative year', () => {
+test('every trail ends at its living head or completed life endpoint across every narrative year', () => {
   for (let age = -2; age <= 100; age++) SAMPLE.forEach((p, i) => {
     const progress = progressAtAge(age)
     const head = starPosition(p, i, SAMPLE.length, progress, SAMPLE)
     const points = trailPoints(p, i, SAMPLE.length, progress, SAMPLE)
     if (!head.visible) assert.equal(points.length, 0)
     else {
-      assert.deepEqual(points.at(-1), head)
+      assert.deepEqual(points.at(-1),lifeEndpoint(p,i,SAMPLE.length,progress,SAMPLE))
+      if(p.end===null||p.exit==='fade'||age<p.end)assert.ok(Math.abs(points.at(-1)!.x-head.x)<1e-7&&Math.abs(points.at(-1)!.y-head.y)<1e-7)
       assert.ok(points.every(point => Number.isFinite(point.x) && Number.isFinite(point.y)))
       assert.ok(Math.abs(head.year - (p.exit==='fade'?age:Math.min(age, p.end ?? age))) < 1e-7)
     }

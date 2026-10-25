@@ -21,12 +21,12 @@ export function layoutLabels(items:LabelItem[],width:number,viewHeight:number) {
     const split=spaces.sort((a,b)=>Math.abs(a-item.name.length/2)-Math.abs(b-item.name.length/2))[0]
     const lines=!item.singleLine&&item.name.length>11&&split!==undefined?[item.name.slice(0,split),item.name.slice(split+1)]:[item.name]
     const w=Math.max(...lines.map(line=>line.length))*font*.60+8,h=lines.length*font*1.08+6
-    const shortTiers:Record<string,number>={sister:-5,daughter:-4,grandpa:-4,'kindergarten-friend':2,'college-friends':-4,'grandchild-2':-6}
+    const shortTiers:Record<string,number>={sister:-5,daughter:-4,grandpa:1,'kindergarten-friend':2,'college-friends':-4,'grandchild-2':-5}
     const tier=item.memorial?(['grandpa','partner'].includes(item.id)?1:-1):((viewHeight<650?shortTiers[item.id]:undefined)??LABEL_TIERS[item.id]??((hash(item.id)%3)+1)*(hash(item.id)%2?1:-1))
     const bottomLimit=viewHeight*(item.singleLine&&viewHeight<650?.85:.74)
-    const top=clamp(tier<0?item.y-h-14-(Math.abs(tier)-1)*step:item.y+14+(tier-1)*step,18,bottomLimit-h)
+    const top=item.memorial&&viewHeight<650?18:clamp(tier<0?item.y-h-14-(Math.abs(tier)-1)*step:item.y+14+(tier-1)*step,18,bottomLimit-h)
     const x=clamp(item.x,104+w/2,788-w/2),y=top+font
-    labels.push({id:item.id,x,y,font,lineHeight:font*1.08,lines,box:{left:x-w/2,right:x+w/2,top,bottom:top+h},leader:{x:item.x,y:tier<0?top+h:top}})
+    labels.push({id:item.id,x,y,font,lineHeight:font*1.08,lines,box:{left:x-w/2,right:x+w/2,top,bottom:top+h},leader:{x:item.x,y:item.y<top?top:top+h}})
   }
   // Soft continuous separation within the owned tier, without choosing cells
   // or sorting nearest candidates. Separation is planned while names fade in.
