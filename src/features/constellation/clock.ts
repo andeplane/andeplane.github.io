@@ -7,14 +7,21 @@ export const smooth = (value: number) => { const t = clamp(value); return t * t 
 
 // Five seconds before birth, one second per year through 85, then thirty
 // seconds to look beyond that life. The ending is a destination, not a loop.
-export function storyAge(progress: number) {
-  const seconds = clamp(progress) * MOVIE_SECONDS
-  if (seconds < BIRTH_SECOND) return -2 + seconds * 2 / BIRTH_SECOND
-  if (seconds <= DEATH_SECOND) return seconds - BIRTH_SECOND
-  return NARRATOR_END_AGE + (seconds - DEATH_SECOND) / 2
+export const FUTURE_ACCELERATION_SECOND=104 // year 92, after the life ends
+function yearAtSeconds(seconds:number) {
+  if(seconds<BIRTH_SECOND)return -2+seconds*2/BIRTH_SECOND
+  if(seconds<=DEATH_SECOND)return seconds-BIRTH_SECOND
+  if(seconds<=FUTURE_ACCELERATION_SECOND)return 85+(seconds-DEATH_SECOND)/2
+  const t=seconds-FUTURE_ACCELERATION_SECOND
+  // Ease from half a year/second to six. The next century passes in ~20s.
+  return 92+.5*t+5.5*(t-4*(1-Math.exp(-t/4)))
 }
-export function progressAtAge(age: number) {
-  return clamp((age < 0 ? (age + 2) * BIRTH_SECOND / 2 : age <= 85 ? BIRTH_SECOND + age : DEATH_SECOND + (age - 85) * 2) / MOVIE_SECONDS)
+export function storyAge(progress:number){return yearAtSeconds(clamp(progress)*MOVIE_SECONDS)}
+export function progressAtAge(age:number) {
+  if(age<=85)return clamp((age<0?(age+2)*BIRTH_SECOND/2:BIRTH_SECOND+age)/MOVIE_SECONDS)
+  let low=DEATH_SECOND,high=MOVIE_SECONDS
+  for(let i=0;i<48;i++){const mid=(low+high)/2;if(yearAtSeconds(mid)<age)low=mid;else high=mid}
+  return (low+high)/2/MOVIE_SECONDS
 }
 export function playbackFrame(elapsed: number, duration = MOVIE_SECONDS) {
   return { progress: clamp(elapsed / duration), opacity: smooth(elapsed / 1.2) }
@@ -40,11 +47,8 @@ export function storyMessage(progress: number, afterEnding=0) {
   return { ...message, opacity }
 }
 
-// Beyond the score, years keep advancing. Around year 120 the rate eases
-// from 2/3 year per second toward four years per second, without a time jump.
+// Animation time keeps advancing after the instrumental, with no camera follow
+// and no replay of the viewer's life.
 export function continuingYear(progress:number,afterEnding=0) {
-  const extra=Math.max(0,afterEnding)
-  if(extra<=30)return storyAge(progress)+extra*2/3
-  const t=extra-30
-  return 120+4*t-60*(1-Math.exp(-t/18))
+  return yearAtSeconds(clamp(progress)*MOVIE_SECONDS+Math.max(0,afterEnding))
 }
