@@ -14,7 +14,7 @@ const STATIC_ROUTES = [
     path: '/experiments/constellation',
     title: 'The light we leave',
     description: 'An interactive short story about family, time, and the people who become part of our sky. Make a constellation of your own.',
-    image: '/projects/constellation/preview.svg',
+    image: '/projects/constellation/preview.jpg',
   },
   {
     path: '/hardware',

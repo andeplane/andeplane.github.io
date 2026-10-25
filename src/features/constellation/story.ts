@@ -64,6 +64,25 @@ export function personOpacity(person: Person, progress: number) {
   return person.start === 0 ? 1 : entering
 }
 
+function mixColor(from: string, to: string, amount: number) {
+  const channel = (hex: string, offset: number) => parseInt(hex.slice(offset, offset + 2), 16)
+  return '#' + [1, 3, 5].map(offset => Math.round(channel(from, offset) * (1 - amount) + channel(to, offset) * amount).toString(16).padStart(2, '0')).join('')
+}
+
+export function personAppearance(person: Person, progress: number) {
+  const distance = person.end !== null && person.exit !== 'fade' ? smooth((storyAge(progress) - person.end) / 4) : 0
+  const quietColor = mixColor(person.color, '#b4c0cc', .48)
+  return {
+    distance,
+    color: mixColor(quietColor, '#8d99a9', distance),
+    label: mixColor(mixColor('#bac3cd', quietColor, .08), '#8d99a9', distance),
+    core: mixColor('#e7edf1', '#a5b0bf', distance),
+    radius: 3.3 - distance * 1.5,
+    glowRadius: 32 - distance * 16,
+    glowOpacity: .28 - distance * .20,
+  }
+}
+
 export function starPosition(person: Person, index: number, count: number, progress: number, people?: Person[]) {
   const age = storyAge(progress)
   const end = Math.min(age, person.end ?? 100)
@@ -79,27 +98,32 @@ export function starPosition(person: Person, index: number, count: number, progr
   const living = people?.filter(p => p.end === null) ?? []
   const livingRank = Math.max(0, living.findIndex(p => p.id === person.id))
   const finalX = continuing ? (remembered.length ? 545 : 90) + livingRank * ((remembered.length ? 195 : 620) / Math.max(1, living.length - 1)) : final[0]
-  const finalY = continuing ? 260 - (livingRank % 4) * 50 : final[1]
+  // Younger lives travel well beyond the remembered generation, through the
+  // upper edge of the frame, instead of stopping as another set of stars.
+  const finalY = continuing ? -85 - (livingRank % 4) * 55 : final[1]
   if (person.end !== null && person.exit !== 'fade') {
     const settle = smooth((age - person.end) / 5)
     x += (finalX - x) * settle
     y += (finalY - y) * settle
   }
-  const morph = person.exit === 'fade' ? 0 : blend
+  const morph = person.exit === 'fade' ? 0 : continuing ? smooth((progress - .72) / .28) : blend
   return { x: x + (finalX - x) * morph, y: y + (finalY - y) * morph, visible: personOpacity(person, progress) > 0, opacity: personOpacity(person, progress) }
 }
 
-export function trailPath(person: Person, index: number, count: number, progress: number, people?: Person[]) {
+export function trailPath(person: Person, index: number, count: number, progress: number, people?: Person[], verticalScale = 1) {
   const age = storyAge(progress)
   if (personOpacity(person, progress) === 0) return ''
   const end = Math.min(age, person.end ?? 100)
   const head = starPosition(person, index, count, progress, people)
   const headX = pathX(person, index, count, end, people)
+  const continuing = person.end === null
+  const perspective = continuing ? smooth((progress - .72) / .28) : 0
+  const pitch = 10 + (Math.max(10, (900 - head.y) / Math.max(1, end - person.start)) - 10) * perspective
   const points = []
-  for (let t = Math.max(person.start, end - 48); t < end; t += .5) {
-    points.push(`${pathX(person, index, count, t, people) + head.x - headX},${head.y + (end - t) * 10}`)
+  for (let t = Math.max(person.start, end - (continuing ? 100 : 48)); t < end; t += .5) {
+    points.push(`${pathX(person, index, count, t, people) + head.x - headX},${(head.y + (end - t) * pitch) * verticalScale}`)
   }
-  points.push(`${head.x},${head.y}`)
+  points.push(`${head.x},${head.y * verticalScale}`)
   return `M${points.join(' L')}`
 }
 
