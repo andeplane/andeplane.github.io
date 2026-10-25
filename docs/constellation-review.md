@@ -53,6 +53,10 @@ appears when autoplay is blocked, then disappears after tap/click recovery.
   The blocked-autoplay prompt was visible, and tapping it started unmuted playback
   and removed the prompt.
 - 12 further dedication/large-name states passed headless DOM checks.
+- Eight fresh browser starts checked allowed autoplay and the sound prompt.
+  This caught and fixed a development-remount race that could pause an in-flight
+  play request and drop the next start attempt. The reusable audio/caption check
+  is tests/constellation/playback-review.mjs.
 - Headless Chromium tested allowed audible autoplay, blocked autoplay followed
   by touch release, and blocked autoplay followed by click. Media remained
   unmuted and its clock advanced. State reads used CDP userGesture=false.

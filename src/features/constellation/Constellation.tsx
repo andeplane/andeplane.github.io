@@ -18,9 +18,18 @@ export default function Constellation() {
   const hasSound = useRef(false)
   const soundAttempt = useRef<Promise<boolean>|null>(null)
   const [soundState,setSoundState]=useState('loading')
-  async function ensureSound() {
+  async function ensureSound(retryAfterPending=true) {
     const audio=music.current
-    if(!audio||soundAttempt.current)return
+    if(!audio)return
+    if(soundAttempt.current) {
+      // Development remounts can pause an in-flight play request. The next
+      // mount must retry once after that request settles, not silently drop it.
+      if(retryAfterPending) {
+        await soundAttempt.current
+        if(music.current===audio&&audio.paused&&!audio.ended)void ensureSound(false)
+      }
+      return
+    }
     const attempt=startAudibleSound(audio,elapsed.current,!hasSound.current)
     soundAttempt.current=attempt
     const started=await attempt
