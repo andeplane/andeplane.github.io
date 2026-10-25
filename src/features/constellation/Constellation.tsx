@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react'
 import Sky from './Sky'
 import { playbackFrame, restorePeople, storyMessage } from './story'
 import './constellation.css'
-import { startAudibleSound } from './sound.ts'
+import { listenForSoundUnlock, startAudibleSound } from './sound.ts'
 
 function loadPeople() {
   try { return restorePeople(JSON.parse(localStorage.getItem('the-light-we-leave-v2') ?? 'null'), JSON.parse(localStorage.getItem('the-light-we-leave-v1') ?? 'null')) } catch { return restorePeople(null, null) }
@@ -16,9 +16,17 @@ export default function Constellation() {
   const music = useRef<HTMLAudioElement>(null)
   const elapsed = useRef(0)
   const hasSound = useRef(false)
+  const soundAttempt = useRef<Promise<boolean>|null>(null)
+  const [soundState,setSoundState]=useState('loading')
   async function ensureSound() {
     const audio=music.current
-    if(audio&&await startAudibleSound(audio,elapsed.current,!hasSound.current))hasSound.current=true
+    if(!audio||soundAttempt.current)return
+    const attempt=startAudibleSound(audio,elapsed.current,!hasSound.current)
+    soundAttempt.current=attempt
+    const started=await attempt
+    soundAttempt.current=null
+    if(started){hasSound.current=true;setSoundState('playing')}
+    else if(!audio.ended)setSoundState(audio.error?'error':'blocked')
   }
   const message = storyMessage(frame.progress,frame.afterEnding)
 
@@ -36,8 +44,7 @@ export default function Constellation() {
     let resumeSound = false
     void ensureSound()
     const interaction=()=>{if(audio?.paused)void ensureSound()}
-    document.addEventListener('pointerdown',interaction,{capture:true})
-    document.addEventListener('keydown',interaction,{capture:true})
+    const removeSoundUnlock=listenForSoundUnlock(document,interaction)
     function visibility() {
       if (document.hidden) { resumeSound = !!audio && !audio.paused; audio?.pause() }
       else if(resumeSound||!hasSound.current)void ensureSound()
@@ -54,11 +61,11 @@ export default function Constellation() {
       request = requestAnimationFrame(tick)
     }
     request = requestAnimationFrame(tick)
-    return () => { cancelAnimationFrame(request); observer.disconnect(); audio?.pause(); document.removeEventListener('visibilitychange', visibility); document.removeEventListener('pointerdown',interaction,{capture:true}); document.removeEventListener('keydown',interaction,{capture:true}); document.title = previousTitle }
+    return () => { cancelAnimationFrame(request); observer.disconnect(); audio?.pause(); document.removeEventListener('visibilitychange', visibility); removeSoundUnlock(); document.title = previousTitle }
   }, [])
 
-  return <main ref={root} className="cl-app" aria-label="Animated family lifelines with music" data-progress={frame.progress.toFixed(3)}>
-    <audio ref={music} src="/projects/constellation/music/life-goes-on.mp3" autoPlay preload="auto" onCanPlay={()=>void ensureSound()} aria-hidden="true" />
+  return <main ref={root} className="cl-app" aria-label="Animated family lifelines with music" data-progress={frame.progress.toFixed(3)} data-sound={soundState}>
+    <audio ref={music} src="/projects/constellation/music/life-goes-on.mp3" autoPlay preload="auto" onCanPlay={()=>void ensureSound()} onPlaying={()=>setSoundState('playing')} onEnded={()=>setSoundState('finished')} onError={()=>setSoundState('error')} aria-hidden="true" />
     <div className="cl-canvas" style={{ opacity: frame.opacity }}>
       <Sky people={people} progress={frame.progress} width={size.width} viewHeight={800 * size.height / size.width} afterEnding={frame.afterEnding} />
       {message && <div className={`cl-story-message ${message.title ? 'cl-story-ending' : ''} ${'kind' in message ? 'cl-story-dedication' : ''}`} style={{ opacity: message.opacity }}>
