@@ -8,36 +8,39 @@ export function curve(age: number, keys: readonly Keyframe[]) {
   }
   return keys[keys.length - 1][1]
 }
-export const PARENT_DISTANCE: readonly Keyframe[] = [[-2, 0], [8, 0], [12, -55], [17, -170], [23, -230], [30, -205], [35, -160], [38, -125], [43, -75], [50, -65], [55, -55], [62, -35], [66, -28]]
-export const PARTNER_DISTANCE: readonly Keyframe[] = [[26, 28], [30, 30], [31, 32], [34, 56], [38, 78], [43, 88], [47, 68], [51, 44], [56, 28], [85, 26]]
+// Distance belongs to the person making the journey. Parents keep a steady
+// paired course; the narrator leaves home and later comes back toward them.
+export const PARENT_DISTANCE: readonly Keyframe[] = [[-2,0],[8,0],[12,55],[17,170],[23,230],[30,205],[35,160],[38,125],[43,75],[50,65],[55,55],[62,35],[66,28],[100,28]]
+export const PARTNER_DISTANCE: readonly Keyframe[] = [[26,24],[29,26],[30,28],[33,50],[36,72],[40,82],[43,88],[47,68],[51,44],[56,28],[85,26]]
 
-// These describe shared presence each year. A parent pair stays paired while
-// the narrator's distance from the pair changes; parenting can stretch a
-// marriage without making either partner look like a departing friendship.
 export function relationshipX(id: string, age: number): number | undefined {
-  const me = 440 + Math.sin(age * .055) * 5
-  const parents = me + curve(age, PARENT_DISTANCE)
-  const partner = me + curve(age, PARTNER_DISTANCE)
-  const son = curve(age, [[32, (me + partner) / 2], [38, 470], [44, 490], [50, 565], [56, 600], [72, 610], [100, 620]])
-  const sonPartner = son + curve(age, [[56, 12], [60, 32], [100, 30]])
-  const daughter = curve(age, [[35, (me + partner) / 2 + 20], [43, 510], [48, 550], [55, 705], [70, 720], [100, 730]])
-  const positions: Record<string, number> = {
-    self: me,
-    mom: parents - 16,
-    dad: parents + 16,
-    grandma: 145 + Math.sin(age * .07) * 4,
-    grandpa: 181 + Math.sin(age * .07) * 4,
-    brother: me + curve(age, [[-2, -68], [8, -68], [16, -105], [25, -140], [32, -100], [38, -70]]),
-    sister: me + curve(age, [[8, -105], [14, -145], [23, -175], [33, -155], [40, -112], [55, -95], [100, -95]]),
-    partner,
-    child: son,
-    daughter,
-    'child-partner': sonPartner,
-    'grandchild-1': (son + sonPartner) / 2 + curve(age, [[62, -5], [68, -25], [74, -25], [82, -70], [100, -100]]),
-    'grandchild-2': (son + sonPartner) / 2 + curve(age, [[68, 5], [74, 18], [82, 35], [90, 85], [100, 100]]),
-    'childhood-friend': me + curve(age, [[5, 95], [12, 100], [20, 105], [28, 110]]),
-    'first-love': me + curve(age, [[15, 38], [17, 28], [19, 42], [21, 65]]),
-    'college-friends': me + curve(age, [[18, 185], [22, 180], [30, 175], [35, 185], [44, 180], [50, 180], [85, 180]]),
+  const parents=300+Math.sin(age*.055)*3
+  const me=parents+curve(age,PARENT_DISTANCE)
+  const partner=me+curve(age,PARTNER_DISTANCE)
+  const home=(me+partner)/2
+  // Young children move with their household. As teenagers they are the ones
+  // who curve outward, while their parents keep their own adult course.
+  const son=home-8+curve(age,[[30,0],[40,0],[44,20],[48,100],[53,200],[56,230],[70,245],[100,245]])
+  const daughter=home+9+curve(age,[[32,0],[42,0],[46,30],[50,160],[55,330],[70,350],[100,350]])
+  const sonPartner=son+curve(age,[[56,12],[60,32],[100,30]])
+  const positions:Record<string,number>={
+    self:me,
+    mom:parents-16,
+    dad:parents+16,
+    grandma:145+Math.sin(age*.07)*4,
+    grandpa:181+Math.sin(age*.07)*4,
+    brother:parents+curve(age,[[-2,-68],[8,-68],[14,-120],[23,-125],[28,-85],[33,15],[38,55]]),
+    sister:parents+curve(age,[[8,-45],[14,-70],[23,-135],[33,-100],[40,-20],[55,-25],[100,-30]]),
+    partner,child:son,daughter,'child-partner':sonPartner,
+    'grandchild-1':(son+sonPartner)/2+curve(age,[[62,-5],[68,-25],[74,-25],[82,-70],[100,-100]]),
+    'grandchild-2':(son+sonPartner)/2+curve(age,[[68,5],[74,18],[82,35],[90,85],[100,100]]),
+    // Childhood companionship is intimate. As college friendship grows on
+    // the other side, the childhood friend gradually takes their own course.
+    'childhood-friend':me+curve(age,[[5,42],[12,44],[17,48],[19,65],[22,110],[25,145],[28,190]]),
+    'college-friends':me+curve(age,[[18,-85],[21,-65],[23,-38],[28,-40],[31,-45],[34,-65]]),
+    // First love is across the narrator from Childhood friend, and is nearer
+    // to Me than to any friend during their relationship.
+    'first-love':me+curve(age,[[15,-22],[17,-20],[19,-20],[21,-22]]),
   }
-  return id in positions ? clamp(positions[id], 120, 755) : undefined
+  return id in positions?clamp(positions[id],120,755):undefined
 }

@@ -20,9 +20,9 @@ test('dating, early parenting and rediscovery form a continuous relationship arc
   }
 })
 test('children begin close to both parents, then gain their own space', () => {
-  assert.ok(distance('child', 'self', 32) < 25)
-  assert.ok(distance('child', 'partner', 32) < 25)
-  assert.ok(distance('daughter', 'self', 35) < 75)
+  assert.ok(distance('child', 'self', 30) < 25)
+  assert.ok(distance('child', 'partner', 30) < 25)
+  assert.ok(distance('daughter', 'self', 32) < 75)
   assert.ok(distance('child', 'self', 53) > 100)
   assert.ok(distance('daughter', 'self', 55) > 220)
 })
@@ -48,6 +48,28 @@ test('Brother and Childhood friend never occupy the same side or lane', () => {
   for(let age=5;age<=28;age+=.1) {
     const brother=relationshipX('brother',age)!, me=relationshipX('self',age)!, friend=relationshipX('childhood-friend',age)!
     assert.ok(brother<me && friend>me)
-    assert.ok(friend-brother>150)
+    assert.ok(friend-brother>100)
   }
+})
+
+test('the narrator leaves and returns; the parents do not move away from their child',()=>{
+ const shift=(id:string,a:number,b:number)=>relationshipX(id,b)!-relationshipX(id,a)!
+ assert.ok(shift('self',8,23)>220)
+ assert.ok(Math.abs(shift('mom',8,23))<4&&Math.abs(shift('dad',8,23))<4)
+ assert.ok(shift('self',30,45)<-125)
+ assert.ok(Math.abs(shift('mom',30,45))<4)
+ assert.ok(shift('child',44,53)>120)
+ assert.ok(Math.abs(shift('self',44,53))<25)
+})
+test('first love is closest to Me, across from childhood friend, while college friendship grows',()=>{
+ for(let age=15;age<=21;age+=.1) {
+  assert.ok(relationshipX('first-love',age)!<relationshipX('self',age)!)
+  assert.ok(relationshipX('childhood-friend',age)!>relationshipX('self',age)!)
+  for(const friend of ['childhood-friend','college-friends'])assert.ok(distance('first-love','self',age)<distance('first-love',friend,age))
+ }
+ assert.ok(distance('childhood-friend','self',12)<50)
+ assert.ok(distance('college-friends','self',23)<45)
+ assert.ok(distance('college-friends','self',23)<distance('childhood-friend','self',23))
+ assert.ok(distance('college-friends','self',23)<distance('college-friends','self',18))
+ assert.ok(distance('childhood-friend','self',23)>distance('childhood-friend','self',18))
 })
