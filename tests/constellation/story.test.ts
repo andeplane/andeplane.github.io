@@ -1,6 +1,6 @@
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
-import { CHAPTERS, DEFAULT_DURATION, MAX_PEOPLE, SAMPLE, YEAR_SPACING, ageAxis, chapterAt, personAppearance, personOpacity, readPeople, restorePeople, starPosition, storyAge, storyMessage, trailPath } from '../../src/features/constellation/story.ts'
+import { CHAPTERS, DEFAULT_DURATION, MAX_PEOPLE, SAMPLE, YEAR_SPACING, ageAxis, chapterAt, personAppearance, personName, personOpacity, readPeople, restorePeople, starPosition, storyAge, storyMessage, trailPath } from '../../src/features/constellation/story.ts'
 
 const person = (id: string) => SAMPLE.find(p => p.id === id)!
 const atAge = (age: number) => age / 100 * .9
@@ -102,7 +102,7 @@ test('saved data rejects duplicate IDs, invalid ages, ending types, colors and o
 
 test('the exact previous sample upgrades, but customized names and ages survive', () => {
   const old = SAMPLE.slice(0, 7).map((p, i) => ({id:p.id,name:['Grandma','Grandpa','Mom','Dad','My love','Me','Our child'][i],color:p.color,start:[0,0,0,0,25,0,32][i],end:[19,28,66,54,null,null,null][i]}))
-  assert.deepEqual(restorePeople(null, old), SAMPLE)
+  assert.deepEqual(restorePeople(null, old, () => .25), SAMPLE)
   const custom = old.map((p, i) => i === 0 ? { ...p, name: 'Nana', end: 21 } : p)
   assert.deepEqual(restorePeople(null, custom), custom)
   assert.deepEqual(restorePeople(custom, old), custom)
@@ -161,6 +161,24 @@ test('friends accompany Me rather than the grandparents throughout their shared 
       const self = starPosition(person('self'), SAMPLE.indexOf(person('self')), SAMPLE.length, progress, SAMPLE)
       assert.ok(Math.abs(position.x - self.x) < 95, `${id} should travel beside Me at age ${age}`)
       assert.ok(Math.abs(position.y - self.y) < 1e-7)
+    }
+  }
+})
+
+
+test('a first love parts ways, while the enduring partner becomes a spouse beside Me', () => {
+  const first = person('first-love')
+  assert.equal(personOpacity(first, atAge(18)), 1)
+  assert.equal(personOpacity(first, atAge(25)), 0)
+  for (const random of [() => .25, () => .75]) {
+    const family = restorePeople(null, null, random)
+    const partner = family.find(p => p.id === 'partner')!
+    assert.equal(personName(partner, atAge(28)), random() < .5 ? 'Girlfriend' : 'Boyfriend')
+    assert.equal(personName(partner, atAge(40)), random() < .5 ? 'Wife' : 'Husband')
+    for (const age of [28, 35, 55, 75]) {
+      const p = starPosition(partner, family.indexOf(partner), family.length, atAge(age), family)
+      const me = starPosition(family.find(p => p.id === 'self')!, family.findIndex(p => p.id === 'self'), family.length, atAge(age), family)
+      assert.ok(Math.abs(p.x - me.x) < 60)
     }
   }
 })

@@ -1,5 +1,5 @@
 import type { Person } from './story'
-import { ageAxis, personAppearance, smooth, starPosition, storyAge, trailPath } from './story'
+import { ageAxis, personAppearance, personName, smooth, starPosition, storyAge, trailPath } from './story'
 
 // Seeded points avoid a different sky on every render and need no image assets.
 const stars = Array.from({ length: 240 }, (_, i) => ({
@@ -24,9 +24,10 @@ export default function Sky({ people, progress, width = 800, viewHeight = 800, s
     : remembered.map((p, i) => `${i ? 'L' : 'M'}${p.x} ${p.y}`).join(' ')
   const labelBoxes: { left: number, right: number, top: number, bottom: number }[] = []
   const labels = people.map((person, i) => {
-    const spaces = [...person.name.matchAll(/ /g)].map(match => match.index)
-    const split = spaces.sort((a, b) => Math.abs(a - person.name.length / 2) - Math.abs(b - person.name.length / 2))[0] ?? 12
-    const lines = person.name.length <= 14 ? [person.name] : [person.name.slice(0, split), person.name.slice(split + (spaces.length ? 1 : 0))]
+    const name = personName(person, progress)
+    const spaces = [...name.matchAll(/ /g)].map(match => match.index)
+    const split = spaces.sort((a, b) => Math.abs(a - name.length / 2) - Math.abs(b - name.length / 2))[0] ?? 12
+    const lines = name.length <= 14 ? [name] : [name.slice(0, split), name.slice(split + (spaces.length ? 1 : 0))]
     const passed = person.end === null && positions[i].y < 65
     if (passed) lines[0] = '↑ ' + lines[0]
     const width = Math.max(...lines.map(line => line.length)) * fontSize * .6
@@ -83,7 +84,7 @@ export default function Sky({ people, progress, width = 800, viewHeight = 800, s
       <circle cx={pos.x} cy={pos.y} r={appearance.radius} fill={appearance.core} />
       <path d={`M${pos.x - 9} ${pos.y}h18 M${pos.x} ${pos.y - 9}v18`} stroke={appearance.color} strokeWidth=".6" opacity={ended && p.exit !== 'fade' ? .65 : 0} /></g>
       {labels[i].leader && <path d={`M${pos.x} ${pos.y}L${labels[i].x} ${labels[i].y + 5}`} fill="none" stroke={appearance.label} strokeWidth=".6" opacity=".3" />}
-      <text className="cl-star-label" x={labels[i].x} y={labels[i].y} fill={appearance.label} textAnchor="middle" fontFamily="system-ui, sans-serif" fontSize={fontSize}><title>{p.name}</title>{labels[i].lines.map((line, n) => <tspan key={n} x={labels[i].x} dy={n ? fontSize * .95 : 0}>{line}</tspan>)}</text>
+      <text className="cl-star-label" x={labels[i].x} y={labels[i].y} fill={appearance.label} textAnchor="middle" fontFamily="system-ui, sans-serif" fontSize={fontSize}><title>{personName(p, progress)}</title>{labels[i].lines.map((line, n) => <tspan key={n} x={labels[i].x} dy={n ? fontSize * .95 : 0}>{line}</tspan>)}</text>
     </g> })}
   </svg>
 }
