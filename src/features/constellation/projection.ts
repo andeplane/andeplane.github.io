@@ -1,4 +1,4 @@
-import { clamp, continuingYear, smooth } from './clock.ts'
+import { continuingYear, smooth } from './clock.ts'
 import { COLORS, SAMPLE, pathX, presentY } from './story.ts'
 import type { Person, StoryPoint } from './story.ts'
 export const cameraAmount=(progress:number)=>smooth((progress*120-96)/20)
