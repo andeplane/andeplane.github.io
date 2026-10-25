@@ -14,19 +14,19 @@
   position: absolute;
   left: 12%;
   right: 8%;
-  bottom: 13%;
+  bottom: max(16%, 60px);
   pointer-events: none;
   isolation: isolate;
   text-align: center;
   color: #e5e3d8;
-  font: italic clamp(16px, 3.4vw, 30px)/1.55 Georgia, 'Times New Roman', serif;
+  font: italic clamp(18px, 3.4vw, 30px)/1.55 Georgia, 'Times New Roman', serif;
   text-shadow: 0 2px 14px #080e1b, 0 0 28px #080e1b, 0 0 10px #080e1b;
 }
 .cl-story-message::before { content: ''; position: absolute; inset: -24px -32px; z-index: -1; background: radial-gradient(ellipse, #080e1bed, #080e1b99 45%, transparent 75%); }
 .cl-story-ending { top: 77%; bottom: auto; }
 .cl-story-title { font-size: clamp(24px, 3vw, 38px); font-style: normal; line-height: 1.2; margin-bottom: 10px; }
 @media (max-height: 500px) and (min-width: 701px) {
-  .cl-story-message { left: 18%; right: 18%; bottom: 7%; font-size: 15px; line-height: 1.4; }
+  .cl-story-message { left: 18%; right: 18%; bottom: 60px; font-size: 15px; line-height: 1.4; }
   .cl-story-ending { top: 76%; bottom: auto; font-size: 14px; line-height: 1.3; }
   .cl-story-title { font-size: 20px; margin-bottom: 6px; }
 }
@@ -34,3 +34,14 @@
 .cl-app:focus-visible { outline: 1px solid #a4afbd; outline-offset: -4px; }
 
 .cl-story-dedication { top: 79%; bottom: auto; font-size: clamp(18px, 2.5vw, 30px); }
+
+.cl-sound-prompt {
+  position: absolute; bottom: 0; left: 50%; transform: translateX(-50%);
+  display: flex; align-items: center; justify-content: center; gap: 8px;
+  min-height: 44px; padding: 0 16px; border: 1px solid #a4afbd44;
+  border-radius: 24px; background: #080e1bd9; color: #d4d8e2;
+  font: 13px/1.2 system-ui, sans-serif; white-space: nowrap; cursor: pointer;
+  animation: cl-sound-appear .8s ease both;
+}
+.cl-sound-prompt:focus-visible { outline: 2px solid #e1d2af; outline-offset: 3px; }
+@keyframes cl-sound-appear { from { opacity: 0; } to { opacity: 1; } }
