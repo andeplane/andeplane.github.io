@@ -23,7 +23,7 @@ export const SAMPLE: Person[] = [
   { id: 'mom', name: 'Mom', color: COLORS[2], start: -30, end: 66, lane: .22 },
   { id: 'dad', name: 'Dad', color: COLORS[3], start: -32, end: 55, lane: .78 },
   { id: 'partner', name: 'Wife', color: COLORS[4], start: 26, end: 88, lane: .60, near: 'self', nameBefore: 'Girlfriend', renameAt: 29 },
-  { id: 'self', name: 'Me', color: COLORS[5], start: 0, end: 85, lane: .56 },
+  { id: 'self', name: 'You', color: COLORS[5], start: 0, end: 85, lane: .56 },
   { id: 'brother', name: 'Brother', color: COLORS[13], start: -2, end: 38, lane: .46, near: 'self' },
   { id: 'sister', name: 'Sister', color: COLORS[14], start: 8, end: null, lane: .75, near: 'self' },
   { id: 'child', name: 'Son', color: COLORS[6], start: 30, end: null, lane: .66, near: 'self' },
@@ -143,7 +143,7 @@ export function readPeople(value: unknown): Person[] | null {
   return value as Person[]
 }
 
-const LAST_SAMPLE=SAMPLE.map(p=>p.id==='partner'?{...p,renameAt:31}:p.id==='child'?{...p,start:32}:p.id==='daughter'?{...p,start:35}:p.id==='college-friends'?{...p,end:35}:p)
+const LAST_SAMPLE=SAMPLE.map(p=>p.id==='self'?{...p,name:'Me'}:p.id==='partner'?{...p,renameAt:31}:p.id==='child'?{...p,start:32}:p.id==='daughter'?{...p,start:35}:p.id==='college-friends'?{...p,end:35}:p)
 const LAST_HUSBAND_SAMPLE=LAST_SAMPLE.map(p=>p.id==='partner'?{...p,name:'Husband',nameBefore:'Boyfriend'}:p)
 
 const PREVIOUS_SAMPLE: Person[] = [

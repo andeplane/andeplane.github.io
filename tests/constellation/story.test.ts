@@ -12,6 +12,7 @@ test('generic family has a brother two years older and a sister born at eight', 
   assert.equal(personOpacity(person('sister'), progressAtAge(7)), 0)
   assert.equal(personOpacity(person('sister'), progressAtAge(10)), 1)
   assert.equal(person('self').end, 85)
+  assert.equal(person('self').name, 'You')
   assert.doesNotMatch(SAMPLE.map(p => p.name).join(' '), /Mikael/)
 })
 test('friendships and first love fade without becoming memorials', () => {
