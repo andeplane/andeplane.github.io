@@ -82,7 +82,7 @@ export default function Navbar() {
                 <Link to="/projects" className="site-nav-item" aria-current={location.pathname === '/projects' && !location.search ? 'page' : undefined}>Projects</Link>
                 <button ref={toggle} type="button" className="projects-nav-toggle" aria-label="Show project categories"
                   aria-expanded={open} aria-controls="project-categories"
-                  onClick={() => { setOpen(value => openedByHover.current || !value); openedByHover.current = false }}
+                  onClick={() => { setOpen(openedByHover.current || !open); openedByHover.current = false }}
                   onKeyDown={event => {
                     if (event.key === 'ArrowDown') {
                       event.preventDefault()
