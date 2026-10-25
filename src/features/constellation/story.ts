@@ -140,8 +140,7 @@ export function personAppearance(person: Person, progress: number) {
   const memorial=memorialState(person,progress)
   const distance=memorial.distance
   const quietColor = person.color
-  const birth=0
-  return { distance, birth, color: mixColor(quietColor, '#8d99a9', distance*.48), label: mixColor(mixColor(person.color,'#ffffff',.14), '#a4afbd', distance*.55), core: mixColor(mixColor(person.color,'#ffffff',.75), '#a5b0bf', distance), radius: 3.3 - distance * .9 + birth * 2.5, glowRadius: 16-distance*3, glowOpacity: .24-distance*.1 }
+  return { distance, color: mixColor(quietColor, '#8d99a9', distance*.48), label: mixColor(mixColor(person.color,'#ffffff',.14), '#a4afbd', distance*.55), core: mixColor(mixColor(person.color,'#ffffff',.75), '#a5b0bf', distance), radius: 3.3 - distance * .9, glowRadius: 16-distance*3, glowOpacity: .24-distance*.1 }
 }
 export interface StoryPoint { x: number; y: number; year: number; elevation?: number }
 export function starPosition(person: Person, index: number, count: number, progress: number, people?: Person[], afterEnding=0) {

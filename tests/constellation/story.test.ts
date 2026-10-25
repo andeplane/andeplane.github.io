@@ -131,7 +131,7 @@ test('living colors stay distinct without flashing birth markers',()=>{
   const birth=personAppearance(person('self'),progressAtAge(.9))
   const later=personAppearance(person('self'),progressAtAge(4))
   assert.deepEqual(birth,later)
-  assert.equal(later.birth,0)
+  assert.ok(!('birth' in later))
 })
 
 

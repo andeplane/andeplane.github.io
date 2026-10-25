@@ -24,7 +24,7 @@ export function projectPerson(point:StoryPoint,person:Person,progress:number,vie
   :projectPoint(point,progress,viewHeight)
 }
 export interface FutureLife {
- id:string;parent:string;born:number;generation:number;head:StoryPoint;points:StoryPoint[];color:string;opacity:number;twinkle:number;birth:number
+ id:string;parent:string;born:number;generation:number;head:StoryPoint;points:StoryPoint[];color:string;opacity:number
 }
 const countAt=(generation:number)=>Math.min(64,4*Math.pow(2,generation))
 const birthAt=(generation:number,index:number)=>92+generation*24+index/countAt(generation)*20
@@ -69,7 +69,7 @@ export function futureLives(progress:number,afterEnding=0,people:Person[]=SAMPLE
   for(let sample=born;sample<year;sample+=2)points.push(point(sample))
   points.push(head)
   const parentIndex=generation>0?Math.floor(index*countAt(generation-1)/countAt(generation)):0
-  lives.push({id:`future-${generation}-${index}`,parent:generation?`future-${generation-1}-${parentIndex}`:root.id,born,generation,head,points,color:age>82?'#8d99a9':COLORS[(index+generation*3+6)%COLORS.length],opacity:smooth(age/.65)*(1-.8*smooth((age-82)/8)),twinkle:1,birth:0})
+  lives.push({id:`future-${generation}-${index}`,parent:generation?`future-${generation-1}-${parentIndex}`:root.id,born,generation,head,points,color:age>82?'#8d99a9':COLORS[(index+generation*3+6)%COLORS.length],opacity:smooth(age/.65)*(1-.8*smooth((age-82)/8))})
  }
  return lives.sort((a,b)=>b.born-a.born).slice(0,384).reverse()
 }
