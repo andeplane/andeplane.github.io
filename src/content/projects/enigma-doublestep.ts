@@ -7,8 +7,8 @@ const project: ProjectMeta = {
   tags: ['Hardware', '3D Printing', 'Cryptography'],
   liveUrl: 'https://enigmadoublestep.com/',
   repoUrl: 'https://github.com/andeplane/openenigma',
-  screenshot: '/projects/enigma-doublestep/preview.jpg',
-  screenshotAlt: '3D render of the Enigma Doublestep replica with rotors, keyboard, and lampboard',
+  screenshot: '/projects/enigma-doublestep/preview.jpg?v=903095da5857',
+  screenshotAlt: 'Enigma Doublestep in its oak case with the lid hinged behind the enclosed rotors, keyboard, and lampboard',
   longDescription: `
 Enigma Doublestep is a project to build a physical replica of the Enigma cipher machine, exploring its rotor wiring and mechanical double-step along the way.
 
