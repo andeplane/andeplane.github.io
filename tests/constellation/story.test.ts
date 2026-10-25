@@ -1,6 +1,6 @@
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
-import { CHAPTERS, DEFAULT_DURATION, MAX_PEOPLE, SAMPLE, chapterAt, personOpacity, readPeople, restorePeople, starPosition, storyAge, trailPath } from '../../src/features/constellation/story.ts'
+import { CHAPTERS, DEFAULT_DURATION, MAX_PEOPLE, SAMPLE, chapterAt, personAppearance, personOpacity, readPeople, restorePeople, starPosition, storyAge, trailPath } from '../../src/features/constellation/story.ts'
 
 const person = (id: string) => SAMPLE.find(p => p.id === id)!
 const atAge = (age: number) => age / 100 * .9
@@ -46,6 +46,35 @@ test('the son, his wife and grandchildren keep their trails after the narrator e
     assert.equal(personOpacity(p, 1), 1)
     assert.ok(trailPath(p, index, SAMPLE.length, 1, SAMPLE).length > 100)
     assert.ok(starPosition(p, index, SAMPLE.length, 1, SAMPLE).x > 500)
+  }
+})
+
+test('remembered people recede to the same subdued silver while living people retain a little warmth', () => {
+  const before = personAppearance(person('mom'), atAge(60))
+  const after = personAppearance(person('mom'), atAge(75))
+  assert.equal(after.color, '#8d99a9')
+  assert.equal(after.label, '#8d99a9')
+  assert.ok(after.radius < before.radius && after.glowRadius < before.glowRadius)
+  assert.ok(after.glowOpacity < before.glowOpacity)
+  assert.equal(personAppearance(person('grandma'), 1).color, after.color)
+  assert.equal(personAppearance(person('childhood-friend'), 1).distance, 0)
+  assert.equal(personAppearance(person('child'), 1).distance, 0)
+})
+
+test('the younger generation overtakes the remembered sky and moves through the upper frame', () => {
+  for (const id of ['child', 'child-partner', 'grandchild-1', 'grandchild-2']) {
+    const p = person(id)
+    const index = SAMPLE.indexOf(p)
+    const early = starPosition(p, index, SAMPLE.length, .72, SAMPLE)
+    const later = starPosition(p, index, SAMPLE.length, .9, SAMPLE)
+    const end = starPosition(p, index, SAMPLE.length, 1, SAMPLE)
+    assert.ok(early.y - later.y > 350)
+    assert.ok(later.y > end.y)
+    assert.ok(end.y < 0)
+    assert.equal(end.visible, true)
+    assert.equal(end.opacity, 1)
+    const oldest = trailPath(p, index, SAMPLE.length, 1, SAMPLE).split(/[ML]/)[1].split(',').map(Number)
+    assert.ok(oldest[1] >= 850, 'their ongoing trail must still span the sky after its head leaves')
   }
 })
 

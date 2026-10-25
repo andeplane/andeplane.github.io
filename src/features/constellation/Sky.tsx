@@ -1,5 +1,5 @@
 import type { Person } from './story'
-import { smooth, starPosition, storyAge, trailPath } from './story'
+import { personAppearance, smooth, starPosition, storyAge, trailPath } from './story'
 
 // Seeded points avoid a different sky on every render and need no image assets.
 const stars = Array.from({ length: 240 }, (_, i) => ({
@@ -8,11 +8,15 @@ const stars = Array.from({ length: 240 }, (_, i) => ({
   r: i % 13 === 0 ? 1.3 : i % 4 === 0 ? 0.8 : 0.5,
 }))
 
-export default function Sky({ people, progress, id = 'sky', title = 'Family lifelines becoming a constellation' }: { people: Person[], progress: number, id?: string, title?: string }) {
+export default function Sky({ people, progress, width = 800, viewHeight = 800, id = 'sky', title = 'Family lifelines becoming a constellation' }: { people: Person[], progress: number, width?: number, viewHeight?: number, id?: string, title?: string }) {
+  const verticalScale = viewHeight / 800
+  const fontSize = Math.min(28, 18 * 800 / width)
   const age = storyAge(progress)
   const constellation = smooth((progress - 0.9) / 0.1)
-  const positions = people.map((p, i) => starPosition(p, i, people.length, progress, people))
-  const paths = people.map((p, i) => trailPath(p, i, people.length, progress, people))
+  const positions = people.map((p, i) => { const point = starPosition(p, i, people.length, progress, people); return { ...point, y: point.y * verticalScale } })
+  const appearances = people.map(p => personAppearance(p, progress))
+  const living = people.filter(p => p.end === null)
+  const paths = people.map((p, i) => trailPath(p, i, people.length, progress, people, verticalScale))
   const remembered = positions.filter((_, i) => people[i].exit !== 'fade' && people[i].end !== null)
   const constellationPath = remembered.length === 6
     ? [0, 2, 4, 5, 3, 1, 0].map((n, i) => `${i ? 'L' : 'M'}${remembered[n].x} ${remembered[n].y}`).join(' ')
@@ -22,47 +26,50 @@ export default function Sky({ people, progress, id = 'sky', title = 'Family life
     const spaces = [...person.name.matchAll(/ /g)].map(match => match.index)
     const split = spaces.sort((a, b) => Math.abs(a - person.name.length / 2) - Math.abs(b - person.name.length / 2))[0] ?? 12
     const lines = person.name.length <= 14 ? [person.name] : [person.name.slice(0, split), person.name.slice(split + (spaces.length ? 1 : 0))]
-    const width = Math.max(...lines.map(line => line.length)) * 16
+    const passed = person.end === null && positions[i].y < 65
+    if (passed) lines[0] = '↑ ' + lines[0]
+    const width = Math.max(...lines.map(line => line.length)) * fontSize * .6
     const x = Math.max(width / 2 + 10, Math.min(790 - width / 2, positions[i].x))
-    const height = 25 + (lines.length - 1) * 25 + 6
+    const lineHeight = fontSize * .95
+    const height = fontSize + (lines.length - 1) * lineHeight + 6
     const fits = (cx: number, cy: number) => {
-      const box = { left: cx - width / 2, right: cx + width / 2, top: cy - 25, bottom: cy + height - 25 }
-      return box.top >= 35 && box.bottom <= 695 && !labelBoxes.some(b => box.left < b.right + 12 && box.right > b.left - 12 && box.top < b.bottom + 10 && box.bottom > b.top - 10)
+      const box = { left: cx - width / 2, right: cx + width / 2, top: cy - fontSize, bottom: cy + height - fontSize }
+      return box.top >= 25 && box.bottom <= viewHeight - 25 && !labelBoxes.some(b => box.left < b.right + 12 && box.right > b.left - 12 && box.top < b.bottom + 10 && box.bottom > b.top - 10)
     }
-    const preferredY = positions[i].y - 27
+    const preferredY = passed ? 35 + (Math.max(0, living.findIndex(p => p.id === person.id)) % 4) * (fontSize + 18) : positions[i].y - (fontSize + 6)
     const candidates = Array.from({ length: 12 }, (_, n) => ({ x, y: preferredY - n * 60 }))
-    const grid = Array.from({ length: 70 }, (_, n) => ({ x: Math.max(width / 2 + 10, Math.min(790 - width / 2, 70 + n % 7 * 110)), y: 65 + Math.floor(n / 7) * 65 }))
+    const grid = Array.from({ length: Math.max(70, Math.floor(viewHeight / 65) * 7) }, (_, n) => ({ x: Math.max(width / 2 + 10, Math.min(790 - width / 2, 70 + n % 7 * 110)), y: 65 + Math.floor(n / 7) * 65 }))
       .sort((a, b) => Math.hypot(a.x - x, a.y - preferredY) - Math.hypot(b.x - x, b.y - preferredY))
     const chosen = [...candidates, ...grid].find(candidate => fits(candidate.x, candidate.y)) ?? { x, y: 65 }
     const y = chosen.y
-    if (positions[i].visible) labelBoxes.push({ left: chosen.x - width / 2, right: chosen.x + width / 2, top: y - 25, bottom: y + height - 25 })
+    if (positions[i].visible) labelBoxes.push({ left: chosen.x - width / 2, right: chosen.x + width / 2, top: y - fontSize, bottom: y + height - fontSize })
     return { x: chosen.x, y, lines }
   })
-  return <svg className="cl-sky-svg" viewBox="0 0 800 800" role="img" aria-labelledby={`${id}-title`} xmlns="http://www.w3.org/2000/svg">
+  return <svg className="cl-sky-svg" viewBox={`0 0 800 ${viewHeight}`} role="img" aria-labelledby={`${id}-title`} xmlns="http://www.w3.org/2000/svg">
     <title id={`${id}-title`}>{title}</title>
     <defs>
-      <radialGradient id={`${id}-nebula`}><stop stopColor="#222b50" stopOpacity=".58" /><stop offset="1" stopColor="#080e1b" stopOpacity="0" /></radialGradient>
+      <radialGradient id={`${id}-nebula`}><stop stopColor="#1c2939" stopOpacity=".58" /><stop offset="1" stopColor="#080e1b" stopOpacity="0" /></radialGradient>
       <linearGradient id={`${id}-fade`} x2="0" y2="1"><stop stopColor="white" /><stop offset=".73" stopColor="white" /><stop offset="1" stopColor="black" /></linearGradient>
-      <mask id={`${id}-mask`}><rect width="800" height="800" fill={`url(#${id}-fade)`} /></mask>
-      {people.map(p => <radialGradient key={p.id} id={`${id}-glow-${p.id}`}><stop stopColor={p.color} stopOpacity=".4" /><stop offset=".35" stopColor={p.color} stopOpacity=".12" /><stop offset="1" stopColor={p.color} stopOpacity="0" /></radialGradient>)}
+      <mask id={`${id}-mask`}><rect width="800" height={viewHeight} fill={`url(#${id}-fade)`} /></mask>
+      <clipPath id={`${id}-bounds`}><rect x="0" y="15" width="800" height={viewHeight - 30} /></clipPath>
+      {people.map((p, i) => <radialGradient key={p.id} id={`${id}-glow-${p.id}`}><stop stopColor={appearances[i].color} stopOpacity={appearances[i].glowOpacity} /><stop offset=".35" stopColor={appearances[i].color} stopOpacity={appearances[i].glowOpacity * .3} /><stop offset="1" stopColor={appearances[i].color} stopOpacity="0" /></radialGradient>)}
     </defs>
-    <ellipse cx="410" cy="250" rx="480" ry="420" fill={`url(#${id}-nebula)`} />
-    <g fill="#d4deed">{stars.map((s, i) => <circle key={i} cx={s.x} cy={s.y} r={s.r} opacity={i % 3 === 0 ? 0.6 : 0.26} />)}</g>
+    <ellipse cx="410" cy={viewHeight * .32} rx="480" ry={viewHeight * .55} fill={`url(#${id}-nebula)`} />
+    <g fill="#d4deed">{stars.map((s, i) => <circle key={i} cx={s.x} cy={s.y * verticalScale} r={s.r} opacity={i % 3 === 0 ? 0.6 : 0.26} />)}</g>
     <g mask={`url(#${id}-mask)`} fill="none">
-      {people.map((p, i) => <g key={p.id} stroke={p.color} opacity={positions[i].opacity * (p.end === null ? 1 : (1 - constellation) * (p.exit === 'fade' ? 1 : 1 - smooth((age - p.end) / 8)))}>
+      {people.map((p, i) => <g key={p.id} stroke={appearances[i].color} opacity={positions[i].opacity * (p.end === null ? 1 : (1 - constellation) * (p.exit === 'fade' ? 1 : 1 - smooth((age - p.end) / 8)))}>
         <path d={paths[i]} strokeWidth="8" opacity=".04" />
         <path d={paths[i]} strokeWidth="3.5" opacity=".2" />
         <path d={paths[i]} strokeWidth="1.5" opacity=".9" />
         {p.end === null && <path d={`M${positions[i].x} ${positions[i].y - 18}l-5 8m5-8 5 8`} strokeWidth="1.3" opacity={constellation * .8} />}
       </g>)}
     </g>
-    <path d={constellationPath} fill="none" stroke="#e0dbce" strokeWidth=".8" opacity={constellation * .5} />
-    {people.map((p, i) => { const pos = positions[i]; if (!pos.visible) return null; const ended = p.end !== null && age >= p.end; return <g key={p.id} opacity={pos.opacity} aria-hidden={!pos.visible}>
-      <circle cx={pos.x} cy={pos.y} r="36" fill={`url(#${id}-glow-${p.id})`} />
-      <circle cx={pos.x} cy={pos.y} r="3.5" fill="#fff8e9" />
-      <path d={`M${pos.x - 9} ${pos.y}h18 M${pos.x} ${pos.y - 9}v18`} stroke={p.color} strokeWidth=".7" opacity={ended && p.exit !== 'fade' ? .9 : 0} />
-      <text className="cl-star-label" x={labels[i].x} y={labels[i].y} fill={p.color} textAnchor="middle" fontFamily="system-ui, sans-serif" fontSize="28"><title>{p.name}</title>{labels[i].lines.map((line, n) => <tspan key={n} x={labels[i].x} dy={n ? 25 : 0}>{line}</tspan>)}</text>
+    <path d={constellationPath} fill="none" stroke="#a7b2c1" strokeWidth=".8" opacity={constellation * .38} />
+    {people.map((p, i) => { const pos = positions[i]; if (!pos.visible) return null; const ended = p.end !== null && age >= p.end; const appearance = appearances[i]; return <g key={p.id} opacity={pos.opacity} aria-hidden={!pos.visible}>
+      <g clipPath={`url(#${id}-bounds)`}><circle cx={pos.x} cy={pos.y} r={appearance.glowRadius} fill={`url(#${id}-glow-${p.id})`} />
+      <circle cx={pos.x} cy={pos.y} r={appearance.radius} fill={appearance.core} />
+      <path d={`M${pos.x - 9} ${pos.y}h18 M${pos.x} ${pos.y - 9}v18`} stroke={appearance.color} strokeWidth=".6" opacity={ended && p.exit !== 'fade' ? .65 : 0} /></g>
+      <text className="cl-star-label" x={labels[i].x} y={labels[i].y} fill={appearance.label} textAnchor="middle" fontFamily="system-ui, sans-serif" fontSize={fontSize}><title>{p.name}</title>{labels[i].lines.map((line, n) => <tspan key={n} x={labels[i].x} dy={n ? fontSize * .95 : 0}>{line}</tspan>)}</text>
     </g> })}
-    {constellation > 0 && <text x="400" y="730" textAnchor="middle" fill="#d7c6a2" fontFamily="Georgia, serif" fontSize="22" fontStyle="italic" opacity={constellation} aria-hidden={constellation === 0}>We become their stars. They keep going.</text>}
   </svg>
 }
