@@ -1,4 +1,4 @@
-import { clamp, smooth, storyAge } from './clock.ts'
+import { smooth, storyAge } from './clock.ts'
 import { relationshipX } from './relationships.ts'
 export { clamp, smooth, storyAge, playbackFrame, storyMessage, progressAtAge } from './clock.ts'
 export const DEFAULT_DURATION = 120
