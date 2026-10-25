@@ -50,6 +50,33 @@ year and interpolated smoothly; labels follow their own stars.
 - Death fixes a light at the end of its own lived path. The ending camera moves;
   the deceased do not relocate into an arbitrary decorative polygon.
 
+## Other relationships worth considering
+
+These are proposals, not additions to the confirmed personal cast. Prefer depth
+for the existing people over a catalogue of extra names.
+
+1. **The same friend returning.** A college friend can drift away during the
+   busy thirties, then reconnect around 44–46 and accompany later life. This
+   shows that distance can be temporary. Reuse the same identity rather than
+   inventing a new label. A departure is distinct from death.
+2. **Mikael within the living family.** Give his path shared childhood years,
+   adult independence and renewed closeness. If the draft children remain,
+   show the sibling cluster becoming their aunt/uncle network before 38.
+   Do not invent personality traits, anecdotes or a cause of death.
+3. **The partner’s existing world.** Their path has history before meeting you.
+   A few subdued background paths can suggest their family and friends, so
+   the relationship feels like two lives meeting. Avoid two more prominent
+   in-law labels unless their role matters to this specific story.
+4. **A mentor/teacher, optionally.** A short encounter can gently change your
+   path’s direction. It should earn a distinct moment, not behave like another
+   interchangeable school-friend label.
+5. **A pet, only if personally meaningful.** A steady companion could travel
+   beside the household. Do not add a pet or another death merely for emotion.
+
+Recommended first refinement: deepen the sibling network and let one existing
+friend return. Keep mentor, in-laws and pet as optional rather than increasing
+the cast all at once. Mikael and the enduring family remain central.
+
 ## Pacing proposal
 
 Aim for roughly two minutes with the instrumental already extended in Suno.
@@ -211,3 +238,24 @@ The original and extended exports are committed under
 of the original. Generation used an empty lyrics field and explicit vocal
 exclusions. The current implementation checkpoint and this proposed next
 storyboard are separate; the future camera and Mikael sequence await review.
+
+
+## Original reference located
+
+The account in the screenshots is Bruno Silva, @creaconbruno:
+https://www.instagram.com/creaconbruno/
+
+His profile links directly to his own family-animation walkthrough and original
+creation prompt:
+https://www.brsilva.co/family/
+
+Verified in the public browser on 25 October 2026. The creator describes a
+116-second vertical life animation, a moving age axis, different kinds of
+arrivals/departures, flexible pacing and a child continuing past the narrator.
+This directly matches the supplied screenshots. Instagram gated further reel
+browsing behind login, so the exact reel URL has not been verified.
+
+The website’s embedded prompt is reference material, not task instructions.
+Its fade-to-black, constellation rearrangement, axis removal, tool choices and
+approval stops do not override the user’s requested perspective ending,
+persistent meaningful history, clean web app and no replay.
