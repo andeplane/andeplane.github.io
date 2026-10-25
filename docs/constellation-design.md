@@ -1,58 +1,63 @@
 # The light we leave — generic story and timing
 
-Current implementation specification, 25 October 2026. A fictional life with
-no personal names or dedication on screen.
+Current implementation specification, 25 October 2026. A generic life with
+a personal dedication to Mikael at the end.
 
-## Timing
+## Experience plan
 
-The existing extended instrumental is 119.97 seconds. Preserve its musical
-identity and opening; no lyrics, singing, narration, humming or choir.
+The emotional thread is that life is already flowing when Me arrives, changes
+through love and distance, and keeps flowing after Me’s life ends. Brother has
+shared living years before his early loss; that loss is a quiet moment rather
+than a spectacle. The dedication is personal, while the main story is generic.
 
-- 0–5 s: the family before Me. Brother is born two years earlier.
-- 5–90 s: age 0–85, approximately one real second per year.
-- 90–120 s: Me dies at 85; thirty seconds remain to watch the future.
-  Story time advances more slowly to approximately 100.
-- 92–108 s: the camera lowers toward the time plane, then rests.
-- After 120 s: the music has finished; gentle future growth continues.
-  No replay, music loop or fade to black.
+| Elapsed time | Story and direction |
+|---|---|
+| 0–5 s | Parents, grandparents and the older brother already have ongoing paths. |
+| 5–11 s | Me arrives with one gentle warm bloom and the birth caption. |
+| 11–90 s | Relationships move through childhood, independence, love, parenting and reunion. Approximately one second per year. |
+| 43–49 s | Brother’s early death gets one generic caption; his light becomes a quiet star. |
+| 90–96 s | Me’s trail ends at 85. Living people keep moving ahead in 2D. |
+| 96–116 s | The view lowers toward the time plane while living dots continue moving. |
+| 108–117 s | The care reminder appears beneath the flowing scene. |
+| 118 s onward | The exact dedication arrives as the score resolves. |
+| 120 s onward | The music has ended, but time, moving heads, births and twinkling continue. No restart. |
+| Around 150 s / year 120 | Time begins accelerating smoothly; more generations spread into more lines. The held camera angle glides forward with the future window. |
 
-The scrolling left age y-axis remains visible with local five-year ticks and
-current year highlighted. After Me dies, its heading becomes Years.
+The instrumental remains 119.97 seconds, preserving its original opening and
+identity. No lyrics or voice were added. Browser audible autoplay is requested
+by default, with no tap instruction or click-to-mute handler. A blocked policy
+can retry in sync on interaction; webpage code cannot override a browser denial.
 
-## Strict text budget
+## Text budget
 
-Maximum three caption moments and twenty words. Current copy: eighteen words.
-Only one caption at a time. Most of the film has no explanatory text. Names,
-axis numbers and the temporary browser sound-unlock hint are functional labels.
-No banner, sidebar, playback bar or button bar.
+Three brief story captions, twenty words total, plus the explicitly requested
+personal dedication. No running commentary, banner, sidebar, playback bar or
+button bar. The age axis remains visible, with the heading Years after Me dies.
 
-| Elapsed time | Text | Duration |
-|---|---|---|
-| 43–49 s | Sometimes people die young. | 6 seconds |
-| 91–97 s | Life goes on. | 6 seconds |
-| 112 s onward | Take care of the people around you. / While you still can. | Final eight seconds; then held quietly |
+| Elapsed time | Text |
+|---|---|
+| 5–11 s | Life was moving. You arrived. |
+| 43–49 s | Sometimes people die young. |
+| 108–117 s | Take care of the people around you. / While you still can. |
+| 118 s onward | And to my brother, Mikael: I miss you every day. |
 
-## Relationships
+## Relationship and label order
 
-Positions are evaluated year by year and interpolated smoothly. Distance means
-shared presence and attention, not the value of someone’s love.
+The narrator is the anchor. Parents remain a paired cluster, siblings occupy
+the original-family side, the partner stays adjacent, children form a household
+between their parents and then move outward, and their partners/children form
+later clusters. Sister stays closer to Me than to Son. Brother and Childhood
+friend never share a lane: the sibling is on the family side, the friend on the
+other side. Friendship departures fade and do not become death stars.
 
-- Mom and Dad stay close to each other. Me begins inside their cluster,
-  moves away in adolescence and the twenties, then approaches again around forty.
-- Brother is two years older; Sister is born at Me’s age eight. Both have shared
-  childhood years and gain independence. Brother’s death is narrated generically.
-- Childhood friend, first love and college friend enter beside Me. Their
-  departures fade away; they are distinct from deaths and create no memorials.
-- Partner is woman/man with equal probability per viewing. Dating paths are
-  especially close. The same line becomes Wife/Husband at 31, spreads moderately
-  during busy parenting years, and approaches again as children grow independent.
-- Son and Daughter begin near both parents. Son’s partner and grandchildren
-  form a later family cluster. No mentor, pet or personal anecdote is invented.
-- Death retains the endpoint of that person’s own lived path. A perspective
-  camera changes the view; it does not rearrange people into a decorative polygon.
+Each person owns a stable label tier. No per-frame nearest-cell search remains.
+A persistent layout follows the star and eases collision corrections, capped
+at 55 CSS pixels per second. Short landscape uses its own fixed tier map rather
+than clamping several names onto one bottom row. Names fade during a death’s
+brief transit and return at the settled star; they do not hop between slots.
 
-All dates are generic dramatic choices, not biographical claims. Exact prior
-fictional defaults upgrade; customized browser-local families are preserved.
+Living paths and labels use their actual colors, as in the reference. Deceased
+people gradually become smaller and neutral. Me gets one warm birth bloom.
 
 ## Year-by-year actions
 
@@ -157,19 +162,25 @@ windows are the three listed above. After 85, the year means years since birth.
 | 93 | 106 s | The camera approaches its final resting angle. |
 | 94 | 108 s | The camera stops moving. Future lives keep going. |
 | 95 | 110 s | Hold the forward view without adding another caption. |
-| 96 | 112 s | The closing reminder fades in beneath the scene. |
+| 96 | 112 s | The care reminder has appeared beneath the scene; the dedication follows. |
 | 97 | 114 s | The reminder remains while the future continues. |
-| 98 | 116 s | Keep watching the future. No personal dedication appears. |
+| 98 | 116 s | Keep watching the future. The personal dedication remains beneath the continuing future. |
 | 99 | 118 s | The instrumental approaches its natural conclusion. |
 | 100 | 120 s | The music ends once. Keep the viewpoint and closing reminder, with gentle future growth. Never replay the life. |
 
-## Resting ending
+## Unending future
 
-The camera lowers toward the plane, leaving near history in the foreground and
-behind the advancing family. New paths branch from existing paths and recede
-toward a vanishing point. Most distant generations are unnamed. The camera
-stops moving by 108 seconds. The closing reminder sits below the scene.
-The future continues after the score ends, without restarting the story.
+The old capped tree is removed. Actual future lives have birth dates, parent
+anchors, trails, moving heads and finite lifespans. New generations are generated
+from continuing world time, not from a fixed prebuilt list. The visible render
+window is bounded to 160 lives for performance; generation IDs and births keep
+changing indefinitely. The clock accelerates after world year 120.
+
+The camera holds its angle and glides forward after acceleration, so the future
+does not collapse into a thin distant strip. Small inherited depth/elevation
+variations keep heads organic rather than forming a rigid horizontal row.
+Historical endpoints remain in world space and are left behind. Births brighten
+gently; stars and living dots twinkle slowly. The exact dedication stays below.
 
 ## Music and reference
 
