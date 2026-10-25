@@ -92,7 +92,7 @@ export function personAppearance(person: Person, progress: number) {
   const birth=person.id==='self'&&birthAge>=0&&birthAge<1.8?Math.sin(Math.PI*birthAge/1.8):0
   return { distance, birth, color: mixColor(quietColor, '#8d99a9', distance), label: mixColor(mixColor(person.color,'#ffffff',.14), '#8d99a9', distance), core: mixColor(mixColor(person.color,'#ffffff',.75), '#a5b0bf', distance), radius: 3.3 - distance * 1.5 + birth * 2.5, glowRadius: 30 - distance * 16 + birth * 45, glowOpacity: .4 - distance * .32 + birth * .25 }
 }
-export interface StoryPoint { x: number; y: number; year: number }
+export interface StoryPoint { x: number; y: number; year: number; elevation?: number }
 export function starPosition(person: Person, index: number, count: number, progress: number, people?: Person[], afterEnding=0) {
   const age = continuingYear(progress,afterEnding)
   const year = Math.min(age, person.end ?? age)

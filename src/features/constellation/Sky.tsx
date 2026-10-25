@@ -11,9 +11,9 @@ export default function Sky({people,progress,width=800,viewHeight=800,afterEndin
   const tilt=cameraAmount(progress)
   const axis=ageAxis(progress,afterEnding)
   const points=people.map((p,i)=>starPosition(p,i,people.length,progress,people,afterEnding))
-  const positions=points.map(p=>({...p,...projectPoint(p,progress,viewHeight)}))
+  const positions=points.map(p=>({...p,...projectPoint(p,progress,viewHeight,age)}))
   const appearances=people.map(p=>personAppearance(p,progress))
-  const paths=people.map((p,i)=>trailPoints(p,i,people.length,progress,people,afterEnding).map(point=>projectPoint(point,progress,viewHeight))).map(points=>points.length?'M'+points.map(p=>`${p.x},${p.y}`).join(' L'):'')
+  const paths=people.map((p,i)=>trailPoints(p,i,people.length,progress,people,afterEnding).map(point=>projectPoint(point,progress,viewHeight,age))).map(points=>points.length?'M'+points.map(p=>`${p.x},${p.y}`).join(' L'):'')
   const labelItems=people.map((p,i)=>({id:p.id,name:personName(p,progress),x:positions[i].x,y:positions[i].y,memorial:p.end!==null&&p.exit!=='fade'&&age>p.end+.7,opacity:personLabelOpacity(p,progress),visible:positions[i].visible && personLabelOpacity(p,progress)>.002}))
   const stableLabels=useRef(new StableLabelLayout())
   const previousTime=useRef(progress*120+afterEnding)
@@ -22,7 +22,7 @@ export default function Sky({people,progress,width=800,viewHeight=800,afterEndin
   previousTime.current=seconds
   const labels=stableLabels.current.update(labelItems,width,viewHeight,delta)
   const axisFont=Math.min(36,13*800/width)
-  const axisY=(year:number)=>projectPoint({x:80,y:axis.y+(age-year)*YEAR_SPACING,year},progress,viewHeight).y
+  const axisY=(year:number)=>projectPoint({x:80,y:axis.y+(age-year)*YEAR_SPACING,year},progress,viewHeight,age).y
   const currentY=axisY(age)
   const tickYs=[currentY]
   const ticks=axis.ticks.filter(t=>Math.abs(t.age-age)> .6).map(t=>({...t,y:axisY(t.age)})).filter(t=>{
@@ -50,7 +50,7 @@ export default function Sky({people,progress,width=800,viewHeight=800,afterEndin
       <text className="cl-current-age" x="64" y={currentY} dy=".35em" textAnchor="end" fill="#e1d2af">{Math.max(0,Math.floor(age))}</text>
     </g>
     <g mask={`url(#${id}-mask)`} fill="none">
-      {lives.map(life=>{const points=life.points.map(point=>projectPoint(point,progress,viewHeight)),head=projectPoint(life.head,progress,viewHeight);return <g key={life.id} data-future-life={life.id} opacity={life.opacity}><path d={'M'+points.map(p=>`${p.x},${p.y}`).join(' L')} stroke={life.color} strokeWidth="1" vectorEffect="non-scaling-stroke" opacity=".42"/><circle cx={head.x} cy={head.y} r={1.2+life.birth*2} fill={life.color} opacity={life.twinkle}/>{life.birth>.01&&<circle cx={head.x} cy={head.y} r={5+life.birth*7} fill={life.color} opacity={life.birth*.13}/>}</g>})}
+      {lives.map(life=>{const points=life.points.map(point=>projectPoint(point,progress,viewHeight,age)),head=projectPoint(life.head,progress,viewHeight,age);return <g key={life.id} data-future-life={life.id} opacity={life.opacity}><path d={'M'+points.map(p=>`${p.x},${p.y}`).join(' L')} stroke={life.color} strokeWidth="1" vectorEffect="non-scaling-stroke" opacity=".42"/><circle cx={head.x} cy={head.y} r={1.2+life.birth*2} fill={life.color} opacity={life.twinkle}/>{life.birth>.01&&<circle cx={head.x} cy={head.y} r={5+life.birth*7} fill={life.color} opacity={life.birth*.13}/>}</g>})}
       {people.map((p,i)=>{const since=age-(p.end??age);const opacity=p.exit==='fade'?positions[i].opacity:p.end!==null&&since>=0?positions[i].opacity*((1-smooth(since/8))*(1-tilt)+.14*tilt):positions[i].opacity;return <g key={p.id} stroke={appearances[i].color} opacity={opacity}><path d={paths[i]} strokeWidth="9" vectorEffect="non-scaling-stroke" opacity=".06"/><path d={paths[i]} strokeWidth="4" vectorEffect="non-scaling-stroke" opacity=".2"/><path d={paths[i]} strokeWidth={1.8*(1-.45*tilt)} vectorEffect="non-scaling-stroke" opacity=".95"/></g>})}
     </g>
     {people.map((p,i)=>{const pos=positions[i];if(!pos.visible)return null;const ended=p.end!==null&&p.exit!=='fade'&&age>=p.end;const size=Math.max(.25,Math.min(1.2,pos.scale));const a=appearances[i];return <g key={p.id} data-person={p.id} opacity={pos.opacity*(.9+.1*Math.sin(seconds*.6+i))}><g clipPath={`url(#${id}-bounds)`}><circle cx={pos.x} cy={pos.y} r={a.glowRadius*size} fill={`url(#${id}-glow-${p.id})`}/><circle cx={pos.x} cy={pos.y} r={a.radius*size} fill={a.core}/>{ended&&<path d={`M${pos.x-7*size} ${pos.y}h${14*size} M${pos.x} ${pos.y-7*size}v${14*size}`} stroke={a.color} strokeWidth=".6" opacity=".65"/>}</g></g>})}

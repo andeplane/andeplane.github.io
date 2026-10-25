@@ -51,4 +51,14 @@ test('a future child starts exactly on its parent’s ongoing line',()=>{
  const point=parent.points.find(p=>p.year===child.born)!
  assert.ok(Math.abs(point.x-child.points[0].x)<1e-7)
  assert.equal(point.year,child.points[0].year)
+ assert.ok(Math.abs((point.elevation??0)-(child.points[0].elevation??0))<1e-7)
+})
+
+
+test('the held camera angle keeps a flowing future window visible after acceleration',()=>{
+ const head=projectPoint({x:600,y:335,year:300},1,800,300)
+ const past=projectPoint({x:600,y:335,year:230},1,800,300)
+ assert.ok(past.y-head.y>100)
+ const lives=futureLives(1,90),heights=lives.filter(l=>l.head.year===continuingYear(1,90)).map(l=>projectPoint(l.head,1,800,continuingYear(1,90)).y)
+ assert.ok(Math.max(...heights)-Math.min(...heights)>15)
 })

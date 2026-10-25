@@ -2,10 +2,11 @@ import { clamp, continuingYear, smooth } from './clock.ts'
 import { COLORS, SAMPLE, pathX, presentY } from './story.ts'
 import type { Person, StoryPoint } from './story.ts'
 export const cameraAmount=(progress:number)=>smooth((progress*120-96)/20)
-export function projectPoint(point:StoryPoint,progress:number,viewHeight:number) {
- const tilt=cameraAmount(progress),depth=(point.year-10)/18
+export function projectPoint(point:StoryPoint,progress:number,viewHeight:number,viewYear=100) {
+ const forward=Math.max(0,viewYear-120)*smooth((viewYear-120)/40)
+ const tilt=cameraAmount(progress),depth=(point.year-10-forward)/18
  const scale=Math.min(3,1/Math.max(.1,.6+depth*.55))
- const targetX=430+(point.x-430)*scale,targetY=viewHeight*(.16+.44*scale)
+ const targetX=430+(point.x-430)*scale,targetY=viewHeight*(.16+.44*scale)-(point.elevation??0)*scale
  return {x:point.x+(targetX-point.x)*tilt,y:point.y/800*viewHeight+(targetY-point.y/800*viewHeight)*tilt,scale:1+(scale-1)*tilt}
 }
 export interface FutureLife {
@@ -21,6 +22,12 @@ function laneX(generation:number,index:number,year:number,root:Person,people:Per
  const grow=smooth((year-born)/10)
  return parentX+(laneAt(generation,index)-parentX)*grow+Math.sin(year*.22+index)*3*grow
 }
+const levelAt=(generation:number,index:number,year:number)=>Math.sin(index*2.39+generation*1.7)*42+Math.sin(year*.27+index)*7
+function elevationAt(generation:number,index:number,year:number) {
+ const born=birthAt(generation,index),parentIndex=generation>0?Math.floor(index*countAt(generation-1)/countAt(generation)):0
+ const parent=generation===0?0:levelAt(generation-1,parentIndex,born)
+ return parent+(levelAt(generation,index,year)-parent)*smooth((year-born)/10)
+}
 // Individual lives, not a capped decorative tree. New generations are generated
 // from world time forever, while the visible window stays bounded for rendering.
 export function futureLives(progress:number,afterEnding=0,people:Person[]=SAMPLE):FutureLife[] {
@@ -34,7 +41,7 @@ export function futureLives(progress:number,afterEnding=0,people:Person[]=SAMPLE
   const born=birthAt(generation,index),age=now-born
   if(age<0||age>90)continue
   const root=roots[index%roots.length],year=Math.min(now,born+82)
-  const point=(year:number):StoryPoint=>({x:laneX(generation,index,year,root,people),y:presentY(now)+(now-year)*40,year})
+  const point=(year:number):StoryPoint=>({x:laneX(generation,index,year,root,people),y:presentY(now)+(now-year)*40,year,elevation:elevationAt(generation,index,year)})
   const head=point(year),points:StoryPoint[]=[]
   for(let sample=born;sample<year;sample+=2)points.push(point(sample))
   points.push(head)
