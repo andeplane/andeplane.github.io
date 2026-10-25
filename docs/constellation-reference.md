@@ -99,5 +99,7 @@ We retain the user's deliberately different story: You, siblings, the brother's
 loss at your age 38, the two-minute instrumental, six short captions, and the
 personal dedication. The fixed perspective view and indefinitely branching
 future are extensions requested by the user, not behaviors inferred from this
-90-second reference. The reference's other passing acquaintances are documented
-here; they are not automatically added to the cast.
+90-second reference. The follow-up screenshots informed the Grade school and Middle school fly-bys,
+the coworker weave, separated death trails and landing pulses, the son's later
+outward bend, and the sequential closing constellation. College friend retains
+the longer companionship requested earlier rather than becoming another fly-by.
