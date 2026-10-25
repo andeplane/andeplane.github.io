@@ -1,6 +1,6 @@
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
-import { COLORS, MAX_PEOPLE, SAMPLE, YEAR_SPACING, ageAxis, personAppearance, personName, personOpacity, progressAtAge, readPeople, restorePeople, starPosition, storyAge, trailPoints } from '../../src/features/constellation/story.ts'
+import { COLORS, MAX_PEOPLE, SAMPLE, YEAR_SPACING, ageAxis, attentionOpacity, brotherMoment, personAppearance, personName, personOpacity, progressAtAge, readPeople, restorePeople, starPosition, storyAge, trailPoints } from '../../src/features/constellation/story.ts'
 const person = (id: string) => SAMPLE.find(p => p.id === id)!
 const pos = (id: string, age: number) => { const p = person(id); return starPosition(p, SAMPLE.indexOf(p), SAMPLE.length, progressAtAge(age), SAMPLE) }
 
@@ -12,22 +12,31 @@ test('generic family has a brother two years older and a sister born at eight', 
   assert.equal(personOpacity(person('sister'), progressAtAge(7)), 0)
   assert.equal(personOpacity(person('sister'), progressAtAge(10)), 1)
   assert.equal(person('self').end, 85)
+  assert.equal(person('self').name, 'You')
   assert.doesNotMatch(SAMPLE.map(p => p.name).join(' '), /Mikael/)
 })
 test('friendships and first love fade without becoming memorials', () => {
   for (const id of ['childhood-friend','first-love','college-friends']) {
     const p = person(id)
     assert.equal(p.exit, 'fade')
-    assert.equal(personOpacity(p, progressAtAge(p.start - 1)), 0)
+    assert.equal(personOpacity(p, progressAtAge(p.start - 5)), 0)
     assert.equal(personOpacity(p, progressAtAge(p.start + 2)), 1)
     assert.equal(personOpacity(p, progressAtAge(p.end! + 4)), 0)
     assert.equal(pos(id, 100).visible, false)
   }
 })
-test('friends travel near Me during their shared years', () => {
-  for (const id of ['childhood-friend','first-love','college-friends']) for (let age = person(id).start + 1; age < person(id).end!; age++) {
-    assert.ok(Math.abs(pos(id, age).x - pos('self', age).x) < (id === 'college-friends' ? 200 : 120))
-    assert.equal(pos(id, age).y, pos('self', age).y)
+test('friends approach from another life, share the present, and leave without falling behind', () => {
+  for(const id of ['childhood-friend','first-love','college-friends']) {
+    const p=person(id),meeting=pos(id,p.start),before=pos(id,p.start-3),leaving=pos(id,p.end!+2)
+    assert.ok(Math.abs(before.x-pos('self',p.start-3).x)>Math.abs(meeting.x-pos('self',p.start).x)+120)
+    assert.equal(meeting.y,pos('self',p.start).y)
+    assert.equal(leaving.year,p.end!+2)
+    assert.equal(leaving.y,pos('self',p.end!+2).y)
+    assert.ok(Math.abs(leaving.x-pos('self',p.end!+2).x)>Math.abs(pos(id,p.end!).x-pos('self',p.end!).x)+100)
+    const trail=trailPoints(p,SAMPLE.indexOf(p),SAMPLE.length,progressAtAge(p.start),SAMPLE)
+    assert.ok(trail[0].year<p.start-5)
+    assert.ok(trail[0].x<104||trail[0].x>794)
+    assert.equal(personAppearance(p,progressAtAge(p.end!+2)).distance,0)
   }
 })
 test('a brother remains as a small neutral star while living people continue', () => {
@@ -57,7 +66,7 @@ test('every trail ends exactly on its own star across every narrative year', () 
     else {
       assert.deepEqual(points.at(-1), head)
       assert.ok(points.every(point => Number.isFinite(point.x) && Number.isFinite(point.y)))
-      assert.ok(Math.abs(head.year - Math.min(age, p.end ?? age)) < 1e-7)
+      assert.ok(Math.abs(head.year - (p.exit==='fade'?age:Math.min(age, p.end ?? age))) < 1e-7)
     }
   })
 })
@@ -109,4 +118,21 @@ test('the family already has ongoing life trails before Me is born',()=>{
   const p=person(id),points=trailPoints(p,SAMPLE.indexOf(p),SAMPLE.length,progress,SAMPLE)
   assert.ok(points.length>20&&points[0].year< -2)
  }
+})
+
+test('parenthood has a quiet interval before the brother’s death',()=>{
+ assert.equal(person('child').start,30)
+ assert.equal(person('daughter').start,32)
+ const loss=person('brother').end!
+ assert.ok(SAMPLE.filter(p=>p.id!=='brother').every(p=>Math.abs(p.start-loss)>=5))
+})
+
+test('the brother’s loss has a quiet held moment and temporary visual focus',()=>{
+ const before=pos('brother',38),held=pos('brother',39)
+ assert.equal(before.y,held.y)
+ assert.equal(brotherMoment(progressAtAge(39)),1)
+ assert.equal(attentionOpacity(person('brother'),progressAtAge(39)),1)
+ assert.ok(attentionOpacity(person('child'),progressAtAge(39))<.3)
+ assert.equal(attentionOpacity(person('child'),progressAtAge(44)),1)
+ assert.ok(pos('brother',44).y<held.y)
 })

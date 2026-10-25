@@ -6,7 +6,7 @@ import { layoutLabels } from '../../src/features/constellation/labels.ts'
 test('relationship labels fit without overlap across story years and aspect ratios', () => {
   for (const [width,height] of [[1256,776],[366,820],[296,716],[820,366],[272,662]]) for (const age of [0,8,15,19,27,33,38,40,56,68,85,90,100]) {
     const progress=progressAtAge(age),viewHeight=800*height/width
-    const items=SAMPLE.map((p,i)=>{const point=starPosition(p,i,SAMPLE.length,progress,SAMPLE);return {id:p.id,name:personName(p,progress),...point,...projectPoint(point,progress,viewHeight),memorial:p.end!==null&&p.exit!=='fade'&&storyAge(progress)>p.end+.7,opacity:personLabelOpacity(p,progress),visible:point.visible&&personLabelOpacity(p,progress)>.002}})
+    const items=SAMPLE.map((p,i)=>{const point=starPosition(p,i,SAMPLE.length,progress,SAMPLE);return {id:p.id,name:personName(p,progress),...point,...projectPoint(point,progress,viewHeight),memorial:p.end!==null&&p.exit!=='fade'&&storyAge(progress)>p.end+(p.id==='brother'?1.8:.7),opacity:personLabelOpacity(p,progress),visible:point.visible&&personLabelOpacity(p,progress)>.002}})
     const labels=layoutLabels(items,width,viewHeight)
     for (let i=0;i<labels.length;i++) {
       const a=labels[i].box
@@ -28,7 +28,7 @@ test('Mom, Dad and Brother labels have no frame-to-frame slot jumps', async () =
     const previous=new Map<string,{x:number;y:number}>()
     for(let frame=0;frame<=120*20;frame++) {
       const progress=frame/20/120
-      const items=SAMPLE.map((p,i)=>{const point=starPosition(p,i,SAMPLE.length,progress,SAMPLE);return{id:p.id,name:personName(p,progress),...point,...projectPoint(point,progress,viewHeight),memorial:p.end!==null&&p.exit!=='fade'&&storyAge(progress)>p.end+.7,opacity:personLabelOpacity(p,progress),visible:point.visible&&personLabelOpacity(p,progress)>.002}})
+      const items=SAMPLE.map((p,i)=>{const point=starPosition(p,i,SAMPLE.length,progress,SAMPLE);return{id:p.id,name:personName(p,progress),...point,...projectPoint(point,progress,viewHeight),memorial:p.end!==null&&p.exit!=='fade'&&storyAge(progress)>p.end+(p.id==='brother'?1.8:.7),opacity:personLabelOpacity(p,progress),visible:point.visible&&personLabelOpacity(p,progress)>.002}})
       const labels=layout.update(items,width,viewHeight,1/20)
       for(let i=0;i<labels.length;i++)for(let j=i+1;j<labels.length;j++) {
         const a=labels[i],b=labels[j]
@@ -50,4 +50,15 @@ test('Mom, Dad and Brother labels have no frame-to-frame slot jumps', async () =
       }
     }
   }
+})
+
+test('the names for You and close companions stay near their own dots',()=>{
+ for(const age of [8,16,19,24,28]) {
+  const progress=progressAtAge(age),viewHeight=800*820/366
+  const items=SAMPLE.map((p,i)=>{const point=starPosition(p,i,SAMPLE.length,progress,SAMPLE);return{id:p.id,name:personName(p,progress),...point,...projectPoint(point,progress,viewHeight),memorial:p.end!==null&&p.exit!=='fade'&&storyAge(progress)>p.end+(p.id==='brother'?1.8:.7),opacity:personLabelOpacity(p,progress),visible:point.visible&&personLabelOpacity(p,progress)>.002}})
+  for(const label of layoutLabels(items,366,viewHeight).filter(l=>['self','first-love','college-friends'].includes(l.id))) {
+   const point=items.find(i=>i.id===label.id)!
+   assert.ok(Math.abs(label.x-point.x)<60,`${age}: ${label.id} is displaced from its own dot`)
+  }
+ }
 })

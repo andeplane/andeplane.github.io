@@ -1,33 +1,39 @@
-# Constellation review — stable families and an unending future
+# Constellation review — entering lives and a fixed viewpoint
 
-## Fixes
+## Changes reviewed
 
-- Named relationship clusters replace ambiguous independent lanes. Sister stays
-  on Me’s family side; Childhood friend and Brother have separate lanes.
-- Permanent label tiers and persistent easing replace nearest-cell packing.
-  Full-motion numeric checks found no overlaps between fully visible names at
-  desktop, phone, narrow-phone and landscape sizes. Corrections cannot jump.
-- Living names and paths retain their colors. Memories become subdued silver.
-- One birth bloom and a five-word caption mark the narrator’s arrival.
-- The 119.97-second instrumental is requested as audible autoplay. Interaction
-  retries never rewind the movie and clicks no longer mute an already playing
-  track. Browser autoplay denial still cannot be overridden by webpage code.
-- Living heads continue in 2D, then 3D. Future generations, moving heads and
-  twinkling keep changing after the score, accelerating after world year 120.
-- Exact dedication: “And to my brother, Mikael: I miss you every day.”
+Existing friendships and romances approach from outside the frame, share the
+present, and depart without becoming dead endpoints. You are the person leaving
+and returning to steady parents. First love is across from Childhood friend;
+College friend becomes close as the childhood friendship recedes. Parenthood
+moves to 30/32; the brother's death at your age 38 has a distinct held focus.
 
-## Evidence
+Opening, love and parenthood captions bring the text budget to six cards / thirty
+words. The exact personal dedication remains. The camera holds its position at
+your life, tilts to 30 degrees above the time plane, and watches generations move
+away. Acceleration begins at year 92. Generations form pairs and branch; they
+continue after the score, with ancestry retained and bounded rendering.
 
-32 model tests pass. Label tests sample the full movie at 20 frames per second
-for four viewport sizes; they assert overlap bounds and bounded motion. Other
-checks cover relationship ordering, parent-child continuity, color, birth glow,
-caption budget, audio policy failures, future acceleration and continuing
-changes ten hours after the score. Focused feature TypeScript checking passes.
-Full repository CI is required before merge.
+## Evidence and limits
 
-Production SVG source scenes were rendered offline and inspected. These are
-code-native renders, not browser or desktop screen captures. Earlier browser
-captures belong to prior revisions and do not qualify this new rendering.
-The user’s screen-capture pause remains in effect; no personal browser or
-native desktop capture has resumed. Actual browser autoplay, CSS captions,
-interaction feel and physical phone/Safari behavior remain unverified here.
+- 41 focused model tests cover relationship rank and direction, encounter entry
+  and departure, no-falling-behind behavior, child timing, attention, text budget,
+  the fixed camera, growing generations, audio recovery and labels.
+- Full-timeline label checks run at 20 frames/second on four viewport sizes.
+- 60 isolated headless browser states were inspected through actual DOM geometry:
+  desktop, 390px phone, 320px phone, short landscape, and simulated safe areas.
+  No visible-name overlaps, horizontal overflow, caption clipping or page errors
+  were found in those states. This includes orientation/viewport changes.
+- Separate isolated headless audio tests confirm autoplay when allowed and an
+  advancing, unmuted media element after a touch release or click when autoplay
+  is blocked. Inspections use CDP with userGesture=false, so checking the state
+  does not accidentally unlock audio and invalidate the test.
+- Production SVG source renders were visually inspected at childhood, first love,
+  college, parenthood, the brother's loss, and several future stages.
+- Focused feature TypeScript checking passes. Full repository CI and the actual
+  Pages deployment must pass before delivery; public bundle and MP3 are checked.
+
+The user's screen-capture pause remains respected: no personal browser or desktop
+capture was used. Headless DOM checks and source renders do not prove physical
+phone/Safari behavior or actual speaker output. Fresh-visit audible autoplay can
+still be blocked by browser policy; it cannot be forced by webpage code.

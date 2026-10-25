@@ -4,7 +4,7 @@ export interface SkyLabel { id: string; x: number; y: number; font: number; line
 const clamp=(n:number,a:number,b:number)=>Math.max(a,Math.min(b,n))
 // A person always owns this tier. Other arrivals cannot swap their label to
 // another row. Siblings, friends and children also have separate physical lanes.
-export const LABEL_TIERS:Record<string,number>={self:-1,partner:1,mom:-2,dad:1,brother:-3,sister:2,grandma:-1,grandpa:2,'childhood-friend':-3,'first-love':-2,'college-friends':2,child:-2,daughter:3,'child-partner':1,'grandchild-1':-3,'grandchild-2':-4}
+export const LABEL_TIERS:Record<string,number>={self:-1,partner:1,mom:-2,dad:1,brother:-3,sister:2,grandma:-1,grandpa:3,'childhood-friend':-4,'first-love':-2,'college-friends':2,child:-2,daughter:3,'child-partner':1,'grandchild-1':-3,'grandchild-2':-4}
 const hash=(id:string)=>[...id].reduce((n,c)=>n*31+c.charCodeAt(0),0)>>>0
 function withPosition(label:SkyLabel,x:number,y:number,item:LabelItem):SkyLabel {
   const dx=x-label.x,dy=y-label.y
@@ -21,8 +21,8 @@ export function layoutLabels(items:LabelItem[],width:number,viewHeight:number) {
     const split=spaces.sort((a,b)=>Math.abs(a-item.name.length/2)-Math.abs(b-item.name.length/2))[0]
     const lines=item.name.length>11&&split!==undefined?[item.name.slice(0,split),item.name.slice(split+1)]:[item.name]
     const w=Math.max(...lines.map(line=>line.length))*font*.60+8,h=lines.length*font*1.08+6
-    const shortTiers:Record<string,number>={sister:-5,daughter:-4,grandpa:-3,'college-friends':-4,'grandchild-2':-6}
-    const tier=item.memorial?(['mom','grandpa','partner'].includes(item.id)?1:-1):((viewHeight<650?shortTiers[item.id]:undefined)??LABEL_TIERS[item.id]??((hash(item.id)%3)+1)*(hash(item.id)%2?1:-1))
+    const shortTiers:Record<string,number>={sister:-5,daughter:-4,grandpa:-4,'college-friends':-4,'grandchild-2':-6}
+    const tier=item.memorial?(['grandpa','partner'].includes(item.id)?1:-1):((viewHeight<650?shortTiers[item.id]:undefined)??LABEL_TIERS[item.id]??((hash(item.id)%3)+1)*(hash(item.id)%2?1:-1))
     const top=clamp(tier<0?item.y-h-14-(Math.abs(tier)-1)*step:item.y+14+(tier-1)*step,18,viewHeight*.74-h)
     const x=clamp(item.x,104+w/2,788-w/2),y=top+font
     labels.push({id:item.id,x,y,font,lineHeight:font*1.08,lines,box:{left:x-w/2,right:x+w/2,top,bottom:top+h},leader:{x:item.x,y:tier<0?top+h:top}})
@@ -31,8 +31,8 @@ export function layoutLabels(items:LabelItem[],width:number,viewHeight:number) {
   // or sorting nearest candidates. Separation is planned while names fade in.
   for(let pass=0;pass<24;pass++)for(let i=0;i<labels.length;i++)for(let j=i+1;j<labels.length;j++) {
     const a=labels[i],b=labels[j],ab=a.box,bb=b.box
-    const ox=Math.min(ab.right,bb.right)-Math.max(ab.left,bb.left)+20
-    const oy=Math.min(ab.bottom,bb.bottom)-Math.max(ab.top,bb.top)+20
+    const ox=Math.min(ab.right,bb.right)-Math.max(ab.left,bb.left)+12
+    const oy=Math.min(ab.bottom,bb.bottom)-Math.max(ab.top,bb.top)+4
     if(ox<=0||oy<=0)continue
     const ai=sources.get(a.id)!,bi=sources.get(b.id)!
     const strength=1
