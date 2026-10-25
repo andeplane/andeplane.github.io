@@ -110,10 +110,11 @@ export function readProgress(storage?: Pick<Storage, "getItem">): Progress {
 export function saveProgress(
   p: Progress,
   storage?: Pick<Storage, "setItem">,
-): void {
+): boolean {
   try {
     storage?.setItem("broadside.v1", JSON.stringify(p));
+    return true;
   } catch {
-    /* private browsing is fine */
+    return false;
   }
 }

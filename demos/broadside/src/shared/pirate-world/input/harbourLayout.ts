@@ -1,5 +1,5 @@
 import type { CaveObstacle } from "./caveWalk";
-import { Rng } from "../sim/rng";
+import { Rng } from "../../../sim/rng";
 
 export const HARBOUR_BUILDINGS = [-28, -10, 10, 28].flatMap((z, i) => [
   { x: 31, z, width: 9, depth: 11, height: 7 + i % 2 * 2, name: ["The Rusty Anchor", "Chandler", "Captain's stores", "Shipwright"][i]! },

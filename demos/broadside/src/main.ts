@@ -1,11 +1,11 @@
 import { installPrivacy } from "./ui/privacy";
 import { installMenuPreview } from "./ui/menuPreview";
-import { coinSounds, installCoinSounds } from "./game/coinSounds";
+import { coinSounds, installCoinSounds } from "./shared/pirate-world/game/coinSounds";
 import { Vector3 } from "@babylonjs/core/Maths/math.vector.js";
 import { DeckWalk } from "./game/deckWalk";
 import { Fishing } from "./game/fishing";
 import { DeckFishing } from "./render/deckFishing";
-import { GOLD_AREAS } from "./game/goldAreas";
+import { GOLD_AREAS } from "./shared/pirate-world/game/goldAreas";
 import { coinDebugLocation } from "./game/debugCoins";
 import "@babylonjs/core/Culling/ray.js";
 import "@babylonjs/core/Shaders/color.vertex.js";
@@ -17,21 +17,23 @@ import { VoyageSession, generateVoyage, RELICS } from "./game/voyage";
 import { newOpenSea, readOpenSea, openSeaVoyage, recordOpenSea, saveOpenSea } from "./game/openSea";
 import { readProgress, saveProgress } from "./game/progress";
 import { awardVoyage, syncRewards, caveProgress, deliverChest, cargoChests, chestWorld, awardCatch, type VoyageReward } from "./game/rewards";
-import { ShipHold } from "./render/shipHold";
-import { CargoQueue } from "./game/cargoQueue";
+import type { ShipHold } from "./shared/pirate-world/render/shipHold";
+import { showWorldError, PirateWorld } from "./shared/pirate-world";
+import { bindWorldControls } from "./shared/pirate-world";
+import { sailingAdapter, shipPresentation } from "./game/pirateAdapter";
 import { WorldJourney, nearestRegion, readJourney, saveJourney } from "./game/journey";
 import { TOTAL_LEVELS, levelUnlocked } from "./game/campaign";
 import { Controls } from "./input/controls";
-import { CaveWalkControls } from "./input/caveWalk";
-import { CaveGesture } from "./input/caveGesture";
+import { CaveWalkControls } from "./shared/pirate-world/input/caveWalk";
+import { CaveGesture } from "./shared/pirate-world/input/caveGesture";
 import { installGameSurface } from "./input/gameSurface";
 import { installFullscreen } from "./ui/fullscreen";
 import { GameRenderer } from "./render/renderer";
-import { TreasureCave } from "./render/cave";
-import type { Harbour } from "./render/harbour";
-import type { PrivateShip } from "./render/privateShip";
-import { PRIVATE_PEARL } from "./privatePearl";
-import { displayRenderScale, configurePhoneRendering, configureTextureQuality } from "./render/quality";
+import { TreasureCave } from "./shared/pirate-world/render/cave";
+import type { Harbour } from "./shared/pirate-world/render/harbour";
+import type { PrivateShip } from "./shared/pirate-world/render/privateShip";
+import { privatePearlUrl, privatePearlModelUrl, PRIVATE_PEARL } from "./privatePearl";
+import { displayRenderScale, configurePhoneRendering, configureTextureQuality, isPhoneRendering } from "./shared/pirate-world/render/quality";
 import { FixedStepper } from "./sim/world";
 import { angleDiff, clamp } from "./sim/math";
 import { VoyageHud } from "./ui/voyageHud";
@@ -132,21 +134,20 @@ async function main() {
   }
   syncRewards(progress);
   let reward: VoyageReward | undefined;
+  const pirate = new PirateWorld(engine, sailingAdapter(progress,storage,!qa), !qa, {
+    error: message => {
+      hud.root.inert=false; clearArrival();
+      showWorldError(message,()=>menu());
+    },
+  });
   let cave: TreasureCave | null = null;
-  const getCave = (): TreasureCave => {
-    if (!cave) {
-      cave = new TreasureCave(engine, !qa);
-      cave.refresh(caveProgress(progress));
-    }
-    return cave;
-  };
-  const releaseCave = () => { cave?.scene.dispose(); cave = null; };
+  const getCave = (): TreasureCave => cave = pirate.cave;
+  const releaseCave = () => { pirate.releaseCave(); cave=null; };
   let session = new VoyageSession(generateVoyage(0)),
     renderer: GameRenderer | null = null;
   let harbour: Harbour | PrivateShip | null = null;
   let hold: ShipHold | null = null;
   let holdShowingResult = false;
-  const unloadQueue = new CargoQueue<number>();
   let unloadingIndex: number | null = null;
   let arrivalDestination: "hold" | "unload" = "hold", arrivalFromHold = false;
   let mode: "menu" | "cave" | "harbour" | "hold" | "unloading" | "play" | "arrival" | "result" | "loading" | "travel" =
@@ -207,34 +208,22 @@ async function main() {
     if (document.pointerLockElement === canvas) document.exitPointerLock();
   };
   const clearWalking = () => {
-    walking.clear();
+    walking.clear(); pirate.controls.clear();
     releaseMouse();
   };
   const cancelUnloading = () => {
-    if (unloadingIndex !== null) {
-      unloadingIndex = null; unloadQueue.reset([]);
-      getCave().refresh(caveProgress(progress));
-      getCave().showCargo([]);
-      getCave().endReveal();
+    if (unloadingIndex !== null || pirate.mode === "unload") {
+      unloadingIndex=null; pirate.cancel(); cave=null; hold=null;
     }
   };
   const prepareChest = () => {
-    unloadingIndex = unloadQueue.current;
-    if (unloadingIndex === null) { hud.unloading(unloadQueue.total,unloadQueue.total,true); return; }
-    // Arrival is fully covered here; release the ship before allocating the cave.
-    hold?.scene.dispose(); hold = null;
-    harbour?.scene.dispose(); harbour = null;
-    const banked = caveProgress(progress);
-    const world = chestWorld(progress,unloadingIndex);
-    if (unloadingIndex >= 0) banked.voyages[unloadingIndex] = progress.voyages[unloadingIndex]!;
-    else banked.fishing.chests.push({...progress.fishing.chests[-unloadingIndex-1]!,delivered:true});
-    getCave().showCargo(cargoChests(progress), unloadingIndex, unloadQueue.completed === 0);
-    getCave().refresh(banked, world); getCave().beginUnload(world, unloadingIndex);
-    hud.unloading(unloadQueue.completed + 1, unloadQueue.total);
+    harbour?.scene.dispose(); harbour=null;
+    pirate.beginUnload(); hold=null; cave=pirate.caveScene;
+    unloadingIndex=pirate.unloading.active;
+    hud.unloading(pirate.unloading.delivered+1,pirate.unloading.total);
   };
   const unloadAtCave = () => {
     if (!cargoChests(progress).length) { home(); return; }
-    unloadQueue.reset(cargoChests(progress));
     arrive("unload");
   };
   const visitHold = () => {
@@ -245,9 +234,9 @@ async function main() {
     renderer?.scene.dispose(); renderer = null;
     harbour?.scene.dispose(); harbour = null;
     const index=progress.cargo.at(-1) ?? Math.max(0,...Object.keys(progress.voyages).map(Number));
-    hold?.scene.dispose();hold = new ShipHold(engine, generateVoyage(index));
+    pirate.closeHold();
     const special = progress.relics.find(id => caveProgress(progress).relics.indexOf(id)<0) ?? null;
-    hold.open(progress,special,false);holdShowingResult=false;
+    hold=pirate.showShip(shipPresentation(generateVoyage(index)),false,special);holdShowingResult=false;
     mode="hold";hud.hold();
   };
   const inspect = () => {
@@ -266,7 +255,7 @@ async function main() {
     clearWalking();
     loadId++;
     renderer?.scene.dispose(); renderer = null;
-    hold?.scene.dispose(); hold = null;
+    pirate.closeHold(); hold = null;
     harbour?.scene.dispose(); harbour = null;
     mode = "cave";
     journey.location = { kind: "cave" };
@@ -281,8 +270,7 @@ async function main() {
     pendingFire = false;
     hud.paused(false);
     hud.home();
-    getCave().refresh(caveProgress(progress));
-    getCave().enter();
+    pirate.showCave(); cave=pirate.caveScene;
     if (import.meta.env.DEV && qaQuery === "collection") {
       const room = new URLSearchParams(location.search).get("room");
       if (room === "vault") {
@@ -326,7 +314,7 @@ async function main() {
     clearWalking();
     loadId++;
     mode = "menu";
-    cave?.endReveal();
+    pirate.cancel(); cave=null; hold=null;
     paused = false;
     heading = tapHeading = null;
     pendingFire = false;
@@ -343,7 +331,7 @@ async function main() {
     const id = ++loadId;
     heading = tapHeading = null; pendingFire = false; paused = false;
     cave?.endReveal(); releaseCave();
-    hold?.scene.dispose(); hold = null;
+    pirate.closeHold(); hold = null;
     hud.paused(false);
     mode = "loading";
     hud.root.classList.add("loading-voyage");
@@ -356,19 +344,19 @@ async function main() {
       if (PRIVATE_PEARL) {
         // Avoid retaining two copies of the purchased textures on an iPhone.
         renderer?.scene.dispose(); renderer = null;
-        const { PrivateShip } = await import("./render/privateShip");
+        const { PrivateShip } = await import("./shared/pirate-world/render/privateShip");
         if (id !== loadId) return;
         if (!harbour) {
-          const next = await PrivateShip.load(engine);
+          const next = await PrivateShip.load(engine,{manifestUrl:privatePearlUrl.replace(".glb",".json"),modelUrl:privatePearlModelUrl(isPhoneRendering(engine))});
           if (id !== loadId) { next.scene.dispose(); return; }
           harbour = next;
         }
         if (harbour instanceof PrivateShip) {
-          harbour.refresh(progress);
+          harbour.refresh({...pirate.adapter.snapshot(),relics:progress.relics},pirate.adapter.config.relicSlots);
           harbour.enter(treasure || new URLSearchParams(location.search).get("spot") === "treasure");
         }
       } else {
-        const { Harbour } = await import("./render/harbour");
+        const { Harbour } = await import("./shared/pirate-world/render/harbour");
         if (id !== loadId) return;
         harbour ??= new Harbour(engine); harbour.enter();
         if (qaQuery === "harbour") {
@@ -403,7 +391,7 @@ async function main() {
     seaChartOpen = false; hud.seaChart(false);
     lastSeaSave = 0;
     cancelUnloading();
-    hold?.scene.dispose();hold=null;
+    pirate.closeHold();hold=null;
     clearArrival();
     gesture.clear();
     clearWalking();
@@ -562,8 +550,8 @@ async function main() {
       walking.clear();
       getCave().overview();
     },
-    caveMove: (r, f) => walking.move(r, f),
-    caveJump: () => walking.jump(),
+    caveMove: (r, f) => (mode==="cave"?pirate.controls:walking).move(r, f),
+    caveJump: () => (mode==="cave"?pirate.controls:walking).jump(),
     caveInspect: inspect,
     select: (i, world) => {
       getCave().selectedGoldWorld = world;
@@ -652,28 +640,23 @@ async function main() {
       '<span class="qa-badge">DEVELOPMENT PREVIEW · SAVES DISABLED</span>',
     );
   document.querySelector("#loading")?.remove();
+  const unbindPirate=bindWorldControls(pirate,canvas,{
+    active:()=>mode==="cave",
+    select:index=>hud.select(index,getCave().selectedGoldWorld),overview:()=>hud.overview(),inspect,
+    back:()=>{if(getCave().inspecting){getCave().overview();hud.overview();}else if(document.pointerLockElement===canvas)releaseMouse();else menu();},
+  });
+  window.addEventListener("pagehide",event=>{if(!event.persisted){unbindPirate();pirate.dispose();}},{once:true});
+
   window.addEventListener("keydown", (e) => {
     if (mode === "travel") {
       if (e.code === "Escape") { menu(); hud.showMenu("worlds"); e.preventDefault(); }
       return;
     }
-    if (mode === "cave" || mode === "harbour") {
-      if (
-        (mode === "harbour" || !getCave().inspecting || e.code.startsWith("Arrow")) &&
-        walking.keyDown(e.code, performance.now())
-      )
-        e.preventDefault();
-      if (e.code === "KeyE" && !e.repeat) {
-        e.preventDefault();
-        inspect();
-      }
-      if (e.code === "Escape") {
-        if (mode === "cave" && getCave().inspecting) {
-          getCave().overview();
-          hud.overview();
-        } else if (document.pointerLockElement === canvas) releaseMouse();
-        else menu();
-      }
+    if (mode === "cave") return; // Shared controls own cave keys, Escape and gestures.
+    if (mode === "harbour") {
+      if(walking.keyDown(e.code,performance.now()))e.preventDefault();
+      if(e.code==="KeyE"&&!e.repeat)inspect();
+      if(e.code==="Escape"){if(document.pointerLockElement===canvas)releaseMouse();else menu();}
       return;
     }
     if (mode === "menu") {
@@ -749,11 +732,10 @@ async function main() {
       canvas.setPointerCapture(e.pointerId);
       return;
     }
-    if (mode === "cave" || mode === "harbour") {
+    if (mode === "harbour") {
       canvas.focus();
       if (document.pointerLockElement === canvas) {
-        if (mode === "cave") inspect();
-        return;
+          return;
       }
       gesture.down(e.pointerId, e.clientX, e.clientY);
       canvas.setPointerCapture(e.pointerId);
@@ -768,15 +750,14 @@ async function main() {
       }
       return;
     }
-    if (mode !== "cave" && mode !== "harbour") return;
-    const place = mode === "harbour" ? harbour! : getCave();
+    if (mode !== "harbour") return;
+    const place = harbour!;
     if (document.pointerLockElement === canvas) {
       place.look(e.movementX, e.movementY);
       return;
     }
     const action = gesture.move(e.pointerId, e.clientX, e.clientY);
     if (action?.type === "look") place.look(action.dx, action.dy);
-    if (mode === "cave" && action?.type === "pinch" && getCave().pinch(action.ratio)) hud.overview();
   });
   canvas.addEventListener("pointerup", (e) => {
     if (mode === "play" && !paused && renderer?.captainCamera.enabled) {
@@ -791,18 +772,6 @@ async function main() {
       const action = gesture.up(e.pointerId, e.clientX, e.clientY);
       if (action?.type === "tap" && e.pointerType === "mouse")
         void canvas.requestPointerLock?.()?.catch(() => {});
-      return;
-    }
-    if (mode === "cave") {
-      if (document.pointerLockElement === canvas) return;
-      const action = gesture.up(e.pointerId, e.clientX, e.clientY);
-      if (action?.type === "tap") {
-        const i = getCave().pick(action.x, action.y);
-        if (i !== null) hud.select(i, getCave().selectedGoldWorld);
-        else if (e.pointerType === "mouse" && !getCave().inspecting) {
-          void canvas.requestPointerLock?.()?.catch(() => {});
-        }
-      }
       return;
     }
     if (mode === "play" && !paused) {
@@ -836,8 +805,7 @@ async function main() {
     "wheel",
     (e) => {
       e.preventDefault();
-      if (mode === "cave" && getCave().zoom(e.deltaY)) hud.overview();
-      else if (mode === "play" && !renderer?.captainCamera.enabled) renderer?.zoomBy(e.deltaY * 0.035);
+      if (mode === "play" && !renderer?.captainCamera.enabled) renderer?.zoomBy(e.deltaY * 0.035);
     },
     { passive: false },
   );
@@ -882,8 +850,7 @@ async function main() {
         arrivalInCave = true;
         renderer?.scene.dispose(); renderer = null;
         if (arrivalDestination === "hold") {
-          hold?.scene.dispose();hold=new ShipHold(engine,session.voyage);
-          hold.open(progress,reward?.special ?? null);holdShowingResult=true;
+          hold=pirate.showShip(shipPresentation(session.voyage),true,reward?.special ?? null);holdShowingResult=true;
           hud.result(session,reward);
         } else prepareChest();
         hud.root.classList.remove("arriving");
@@ -900,19 +867,14 @@ async function main() {
         clearArrival();
       }
     } else if (mode === "hold" && hold) {
-      hold.render(dt,reducedMotion.matches);
+      pirate.render(dt,reducedMotion.matches);
       if (holdShowingResult) {const p=hold.pose;hud.reveal(p.time,p.discovered,p.ready);}
     } else if (mode === "unloading") {
       // DEV-only still frame for inspecting the hands and cabin-to-bank carry.
       if (carryPreview) getCave().revealTime = reducedMotion.matches ? 1.4 : 6.7;
-      getCave().render(carryPreview ? 0 : dt,true);
-      if (unloadingIndex !== null && getCave().depositComplete) {
-        deliverChest(progress,unloadingIndex);saveProgress(progress,storage);
-        unloadQueue.complete(unloadingIndex);
-        getCave().refresh(caveProgress(progress));
-        if (unloadQueue.current !== null) prepareChest();
-        else {unloadingIndex=null;getCave().showCargo([]);hud.unloading(unloadQueue.total,unloadQueue.total,true);}
-      }
+      pirate.render(carryPreview ? 0 : dt,reducedMotion.matches);
+      unloadingIndex=pirate.unloading.active;
+      hud.unloading(pirate.unloading.done ? pirate.unloading.total : pirate.unloading.delivered+1,pirate.unloading.total,pirate.unloading.done);
     } else if (mode === "harbour" && harbour) {
       const look = walking.readLook();
       harbour.look(look.right * 500 * dt, look.down * 450 * dt);
@@ -980,12 +942,8 @@ async function main() {
     } else if (mode === "loading" && renderer) {
       renderer.render(session, 1, dt);
     } else if (mode !== "menu" && mode !== "loading") {
-      if (mode === "cave") {
-        const look = walking.readLook();
-        getCave().look(look.right * 500 * dt, look.down * 450 * dt);
-        getCave().walk(walking.read(), dt);
-      }
-      getCave().render(dt, mode === "result");
+      if (mode === "cave") pirate.render(dt,reducedMotion.matches);
+      else getCave().render(dt, mode === "result");
       if (mode === "cave") {
         hud.caveWalk(
           getCave().nearby,
@@ -1037,9 +995,9 @@ async function main() {
     session.gemsFound = 2;
     for (let i = 0; i < index; i++) { awardVoyage(progress, i, 3, 2); if (!qaQuery!.startsWith("hold-") && !qaQuery!.startsWith("unload-")) deliverChest(progress,i); }
     reward = awardVoyage(progress, index, 3, 2);
-    getCave().refresh(caveProgress(progress));
+    getCave().refresh(pirate.adapter.snapshot());
     if(qaQuery!.startsWith("unload-")) { unloadAtCave(); }
-    else { hold = new ShipHold(engine,session.voyage);hold.open(progress,reward.special);holdShowingResult=true;mode="hold";hud.result(session,reward); }
+    else { hold = pirate.showShip(shipPresentation(session.voyage),true,reward.special);holdShowingResult=true;mode="hold";hud.result(session,reward); }
   } else if (qaQuery === "menu") {
     menu();
     const view = new URLSearchParams(location.search).get("view");

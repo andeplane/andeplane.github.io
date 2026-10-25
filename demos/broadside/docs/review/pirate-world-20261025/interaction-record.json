@@ -1,0 +1,7 @@
+{
+  "errorRetry": true,
+  "dialogEscapeFocus": true,
+  "outsideTap": true,
+  "privateShipScreenRight": true,
+  "errors": []
+}

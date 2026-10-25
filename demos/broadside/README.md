@@ -103,7 +103,7 @@ The growing gold hoard and four world treasures are actual 3D models made from s
 - `src/sim`: fixed-step sailing, projectiles, wind and collisions.
 - `src/game/voyage.ts`: current campaign, hazards and star scoring.
 - `src/game/progress.ts`: validated local saves.
-- `src/render/cave.ts`, `cavern.ts`, `relics.ts`, `chest.ts`: single treasure room, collectibles and chest choreography.
+- `src/shared/pirate-world/`: shared cave, ship/hold, chest/coin animation, input, physics and scene lifecycle for both games; see [the library boundary](docs/PIRATE_WORLD.md).
 - `src/render/voyageView.ts`: gems, goal rings, fort warnings and kraken.
 - `src/ui/voyageHud.ts`, `voyage.css`: mobile campaign interface.
 - `src/game/session.ts`, `adventure.ts`: retained original battle/adventure simulation.

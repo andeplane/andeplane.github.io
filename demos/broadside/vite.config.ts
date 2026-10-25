@@ -2,6 +2,7 @@ import { existsSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { loadEnv } from "vite";
 import { defineConfig } from "vitest/config";
+import { pirateBuildProvenance } from "./tools/pirateBuildProvenance";
 import { privateAssets, usePrivatePearl } from "./tools/privateAssets";
 
 export default defineConfig(({ mode }) => {
@@ -11,7 +12,7 @@ export default defineConfig(({ mode }) => {
     ? { calculus: "math/index.html" }
     : { broadside: "index.html", calculus: "math/index.html" };
   return {
-    plugins: [privateAssets(pearl, process.cwd())],
+    plugins: [privateAssets(pearl, process.cwd()), pirateBuildProvenance(process.cwd(),pearl)],
     define: {
       "import.meta.env.PRIVATE_PEARL": JSON.stringify(pearl),
       "import.meta.env.PRIVATE_PEARL_MOBILE": JSON.stringify(pearl && existsSync(resolve('.private/black-pearl-mobile.glb'))),

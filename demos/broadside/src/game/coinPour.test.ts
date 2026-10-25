@@ -1,5 +1,5 @@
 import {describe,expect,it} from 'vitest';
-import {pourTilt,canSpill,tiltedCoin,carriedCoin,chestCarry,chestExit,CHEST_EXIT_SECONDS} from './coinPour';
+import {pourTilt,canSpill,tiltedCoin,carriedCoin,chestCarry,chestExit,CHEST_EXIT_SECONDS} from '../shared/pirate-world/game/coinPour';
 import {Quaternion,Vector3} from '@babylonjs/core/Maths/math.vector.js';
 describe('carried and tilting chest coin poses',()=>{
   const source=new Float32Array([1,.6,-.2,0,0,0,1]);

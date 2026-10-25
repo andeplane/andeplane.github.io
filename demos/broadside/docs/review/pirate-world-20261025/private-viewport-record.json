@@ -1,0 +1,83 @@
+[
+  {
+    "viewport": [
+      390,
+      844
+    ],
+    "safe": "47,12,34,12",
+    "cargo": 0,
+    "errors": []
+  },
+  {
+    "viewport": [
+      390,
+      844
+    ],
+    "safe": "47,12,34,12",
+    "cargo": 4,
+    "errors": []
+  },
+  {
+    "viewport": [
+      390,
+      844
+    ],
+    "safe": "47,12,34,12",
+    "cargo": 40,
+    "errors": []
+  },
+  {
+    "viewport": [
+      320,
+      568
+    ],
+    "safe": "24,8,18,8",
+    "cargo": 0,
+    "errors": []
+  },
+  {
+    "viewport": [
+      320,
+      568
+    ],
+    "safe": "24,8,18,8",
+    "cargo": 4,
+    "errors": []
+  },
+  {
+    "viewport": [
+      320,
+      568
+    ],
+    "safe": "24,8,18,8",
+    "cargo": 40,
+    "errors": []
+  },
+  {
+    "viewport": [
+      844,
+      390
+    ],
+    "safe": "0,47,21,47",
+    "cargo": 0,
+    "errors": []
+  },
+  {
+    "viewport": [
+      844,
+      390
+    ],
+    "safe": "0,47,21,47",
+    "cargo": 4,
+    "errors": []
+  },
+  {
+    "viewport": [
+      844,
+      390
+    ],
+    "safe": "0,47,21,47",
+    "cargo": 40,
+    "errors": []
+  }
+]

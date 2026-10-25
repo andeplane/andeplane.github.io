@@ -1,11 +1,12 @@
-import { coinSounds } from '../game/coinSounds';
+import { coinSounds } from '../shared/pirate-world/game/coinSounds';
 import type { Engine } from '@babylonjs/core/Engines/engine.js';
 import { SceneInstrumentation } from '@babylonjs/core/Instrumentation/sceneInstrumentation.js';
-import { TreasureCave } from '../render/cave';
-import { ShipHold } from '../render/shipHold';
+import { shipPresentation } from '../game/pirateAdapter';
+import { TreasureCave } from '../shared/pirate-world/render/cave';
+import { ShipHold } from '../shared/pirate-world/render/shipHold';
 import { generateVoyage } from '../game/voyage';
 import { CoinDebugQueue, CoinFrameSamples } from '../game/debugCoins';
-import { GOLD_AREAS } from '../game/goldAreas';
+import { GOLD_AREAS } from '../shared/pirate-world/game/goldAreas';
 import { installFullscreen } from './fullscreen';
 import './debugCoins.css';
 
@@ -19,7 +20,7 @@ export function startCoinDebug(engine: Engine, initial: Location, quality: () =>
   const sandboxes: Partial<Record<Location,Sandbox>> = {};
   const history: string[] = ['location,area,coins,pour_seconds,fps,frame_p95_ms,cpu_render_ms,draw_calls,width,height,physics_mean_ms,physics_max_ms,static_collision_triangles,drawn_coins,coin_render_triangles'];
   const get = (): Sandbox => sandboxes[location] ??= (()=>{
-    const view=location==='cave'?new TreasureCave(engine,false,true):new ShipHold(engine,generateVoyage(0));
+    const view=location==='cave'?new TreasureCave(engine,false,true):new ShipHold(engine,shipPresentation(generateVoyage(0)));
     view.debugCoinBank(location==='cave'?world:0);
     return {view,queue:new CoinDebugQueue(),meter:new SceneInstrumentation(view.scene),frames:new CoinFrameSamples()};
   })();

@@ -72,3 +72,5 @@
 }
 @media(max-width:600px) { .hold-heading {top:84px;} .hold-heading h1 {font-size:32px;} .hold-heading p {font-size:12px;} .hold-actions {bottom:calc(14px + var(--safe));} }
 @media(max-height:480px) and (min-width:601px) { .hold-heading {top:62px;left:16px;right:auto;width:250px;} .hold-heading h1 {font-size:30px;} .hold-actions {left:auto;right:20px;transform:none;width:235px;bottom:16px;} }
+
+#hold-ui .hold-actions { bottom:calc(22px + var(--pirate-safe-bottom)); }

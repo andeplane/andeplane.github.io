@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
-import { PearlDeck, type PearlManifest } from './pearlDeck';
-import { CaveWalker } from './caveWalk';
+import { PearlDeck, type PearlManifest } from '../shared/pirate-world/input/pearlDeck';
+import { CaveWalker } from '../shared/pirate-world/input/caveWalk';
 const manifest: PearlManifest = {
   version: 1, cabin: {floor: 4.5, x: [-4.7,4.7], z: [-22,-11.5]},
   floorTriangles: [

@@ -305,3 +305,9 @@ describe('sailing deck controls',()=>{
     hud.harbour();expect(button('#harbour-unload').hidden).toBe(false);
   });
 });
+
+it.each(['#hold-back','#unload-menu','#sea-chart-back'])('passes no click-event argument from %s to menu navigation',id=>{
+  const {handlers,button}=setup(false);
+  button(id).click();
+  expect(handlers.menu.mock.calls).toEqual([[]]);
+});

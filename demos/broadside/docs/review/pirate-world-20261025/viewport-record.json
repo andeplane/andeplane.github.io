@@ -1,0 +1,920 @@
+[
+  {
+    "game": "broadside",
+    "state": "empty-cave",
+    "viewport": [
+      390,
+      844
+    ],
+    "safe": [
+      47,
+      12,
+      34,
+      12
+    ],
+    "errors": [],
+    "screen": "cave",
+    "small": [],
+    "outside": []
+  },
+  {
+    "game": "broadside",
+    "state": "large-cave",
+    "viewport": [
+      390,
+      844
+    ],
+    "safe": [
+      47,
+      12,
+      34,
+      12
+    ],
+    "errors": [],
+    "screen": "cave",
+    "small": [],
+    "outside": []
+  },
+  {
+    "game": "broadside",
+    "state": "empty-ship",
+    "viewport": [
+      390,
+      844
+    ],
+    "safe": [
+      47,
+      12,
+      34,
+      12
+    ],
+    "errors": [],
+    "screen": "hold",
+    "small": [],
+    "outside": []
+  },
+  {
+    "game": "broadside",
+    "state": "pending-ship",
+    "viewport": [
+      390,
+      844
+    ],
+    "safe": [
+      47,
+      12,
+      34,
+      12
+    ],
+    "errors": [],
+    "screen": "hold",
+    "small": [],
+    "outside": []
+  },
+  {
+    "game": "broadside",
+    "state": "large-ship",
+    "viewport": [
+      390,
+      844
+    ],
+    "safe": [
+      47,
+      12,
+      34,
+      12
+    ],
+    "errors": [],
+    "screen": "hold",
+    "small": [],
+    "outside": []
+  },
+  {
+    "game": "broadside",
+    "state": "reward",
+    "viewport": [
+      390,
+      844
+    ],
+    "safe": [
+      47,
+      12,
+      34,
+      12
+    ],
+    "errors": [],
+    "screen": "hold",
+    "small": [],
+    "outside": []
+  },
+  {
+    "game": "broadside",
+    "state": "unload",
+    "viewport": [
+      390,
+      844
+    ],
+    "safe": [
+      47,
+      12,
+      34,
+      12
+    ],
+    "errors": [],
+    "screen": "unloading",
+    "small": [],
+    "outside": []
+  },
+  {
+    "game": "broadside",
+    "state": "walking-ship",
+    "viewport": [
+      390,
+      844
+    ],
+    "safe": [
+      47,
+      12,
+      34,
+      12
+    ],
+    "errors": [],
+    "screen": "harbour",
+    "small": [],
+    "outside": []
+  },
+  {
+    "game": "calculus",
+    "state": "empty-cave",
+    "viewport": [
+      390,
+      844
+    ],
+    "safe": [
+      47,
+      12,
+      34,
+      12
+    ],
+    "errors": [],
+    "screen": "cave",
+    "small": [],
+    "outside": []
+  },
+  {
+    "game": "calculus",
+    "state": "large-cave",
+    "viewport": [
+      390,
+      844
+    ],
+    "safe": [
+      47,
+      12,
+      34,
+      12
+    ],
+    "errors": [],
+    "screen": "cave",
+    "small": [],
+    "outside": []
+  },
+  {
+    "game": "calculus",
+    "state": "empty-ship",
+    "viewport": [
+      390,
+      844
+    ],
+    "safe": [
+      47,
+      12,
+      34,
+      12
+    ],
+    "errors": [],
+    "screen": "ship",
+    "small": [],
+    "outside": []
+  },
+  {
+    "game": "calculus",
+    "state": "pending-ship",
+    "viewport": [
+      390,
+      844
+    ],
+    "safe": [
+      47,
+      12,
+      34,
+      12
+    ],
+    "errors": [],
+    "screen": "ship",
+    "small": [],
+    "outside": []
+  },
+  {
+    "game": "calculus",
+    "state": "large-ship",
+    "viewport": [
+      390,
+      844
+    ],
+    "safe": [
+      47,
+      12,
+      34,
+      12
+    ],
+    "errors": [],
+    "screen": "ship",
+    "small": [],
+    "outside": []
+  },
+  {
+    "game": "calculus",
+    "state": "reward",
+    "viewport": [
+      390,
+      844
+    ],
+    "safe": [
+      47,
+      12,
+      34,
+      12
+    ],
+    "errors": [],
+    "screen": "reward",
+    "small": [],
+    "outside": []
+  },
+  {
+    "game": "calculus",
+    "state": "unload",
+    "viewport": [
+      390,
+      844
+    ],
+    "safe": [
+      47,
+      12,
+      34,
+      12
+    ],
+    "errors": [],
+    "screen": "unloading",
+    "small": [],
+    "outside": []
+  },
+  {
+    "game": "calculus",
+    "state": "loading",
+    "viewport": [
+      390,
+      844
+    ],
+    "safe": [
+      47,
+      12,
+      34,
+      12
+    ],
+    "errors": [],
+    "screen": "ship",
+    "small": [],
+    "outside": []
+  },
+  {
+    "game": "calculus",
+    "state": "error",
+    "viewport": [
+      390,
+      844
+    ],
+    "safe": [
+      47,
+      12,
+      34,
+      12
+    ],
+    "errors": [],
+    "screen": "ship",
+    "small": [],
+    "outside": []
+  },
+  {
+    "game": "broadside",
+    "state": "empty-cave",
+    "viewport": [
+      320,
+      568
+    ],
+    "safe": [
+      24,
+      8,
+      18,
+      8
+    ],
+    "errors": [],
+    "screen": "cave",
+    "small": [],
+    "outside": []
+  },
+  {
+    "game": "broadside",
+    "state": "large-cave",
+    "viewport": [
+      320,
+      568
+    ],
+    "safe": [
+      24,
+      8,
+      18,
+      8
+    ],
+    "errors": [],
+    "screen": "cave",
+    "small": [],
+    "outside": []
+  },
+  {
+    "game": "broadside",
+    "state": "empty-ship",
+    "viewport": [
+      320,
+      568
+    ],
+    "safe": [
+      24,
+      8,
+      18,
+      8
+    ],
+    "errors": [],
+    "screen": "hold",
+    "small": [],
+    "outside": []
+  },
+  {
+    "game": "broadside",
+    "state": "pending-ship",
+    "viewport": [
+      320,
+      568
+    ],
+    "safe": [
+      24,
+      8,
+      18,
+      8
+    ],
+    "errors": [],
+    "screen": "hold",
+    "small": [],
+    "outside": []
+  },
+  {
+    "game": "broadside",
+    "state": "large-ship",
+    "viewport": [
+      320,
+      568
+    ],
+    "safe": [
+      24,
+      8,
+      18,
+      8
+    ],
+    "errors": [],
+    "screen": "hold",
+    "small": [],
+    "outside": []
+  },
+  {
+    "game": "broadside",
+    "state": "reward",
+    "viewport": [
+      320,
+      568
+    ],
+    "safe": [
+      24,
+      8,
+      18,
+      8
+    ],
+    "errors": [],
+    "screen": "hold",
+    "small": [],
+    "outside": []
+  },
+  {
+    "game": "broadside",
+    "state": "unload",
+    "viewport": [
+      320,
+      568
+    ],
+    "safe": [
+      24,
+      8,
+      18,
+      8
+    ],
+    "errors": [],
+    "screen": "unloading",
+    "small": [],
+    "outside": []
+  },
+  {
+    "game": "broadside",
+    "state": "walking-ship",
+    "viewport": [
+      320,
+      568
+    ],
+    "safe": [
+      24,
+      8,
+      18,
+      8
+    ],
+    "errors": [],
+    "screen": "harbour",
+    "small": [],
+    "outside": []
+  },
+  {
+    "game": "calculus",
+    "state": "empty-cave",
+    "viewport": [
+      320,
+      568
+    ],
+    "safe": [
+      24,
+      8,
+      18,
+      8
+    ],
+    "errors": [],
+    "screen": "cave",
+    "small": [],
+    "outside": []
+  },
+  {
+    "game": "calculus",
+    "state": "large-cave",
+    "viewport": [
+      320,
+      568
+    ],
+    "safe": [
+      24,
+      8,
+      18,
+      8
+    ],
+    "errors": [],
+    "screen": "cave",
+    "small": [],
+    "outside": []
+  },
+  {
+    "game": "calculus",
+    "state": "empty-ship",
+    "viewport": [
+      320,
+      568
+    ],
+    "safe": [
+      24,
+      8,
+      18,
+      8
+    ],
+    "errors": [],
+    "screen": "ship",
+    "small": [],
+    "outside": []
+  },
+  {
+    "game": "calculus",
+    "state": "pending-ship",
+    "viewport": [
+      320,
+      568
+    ],
+    "safe": [
+      24,
+      8,
+      18,
+      8
+    ],
+    "errors": [],
+    "screen": "ship",
+    "small": [],
+    "outside": []
+  },
+  {
+    "game": "calculus",
+    "state": "large-ship",
+    "viewport": [
+      320,
+      568
+    ],
+    "safe": [
+      24,
+      8,
+      18,
+      8
+    ],
+    "errors": [],
+    "screen": "ship",
+    "small": [],
+    "outside": []
+  },
+  {
+    "game": "calculus",
+    "state": "reward",
+    "viewport": [
+      320,
+      568
+    ],
+    "safe": [
+      24,
+      8,
+      18,
+      8
+    ],
+    "errors": [],
+    "screen": "reward",
+    "small": [],
+    "outside": []
+  },
+  {
+    "game": "calculus",
+    "state": "unload",
+    "viewport": [
+      320,
+      568
+    ],
+    "safe": [
+      24,
+      8,
+      18,
+      8
+    ],
+    "errors": [],
+    "screen": "unloading",
+    "small": [],
+    "outside": []
+  },
+  {
+    "game": "calculus",
+    "state": "loading",
+    "viewport": [
+      320,
+      568
+    ],
+    "safe": [
+      24,
+      8,
+      18,
+      8
+    ],
+    "errors": [],
+    "screen": "ship",
+    "small": [],
+    "outside": []
+  },
+  {
+    "game": "calculus",
+    "state": "error",
+    "viewport": [
+      320,
+      568
+    ],
+    "safe": [
+      24,
+      8,
+      18,
+      8
+    ],
+    "errors": [],
+    "screen": "ship",
+    "small": [],
+    "outside": []
+  },
+  {
+    "game": "broadside",
+    "state": "empty-cave",
+    "viewport": [
+      844,
+      390
+    ],
+    "safe": [
+      0,
+      47,
+      21,
+      47
+    ],
+    "errors": [],
+    "screen": "cave",
+    "small": [],
+    "outside": []
+  },
+  {
+    "game": "broadside",
+    "state": "large-cave",
+    "viewport": [
+      844,
+      390
+    ],
+    "safe": [
+      0,
+      47,
+      21,
+      47
+    ],
+    "errors": [],
+    "screen": "cave",
+    "small": [],
+    "outside": []
+  },
+  {
+    "game": "broadside",
+    "state": "empty-ship",
+    "viewport": [
+      844,
+      390
+    ],
+    "safe": [
+      0,
+      47,
+      21,
+      47
+    ],
+    "errors": [],
+    "screen": "hold",
+    "small": [],
+    "outside": []
+  },
+  {
+    "game": "broadside",
+    "state": "pending-ship",
+    "viewport": [
+      844,
+      390
+    ],
+    "safe": [
+      0,
+      47,
+      21,
+      47
+    ],
+    "errors": [],
+    "screen": "hold",
+    "small": [],
+    "outside": []
+  },
+  {
+    "game": "broadside",
+    "state": "large-ship",
+    "viewport": [
+      844,
+      390
+    ],
+    "safe": [
+      0,
+      47,
+      21,
+      47
+    ],
+    "errors": [],
+    "screen": "hold",
+    "small": [],
+    "outside": []
+  },
+  {
+    "game": "broadside",
+    "state": "reward",
+    "viewport": [
+      844,
+      390
+    ],
+    "safe": [
+      0,
+      47,
+      21,
+      47
+    ],
+    "errors": [],
+    "screen": "hold",
+    "small": [],
+    "outside": []
+  },
+  {
+    "game": "broadside",
+    "state": "unload",
+    "viewport": [
+      844,
+      390
+    ],
+    "safe": [
+      0,
+      47,
+      21,
+      47
+    ],
+    "errors": [],
+    "screen": "unloading",
+    "small": [],
+    "outside": []
+  },
+  {
+    "game": "broadside",
+    "state": "walking-ship",
+    "viewport": [
+      844,
+      390
+    ],
+    "safe": [
+      0,
+      47,
+      21,
+      47
+    ],
+    "errors": [],
+    "screen": "harbour",
+    "small": [],
+    "outside": []
+  },
+  {
+    "game": "calculus",
+    "state": "empty-cave",
+    "viewport": [
+      844,
+      390
+    ],
+    "safe": [
+      0,
+      47,
+      21,
+      47
+    ],
+    "errors": [],
+    "screen": "cave",
+    "small": [],
+    "outside": []
+  },
+  {
+    "game": "calculus",
+    "state": "large-cave",
+    "viewport": [
+      844,
+      390
+    ],
+    "safe": [
+      0,
+      47,
+      21,
+      47
+    ],
+    "errors": [],
+    "screen": "cave",
+    "small": [],
+    "outside": []
+  },
+  {
+    "game": "calculus",
+    "state": "empty-ship",
+    "viewport": [
+      844,
+      390
+    ],
+    "safe": [
+      0,
+      47,
+      21,
+      47
+    ],
+    "errors": [],
+    "screen": "ship",
+    "small": [],
+    "outside": []
+  },
+  {
+    "game": "calculus",
+    "state": "pending-ship",
+    "viewport": [
+      844,
+      390
+    ],
+    "safe": [
+      0,
+      47,
+      21,
+      47
+    ],
+    "errors": [],
+    "screen": "ship",
+    "small": [],
+    "outside": []
+  },
+  {
+    "game": "calculus",
+    "state": "large-ship",
+    "viewport": [
+      844,
+      390
+    ],
+    "safe": [
+      0,
+      47,
+      21,
+      47
+    ],
+    "errors": [],
+    "screen": "ship",
+    "small": [],
+    "outside": []
+  },
+  {
+    "game": "calculus",
+    "state": "reward",
+    "viewport": [
+      844,
+      390
+    ],
+    "safe": [
+      0,
+      47,
+      21,
+      47
+    ],
+    "errors": [],
+    "screen": "reward",
+    "small": [],
+    "outside": []
+  },
+  {
+    "game": "calculus",
+    "state": "unload",
+    "viewport": [
+      844,
+      390
+    ],
+    "safe": [
+      0,
+      47,
+      21,
+      47
+    ],
+    "errors": [],
+    "screen": "unloading",
+    "small": [],
+    "outside": []
+  },
+  {
+    "game": "calculus",
+    "state": "loading",
+    "viewport": [
+      844,
+      390
+    ],
+    "safe": [
+      0,
+      47,
+      21,
+      47
+    ],
+    "errors": [],
+    "screen": "ship",
+    "small": [],
+    "outside": []
+  },
+  {
+    "game": "calculus",
+    "state": "error",
+    "viewport": [
+      844,
+      390
+    ],
+    "safe": [
+      0,
+      47,
+      21,
+      47
+    ],
+    "errors": [],
+    "screen": "ship",
+    "small": [],
+    "outside": []
+  }
+]

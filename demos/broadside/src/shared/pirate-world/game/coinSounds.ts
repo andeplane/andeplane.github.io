@@ -1,6 +1,7 @@
+import { PIRATE_ASSETS, pirateAsset } from "../assets";
 /** Actual coin-drop recording supplied by the player. Never synthesize a fallback. */
 async function loadCoinRecording(): Promise<ArrayBuffer> {
-  const response=await fetch(`${import.meta.env.BASE_URL}assets/audio/coins-drop.mp3`);
+  const response=await fetch(pirateAsset(PIRATE_ASSETS.coinSound));
   if(!response.ok)throw new Error('Coin recording unavailable');
   return response.arrayBuffer();
 }

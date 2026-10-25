@@ -15,7 +15,7 @@ import { type Node } from "@babylonjs/core/node.js";
 import { type Scene } from "@babylonjs/core/scene.js";
 import { SHIP_SPECS, type ShipClass } from "../sim/ships";
 import { PALETTE } from "./palette";
-import { isPhoneRendering } from "./quality";
+import { isPhoneRendering } from "../shared/pirate-world/render/quality";
 import { PRIVATE_PEARL, privatePearlModelUrl } from "../privatePearl";
 
 export const SHIP_CLASSES: readonly ShipClass[] = [

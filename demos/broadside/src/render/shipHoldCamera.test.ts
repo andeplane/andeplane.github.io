@@ -3,8 +3,8 @@ import { NullEngine } from '@babylonjs/core/Engines/nullEngine.js';
 import { Scene } from '@babylonjs/core/scene.js';
 import { FreeCamera } from '@babylonjs/core/Cameras/freeCamera.js';
 import { Matrix, Vector3 } from '@babylonjs/core/Maths/math.vector.js';
-import { shipHoldCamera } from './shipHoldCamera';
-import { holdCargoPosition } from './cargoChests';
+import { shipHoldCamera } from '../shared/pirate-world/render/shipHoldCamera';
+import { holdCargoPosition } from '../shared/pirate-world/render/cargoChests';
 
 describe('shared ship hold framing', () => {
   it('shows the whole active open chest and both previous chests on a393-by852 phone', () => {

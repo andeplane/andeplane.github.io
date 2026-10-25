@@ -1,10 +1,10 @@
 // Count actual submitted geometry, without a browser, audio or save writes.
 import ts from 'typescript';
 import { readFile } from 'node:fs/promises';
-const url = new URL('../../src/game/goldSurface.ts', import.meta.url);
-const source = (await readFile(url, 'utf8')).replace("'./goldAreas'", JSON.stringify(new URL('../../src/game/goldAreas.ts', import.meta.url).href));
+const url = new URL('../../src/shared/pirate-world/game/goldSurface.ts', import.meta.url);
+const source = (await readFile(url, 'utf8')).replace("'./goldAreas'", JSON.stringify(new URL('../../src/shared/pirate-world/game/goldAreas.ts', import.meta.url).href));
 const js = ts.transpileModule(source, { compilerOptions: { target: ts.ScriptTarget.ES2022, module: ts.ModuleKind.ESNext } }).outputText;
-const coinSource = await readFile(new URL('../../src/render/coin.ts', import.meta.url), 'utf8');
+const coinSource = await readFile(new URL('../../src/shared/pirate-world/render/coin.ts', import.meta.url), 'utf8');
 const renderSegments = Number(coinSource.match(/DOUBLOON_RENDER_SEGMENTS = (\d+)/)[1]);
 const trianglesPerCoin = renderSegments * 8;
 const { exposedGold } = await import('data:text/javascript;base64,' + Buffer.from(js).toString('base64'));

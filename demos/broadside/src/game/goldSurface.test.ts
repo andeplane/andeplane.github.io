@@ -1,6 +1,6 @@
 import { readFileSync } from 'node:fs';
 import { describe, expect, it } from 'vitest';
-import { exposedGold } from './goldSurface';
+import { exposedGold } from '../shared/pirate-world/game/goldSurface';
 
 const coin = (x: number, y: number, z: number, tilt = 0) => [x, y, z, Math.sin(tilt / 2), 0, 0, Math.cos(tilt / 2)];
 describe('frozen pile surface', () => {

@@ -9,7 +9,7 @@
     "build": "npm run test && tsc --noEmit && vite build",
     "preview": "vite preview",
     "typecheck": "tsc --noEmit",
-    "test": "vitest run",
+    "test": "node tools/checkPirateBoundary.mjs && vitest run",
     "test:watch": "vitest",
     "coverage": "vitest run --coverage",
     "gold:bake": "node --experimental-strip-types tools/hoard/bake.mjs",
@@ -25,7 +25,8 @@
     "calculus:ios:open": "npm run calculus:ios:sync && CAPTAIN_CALCULUS=1 cap open ios",
     "calculus:ios:sim": "npm run calculus:ios:sync && CAPTAIN_CALCULUS=1 cap run ios --no-sync",
     "calculus:ios:build:sim": "npm run calculus:ios:sync && xcodebuild -project ios-calculus/App/App.xcodeproj -scheme App -configuration Debug -sdk iphonesimulator -destination \"generic/platform=iOS Simulator\" -derivedDataPath ios-calculus/DerivedData -packageAuthorizationProvider netrc CODE_SIGNING_ALLOWED=NO build",
-    "build:public": "npm run test && tsc --noEmit && vite build --mode public"
+    "build:public": "npm run test && tsc --noEmit && vite build --mode public",
+    "check:pirate-boundary": "node tools/checkPirateBoundary.mjs"
   },
   "devDependencies": {
     "@capacitor/cli": "8.5.2",

@@ -11,7 +11,7 @@ import { ShadowGenerator } from "@babylonjs/core/Lights/Shadows/shadowGenerator.
 import { DefaultRenderingPipeline } from "@babylonjs/core/PostProcesses/RenderPipeline/Pipelines/defaultRenderingPipeline.js";
 import { CaveWalker, type WalkIntent } from "../input/caveWalk";
 import { harbourFloor, harbourWalkable, harbourObstacles, harbourRoom } from "../input/harbourLayout";
-import { Ocean } from "./water";
+import { Ocean } from "../../../render/water";
 import { buildHarbourScenery } from "./harbourScenery";
 
 /** A quiet dockside world shares the cave's grounded first-person controller. */

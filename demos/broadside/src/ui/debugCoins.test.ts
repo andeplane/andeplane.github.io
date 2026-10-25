@@ -2,7 +2,7 @@
 import {afterEach,describe,expect,it,vi} from 'vitest';
 import type {Engine} from '@babylonjs/core/Engines/engine.js';
 const fake=vi.hoisted(()=>({views:[] as {calls:number[][];depositComplete:boolean;dispose:ReturnType<typeof vi.fn>}[]}));
-vi.mock('../render/cave',()=>({TreasureCave:class {
+vi.mock('../shared/pirate-world/render/cave',()=>({TreasureCave:class {
   calls:number[][]=[];depositComplete=false;coinError=null;coinCounts=[0,0,0,0];restingCoinCounts=[0,0,0,0];
   drawnCoinCounts=[0,0,0,0];coinRenderTriangles=0;
   coinPhysicsMetrics={lastMs:1,meanMs:2,maxMs:3,staticTriangles:42};
@@ -11,7 +11,7 @@ vi.mock('../render/cave',()=>({TreasureCave:class {
   debugCoinBank(world:number,add=false){this.calls.push([world,Number(add)]);this.depositComplete=false;}
   render(){}
 }}));
-vi.mock('../render/shipHold',()=>({ShipHold:class {
+vi.mock('../shared/pirate-world/render/shipHold',()=>({ShipHold:class {
   calls:number[][]=[];depositComplete=false;coinError=null;coinCounts=[0];restingCoinCounts=[0];
   drawnCoinCounts=[0,0,0,0];coinRenderTriangles=0;
   coinPhysicsMetrics={lastMs:1,meanMs:2,maxMs:3,staticTriangles:42};

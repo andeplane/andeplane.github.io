@@ -1,7 +1,7 @@
 import {describe,it,expect,beforeAll} from 'vitest';
 import RAPIER from '@dimforge/rapier3d-compat';
-import {coinFloor} from './coinFloor';
-import {caveFloor} from '../input/caveLayout';
+import {coinFloor} from '../shared/pirate-world/game/coinFloor';
+import {caveFloor} from '../shared/pirate-world/input/caveLayout';
 beforeAll(async()=>{await RAPIER.init();});
 describe('whole cave coin floor',()=>{
  it('supports spilled gold beyond the former bank box and follows the canal',()=>{

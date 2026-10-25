@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
-import { cargoCarry } from './cargoCarry';
-import { caveWalkable } from '../input/caveLayout';
-import { GOLD_AREAS } from './goldAreas';
+import { cargoCarry } from '../shared/pirate-world/game/cargoCarry';
+import { caveWalkable } from '../shared/pirate-world/input/caveLayout';
+import { GOLD_AREAS } from '../shared/pirate-world/game/goldAreas';
 
 describe('cargo carried from the cave entrance', () => {
   const from = { x: -2.8, y: .2, z: -8.8 };

@@ -1,4 +1,4 @@
-import { antialiasSamples, isPhoneRendering } from "./quality";
+import { antialiasSamples, isPhoneRendering } from "../shared/pirate-world/render/quality";
 import "@babylonjs/core/Shaders/postprocess.vertex.js";
 import "@babylonjs/core/Shaders/imageProcessing.fragment.js";
 import "@babylonjs/core/Shaders/rgbdDecode.fragment.js";

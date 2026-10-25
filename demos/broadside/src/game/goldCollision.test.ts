@@ -1,8 +1,8 @@
 import {readFileSync} from "node:fs";
 import { beforeAll, describe, expect, it } from "vitest";
 import RAPIER from "@dimforge/rapier3d-compat";
-import { settledGoldCollision,settledGoldPatches } from "./goldCollision";
-import { COIN_THICKNESS } from "./goldAreas";
+import { settledGoldCollision,settledGoldPatches } from "../shared/pirate-world/game/goldCollision";
+import { COIN_THICKNESS } from "../shared/pirate-world/game/goldAreas";
 
 beforeAll(async () => { await RAPIER.init(); });
 

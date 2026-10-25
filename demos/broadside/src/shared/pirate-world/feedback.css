@@ -1,0 +1,5 @@
+.pirate-world-error { position:fixed; width:min(430px,calc(100vw - var(--pirate-safe-left,0px) - var(--pirate-safe-right,0px) - 32px)); max-height:calc(100dvh - var(--pirate-safe-top,0px) - var(--pirate-safe-bottom,0px) - 32px); overflow:auto; padding:20px; background:#132a34; color:#fff4db; border:2px solid #edc279; border-radius:12px; }
+.pirate-world-error h2 { margin:0 0 12px; font-size:24px; }
+.pirate-world-error p { margin:0 0 16px; line-height:1.5; }
+.pirate-world-error::backdrop { background:#06131dcc; }
+.pirate-world-error button { min-width:44px; min-height:44px; padding:12px 18px; background:#edc279; color:#17212a; border:1px solid #edc279; border-radius:8px; font:inherit; font-weight:700; }

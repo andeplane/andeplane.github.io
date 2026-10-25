@@ -10,7 +10,7 @@ import { PointLight } from "@babylonjs/core/Lights/pointLight.js";
 import type { Scene } from "@babylonjs/core/scene.js";
 import type { ShadowGenerator } from "@babylonjs/core/Lights/Shadows/shadowGenerator.js";
 import { deckHeight, deckHalfWidth, HARBOUR_BUILDINGS, HARBOUR_CARGO } from "../input/harbourLayout";
-import { Rng } from "../sim/rng";
+import { Rng } from "../../../sim/rng";
 import { bindLocalLights } from "./localLights";
 
 /** A walking version of the Pearl: continuous decks, stairs and close-up joinery. */

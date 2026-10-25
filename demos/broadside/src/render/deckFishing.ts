@@ -10,7 +10,7 @@ import type { Fishing } from '../game/fishing';
 import type { DeckWalk } from '../game/deckWalk';
 import type { ShipView } from './shipView';
 import { sampleWaves } from '../sim/waves';
-import { RewardChest } from './chest';
+import { RewardChest } from '../shared/pirate-world/render/chest';
 
 /** A real rod, hanging line, wave-riding float and a catch hauled onto this moving deck. */
 export class DeckFishing {

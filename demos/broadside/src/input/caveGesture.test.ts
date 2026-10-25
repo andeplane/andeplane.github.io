@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { CaveGesture } from "./caveGesture";
+import { CaveGesture } from "../shared/pirate-world/input/caveGesture";
 
 describe("cave touch gestures", () => {
   it("taps with small finger jitter but rejects displacement at release", () => {

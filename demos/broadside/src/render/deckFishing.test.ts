@@ -8,7 +8,7 @@ import { DeckWalk } from '../game/deckWalk';
 import { Fishing } from '../game/fishing';
 import type { ShipView } from './shipView';
 // Chest construction is already shared with rewards. Exercise tackle attachment and water coordinates here.
-vi.mock('./chest',()=>({RewardChest:class {
+vi.mock('../shared/pirate-world/render/chest',()=>({RewardChest:class {
   root:TransformNode;
   constructor(scene:Scene){this.root=new TransformNode('caught treasure test',scene);}
   hide(){this.root.setEnabled(false);}

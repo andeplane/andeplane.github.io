@@ -1,7 +1,7 @@
 import RAPIER from '@dimforge/rapier3d-compat';
 import { mkdir, writeFile } from 'node:fs/promises';
-import { GOLD_AREAS, COIN_RADIUS, COIN_THICKNESS } from '../../src/game/goldAreas.ts';
-import { caveFloor } from '../../src/input/caveLayout.ts';
+import { GOLD_AREAS, COIN_RADIUS, COIN_THICKNESS } from '../../src/shared/pirate-world/game/goldAreas.ts';
+import { caveFloor } from '../../src/shared/pirate-world/input/caveLayout.ts';
 
 await RAPIER.init();
 const area = GOLD_AREAS[Number(process.argv[2] ?? 0)];

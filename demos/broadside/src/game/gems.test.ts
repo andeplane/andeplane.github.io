@@ -1,8 +1,8 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { readFileSync } from "node:fs";
-import { gemCount, gemShape, gemSeeds } from "./gems";
-import { GOLD_AREAS } from "./goldAreas";
-import { caveFloor } from "../input/caveLayout";
+import { gemCount, gemShape, gemSeeds } from "../shared/pirate-world/game/gems";
+import { GOLD_AREAS } from "../shared/pirate-world/game/goldAreas";
+import { caveFloor } from "../shared/pirate-world/input/caveLayout";
 
 afterEach(()=>{vi.clearAllTimers();vi.useRealTimers();vi.unstubAllGlobals();vi.restoreAllMocks();});
 const load=(name:string)=>{const b=readFileSync(new URL('../../public/assets/hoard/'+name,import.meta.url));return new Float32Array(b.buffer.slice(b.byteOffset,b.byteOffset+b.byteLength));};
@@ -23,7 +23,7 @@ describe("bonus gemstone physics",()=>{
     vi.resetModules();vi.useFakeTimers({toFake:['setTimeout','clearTimeout']});
     const frames:{poses?:Float32Array;done?:boolean;error?:string}[]=[];
     const worker=Object.assign(Object.create(globalThis),{onmessage:null as null|((event:{data:unknown})=>Promise<void>),postMessage:(data:typeof frames[number])=>frames.push(data)});
-    vi.stubGlobal('self',worker);await import('./gemPhysics.worker');
+    vi.stubGlobal('self',worker);await import('../shared/pirate-world/game/gemPhysics.worker');
     const coins=load(`world-${world}/10000.bin`),before=coins.slice(),area=GOLD_AREAS[world]!;
     const poses=gemSeeds(coins,32,area,caveFloor);
     await worker.onmessage!({data:{poses,coins,area,obstacles:[]}});
@@ -39,7 +39,7 @@ describe("bonus gemstone physics",()=>{
     vi.resetModules();vi.useFakeTimers({toFake:['setTimeout','clearTimeout']});
     const frames:{poses?:Float32Array;gems?:Float32Array;ready?:boolean;done?:boolean;error?:string}[]=[];
     const worker=Object.assign(Object.create(globalThis),{onmessage:null as null|((event:{data:unknown})=>Promise<void>),postMessage:(data:typeof frames[number])=>frames.push(data)});
-    vi.stubGlobal('self',worker);await import('./goldPhysics.worker');
+    vi.stubGlobal('self',worker);await import('../shared/pirate-world/game/goldPhysics.worker');
     const chest=load('chest.bin');
     await worker.onmessage!({data:{world:0,previous:new Float32Array(),chest,chestY:4.5,floorY:.7,gemGold:1000,gems:new Float32Array()}});
     expect(frames.at(-1)?.ready).toBe(true);
