@@ -38,13 +38,16 @@ export default function Sky({ people, progress, width = 800, viewHeight = 800, s
       return box.top >= 25 && box.bottom <= viewHeight * sceneScale - 25 && !labelBoxes.some(b => box.left < b.right + 12 && box.right > b.left - 12 && box.top < b.bottom + 10 && box.bottom > b.top - 10)
     }
     const preferredY = passed ? 35 + (Math.max(0, living.findIndex(p => p.id === person.id)) % 4) * (fontSize + 18) : positions[i].y - (fontSize + 6)
-    const candidates = Array.from({ length: 12 }, (_, n) => ({ x, y: preferredY - n * 60 }))
+    const spacing = fontSize * 2 + 16
+    // Try both sides of the actual star before moving farther away. Stacking
+    // every collision upward made friends appear to belong to grandparents.
+    const candidates = Array.from({ length: 12 }, (_, n) => ({ x, y: preferredY + (n % 2 ? 1 : -1) * Math.ceil(n / 2) * spacing }))
     const grid = Array.from({ length: Math.max(70, Math.floor(viewHeight / 65) * 7) }, (_, n) => ({ x: Math.max(width / 2 + 90, Math.min(790 - width / 2, 90 + n % 7 * 110)), y: 65 + Math.floor(n / 7) * 65 }))
       .sort((a, b) => Math.hypot(a.x - x, a.y - preferredY) - Math.hypot(b.x - x, b.y - preferredY))
     const chosen = [...candidates, ...grid].find(candidate => fits(candidate.x, candidate.y)) ?? { x, y: 65 }
     const y = chosen.y
     if (positions[i].visible) labelBoxes.push({ left: chosen.x - width / 2, right: chosen.x + width / 2, top: y - fontSize, bottom: y + height - fontSize })
-    return { x: chosen.x, y, lines }
+    return { x: chosen.x, y, lines, leader: Math.abs(y - preferredY) > spacing * 1.5 }
   })
   return <svg className="cl-sky-svg" viewBox={`0 0 800 ${viewHeight}`} role="img" aria-labelledby={`${id}-title`} xmlns="http://www.w3.org/2000/svg">
     <title id={`${id}-title`}>{title}</title>
@@ -75,10 +78,11 @@ export default function Sky({ people, progress, width = 800, viewHeight = 800, s
       </g>)}
     </g>
     <path d={constellationPath} fill="none" stroke="#a7b2c1" strokeWidth=".8" opacity={constellation * .38} />
-    {people.map((p, i) => { const pos = positions[i]; if (!pos.visible) return null; const ended = p.end !== null && age >= p.end; const appearance = appearances[i]; return <g key={p.id} opacity={pos.opacity} aria-hidden={!pos.visible}>
+    {people.map((p, i) => { const pos = positions[i]; if (!pos.visible) return null; const ended = p.end !== null && age >= p.end; const appearance = appearances[i]; return <g key={p.id} data-person={p.id} opacity={pos.opacity} aria-hidden={!pos.visible}>
       <g clipPath={`url(#${id}-bounds)`}><circle cx={pos.x} cy={pos.y} r={appearance.glowRadius} fill={`url(#${id}-glow-${p.id})`} />
       <circle cx={pos.x} cy={pos.y} r={appearance.radius} fill={appearance.core} />
       <path d={`M${pos.x - 9} ${pos.y}h18 M${pos.x} ${pos.y - 9}v18`} stroke={appearance.color} strokeWidth=".6" opacity={ended && p.exit !== 'fade' ? .65 : 0} /></g>
+      {labels[i].leader && <path d={`M${pos.x} ${pos.y}L${labels[i].x} ${labels[i].y + 5}`} fill="none" stroke={appearance.label} strokeWidth=".6" opacity=".3" />}
       <text className="cl-star-label" x={labels[i].x} y={labels[i].y} fill={appearance.label} textAnchor="middle" fontFamily="system-ui, sans-serif" fontSize={fontSize}><title>{p.name}</title>{labels[i].lines.map((line, n) => <tspan key={n} x={labels[i].x} dy={n ? fontSize * .95 : 0}>{line}</tspan>)}</text>
     </g> })}
   </svg>
