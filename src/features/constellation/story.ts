@@ -45,6 +45,14 @@ export const CHAPTERS = [
 export const clamp = (value: number, min = 0, max = 1) => Math.max(min, Math.min(max, value))
 export const smooth = (value: number) => { const t = clamp(value); return t * t * (3 - 2 * t) }
 export const storyAge = (progress: number) => clamp(progress / .9) * 100
+export function playbackFrame(elapsed: number, duration = DEFAULT_DURATION + 6.4) {
+  const time = elapsed % duration
+  const storyDuration = Math.max(1, duration - 6.4)
+  return {
+    progress: clamp((time - 1.2) / storyDuration),
+    opacity: smooth(time / 1.2) * (1 - smooth((time - 1.2 - storyDuration - 4) / 1.2)),
+  }
+}
 export const chapterAt = (progress: number) => CHAPTERS.reduce((index, chapter, i) => progress >= chapter.at ? i : index, 0)
 
 export function ageAxis(progress: number) {

@@ -30,3 +30,6 @@
   .cl-story-ending { bottom: auto; font-size: 13px; line-height: 1.3; }
   .cl-story-title { font-size: 25px; margin-bottom: 6px; }
 }
+
+.cl-sound-hint { position: absolute; left: 0; right: 0; bottom: 12px; text-align: center; font: 12px/1.5 system-ui, sans-serif; color: #a4afbd; pointer-events: none; }
+.cl-app:focus-visible { outline: 1px solid #a4afbd; outline-offset: -4px; }

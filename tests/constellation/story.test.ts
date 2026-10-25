@@ -1,6 +1,6 @@
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
-import { CHAPTERS, DEFAULT_DURATION, MAX_PEOPLE, SAMPLE, YEAR_SPACING, ageAxis, chapterAt, personAppearance, personName, personOpacity, readPeople, restorePeople, starPosition, storyAge, storyMessage, trailPath } from '../../src/features/constellation/story.ts'
+import { CHAPTERS, DEFAULT_DURATION, MAX_PEOPLE, SAMPLE, YEAR_SPACING, ageAxis, chapterAt, personAppearance, personName, personOpacity, playbackFrame, readPeople, restorePeople, starPosition, storyAge, storyMessage, trailPath } from '../../src/features/constellation/story.ts'
 
 const person = (id: string) => SAMPLE.find(p => p.id === id)!
 const atAge = (age: number) => age / 100 * .9
@@ -181,4 +181,16 @@ test('a first love parts ways, while the enduring partner becomes a spouse besid
       assert.ok(Math.abs(p.x - me.x) < 60)
     }
   }
+})
+
+
+test('the soundtrack clock holds the final reminder and loops without accumulating drift', () => {
+  const duration = 119.96
+  assert.equal(playbackFrame(0, duration).opacity, 0)
+  assert.equal(playbackFrame(118, duration).progress, 1)
+  assert.equal(playbackFrame(116, duration).opacity, 1)
+  assert.deepEqual(playbackFrame(20 + duration, duration), playbackFrame(20, duration))
+  const deathAt = 1.2 + atAge(person('self').end!) * (duration - 6.4)
+  assert.ok(duration - deathAt > 35)
+  assert.equal(storyAge(playbackFrame(deathAt, duration).progress), 78)
 })
