@@ -26,7 +26,7 @@ export default function Sky({people,progress,width=800,viewHeight=800,afterEndin
   const positions=points.map(p=>({...p,...projectPoint(p,progress,viewHeight,age)}))
   const appearances=people.map(p=>personAppearance(p,progress))
   const paths=people.map((p,i)=>trailPoints(p,i,people.length,progress,people,afterEnding).map(point=>projectPoint(point,progress,viewHeight,age))).map(points=>points.length?'M'+points.map(p=>`${p.x},${p.y}`).join(' L'):'')
-  const labelItems=people.map((p,i)=>({id:p.id,name:personName(p,progress),singleLine:p.motion==='pass',x:positions[i].x,y:positions[i].y,memorial:p.end!==null&&p.exit!=='fade'&&age>p.end+(p.id==='brother'?1.8:.7),opacity:personLabelOpacity(p,progress,people),visible:positions[i].visible && personLabelOpacity(p,progress,people)>.002}))
+  const labelItems=people.map((p,i)=>({id:p.id,name:personName(p,progress),singleLine:!!p.motion,x:positions[i].x,y:positions[i].y,memorial:p.end!==null&&p.exit!=='fade'&&age>p.end+(p.id==='brother'?1.8:.7),opacity:personLabelOpacity(p,progress,people),visible:positions[i].visible && personLabelOpacity(p,progress,people)>.002}))
   const stableLabels=useRef(new StableLabelLayout())
   const previousTime=useRef(progress*120+afterEnding)
   const seconds=progress*120+afterEnding

@@ -5,7 +5,7 @@ const person = (id: string) => SAMPLE.find(p => p.id === id)!
 const pos = (id: string, age: number) => { const p = person(id); return starPosition(p, SAMPLE.indexOf(p), SAMPLE.length, progressAtAge(age), SAMPLE) }
 
 test('generic family has a brother two years older and a sister born at eight', () => {
-  assert.equal(SAMPLE.length, 17)
+  assert.equal(SAMPLE.length, 20)
   assert.equal(person('brother').start, -2)
   assert.equal(person('brother').end! - person('brother').start, 40)
   assert.equal(person('sister').start, 8)
@@ -159,4 +159,19 @@ test('the brother’s loss has a quiet held moment and temporary visual focus',(
  assert.ok(attentionOpacity(person('child'),progressAtAge(39))<.3)
  assert.equal(attentionOpacity(person('child'),progressAtAge(44)),1)
  assert.ok(pos('brother',44).y<held.y)
+})
+
+test('brief school encounters cross in opposite directions while the coworker weaves and leaves',()=>{
+  assert.ok(pos('grade-school-friend',8).x<pos('grade-school-friend',6).x)
+  assert.ok(pos('middle-school-friend',14).x>pos('middle-school-friend',12).x)
+  for(const id of ['grade-school-friend','middle-school-friend','coworker']) {
+    const p=person(id)
+    assert.equal(p.exit,'fade')
+    assert.equal(personAppearance(p,progressAtAge(35)).distance,0)
+    assert.equal(pos(id,35).visible,false)
+  }
+  const relative=(age:number)=>pos('coworker',age).x-pos('self',age).x
+  assert.ok(relative(22)>80&&relative(23.1667)<-80&&relative(24.3333)>80&&relative(25.5)<-80)
+  assert.ok(pos('coworker',21).x>pos('coworker',22).x)
+  assert.ok(pos('coworker',27.5).x<104)
 })
