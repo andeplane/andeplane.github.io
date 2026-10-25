@@ -4,7 +4,7 @@ export interface SkyLabel { id: string; x: number; y: number; font: number; line
 const clamp=(n:number,a:number,b:number)=>Math.max(a,Math.min(b,n))
 // A person always owns this tier. Other arrivals cannot swap their label to
 // another row. Siblings, friends and children also have separate physical lanes.
-export const LABEL_TIERS:Record<string,number>={self:-1,partner:1,mom:-2,dad:1,brother:-3,sister:2,grandma:-1,grandpa:3,'kindergarten-friend':2,'grade-school-friend':2,'middle-school-friend':2,coworker:-6,'childhood-friend':-4,'first-love':-2,'college-friends':2,child:-2,daughter:3,'child-partner':1,'grandchild-1':-3,'grandchild-2':-4}
+export const LABEL_TIERS:Record<string,number>={self:-1,partner:1,mom:-2,dad:1,brother:-3,sister:2,grandma:-1,grandpa:1,'kindergarten-friend':2,'grade-school-friend':2,'middle-school-friend':2,coworker:-6,'childhood-friend':-4,'first-love':-2,'college-friends':2,child:-2,daughter:3,'child-partner':1,'grandchild-1':-3,'grandchild-2':-4}
 const hash=(id:string)=>[...id].reduce((n,c)=>n*31+c.charCodeAt(0),0)>>>0
 function withPosition(label:SkyLabel,x:number,y:number,item:LabelItem):SkyLabel {
   const dx=x-label.x,dy=y-label.y

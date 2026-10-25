@@ -3,6 +3,20 @@ import assert from 'node:assert/strict'
 import { relationshipX } from '../../src/features/constellation/relationships.ts'
 import { SAMPLE, pathX } from '../../src/features/constellation/story.ts'
 const distance = (a: string, b: string, age: number) => Math.abs(relationshipX(a, age)! - relationshipX(b, age)!)
+test('Grandma and Grandpa share a close household beside the original family',()=>{
+  for(let age=-2;age<17;age+=.1) {
+    assert.ok(Math.abs(distance('grandma','grandpa',age)-32)<1e-8)
+    assert.ok(distance('grandma','grandpa',age)<distance('grandpa','self',age))
+    assert.ok(relationshipX('grandpa',age)!<relationshipX('brother',age)!)
+  }
+  // Include the actual rendered line positions, not only their center model.
+  // The final six-year farewell bend is intentionally a separate movement.
+  for(let age=-2;age<11;age+=.1) {
+    const x=(id:string)=>{const p=SAMPLE.find(p=>p.id===id)!;return pathX(p,SAMPLE.indexOf(p),SAMPLE.length,age,SAMPLE)}
+    assert.ok(x('grandpa')-x('grandma')>=26&&x('grandpa')-x('grandma')<=38)
+    assert.ok(x('brother')-x('grandpa')>30)
+  }
+})
 test('parents remain a close pair through childhood, teenage distance and reunion', () => {
   for (let year = 0; year <= 55; year++) assert.ok(distance('mom', 'dad', year) <= 45)
   assert.ok(distance('self', 'mom', 6) < 25)

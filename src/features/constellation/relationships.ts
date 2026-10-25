@@ -15,6 +15,9 @@ export const PARTNER_DISTANCE: readonly Keyframe[] = [[26,24],[29,26],[30,60],[3
 
 export function relationshipX(id: string, age: number): number | undefined {
   const parents=440+Math.sin(age*.055)*3
+  // Households have shared centers. A couple must not be separated simply to
+  // fill the canvas; the younger generations move relative to their family.
+  const grandparents=parents-160
   const me=parents+curve(age,PARENT_DISTANCE)*.60
   const partner=me+curve(age,PARTNER_DISTANCE)
   const home=(me+partner)/2
@@ -27,8 +30,8 @@ export function relationshipX(id: string, age: number): number | undefined {
     self:me,
     mom:parents-22,
     dad:parents-50,
-    grandma:190+Math.sin(age*.07)*4,
-    grandpa:710+Math.sin(age*.07)*4,
+    grandma:grandparents-16,
+    grandpa:grandparents+16,
     brother:parents+.85*curve(age,[[-2,-105],[8,-105],[14,-120],[23,-125],[28,-105],[33,-95],[38,-90]]),
     sister:parents+.85*curve(age,[[8,-45],[14,-70],[23,-135],[33,-100],[40,-20],[55,-25],[100,-30]]),
     partner,child:son,daughter,'child-partner':sonPartner,
