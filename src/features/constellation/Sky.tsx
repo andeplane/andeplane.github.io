@@ -34,7 +34,7 @@ export default function Sky({people,progress,width=800,viewHeight=800,afterEndin
     <title id={`${id}-title`}>{title}</title>
     <rect width="800" height={viewHeight} fill="#080e1b"/>
     <defs>
-      <radialGradient id={`${id}-nebula`}><stop stopColor="#1c2939" stopOpacity=".58"/><stop offset="1" stopColor="#080e1b" stopOpacity="0"/></radialGradient>
+      <radialGradient id={`${id}-nebula`}><stop stopColor="#20204b" stopOpacity=".58"/><stop offset="1" stopColor="#080e1b" stopOpacity="0"/></radialGradient>
       <linearGradient id={`${id}-fade`} x2="0" y2="1"><stop stopColor="white"/><stop offset=".76" stopColor="white"/><stop offset="1" stopColor="black"/></linearGradient>
       <mask id={`${id}-mask`}><rect x="104" width="690" height={viewHeight*(1-.25*tilt)} fill={`url(#${id}-fade)`}/></mask>
       <clipPath id={`${id}-bounds`}><rect x="104" y="15" width="690" height={viewHeight*.73-15}/></clipPath>
