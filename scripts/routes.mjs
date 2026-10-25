@@ -11,6 +11,12 @@ const CONTENT = new URL('../src/content/', import.meta.url)
 
 const STATIC_ROUTES = [
   {
+    path: '/experiments/constellation',
+    title: 'The light we leave',
+    description: 'An interactive short story about family, time, and the people who become part of our sky. Make a constellation of your own.',
+    image: '/projects/constellation/preview.svg',
+  },
+  {
     path: '/hardware',
     title: 'Hardware',
     description: 'Printed mechanisms and robots, with editable CAD, component lists, assembly guides, and physical prototype experiments.',

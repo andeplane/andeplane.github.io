@@ -17,8 +17,10 @@ const Interests = lazy(() => import('@/pages/Interests'))
 const Physics = lazy(() => import('@/pages/Physics'))
 const NeuralOperators = lazy(() => import('@/features/neural-operators/NeuralOperators'))
 const FnoSketch = lazy(() => import('@/features/fno-sketch/FnoSketch'))
+const Constellation = lazy(() => import('@/features/constellation/Constellation'))
 
 export const router = createBrowserRouter([
+  { path: 'experiments/constellation', element: <Suspense fallback={<p style={{ padding: '3rem', color: '#eeeadd', background: '#080e1b', minHeight: '100vh' }}>Gathering the stars…</p>}><Constellation /></Suspense> },
   {
     path: '/',
     element: <Layout />,

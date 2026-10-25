@@ -26,6 +26,9 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
+      - name: Test constellation story timeline
+        run: node --experimental-strip-types --test tests/constellation/*.test.ts
+
       - name: Test content navigation
         run: node --experimental-strip-types --test tests/content/*.test.ts
 
