@@ -1,6 +1,6 @@
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
-import { BIRTH_SECOND, CAPTIONS, DEATH_SECOND, MOVIE_SECONDS, TEXT_BUDGET, playbackFrame, progressAtAge, storyAge, storyMessage } from '../../src/features/constellation/clock.ts'
+import { BIRTH_SECOND, CAPTIONS, DEDICATION_TEXT, DEATH_SECOND, MOVIE_SECONDS, TEXT_BUDGET, playbackFrame, progressAtAge, storyAge, storyMessage } from '../../src/features/constellation/clock.ts'
 
 test('two minutes includes one second per year and thirty seconds after death', () => {
   assert.equal(MOVIE_SECONDS, 120)
@@ -21,12 +21,20 @@ test('the generic text is constrained to three cards and twenty words', () => {
   const words = CAPTIONS.flatMap(c => [c.title, ...c.lines]).join(' ').trim().split(/\s+/)
   assert.equal(CAPTIONS.length, TEXT_BUDGET.cards)
   assert.ok(words.length <= TEXT_BUDGET.words)
-  assert.equal(words.length, 18)
-  assert.equal(CAPTIONS[0].lines[0], 'Sometimes people die young.')
+  assert.equal(words.length, 20)
+  assert.equal(CAPTIONS[1].lines[0], 'Sometimes people die young.')
+  assert.equal(storyMessage(7/120)!.lines[0], 'Life was moving. You arrived.')
   assert.doesNotMatch(words.join(' '), /Mikael|my brother|dedicat/i)
   assert.equal(storyMessage(30 / 120), null)
   assert.equal(storyMessage(70 / 120), null)
   assert.equal(storyMessage(100 / 120), null)
   assert.equal(storyMessage(1)!.opacity, 1)
   assert.ok(CAPTIONS[1].from - CAPTIONS[0].to >= 30)
+})
+
+
+test('the requested dedication is the final message while the future keeps moving',()=>{
+  assert.equal(DEDICATION_TEXT,'And to my brother, Mikael: I miss you every day.')
+  assert.equal(storyMessage(1,12)!.lines[0],DEDICATION_TEXT)
+  assert.equal(storyMessage(1,300)!.opacity,1)
 })

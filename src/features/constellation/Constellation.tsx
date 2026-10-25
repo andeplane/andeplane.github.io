@@ -24,7 +24,7 @@ export default function Constellation() {
       try { await audio.play(); hasSound.current = true; setNeedsSound(false) } catch { setNeedsSound(true) }
     } else audio.muted = !audio.muted
   }
-  const message = storyMessage(frame.progress)
+  const message = storyMessage(frame.progress,frame.afterEnding)
 
 
   useEffect(() => {
@@ -64,7 +64,7 @@ export default function Constellation() {
     <div className="cl-canvas" style={{ opacity: frame.opacity }}>
       <Sky people={people} progress={frame.progress} width={size.width} viewHeight={800 * size.height / size.width} afterEnding={frame.afterEnding} />
       {needsSound && frame.progress < 1 && <span className="cl-sound-hint">Tap anywhere for sound</span>}
-      {message && <div className={`cl-story-message ${message.title ? 'cl-story-ending' : ''}`} style={{ opacity: message.opacity }}>
+      {message && <div className={`cl-story-message ${message.title ? 'cl-story-ending' : ''} ${'kind' in message ? 'cl-story-dedication' : ''}`} style={{ opacity: message.opacity }}>
         {message.title && <div className="cl-story-title">{message.title}</div>}
         {message.lines.map(line => <div className="cl-story-sentence" key={line}>{line}</div>)}
       </div>}

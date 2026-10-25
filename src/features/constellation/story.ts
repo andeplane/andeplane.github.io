@@ -86,8 +86,10 @@ function mixColor(from: string, to: string, amount: number) {
 }
 export function personAppearance(person: Person, progress: number) {
   const distance = person.end !== null && person.exit !== 'fade' ? smooth((storyAge(progress) - person.end) / 4) : 0
-  const quietColor = mixColor(person.color, '#b4c0cc', .6)
-  return { distance, color: mixColor(quietColor, '#8d99a9', distance), label: mixColor('#b5bdc9', '#8d99a9', distance), core: mixColor('#e7edf1', '#a5b0bf', distance), radius: 3.3 - distance * 1.5, glowRadius: 27 - distance * 13, glowOpacity: .24 - distance * .17 }
+  const quietColor = person.color
+  const birthAge=storyAge(progress)-person.start
+  const birth=person.id==='self'&&birthAge>=0&&birthAge<1.8?Math.sin(Math.PI*birthAge/1.8):0
+  return { distance, birth, color: mixColor(quietColor, '#8d99a9', distance), label: mixColor(mixColor(person.color,'#ffffff',.14), '#8d99a9', distance), core: mixColor(mixColor(person.color,'#ffffff',.75), '#a5b0bf', distance), radius: 3.3 - distance * 1.5 + birth * 2.5, glowRadius: 30 - distance * 16 + birth * 45, glowOpacity: .4 - distance * .32 + birth * .25 }
 }
 export interface StoryPoint { x: number; y: number; year: number }
 export function starPosition(person: Person, index: number, count: number, progress: number, people?: Person[]) {

@@ -24,12 +24,14 @@ export function playbackFrame(elapsed: number, duration = MOVIE_SECONDS) {
 // numbers on the age axis, and the temporary sound hint are functional labels.
 export const TEXT_BUDGET = { cards: 3, words: 20 } as const
 export const CAPTIONS = [
+  { from: 5, to: 11, title: '', lines: ['Life was moving. You arrived.'] },
   { from: 43, to: 49, title: '', lines: ['Sometimes people die young.'] },
-  { from: 91, to: 97, title: '', lines: ['Life goes on.'] },
-  { from: 112, to: Infinity, title: 'Take care of the people around you.', lines: ['While you still can.'] },
+  { from: 112, to: 128, title: 'Take care of the people around you.', lines: ['While you still can.'] },
 ]
-export function storyMessage(progress: number) {
-  const seconds = clamp(progress) * MOVIE_SECONDS
+export const DEDICATION_TEXT='And to my brother, Mikael: I miss you every day.'
+export function storyMessage(progress: number, afterEnding=0) {
+  const seconds = clamp(progress) * MOVIE_SECONDS + Math.max(0,afterEnding)
+  if(seconds>=129)return {from:129,to:Infinity,title:'',lines:[DEDICATION_TEXT],kind:'dedication',opacity:smooth((seconds-129)/2)}
   const message = CAPTIONS.find(item => seconds >= item.from && seconds < item.to)
   if (!message) return null
   const opacity = smooth((seconds - message.from) / 1.2) * (Number.isFinite(message.to) ? 1 - smooth((seconds - message.to + 1.2) / 1.2) : 1)

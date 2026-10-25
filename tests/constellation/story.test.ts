@@ -87,3 +87,16 @@ test('previous fictional casts upgrade, while edits to those same casts are pres
     assert.deepEqual(restorePeople(custom,null,()=>.25),custom)
   }
 })
+
+
+test('living colors stay distinct and the narrator gets one gentle birth bloom',()=>{
+  const mother=personAppearance(person('mom'),progressAtAge(20))
+  const father=personAppearance(person('dad'),progressAtAge(20))
+  assert.equal(mother.color,person('mom').color)
+  assert.equal(father.color,person('dad').color)
+  assert.notEqual(mother.label,father.label)
+  const birth=personAppearance(person('self'),progressAtAge(.9))
+  const later=personAppearance(person('self'),progressAtAge(4))
+  assert.ok(birth.birth>.9&&birth.radius>later.radius&&birth.glowRadius>later.glowRadius)
+  assert.equal(later.birth,0)
+})

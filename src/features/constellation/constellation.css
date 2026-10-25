@@ -24,7 +24,7 @@
 }
 .cl-story-message::before { content: ''; position: absolute; inset: -24px -32px; z-index: -1; background: radial-gradient(ellipse, #080e1bed, #080e1b99 45%, transparent 75%); }
 .cl-story-ending { top: 77%; bottom: auto; }
-.cl-story-title { font-size: clamp(24px, 4vw, 52px); font-style: normal; line-height: 1.2; margin-bottom: 10px; }
+.cl-story-title { font-size: clamp(24px, 3vw, 38px); font-style: normal; line-height: 1.2; margin-bottom: 10px; }
 @media (max-height: 500px) and (min-width: 701px) {
   .cl-story-message { left: 18%; right: 18%; bottom: 7%; font-size: 15px; line-height: 1.4; }
   .cl-story-ending { top: 76%; bottom: auto; font-size: 14px; line-height: 1.3; }
@@ -33,3 +33,5 @@
 
 .cl-sound-hint { position: absolute; left: 0; right: 0; bottom: 12px; text-align: center; font: 12px/1.5 system-ui, sans-serif; color: #a4afbd; pointer-events: none; }
 .cl-app:focus-visible { outline: 1px solid #a4afbd; outline-offset: -4px; }
+
+.cl-story-dedication { top: 79%; bottom: auto; font-size: clamp(18px, 2.5vw, 30px); }
