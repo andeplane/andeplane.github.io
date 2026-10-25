@@ -60,7 +60,7 @@ export function storyMessage(progress: number) {
     { from: .16, to: .23, title: '', lines: ['Some become stars in our sky.'] },
     { from: .24, to: .40, title: '', lines: ['Some walk with us for a while.'] },
     { from: .72, to: .88, title: '', lines: ['Their story keeps going.'] },
-    { from: .90, to: 2, title: 'Life is a journey', lines: ['Some walk with you for a while.', 'Others stay in your sky forever.'] },
+    { from: .90, to: 2, title: 'Take care of each other.', lines: ['While you still can.'] },
   ]
   const message = messages.find(item => progress >= item.from && progress < item.to)
   if (!message) return null

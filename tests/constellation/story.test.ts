@@ -141,12 +141,12 @@ test('every moving family light is aligned with the current age on the y-axis', 
   }
 })
 
-test('the short explanation returns inside the animation, including the reference ending', () => {
+test('the short explanation returns inside the animation, including the closing reminder', () => {
   assert.equal(storyMessage(.1), null)
   assert.match(storyMessage(.20)!.lines[0], /stars/)
   assert.match(storyMessage(.30)!.lines[0], /while/)
-  assert.equal(storyMessage(.95)!.title, 'Life is a journey')
-  assert.deepEqual(storyMessage(1)!.lines, ['Some walk with you for a while.', 'Others stay in your sky forever.'])
+  assert.equal(storyMessage(.95)!.title, 'Take care of each other.')
+  assert.deepEqual(storyMessage(1)!.lines, ['While you still can.'])
   assert.equal(storyMessage(.95)!.opacity, 1)
 })
 
