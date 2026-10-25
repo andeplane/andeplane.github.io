@@ -1,32 +1,41 @@
-# Constellation review — 25 October 2026
+# Constellation review — generic two-minute revision
 
-## Current experience
+## Implemented checkpoint
 
-Autoplaying sky with names, lifelines, a LEFT scrolling age y-axis, and brief
-in-scene explanation. Five-year marks and the highlighted current age remain
-visible. Active family heads align with the current-age plane. The final
-constellation has the reference's title and two italic lines beneath it.
-There is no page banner, sidebar, bottom playback timeline, or control UI.
+The score is 119.97 seconds. The animation maps to one second per year through
+age 85, then thirty seconds of future. No music loop, story reset or fade out.
+The generic cast includes Brother born two years earlier and Sister born at
+the narrator’s age eight. Three captions use eighteen words total.
 
-## Checks performed
+Yearly proximity curves keep Mom and Dad paired, separate/reunite the narrator
+and parents, and describe dating, busy parenting and rediscovery for the couple.
+The final view projects historical endpoints and branching future lives onto
+a time plane. The camera rests; future growth continues after the music ends.
 
-- Actual local browser animation: visible age ticks, current-age highlight,
-  friendship explanation, and final title/text. No buttons or editing controls.
-- Visually reviewed ending at 1280 × 800 desktop, 390 × 844 phone,
-  320 × 740 narrow phone, and 844 × 390 landscape. Text fits beneath the
-  constellation, axis numbers remain visible, and ongoing family trails pass
-  upward. Resizing retained playback without page overflow.
-- Simulated safe areas: 44 px top, 34 px bottom, 24 px left/right at 320 × 740.
-  Axis and explanation remained visible; measured horizontal overflow was false.
-  Temporary override removed. Shipped CSS uses environment safe insets.
-- Fourteen model tests passed locally and on home-m1, covering age ticks,
-  lifeline alignment, ending explanation, friends, continuing generations,
-  subdued memorial stars, path continuity, and saved-data migration.
-- TypeScript, production Vite build, and SEO shell generation passed on home-m1.
-  Final repository CI covers the final rendering/style refinements.
-- Representative actual browser captures: `/tmp/constellation-axis-review/`.
-  Project preview is the desktop ending capture including the age axis.
+## Verification performed for this revision
 
-Final CI and live deployment are checked separately in the chat. Physical
-phone/Safari behavior and real device safe areas remain unverified.
-No song has been created or added.
+- Twenty-one model tests pass locally. These cover every story year, parent and
+  couple proximity, siblings, generic caption limits, nonrepeating timing,
+  path/head continuity, historical endpoints, future branching, projection,
+  saved-data migration and preservation of custom families.
+- Label geometry checks cover desktop, 390 px and 320 px phones, short landscape,
+  and a content box with simulated top/bottom/side safe insets. They verify
+  bounding boxes and label collisions numerically; they are not browser proof.
+- Production SVG scenes were rendered offline and inspected at representative
+  childhood, friendship, parenting and perspective-ending states. These are
+  source-rendered scene artifacts, not desktop or browser screen captures.
+- Actual exported soundtrack duration was measured with ffprobe: 119.97 seconds.
+- The requested home-m1 build could not start because its checkout copy hit
+  ENOSPC. Full TypeScript/site/demo verification is delegated to repository CI.
+
+## Pending visual review
+
+The user’s temporary pause on screen sharing/capture remains in effect. No
+native desktop, personal-browser capture, or GUI session has been restarted.
+Actual running-browser review of this new ending, caption CSS, sound lifecycle,
+keyboard/tap behavior and orientation changes remains pending. Earlier browser
+captures verified a prior revision and do not qualify this new implementation.
+
+Repository AGENTS.md requires the running UI review before delivery. The change
+is committed and pushed for CI and review; it is not presented as live-verified.
+Physical phone/Safari behavior and real device safe areas are also unverified.

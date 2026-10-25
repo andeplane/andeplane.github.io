@@ -7,10 +7,10 @@ const project: ProjectMeta = {
   tags: ['Animation', 'SVG', 'Creative coding'],
   liveUrl: '/experiments/constellation',
   screenshot: '/projects/constellation/preview.jpg',
-  longDescription: `An animated sky about family, friendship, and the lives that continue after ours. It begins automatically: glowing paths meet, friendships drift away, and a family grows through a son, his wife, and grandchildren.
+  longDescription: `A two-minute animated life about family, friendship, and the lives that continue after ours. A brother arrives two years before the narrator, and a sister is born at eight. Parents, siblings, friendships and an enduring partnership move closer and farther as life changes.
 
-Remembered family members become smaller, quieter silver stars. Younger generations keep travelling through the sky. A scrolling age axis follows the lives, with five-year marks and the current age highlighted. Brief messages appear within the sky, ending with “Life is a journey.” The sequence loops with a soft fade.
+The instrumental plays once. The narrator’s life ends at 85, leaving thirty seconds for the camera to lower toward the family’s paths and watch the future unfold. The viewpoint remains there while descendants continue. A visible age axis and only three brief caption moments guide the story.
 
-The sample is fictional. Inspired by the family lifeline animation shared by @creaconbruno on Instagram; this version uses original code and rendering.`,
+The sample is fictional. Inspired by the family lifeline animation shared by @creaconbruno; code and rendering are original.`,
 }
 export default project
