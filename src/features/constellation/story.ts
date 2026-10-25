@@ -1,3 +1,9 @@
+import { clamp, smooth, storyAge } from './clock.ts'
+import { relationshipX } from './relationships.ts'
+export { clamp, smooth, storyAge, playbackFrame, storyMessage, progressAtAge } from './clock.ts'
+export const DEFAULT_DURATION = 120
+export const YEAR_SPACING = 40
+export const MAX_PEOPLE = 16
 export interface Person {
   id: string
   name: string
@@ -10,12 +16,102 @@ export interface Person {
   nameBefore?: string
   renameAt?: number
 }
-
-export const DEFAULT_DURATION = 114
-export const YEAR_SPACING = 40
-export const MAX_PEOPLE = 16
 export const COLORS = ['#c9b9f6', '#bedddd', '#ff9c8e', '#90baff', '#f3b4d1', '#f7ce85', '#81e0e8', '#c1dea3', '#aabace', '#c4c3a4', '#a6d5bf', '#d8b9ed', '#f0bf9f', '#9dcad9', '#c4d5a5', '#d6b4bf']
 export const SAMPLE: Person[] = [
+  { id: 'grandma', name: 'Grandma', color: COLORS[0], start: -58, end: 17, lane: .12 },
+  { id: 'grandpa', name: 'Grandpa', color: COLORS[1], start: -60, end: 27, lane: .32 },
+  { id: 'mom', name: 'Mom', color: COLORS[2], start: -30, end: 72, lane: .22 },
+  { id: 'dad', name: 'Dad', color: COLORS[3], start: -32, end: 68, lane: .78 },
+  { id: 'partner', name: 'Wife', color: COLORS[4], start: 26, end: 88, lane: .60, near: 'self', nameBefore: 'Girlfriend', renameAt: 31 },
+  { id: 'self', name: 'Me', color: COLORS[5], start: 0, end: 85, lane: .56 },
+  { id: 'brother', name: 'Brother', color: COLORS[13], start: -2, end: 38, lane: .46, near: 'self' },
+  { id: 'sister', name: 'Sister', color: COLORS[14], start: 8, end: null, lane: .75, near: 'self' },
+  { id: 'child', name: 'Son', color: COLORS[6], start: 32, end: null, lane: .66, near: 'self' },
+  { id: 'daughter', name: 'Daughter', color: COLORS[15], start: 35, end: null, lane: .90, near: 'partner' },
+  { id: 'child-partner', name: 'His wife', color: COLORS[7], start: 56, end: null, lane: .82, near: 'child' },
+  { id: 'grandchild-1', name: 'Granddaughter', color: COLORS[10], start: 62, end: null, lane: .74, near: 'child' },
+  { id: 'grandchild-2', name: 'Grandson', color: COLORS[11], start: 68, end: null, lane: .94, near: 'child-partner' },
+  { id: 'childhood-friend', name: 'Childhood friend', color: COLORS[8], start: 5, end: 28, exit: 'fade', lane: .38, near: 'self' },
+  { id: 'first-love', name: 'First love', color: COLORS[12], start: 15, end: 21, exit: 'fade', lane: .62, near: 'self' },
+  { id: 'college-friends', name: 'College friend', color: COLORS[9], start: 18, end: 35, exit: 'fade', lane: .68, near: 'self' },
+]
+
+export function ageAxis(progress: number) {
+  const age = storyAge(progress)
+  const y = 505
+  const ticks = Array.from({ length: 26 }, (_, i) => i * 5 - 5)
+    .map(value => ({ age: value, y: y + (age - value) * YEAR_SPACING }))
+    .filter(tick => tick.y > 30 && tick.y < 770)
+  return { age, y, ticks, opacity: 1 }
+}
+const laneX = (p: Person, i: number, count: number) => 110 + (p.lane ?? i / Math.max(1, count - 1)) * 620
+export function pathX(person: Person, index: number, count: number, age: number, people?: Person[]) {
+  const known = people?.some(p => p.id === 'self') && SAMPLE.some(p => p.id === person.id)
+  let x = known ? relationshipX(person.id, age)! : laneX(person, index, count)
+  if (!known && person.near && people) {
+    const anchorIndex = people.findIndex(p => p.id === person.near)
+    if (anchorIndex >= 0) {
+      const anchor = laneX(people[anchorIndex], anchorIndex, count)
+      const lane = laneX(person, index, count)
+      x = anchor + (lane - anchor) * smooth((age - person.start) / 7)
+    }
+  }
+  if (person.exit === 'fade' && person.end !== null) {
+    const anchor = relationshipX('self', age) ?? 440
+    x += ((x < anchor ? 30 : 810) - x) * smooth((age - person.end) / 3)
+  }
+  return x + Math.sin(age * .22 + index * 1.7) * 3
+}
+export function personName(person: Person, progress: number) {
+  return person.nameBefore && person.renameAt !== undefined && storyAge(progress) < person.renameAt ? person.nameBefore : person.name
+}
+export function personOpacity(person: Person, progress: number) {
+  const age = storyAge(progress)
+  if (age < person.start) return 0
+  const entering = person.start <= -2 ? 1 : smooth((age - person.start) / 1.2)
+  return person.exit === 'fade' && person.end !== null ? entering * (1 - smooth((age - person.end) / 3)) : entering
+}
+function mixColor(from: string, to: string, amount: number) {
+  const channel = (hex: string, offset: number) => parseInt(hex.slice(offset, offset + 2), 16)
+  return '#' + [1, 3, 5].map(offset => Math.round(channel(from, offset) * (1 - amount) + channel(to, offset) * amount).toString(16).padStart(2, '0')).join('')
+}
+export function personAppearance(person: Person, progress: number) {
+  const distance = person.end !== null && person.exit !== 'fade' ? smooth((storyAge(progress) - person.end) / 4) : 0
+  const quietColor = mixColor(person.color, '#b4c0cc', .6)
+  return { distance, color: mixColor(quietColor, '#8d99a9', distance), label: mixColor('#b5bdc9', '#8d99a9', distance), core: mixColor('#e7edf1', '#a5b0bf', distance), radius: 3.3 - distance * 1.5, glowRadius: 27 - distance * 13, glowOpacity: .24 - distance * .17 }
+}
+export interface StoryPoint { x: number; y: number; year: number }
+export function starPosition(person: Person, index: number, count: number, progress: number, people?: Person[]) {
+  const age = storyAge(progress)
+  const year = Math.min(age, person.end ?? age)
+  const settle = person.end !== null && person.exit !== 'fade' ? smooth((age - person.end) / 4) : 0
+  const y = person.exit === 'fade' ? 505 + (age - year) * YEAR_SPACING : 505 - (225 + (85 - year) * 2) * settle
+  return { x: pathX(person, index, count, year, people), y, year, visible: personOpacity(person, progress) > 0, opacity: personOpacity(person, progress) }
+}
+export function trailPoints(person: Person, index: number, count: number, progress: number, people?: Person[]) {
+  if (personOpacity(person, progress) === 0) return []
+  const head = starPosition(person, index, count, progress, people)
+  const points: StoryPoint[] = []
+  for (let year = Math.max(-2, person.start); year < head.year; year += .5) points.push({ x: pathX(person, index, count, year, people), y: head.y + (head.year - year) * YEAR_SPACING, year })
+  points.push(head)
+  return points
+}
+export function trailPath(person: Person, index: number, count: number, progress: number, people?: Person[], verticalScale = 1) {
+  const points = trailPoints(person, index, count, progress, people)
+  return points.length ? 'M' + points.map(p => `${p.x},${p.y * verticalScale}`).join(' L') : ''
+}
+
+export function readPeople(value: unknown): Person[] | null {
+  if (!Array.isArray(value) || value.length < 1 || value.length > MAX_PEOPLE) return null
+  const ids = new Set<string>()
+  for (const p of value) {
+    if (!p || typeof p.id !== 'string' || ids.has(p.id) || typeof p.name !== 'string' || !p.name.trim() || p.name.length > 24 || !COLORS.includes(p.color) || !Number.isFinite(p.start) || p.start < -100 || p.start > 99 || (p.end !== null && (!Number.isFinite(p.end) || p.end <= p.start || p.end > 100)) || (p.exit !== undefined && p.exit !== 'star' && p.exit !== 'fade') || (p.lane !== undefined && (!Number.isFinite(p.lane) || p.lane < 0 || p.lane > 1)) || (p.near !== undefined && typeof p.near !== 'string') || (p.nameBefore !== undefined && (typeof p.nameBefore !== 'string' || !p.nameBefore.trim() || p.nameBefore.length > 24 || !Number.isFinite(p.renameAt) || p.renameAt < p.start || p.renameAt > (p.end ?? 100))) || (p.renameAt !== undefined && p.nameBefore === undefined)) return null
+    ids.add(p.id)
+  }
+  return value as Person[]
+}
+
+const PREVIOUS_SAMPLE: Person[] = [
   { id: 'grandma', name: 'Grandma', color: COLORS[0], start: 0, end: 17, lane: .12 },
   { id: 'grandpa', name: 'Grandpa', color: COLORS[1], start: 0, end: 27, lane: .32 },
   { id: 'mom', name: 'Mom', color: COLORS[2], start: 0, end: 66, lane: .22 },
@@ -31,171 +127,22 @@ export const SAMPLE: Person[] = [
   { id: 'college-friends', name: 'College friend', color: COLORS[9], start: 18, end: 35, exit: 'fade', lane: .68, near: 'self' },
 ]
 
-export const CHAPTERS = [
-  { at: 0, label: 'Before us', title: 'We begin in someone else’s light.', text: 'A small world. Familiar voices. The people who are there before our story begins.' },
-  { at: .055, label: 'Childhood', title: 'Then the world gets a little bigger.', text: 'A childhood friend finds our path. For years, it feels as though we will always walk together.' },
-  { at: .17, label: 'A wider world', title: 'Some people belong to a chapter.', text: 'College friends. Shared rooms. Entire little worlds. Some paths stay close; some gently drift away.' },
-  { at: .24, label: 'Love', title: 'And one person becomes home.', text: 'Among all the paths we cross, one begins to run beside our own.' },
-  { at: .30, label: 'A new life', title: 'Suddenly, we are someone’s whole sky.', text: 'A son arrives. Our story makes room for a life that will become its own.' },
-  { at: .55, label: 'New branches', title: 'Their world begins to grow, too.', text: 'He finds his person. Then come the grandchildren. More hands to hold. More stories beginning.' },
-  { at: .70, label: 'Our stars', title: 'One day, we become their stars.', text: 'Our own trails grow quiet. The love we passed along keeps moving.' },
-  { at: .90, label: 'Life goes on', title: 'And their story goes on.', text: 'Children. Their partners. Their children. We are part of their sky, while they keep finding their way.' },
-]
-
-export const clamp = (value: number, min = 0, max = 1) => Math.max(min, Math.min(max, value))
-export const smooth = (value: number) => { const t = clamp(value); return t * t * (3 - 2 * t) }
-export const storyAge = (progress: number) => clamp(progress / .9) * 100
-export function playbackFrame(elapsed: number, duration = DEFAULT_DURATION + 6.4) {
-  const time = elapsed % duration
-  const storyDuration = Math.max(1, duration - 6.4)
-  return {
-    progress: clamp((time - 1.2) / storyDuration),
-    opacity: smooth(time / 1.2) * (1 - smooth((time - 1.2 - storyDuration - 4) / 1.2)),
-  }
+function matches(value: Person[], expected: Person[]) {
+  return value.length === expected.length && value.every((p, i) => Object.keys(p).length === Object.keys(expected[i]).length && Object.entries(expected[i]).every(([key, item]) => p[key as keyof Person] === item))
 }
-export const chapterAt = (progress: number) => CHAPTERS.reduce((index, chapter, i) => progress >= chapter.at ? i : index, 0)
-
-export function ageAxis(progress: number) {
-  const age = storyAge(progress)
-  const onward = smooth((progress - .72) / .28)
-  const y = 505 + (-85 - 505) * onward
-  const ticks = Array.from({ length: 25 }, (_, index) => index * 5).map(value => ({ age: value, y: y + (age - value) * YEAR_SPACING })).filter(tick => tick.y > 30 && tick.y < 770)
-  return { age, y, ticks, opacity: 1 }
-}
-
-export function storyMessage(progress: number) {
-  const messages = [
-    { from: .16, to: .23, title: '', lines: ['Some become stars in our sky.'] },
-    { from: .24, to: .40, title: '', lines: ['Some walk with us for a while.'] },
-    { from: .72, to: .88, title: '', lines: ['Their story keeps going.'] },
-    { from: .90, to: 2, title: 'Take care of each other.', lines: ['While you still can.'] },
-  ]
-  const message = messages.find(item => progress >= item.from && progress < item.to)
-  if (!message) return null
-  return { ...message, opacity: smooth((progress - message.from) / .02) * (1 - smooth((progress - message.to + .02) / .02)) }
-}
-const laneX = (person: Person, index: number, count: number) => 45 + (person.lane ?? (.06 + index * .88 / Math.max(1, count - 1))) * 710
-
-function pathX(person: Person, index: number, count: number, age: number, people?: Person[]) {
-  const ownLane = laneX(person, index, count)
-  const anchorIndex = people?.findIndex(p => p.id === person.near) ?? -1
-  const anchor = anchorIndex >= 0 && people ? laneX(people[anchorIndex], anchorIndex, count) : ownLane
-  const anchoredFriend = person.exit === 'fade' && anchorIndex >= 0
-  const side = ownLane < anchor ? -1 : 1
-  // Friendships accompany their anchor. Their stored lane chooses a side,
-  // rather than placing them in an unrelated relative's part of the sky.
-  const lane = anchoredFriend ? anchor + side * clamp(Math.abs(ownLane - anchor), 42, 75) : ownLane
-  const edge = side < 0 ? -10 : 810
-  const entry = anchoredFriend ? anchor + side * 78 : person.exit === 'fade' ? edge : person.near ? anchor : lane
-  let x = entry + (lane - entry) * smooth((age - person.start) / (anchoredFriend ? 3 : 7))
-  if (person.exit === 'fade' && person.end !== null) {
-    x += (edge - x) * smooth((age - person.end) / 3)
-  }
-  return x + Math.sin(age * .2 + index * 2) * 8
-}
-
-export function personName(person: Person, progress: number) {
-  return person.nameBefore && person.renameAt !== undefined && storyAge(progress) < person.renameAt ? person.nameBefore : person.name
-}
-
-export function personOpacity(person: Person, progress: number) {
-  const age = storyAge(progress)
-  const entering = smooth((age - person.start) / 1.5)
-  if (age < person.start) return 0
-  if (person.exit === 'fade' && person.end !== null) return entering * (1 - smooth((age - person.end) / 3))
-  return person.start === 0 ? 1 : entering
-}
-
-function mixColor(from: string, to: string, amount: number) {
-  const channel = (hex: string, offset: number) => parseInt(hex.slice(offset, offset + 2), 16)
-  return '#' + [1, 3, 5].map(offset => Math.round(channel(from, offset) * (1 - amount) + channel(to, offset) * amount).toString(16).padStart(2, '0')).join('')
-}
-
-export function personAppearance(person: Person, progress: number) {
-  const distance = person.end !== null && person.exit !== 'fade' ? smooth((storyAge(progress) - person.end) / 4) : 0
-  const quietColor = mixColor(person.color, '#b4c0cc', .48)
-  return {
-    distance,
-    color: mixColor(quietColor, '#8d99a9', distance),
-    label: mixColor(mixColor('#bac3cd', quietColor, .08), '#8d99a9', distance),
-    core: mixColor('#e7edf1', '#a5b0bf', distance),
-    radius: 3.3 - distance * 1.5,
-    glowRadius: 32 - distance * 16,
-    glowOpacity: .28 - distance * .20,
-  }
-}
-
-export function starPosition(person: Person, index: number, count: number, progress: number, people?: Person[]) {
-  const age = storyAge(progress)
-  const end = Math.min(age, person.end ?? 100)
-  let x = pathX(person, index, count, end, people)
-  let y = person.exit === 'fade' ? 505 + (age - end) * YEAR_SPACING : ageAxis(Math.min(age, person.end ?? 100) / 100 * .9).y
-  const blend = smooth((progress - .9) / .1)
-  const remembered = people?.filter(p => p.exit !== 'fade' && p.end !== null) ?? []
-  const rank = remembered.findIndex(p => p.id === person.id)
-  const memorialPoints = [[105, 180], [405, 130], [90, 355], [430, 340], [205, 470], [350, 560]]
-  const angle = -Math.PI / 2 + (rank >= 0 ? rank : index) / Math.max(1, remembered.length || count) * Math.PI * 2
-  const final = remembered.length === 6 ? memorialPoints[Math.max(0, rank)] : [260 + Math.cos(angle) * 185, 335 + Math.sin(angle) * 210]
-  const continuing = person.end === null
-  const living = people?.filter(p => p.end === null) ?? []
-  const livingRank = Math.max(0, living.findIndex(p => p.id === person.id))
-  const finalX = continuing ? (remembered.length ? 545 : 90) + livingRank * ((remembered.length ? 195 : 620) / Math.max(1, living.length - 1)) : final[0]
-  // Younger lives travel well beyond the remembered generation, through the
-  // upper edge of the frame, instead of stopping as another set of stars.
-  const finalY = continuing ? -85 : final[1]
-  if (person.end !== null && person.exit !== 'fade') {
-    const settle = smooth((age - person.end) / 5)
-    x += (finalX - x) * settle
-    y += (finalY - y) * settle
-  }
-  const morph = person.exit === 'fade' ? 0 : continuing ? smooth((progress - .72) / .28) : blend
-  return { x: x + (finalX - x) * morph, y: person.end === null || age < person.end ? ageAxis(progress).y : y + (finalY - y) * morph, visible: personOpacity(person, progress) > 0, opacity: personOpacity(person, progress) }
-}
-
-export function trailPath(person: Person, index: number, count: number, progress: number, people?: Person[], verticalScale = 1) {
-  const age = storyAge(progress)
-  if (personOpacity(person, progress) === 0) return ''
-  const end = Math.min(age, person.end ?? 100)
-  const head = starPosition(person, index, count, progress, people)
-  const headX = pathX(person, index, count, end, people)
-  const continuing = person.end === null
-  const perspective = continuing ? smooth((progress - .72) / .28) : 0
-  const pitch = YEAR_SPACING + (Math.max(YEAR_SPACING, (900 - head.y) / Math.max(1, end - person.start)) - YEAR_SPACING) * perspective
-  const points = []
-  for (let t = Math.max(person.start, end - (continuing ? 100 : 48)); t < end; t += .5) {
-    points.push(`${pathX(person, index, count, t, people) + head.x - headX},${(head.y + (end - t) * pitch) * verticalScale}`)
-  }
-  points.push(`${head.x},${head.y * verticalScale}`)
-  return `M${points.join(' L')}`
-}
-
-export function readPeople(value: unknown): Person[] | null {
-  if (!Array.isArray(value) || value.length < 1 || value.length > MAX_PEOPLE) return null
-  const ids = new Set<string>()
-  for (const p of value) {
-    if (!p || typeof p.id !== 'string' || ids.has(p.id) || typeof p.name !== 'string' || !p.name.trim() || p.name.length > 24 || !COLORS.includes(p.color) || !Number.isFinite(p.start) || p.start < 0 || p.start > 99 || (p.end !== null && (!Number.isFinite(p.end) || p.end <= p.start || p.end > 100)) || (p.exit !== undefined && p.exit !== 'star' && p.exit !== 'fade') || (p.lane !== undefined && (!Number.isFinite(p.lane) || p.lane < 0 || p.lane > 1)) || (p.near !== undefined && typeof p.near !== 'string') || (p.nameBefore !== undefined && (typeof p.nameBefore !== 'string' || !p.nameBefore.trim() || p.nameBefore.length > 24 || !Number.isFinite(p.renameAt) || p.renameAt < p.start || p.renameAt > (p.end ?? 100))) || (p.renameAt !== undefined && p.nameBefore === undefined)) return null
-    ids.add(p.id)
-  }
-  return value as Person[]
-}
-
 export function restorePeople(saved: unknown, legacy: unknown, random = Math.random): Person[] {
   const current = readPeople(saved)
-  const previousSample = SAMPLE.filter(p => p.id !== 'first-love').map(p => {
+  const oldTwelve = PREVIOUS_SAMPLE.filter(p => p.id !== 'first-love').map(p => {
     const { nameBefore: _before, renameAt: _at, ...old } = p
     return p.id === 'partner' ? { ...old, lane: .43 } : p.id === 'college-friends' ? { ...old, name: 'College friends' } : old
   })
-  const isPreviousSample = current?.length === previousSample.length && current.every((p, i) => {
-    const expected = previousSample[i]
-    return Object.keys(p).length === Object.keys(expected).length && Object.entries(expected).every(([key, value]) => p[key as keyof Person] === value)
-  })
-  if (current && !isPreviousSample) return current
+  const oldHusband = PREVIOUS_SAMPLE.map(p => p.id === 'partner' ? { ...p, name: 'Husband', nameBefore: 'Boyfriend' } : p)
+  if (current && ![PREVIOUS_SAMPLE, oldHusband, oldTwelve].some(expected => matches(current, expected))) return current
   const previous = readPeople(legacy)
-  // Upgrade only the exact old fictional sample; preserve actual user edits.
-  const legacyNames = ['Grandma', 'Grandpa', 'Mom', 'Dad', 'My love', 'Me', 'Our child']
-  const legacyEnds = [19, 28, 66, 54, null, null, null]
-  const legacyStarts = [0, 0, 0, 0, 25, 0, 32]
-  if (previous && !(previous.length === 7 && previous.every((p, i) => p.name === legacyNames[i] && p.start === legacyStarts[i] && p.end === legacyEnds[i]))) return previous
+  const names = ['Grandma','Grandpa','Mom','Dad','My love','Me','Our child']
+  const ends = [19,28,66,54,null,null,null]
+  const starts = [0,0,0,0,25,0,32]
+  if (previous && !(previous.length === 7 && previous.every((p, i) => p.name === names[i] && p.start === starts[i] && p.end === ends[i]))) return previous
   const husband = random() >= .5
   return SAMPLE.map(p => p.id === 'partner' && husband ? { ...p, name: 'Husband', nameBefore: 'Boyfriend' } : { ...p })
 }
