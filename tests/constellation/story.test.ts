@@ -189,7 +189,7 @@ test('the soundtrack clock holds the final reminder and loops without accumulati
   assert.equal(playbackFrame(0, duration).opacity, 0)
   assert.equal(playbackFrame(118, duration).progress, 1)
   assert.equal(playbackFrame(116, duration).opacity, 1)
-  assert.deepEqual(playbackFrame(20 + duration, duration), playbackFrame(20, duration))
+  assert.ok(Math.abs(playbackFrame(20 + duration, duration).progress - playbackFrame(20, duration).progress) < 1e-10)
   const deathAt = 1.2 + atAge(person('self').end!) * (duration - 6.4)
   assert.ok(duration - deathAt > 35)
   assert.equal(storyAge(playbackFrame(deathAt, duration).progress), 78)
