@@ -140,7 +140,7 @@ export function personAppearance(person: Person, progress: number) {
   const focus=person.id==='brother'?brotherMoment(progress):0
   const birthAge=storyAge(progress)-person.start
   const birth=person.id==='self'&&birthAge>=0&&birthAge<1.8?Math.sin(Math.PI*birthAge/1.8):0
-  return { distance, birth, color: mixColor(quietColor, '#8d99a9', distance*.48), label: mixColor(mixColor(person.color,'#ffffff',.14), '#a4afbd', distance*.55), core: mixColor(mixColor(person.color,'#ffffff',.75), '#a5b0bf', distance), radius: 3.3 - distance * 1.5 + birth * 2.5, glowRadius: 30 - distance * 12 + birth * 45 + focus*12 + memorial.pulse*14, glowOpacity: .4 - distance * .25 + birth * .25 + focus*.15 + memorial.pulse*.2 }
+  return { distance, birth, color: mixColor(quietColor, '#8d99a9', distance*.48), label: mixColor(mixColor(person.color,'#ffffff',.14), '#a4afbd', distance*.55), core: mixColor(mixColor(person.color,'#ffffff',.75), '#a5b0bf', distance), radius: 3.3 - distance * .9 + birth * 2.5, glowRadius: 30 - distance * 6 + birth * 45 + focus*12 + memorial.pulse*14, glowOpacity: .4 - distance * .16 + birth * .25 + focus*.15 + memorial.pulse*.2 }
 }
 export interface StoryPoint { x: number; y: number; year: number; elevation?: number }
 export function starPosition(person: Person, index: number, count: number, progress: number, people?: Person[], afterEnding=0) {

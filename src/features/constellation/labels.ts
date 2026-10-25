@@ -24,7 +24,7 @@ export function layoutLabels(items:LabelItem[],width:number,viewHeight:number) {
     const shortTiers:Record<string,number>={sister:-5,daughter:-4,grandpa:1,'kindergarten-friend':2,coworker:2,'college-friends':-4,'grandchild-2':-5}
     const tier=item.memorial?(['grandpa','partner'].includes(item.id)?1:-1):((viewHeight<650?shortTiers[item.id]:undefined)??LABEL_TIERS[item.id]??((hash(item.id)%3)+1)*(hash(item.id)%2?1:-1))
     const bottomLimit=viewHeight*(item.singleLine?.85:.74)
-    const top=item.singleLine?Math.min(viewHeight*(viewHeight<650?.79:.77),bottomLimit-h):item.memorial&&viewHeight<650?18:clamp(tier<0?item.y-h-14-(Math.abs(tier)-1)*step:item.y+14+(tier-1)*step,18,bottomLimit-h)
+    const top=item.singleLine?Math.min(width>700?item.y+font*1.08+30:viewHeight*.77,bottomLimit-h):item.memorial&&viewHeight<650?18:clamp(tier<0?item.y-h-14-(Math.abs(tier)-1)*step:item.y+14+(tier-1)*step,18,bottomLimit-h)
     const x=clamp(item.x,104+w/2,788-w/2),y=top+font
     labels.push({id:item.id,x,y,font,lineHeight:font*1.08,lines,box:{left:x-w/2,right:x+w/2,top,bottom:top+h},leader:{x:item.x,y:item.y<top?top:top+h}})
   }
