@@ -4,13 +4,11 @@ import { COLORS, MAX_PEOPLE, SAMPLE, YEAR_SPACING, ageAxis, attentionOpacity, br
 const person = (id: string) => SAMPLE.find(p => p.id === id)!
 const pos = (id: string, age: number) => { const p = person(id); return starPosition(p, SAMPLE.indexOf(p), SAMPLE.length, progressAtAge(age), SAMPLE) }
 
-test('generic family has a brother two years older and a sister born at eight', () => {
-  assert.equal(SAMPLE.length, 20)
+test('generic family keeps the older brother and removes the default sister', () => {
+  assert.equal(SAMPLE.length, 19)
   assert.equal(person('brother').start, -2)
   assert.equal(person('brother').end! - person('brother').start, 40)
-  assert.equal(person('sister').start, 8)
-  assert.equal(personOpacity(person('sister'), progressAtAge(7)), 0)
-  assert.equal(personOpacity(person('sister'), progressAtAge(10)), 1)
+  assert.ok(!SAMPLE.some(p=>p.id==='sister'))
   assert.equal(person('self').end, 85)
   assert.equal(person('self').name, 'You')
   assert.doesNotMatch(SAMPLE.map(p => p.name).join(' '), /Mikael/)

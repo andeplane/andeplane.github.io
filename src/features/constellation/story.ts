@@ -20,7 +20,7 @@ export interface Person {
   renameAt?: number
 }
 export const COLORS = ['#c9b9f6', '#bedddd', '#ff9c8e', '#90baff', '#f3b4d1', '#f7ce85', '#81e0e8', '#c1dea3', '#aabace', '#c4c3a4', '#a6d5bf', '#d8b9ed', '#f0bf9f', '#9dcad9', '#c4d5a5', '#d6b4bf']
-export const SAMPLE: Person[] = [
+const BEFORE_SIMPLIFICATION_SAMPLE: Person[] = [
   { id: 'grandma', name: 'Grandma', color: COLORS[0], start: -58, end: 17, lane: .12 },
   { id: 'grandpa', name: 'Grandpa', color: COLORS[1], start: -60, end: 27, lane: .32 },
   { id: 'mom', name: 'Mom', color: COLORS[2], start: -30, end: 66, lane: .22 },
@@ -42,6 +42,8 @@ export const SAMPLE: Person[] = [
   { id: 'middle-school-friend', name: 'Middle school friend', color: COLORS[8], start: 13, end: 16, exit: 'fade', motion: 'pass', near: 'self' },
   { id: 'coworker', name: 'Coworker', color: COLORS[9], start: 22, end: 25.5, exit: 'fade', motion: 'weave', near: 'self' },
 ]
+
+export const SAMPLE=BEFORE_SIMPLIFICATION_SAMPLE.filter(person=>person.id!=='sister')
 
 export const presentY=(age:number)=>505-170*smooth((age-85)/7)
 export function ageAxis(progress: number, afterEnding=0) {
@@ -93,7 +95,8 @@ export function pathX(person: Person, index: number, count: number, age: number,
     const edge=encounter?.edge??(x<(relationshipX('self',age)??440)?-80:880)
     x+=(edge-x)*smooth((age-person.end)/7)
   }
-  return deathPeel(person,age,x) + Math.sin(age * .22 + index * 1.7) * 3
+  const phaseIndex=BEFORE_SIMPLIFICATION_SAMPLE.findIndex(p=>p.id===person.id)
+  return deathPeel(person,age,x) + Math.sin(age * .22 + (phaseIndex<0?index:phaseIndex) * 1.7) * 3
 }
 export function personName(person: Person, progress: number) {
   return person.nameBefore && person.renameAt !== undefined && storyAge(progress) < person.renameAt ? person.nameBefore : person.name
@@ -187,7 +190,7 @@ export function readPeople(value: unknown): Person[] | null {
   return value as Person[]
 }
 
-const BEFORE_CROSSINGS_SAMPLE=SAMPLE.filter(p=>!['grade-school-friend','middle-school-friend','coworker'].includes(p.id)).map(p=>p.id==='childhood-friend'?{...p,color:COLORS[8]}:p)
+const BEFORE_CROSSINGS_SAMPLE=BEFORE_SIMPLIFICATION_SAMPLE.filter(p=>!['grade-school-friend','middle-school-friend','coworker'].includes(p.id)).map(p=>p.id==='childhood-friend'?{...p,color:COLORS[8]}:p)
 const BEFORE_CROSSINGS_HUSBAND_SAMPLE=BEFORE_CROSSINGS_SAMPLE.map(p=>p.id==='partner'?{...p,name:'Husband',nameBefore:'Boyfriend'}:p)
 const BEFORE_MEMORIAL_SAMPLE=BEFORE_CROSSINGS_SAMPLE.map(p=>p.id==='partner'?{...p,end:88}:p)
 const BEFORE_MEMORIAL_HUSBAND_SAMPLE=BEFORE_MEMORIAL_SAMPLE.map(p=>p.id==='partner'?{...p,name:'Husband',nameBefore:'Boyfriend'}:p)
@@ -222,7 +225,7 @@ export function restorePeople(saved: unknown, legacy: unknown, random = Math.ran
     return p.id === 'partner' ? { ...old, lane: .43 } : p.id === 'college-friends' ? { ...old, name: 'College friends' } : old
   })
   const oldHusband = PREVIOUS_SAMPLE.map(p => p.id === 'partner' ? { ...p, name: 'Husband', nameBefore: 'Boyfriend' } : p)
-  if (current && ![PREVIOUS_SAMPLE, oldHusband, oldTwelve, LAST_SAMPLE, LAST_HUSBAND_SAMPLE, BEFORE_PASS_SAMPLE, BEFORE_PASS_HUSBAND_SAMPLE, BEFORE_MEMORIAL_SAMPLE, BEFORE_MEMORIAL_HUSBAND_SAMPLE, BEFORE_CROSSINGS_SAMPLE, BEFORE_CROSSINGS_HUSBAND_SAMPLE].some(expected => matches(current, expected))) return current
+  if (current && ![BEFORE_SIMPLIFICATION_SAMPLE, BEFORE_SIMPLIFICATION_SAMPLE.map(p=>p.id==='partner'?{...p,name:'Husband',nameBefore:'Boyfriend'}:p), PREVIOUS_SAMPLE, oldHusband, oldTwelve, LAST_SAMPLE, LAST_HUSBAND_SAMPLE, BEFORE_PASS_SAMPLE, BEFORE_PASS_HUSBAND_SAMPLE, BEFORE_MEMORIAL_SAMPLE, BEFORE_MEMORIAL_HUSBAND_SAMPLE, BEFORE_CROSSINGS_SAMPLE, BEFORE_CROSSINGS_HUSBAND_SAMPLE].some(expected => matches(current, expected))) return current
   const previous = readPeople(legacy)
   const names = ['Grandma','Grandpa','Mom','Dad','My love','Me','Our child']
   const ends = [19,28,66,54,null,null,null]
