@@ -66,13 +66,19 @@ export function storyMessage(progress: number) {
 const laneX = (person: Person, index: number, count: number) => 45 + (person.lane ?? (.06 + index * .88 / Math.max(1, count - 1))) * 710
 
 function pathX(person: Person, index: number, count: number, age: number, people?: Person[]) {
-  const lane = laneX(person, index, count)
+  const ownLane = laneX(person, index, count)
   const anchorIndex = people?.findIndex(p => p.id === person.near) ?? -1
-  const anchor = anchorIndex >= 0 && people ? laneX(people[anchorIndex], anchorIndex, count) : lane
-  const entry = person.exit === 'fade' ? (index % 2 ? 810 : -10) : person.near ? anchor : lane
-  let x = entry + (lane - entry) * smooth((age - person.start) / 7)
+  const anchor = anchorIndex >= 0 && people ? laneX(people[anchorIndex], anchorIndex, count) : ownLane
+  const anchoredFriend = person.exit === 'fade' && anchorIndex >= 0
+  const side = ownLane < anchor ? -1 : 1
+  // Friendships accompany their anchor. Their stored lane chooses a side,
+  // rather than placing them in an unrelated relative's part of the sky.
+  const lane = anchoredFriend ? anchor + side * 70 : ownLane
+  const edge = side < 0 ? -10 : 810
+  const entry = anchoredFriend ? anchor + side * 78 : person.exit === 'fade' ? edge : person.near ? anchor : lane
+  let x = entry + (lane - entry) * smooth((age - person.start) / (anchoredFriend ? 3 : 7))
   if (person.exit === 'fade' && person.end !== null) {
-    x += ((index % 2 ? 810 : -10) - x) * smooth((age - person.end + 5) / 7)
+    x += (edge - x) * smooth((age - person.end) / 3)
   }
   return x + Math.sin(age * .2 + index * 2) * 8
 }

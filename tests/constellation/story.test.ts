@@ -147,3 +147,18 @@ test('the short explanation returns inside the animation, including the referenc
   assert.deepEqual(storyMessage(1)!.lines, ['Some walk with you for a while.', 'Others stay in your sky forever.'])
   assert.equal(storyMessage(.95)!.opacity, 1)
 })
+
+
+test('friends accompany Me rather than the grandparents throughout their shared years', () => {
+  for (const id of ['childhood-friend', 'college-friends']) {
+    const friend = person(id)
+    const index = SAMPLE.indexOf(friend)
+    for (let age = friend.start + 1; age <= friend.end!; age += .5) {
+      const progress = atAge(age)
+      const position = starPosition(friend, index, SAMPLE.length, progress, SAMPLE)
+      const self = starPosition(person('self'), SAMPLE.indexOf(person('self')), SAMPLE.length, progress, SAMPLE)
+      assert.ok(Math.abs(position.x - self.x) < 95, `${id} should travel beside Me at age ${age}`)
+      assert.ok(Math.abs(position.y - self.y) < 1e-7)
+    }
+  }
+})
