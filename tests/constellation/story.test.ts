@@ -1,11 +1,11 @@
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
-import { COLORS, MAX_PEOPLE, SAMPLE, YEAR_SPACING, ageAxis, attentionOpacity, brotherMoment, personAppearance, personName, personOpacity, progressAtAge, readPeople, restorePeople, starPosition, storyAge, trailPoints } from '../../src/features/constellation/story.ts'
+import { COLORS, MAX_PEOPLE, SAMPLE, YEAR_SPACING, ageAxis, attentionOpacity, brotherMoment, personAppearance, personLabelOpacity, personName, personOpacity, progressAtAge, readPeople, restorePeople, starPosition, storyAge, trailPoints } from '../../src/features/constellation/story.ts'
 const person = (id: string) => SAMPLE.find(p => p.id === id)!
 const pos = (id: string, age: number) => { const p = person(id); return starPosition(p, SAMPLE.indexOf(p), SAMPLE.length, progressAtAge(age), SAMPLE) }
 
 test('generic family has a brother two years older and a sister born at eight', () => {
-  assert.equal(SAMPLE.length, 16)
+  assert.equal(SAMPLE.length, 17)
   assert.equal(person('brother').start, -2)
   assert.equal(person('brother').end! - person('brother').start, 40)
   assert.equal(person('sister').start, 8)
@@ -14,6 +14,28 @@ test('generic family has a brother two years older and a sister born at eight', 
   assert.equal(person('self').end, 85)
   assert.equal(person('self').name, 'You')
   assert.doesNotMatch(SAMPLE.map(p => p.name).join(' '), /Mikael/)
+})
+test('the kindergarten encounter crosses near You once and continues offscreen without parking or dying',()=>{
+  const friend=person('kindergarten-friend')
+  assert.ok(pos(friend.id,1).x<104)
+  assert.ok(pos(friend.id,6).x>794)
+  assert.ok(Math.abs(pos(friend.id,3).x-pos('self',3).x)<1)
+  let closeYears=0
+  for(let age=1;age<7;age+=.05) {
+    const current=pos(friend.id,age),next=pos(friend.id,age+.05)
+    assert.ok(next.x-current.x>9,`the fly-by must keep moving at age ${age}`)
+    assert.ok(Math.abs(current.year-age)<1e-7)
+    assert.equal(current.y,pos('self',age).y)
+    assert.equal(personAppearance(friend,progressAtAge(age)).distance,0)
+    if(Math.abs(current.x-pos('self',age).x)<50)closeYears+=.05
+  }
+  assert.ok(closeYears>0&&closeYears<.6,'a passing encounter must not settle next to You')
+  const trail=trailPoints(friend,SAMPLE.indexOf(friend),SAMPLE.length,progressAtAge(3),SAMPLE)
+  assert.ok(trail[0].year<0&&trail[0].x<104,'this person had a life before paths crossed')
+  assert.equal(personLabelOpacity(friend,progressAtAge(1)),0)
+  assert.equal(personLabelOpacity(friend,progressAtAge(6)),0)
+  assert.equal(pos(friend.id,10).visible,false)
+  assert.ok(Math.abs(pos('childhood-friend',10).x-pos('self',10).x)<50,'the lasting childhood friendship still stays close')
 })
 test('friendships and first love fade without becoming memorials', () => {
   for (const id of ['childhood-friend','first-love','college-friends']) {

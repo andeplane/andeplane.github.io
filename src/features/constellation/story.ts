@@ -3,7 +3,7 @@ import { relationshipX } from './relationships.ts'
 export { clamp, smooth, storyAge, playbackFrame, storyMessage, progressAtAge } from './clock.ts'
 export const DEFAULT_DURATION = 120
 export const YEAR_SPACING = 40
-export const MAX_PEOPLE = 16
+export const MAX_PEOPLE = 17
 export interface Person {
   id: string
   name: string
@@ -11,6 +11,7 @@ export interface Person {
   start: number
   end: number | null
   exit?: 'star' | 'fade'
+  motion?: 'pass'
   lane?: number
   near?: string
   nameBefore?: string
@@ -34,6 +35,7 @@ export const SAMPLE: Person[] = [
   { id: 'childhood-friend', name: 'Childhood friend', color: COLORS[8], start: 5, end: 28, exit: 'fade', lane: .38, near: 'self' },
   { id: 'first-love', name: 'First love', color: COLORS[12], start: 15, end: 21, exit: 'fade', lane: .62, near: 'self' },
   { id: 'college-friends', name: 'College friend', color: COLORS[9], start: 18, end: 34, exit: 'fade', lane: .68, near: 'self' },
+  { id: 'kindergarten-friend', name: 'Kindergarten friend', color: COLORS[9], start: 3, end: 6, exit: 'fade', motion: 'pass', near: 'self' },
 ]
 
 export const presentY=(age:number)=>505-170*smooth((age-85)/7)
@@ -52,10 +54,17 @@ const ENCOUNTERS:Record<string,{lead:number;edge:number}>={
   'college-friends':{lead:4,edge:-80},partner:{lead:6,edge:880},
   'child-partner':{lead:5,edge:880},
 }
-const approachStart=(person:Person)=>person.start-(ENCOUNTERS[person.id]?.lead??0)
-const trailStart=(person:Person)=>ENCOUNTERS[person.id]?approachStart(person)-8:person.start
+const approachStart=(person:Person)=>person.start-(person.motion==='pass'?2:ENCOUNTERS[person.id]?.lead??0)
+const trailStart=(person:Person)=>person.motion==='pass'||ENCOUNTERS[person.id]?approachStart(person)-8:person.start
 const laneX = (p: Person, i: number, count: number) => 110 + (p.lane ?? i / Math.max(1, count - 1)) * 620
-export function pathX(person: Person, index: number, count: number, age: number, people?: Person[]) {
+export function pathX(person: Person, index: number, count: number, age: number, people?: Person[]): number {
+  // A passing encounter crosses the present without turning into a companion
+  // lane. Its own clock keeps moving before and after the moment paths cross.
+  if(person.motion==='pass') {
+    const anchor=people?.find(p=>p.id===person.near)
+    const x=anchor&&anchor.motion!=='pass'?pathX(anchor,people!.indexOf(anchor),count,person.start,people):440
+    return x+(age-person.start)*200
+  }
   const known = people?.some(p => p.id === 'self') && SAMPLE.some(p => p.id === person.id)
   let x = known ? relationshipX(person.id, age)! : laneX(person, index, count)
   if (!known && person.near && people) {
@@ -84,9 +93,14 @@ export function personOpacity(person: Person, progress: number) {
   const entering = from <= -2 ? 1 : smooth((age - from) / .8)
   return person.exit === 'fade' && person.end !== null ? entering * (1 - smooth((age - person.end - 2.6) / 1)) : entering
 }
-export function personLabelOpacity(person: Person, progress: number) {
+export function personLabelOpacity(person: Person, progress: number, people=SAMPLE) {
   const age=storyAge(progress),since=age-(person.end??Infinity)
   let opacity=personOpacity(person,progress)
+  if(person.motion==='pass') {
+    // Let the name leave with the dot instead of pinning it to the screen edge.
+    const x=pathX(person,people.indexOf(person),people.length,age,people)
+    opacity*=smooth((x-104)/160)*smooth((788-x)/160)
+  }
   if(ENCOUNTERS[person.id])opacity*=smooth((age-person.start+.4)/1.2)
   if(person.end!==null&&since>=0) {
     opacity*=person.exit==='fade'?1-smooth(since/.65):person.id==='brother'?(1-smooth((since-1.2)/.6))+smooth((since-5.8)/.6):(1-smooth(since/.65))+smooth((since-3.4)/.6)
@@ -137,13 +151,15 @@ export function readPeople(value: unknown): Person[] | null {
   if (!Array.isArray(value) || value.length < 1 || value.length > MAX_PEOPLE) return null
   const ids = new Set<string>()
   for (const p of value) {
-    if (!p || typeof p.id !== 'string' || ids.has(p.id) || typeof p.name !== 'string' || !p.name.trim() || p.name.length > 24 || !COLORS.includes(p.color) || !Number.isFinite(p.start) || p.start < -100 || p.start > 99 || (p.end !== null && (!Number.isFinite(p.end) || p.end <= p.start || p.end > 100)) || (p.exit !== undefined && p.exit !== 'star' && p.exit !== 'fade') || (p.lane !== undefined && (!Number.isFinite(p.lane) || p.lane < 0 || p.lane > 1)) || (p.near !== undefined && typeof p.near !== 'string') || (p.nameBefore !== undefined && (typeof p.nameBefore !== 'string' || !p.nameBefore.trim() || p.nameBefore.length > 24 || !Number.isFinite(p.renameAt) || p.renameAt < p.start || p.renameAt > (p.end ?? 100))) || (p.renameAt !== undefined && p.nameBefore === undefined)) return null
+    if (!p || typeof p.id !== 'string' || ids.has(p.id) || typeof p.name !== 'string' || !p.name.trim() || p.name.length > 24 || !COLORS.includes(p.color) || !Number.isFinite(p.start) || p.start < -100 || p.start > 99 || (p.end !== null && (!Number.isFinite(p.end) || p.end <= p.start || p.end > 100)) || (p.exit !== undefined && p.exit !== 'star' && p.exit !== 'fade') || (p.motion !== undefined && (p.motion !== 'pass' || p.exit !== 'fade' || p.end === null)) || (p.lane !== undefined && (!Number.isFinite(p.lane) || p.lane < 0 || p.lane > 1)) || (p.near !== undefined && typeof p.near !== 'string') || (p.nameBefore !== undefined && (typeof p.nameBefore !== 'string' || !p.nameBefore.trim() || p.nameBefore.length > 24 || !Number.isFinite(p.renameAt) || p.renameAt < p.start || p.renameAt > (p.end ?? 100))) || (p.renameAt !== undefined && p.nameBefore === undefined)) return null
     ids.add(p.id)
   }
   return value as Person[]
 }
 
-const LAST_SAMPLE=SAMPLE.map(p=>p.id==='self'?{...p,name:'Me'}:p.id==='partner'?{...p,renameAt:31}:p.id==='child'?{...p,start:32}:p.id==='daughter'?{...p,start:35}:p.id==='college-friends'?{...p,end:35}:p)
+const BEFORE_PASS_SAMPLE=SAMPLE.filter(p=>p.id!=='kindergarten-friend')
+const BEFORE_PASS_HUSBAND_SAMPLE=BEFORE_PASS_SAMPLE.map(p=>p.id==='partner'?{...p,name:'Husband',nameBefore:'Boyfriend'}:p)
+const LAST_SAMPLE=BEFORE_PASS_SAMPLE.map(p=>p.id==='self'?{...p,name:'Me'}:p.id==='partner'?{...p,renameAt:31}:p.id==='child'?{...p,start:32}:p.id==='daughter'?{...p,start:35}:p.id==='college-friends'?{...p,end:35}:p)
 const LAST_HUSBAND_SAMPLE=LAST_SAMPLE.map(p=>p.id==='partner'?{...p,name:'Husband',nameBefore:'Boyfriend'}:p)
 
 const PREVIOUS_SAMPLE: Person[] = [
@@ -172,7 +188,7 @@ export function restorePeople(saved: unknown, legacy: unknown, random = Math.ran
     return p.id === 'partner' ? { ...old, lane: .43 } : p.id === 'college-friends' ? { ...old, name: 'College friends' } : old
   })
   const oldHusband = PREVIOUS_SAMPLE.map(p => p.id === 'partner' ? { ...p, name: 'Husband', nameBefore: 'Boyfriend' } : p)
-  if (current && ![PREVIOUS_SAMPLE, oldHusband, oldTwelve, LAST_SAMPLE, LAST_HUSBAND_SAMPLE].some(expected => matches(current, expected))) return current
+  if (current && ![PREVIOUS_SAMPLE, oldHusband, oldTwelve, LAST_SAMPLE, LAST_HUSBAND_SAMPLE, BEFORE_PASS_SAMPLE, BEFORE_PASS_HUSBAND_SAMPLE].some(expected => matches(current, expected))) return current
   const previous = readPeople(legacy)
   const names = ['Grandma','Grandpa','Mom','Dad','My love','Me','Our child']
   const ends = [19,28,66,54,null,null,null]
