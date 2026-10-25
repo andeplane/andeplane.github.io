@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Hex Storm — Saturn's hexagon from fluid dynamics</title>
+    <meta
+      name="description"
+      content="A forced eastward jet on a rotating polar cap, solved on your GPU. Nothing in the code draws a hexagon — the fluid makes one anyway."
+    />
+    <link rel="stylesheet" href="/src/style.css" />
+  </head>
+  <body>
+    <canvas id="view"></canvas>
+
+    <div id="loading"><span>spinning up the pole…</span></div>
+
+    <div id="unsupported" hidden>
+      <div>
+        <h1>WebGPU required</h1>
+        <p>
+          This storm solves the vorticity equation with FFTs on your GPU and needs a
+          browser with WebGPU. Recent Chrome, Edge, or Safari should work; in Firefox,
+          enable it in <code>about:config</code>.
+        </p>
+      </div>
+    </div>
+
+    <header id="titlecard">
+      <h1>Hex Storm</h1>
+      <p>
+        Saturn's north pole, seen from above: one eastward jet on a spinning fluid cap.
+        Nothing in the code draws a hexagon — the fluid makes one anyway.
+      </p>
+      <div class="row">
+        <button id="tour-btn" type="button">Take the tour</button>
+        <a id="post-link" href="/blog/hex-storm-saturns-hexagon-from-one-jet" target="_top">Read the write-up</a>
+      </div>
+    </header>
+
+    <aside id="readouts">
+      <div class="sides">
+        <div class="label">sides</div>
+        <div class="value" id="sides">–</div>
+        <div class="sub" id="sides-sub">waiting for the jet to go unstable…</div>
+      </div>
+      <div class="spectrum" id="spectrum" title="Power in azimuthal modes m = 1…12 of the vorticity around the jet"></div>
+      <div class="stats" id="stats"></div>
+    </aside>
+
+    <aside id="panel"></aside>
+
+    <div id="tour" hidden></div>
+    <div id="hint">drag to stir · shift-drag for the opposite spin · space pauses · 1–4 change view</div>
+
+    <script type="module" src="/src/main.ts"></script>
+  </body>
+</html>
