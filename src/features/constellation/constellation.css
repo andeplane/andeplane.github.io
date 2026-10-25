@@ -31,7 +31,6 @@
   .cl-story-title { font-size: 20px; margin-bottom: 6px; }
 }
 
-.cl-sound-hint { position: absolute; left: 0; right: 0; bottom: 12px; text-align: center; font: 12px/1.5 system-ui, sans-serif; color: #a4afbd; pointer-events: none; }
 .cl-app:focus-visible { outline: 1px solid #a4afbd; outline-offset: -4px; }
 
 .cl-story-dedication { top: 79%; bottom: auto; font-size: clamp(18px, 2.5vw, 30px); }
