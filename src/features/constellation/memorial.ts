@@ -1,6 +1,6 @@
 import { progressAtAge, smooth } from './clock.ts'
 import type { Person, StoryPoint } from './story.ts'
-export const RISE_SECONDS=5
+export const RISE_SECONDS=2
 // An original seven-star shelter: a broad, asymmetric arch, with You at its
 // base. The route is a simple perimeter, never a crossing star polygon.
 export const MEMORIAL_SKY:Record<string,{x:number;y:number}>={

@@ -120,7 +120,7 @@ export function personLabelOpacity(person: Person, progress: number, people=SAMP
   if(ENCOUNTERS[person.id])opacity*=smooth((age-person.start+.4)/1.2)
   if(person.end!==null&&since>=0) {
     if(person.exit==='fade') opacity*=1-smooth(since/.65)
-    else {
+    else if(person.id!=='self') {
       const memorial=memorialState(person,progress)
       opacity*=(1-smooth((memorial.since-Math.max(0,memorial.hold-.5))/.5))+smooth((memorial.landedFor)/.7)
     }
