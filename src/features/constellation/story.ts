@@ -71,6 +71,15 @@ export function personOpacity(person: Person, progress: number) {
   const entering = person.start <= -2 ? 1 : smooth((age - person.start) / 1.2)
   return person.exit === 'fade' && person.end !== null ? entering * (1 - smooth((age - person.end) / 3)) : entering
 }
+export function personLabelOpacity(person: Person, progress: number) {
+  const age=storyAge(progress),since=age-(person.end??Infinity)
+  let opacity=personOpacity(person,progress)
+  if(person.end!==null&&since>=0) {
+    opacity*=person.exit==='fade'?1-smooth(since/.65):(1-smooth(since/.65))+smooth((since-3.4)/.6)
+  }
+  if(person.id!=='brother') opacity*=1-smooth((progress*120-94)/4)
+  return opacity
+}
 function mixColor(from: string, to: string, amount: number) {
   const channel = (hex: string, offset: number) => parseInt(hex.slice(offset, offset + 2), 16)
   return '#' + [1, 3, 5].map(offset => Math.round(channel(from, offset) * (1 - amount) + channel(to, offset) * amount).toString(16).padStart(2, '0')).join('')

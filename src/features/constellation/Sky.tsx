@@ -1,6 +1,6 @@
 import { useRef } from 'react'
 import type { Person } from './story'
-import { YEAR_SPACING, ageAxis, personAppearance, personName, smooth, starPosition, storyAge, trailPoints } from './story'
+import { YEAR_SPACING, ageAxis, personAppearance, personLabelOpacity, personName, smooth, starPosition, storyAge, trailPoints } from './story'
 import { cameraAmount, futureBranches, projectPoint } from './projection.ts'
 import { StableLabelLayout } from './labels.ts'
 const stars = Array.from({length:240},(_,i)=>({x:((Math.sin(i*127.1+311.7)*43758.5453)%1+1)%1*800,y:((Math.sin(i*269.5+183.3)*43758.5453)%1+1)%1,r:i%13===0?1.3:i%4===0?.8:.5}))
@@ -13,7 +13,7 @@ export default function Sky({people,progress,width=800,viewHeight=800,afterEndin
   const positions=points.map(p=>({...p,...projectPoint(p,progress,viewHeight)}))
   const appearances=people.map(p=>personAppearance(p,progress))
   const paths=people.map((p,i)=>trailPoints(p,i,people.length,progress,people).map(point=>projectPoint(point,progress,viewHeight))).map(points=>points.length?'M'+points.map(p=>`${p.x},${p.y}`).join(' L'):'')
-  const labelItems=people.map((p,i)=>({id:p.id,name:personName(p,progress),x:positions[i].x,y:positions[i].y,opacity:positions[i].opacity,visible:positions[i].visible && !(p.end===null&&tilt>.8)}))
+  const labelItems=people.map((p,i)=>({id:p.id,name:personName(p,progress),x:positions[i].x,y:positions[i].y,memorial:p.end!==null&&p.exit!=='fade'&&age>p.end+.7,opacity:personLabelOpacity(p,progress),visible:positions[i].visible && personLabelOpacity(p,progress)>.002}))
   const stableLabels=useRef(new StableLabelLayout())
   const previousTime=useRef(progress*120+afterEnding)
   const seconds=progress*120+afterEnding
@@ -53,6 +53,6 @@ export default function Sky({people,progress,width=800,viewHeight=800,afterEndin
       {people.map((p,i)=>{const since=age-(p.end??age);const opacity=p.exit==='fade'?positions[i].opacity:p.end!==null&&since>=0?positions[i].opacity*((1-smooth(since/8))*(1-tilt)+.14*tilt):positions[i].opacity;return <g key={p.id} stroke={appearances[i].color} opacity={opacity}><path d={paths[i]} strokeWidth="7" opacity=".04"/><path d={paths[i]} strokeWidth="3" opacity=".15"/><path d={paths[i]} strokeWidth="1.3" opacity=".85"/></g>})}
     </g>
     {people.map((p,i)=>{const pos=positions[i];if(!pos.visible)return null;const ended=p.end!==null&&p.exit!=='fade'&&age>=p.end;const size=Math.max(.65,Math.min(1.2,pos.scale));const a=appearances[i];return <g key={p.id} data-person={p.id} opacity={pos.opacity}><g clipPath={`url(#${id}-bounds)`}><circle cx={pos.x} cy={pos.y} r={a.glowRadius*size} fill={`url(#${id}-glow-${p.id})`}/><circle cx={pos.x} cy={pos.y} r={a.radius*size} fill={a.core}/>{ended&&<path d={`M${pos.x-7*size} ${pos.y}h${14*size} M${pos.x} ${pos.y-7*size}v${14*size}`} stroke={a.color} strokeWidth=".6" opacity=".65"/>}</g></g>})}
-    {labels.map(label=>{const i=people.findIndex(p=>p.id===label.id),p=people[i],pos=positions[i],a=appearances[i];return <g key={label.id} data-label={label.id} opacity={pos.opacity}><path d={`M${pos.x} ${pos.y}L${label.leader.x} ${label.leader.y}`} fill="none" stroke={a.label} strokeWidth=".55" opacity=".27"/><text className="cl-star-label" x={label.x} y={label.y} fill={a.label} textAnchor="middle" fontFamily="system-ui, sans-serif" fontSize={label.font}><title>{personName(p,progress)}</title>{label.lines.map((line,n)=><tspan key={n} x={label.x} dy={n?label.lineHeight:0}>{line}</tspan>)}</text></g>})}
+    {labels.map(label=>{const i=people.findIndex(p=>p.id===label.id),p=people[i],pos=positions[i],a=appearances[i];return <g key={label.id} data-label={label.id} opacity={labelItems[i].opacity}><path d={`M${pos.x} ${pos.y}L${label.leader.x} ${label.leader.y}`} fill="none" stroke={a.label} strokeWidth=".55" opacity=".27"/><text className="cl-star-label" x={label.x} y={label.y} fill={a.label} textAnchor="middle" fontFamily="system-ui, sans-serif" fontSize={label.font}><title>{personName(p,progress)}</title>{label.lines.map((line,n)=><tspan key={n} x={label.x} dy={n?label.lineHeight:0}>{line}</tspan>)}</text></g>})}
   </svg>
 }
