@@ -20,3 +20,25 @@ test('relationship labels fit without overlap across story years and aspect rati
     if(me.visible&&me.x>104&&me.y>15&&me.y<viewHeight*.73) assert.ok(labels.some(l=>l.id==='self'))
   }
 })
+
+test('Mom, Dad and Brother labels have no frame-to-frame slot jumps', async () => {
+  const {StableLabelLayout}=await import('../../src/features/constellation/labels.ts')
+  for(const [width,height] of [[1256,776],[366,820],[296,716],[820,366]]) {
+    const layout=new StableLabelLayout(),viewHeight=800*height/width
+    const previous=new Map<string,{x:number;y:number}>()
+    for(let frame=0;frame<=120*20;frame++) {
+      const progress=frame/20/120
+      const items=SAMPLE.map((p,i)=>{const point=starPosition(p,i,SAMPLE.length,progress,SAMPLE);return{id:p.id,name:personName(p,progress),...point,...projectPoint(point,progress,viewHeight)}})
+      const labels=layout.update(items,width,viewHeight,1/20)
+      for(const label of labels) {
+        const item=items.find(item=>item.id===label.id)!,offset={x:label.x-item.x,y:label.y-item.y},old=previous.get(label.id)
+        if(old) {
+          const limit=55*800/width/20+1e-7
+          assert.ok(Math.abs(offset.x-old.x)<=limit,`${label.id} x jumped at ${frame/20}s`)
+          assert.ok(Math.abs(offset.y-old.y)<=limit,`${label.id} y jumped at ${frame/20}s`)
+        }
+        previous.set(label.id,offset)
+      }
+    }
+  }
+})

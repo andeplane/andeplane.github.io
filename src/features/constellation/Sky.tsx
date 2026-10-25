@@ -1,7 +1,8 @@
+import { useRef } from 'react'
 import type { Person } from './story'
 import { YEAR_SPACING, ageAxis, personAppearance, personName, smooth, starPosition, storyAge, trailPoints } from './story'
 import { cameraAmount, futureBranches, projectPoint } from './projection.ts'
-import { layoutLabels } from './labels.ts'
+import { StableLabelLayout } from './labels.ts'
 const stars = Array.from({length:240},(_,i)=>({x:((Math.sin(i*127.1+311.7)*43758.5453)%1+1)%1*800,y:((Math.sin(i*269.5+183.3)*43758.5453)%1+1)%1,r:i%13===0?1.3:i%4===0?.8:.5}))
 interface Props { people: Person[]; progress: number; width?: number; viewHeight?: number; afterEnding?: number; id?: string; title?: string }
 export default function Sky({people,progress,width=800,viewHeight=800,afterEnding=0,id='sky',title='A life among family and friends, continuing into the future'}:Props) {
@@ -12,8 +13,13 @@ export default function Sky({people,progress,width=800,viewHeight=800,afterEndin
   const positions=points.map(p=>({...p,...projectPoint(p,progress,viewHeight)}))
   const appearances=people.map(p=>personAppearance(p,progress))
   const paths=people.map((p,i)=>trailPoints(p,i,people.length,progress,people).map(point=>projectPoint(point,progress,viewHeight))).map(points=>points.length?'M'+points.map(p=>`${p.x},${p.y}`).join(' L'):'')
-  const labelItems=people.map((p,i)=>({id:p.id,name:personName(p,progress),x:positions[i].x,y:positions[i].y,visible:positions[i].visible && !(p.end===null&&tilt>.8)}))
-  const labels=layoutLabels(labelItems,width,viewHeight)
+  const labelItems=people.map((p,i)=>({id:p.id,name:personName(p,progress),x:positions[i].x,y:positions[i].y,opacity:positions[i].opacity,visible:positions[i].visible && !(p.end===null&&tilt>.8)}))
+  const stableLabels=useRef(new StableLabelLayout())
+  const previousTime=useRef(progress*120+afterEnding)
+  const seconds=progress*120+afterEnding
+  const delta=Math.max(0,seconds-previousTime.current)
+  previousTime.current=seconds
+  const labels=stableLabels.current.update(labelItems,width,viewHeight,delta)
   const axisFont=Math.min(36,13*800/width)
   const axisY=(year:number)=>projectPoint({x:80,y:505+(age-year)*YEAR_SPACING,year},progress,viewHeight).y
   const currentY=axisY(age)
