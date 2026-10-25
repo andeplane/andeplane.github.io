@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="en"><meta charset="utf-8"><title>Constellation scene review</title><div id="root"></div>
+<script type="module">
+import React from 'react'
+import { createRoot } from 'react-dom/client'
+import Sky from '/src/features/constellation/Sky.tsx'
+import { SAMPLE, smooth, storyMessage } from '/src/features/constellation/story.ts'
+import '/src/features/constellation/constellation.css'
+// Development-only visual fixture. Uses the production renderer and story data.
+const params = new URLSearchParams(location.search)
+const progress = params.has('progress') ? Number(params.get('progress')) : Number(params.get('age') || 20) / 100 * .9
+const people = SAMPLE.map(p => ({ ...p }))
+if (params.get('partner') === 'man') Object.assign(people.find(p => p.id === 'partner'), { name: 'Husband', nameBefore: 'Boyfriend' })
+if (params.has('large')) for (let i = people.length; i < 16; i++) people.push({ id: `extra-${i}`, name: `Family member ${i}`, color: '#aabace', start: 0, end: null, lane: .1 + i * .05 })
+const root = createRoot(document.getElementById('root'))
+function render() {
+  const inset = params.has('safe') ? '44px 24px 34px' : '12px'
+  const width = innerWidth - (params.has('safe') ? 48 : 24)
+  const height = innerHeight - (params.has('safe') ? 78 : 24)
+  const sceneScale = 1 - .22 * smooth((progress - .85) / .08)
+  const message = storyMessage(progress)
+  const gap = height < 500 && width > 700 ? 18 : Math.min(42, Math.max(24, height * .04))
+  root.render(React.createElement('main', { className: 'cl-app', style: { padding: inset } },
+    React.createElement('div', { className: 'cl-canvas' },
+      React.createElement(Sky, { people, progress, width, viewHeight: 800 * height / width, sceneScale }),
+      message && React.createElement('div', { className: `cl-story-message ${message.title ? 'cl-story-ending' : ''}`, style: { opacity: message.opacity, top: message.title ? `calc(${70 * sceneScale}% + ${gap}px)` : undefined } },
+        message.title && React.createElement('div', { className: 'cl-story-title' }, message.title),
+        ...message.lines.map(line => React.createElement('div', { className: 'cl-story-sentence', key: line }, line))))))
+}
+render()
+addEventListener('resize', render)
+</script></html>
