@@ -19,7 +19,7 @@ button.pirate-menu-brand { min-width: var(--pirate-touch-target); min-height: va
 .pirate-menu-header-left.has-back { padding-left: calc(var(--pirate-back-width) + 12px); }
 .pirate-menu-brand { display: flex; align-items: center; gap: 10px; font-family: var(--pirate-menu-font); }
 .pirate-menu-brand small { display: block; }
-:is(#academy, #voyage-ui) button.pirate-menu-back {
+:is(#academy, #voyage-ui, #reader) button.pirate-menu-back {
   position: fixed;
   top: calc(var(--pirate-menu-inset) + var(--pirate-safe-top));
   left: calc(var(--pirate-menu-inset) + var(--pirate-safe-left));
@@ -43,8 +43,8 @@ button.pirate-menu-brand { min-width: var(--pirate-touch-target); min-height: va
   pointer-events: auto;
   touch-action: manipulation;
 }
-:is(#academy, #voyage-ui) .pirate-menu-back > span { font: 700 13px/1 var(--pirate-menu-font); }
-:is(#academy, #voyage-ui) .pirate-menu-back > .pirate-back-arrow { font-size: 28px; font-weight: 400; }
+:is(#academy, #voyage-ui, #reader) .pirate-menu-back > span { font: 700 13px/1 var(--pirate-menu-font); }
+:is(#academy, #voyage-ui, #reader) .pirate-menu-back > .pirate-back-arrow { font-size: 28px; font-weight: 400; }
 .pirate-menu-actions { display: flex; flex-direction: column; gap: 12px; }
 .pirate-menu-action { min-height: 54px; font-family: var(--pirate-menu-font); }
 .pirate-map-label { font-family: var(--pirate-menu-font); }

@@ -271,10 +271,30 @@ reuse Broadside's current implementation.
 Local math launch: http://localhost:5180/math/?mute=true (when Vite is running
 on port 5180). Development-only `?qa=true&mute=true` starts a temporary test
 session without reading or writing player progress or the coin pose cache.
-Production ignores the QA flag. `npm run check` covers both games and builds
-both entry points.
+Production ignores the QA flag. `npm run check` covers the shared tests and builds all three entry points.
 
 Captain Calculus also has a separate offline iPhone/iPad app. Run
 `npm run calculus:ios:open` to open its native project; see [IOS.md](IOS.md#captain-calculus)
 for builds and updates. It uses `com.andeplane.captaincalculus`, its own Home
 Screen icon and on-device save, and can be installed alongside Broadside.
+
+## Captain Reader
+
+Captain Reader (Kaptein Leselyst) is the reading companion at `/reading/`. Run `npm run dev -- --host 127.0.0.1 --port 5192` and open `http://127.0.0.1:5192/reading/`.
+
+Norwegian Bokmål and English each have ten packs: five individual-word packs, three sentence packs, and two paragraph packs. Each bank contains 50 authored prompts or template variants. Levels contain ten words, five sentences or two paragraphs; their chest value rises from 100 gold in Pack 1 to 1,000 in Pack 10. Hints, retries and adult assistance preserve the reward. This initial corpus still needs educational and family acceptance review.
+
+Language defaults come from the device's ordered preferences and remain changeable. Small flag markers sit on a pannable northern-Europe chart. The pack picker uses the same `ui/difficultyMap.ts` component and parchment markers as Captain Calculus, with new continuous world illustrations in the same style. Both learning games also use the shared endless island trail. Captain Reader supplies an independent save/cargo adapter to `PirateWorld`; it has no separate cave, ship or coin-animation implementation.
+
+Native iOS listening starts when a child enters a reading prompt or chooses Try again, with a persistent visible status and stop action. There is no large microphone button. Leaving, backgrounding and interruptions cancel capture. Each paragraph is read sentence by sentence. Only finalized matching speech can complete a prompt; transient audio and transcripts are not retained. Unsupported devices/locales and browser play offer adult-confirmed practice. No browser speech API or cloud transcription fallback is used.
+
+A physical iPhone 18 Pro on iOS 27.0 reported on-device capability for `nb-NO` and `en-US`; `en-GB` was not available on-device there. English selection therefore falls back to an available supported English locale. Capability flags do not verify child-speech accuracy, microphone permission behavior or acoustic performance. Those remain separate device acceptance checks.
+
+- `src/reading/content.ts`: pack definitions and bilingual banks.
+- `src/reading/progress.ts`: stable prompts, chunk resume, bounded save validation and exact rewards.
+- `src/reading/recognition.ts`, `nativeSpeech.ts`: cancellation-safe attempts and the native bridge.
+- `src/reading/pirateAdapter.ts`, `pirateHost.ts`: game-specific state and host for the shared presentation library.
+- `ios-reading/`: separate app target with an on-device-only Apple Speech plugin and reading-specific icon.
+- `public/reading/ART.md`: built-in imagegen art direction and final asset provenance.
+
+Build and sync the separate native app with `npm run reading:ios:sync`, then open `ios-reading/App/App.xcodeproj`. `PIRATE_GAME=reading` selects that target; the existing Broadside and Calculus commands remain available. No App Store submission is part of this implementation.

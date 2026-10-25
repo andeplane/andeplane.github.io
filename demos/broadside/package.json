@@ -26,7 +26,10 @@
     "calculus:ios:sim": "npm run calculus:ios:sync && CAPTAIN_CALCULUS=1 cap run ios --no-sync",
     "calculus:ios:build:sim": "npm run calculus:ios:sync && xcodebuild -project ios-calculus/App/App.xcodeproj -scheme App -configuration Debug -sdk iphonesimulator -destination \"generic/platform=iOS Simulator\" -derivedDataPath ios-calculus/DerivedData -packageAuthorizationProvider netrc CODE_SIGNING_ALLOWED=NO build",
     "build:public": "npm run test && tsc --noEmit && vite build --mode public",
-    "check:pirate-boundary": "node tools/checkPirateBoundary.mjs"
+    "check:pirate-boundary": "node tools/checkPirateBoundary.mjs",
+    "build:reading:ios": "tsc --noEmit && vite build --mode reading-ios --base / --outDir dist-reading-ios && node tools/readingIos.mjs",
+    "reading:ios:sync": "npm run build:reading:ios && PIRATE_GAME=reading cap sync ios && node tools/iosPackagePlatform.mjs ios-reading/App/CapApp-SPM/Package.swift",
+    "reading:ios:open": "npm run reading:ios:sync && PIRATE_GAME=reading cap open ios"
   },
   "devDependencies": {
     "@capacitor/cli": "8.5.2",
