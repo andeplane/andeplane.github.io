@@ -24,8 +24,9 @@ instructions for this project.
 
 1. **Passing encounters.** Kindergarten friend moves diagonally from left to
    right through the current-age row. It never stops or turns upward into a
-   companion lane. Its trail reaches outside the frame. Later, Middle school
-   friend, High school friend and Coworker provide other brief crossings.
+   companion lane. Its trail reaches outside the frame. Grade school friend, Middle school friend, High school friend and
+   College friend provide other brief crossings. Coworker weaves back and forth
+   through the group before leaving, rather than making one straight pass.
 2. **Companionship.** Childhood friend enters from the right, turns upward and
    travels beside Me for years. First love arrives from the left and shares a
    nearby course. Wife enters from the left later and remains close. Son begins
@@ -52,10 +53,13 @@ seconds, with additional full-resolution frames at 3, 5, 7, 18, 22 and 28 second
 |---|---:|---|
 | 0 s | about −2 | Parents and grandparents already have long ongoing trails. |
 | 5 s | 3 | Me is present; Kindergarten friend crosses rightward on a diagonal. |
+| 7 s | 5 | Grade school friend enters from the right while the kindergarten trail recedes. |
 | 10 s | 9 | Childhood friend has turned upward beside Me. A passing trail remains behind. |
 | 15 s | 13 | Middle school friend passes; Grandpa is a remembered star. |
 | 20 s | 17 | First love is close on the left; Childhood friend is on the right. High school friend passes. Grandma is now a star. |
+| 22 s | 19 | First love is turning out to the left; College friend is a separate passing encounter. |
 | 25 s | 23 | First love has turned away. Coworker is passing through; Childhood friend remains. |
+| 28 s | 25 | Wife has entered from the left. Coworker's trail shows a brief back-and-forth weave. |
 | 30 s | 27 | Wife is close on the left. Childhood friend bends rightward and leaves. |
 | 35 s | 33 | Son has appeared between Wife and Me. |
 | 40 s | 42 | The small household shares a steady course. |
