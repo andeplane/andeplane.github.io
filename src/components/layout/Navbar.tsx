@@ -16,6 +16,7 @@ export default function Navbar() {
   const [open, setOpen] = useState(false)
   const menu = useRef<HTMLLIElement>(null)
   const toggle = useRef<HTMLButtonElement>(null)
+  const openedByHover = useRef(false)
   const location = useLocation()
   const projectsActive = /^\/(projects|hardware|games)(\/|$)/.test(location.pathname)
   useEffect(() => { setOpen(false) }, [location])
@@ -74,14 +75,14 @@ export default function Navbar() {
         <ul style={{ display: 'flex', gap: '0.25rem', flexWrap: 'wrap', listStyle: 'none', margin: 0, padding: 0 }}>
           {links.map(({ to, label }) => to === '/projects' ? (
             <li key={to} ref={menu} className="projects-nav"
-              onPointerEnter={event => { if (event.pointerType === 'mouse') setOpen(true) }}
-              onPointerLeave={event => { if (event.pointerType === 'mouse' && !event.currentTarget.contains(document.activeElement)) setOpen(false) }}
+              onPointerEnter={event => { if (event.pointerType === 'mouse') { openedByHover.current = true; setOpen(true) } }}
+              onPointerLeave={event => { if (event.pointerType === 'mouse') { openedByHover.current = false; if (!event.currentTarget.contains(document.activeElement)) setOpen(false) } }}
               onBlur={event => { if (!event.currentTarget.contains(event.relatedTarget)) setOpen(false) }}>
               <div className={`projects-nav-control${projectsActive ? ' is-active' : ''}`}>
                 <Link to="/projects" className="site-nav-item" aria-current={location.pathname === '/projects' && !location.search ? 'page' : undefined}>Projects</Link>
                 <button ref={toggle} type="button" className="projects-nav-toggle" aria-label="Show project categories"
                   aria-expanded={open} aria-controls="project-categories"
-                  onClick={() => setOpen(value => !value)}
+                  onClick={() => { setOpen(value => openedByHover.current || !value); openedByHover.current = false }}
                   onKeyDown={event => {
                     if (event.key === 'ArrowDown') {
                       event.preventDefault()

@@ -12,7 +12,7 @@ export default function Projects() {
     <div>
       <div style={{ marginBottom: '3rem' }}>
         <h1 style={{ fontSize: '2.25rem', fontWeight: 800, color: '#fff', margin: '0 0 0.75rem', letterSpacing: '-0.02em' }}>
-          {category ? `${category.label} projects` : 'Projects'}
+          {category ? `${category.id === 'games' ? 'Game' : category.label} projects` : 'Projects'}
         </h1>
         <p style={{ color: 'var(--color-text-muted)', fontSize: '1.05rem', margin: 0, maxWidth: '55ch' }}>
           A collection of things I've built — simulations, games, developer tools, and experiments.
