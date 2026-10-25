@@ -5,7 +5,10 @@ export function showWorldError(message:string,onBack:()=>void):()=>void {
   const previous=document.activeElement as HTMLElement|null;
   const dialog=document.createElement('dialog');dialog.className='pirate-world-error';
   const title=document.createElement('h2');title.id='pirate-world-error-title';title.textContent='Treasure view paused';
-  const text=document.createElement('p');text.textContent=`${message}. Any unopened chests stay aboard.`;
+  const text=document.createElement('p');
+  text.textContent=/sav(e|ed|ing)|storage/i.test(message)
+    ? "Your chest couldn't be saved. It stays safely aboard. Return to the menu and try again."
+    : "The treasure view couldn't finish loading. Any unopened chests stay aboard. Return to the menu and try again.";
   const back=document.createElement('button');back.textContent='Back to menu';
   dialog.setAttribute('aria-labelledby',title.id);dialog.append(title,text,back);document.body.append(dialog);
   const dispose=()=>{dialog.close();dialog.remove();if(previous?.isConnected)previous.focus();};
