@@ -1,4 +1,4 @@
-import { smooth, storyAge } from './clock.ts'
+import { continuingYear, smooth, storyAge } from './clock.ts'
 import { relationshipX } from './relationships.ts'
 export { clamp, smooth, storyAge, playbackFrame, storyMessage, progressAtAge } from './clock.ts'
 export const DEFAULT_DURATION = 120
@@ -36,10 +36,11 @@ export const SAMPLE: Person[] = [
   { id: 'college-friends', name: 'College friend', color: COLORS[9], start: 18, end: 35, exit: 'fade', lane: .68, near: 'self' },
 ]
 
-export function ageAxis(progress: number) {
-  const age = storyAge(progress)
-  const y = 505
-  const ticks = Array.from({ length: 26 }, (_, i) => i * 5 - 5)
+export const presentY=(age:number)=>505-170*smooth((age-85)/7)
+export function ageAxis(progress: number, afterEnding=0) {
+  const age = continuingYear(progress,afterEnding)
+  const y = presentY(age)
+  const ticks = Array.from({ length: 7 }, (_, i) => Math.floor(age/5)*5+(i-3)*5)
     .map(value => ({ age: value, y: y + (age - value) * YEAR_SPACING }))
     .filter(tick => tick.y > 30 && tick.y < 770)
   return { age, y, ticks, opacity: 1 }
@@ -92,18 +93,19 @@ export function personAppearance(person: Person, progress: number) {
   return { distance, birth, color: mixColor(quietColor, '#8d99a9', distance), label: mixColor(mixColor(person.color,'#ffffff',.14), '#8d99a9', distance), core: mixColor(mixColor(person.color,'#ffffff',.75), '#a5b0bf', distance), radius: 3.3 - distance * 1.5 + birth * 2.5, glowRadius: 30 - distance * 16 + birth * 45, glowOpacity: .4 - distance * .32 + birth * .25 }
 }
 export interface StoryPoint { x: number; y: number; year: number }
-export function starPosition(person: Person, index: number, count: number, progress: number, people?: Person[]) {
-  const age = storyAge(progress)
+export function starPosition(person: Person, index: number, count: number, progress: number, people?: Person[], afterEnding=0) {
+  const age = continuingYear(progress,afterEnding)
   const year = Math.min(age, person.end ?? age)
   const settle = person.end !== null && person.exit !== 'fade' ? smooth((age - person.end) / 4) : 0
-  const y = person.exit === 'fade' ? 505 + (age - year) * YEAR_SPACING : 505 - (225 + (85 - year) * 2) * settle
-  return { x: pathX(person, index, count, year, people), y, year, visible: personOpacity(person, progress) > 0, opacity: personOpacity(person, progress) }
+  const y = person.exit === 'fade' ? presentY(age) + (age - year) * YEAR_SPACING : person.end!==null&&age>=person.end ? person.end>=85?presentY(person.end):505-(225+(85-year)*2)*settle : presentY(age)
+  const opacity=personOpacity(person,progress)*(person.end===null?1-smooth((age-person.start-90)/30):1)
+  return { x: pathX(person, index, count, year, people), y, year, visible: opacity > 0, opacity }
 }
-export function trailPoints(person: Person, index: number, count: number, progress: number, people?: Person[]) {
+export function trailPoints(person: Person, index: number, count: number, progress: number, people?: Person[], afterEnding=0) {
   if (personOpacity(person, progress) === 0) return []
-  const head = starPosition(person, index, count, progress, people)
+  const head = starPosition(person, index, count, progress, people,afterEnding)
   const points: StoryPoint[] = []
-  for (let year = Math.max(-2, person.start); year < head.year; year += .5) points.push({ x: pathX(person, index, count, year, people), y: head.y + (head.year - year) * YEAR_SPACING, year })
+  for (let year = Math.max(-2, person.start,head.year-110); year < head.year; year += .5) points.push({ x: pathX(person, index, count, year, people), y: head.y + (head.year - year) * YEAR_SPACING, year })
   points.push(head)
   return points
 }

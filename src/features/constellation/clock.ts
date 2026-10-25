@@ -37,3 +37,12 @@ export function storyMessage(progress: number, afterEnding=0) {
   const opacity = smooth((seconds - message.from) / 1.2) * (Number.isFinite(message.to) ? 1 - smooth((seconds - message.to + 1.2) / 1.2) : 1)
   return { ...message, opacity }
 }
+
+// Beyond the score, years keep advancing. Around year 120 the rate eases
+// from 2/3 year per second toward four years per second, without a time jump.
+export function continuingYear(progress:number,afterEnding=0) {
+  const extra=Math.max(0,afterEnding)
+  if(extra<=30)return storyAge(progress)+extra*2/3
+  const t=extra-30
+  return 120+4*t-60*(1-Math.exp(-t/18))
+}
