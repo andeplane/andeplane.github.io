@@ -17,16 +17,16 @@ test('the story never resets or fades to black after its ending', () => {
   assert.equal(storyAge(playbackFrame(1000).progress),211.25)
 })
 
-test('the generic text is constrained to six brief cards and thirty words', () => {
+test('the generic text is constrained to seven brief cards and thirty-seven words', () => {
   const words = CAPTIONS.flatMap(c => [c.title, ...c.lines]).join(' ').trim().split(/\s+/)
   assert.equal(CAPTIONS.length, TEXT_BUDGET.cards)
   assert.ok(words.length <= TEXT_BUDGET.words)
-  assert.equal(words.length, 30)
+  assert.equal(words.length, 37)
   assert.equal(CAPTIONS[4].lines[0], 'Sometimes people die young.')
   assert.equal(storyMessage(7/120)!.lines[0], 'Then you arrive.')
   assert.doesNotMatch(words.join(' '), /Mikael|my brother|dedicat/i)
   assert.equal(storyMessage(30 / 120), null)
-  assert.equal(storyMessage(70 / 120), null)
+  assert.equal(storyMessage(70 / 120)!.lines[0], 'Make time for your children, and theirs.')
   assert.equal(storyMessage(100 / 120), null)
   assert.equal(storyMessage(1)!.opacity, 1)
   assert.ok(CAPTIONS[2].from - CAPTIONS[1].to >= 19)

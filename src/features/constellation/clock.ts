@@ -36,14 +36,15 @@ export function playbackFrame(elapsed: number, duration = MOVIE_SECONDS) {
   return { progress: clamp(elapsed / duration), opacity: smooth(elapsed / 1.2) }
 }
 
-// Six brief beats, thirty words total. The personal dedication is separate.
-export const TEXT_BUDGET = { cards: 6, words: 30 } as const
+// Seven brief beats, thirty-seven words total. The personal dedication is separate.
+export const TEXT_BUDGET = { cards: 7, words: 37 } as const
 export const CAPTIONS = [
   { from: .6, to: 5, title: '', lines: ['Life is already moving.'] },
   { from: 5, to: 12, title: '', lines: ['Then you arrive.'] },
   { from: 31, to: 36, title: '', lines: ['Some paths become home.'] },
   { from: 36, to: 42.5, title: '', lines: ['And your world grows.'] },
   { from: 43, to: 51, title: '', lines: ['Sometimes people die young.'] },
+  { from: 67, to: 76, title: '', lines: ['Make time for your children, and theirs.'] },
   { from: 108, to: 117, title: 'Take care of the people around you.', lines: ['While you still can.'] },
 ]
 export const DEDICATION_LINES=['To my brother, Mikael.','I miss you every day.']

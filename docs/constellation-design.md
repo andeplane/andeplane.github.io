@@ -45,6 +45,7 @@ trail stays in the past; a separate light rises over two seconds into the sky.
 Brother has an additional 1.8-second held moment. There is no flash or expanding circle;
 a steady, small glowing cross remains, with a quieter version of its original hue.
 You stays on your own course until death, becoming the final remembered star.
+At birth, You alone receive one soft, 2.6-second glow and expanding ring.
 
 Names have fixed tiers and bounded eased corrections. Vertical gaps do not trigger
 unnecessary horizontal separation: You and companions keep their names near their
@@ -52,7 +53,7 @@ own dots. Living paths keep their colors; remembered lives keep a restrained hin
 
 ## Text and attention budget
 
-Six short cards, **30 words total**, followed by the requested personal dedication.
+Seven short cards, **37 words total**, followed by the requested personal dedication.
 The first frame has no caption; the opening fades in after 0.6 seconds. There are
 no banners, sidebars, playback controls or lyric overlays. The age axis stays visible through 200 years, then fades out by 230.
 
@@ -63,6 +64,7 @@ no banners, sidebars, playback controls or lyric overlays. The age axis stays vi
 | 31–36 | Some paths become home. |
 | 36–42.5 | And your world grows. |
 | 43–51 | Sometimes people die young. |
+| 67–76 | Make time for your children, and theirs. |
 | 108–117 | Take care of the people around you. / While you still can. |
 | 118 onward | To my brother, Mikael. / I miss you every day. |
 
