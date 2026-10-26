@@ -43,7 +43,8 @@ const BEFORE_SIMPLIFICATION_SAMPLE: Person[] = [
   { id: 'coworker', name: 'Coworker', color: COLORS[9], start: 22, end: 25.5, exit: 'fade', motion: 'weave', near: 'self' },
 ]
 
-export const SAMPLE=BEFORE_SIMPLIFICATION_SAMPLE.filter(person=>person.id!=='sister')
+const BEFORE_ONE_CHILD_SAMPLE=BEFORE_SIMPLIFICATION_SAMPLE.filter(person=>person.id!=='sister')
+export const SAMPLE=BEFORE_ONE_CHILD_SAMPLE.filter(person=>person.id!=='daughter')
 
 export const presentY=(age:number)=>505-170*smooth((age-85)/7)
 export function ageAxis(progress: number, afterEnding=0) {
@@ -228,7 +229,7 @@ export function restorePeople(saved: unknown, legacy: unknown, random = Math.ran
     return p.id === 'partner' ? { ...old, lane: .43 } : p.id === 'college-friends' ? { ...old, name: 'College friends' } : old
   })
   const oldHusband = PREVIOUS_SAMPLE.map(p => p.id === 'partner' ? { ...p, name: 'Husband', nameBefore: 'Boyfriend' } : p)
-  if (current && ![BEFORE_SIMPLIFICATION_SAMPLE, BEFORE_SIMPLIFICATION_SAMPLE.map(p=>p.id==='partner'?{...p,name:'Husband',nameBefore:'Boyfriend'}:p), PREVIOUS_SAMPLE, oldHusband, oldTwelve, LAST_SAMPLE, LAST_HUSBAND_SAMPLE, BEFORE_PASS_SAMPLE, BEFORE_PASS_HUSBAND_SAMPLE, BEFORE_MEMORIAL_SAMPLE, BEFORE_MEMORIAL_HUSBAND_SAMPLE, BEFORE_CROSSINGS_SAMPLE, BEFORE_CROSSINGS_HUSBAND_SAMPLE].some(expected => matches(current, expected))) return current
+  if (current && ![BEFORE_ONE_CHILD_SAMPLE, BEFORE_ONE_CHILD_SAMPLE.map(p=>p.id==='partner'?{...p,name:'Husband',nameBefore:'Boyfriend'}:p), BEFORE_SIMPLIFICATION_SAMPLE, BEFORE_SIMPLIFICATION_SAMPLE.map(p=>p.id==='partner'?{...p,name:'Husband',nameBefore:'Boyfriend'}:p), PREVIOUS_SAMPLE, oldHusband, oldTwelve, LAST_SAMPLE, LAST_HUSBAND_SAMPLE, BEFORE_PASS_SAMPLE, BEFORE_PASS_HUSBAND_SAMPLE, BEFORE_MEMORIAL_SAMPLE, BEFORE_MEMORIAL_HUSBAND_SAMPLE, BEFORE_CROSSINGS_SAMPLE, BEFORE_CROSSINGS_HUSBAND_SAMPLE].some(expected => matches(current, expected))) return current
   const previous = readPeople(legacy)
   const names = ['Grandma','Grandpa','Mom','Dad','My love','Me','Our child']
   const ends = [19,28,66,54,null,null,null]

@@ -37,12 +37,10 @@ test('dating, early parenting and rediscovery form a continuous relationship arc
 test('children begin close to both parents, then gain their own space', () => {
   assert.ok(distance('child', 'self', 30) < 25)
   assert.ok(distance('child', 'partner', 30) < 45)
-  assert.ok(distance('daughter', 'self', 32) < 75)
   assert.ok(distance('child', 'self', 53) > 100)
-  assert.ok(distance('daughter', 'self', 55) > 220)
 })
 test('all named relationship trajectories remain finite and continuous every year', () => {
-  for (const id of ['self','mom','dad','brother','partner','child','daughter','child-partner','grandchild-1','grandchild-2','childhood-friend','first-love','college-friends']) {
+  for (const id of ['self','mom','dad','brother','partner','child','child-partner','grandchild-1','grandchild-2','childhood-friend','first-love','college-friends']) {
     for (let year = -2; year <= 100; year++) {
       const x = relationshipX(id, year)!
       assert.ok(Number.isFinite(x) && x >= 120 && x <= 755)
@@ -99,9 +97,9 @@ test('family companions keep distinct tracks instead of merging for whole years'
  for(let age=0;age<49;age+=.1)assert.ok(x('self',age)-x('dad',age)>40)
  for(let age=64;age<100;age+=.1)assert.ok(x('child',age)-x('grandchild-1',age)>17)
  for(let age=70;age<100;age+=.1)assert.ok(x('grandchild-2',age)-x('child-partner',age)>17)
- // All four household lines have room once both children have arrived.
+ // The son has room between his parents in the early parenting years.
  for(let age=34;age<40;age+=.1) {
-  const positions=['self','child','daughter','partner'].map(id=>x(id,age)).sort((a,b)=>a-b)
+  const positions=['self','child','partner'].map(id=>x(id,age)).sort((a,b)=>a-b)
   for(let i=1;i<positions.length;i++)assert.ok(positions[i]-positions[i-1]>17)
  }
 })

@@ -27,7 +27,7 @@ instrumental is unchanged: no lyrics, voice or humming.
   and gradually leaves during early parenthood. The two friendships trade prominence.
 - Girlfriend or Boyfriend approaches from an existing life at 26, becomes Wife or
   Husband at 29, and stays adjacent. The partner dies at 82, before You at 85.
-  Children arrive at 30 and 32. Parenting spreads
+  One son arrives at 30. Parenting spreads
   the household; the couple gradually finds closeness again.
 - Children move with the household while young. Their own paths bend outward as
   teenagers and adults; their parents are not pushed away to manufacture that distance.
@@ -36,7 +36,7 @@ instrumental is unchanged: no lyrics, voice or humming.
 - Brother is two years older and dies at 40, when You are 38. No birth or new encounter
   competes with that moment. His light holds briefly, other paths dim, then his quiet
   star joins the remembered lives. The rest of the family continues.
-- Sister is removed from the default cast to reduce simultaneous tracks. Exact older
+- Sister and Daughter are removed from the default cast to reduce simultaneous tracks. Exact older
   defaults migrate; customized family data is preserved.
 
 At a death, the final six years of the path peel left and stop. The finished
@@ -95,8 +95,8 @@ per year, down from 200; the coworker makes a smaller, slower weave. The family
 is centered around You at x=440 in childhood. Grandma and Grandpa share a
 center 160 units to the left, with 32 units between them.
 Mom and Dad stay paired on the original-family side; Brother has his own
-separate path. Both children have room during the parenting years; the daughter
-later moves to the left and the son to the right. Grandchildren occupy distinct
+separate path. The son has room between his parents during the parenting years, then moves
+to the right, away from the original-family lanes. Grandchildren occupy distinct
 paths beside their parents. Glows and label spacing use screen pixels rather than ballooning on wide displays.
 
 ## Year-by-year audit of the actual model

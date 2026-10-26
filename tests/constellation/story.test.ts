@@ -4,11 +4,11 @@ import { COLORS, MAX_PEOPLE, SAMPLE, YEAR_SPACING, ageAxis, attentionOpacity, br
 const person = (id: string) => SAMPLE.find(p => p.id === id)!
 const pos = (id: string, age: number) => { const p = person(id); return starPosition(p, SAMPLE.indexOf(p), SAMPLE.length, progressAtAge(age), SAMPLE) }
 
-test('generic family keeps the older brother and removes the default sister', () => {
-  assert.equal(SAMPLE.length, 19)
+test('generic family keeps the older brother and one son', () => {
+  assert.equal(SAMPLE.length, 18)
   assert.equal(person('brother').start, -2)
   assert.equal(person('brother').end! - person('brother').start, 40)
-  assert.ok(!SAMPLE.some(p=>p.id==='sister'))
+  assert.ok(!SAMPLE.some(p=>p.id==='sister'||p.id==='daughter'))
   assert.equal(person('self').end, 85)
   assert.equal(person('self').name, 'You')
   assert.doesNotMatch(SAMPLE.map(p => p.name).join(' '), /Mikael/)
@@ -156,7 +156,6 @@ test('the family already has ongoing life trails before Me is born',()=>{
 
 test('parenthood has a quiet interval before the brother’s death',()=>{
  assert.equal(person('child').start,30)
- assert.equal(person('daughter').start,32)
  const loss=person('brother').end!
  assert.ok(SAMPLE.filter(p=>p.id!=='brother').every(p=>Math.abs(p.start-loss)>=5))
 })
