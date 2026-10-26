@@ -1,5 +1,33 @@
 # Constellation review — calmer motion and a continuing family
 
+## Publication review, 26 October 2026
+
+Reviewed production source at `96e399c` in uninterrupted, audio-driven browser
+playback. Captured and visually inspected **124 screenshots**: every five seconds
+from 0 through 150 seconds at 1280×800, 390×844, 320×740 and 844×390. The last two
+profiles include simulated top, bottom and side safe areas. Inspected all frames
+in labelled contact sheets, with additional full-size checks of crowded states.
+
+The review covered the family before birth, every encounter and family arrival,
+the brother's loss, all remaining deaths, the camera rotation, the complete
+constellation, the closing quote, the dedication and thirty seconds after the
+instrumental. No browser exceptions, label overlaps, caption clipping, horizontal
+overflow or tooltips were found in those captured states. The future-flow paths
+continued changing after the music ended on all four profiles.
+
+Ten additional screenshots cover all seven caption/dedication beats, the blocked
+sound prompt, and portrait → landscape → portrait during the Husband variant.
+The prompt starts audible, unmuted media after a tap and disappears. Rotation
+preserves playback. Eight fresh playback starts and 28 actual caption checks pass,
+as do 55 focused tests and 108 opening/ending browser geometry checks.
+
+The repeatable capture is `tests/constellation/screenshot-review.mjs`. Set
+`PLAYWRIGHT_MODULE` if needed and run one or two named profiles at a time; PNGs and
+per-frame state records go to `REVIEW_OUTPUT`. Inspect every generated image;
+the script's geometry assertions are only part of the review. Evidence for this
+review is saved outside git in the task's `constellation-release-review-2026-10-26`
+artifact folder. No production-code changes were needed during this review.
+
 ## Experience
 
 The early family uses paired households: Grandma and Grandpa travel together,
@@ -78,9 +106,9 @@ appears when autoplay is blocked, then disappears after tap/click recovery.
   age nineteen and short landscape age five. The 258-state DOM geometry check
   was rerun after the change, including both grandparent death transitions.
 - Focused feature TypeScript checking passes. Full builds run in GitHub CI;
-  public deployment is held while the user iterates on the local preview.
+  the reviewed revision passed the full site and demo build before publication.
 
-No personal-browser or desktop screenshots were captured. Isolated headless DOM
-checks and source SVG renders do not prove physical-phone/Safari behavior or
+Publication screenshots came from isolated Chromium contexts, not a personal
+browser or the desktop. Browser captures, DOM checks and source SVG renders do not prove physical-phone/Safari behavior or
 speaker output. Browser policy can still block fresh-visit audible autoplay;
 touch release, click or keyboard interaction retries at the current story time.
