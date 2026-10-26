@@ -184,3 +184,13 @@ test('brief school encounters cross in opposite directions while the coworker we
   assert.ok(pos('coworker',21).x>pos('coworker',22).x)
   assert.ok(pos('coworker',32.5).x<104)
 })
+
+// The whole departure (dot and trail), rather than just the label, must finish
+// before attention begins shifting to Brother.
+test('no departing friend competes with the brother farewell',()=>{
+ for(let age=36;age<=42;age+=.1)for(const friend of SAMPLE.filter(p=>p.exit==='fade')) {
+  const progress=progressAtAge(age)
+  assert.equal(personOpacity(friend,progress),0,friend.id)
+  assert.deepEqual(trailPoints(friend,SAMPLE.indexOf(friend),SAMPLE.length,progress,SAMPLE),[])
+ }
+})

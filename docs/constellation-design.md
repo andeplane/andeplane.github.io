@@ -24,7 +24,8 @@ instrumental is unchanged: no lyrics, voice or humming.
 - First love approaches from the left and stays closer to You than to either friend.
   Their departure keeps moving in time; it never falls behind as a dead person's endpoint.
 - College friend approaches from the left, becomes a close companion in the twenties,
-  and gradually leaves during early parenthood. The two friendships trade prominence.
+  and begins leaving at 27. The full exit finishes before 35, leaving a quiet
+  interval before Brother dies at 38. The two friendships trade prominence.
 - Girlfriend or Boyfriend approaches from an existing life at 26, becomes Wife or
   Husband at 29, and stays adjacent. The partner dies at 82, before You at 85.
   One son arrives at 30. Parenting spreads
