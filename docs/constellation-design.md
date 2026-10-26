@@ -1,8 +1,9 @@
 # The light we leave — experience and relationship plan
 
 Current specification, 26 October 2026. A generic life addressed as **You**, with
-the exact personal dedication to Mikael at the end. The existing 119.97-second
-instrumental is unchanged: no lyrics, voice or humming.
+the exact personal dedication to Mikael at the end. The existing two-minute
+instrumental has a quiet memorial mix from seconds 39–51, deepest at Brother’s
+death at 43. The melody and timing are preserved, with no lyrics, voice or humming.
 
 ## Who moves, and why
 
