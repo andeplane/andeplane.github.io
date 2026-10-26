@@ -1,3 +1,4 @@
+import { difficultyMap } from "../ui/difficultyMap";
 import { installPrivacy } from "../ui/privacy";
 import { installMenuPreview } from "../ui/menuPreview";
 import { icon } from "../ui/icons";
@@ -122,11 +123,7 @@ function operatorView(): string {
 function mapView(): string {
   const op = getOperator(operator), world = worldFor(operator), packs = packsFor(operator);
   const stops = [{x:350,y:1450},{x:850,y:1130},{x:380,y:890},{x:860,y:620},{x:390,y:330}];
-  const chosen = Math.max(0, packs.findIndex(p => p.id === packId)), focus = stops[chosen]!;
-  return `<section class="map-view operation-world" style="--world-accent:${world.accent};--world-ocean:${world.ocean};--world-paper:${world.paper};--world-ink:${world.ink}"><div class="world-map-heading"><span class="eyebrow">${op.symbol} ${op.name.toUpperCase()}</span><h1>${world.name}</h1><p>Drag the map. Choose your difficulty.</p></div><div class="world-map-viewport" data-map-viewport data-focus-x="${focus.x}" data-focus-y="${focus.y}" data-map-scale="1" tabindex="0" aria-label="${world.name} difficulty map. Drag in any direction or use arrow keys."><div class="world-map-plane" data-map-world><img class="world-map-art" src="${import.meta.env.BASE_URL}${world.image}" alt="" draggable="false" /><div class="world-map-texture" aria-hidden="true"></div><svg class="world-pack-route" viewBox="0 0 1200 1800" aria-hidden="true"><path d="M350 1450 C520 1440 700 1170 850 1130 S540 980 380 890 S690 700 860 620 S560 410 390 330" /></svg>${packs.map((p, i) => {
-    const cleared = progress.tracks[p.id]?.cleared ?? 0, stop = stops[i]!;
-    return `<button class="world-pack-stop" data-pack="${p.id}" style="left:${stop.x}px;top:${stop.y}px" aria-label="${p.label}: ${p.description}"><span class="world-pack-pin" aria-hidden="true">${i + 1}</span><span class="world-pack-label"><b>${p.label}</b><small>${world.chapterNames[i]}</small><span>${p.example} = ?</span><em>${cleared ? `${format(cleared)} ${cleared === 1 ? "level" : "levels"} sailed` : "Start exploring"} ${icon("arrow")}</em></span></button>`;
-  }).join("")}</div><div class="world-map-tools" data-map-control><span>Five difficulties · all open</span><button type="button" data-map-center>${icon("compass")} Current island</button></div></div></section>`;
+  return difficultyMap({world,eyebrow:`${op.symbol} ${op.name.toUpperCase()}`,instructions:"Drag the map. Choose your difficulty.",baseUrl:import.meta.env.BASE_URL,selected:packId,footer:"Five difficulties · all open",centerLabel:"Current island",route:"M350 1450 C520 1440 700 1170 850 1130 S540 980 380 890 S690 700 860 620 S560 410 390 330",stops:packs.map((p,i)=>{const cleared=progress.tracks[p.id]?.cleared??0,stop=stops[i]!;return {id:p.id,...stop,number:i+1,label:p.label,ariaLabel:`${p.label}: ${p.description}`,description:world.chapterNames[i]!,example:`${p.example} = ?`,detail:cleared?`${format(cleared)} ${cleared===1?"level":"levels"} sailed`:"Start exploring"};})});
 }
 function levelsView(): string {
   const p = selectedPack(), op = getOperator(p.operator);

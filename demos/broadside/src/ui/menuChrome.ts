@@ -7,8 +7,8 @@ interface ButtonTarget { id?: string; action?: string; }
 const target = ({ id, action }: ButtonTarget) => `${id ? ` id="${escape(id)}"` : ""}${action ? ` data-action="${escape(action)}"` : ""}`;
 
 /** The same navigation control is used by both game entrypoints and every scene. */
-export function backButton(options: ButtonTarget & { destination?: string; hidden?: boolean } = {}): string {
-  return `<button${target(options)} class="pirate-menu-back menu-back" aria-label="Back${options.destination ? ` to ${escape(options.destination)}` : ""}"${options.hidden ? " hidden" : ""}><span class="pirate-back-arrow" aria-hidden="true">‹</span><span>Back</span></button>`;
+export function backButton(options: ButtonTarget & { destination?: string; hidden?: boolean; label?:string } = {}): string {
+  return `<button${target(options)} class="pirate-menu-back menu-back" aria-label="${escape(options.label ?? "Back")}${options.destination ? ` to ${escape(options.destination)}` : ""}"${options.hidden ? " hidden" : ""}><span class="pirate-back-arrow" aria-hidden="true">‹</span><span>${escape(options.label ?? "Back")}</span></button>`;
 }
 
 export function menuBrand(options: ButtonTarget & { title: string; subtitle: string; className?: string }): string {
