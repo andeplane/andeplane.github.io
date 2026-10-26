@@ -28,6 +28,10 @@ export async function speak(text:string,language:Language):Promise<void>{
  const voices=window.speechSynthesis?.getVoices()??[];
  const voice=voices.find(v=>(language==="nb"?/^(nb|no)[-_]/i:/^en[-_]/i).test(v.lang));
  if(!voice)throw new Error("VOICE_UNAVAILABLE");
- const utterance=new SpeechSynthesisUtterance(text);utterance.voice=voice;utterance.lang=locale;utterance.rate=.8;window.speechSynthesis.speak(utterance);
+ await new Promise<void>((resolve,reject)=>{
+  const utterance=new SpeechSynthesisUtterance(text);utterance.voice=voice;utterance.lang=locale;utterance.rate=.8;
+  utterance.onend=()=>resolve();utterance.onerror=e=>e.error==="canceled"||e.error==="interrupted"?resolve():reject(new Error("VOICE_UNAVAILABLE"));
+  window.speechSynthesis.speak(utterance);
+ });
 }
 export const listen=(callback:(r:SpeechResult)=>void)=>isNative()?native.addListener("result",callback):Promise.resolve({remove:async()=>{}});

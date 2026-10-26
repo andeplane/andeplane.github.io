@@ -1,5 +1,17 @@
 # Captain Reader design and acceptance review — 26 October 2026
 
+## Playtest update: automatic listening and trusted Next
+
+The 26 October playtest requested continuous listening without Record/Finish steps, plus a one-tap Next that trusts the reader. Reader now accepts matching live speech, restarts after unmatched completed utterances and resumes on foreground return. Next self-confirms the active word/sentence and advances immediately, retaining the full reward without an adult dialog. Saved evidence distinguishes `self` from `independent`, `adult` and `helped`. A late/duplicate speech result cannot complete the following prompt. Pause remains in effect across prompts until explicitly resumed.
+
+Example playback resolves when the voice finishes; listening remains suspended throughout, and late example/recognizer callbacks are invalidated on navigation. Native permission or unavailable-recognizer failures leave Next usable. Permission prompts, actual child recognition and physical acoustic performance remain human acceptance items.
+
+A browser review covered words, sentences and paragraphs at 390×844, 320×568 and 844×390 with all four simulated safe-area edges. An initial review found Next below the fold for narrow words and long paragraphs; phone portraits now reserve space for actions and scroll the reading paper independently. All nine final combinations had visible, enabled Next targets of at least 44px and no horizontal overflow. The narrow paragraph was inspected after orientation change, and one-tap browser progression was exercised without a dialog. The same shared styles/colors are retained; no Broadside/Calculus or shared-world UI source was changed by this update.
+
+The full home-mini suite passed **436 tests, two skipped** (the same ignored purchased assets). The new app-level mocked-native regression exercises live acceptance, duplicate/stale results, unmatched automatic restart, pause across Next, repeated example playback, background/foreground, navigation cancellation and browser self-confirmed level rewards. These simulated events do not establish real device speech accuracy. After the small-screen layout correction, all 14 targeted reading tests, typecheck, boundary validation and the Reader web build passed again on home-mini (job `20261026-193727-16102f41`). The updated native Xcode build passed with two jobs. Reader package verification matched all 92 web files and native speech/permission/icon metadata; runtime fingerprint `c76f1716543335e7c860e670b6c8abf623427c9a93d67e7769253d4ffb25dc4d`. Development build `2026102603` installed and launched successfully on the connected iPhone, preserving its save; actual microphone interaction was not observed during this update. Updated screenshots include [Next without recording](reader-review/next-without-recording-390.jpg).
+
+The sections below record the original implementation review before this playtest update; its final-only and adult-confirmation behavior is superseded by this section.
+
 ## Result and scope
 
 Captain Reader / Kaptein Leselyst adds two reading worlds, ten packs each, independent saved progress and shared pirate treasure presentation. The first detached-island prototype and inherited arithmetic icon were rejected. The delivered design uses Captain Calculus's actual difficulty-map component, common menu chrome, home treatment and endless level trail. Reader starts each language selection at Pack 1. Small flag markers sit on a larger pannable northern-Europe chart.

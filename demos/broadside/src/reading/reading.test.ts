@@ -1,7 +1,7 @@
 import { describe,it,expect } from "vitest";
 import {itemsFor,PACKS,preferredLanguage,matches} from "./content";
 import {freshProgress,startRun,currentText,completeChunk,readProgress,saveProgress,deliverChest,trackKey,SAVE_KEY} from "./progress";
-import {ReadingAttempt} from "./recognition";
+import {ReadingAttempt,hearsTarget} from "./recognition";
 import {readingAdapter} from "./pirateAdapter";
 const finish=(p:ReturnType<typeof freshProgress>,r:NonNullable<ReturnType<typeof startRun>>)=>{while(p.tracks[trackKey(r.language,r.pack)]?.run){const out=completeChunk(p,r,{id:r.id,index:r.index,chunk:r.chunk},"independent");expect(out.accepted).toBe(true);}};
 describe("reading content",()=>{
@@ -41,5 +41,36 @@ describe("voyages and rewards",()=>{
  });
 });
 describe("recognition lifetime",()=>{
- it("never rewards partial, stale, cancelled, or duplicate recognition",()=>{const a=new ReadingAttempt();const token=a.begin("cat");a.listening(token);expect(a.transcript(token,"cat",false)).toBe(false);a.cancel();expect(a.transcript(token,"cat",true)).toBe(false);const next=a.begin("dog");a.listening(next);expect(a.transcript(next,"cat",true)).toBe(false);expect(a.state).toBe("retry");const last=a.begin("dog");a.listening(last);a.stop();expect(a.transcript(last,"DOG!",true)).toBe(true);expect(a.transcript(last,"DOG!",true)).toBe(false);});
+ it("accepts live matching speech without Finish, while ignoring unfinished or wrong readings",()=>{
+  const a=new ReadingAttempt(),token=a.begin("cat");a.listening(token);
+  expect(a.transcript(token,"ca",false)).toBe(false);expect(a.state).toBe("listening");
+  expect(a.transcript(token,"hat",true)).toBe(false);expect(a.state).toBe("listening");
+  expect(a.transcript(token,"hat cat",false)).toBe(true);expect(a.state).toBe("accepted");
+  expect(a.transcript(token,"cat",true)).toBe(false);
+ });
+ it("rejects stale/cancelled speech and incomplete sentences, preserving Norwegian sounds",()=>{
+  const a=new ReadingAttempt(),old=a.begin("cat");a.listening(old);a.cancel();
+  expect(a.transcript(old,"cat",false)).toBe(false);const token=a.begin("the cat is on the ship");a.listening(token);
+  expect(a.transcript(token,"the cat is",false)).toBe(false);expect(a.transcript(old,"cat",true)).toBe(false);
+  expect(a.transcript(token,"the cat is on the ship",false)).toBe(true);
+  expect(hearsTarget("catfish","cat","en")).toBe(false);expect(hearsTarget("bat","båt","nb")).toBe(false);
+  expect(hearsTarget("båt","båt","nb")).toBe(true);expect(hearsTarget("one","en","nb")).toBe(false);
+ });
+ it("remembers self-confirmation across sentence resume without calling it recognized speech",()=>{
+  const p=freshProgress(),r=startRun(p,"en",10,1,15)!;
+  completeChunk(p,r,{id:r.id,index:0,chunk:0},"self");
+  const restored=readProgress({getItem:()=>JSON.stringify(p)});expect(restored.warning).toBe(false);
+  const resumed=restored.progress.tracks["en-10"]!.run!;
+  while(resumed.index===0)completeChunk(restored.progress,resumed,{id:resumed.id,index:resumed.index,chunk:resumed.chunk},"independent");
+  expect(resumed.evidence).toEqual(["self"]);expect(restored.progress.assisted).toBe(0);
+ });
+ it("persists self-confirmed practice with the same gold, without labelling it adult-assisted",()=>{
+  const p=freshProgress(),r=startRun(p,"en",1,1,91)!;
+  const identity={id:r.id,index:0,chunk:0};completeChunk(p,r,identity,"self");
+  expect(completeChunk(p,r,identity,"independent").accepted).toBe(false);
+  expect(r.evidence).toEqual(["self"]);expect(p.practised).toBe(1);expect(p.assisted).toBe(0);
+  const restored=readProgress({getItem:()=>JSON.stringify(p)});expect(restored.warning).toBe(false);
+  expect(restored.progress.tracks["en-1"]!.run!.evidence).toEqual(["self"]);
+  finish(p,r);expect(p.cargo[0]!.gold).toBe(100);
+ });
 });

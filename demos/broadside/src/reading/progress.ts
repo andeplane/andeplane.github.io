@@ -1,8 +1,8 @@
 import { CONTENT_VERSION, itemsFor, packFor, type Language, type ReadingItem } from "./content";
 import { Rng } from "../sim/rng";
 export const SAVE_KEY="broadside.reading.v1";
-export type Evidence="independent"|"helped"|"adult";
-export interface Run {id:number;level:number;language:Language;pack:number;items:ReadingItem[];index:number;chunk:number;helped:boolean;evidence:Evidence[];value:number;rewardVersion:1;contentVersion:number;}
+export type Evidence="independent"|"self"|"helped"|"adult";
+export interface Run {id:number;level:number;language:Language;pack:number;items:ReadingItem[];index:number;chunk:number;helped:boolean;selfConfirmed?:boolean;evidence:Evidence[];value:number;rewardVersion:1;contentVersion:number;}
 export interface Track {cleared:number;seed:number;run?:Run;}
 export interface ReadingCargo {id:number;area:number;gold:number;}
 export interface ReadingProgress {version:1;language:Language;ui:Language;chosen:boolean;nextRun:number;nextChest:number;bank:number[];cargo:ReadingCargo[];tracks:Record<string,Track>;practised:number;assisted:number;}
@@ -26,12 +26,13 @@ export function currentText(run:Run):string {return currentItem(run).chunks[run.
 export function completeChunk(p:ReadingProgress,run:Run,identity:{id:number;index:number;chunk:number},source:Evidence):{accepted:boolean;itemComplete:boolean;levelComplete:boolean;gold:number}{
  const track=p.tracks[trackKey(run.language,run.pack)];
  if(track?.run!==run||run.id!==identity.id||run.index!==identity.index||run.chunk!==identity.chunk)return {accepted:false,itemComplete:false,levelComplete:false,gold:0};
- if(source!=="independent")run.helped=true;
+ if(source==="adult"||source==="helped")run.helped=true;
+ if(source==="self")run.selfConfirmed=true;
  run.chunk++;
  if(run.chunk<currentItem(run).chunks.length)return {accepted:true,itemComplete:false,levelComplete:false,gold:0};
- run.evidence.push(source==="adult"?"adult":run.helped?"helped":"independent");
+ run.evidence.push(source==="adult"?"adult":run.helped?"helped":run.selfConfirmed?"self":"independent");
  p.practised++;if(run.helped)p.assisted++;
- run.index++;run.chunk=0;run.helped=false;
+ run.index++;run.chunk=0;run.helped=false;run.selfConfirmed=false;
  const levelComplete=run.index===run.items.length;
  if(levelComplete){p.cargo.push({id:p.nextChest++,area:run.language==="nb"?0:1,gold:run.value*run.items.length});track.cleared=Math.max(track.cleared,run.level);delete track.run;}
  return {accepted:true,itemComplete:true,levelComplete,gold:run.value};
@@ -61,7 +62,7 @@ export function readProgress(storage?:Pick<Storage,"getItem">,fallback:Language=
    const match=/^(nb|en)-(10|[1-9])$/.exec(key);if(!match||!obj(t)||!int(t.cleared)||!int(t.seed,0,0xffffffff))throw Error("invalid track");
    const track:Track={cleared:t.cleared,seed:t.seed};p.tracks[key]=track;
    if(t.run!==undefined){const r=t.run,pack=packFor(Number(match[2]));
-    if(!obj(r)||r.language!==match[1]||r.pack!==pack.id||!int(r.id,1,p.nextRun-1)||!int(r.level,1,track.cleared+1)||!Array.isArray(r.items)||r.items.length!==pack.count||!r.items.every(validItem)||new Set(r.items.map(i=>i.id)).size!==r.items.length||!int(r.index,0,r.items.length-1)||!int(r.chunk,0,r.items[r.index]!.chunks.length-1)||typeof r.helped!=="boolean"||!Array.isArray(r.evidence)||r.evidence.length!==r.index||!r.evidence.every(e=>["independent","helped","adult"].includes(e))||r.value!==pack.gold/pack.count||r.rewardVersion!==1||(r.contentVersion!==undefined&&!int(r.contentVersion,1,CONTENT_VERSION)))throw Error("invalid run");
+    if(!obj(r)||r.language!==match[1]||r.pack!==pack.id||!int(r.id,1,p.nextRun-1)||!int(r.level,1,track.cleared+1)||!Array.isArray(r.items)||r.items.length!==pack.count||!r.items.every(validItem)||new Set(r.items.map(i=>i.id)).size!==r.items.length||!int(r.index,0,r.items.length-1)||!int(r.chunk,0,r.items[r.index]!.chunks.length-1)||typeof r.helped!=="boolean"||(r.selfConfirmed!==undefined&&typeof r.selfConfirmed!=="boolean")||!Array.isArray(r.evidence)||r.evidence.length!==r.index||!r.evidence.every(e=>["independent","self","helped","adult"].includes(e))||r.value!==pack.gold/pack.count||r.rewardVersion!==1||(r.contentVersion!==undefined&&!int(r.contentVersion,1,CONTENT_VERSION)))throw Error("invalid run");
     track.run=r as unknown as Run;track.run.contentVersion??=CONTENT_VERSION;
    }
   }

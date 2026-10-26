@@ -57,6 +57,7 @@ public class ReadingSpeechPlugin: CAPPlugin, CAPBridgedPlugin, AVSpeechSynthesiz
     ]
     private let engine = AVAudioEngine()
     private let voice = AVSpeechSynthesizer()
+    private var spokenExample: (call: CAPPluginCall, utterance: AVSpeechUtterance)?
     private var request: SFSpeechAudioBufferRecognitionRequest?
     private var recognition: SFSpeechRecognitionTask?
     private var recognizer: SFSpeechRecognizer?
@@ -69,7 +70,7 @@ public class ReadingSpeechPlugin: CAPPlugin, CAPBridgedPlugin, AVSpeechSynthesiz
         observer = NotificationCenter.default.addObserver(forName: .readingStopped, object: nil, queue: .main) { [weak self] _ in
             guard let self else { return }
             if let token = self.token { self.notifyListeners("result", data: ["token": token, "kind": "interrupted"]) }
-            self.clear(); self.voice.stopSpeaking(at: .immediate)
+            self.clear(); self.stopVoice()
         }
     }
     deinit { if let observer { NotificationCenter.default.removeObserver(observer) } }
@@ -87,6 +88,18 @@ public class ReadingSpeechPlugin: CAPPlugin, CAPBridgedPlugin, AVSpeechSynthesiz
                           "speechPermission": SFSpeechRecognizer.authorizationStatus().rawValue])
         }
     }
+    private func stopVoice() {
+        let previous = spokenExample
+        spokenExample = nil
+        voice.stopSpeaking(at: .immediate)
+        previous?.call.resolve()
+    }
+    private func finishExample(_ utterance: AVSpeechUtterance) {
+        guard let example = spokenExample, example.utterance === utterance else { return }
+        spokenExample = nil
+        if token == nil { try? AVAudioSession.sharedInstance().setActive(false, options: .notifyOthersOnDeactivation) }
+        example.call.resolve()
+    }
     private func stopInput() {
         if engine.isRunning { engine.stop() }
         if tapped { engine.inputNode.removeTap(onBus: 0); tapped = false }
@@ -103,7 +116,7 @@ public class ReadingSpeechPlugin: CAPPlugin, CAPBridgedPlugin, AVSpeechSynthesiz
     }
     @objc func start(_ call: CAPPluginCall) {
         DispatchQueue.main.async {
-            self.clear(); self.voice.stopSpeaking(at: .immediate)
+            self.clear(); self.stopVoice()
             guard let locale = call.getString("locale"), ["nb-NO", "en-GB", "en-US"].contains(locale),
                   let token = call.getString("token"), let r = SFSpeechRecognizer(locale: Locale(identifier: locale)),
                   r.supportsOnDeviceRecognition, r.isAvailable else {
@@ -172,11 +185,11 @@ public class ReadingSpeechPlugin: CAPPlugin, CAPBridgedPlugin, AVSpeechSynthesiz
         }
     }
     @objc func cancel(_ call: CAPPluginCall) {
-        DispatchQueue.main.async { self.clear(); self.voice.stopSpeaking(at: .immediate); call.resolve() }
+        DispatchQueue.main.async { self.clear(); self.stopVoice(); call.resolve() }
     }
     @objc func speak(_ call: CAPPluginCall) {
         DispatchQueue.main.async {
-            self.clear(); self.voice.stopSpeaking(at: .immediate)
+            self.clear(); self.stopVoice()
             guard let text = call.getString("text"), text.count <= 1200, let locale = call.getString("locale"),
                   let selectedVoice = AVSpeechSynthesisVoice(language: locale) else { call.reject("VOICE_UNAVAILABLE"); return }
             do {
@@ -184,11 +197,15 @@ public class ReadingSpeechPlugin: CAPPlugin, CAPBridgedPlugin, AVSpeechSynthesiz
                 try AVAudioSession.sharedInstance().setActive(true)
                 let utterance = AVSpeechUtterance(string: text)
                 utterance.voice = selectedVoice; utterance.rate = AVSpeechUtteranceDefaultSpeechRate * 0.8
-                self.voice.delegate = self; self.voice.speak(utterance); call.resolve()
+                self.spokenExample = (call, utterance)
+                self.voice.delegate = self; self.voice.speak(utterance)
             } catch { call.reject("VOICE_UNAVAILABLE") }
         }
     }
     public func speechSynthesizer(_ synthesizer: AVSpeechSynthesizer, didFinish utterance: AVSpeechUtterance) {
-        if token == nil { try? AVAudioSession.sharedInstance().setActive(false, options: .notifyOthersOnDeactivation) }
+        finishExample(utterance)
+    }
+    public func speechSynthesizer(_ synthesizer: AVSpeechSynthesizer, didCancel utterance: AVSpeechUtterance) {
+        finishExample(utterance)
     }
 }

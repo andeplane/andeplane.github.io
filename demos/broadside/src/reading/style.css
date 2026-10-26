@@ -98,3 +98,26 @@
 @media(max-width:350px){.reader-topbar{padding-left:max(8px,var(--pirate-safe-left));padding-right:max(8px,var(--pirate-safe-right));}}
 
 #reader [data-action="inspect"]:disabled {opacity:1;color:#c4d2cc;border-color:#75898066;}
+
+/* Reading actions remain reachable while a long passage scrolls independently. */
+@media(min-height:521px) and (max-width:649px){
+ .reading-prompt-view {height:100%;display:grid;grid-template-rows:auto minmax(80px,1fr) auto auto auto;padding-bottom:10px;}
+ .reading-prompt-view .reading-paper {min-height:0;overflow:auto;overscroll-behavior:contain;}
+ .reading-prompt-view .reading-paper:has(.reading-word) {display:grid;place-items:center;}
+ .reading-prompt-view .reading-feedback {margin:12px auto;min-height:56px;}
+ .reading-prompt-view .reading-actions {width:100%;margin:8px auto;}
+ .reading-prompt-view>.small-note {margin:6px 0;}
+}
+@media(min-height:521px) and (max-height:700px) and (max-width:649px){
+ .reading-prompt-view {grid-template-rows:auto minmax(80px,1fr) auto auto;}
+ .reading-prompt-view>.page-heading {padding:8px 4px 10px!important;}
+ .reading-prompt-view>.page-heading .eyebrow,.reading-prompt-view>.small-note {display:none;}
+ .reading-prompt-view>.page-heading h1 {font-size:28px!important;}
+ .reading-prompt-view .reading-paper {padding:10px 14px;}
+ .reading-prompt-view .reading-word {font-size:min(var(--word-size),3rem);line-height:1.2;}
+ .reading-prompt-view .reading-feedback {margin:6px auto;min-height:44px;gap:10px;}
+ .reading-prompt-view .reading-feedback p {font-size:12px;line-height:1.4;}
+ .reading-prompt-view .listening-indicator {width:44px;min-height:44px;font-size:30px;}
+ .reading-prompt-view .reading-actions {margin:6px auto;gap:6px;}
+ .reading-prompt-view .reading-actions .wood-button {min-height:44px;padding:9px 10px;}
+}

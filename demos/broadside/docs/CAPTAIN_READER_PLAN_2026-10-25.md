@@ -1,5 +1,7 @@
 # Captain Reader reading game proposal
 
+> Updated 26 October after playtesting: listening now runs automatically and accepts live matching words. Next always trusts self-confirmation, including in the browser; the earlier adult/final-result gates below are superseded. See DESIGN_REVIEW_2026-10-26_READER.md.
+
 Captain Reader is a pirate reading adventure for iPhone and iPad, with a browser practice version. Children sail through Norwegian and English worlds, read aloud to collect treasure, and return to their ship and cave. Each world has ten packs: five for individual words, three for sentences, and two for paragraphs. Gold increases with reading complexity, giving children a visible reason to try more advanced packs.
 
 The release scope is two worlds with ten packs each. Target 50 reviewed prompts per pack: 500 individual words across both worlds, 300 sentence prompts, and 200 paragraph prompts. Each pack has an endless level trail. Levels contain ten words, five sentences, or two paragraphs so longer reading does not create excessively long sessions. The first implementation milestone is smaller: one complete voyage in each language, including real speech feedback and a saved reward.
