@@ -11,29 +11,32 @@ export function curve(age: number, keys: readonly Keyframe[]) {
 // Distance belongs to the person making the journey. Parents keep a steady
 // paired course; the narrator leaves home and later comes back toward them.
 export const PARENT_DISTANCE: readonly Keyframe[] = [[-2,0],[8,0],[12,55],[17,170],[23,230],[30,205],[35,160],[38,125],[43,75],[50,65],[55,55],[62,35],[66,28],[100,28]]
-export const PARTNER_DISTANCE: readonly Keyframe[] = [[26,24],[29,26],[30,28],[33,50],[36,72],[40,82],[43,88],[47,68],[51,44],[56,28],[85,26]]
+export const PARTNER_DISTANCE: readonly Keyframe[] = [[26,24],[29,26],[30,60],[32,90],[36,92],[40,90],[43,88],[47,68],[51,44],[56,28],[85,26]]
 
 export function relationshipX(id: string, age: number): number | undefined {
-  const parents=300+Math.sin(age*.055)*3
-  const me=parents+curve(age,PARENT_DISTANCE)
+  const parents=440+Math.sin(age*.055)*3
+  // Households have shared centers. A couple must not be separated simply to
+  // fill the canvas; the younger generations move relative to their family.
+  const grandparents=parents-160
+  const me=parents+curve(age,PARENT_DISTANCE)*.60
   const partner=me+curve(age,PARTNER_DISTANCE)
   const home=(me+partner)/2
   // Young children move with their household. As teenagers they are the ones
   // who curve outward, while their parents keep their own adult course.
-  const son=home-8+curve(age,[[30,0],[40,0],[44,20],[48,100],[53,190],[56,200],[62,110],[68,110],[70,150],[73,250],[77,300],[100,300]])
-  const daughter=home+9+curve(age,[[32,0],[42,0],[46,30],[50,160],[55,330],[70,350],[100,350]])
-  const sonPartner=son+curve(age,[[56,12],[60,32],[100,30]])
+  const son=home-12+.65*curve(age,[[30,0],[40,0],[44,20],[48,100],[53,190],[56,200],[62,110],[68,110],[70,150],[73,250],[77,300],[100,300]])
+  const daughter=home+18-.85*curve(age,[[32,0],[42,0],[46,30],[50,160],[55,330],[70,350],[100,350]])
+  const sonPartner=son+curve(age,[[56,30],[60,32],[62,72],[100,72]])
   const positions:Record<string,number>={
     self:me,
-    mom:parents-16,
-    dad:parents+16,
-    grandma:145+Math.sin(age*.07)*4,
-    grandpa:181+Math.sin(age*.07)*4,
-    brother:parents+curve(age,[[-2,-68],[8,-68],[14,-120],[23,-125],[28,-85],[33,15],[38,55]]),
-    sister:parents+curve(age,[[8,-45],[14,-70],[23,-135],[33,-100],[40,-20],[55,-25],[100,-30]]),
+    mom:parents-22,
+    dad:parents-50,
+    grandma:grandparents-16,
+    grandpa:grandparents+16,
+    brother:parents+.85*curve(age,[[-2,-105],[8,-105],[14,-120],[23,-125],[28,-105],[33,-95],[38,-90]]),
+    sister:parents+.85*curve(age,[[8,-45],[14,-70],[23,-135],[33,-100],[40,-20],[55,-25],[100,-30]]),
     partner,child:son,daughter,'child-partner':sonPartner,
-    'grandchild-1':(son+sonPartner)/2+curve(age,[[62,-5],[68,-25],[74,-25],[82,-70],[100,-100]]),
-    'grandchild-2':(son+sonPartner)/2+curve(age,[[68,5],[74,18],[82,35],[90,85],[100,100]]),
+    'grandchild-1':son-curve(age,[[62,24],[68,26],[74,32],[82,70],[100,100]]),
+    'grandchild-2':sonPartner+curve(age,[[68,24],[74,26],[82,35],[90,85],[100,100]]),
     // Childhood companionship is intimate. As college friendship grows on
     // the other side, the childhood friend gradually takes their own course.
     'childhood-friend':me+curve(age,[[5,42],[12,44],[17,48],[19,58],[22,75],[25,78],[26,82],[28,95]]),

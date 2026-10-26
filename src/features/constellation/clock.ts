@@ -7,21 +7,30 @@ export const smooth = (value: number) => { const t = clamp(value); return t * t 
 
 // Five seconds before birth, one second per year through 85, then thirty
 // seconds to look beyond that life. The ending is a destination, not a loop.
-export const FUTURE_ACCELERATION_SECOND=104 // year 92, after the life ends
+export const FUTURE_ACCELERATION_SECOND=DEATH_SECOND
+export const FUTURE_RAMP_SECONDS=5
+export const FUTURE_YEARS_PER_SECOND=4.5
 function yearAtSeconds(seconds:number) {
   if(seconds<BIRTH_SECOND)return -2+seconds*2/BIRTH_SECOND
   if(seconds<=DEATH_SECOND)return seconds-BIRTH_SECOND
-  if(seconds<=FUTURE_ACCELERATION_SECOND)return 85+(seconds-DEATH_SECOND)/2
-  const t=seconds-FUTURE_ACCELERATION_SECOND
-  // Ease from half a year/second to six. The next century passes in ~20s.
-  return 92+.5*t+5.5*(t-4*(1-Math.exp(-t/4)))
+  const t=seconds-DEATH_SECOND,u=Math.min(1,t/FUTURE_RAMP_SECONDS)
+  // Integrating a smooth speed curve avoids a sudden change of pace at death.
+  const rampDistance=FUTURE_RAMP_SECONDS*(u+(FUTURE_YEARS_PER_SECOND-1)*(u**3-u**4/2))
+  return 85+rampDistance+Math.max(0,t-FUTURE_RAMP_SECONDS)*FUTURE_YEARS_PER_SECOND
 }
 export function storyAge(progress:number){return yearAtSeconds(clamp(progress)*MOVIE_SECONDS)}
-export function progressAtAge(age:number) {
-  if(age<=85)return clamp((age<0?(age+2)*BIRTH_SECOND/2:BIRTH_SECOND+age)/MOVIE_SECONDS)
-  let low=DEATH_SECOND,high=MOVIE_SECONDS
+export function elapsedAtYear(age:number) {
+  if(age<=85)return Math.max(0,age<0?(age+2)*BIRTH_SECOND/2:BIRTH_SECOND+age)
+  let low=DEATH_SECOND,high=Math.max(MOVIE_SECONDS,MOVIE_SECONDS+(age-100)/.5)
   for(let i=0;i<48;i++){const mid=(low+high)/2;if(yearAtSeconds(mid)<age)low=mid;else high=mid}
-  return (low+high)/2/MOVIE_SECONDS
+  return (low+high)/2
+}
+export function frameAtYear(age:number) {
+  const seconds=elapsedAtYear(age)
+  return {progress:clamp(seconds/MOVIE_SECONDS),afterEnding:Math.max(0,seconds-MOVIE_SECONDS)}
+}
+export function progressAtAge(age:number) {
+  return clamp(elapsedAtYear(age)/MOVIE_SECONDS)
 }
 export function playbackFrame(elapsed: number, duration = MOVIE_SECONDS) {
   return { progress: clamp(elapsed / duration), opacity: smooth(elapsed / 1.2) }
@@ -30,11 +39,11 @@ export function playbackFrame(elapsed: number, duration = MOVIE_SECONDS) {
 // Six brief beats, thirty words total. The personal dedication is separate.
 export const TEXT_BUDGET = { cards: 6, words: 30 } as const
 export const CAPTIONS = [
-  { from: .6, to: 4.5, title: '', lines: ['Life is already moving.'] },
-  { from: 5, to: 10, title: '', lines: ['Then you arrive.'] },
-  { from: 31, to: 35, title: '', lines: ['Some paths become home.'] },
-  { from: 35.75, to: 40.5, title: '', lines: ['And your world grows.'] },
-  { from: 43, to: 49, title: '', lines: ['Sometimes people die young.'] },
+  { from: .6, to: 5, title: '', lines: ['Life is already moving.'] },
+  { from: 5, to: 12, title: '', lines: ['Then you arrive.'] },
+  { from: 31, to: 36, title: '', lines: ['Some paths become home.'] },
+  { from: 36, to: 42.5, title: '', lines: ['And your world grows.'] },
+  { from: 43, to: 51, title: '', lines: ['Sometimes people die young.'] },
   { from: 108, to: 117, title: 'Take care of the people around you.', lines: ['While you still can.'] },
 ]
 export const DEDICATION_LINES=['To my brother, Mikael.','I miss you every day.']

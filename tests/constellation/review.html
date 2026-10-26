@@ -5,10 +5,13 @@ import React from 'react'
 import { createRoot } from 'react-dom/client'
 import Sky from '/src/features/constellation/Sky.tsx'
 import { SAMPLE, storyMessage, progressAtAge } from '/src/features/constellation/story.ts'
+import { frameAtYear } from '/src/features/constellation/clock.ts'
 import '/src/features/constellation/constellation.css'
 // Development-only visual fixture. Uses the production renderer and story data.
 const params = new URLSearchParams(location.search)
-const progress = params.has('progress') ? Number(params.get('progress')) : progressAtAge(Number(params.get('age') || 20))
+const frame=frameAtYear(Number(params.get('age') || 20))
+const future=Number(params.get('future') || frame.afterEnding)
+const progress = params.has('progress') ? Number(params.get('progress')) : frame.progress
 const people = SAMPLE.map(p => ({ ...p }))
 if (params.get('partner') === 'man') Object.assign(people.find(p => p.id === 'partner'), { name: 'Husband', nameBefore: 'Boyfriend' })
 if (params.has('large')) people.forEach((p,i) => { p.name = `Family member ${i}` })
@@ -17,10 +20,10 @@ function render() {
   const inset = params.has('safe') ? '44px 24px 34px' : '12px'
   const width = innerWidth - (params.has('safe') ? 48 : 24)
   const height = innerHeight - (params.has('safe') ? 78 : 24)
-  const message = storyMessage(progress,Number(params.get('future') || 0))
+  const message = storyMessage(progress,future)
   root.render(React.createElement('main', { className: 'cl-app', style: { padding: inset } },
     React.createElement('div', { className: 'cl-canvas' },
-      React.createElement(Sky, { people, progress, width, viewHeight: 800 * height / width, afterEnding: Number(params.get('future') || 0) }),
+      React.createElement(Sky, { people, progress, width, viewHeight: 800 * height / width, afterEnding: future }),
       message && React.createElement('div', { className: `cl-story-message ${message.title ? 'cl-story-ending' : ''} ${'kind' in message ? 'cl-story-dedication' : ''}`, style: { opacity: message.opacity } },
         message.title && React.createElement('div', { className: 'cl-story-title' }, message.title),
         ...message.lines.map(line => React.createElement('div', { className: 'cl-story-sentence', key: line }, line))))))

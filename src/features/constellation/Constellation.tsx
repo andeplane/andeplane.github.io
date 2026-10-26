@@ -18,9 +18,18 @@ export default function Constellation() {
   const hasSound = useRef(false)
   const soundAttempt = useRef<Promise<boolean>|null>(null)
   const [soundState,setSoundState]=useState('loading')
-  async function ensureSound() {
+  async function ensureSound(retryAfterPending=true) {
     const audio=music.current
-    if(!audio||soundAttempt.current)return
+    if(!audio)return
+    if(soundAttempt.current) {
+      // Development remounts can pause an in-flight play request. The next
+      // mount must retry once after that request settles, not silently drop it.
+      if(retryAfterPending) {
+        await soundAttempt.current
+        if(music.current===audio&&audio.paused&&!audio.ended)void ensureSound(false)
+      }
+      return
+    }
     const attempt=startAudibleSound(audio,elapsed.current,!hasSound.current)
     soundAttempt.current=attempt
     const started=await attempt
@@ -68,6 +77,10 @@ export default function Constellation() {
     <audio ref={music} src="/projects/constellation/music/life-goes-on.mp3" autoPlay preload="auto" onCanPlay={()=>void ensureSound()} onPlaying={()=>setSoundState('playing')} onEnded={()=>setSoundState('finished')} onError={()=>setSoundState('error')} aria-hidden="true" />
     <div className="cl-canvas" style={{ opacity: frame.opacity }}>
       <Sky people={people} progress={frame.progress} width={size.width} viewHeight={800 * size.height / size.width} afterEnding={frame.afterEnding} />
+      {(soundState==='blocked'||soundState==='error')&&frame.progress<.85&&<button className="cl-sound-prompt" onClick={()=>void ensureSound()} type="button" aria-label="Enable the soundtrack">
+        <svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><path d="M11 5 6 9H3v6h3l5 4V5Zm5 3c3 2 3 6 0 8m3-11c5 4 5 10 0 14" fill="none" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round"/></svg>
+        Tap or click for sound
+      </button>}
       {message && <div className={`cl-story-message ${message.title ? 'cl-story-ending' : ''} ${'kind' in message ? 'cl-story-dedication' : ''}`} style={{ opacity: message.opacity }}>
         {message.title && <div className="cl-story-title">{message.title}</div>}
         {message.lines.map(line => <div className="cl-story-sentence" key={line}>{line}</div>)}

@@ -1,14 +1,29 @@
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
 import { relationshipX } from '../../src/features/constellation/relationships.ts'
+import { SAMPLE, pathX } from '../../src/features/constellation/story.ts'
 const distance = (a: string, b: string, age: number) => Math.abs(relationshipX(a, age)! - relationshipX(b, age)!)
+test('Grandma and Grandpa share a close household beside the original family',()=>{
+  for(let age=-2;age<17;age+=.1) {
+    assert.ok(Math.abs(distance('grandma','grandpa',age)-32)<1e-8)
+    assert.ok(distance('grandma','grandpa',age)<distance('grandpa','self',age))
+    assert.ok(relationshipX('grandpa',age)!<relationshipX('brother',age)!)
+  }
+  // Include the actual rendered line positions, not only their center model.
+  // The final six-year farewell bend is intentionally a separate movement.
+  for(let age=-2;age<11;age+=.1) {
+    const x=(id:string)=>{const p=SAMPLE.find(p=>p.id===id)!;return pathX(p,SAMPLE.indexOf(p),SAMPLE.length,age,SAMPLE)}
+    assert.ok(x('grandpa')-x('grandma')>=26&&x('grandpa')-x('grandma')<=38)
+    assert.ok(x('brother')-x('grandpa')>30)
+  }
+})
 test('parents remain a close pair through childhood, teenage distance and reunion', () => {
-  for (let year = 0; year <= 55; year++) assert.ok(distance('mom', 'dad', year) <= 33)
+  for (let year = 0; year <= 55; year++) assert.ok(distance('mom', 'dad', year) <= 45)
   assert.ok(distance('self', 'mom', 6) < 25)
-  assert.ok(distance('self', 'dad', 6) < 25)
-  assert.ok(distance('self', 'mom', 23) > 220)
+  assert.ok(distance('self', 'dad', 6) < 55)
+  assert.ok(distance('self', 'mom', 23) > 150)
   assert.ok(distance('self', 'mom', 43) < distance('self', 'mom', 33))
-  assert.ok(distance('self', 'dad', 45) < 70)
+  assert.ok(distance('self', 'dad', 45) < 100)
 })
 test('dating, early parenting and rediscovery form a continuous relationship arc', () => {
   assert.ok(distance('self', 'partner', 28) < 30)
@@ -21,13 +36,13 @@ test('dating, early parenting and rediscovery form a continuous relationship arc
 })
 test('children begin close to both parents, then gain their own space', () => {
   assert.ok(distance('child', 'self', 30) < 25)
-  assert.ok(distance('child', 'partner', 30) < 25)
+  assert.ok(distance('child', 'partner', 30) < 45)
   assert.ok(distance('daughter', 'self', 32) < 75)
   assert.ok(distance('child', 'self', 53) > 100)
   assert.ok(distance('daughter', 'self', 55) > 220)
 })
 test('all named relationship trajectories remain finite and continuous every year', () => {
-  for (const id of ['self','mom','dad','brother','sister','partner','child','daughter','child-partner','grandchild-1','grandchild-2','childhood-friend','first-love','college-friends']) {
+  for (const id of ['self','mom','dad','brother','partner','child','daughter','child-partner','grandchild-1','grandchild-2','childhood-friend','first-love','college-friends']) {
     for (let year = -2; year <= 100; year++) {
       const x = relationshipX(id, year)!
       assert.ok(Number.isFinite(x) && x >= 120 && x <= 755)
@@ -37,28 +52,24 @@ test('all named relationship trajectories remain finite and continuous every yea
 })
 
 
-test('siblings stay with the narrator’s family, away from the children’s cluster', () => {
-  for(let age=32;age<=85;age++) {
-    const sister=relationshipX('sister',age)!, me=relationshipX('self',age)!, son=relationshipX('child',age)!
-    assert.ok(sister<me && me<son)
-    assert.ok(Math.abs(sister-me)<Math.abs(sister-son))
-  }
+test('Brother stays on the original-family side throughout his life', () => {
+  for(let age=0;age<38;age+=.1)assert.ok(relationshipX('brother',age)!<relationshipX('mom',age)!&&relationshipX('mom',age)!<relationshipX('self',age)!)
 })
 test('Brother and Childhood friend never occupy the same side or lane', () => {
   for(let age=5;age<=28;age+=.1) {
     const brother=relationshipX('brother',age)!, me=relationshipX('self',age)!, friend=relationshipX('childhood-friend',age)!
     assert.ok(brother<me && friend>me)
-    assert.ok(friend-brother>100)
+    assert.ok(friend-brother>95)
   }
 })
 
 test('the narrator leaves and returns; the parents do not move away from their child',()=>{
  const shift=(id:string,a:number,b:number)=>relationshipX(id,b)!-relationshipX(id,a)!
- assert.ok(shift('self',8,23)>220)
+ assert.ok(shift('self',8,23)>135)
  assert.ok(Math.abs(shift('mom',8,23))<4&&Math.abs(shift('dad',8,23))<4)
- assert.ok(shift('self',30,45)<-125)
+ assert.ok(shift('self',30,45)<-75)
  assert.ok(Math.abs(shift('mom',30,45))<4)
- assert.ok(shift('child',44,53)>120)
+ assert.ok(distance('child','self',53)-distance('child','self',44)>80)
  assert.ok(Math.abs(shift('self',44,53))<25)
 })
 test('first love is closest to Me, across from childhood friend, while college friendship grows',()=>{
@@ -75,9 +86,22 @@ test('first love is closest to Me, across from childhood friend, while college f
 })
 
 test('the son makes a later outward bend while the parents stay on their course',()=>{
-  assert.ok(relationshipX('child',77)!-relationshipX('child',68)!>180)
+  assert.ok(relationshipX('child',77)!-relationshipX('child',68)!>120)
   assert.ok(Math.abs(relationshipX('self',77)!-relationshipX('self',68)!)<4)
   assert.ok(Math.abs(relationshipX('partner',77)!-relationshipX('partner',68)!)<4)
-  assert.ok(distance('child','self',77)>280)
-  assert.ok(distance('child','child-partner',77)<35)
+  assert.ok(distance('child','self',77)>195)
+  assert.ok(distance('child','child-partner',77)<80)
+})
+
+test('family companions keep distinct tracks instead of merging for whole years',()=>{
+ const x=(id:string,age:number)=>{const p=SAMPLE.find(p=>p.id===id)!;return pathX(p,SAMPLE.indexOf(p),SAMPLE.length,age,SAMPLE)}
+ for(let age=0;age<38;age+=.1)assert.ok(x('mom',age)-x('brother',age)>20)
+ for(let age=0;age<49;age+=.1)assert.ok(x('self',age)-x('dad',age)>40)
+ for(let age=64;age<100;age+=.1)assert.ok(x('child',age)-x('grandchild-1',age)>17)
+ for(let age=70;age<100;age+=.1)assert.ok(x('grandchild-2',age)-x('child-partner',age)>17)
+ // All four household lines have room once both children have arrived.
+ for(let age=34;age<40;age+=.1) {
+  const positions=['self','child','daughter','partner'].map(id=>x(id,age)).sort((a,b)=>a-b)
+  for(let i=1;i<positions.length;i++)assert.ok(positions[i]-positions[i-1]>17)
+ }
 })
