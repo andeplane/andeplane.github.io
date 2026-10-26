@@ -86,8 +86,10 @@ into a collective canopy. It has visible roots in You and your partner and forks
 into shared generations. Light travels through those same forks, without
 individual dots, pulses or unrelated particle emitters. Its motion uses seconds,
 so the accelerating year clock cannot make it frantic. At 200 the individual
-trail renderer stops; the counter fades between 200 and 230. The bounded canopy
-and flowing light continue indefinitely, with the constellation and dedication.
+trail renderer stops; the counter fades between 200 and 230. New forks keep extending from the outer branches after the music ends, in
+staggered cohorts that recede into haze. The family roots and foreground
+constellation remain anchored. The visible cohort count stays bounded while
+growth continues indefinitely, with the dedication.
 
 The sound prompt appears only if autoplay is blocked. A tap or click starts the
 soundtrack at the current story time and dismisses the prompt. Early captions
