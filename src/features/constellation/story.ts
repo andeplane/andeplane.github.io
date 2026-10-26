@@ -110,7 +110,7 @@ export function personOpacity(person: Person, progress: number) {
   const age = storyAge(progress)
   const from=visibleFrom(person)
   if (age < from) return 0
-  const entering = (from <= -2 ? 1 : smooth((age - from) / 1.8))*((ENCOUNTERS[person.id]||person.motion==='weave')&&age<person.start?.35+.65*smooth((age-person.start+3)/3):1)
+  const entering = (from <= -2 ? 1 : smooth((age - from) / (person.id==='self'?.16:1.8)))*((ENCOUNTERS[person.id]||person.motion==='weave')&&age<person.start?.35+.65*smooth((age-person.start+3)/3):1)
   return person.exit === 'fade' && person.end !== null ? entering * (1 - smooth((age - person.end - 6) / 1.5)) : entering
 }
 export function personLabelOpacity(person: Person, progress: number, people=SAMPLE) {

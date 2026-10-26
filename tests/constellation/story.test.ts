@@ -143,6 +143,7 @@ test('living colors stay distinct and only You receive one birth highlight',()=>
   assert.ok(birth.radius>later.radius&&birth.glowRadius>later.glowRadius)
   for(const age of [-1,0,3,20,85])assert.equal(birthHighlight(person('self'),progressAtAge(age)).opacity,0)
   assert.ok(birthHighlight(person('self'),progressAtAge(.4)).opacity>.9)
+  assert.equal(personOpacity(person('self'),progressAtAge(.4)),1,'the birth glow must not be hidden by the slow entry fade')
   for(const other of SAMPLE.filter(p=>p.id!=='self'))assert.equal(birthHighlight(other,progressAtAge(other.start+.4)).opacity,0)
 })
 
