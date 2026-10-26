@@ -2,7 +2,11 @@
 
 ## Experience
 
-The early family is centered across the canvas. Passing encounters move at less
+The early family uses paired households: Grandma and Grandpa travel together,
+with separate nearby tracks and names, beside the Mom/Dad pair and Brother.
+Before your birth, no future acquaintance or acquaintance trail is visible.
+Kindergarten friend enters after birth and crosses near You at age three.
+Passing encounters move at less
 than half their previous sideways speed; lasting encounters take 8–9 years to
 approach and seven to leave. Cubic curves replace polygonal trails. Glows remain
 small in screen pixels. Label rows have consistent screen spacing, with eased
@@ -34,7 +38,7 @@ appears when autoplay is blocked, then disappears after tap/click recovery.
 
 ## Checks performed
 
-- 53 focused tests pass: relationships, chronological events, cubic continuity,
+- 55 focused tests pass: relationships, chronological events, cubic continuity,
   captions, noncrossing constellation, visible memorials, the five-second speed ramp,
   year-200 counter fade, rooted ancestry, bounded continuous future motion,
   saved-family migrations, audio recovery and labels.
@@ -43,6 +47,9 @@ appears when autoplay is blocked, then disappears after tap/click recovery.
 - 258 isolated headless browser states passed actual DOM geometry checks across
   desktop, 390px and 320px portrait, short landscape and simulated safe areas.
   These include births, encounters, loss/rise, camera transition and future.
+- 48 additional opening states verify that future acquaintances and their trails
+  remain hidden before birth, kindergarten friend appears at three, and the
+  rendered grandparents stay close without colliding with Brother.
 - 60 additional future states passed checks for no tooltips/overflows/name
   overlaps, all seven memorials in bounds, You remaining labelled, a visibly
   rooted canopy, counter fade and the removal of individual trail rendering.
@@ -66,6 +73,10 @@ appears when autoplay is blocked, then disappears after tap/click recovery.
 - Production SVG source renders were visually reviewed for desktop childhood,
   college and the distant future; phone childhood, parenthood, age 100 and the
   distant future; and the constellation during short-landscape camera rotation.
+- The paired-grandparents revision was visually reviewed in source SVG renders
+  for the prenatal opening, desktop age three, phone age eight, narrow portrait
+  age nineteen and short landscape age five. The 258-state DOM geometry check
+  was rerun after the change, including both grandparent death transitions.
 - Focused feature TypeScript checking passes. Full builds run in GitHub CI;
   public deployment is held while the user iterates on the local preview.
 

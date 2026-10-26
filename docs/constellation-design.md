@@ -1,11 +1,15 @@
 # The light we leave — experience and relationship plan
 
-Current specification, 25 October 2026. A generic life addressed as **You**, with
+Current specification, 26 October 2026. A generic life addressed as **You**, with
 the exact personal dedication to Mikael at the end. The existing 119.97-second
 instrumental is unchanged: no lyrics, voice or humming.
 
 ## Who moves, and why
 
+- Grandma and Grandpa travel as a close pair with a shared household center,
+  beside the original family. Neither is positioned across the canvas from their partner.
+- Before your birth, only family is visible. An encounter can carry a trail from
+  an earlier life, but neither its dot nor its trail appears before age one.
 - Mom and Dad keep a steady paired course. You leave their cluster in adolescence,
   reach your greatest independence in your twenties, then move closer in your forties.
 - Kindergarten friend crosses left to right near You at age three, keeping a constant
@@ -88,7 +92,8 @@ hold longer; their actual rendered visibility is checked during playback.
 Curved cubic trails replace polygonal line segments. Encounters approach over
 8–9 years and depart over seven. Passing school friends move at 90 world units
 per year, down from 200; the coworker makes a smaller, slower weave. The family
-is centered around x=440 with grandparents on both sides, using the full canvas.
+is centered around You at x=440 in childhood. Grandma and Grandpa share a
+center 160 units to the left, with 32 units between them.
 Mom and Dad stay paired on the original-family side; Brother has his own
 separate path. Both children have room during the parenting years; the daughter
 later moves to the left and the son to the right. Grandchildren occupy distinct
@@ -116,21 +121,21 @@ away from the parents is made by You, not by moving the parents left.
 | 9 | Mom (27), Childhood friend (43), Dad (50) | Right 5 | Steady shared travel |
 | 10 | Mom (38), Childhood friend (44), Dad (61) | Right 11 | Childhood friend: right 12 |
 | 11 | Childhood friend (45), Mom (48), Dad (72) | Right 11 | Childhood friend: right 12 |
-| 12 | Childhood friend (46), Mom (53), Dad (77) | Right 5 | Steady shared travel |
-| 13 | Childhood friend (47), Mom (59), Dad (84) | Right 7 | Grandma: left 15; Childhood friend: right 8 |
-| 14 | Childhood friend (48), Mom (76), Dad (102) | Right 18 | Grandma: left 20; Childhood friend: right 19 |
-| 15 | First love (17), Childhood friend (49), Mom (96) | Right 21 | First love: right 44; Childhood friend: right 22; Grandma: left 20 |
-| 16 | First love (17), Childhood friend (51), Mom (113) | Right 18 | Childhood friend: right 19; First love: right 18; Grandma: left 15 |
+| 12 | Childhood friend (46), Mom (53), Dad (77) | Right 5 | Grandma: left 12 |
+| 13 | Childhood friend (47), Mom (59), Dad (84) | Right 7 | Grandma: left 28; Childhood friend: right 8 |
+| 14 | Childhood friend (48), Mom (76), Dad (102) | Right 18 | Grandma: left 37; Childhood friend: right 19 |
+| 15 | First love (17), Childhood friend (49), Mom (96) | Right 21 | First love: right 44; Grandma: left 37; Childhood friend: right 22 |
+| 16 | First love (17), Childhood friend (51), Mom (113) | Right 18 | Grandma: left 28; Childhood friend: right 19; First love: right 18 |
 | 17 | First love (17), Childhood friend (51), Mom (121) | Right 8 | Childhood friend: right 8 |
 | 18 | First love (18), Childhood friend (56), College friend (87) | Right 3 | College friend: right 26; Childhood friend: right 8 |
 | 19 | First love (19), Childhood friend (60), College friend (83) | Right 7 | Childhood friend: right 12; College friend: right 12 |
 | 20 | First love (22), Childhood friend (64), College friend (74) | Right 9 | College friend: right 18; Childhood friend: right 13 |
-| 21 | College friend (69), Childhood friend (72), Grandpa (141) | Right 9 | Childhood friend: right 17; College friend: right 14 |
-| 22 | College friend (56), Childhood friend (76), Grandpa (123) | Right 7 | College friend: right 20; Childhood friend: right 11; Grandpa: left 10 |
-| 23 | College friend (43), Childhood friend (76), Grandpa (93) | Right 3 | Grandpa: left 27; College friend: right 17 |
-| 24 | College friend (43), Grandpa (58), Childhood friend (77) | Steady | Grandpa: left 36 |
-| 25 | Grandpa (24), College friend (43), Childhood friend (77) | Steady | Grandpa: left 36 |
-| 26 | Grandpa (0), Girlfriend (21), College friend (43) | Left 3 | Grandpa: left 27; Wife: left 12 |
+| 21 | College friend (69), Childhood friend (72), Mom (149) | Right 9 | Childhood friend: right 17; College friend: right 14 |
+| 22 | College friend (56), Childhood friend (76), Mom (157) | Right 7 | College friend: right 20; Childhood friend: right 11; Grandpa: left 10 |
+| 23 | College friend (43), Childhood friend (76), Mom (160) | Right 3 | Grandpa: left 27; College friend: right 17 |
+| 24 | College friend (43), Childhood friend (77), Mom (160) | Steady | Grandpa: left 36 |
+| 25 | College friend (43), Childhood friend (77), Mom (158) | Steady | Grandpa: left 36 |
+| 26 | Girlfriend (21), College friend (43), Childhood friend (80) | Left 3 | Grandpa: left 27; Wife: left 12 |
 | 27 | Girlfriend (22), College friend (43), Childhood friend (86) | Left 3 | Steady shared travel |
 | 28 | Girlfriend (24), College friend (42), Mom (151) | Left 3 | Steady shared travel |
 | 29 | Wife (26), College friend (42), Mom (149) | Left 3 | Steady shared travel |

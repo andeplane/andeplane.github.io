@@ -10,6 +10,26 @@ try {
   page.on('pageerror',error=>errors.push(error.message))
   for(const [width,height,safe]of [[1280,800,false],[390,844,false],[320,740,false],[390,844,true],[320,740,true],[844,390,true]]) {
     await page.setViewportSize({width,height})
+    for(const year of [-2,-1,0,1,3,5,8,10]) {
+      await page.goto(`${base}/tests/constellation/review.html?age=${year}${safe?'&safe=1':''}`)
+      await page.locator('.cl-sky-svg').waitFor()
+      const opening=await page.evaluate(()=>{
+        const people=[...document.querySelectorAll('[data-person]')].filter(g=>Number(g.getAttribute('opacity'))>.001).map(g=>g.dataset.person)
+        const paths=[...document.querySelectorAll('[data-living-trail]')].filter(g=>Number(g.getAttribute('opacity'))>.001&&g.querySelector('path')?.getAttribute('d')).map(g=>g.dataset.livingTrail)
+        const x=id=>Number(document.querySelector(`[data-person="${id}"] circle`)?.getAttribute('cx'))
+        return {people,paths,pairDistance:x('grandpa')-x('grandma'),brotherGap:x('brother')-x('grandpa')}
+      })
+      if(year<=1) {
+        const family=['grandma','grandpa','mom','dad','brother','self']
+        assert.ok(opening.people.every(id=>family.includes(id)),`age ${year}: acquaintance before birth`)
+        assert.ok(opening.paths.every(id=>family.includes(id)),`age ${year}: acquaintance trail before birth`)
+        for(const id of ['grandma','grandpa','mom','dad'])assert.ok(opening.people.includes(id))
+      }
+      if(year===3)assert.ok(opening.people.includes('kindergarten-friend'))
+      assert.ok(opening.pairDistance>=26&&opening.pairDistance<=38,`age ${year}: grandparents separate`)
+      assert.ok(opening.brotherGap>30,`age ${year}: Grandpa and Brother collide`)
+      states++
+    }
     for(const year of [85,90,95,100,130,180,200,215,230,500]) {
       await page.goto(`${base}/tests/constellation/review.html?age=${year}${safe?'&safe=1':''}`)
       await page.locator('.cl-sky-svg').waitFor()
