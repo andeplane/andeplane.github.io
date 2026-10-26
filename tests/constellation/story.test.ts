@@ -1,6 +1,6 @@
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
-import { COLORS, MAX_PEOPLE, SAMPLE, YEAR_SPACING, ageAxis, attentionOpacity, brotherMoment, lifeEndpoint, personAppearance, personLabelOpacity, personName, personOpacity, progressAtAge, readPeople, restorePeople, starPosition, storyAge, trailPoints } from '../../src/features/constellation/story.ts'
+import { COLORS, MAX_PEOPLE, SAMPLE, YEAR_SPACING, ageAxis, attentionOpacity, birthHighlight, brotherMoment, lifeEndpoint, personAppearance, personLabelOpacity, personName, personOpacity, progressAtAge, readPeople, restorePeople, starPosition, storyAge, trailPoints } from '../../src/features/constellation/story.ts'
 const person = (id: string) => SAMPLE.find(p => p.id === id)!
 const pos = (id: string, age: number) => { const p = person(id); return starPosition(p, SAMPLE.indexOf(p), SAMPLE.length, progressAtAge(age), SAMPLE) }
 
@@ -132,7 +132,7 @@ test('previous fictional casts upgrade, while edits to those same casts are pres
 })
 
 
-test('living colors stay distinct without flashing birth markers',()=>{
+test('living colors stay distinct and only You receive one birth highlight',()=>{
   const mother=personAppearance(person('mom'),progressAtAge(20))
   const father=personAppearance(person('dad'),progressAtAge(20))
   assert.equal(mother.color,person('mom').color)
@@ -140,8 +140,10 @@ test('living colors stay distinct without flashing birth markers',()=>{
   assert.notEqual(mother.label,father.label)
   const birth=personAppearance(person('self'),progressAtAge(.9))
   const later=personAppearance(person('self'),progressAtAge(4))
-  assert.deepEqual(birth,later)
-  assert.ok(!('birth' in later))
+  assert.ok(birth.radius>later.radius&&birth.glowRadius>later.glowRadius)
+  for(const age of [-1,0,3,20,85])assert.equal(birthHighlight(person('self'),progressAtAge(age)).opacity,0)
+  assert.ok(birthHighlight(person('self'),progressAtAge(.4)).opacity>.9)
+  for(const other of SAMPLE.filter(p=>p.id!=='self'))assert.equal(birthHighlight(other,progressAtAge(other.start+.4)).opacity,0)
 })
 
 

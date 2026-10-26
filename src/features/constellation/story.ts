@@ -144,11 +144,19 @@ export function brotherMoment(progress:number) {
   return smooth((age-37.6)/.4)*(1-smooth((age-40.5)/1.5))
 }
 export const attentionOpacity=(person:Person,progress:number)=>person.id==='brother'?1:1-.35*brotherMoment(progress)
+// A single soft arrival, tied to story time so late sound activation cannot
+// replay it. Other births and the distant future stay calm.
+export function birthHighlight(person:Person,progress:number) {
+  const age=storyAge(progress)-person.start
+  const active=person.id==='self'&&age>=0&&age<2.6
+  return {opacity:active?smooth(age/.16)*(1-smooth((age-.2)/2.4)):0,radius:7+24*smooth(age/2.6)}
+}
 export function personAppearance(person: Person, progress: number) {
   const memorial=memorialState(person,progress)
   const distance=memorial.distance
+  const arrival=birthHighlight(person,progress).opacity
   const quietColor = person.color
-  return { distance, color: mixColor(quietColor, '#8d99a9', distance*.48), label: mixColor(mixColor(person.color,'#ffffff',.14), '#a4afbd', distance*.55), core: mixColor(mixColor(person.color,'#ffffff',.75), '#a5b0bf', distance), radius: 3.3 - distance * .9, glowRadius: 16-distance*3, glowOpacity: .24-distance*.1 }
+  return { distance, color: mixColor(quietColor, '#8d99a9', distance*.48), label: mixColor(mixColor(person.color,'#ffffff',.14), '#a4afbd', distance*.55), core: mixColor(mixColor(person.color,'#ffffff',.75), '#a5b0bf', distance), radius: 3.3 - distance * .9+arrival*1.4, glowRadius: 16-distance*3+arrival*16, glowOpacity: .24-distance*.1+arrival*.2 }
 }
 export interface StoryPoint { x: number; y: number; year: number; elevation?: number }
 export function starPosition(person: Person, index: number, count: number, progress: number, people?: Person[], afterEnding=0) {

@@ -1,6 +1,6 @@
 import { useRef } from 'react'
 import type { Person } from './story'
-import { YEAR_SPACING, ageAxis, attentionOpacity, personAppearance, personLabelOpacity, personName, smooth, starPosition, trailPoints } from './story'
+import { YEAR_SPACING, ageAxis, attentionOpacity, birthHighlight, personAppearance, personLabelOpacity, personName, smooth, starPosition, trailPoints } from './story'
 import { cameraAmount, futureLives, projectPoint, projectPerson } from './projection.ts'
 import { futureAbstraction, futureFlow, descendantCanopy } from './futureFlow.ts'
 import { continuingYear } from './clock.ts'
@@ -69,6 +69,7 @@ export default function Sky({people,progress,width=800,viewHeight=800,afterEndin
     <g data-memorial-constellation="true" clipPath={`url(#${id}-bounds)`} fill="none" stroke="#c5ccdc" strokeWidth=".75" opacity={.45}>
       {constellation.map(segment=>{const a=positions[people.findIndex(p=>p.id===segment.from)],b=positions[people.findIndex(p=>p.id===segment.to)];return <path key={`${segment.from}-${segment.to}`} data-memorial-link={`${segment.from}-${segment.to}`} vectorEffect="non-scaling-stroke" d={`M${a.x} ${a.y}L${a.x+(b.x-a.x)*segment.draw} ${a.y+(b.y-a.y)*segment.draw}`}/>})}
     </g>
+    {people.map((p,i)=>{const birth=birthHighlight(p,progress);if(!birth.opacity)return null;const pos=positions[i];return <circle key={`birth-${p.id}`} data-birth-highlight={p.id} cx={pos.x} cy={pos.y} r={birth.radius*800/width} fill="none" stroke={p.color} strokeWidth="1.2" vectorEffect="non-scaling-stroke" opacity={birth.opacity*.7} pointerEvents="none"/>})}
     {people.map((p,i)=>{const pos=positions[i];if(!pos.visible)return null;const ended=p.end!==null&&p.exit!=='fade'&&age>=p.end;if(!ended&&abstraction===1)return null;const size=Math.max(.25,Math.min(1.2,pos.scale));const a=appearances[i];const memorial=memorialState(p,progress,afterEnding);return <g key={p.id} data-person={p.id} opacity={pos.opacity*attentionOpacity(p,progress)*(ended?1:1-abstraction)}><g clipPath={`url(#${id}-bounds)`}><circle cx={pos.x} cy={pos.y} r={a.glowRadius*800/width*size} fill={`url(#${id}-glow-${p.id})`}/><circle cx={pos.x} cy={pos.y} r={Math.min(a.radius,3.2*800/width)*size} fill={a.core}/>{ended&&<path d={`M${pos.x-7*size} ${pos.y}h${14*size} M${pos.x} ${pos.y-7*size}v${14*size}`} stroke={a.color} strokeWidth=".8" vectorEffect="non-scaling-stroke" opacity={.8*memorial.cross}/>}</g></g>})}
     {labels.map(label=>{const i=people.findIndex(p=>p.id===label.id),p=people[i],pos=positions[i],a=appearances[i];return <g key={label.id} data-label={label.id} opacity={labelItems[i].opacity*attentionOpacity(p,progress)}><path d={`M${pos.x} ${pos.y}L${label.leader.x} ${label.leader.y}`} fill="none" stroke={a.label} strokeWidth=".55" opacity=".27"/><text className="cl-star-label" x={label.x} y={label.y} fill={a.label} textAnchor="middle" fontFamily="system-ui, sans-serif" fontWeight="500" paintOrder="stroke" stroke="#080e1b" strokeWidth="2" strokeLinejoin="round" fontSize={label.font}>{label.lines.map((line,n)=><tspan key={n} x={label.x} dy={n?label.lineHeight:0}>{line}</tspan>)}</text></g>})}
   </svg>
