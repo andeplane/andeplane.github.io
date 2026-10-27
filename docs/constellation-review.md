@@ -41,7 +41,7 @@ small in screen pixels. Label rows have consistent screen spacing, with eased
 collision corrections and no frame-to-frame row selection.
 
 Departed lights rise over two seconds and become steady, softly colored stars.
-There are no landing rings, birth flashes or flashing future dots. The original
+There are no landing rings or flashing future dots. You receive one brief birth highlight. The original
 seven-star arch has grandparents across its roof, parents at the shoulders,
 partner and Brother at the lower sides, and You at its base. The complete shape
 stays in the foreground as the camera lowers. You remains labelled permanently;

@@ -24,7 +24,7 @@ test('the counter fades only after 200 and individual tracing gives way to the c
 test('the collective canopy grows from this couple and every fork has an ancestor',()=>{
   const branches=descendantCanopy(300,800)
   const ids=new Set(['self','partner','descendants',...branches.map(b=>b.to)])
-  assert.equal(branches.length,64)
+  assert.ok(branches.length>64&&branches.length<=448)
   assert.ok(branches.every(b=>ids.has(b.from)))
   for(const id of ['self','partner']) {
     const start=projectMemorial({...MEMORIAL_SKY[id],year:85},1,800)
@@ -74,4 +74,18 @@ test('rendered trails use rounded cubic joins with matching tangents',()=>{
     assert.ok(Math.abs((a[4]-a[2])-(b[0]-a[4]))<1e-8)
     assert.ok(Math.abs((a[5]-a[3])-(b[1]-a[5]))<1e-8)
   }
+})
+
+test('new forks keep growing after the score, with a bounded visible history',()=>{
+ for(const seconds of [130,180,300,600,3600,86400]) {
+  const year=continuingYear(1,seconds-120)
+  const now=descendantCanopy(year,800,['self','partner'],1,seconds)
+  const later=descendantCanopy(year+4.5,800,['self','partner'],1,seconds+1)
+  const growth=now.filter(p=>p.id.startsWith('generation-')&&p.opacity>.01)
+  assert.ok(growth.length>0&&now.length<=448)
+  assert.ok(growth.some(p=>{const next=later.find(q=>q.id===p.id);return next&&next.path!==p.path}),'branches themselves must grow, not only moving highlights')
+  assert.ok(now.every(p=>!p.path.includes('NaN')&&!p.path.includes('Infinity')))
+  const ids=new Set(['self','partner','descendants',...now.map(p=>p.to)])
+  assert.ok(now.every(p=>ids.has(p.from)),'all new generations stay attached to this family')
+ }
 })

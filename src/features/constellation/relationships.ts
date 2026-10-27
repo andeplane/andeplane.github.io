@@ -24,7 +24,6 @@ export function relationshipX(id: string, age: number): number | undefined {
   // Young children move with their household. As teenagers they are the ones
   // who curve outward, while their parents keep their own adult course.
   const son=home-12+.65*curve(age,[[30,0],[40,0],[44,20],[48,100],[53,190],[56,200],[62,110],[68,110],[70,150],[73,250],[77,300],[100,300]])
-  const daughter=home+18-.85*curve(age,[[32,0],[42,0],[46,30],[50,160],[55,330],[70,350],[100,350]])
   const sonPartner=son+curve(age,[[56,30],[60,32],[62,72],[100,72]])
   const positions:Record<string,number>={
     self:me,
@@ -34,7 +33,7 @@ export function relationshipX(id: string, age: number): number | undefined {
     grandpa:grandparents+16,
     brother:parents+.85*curve(age,[[-2,-105],[8,-105],[14,-120],[23,-125],[28,-105],[33,-95],[38,-90]]),
     sister:parents+.85*curve(age,[[8,-45],[14,-70],[23,-135],[33,-100],[40,-20],[55,-25],[100,-30]]),
-    partner,child:son,daughter,'child-partner':sonPartner,
+    partner,child:son,'child-partner':sonPartner,
     'grandchild-1':son-curve(age,[[62,24],[68,26],[74,32],[82,70],[100,100]]),
     'grandchild-2':sonPartner+curve(age,[[68,24],[74,26],[82,35],[90,85],[100,100]]),
     // Childhood companionship is intimate. As college friendship grows on

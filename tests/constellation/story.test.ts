@@ -1,14 +1,14 @@
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
-import { COLORS, MAX_PEOPLE, SAMPLE, YEAR_SPACING, ageAxis, attentionOpacity, brotherMoment, lifeEndpoint, personAppearance, personLabelOpacity, personName, personOpacity, progressAtAge, readPeople, restorePeople, starPosition, storyAge, trailPoints } from '../../src/features/constellation/story.ts'
+import { COLORS, MAX_PEOPLE, SAMPLE, YEAR_SPACING, ageAxis, attentionOpacity, birthHighlight, brotherMoment, lifeEndpoint, personAppearance, personLabelOpacity, personName, personOpacity, progressAtAge, readPeople, restorePeople, starPosition, storyAge, trailPoints } from '../../src/features/constellation/story.ts'
 const person = (id: string) => SAMPLE.find(p => p.id === id)!
 const pos = (id: string, age: number) => { const p = person(id); return starPosition(p, SAMPLE.indexOf(p), SAMPLE.length, progressAtAge(age), SAMPLE) }
 
-test('generic family keeps the older brother and removes the default sister', () => {
-  assert.equal(SAMPLE.length, 19)
+test('generic family keeps the older brother and one son', () => {
+  assert.equal(SAMPLE.length, 18)
   assert.equal(person('brother').start, -2)
   assert.equal(person('brother').end! - person('brother').start, 40)
-  assert.ok(!SAMPLE.some(p=>p.id==='sister'))
+  assert.ok(!SAMPLE.some(p=>p.id==='sister'||p.id==='daughter'))
   assert.equal(person('self').end, 85)
   assert.equal(person('self').name, 'You')
   assert.doesNotMatch(SAMPLE.map(p => p.name).join(' '), /Mikael/)
@@ -132,7 +132,7 @@ test('previous fictional casts upgrade, while edits to those same casts are pres
 })
 
 
-test('living colors stay distinct without flashing birth markers',()=>{
+test('living colors stay distinct and only You receive one birth highlight',()=>{
   const mother=personAppearance(person('mom'),progressAtAge(20))
   const father=personAppearance(person('dad'),progressAtAge(20))
   assert.equal(mother.color,person('mom').color)
@@ -140,8 +140,11 @@ test('living colors stay distinct without flashing birth markers',()=>{
   assert.notEqual(mother.label,father.label)
   const birth=personAppearance(person('self'),progressAtAge(.9))
   const later=personAppearance(person('self'),progressAtAge(4))
-  assert.deepEqual(birth,later)
-  assert.ok(!('birth' in later))
+  assert.ok(birth.radius>later.radius&&birth.glowRadius>later.glowRadius)
+  for(const age of [-1,0,3,20,85])assert.equal(birthHighlight(person('self'),progressAtAge(age)).opacity,0)
+  assert.ok(birthHighlight(person('self'),progressAtAge(.4)).opacity>.9)
+  assert.equal(personOpacity(person('self'),progressAtAge(.4)),1,'the birth glow must not be hidden by the slow entry fade')
+  for(const other of SAMPLE.filter(p=>p.id!=='self'))assert.equal(birthHighlight(other,progressAtAge(other.start+.4)).opacity,0)
 })
 
 
@@ -156,7 +159,6 @@ test('the family already has ongoing life trails before Me is born',()=>{
 
 test('parenthood has a quiet interval before the brother’s death',()=>{
  assert.equal(person('child').start,30)
- assert.equal(person('daughter').start,32)
  const loss=person('brother').end!
  assert.ok(SAMPLE.filter(p=>p.id!=='brother').every(p=>Math.abs(p.start-loss)>=5))
 })
@@ -184,4 +186,14 @@ test('brief school encounters cross in opposite directions while the coworker we
   assert.ok(relative(22)===28&&relative(23.75)===-28&&relative(25.5)===28)
   assert.ok(pos('coworker',21).x>pos('coworker',22).x)
   assert.ok(pos('coworker',32.5).x<104)
+})
+
+// The whole departure (dot and trail), rather than just the label, must finish
+// before attention begins shifting to Brother.
+test('no departing friend competes with the brother farewell',()=>{
+ for(let age=36;age<=42;age+=.1)for(const friend of SAMPLE.filter(p=>p.exit==='fade')) {
+  const progress=progressAtAge(age)
+  assert.equal(personOpacity(friend,progress),0,friend.id)
+  assert.deepEqual(trailPoints(friend,SAMPLE.indexOf(friend),SAMPLE.length,progress,SAMPLE),[])
+ }
 })

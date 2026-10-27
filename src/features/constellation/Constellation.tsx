@@ -74,7 +74,7 @@ export default function Constellation() {
   }, [])
 
   return <main ref={root} className="cl-app" aria-label="Animated family lifelines with music" data-progress={frame.progress.toFixed(3)} data-sound={soundState}>
-    <audio ref={music} src="/projects/constellation/music/life-goes-on.mp3" autoPlay preload="auto" onCanPlay={()=>void ensureSound()} onPlaying={()=>setSoundState('playing')} onEnded={()=>setSoundState('finished')} onError={()=>setSoundState('error')} aria-hidden="true" />
+    <audio ref={music} src="/projects/constellation/music/life-goes-on-memorial.mp3" autoPlay preload="auto" onCanPlay={()=>void ensureSound()} onPlaying={()=>setSoundState('playing')} onEnded={()=>setSoundState('finished')} onError={()=>setSoundState('error')} aria-hidden="true" />
     <div className="cl-canvas" style={{ opacity: frame.opacity }}>
       <Sky people={people} progress={frame.progress} width={size.width} viewHeight={800 * size.height / size.width} afterEnding={frame.afterEnding} />
       {(soundState==='blocked'||soundState==='error')&&frame.progress<.85&&<button className="cl-sound-prompt" onClick={()=>void ensureSound()} type="button" aria-label="Enable the soundtrack">

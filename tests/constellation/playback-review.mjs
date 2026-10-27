@@ -28,7 +28,7 @@ for(const mode of ['allowed','blocked-touch','blocked-mouse']) {
       if(mode==='allowed'&&repeat===0) {
         for(const [width,height]of [[1280,800],[390,844],[320,740],[844,390]]) {
           await page.setViewportSize({width,height})
-          for(const [seconds,text]of [[3,'Life is already moving.'],[8,'Then you arrive.'],[33,'Some paths become home.'],[39,'And your world grows.'],[46,'Sometimes people die young.'],[112,'Take care of the people around you.'],[119.7,'To my brother, Mikael.']]) {
+          for(const [seconds,text]of [[3,'Life is already moving.'],[8,'Then you arrive.'],[33,'Some paths become home.'],[39,'And your world grows.'],[46,'Sometimes people die young.'],[70,'Make time for your children, and theirs.'],[112,'Take care of the people around you.'],[119.7,'To my brother, Mikael.']]) {
             await read(`document.querySelector('audio').currentTime=${seconds};void document.querySelector('audio').play()`)
             await page.waitForTimeout(250)
             const caption=await read(`(()=>{const e=document.querySelector('.cl-story-message');if(!e)return null;const r=e.getBoundingClientRect();return {text:e.textContent,opacity:Number(getComputedStyle(e).opacity),left:r.left,right:r.right,top:r.top,bottom:r.bottom}})()`)

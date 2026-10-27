@@ -43,7 +43,9 @@ const BEFORE_SIMPLIFICATION_SAMPLE: Person[] = [
   { id: 'coworker', name: 'Coworker', color: COLORS[9], start: 22, end: 25.5, exit: 'fade', motion: 'weave', near: 'self' },
 ]
 
-export const SAMPLE=BEFORE_SIMPLIFICATION_SAMPLE.filter(person=>person.id!=='sister')
+const BEFORE_ONE_CHILD_SAMPLE=BEFORE_SIMPLIFICATION_SAMPLE.filter(person=>person.id!=='sister')
+const BEFORE_QUIET_FAREWELL_SAMPLE=BEFORE_ONE_CHILD_SAMPLE.filter(person=>person.id!=='daughter')
+export const SAMPLE=BEFORE_QUIET_FAREWELL_SAMPLE.map(person=>person.id==='college-friends'?{...person,end:27}:person)
 
 export const presentY=(age:number)=>505-170*smooth((age-85)/7)
 export function ageAxis(progress: number, afterEnding=0) {
@@ -108,7 +110,7 @@ export function personOpacity(person: Person, progress: number) {
   const age = storyAge(progress)
   const from=visibleFrom(person)
   if (age < from) return 0
-  const entering = (from <= -2 ? 1 : smooth((age - from) / 1.8))*((ENCOUNTERS[person.id]||person.motion==='weave')&&age<person.start?.35+.65*smooth((age-person.start+3)/3):1)
+  const entering = (from <= -2 ? 1 : smooth((age - from) / (person.id==='self'?.16:1.8)))*((ENCOUNTERS[person.id]||person.motion==='weave')&&age<person.start?.35+.65*smooth((age-person.start+3)/3):1)
   return person.exit === 'fade' && person.end !== null ? entering * (1 - smooth((age - person.end - 6) / 1.5)) : entering
 }
 export function personLabelOpacity(person: Person, progress: number, people=SAMPLE) {
@@ -142,11 +144,19 @@ export function brotherMoment(progress:number) {
   return smooth((age-37.6)/.4)*(1-smooth((age-40.5)/1.5))
 }
 export const attentionOpacity=(person:Person,progress:number)=>person.id==='brother'?1:1-.35*brotherMoment(progress)
+// A single soft arrival, tied to story time so late sound activation cannot
+// replay it. Other births and the distant future stay calm.
+export function birthHighlight(person:Person,progress:number) {
+  const age=storyAge(progress)-person.start
+  const active=person.id==='self'&&age>=0&&age<2.6
+  return {opacity:active?smooth(age/.16)*(1-smooth((age-.2)/2.4)):0,radius:7+24*smooth(age/2.6)}
+}
 export function personAppearance(person: Person, progress: number) {
   const memorial=memorialState(person,progress)
   const distance=memorial.distance
+  const arrival=birthHighlight(person,progress).opacity
   const quietColor = person.color
-  return { distance, color: mixColor(quietColor, '#8d99a9', distance*.48), label: mixColor(mixColor(person.color,'#ffffff',.14), '#a4afbd', distance*.55), core: mixColor(mixColor(person.color,'#ffffff',.75), '#a5b0bf', distance), radius: 3.3 - distance * .9, glowRadius: 16-distance*3, glowOpacity: .24-distance*.1 }
+  return { distance, color: mixColor(quietColor, '#8d99a9', distance*.48), label: mixColor(mixColor(person.color,'#ffffff',.14), '#a4afbd', distance*.55), core: mixColor(mixColor(person.color,'#ffffff',.75), '#a5b0bf', distance), radius: 3.3 - distance * .9+arrival*1.4, glowRadius: 16-distance*3+arrival*16, glowOpacity: .24-distance*.1+arrival*.2 }
 }
 export interface StoryPoint { x: number; y: number; year: number; elevation?: number }
 export function starPosition(person: Person, index: number, count: number, progress: number, people?: Person[], afterEnding=0) {
@@ -228,7 +238,7 @@ export function restorePeople(saved: unknown, legacy: unknown, random = Math.ran
     return p.id === 'partner' ? { ...old, lane: .43 } : p.id === 'college-friends' ? { ...old, name: 'College friends' } : old
   })
   const oldHusband = PREVIOUS_SAMPLE.map(p => p.id === 'partner' ? { ...p, name: 'Husband', nameBefore: 'Boyfriend' } : p)
-  if (current && ![BEFORE_SIMPLIFICATION_SAMPLE, BEFORE_SIMPLIFICATION_SAMPLE.map(p=>p.id==='partner'?{...p,name:'Husband',nameBefore:'Boyfriend'}:p), PREVIOUS_SAMPLE, oldHusband, oldTwelve, LAST_SAMPLE, LAST_HUSBAND_SAMPLE, BEFORE_PASS_SAMPLE, BEFORE_PASS_HUSBAND_SAMPLE, BEFORE_MEMORIAL_SAMPLE, BEFORE_MEMORIAL_HUSBAND_SAMPLE, BEFORE_CROSSINGS_SAMPLE, BEFORE_CROSSINGS_HUSBAND_SAMPLE].some(expected => matches(current, expected))) return current
+  if (current && ![BEFORE_QUIET_FAREWELL_SAMPLE, BEFORE_QUIET_FAREWELL_SAMPLE.map(p=>p.id==='partner'?{...p,name:'Husband',nameBefore:'Boyfriend'}:p), BEFORE_ONE_CHILD_SAMPLE, BEFORE_ONE_CHILD_SAMPLE.map(p=>p.id==='partner'?{...p,name:'Husband',nameBefore:'Boyfriend'}:p), BEFORE_SIMPLIFICATION_SAMPLE, BEFORE_SIMPLIFICATION_SAMPLE.map(p=>p.id==='partner'?{...p,name:'Husband',nameBefore:'Boyfriend'}:p), PREVIOUS_SAMPLE, oldHusband, oldTwelve, LAST_SAMPLE, LAST_HUSBAND_SAMPLE, BEFORE_PASS_SAMPLE, BEFORE_PASS_HUSBAND_SAMPLE, BEFORE_MEMORIAL_SAMPLE, BEFORE_MEMORIAL_HUSBAND_SAMPLE, BEFORE_CROSSINGS_SAMPLE, BEFORE_CROSSINGS_HUSBAND_SAMPLE].some(expected => matches(current, expected))) return current
   const previous = readPeople(legacy)
   const names = ['Grandma','Grandpa','Mom','Dad','My love','Me','Our child']
   const ends = [19,28,66,54,null,null,null]
