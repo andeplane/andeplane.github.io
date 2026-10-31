@@ -1,6 +1,9 @@
 // Visitor analytics, kept free of the Mixpanel SDK and the router so it can be
 // unit tested with plain fakes. src/lib/mixpanel.ts wires it to the real thing.
 
+// Every app shares one Mixpanel project; the prefix keeps the homepage's events apart.
+export const EVENT_PREFIX = 'Homepage.'
+
 export type EventProperties = Record<string, string | null>
 
 export interface Tracker {
@@ -87,7 +90,7 @@ export function createAnalytics(
       const key = location.pathname + location.search
       if (key === lastPage) return
       lastPage = key
-      tracker.track('Page Viewed', pageViewProperties(location, title), false)
+      tracker.track(EVENT_PREFIX + 'Page Viewed', pageViewProperties(location, title), false)
     },
 
     linkClick(click, from) {
@@ -105,9 +108,9 @@ export function createAnalytics(
       // send it as a beacon; a new tab leaves this page alive.
       const viaBeacon = !click.newTab
       if (link.kind === 'demo') {
-        tracker.track('Demo Opened', { ...properties, demo: link.demo }, viaBeacon)
+        tracker.track(EVENT_PREFIX + 'Demo Opened', { ...properties, demo: link.demo }, viaBeacon)
       } else {
-        tracker.track('Outbound Link Clicked', { ...properties, host: new URL(link.url).host }, viaBeacon)
+        tracker.track(EVENT_PREFIX + 'Outbound Link Clicked', { ...properties, host: new URL(link.url).host }, viaBeacon)
       }
     },
   }

@@ -45,9 +45,9 @@ test('a page view is sent once per distinct path and query', () => {
   analytics.pageView({ pathname: '/', search: '?tab=2' }, 'Home')
   analytics.pageView({ pathname: '/about', search: '' }, 'About')
   assert.deepEqual(sent.map(s => [s.event, s.properties.path, s.properties.query, s.viaBeacon]), [
-    ['Page Viewed', '/', null, false],
-    ['Page Viewed', '/', '?tab=2', false],
-    ['Page Viewed', '/about', null, false],
+    ['Homepage.Page Viewed', '/', null, false],
+    ['Homepage.Page Viewed', '/', '?tab=2', false],
+    ['Homepage.Page Viewed', '/about', null, false],
   ])
 })
 
@@ -56,7 +56,7 @@ test('demo opens say where the visitor came from, and use a beacon when the page
   const analytics = createAnalytics(tracker, base, isAppRoute)
   analytics.linkClick({ href: 'https://andeplane.github.io/demos/am-radio/', text: '  Open the\n radio lab ↗ ', newTab: false }, { pathname: '/projects/am-radio', search: '' })
   assert.deepEqual(sent, [{
-    event: 'Demo Opened',
+    event: 'Homepage.Demo Opened',
     viaBeacon: true,
     properties: { url: 'https://andeplane.github.io/demos/am-radio/', link_text: 'Open the radio lab ↗', from_path: '/projects/am-radio', from_section: 'projects', from_item: 'am-radio', demo: 'am-radio' },
   }])
@@ -68,7 +68,7 @@ test('outbound clicks carry the host, and a new tab needs no beacon', () => {
   analytics.linkClick({ href: 'https://linkedin.com/in/andershaf/', text: '', newTab: true }, { pathname: '/about', search: '' })
   analytics.linkClick({ href: '/projects', text: 'Projects', newTab: false }, { pathname: '/about', search: '' })
   assert.deepEqual(sent, [{
-    event: 'Outbound Link Clicked',
+    event: 'Homepage.Outbound Link Clicked',
     viaBeacon: false,
     properties: { url: 'https://linkedin.com/in/andershaf/', link_text: null, from_path: '/about', from_section: 'about', from_item: null, host: 'linkedin.com' },
   }])
