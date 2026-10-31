@@ -44,6 +44,9 @@ jobs:
       - name: Test pendulum writer mechanics and fitting
         run: npm run test:pendulum-writer
 
+      - name: Test visitor analytics
+        run: npm run test:analytics
+
       - name: Test FNO sketch numerics
         run: npm run test:fno-sketch
 

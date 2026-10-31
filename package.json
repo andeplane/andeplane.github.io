@@ -12,7 +12,8 @@
     "build:seo": "node --experimental-strip-types scripts/build-seo.mjs",
     "test:seo": "node --experimental-strip-types --test tests/seo/*.test.ts",
     "test:fno-sketch": "node --experimental-strip-types --test tests/fno-sketch/*.test.ts",
-    "test:pendulum-writer": "node --experimental-strip-types --test tests/pendulum-writer/*.test.ts"
+    "test:pendulum-writer": "node --experimental-strip-types --test tests/pendulum-writer/*.test.ts",
+    "test:analytics": "node --experimental-strip-types --experimental-test-coverage --test-coverage-include=src/lib/analytics.ts --test-coverage-lines=95 --test-coverage-branches=95 --test-coverage-functions=95 --test tests/analytics/*.test.ts"
   },
   "dependencies": {
     "@base-ui/react": "^1.7.0",
@@ -22,6 +23,7 @@
     "clsx": "^2.1.1",
     "katex": "^0.17.0",
     "lucide-react": "^1.31.0",
+    "mixpanel-browser": "^2.84.0",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
     "react-markdown": "^10.0.0",
@@ -35,6 +37,7 @@
   "devDependencies": {
     "@tailwindcss/vite": "^4.0.0",
     "@types/katex": "^0.16.8",
+    "@types/mixpanel-browser": "^2.60.0",
     "@types/react": "^19.0.0",
     "@types/react-dom": "^19.0.0",
     "@types/three": "^0.185.0",
