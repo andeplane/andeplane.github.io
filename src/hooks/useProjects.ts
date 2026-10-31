@@ -4,7 +4,7 @@ import type { ProjectMeta } from '@/types'
 const modules = import.meta.glob<{ default: ProjectMeta }>('/src/content/projects/*.ts', { eager: true })
 
 // Shared by the Projects page and the homepage carousel.
-const featuredSlugs = ['explore-titanic', 'fem-lab', 'atomify', 'lunarlander', 'particle-defence', 'teslacode']
+const featuredSlugs = ['explore-titanic', 'pendulum-writer', 'fem-lab', 'atomify', 'lunarlander', 'particle-defence', 'teslacode']
 const featuredRank = new Map(featuredSlugs.map((slug, index) => [slug, index]))
 
 export function useProjects(): ProjectMeta[] {

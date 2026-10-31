@@ -12,6 +12,7 @@
     "build:seo": "node --experimental-strip-types scripts/build-seo.mjs",
     "test:seo": "node --experimental-strip-types --test tests/seo/*.test.ts",
     "test:fno-sketch": "node --experimental-strip-types --test tests/fno-sketch/*.test.ts",
+    "test:pendulum-writer": "node --experimental-strip-types --test tests/pendulum-writer/*.test.ts",
     "test:analytics": "node --experimental-strip-types --experimental-test-coverage --test-coverage-include=src/lib/analytics.ts --test-coverage-lines=95 --test-coverage-branches=95 --test-coverage-functions=95 --test tests/analytics/*.test.ts"
   },
   "dependencies": {
