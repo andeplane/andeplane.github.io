@@ -50,275 +50,275 @@ composition-2026,paper,LatentDDM composition,Learnable composition for neural op
 adaptive-cubature-2026,paper,Manifold-adaptive cubature,Dimensional hyperreduction of nonlinear finite element models via empirical cubature with manifold-adaptive weights,2026,frontier,Lets cubature weights vary with latent state and prunes integration entities in reduced finite-element models.,September 2026 preprint especially close to the proposed adaptive-inference idea. Reported point reductions are benchmark-specific and are not neural-operator runtime measurements.,https://arxiv.org/abs/2609.03068,adaptive-cubature-2026.pdf,"[""J. A. Hernandez"", ""S. Ares de Parga"", ""Riccardo Rossi""]","[""quadrature"", ""hyper-reduction""]",arXiv version collected; separate publication status not independently verified,targeted_full_text,False,
 principled-2026,paper,Principled architectures,Principled approaches for extending neural architectures to function spaces for operator learning,2025,core,"Explains how to convert finite-dimensional network designs into function-space operators, with coordinates, quadrature and discretization convergence made explicit.","Seed paper published July 2026. Provides the architectural framing for this review; only a short time has elapsed since publication, so most recent papers are contemporaneous work rather than verified descendants.",https://www.nature.com/articles/s42256-026-01267-z,s42256-026-01267-z.pdf,"[""Julius Berner"", ""Miguel Liu-Schiaffini"", ""Jean Kossaifi"", ""Valentin Duruisseaux"", ""Boris Bonev"", ""Kamyar Azizzadenesheli"", ""Anima Anandkumar""]","[""operator-learning"", ""theory"", ""quadrature""]","Nature Machine Intelligence 8, 1173–1181 (2026); DOI 10.1038/s42256-026-01267-z",targeted_full_text,True,
 frame-kernel-2026,paper,Multiscale frame kernels,The Frame Kernel Method for Multiscale Operator Learning,2026,frontier,Uses multiscale kernel-frame representations of input and output functions for operator learning.,"Late-August 2026 preprint offering a structured coefficient-space alternative to standard neural operators. A potentially useful comparator for sparse-basis ideas, but multiscale frames do not automatically imply sparse recoverability or cheap sensor acquisition.",https://arxiv.org/abs/2608.25084,frame-kernel-2026.pdf,"[""Branden Frieden"", ""Ryan Whitehead"", ""M. Keith Ballard"", ""Robert M. Kirby"", ""Varun Shankar""]","[""operator-learning"", ""multiscale"", ""efficiency""]",arXiv version collected; separate publication status not independently verified,abstract_screened,False,
-author:chen-tianping,author,Tianping Chen,Tianping Chen,,,,,,,,,,,,
-author:chen-hong,author,Hong Chen,Hong Chen,,,,,,,,,,,,
-author:barrault-maxime,author,Maxime Barrault,Maxime Barrault,,,,,,,,,,,,
-author:maday-yvon,author,Yvon Maday,Yvon Maday,,,,,,,,,,,,
-author:nguyen-ngoc-cuong,author,Ngoc Cuong Nguyen,Ngoc Cuong Nguyen,,,,,,,,,,,,
-author:patera-anthony-t,author,Anthony T. Patera,Anthony T. Patera,,,,,,,,,,,,
-author:chaturantabut-saifon,author,Saifon Chaturantabut,Saifon Chaturantabut,,,,,,,,,,,,
-author:sorensen-danny-c,author,Danny C. Sorensen,Danny C. Sorensen,,,,,,,,,,,,
-author:candes-emmanuel,author,Emmanuel Candes,Emmanuel Candes,,,,,,,,,,,,
-author:romberg-justin,author,Justin Romberg,Justin Romberg,,,,,,,,,,,,
-author:tao-terence,author,Terence Tao,Terence Tao,,,,,,,,,,,,
-author:heckel-reinhard,author,Reinhard Heckel,Reinhard Heckel,,,,,,,,,,,,
-author:bolcskei-helmut,author,Helmut Bölcskei,Helmut Bölcskei,,,,,,,,,,,,
-author:brunton-steven-l,author,Steven L. Brunton,Steven L. Brunton,,,,,,,,,,,,
-author:proctor-joshua-l,author,Joshua L. Proctor,Joshua L. Proctor,,,,,,,,,,,,
-author:kutz-j-nathan,author,J. Nathan Kutz,J. Nathan Kutz,,,,,,,,,,,,
-author:adcock-ben,author,Ben Adcock,Ben Adcock,,,,,,,,,,,,
-author:brugiapaglia-simone,author,Simone Brugiapaglia,Simone Brugiapaglia,,,,,,,,,,,,
-author:webster-clayton-g,author,Clayton G. Webster,Clayton G. Webster,,,,,,,,,,,,
-author:bora-ashish,author,Ashish Bora,Ashish Bora,,,,,,,,,,,,
-author:jalal-ajil,author,Ajil Jalal,Ajil Jalal,,,,,,,,,,,,
-author:price-eric,author,Eric Price,Eric Price,,,,,,,,,,,,
-author:dimakis-alexandros-g,author,Alexandros G. Dimakis,Alexandros G. Dimakis,,,,,,,,,,,,
-author:hernandez-j-a,author,J. A. Hernandez,J. A. Hernandez,,,,,,,,,,,,
-author:caicedo-m-a,author,M. A. Caicedo,M. A. Caicedo,,,,,,,,,,,,
-author:ferrer-a,author,A. Ferrer,A. Ferrer,,,,,,,,,,,,
-author:ha-david,author,David Ha,David Ha,,,,,,,,,,,,
-author:schmidhuber-jurgen,author,Jürgen Schmidhuber,Jürgen Schmidhuber,,,,,,,,,,,,
-author:lu-lu,author,Lu Lu,Lu Lu,,,,,,,,,,,,
-author:jin-pengzhan,author,Pengzhan Jin,Pengzhan Jin,,,,,,,,,,,,
-author:karniadakis-george-em,author,George Em Karniadakis,George Em Karniadakis,,,,,,,,,,,,
-author:li-zongyi,author,Zongyi Li,Zongyi Li,,,,,,,,,,,,
-author:kovachki-nikola,author,Nikola Kovachki,Nikola Kovachki,,,,,,,,,,,,
-author:azizzadenesheli-kamyar,author,Kamyar Azizzadenesheli,Kamyar Azizzadenesheli,,,,,,,,,,,,
-author:liu-burigede,author,Burigede Liu,Burigede Liu,,,,,,,,,,,,
-author:bhattacharya-kaushik,author,Kaushik Bhattacharya,Kaushik Bhattacharya,,,,,,,,,,,,
-author:stuart-andrew,author,Andrew Stuart,Andrew Stuart,,,,,,,,,,,,
-author:anandkumar-anima,author,Anima Anandkumar,Anima Anandkumar,,,,,,,,,,,,
-author:sanchez-gonzalez-alvaro,author,Alvaro Sanchez-Gonzalez,Alvaro Sanchez-Gonzalez,,,,,,,,,,,,
-author:godwin-jonathan,author,Jonathan Godwin,Jonathan Godwin,,,,,,,,,,,,
-author:pfaff-tobias,author,Tobias Pfaff,Tobias Pfaff,,,,,,,,,,,,
-author:ying-rex,author,Rex Ying,Rex Ying,,,,,,,,,,,,
-author:leskovec-jure,author,Jure Leskovec,Jure Leskovec,,,,,,,,,,,,
-author:battaglia-peter-w,author,Peter W. Battaglia,Peter W. Battaglia,,,,,,,,,,,,
-author:wen-gege,author,Gege Wen,Gege Wen,,,,,,,,,,,,
-author:benson-sally-m,author,Sally M. Benson,Sally M. Benson,,,,,,,,,,,,
-author:yang-yan,author,Yan Yang,Yan Yang,,,,,,,,,,,,
-author:gao-angela-f,author,Angela F. Gao,Angela F. Gao,,,,,,,,,,,,
-author:castellanos-jorge-c,author,Jorge C. Castellanos,Jorge C. Castellanos,,,,,,,,,,,,
-author:ross-zachary-e,author,Zachary E. Ross,Zachary E. Ross,,,,,,,,,,,,
-author:clayton-robert-w,author,Robert W. Clayton,Robert W. Clayton,,,,,,,,,,,,
-author:pathak-jaideep,author,Jaideep Pathak,Jaideep Pathak,,,,,,,,,,,,
-author:subramanian-shashank,author,Shashank Subramanian,Shashank Subramanian,,,,,,,,,,,,
-author:harrington-peter,author,Peter Harrington,Peter Harrington,,,,,,,,,,,,
-author:raja-sanjeev,author,Sanjeev Raja,Sanjeev Raja,,,,,,,,,,,,
-author:chattopadhyay-ashesh,author,Ashesh Chattopadhyay,Ashesh Chattopadhyay,,,,,,,,,,,,
-author:mardani-morteza,author,Morteza Mardani,Morteza Mardani,,,,,,,,,,,,
-author:kurth-thorsten,author,Thorsten Kurth,Thorsten Kurth,,,,,,,,,,,,
-author:hall-david,author,David Hall,David Hall,,,,,,,,,,,,
-author:hassanzadeh-pedram,author,Pedram Hassanzadeh,Pedram Hassanzadeh,,,,,,,,,,,,
-author:kashinath-karthik,author,Karthik Kashinath,Karthik Kashinath,,,,,,,,,,,,
-author:takamoto-makoto,author,Makoto Takamoto,Makoto Takamoto,,,,,,,,,,,,
-author:praditia-timothy,author,Timothy Praditia,Timothy Praditia,,,,,,,,,,,,
-author:leiteritz-raphael,author,Raphael Leiteritz,Raphael Leiteritz,,,,,,,,,,,,
-author:mackinlay-dan,author,Dan MacKinlay,Dan MacKinlay,,,,,,,,,,,,
-author:alesiani-francesco,author,Francesco Alesiani,Francesco Alesiani,,,,,,,,,,,,
-author:pfluger-dirk,author,Dirk Pflüger,Dirk Pflüger,,,,,,,,,,,,
-author:niepert-mathias,author,Mathias Niepert,Mathias Niepert,,,,,,,,,,,,
-author:molinaro-roberto,author,Roberto Molinaro,Roberto Molinaro,,,,,,,,,,,,
-author:yang-yunan,author,Yunan Yang,Yunan Yang,,,,,,,,,,,,
-author:engquist-bjorn,author,Björn Engquist,Björn Engquist,,,,,,,,,,,,
-author:mishra-siddhartha,author,Siddhartha Mishra,Siddhartha Mishra,,,,,,,,,,,,
-author:augenstein-yannick,author,Yannick Augenstein,Yannick Augenstein,,,,,,,,,,,,
-author:repan-taavi,author,Taavi Repän,Taavi Repän,,,,,,,,,,,,
-author:rockstuhl-carsten,author,Carsten Rockstuhl,Carsten Rockstuhl,,,,,,,,,,,,
-author:bonev-boris,author,Boris Bonev,Boris Bonev,,,,,,,,,,,,
-author:hundt-christian,author,Christian Hundt,Christian Hundt,,,,,,,,,,,,
-author:baust-maximilian,author,Maximilian Baust,Maximilian Baust,,,,,,,,,,,,
-author:qi-jie,author,Jie Qi,Jie Qi,,,,,,,,,,,,
-author:zhang-jing,author,Jing Zhang,Jing Zhang,,,,,,,,,,,,
-author:krstic-miroslav,author,Miroslav Krstic,Miroslav Krstic,,,,,,,,,,,,
-author:choy-chris,author,Chris Choy,Chris Choy,,,,,,,,,,,,
-author:li-boyi,author,Boyi Li,Boyi Li,,,,,,,,,,,,
-author:kossaifi-jean,author,Jean Kossaifi,Jean Kossaifi,,,,,,,,,,,,
-author:otta-shourya-prakash,author,Shourya Prakash Otta,Shourya Prakash Otta,,,,,,,,,,,,
-author:nabian-mohammad-amin,author,Mohammad Amin Nabian,Mohammad Amin Nabian,,,,,,,,,,,,
-author:stadler-maximilian,author,Maximilian Stadler,Maximilian Stadler,,,,,,,,,,,,
-author:bravo-j-r,author,J. R. Bravo,J. R. Bravo,,,,,,,,,,,,
-author:de-parga-s-ares,author,S. Ares de Parga,S. Ares de Parga,,,,,,,,,,,,
-author:hafner-danijar,author,Danijar Hafner,Danijar Hafner,,,,,,,,,,,,
-author:pasukonis-jurgis,author,Jurgis Pasukonis,Jurgis Pasukonis,,,,,,,,,,,,
-author:ba-jimmy,author,Jimmy Ba,Jimmy Ba,,,,,,,,,,,,
-author:lillicrap-timothy,author,Timothy Lillicrap,Timothy Lillicrap,,,,,,,,,,,,
-author:griebel-michael,author,Michael Griebel,Michael Griebel,,,,,,,,,,,,
-author:maier-gregor,author,Gregor Maier,Gregor Maier,,,,,,,,,,,,
-author:cardenas-juan-m,author,Juan M. Cardenas,Juan M. Cardenas,,,,,,,,,,,,
-author:dexter-nick,author,Nick Dexter,Nick Dexter,,,,,,,,,,,,
-author:lanthaler-samuel,author,Samuel Lanthaler,Samuel Lanthaler,,,,,,,,,,,,
-author:trautner-margaret,author,Margaret Trautner,Margaret Trautner,,,,,,,,,,,,
-author:herde-maximilian,author,Maximilian Herde,Maximilian Herde,,,,,,,,,,,,
-author:raonic-bogdan,author,Bogdan Raonić,Bogdan Raonić,,,,,,,,,,,,
-author:rohner-tobias,author,Tobias Rohner,Tobias Rohner,,,,,,,,,,,,
-author:kappeli-roger,author,Roger Käppeli,Roger Käppeli,,,,,,,,,,,,
-author:de-bezenac-emmanuel,author,Emmanuel de Bézenac,Emmanuel de Bézenac,,,,,,,,,,,,
-author:lowery-matthew,author,Matthew Lowery,Matthew Lowery,,,,,,,,,,,,
-author:turnage-john,author,John Turnage,John Turnage,,,,,,,,,,,,
-author:morrow-zachary,author,Zachary Morrow,Zachary Morrow,,,,,,,,,,,,
-author:jakeman-john-d,author,John D. Jakeman,John D. Jakeman,,,,,,,,,,,,
-author:narayan-akil,author,Akil Narayan,Akil Narayan,,,,,,,,,,,,
-author:zhe-shandian,author,Shandian Zhe,Shandian Zhe,,,,,,,,,,,,
-author:shankar-varun,author,Varun Shankar,Varun Shankar,,,,,,,,,,,,
-author:ohana-ruben,author,Ruben Ohana,Ruben Ohana,,,,,,,,,,,,
-author:mccabe-michael,author,Michael McCabe,Michael McCabe,,,,,,,,,,,,
-author:meyer-lucas,author,Lucas Meyer,Lucas Meyer,,,,,,,,,,,,
-author:morel-rudy,author,Rudy Morel,Rudy Morel,,,,,,,,,,,,
-author:agocs-fruzsina-j,author,Fruzsina J. Agocs,Fruzsina J. Agocs,,,,,,,,,,,,
-author:beneitez-miguel,author,Miguel Beneitez,Miguel Beneitez,,,,,,,,,,,,
-author:berger-marsha,author,Marsha Berger,Marsha Berger,,,,,,,,,,,,
-author:burkhart-blakesley,author,Blakesley Burkhart,Blakesley Burkhart,,,,,,,,,,,,
-author:burns-keaton,author,Keaton Burns,Keaton Burns,,,,,,,,,,,,
-author:dalziel-stuart-b,author,Stuart B. Dalziel,Stuart B. Dalziel,,,,,,,,,,,,
-author:fielding-drummond-b,author,Drummond B. Fielding,Drummond B. Fielding,,,,,,,,,,,,
-author:fortunato-daniel,author,Daniel Fortunato,Daniel Fortunato,,,,,,,,,,,,
-author:goldberg-jared-a,author,Jared A. Goldberg,Jared A. Goldberg,,,,,,,,,,,,
-author:hirashima-keiya,author,Keiya Hirashima,Keiya Hirashima,,,,,,,,,,,,
-author:jiang-yan-fei,author,Yan-Fei Jiang,Yan-Fei Jiang,,,,,,,,,,,,
-author:kerswell-rich-r,author,Rich R. Kerswell,Rich R. Kerswell,,,,,,,,,,,,
-author:maddu-suryanarayana,author,Suryanarayana Maddu,Suryanarayana Maddu,,,,,,,,,,,,
-author:miller-jonah,author,Jonah Miller,Jonah Miller,,,,,,,,,,,,
-author:mukhopadhyay-payel,author,Payel Mukhopadhyay,Payel Mukhopadhyay,,,,,,,,,,,,
-author:nixon-stefan-s,author,Stefan S. Nixon,Stefan S. Nixon,,,,,,,,,,,,
-author:shen-jeff,author,Jeff Shen,Jeff Shen,,,,,,,,,,,,
-author:watteaux-romain,author,Romain Watteaux,Romain Watteaux,,,,,,,,,,,,
-author:blancard-bruno-regaldo-saint,author,Bruno Régaldo-Saint Blancard,Bruno Régaldo-Saint Blancard,,,,,,,,,,,,
-author:rozet-francois,author,François Rozet,François Rozet,,,,,,,,,,,,
-author:parker-liam-h,author,Liam H. Parker,Liam H. Parker,,,,,,,,,,,,
-author:cranmer-miles,author,Miles Cranmer,Miles Cranmer,,,,,,,,,,,,
-author:ho-shirley,author,Shirley Ho,Shirley Ho,,,,,,,,,,,,
-author:matada-sharath,author,Sharath Matada,Sharath Matada,,,,,,,,,,,,
-author:bhan-luke,author,Luke Bhan,Luke Bhan,,,,,,,,,,,,
-author:shi-yuanyuan,author,Yuanyuan Shi,Yuanyuan Shi,,,,,,,,,,,,
-author:atanasov-nikolay,author,Nikolay Atanasov,Nikolay Atanasov,,,,,,,,,,,,
-author:kim-minjung,author,Minjung Kim,Minjung Kim,,,,,,,,,,,,
-author:hioka-yusuke,author,Yusuke Hioka,Yusuke Hioka,,,,,,,,,,,,
-author:witbrock-michael,author,Michael Witbrock,Michael Witbrock,,,,,,,,,,,,
-author:pitt-david,author,David Pitt,David Pitt,,,,,,,,,,,,
-author:liu-schiaffini-miguel,author,Miguel Liu-Schiaffini,Miguel Liu-Schiaffini,,,,,,,,,,,,
-author:george-robert-joseph,author,Robert Joseph George,Robert Joseph George,,,,,,,,,,,,
-author:berner-julius,author,Julius Berner,Julius Berner,,,,,,,,,,,,
-author:duruisseaux-valentin,author,Valentin Duruisseaux,Valentin Duruisseaux,,,,,,,,,,,,
-author:kumar-avisha,author,Avisha Kumar,Avisha Kumar,,,,,,,,,,,,
-author:zhi-xuzhe,author,Xuzhe Zhi,Xuzhe Zhi,,,,,,,,,,,,
-author:ahmad-zan,author,Zan Ahmad,Zan Ahmad,,,,,,,,,,,,
-author:yin-minglang,author,Minglang Yin,Minglang Yin,,,,,,,,,,,,
-author:manbachi-amir,author,Amir Manbachi,Amir Manbachi,,,,,,,,,,,,
-author:wan-ruyin,author,Ruyin Wan,Ruyin Wan,,,,,,,,,,,,
-author:kharazmi-ehsan,author,Ehsan Kharazmi,Ehsan Kharazmi,,,,,,,,,,,,
-author:triantafyllou-michael-s,author,Michael S Triantafyllou,Michael S Triantafyllou,,,,,,,,,,,,
-author:assran-mido,author,Mido Assran,Mido Assran,,,,,,,,,,,,
-author:bardes-adrien,author,Adrien Bardes,Adrien Bardes,,,,,,,,,,,,
-author:fan-david,author,David Fan,David Fan,,,,,,,,,,,,
-author:garrido-quentin,author,Quentin Garrido,Quentin Garrido,,,,,,,,,,,,
-author:howes-russell,author,Russell Howes,Russell Howes,,,,,,,,,,,,
-author:mojtaba,author,Mojtaba,Mojtaba,,,,,,,,,,,,
-author:komeili,author,Komeili,Komeili,,,,,,,,,,,,
-author:muckley-matthew,author,Matthew Muckley,Matthew Muckley,,,,,,,,,,,,
-author:rizvi-ammar,author,Ammar Rizvi,Ammar Rizvi,,,,,,,,,,,,
-author:roberts-claire,author,Claire Roberts,Claire Roberts,,,,,,,,,,,,
-author:sinha-koustuv,author,Koustuv Sinha,Koustuv Sinha,,,,,,,,,,,,
-author:zholus-artem,author,Artem Zholus,Artem Zholus,,,,,,,,,,,,
-author:arnaud-sergio,author,Sergio Arnaud,Sergio Arnaud,,,,,,,,,,,,
-author:gejji-abha,author,Abha Gejji,Abha Gejji,,,,,,,,,,,,
-author:martin-ada,author,Ada Martin,Ada Martin,,,,,,,,,,,,
-author:hogan-francois-robert,author,Francois Robert Hogan,Francois Robert Hogan,,,,,,,,,,,,
-author:dugas-daniel,author,Daniel Dugas,Daniel Dugas,,,,,,,,,,,,
-author:bojanowski-piotr,author,Piotr Bojanowski,Piotr Bojanowski,,,,,,,,,,,,
-author:khalidov-vasil,author,Vasil Khalidov,Vasil Khalidov,,,,,,,,,,,,
-author:labatut-patrick,author,Patrick Labatut,Patrick Labatut,,,,,,,,,,,,
-author:massa-francisco,author,Francisco Massa,Francisco Massa,,,,,,,,,,,,
-author:szafraniec-marc,author,Marc Szafraniec,Marc Szafraniec,,,,,,,,,,,,
-author:krishnakumar-kapil,author,Kapil Krishnakumar,Kapil Krishnakumar,,,,,,,,,,,,
-author:li-yong,author,Yong Li,Yong Li,,,,,,,,,,,,
-author:ma-xiaodong,author,Xiaodong Ma,Xiaodong Ma,,,,,,,,,,,,
-author:chandar-sarath,author,Sarath Chandar,Sarath Chandar,,,,,,,,,,,,
-author:meier-franziska,author,Franziska Meier,Franziska Meier,,,,,,,,,,,,
-author:lecun-yann,author,Yann LeCun,Yann LeCun,,,,,,,,,,,,
-author:rabbat-michael,author,Michael Rabbat,Michael Rabbat,,,,,,,,,,,,
-author:ballas-nicolas,author,Nicolas Ballas,Nicolas Ballas,,,,,,,,,,,,
-author:mahesh-ankur,author,Ankur Mahesh,Ankur Mahesh,,,,,,,,,,,,
-author:bisson-mauro,author,Mauro Bisson,Mauro Bisson,,,,,,,,,,,,
-author:collins-william-d,author,William D. Collins,William D. Collins,,,,,,,,,,,,
-author:pritchard-michael-s,author,Michael S. Pritchard,Michael S. Pritchard,,,,,,,,,,,,
-author:keller-alexander,author,Alexander Keller,Alexander Keller,,,,,,,,,,,,
-author:pal-sourav,author,Sourav Pal,Sourav Pal,,,,,,,,,,,,
-author:singh-vikas,author,Vikas Singh,Vikas Singh,,,,,,,,,,,,
-author:tian-mingxuan,author,Mingxuan Tian,Mingxuan Tian,,,,,,,,,,,,
-author:mu-haochen,author,Haochen Mu,Haochen Mu,,,,,,,,,,,,
-author:ding-donghong,author,Donghong Ding,Donghong Ding,,,,,,,,,,,,
-author:li-mengjiao,author,Mengjiao Li,Mengjiao Li,,,,,,,,,,,,
-author:ding-yuhan,author,Yuhan Ding,Yuhan Ding,,,,,,,,,,,,
-author:zhao-jianping,author,Jianping Zhao,Jianping Zhao,,,,,,,,,,,,
-author:veil-carina,author,Carina Veil,Carina Veil,,,,,,,,,,,,
-author:flaschel-moritz,author,Moritz Flaschel,Moritz Flaschel,,,,,,,,,,,,
-author:kuhl-ellen,author,Ellen Kuhl,Ellen Kuhl,,,,,,,,,,,,
-author:della-santina-cosimo,author,Cosimo Della Santina,Cosimo Della Santina,,,,,,,,,,,,
-author:franco-nicola-rares,author,Nicola Rares Franco,Nicola Rares Franco,,,,,,,,,,,,
-author:nelsen-nicholas-h,author,Nicholas H. Nelsen,Nicholas H. Nelsen,,,,,,,,,,,,
-author:mur-labadia-lorenzo,author,Lorenzo Mur-Labadia,Lorenzo Mur-Labadia,,,,,,,,,,,,
-author:bar-amir,author,Amir Bar,Amir Bar,,,,,,,,,,,,
-author:rabbat-mike,author,Mike Rabbat,Mike Rabbat,,,,,,,,,,,,
-author:khan-muhammad-idrees,author,Muhammad Idrees Khan,Muhammad Idrees Khan,,,,,,,,,,,,
-author:yao-hua-dong,author,Hua-Dong Yao,Hua-Dong Yao,,,,,,,,,,,,
-author:chen-zituo,author,Zituo Chen,Zituo Chen,,,,,,,,,,,,
-author:zhang-baiming,author,Baiming Zhang,Baiming Zhang,,,,,,,,,,,,
-author:deng-sili,author,Sili Deng,Sili Deng,,,,,,,,,,,,
-author:rossi-riccardo,author,Riccardo Rossi,Riccardo Rossi,,,,,,,,,,,,
-author:frieden-branden,author,Branden Frieden,Branden Frieden,,,,,,,,,,,,
-author:whitehead-ryan,author,Ryan Whitehead,Ryan Whitehead,,,,,,,,,,,,
-author:ballard-m-keith,author,M. Keith Ballard,M. Keith Ballard,,,,,,,,,,,,
-author:kirby-robert-m,author,Robert M. Kirby,Robert M. Kirby,,,,,,,,,,,,
-field:operator-learning,field,Operator Learning,Operator Learning,,,,,,,,,,,,
-field:theory,field,Theory,Theory,,,,,,,,,,,,
-field:quadrature,field,Quadrature,Quadrature,,,,,,,,,,,,
-field:hyper-reduction,field,Hyper Reduction,Hyper Reduction,,,,,,,,,,,,
-field:sampling,field,Sampling,Sampling,,,,,,,,,,,,
-field:compressed-sensing,field,Compressed Sensing,Compressed Sensing,,,,,,,,,,,,
-field:system-identification,field,System Identification,System Identification,,,,,,,,,,,,
-field:inverse-problems,field,Inverse Problems,Inverse Problems,,,,,,,,,,,,
-field:world-models,field,World Models,World Models,,,,,,,,,,,,
-field:control,field,Control,Control,,,,,,,,,,,,
-field:graphs,field,Graphs,Graphs,,,,,,,,,,,,
-field:fourier,field,Fourier,Fourier,,,,,,,,,,,,
-field:fourier-neural-operators,field,Fourier Neural Operators,Fourier Neural Operators,,,,,,,,,,,,
-field:physical-simulation,field,Physical Simulation,Physical Simulation,,,,,,,,,,,,
-field:subsurface,field,Subsurface,Subsurface,,,,,,,,,,,,
-field:seismology,field,Seismology,Seismology,,,,,,,,,,,,
-field:weather,field,Weather,Weather,,,,,,,,,,,,
-field:benchmarks,field,Benchmarks,Benchmarks,,,,,,,,,,,,
-field:inverse-design,field,Inverse Design,Inverse Design,,,,,,,,,,,,
-field:electromagnetics,field,Electromagnetics,Electromagnetics,,,,,,,,,,,,
-field:geometry,field,Geometry,Geometry,,,,,,,,,,,,
-field:aerodynamics,field,Aerodynamics,Aerodynamics,,,,,,,,,,,,
-field:foundation-models,field,Foundation Models,Foundation Models,,,,,,,,,,,,
-field:efficiency,field,Efficiency,Efficiency,,,,,,,,,,,,
-field:robotics,field,Robotics,Robotics,,,,,,,,,,,,
-field:planning,field,Planning,Planning,,,,,,,,,,,,
-field:time-series,field,Time Series,Time Series,,,,,,,,,,,,
-field:software,field,Software,Software,,,,,,,,,,,,
-field:biomedicine,field,Biomedicine,Biomedicine,,,,,,,,,,,,
-field:acoustics,field,Acoustics,Acoustics,,,,,,,,,,,,
-field:structural-monitoring,field,Structural Monitoring,Structural Monitoring,,,,,,,,,,,,
-field:probabilistic-models,field,Probabilistic Models,Probabilistic Models,,,,,,,,,,,,
-field:physics-informed-learning,field,Physics Informed Learning,Physics Informed Learning,,,,,,,,,,,,
-field:manufacturing,field,Manufacturing,Manufacturing,,,,,,,,,,,,
-field:representation-learning,field,Representation Learning,Representation Learning,,,,,,,,,,,,
-field:domain-decomposition,field,Domain Decomposition,Domain Decomposition,,,,,,,,,,,,
-field:multiscale,field,Multiscale,Multiscale,,,,,,,,,,,,
-area:operators,area,Operator learning,Operator learning,,,,,,,,,,,,31
-area:fourier,area,Fourier neural operators,Fourier neural operators,,,,,,,,,,,,10
-area:sparse,area,Sparse recovery & sampling,Sparse recovery & sampling,,,,,,,,,,,,10
-area:integration,area,Quadrature & model reduction,Quadrature & model reduction,,,,,,,,,,,,11
-area:engineering,area,Physical simulation & engineering,Physical simulation & engineering,,,,,,,,,,,,12
-area:weather,area,Weather & climate,Weather & climate,,,,,,,,,,,,4
-area:robotics,area,Robotics & control,Robotics & control,,,,,,,,,,,,6
+author:chen-tianping,author,Tianping Chen,Tianping Chen,,,,,,,,,,,,1
+author:chen-hong,author,Hong Chen,Hong Chen,,,,,,,,,,,,1
+author:barrault-maxime,author,Maxime Barrault,Maxime Barrault,,,,,,,,,,,,1
+author:maday-yvon,author,Yvon Maday,Yvon Maday,,,,,,,,,,,,1
+author:nguyen-ngoc-cuong,author,Ngoc Cuong Nguyen,Ngoc Cuong Nguyen,,,,,,,,,,,,1
+author:patera-anthony-t,author,Anthony T. Patera,Anthony T. Patera,,,,,,,,,,,,1
+author:chaturantabut-saifon,author,Saifon Chaturantabut,Saifon Chaturantabut,,,,,,,,,,,,1
+author:sorensen-danny-c,author,Danny C. Sorensen,Danny C. Sorensen,,,,,,,,,,,,1
+author:candes-emmanuel,author,Emmanuel Candes,Emmanuel Candes,,,,,,,,,,,,1
+author:romberg-justin,author,Justin Romberg,Justin Romberg,,,,,,,,,,,,1
+author:tao-terence,author,Terence Tao,Terence Tao,,,,,,,,,,,,1
+author:heckel-reinhard,author,Reinhard Heckel,Reinhard Heckel,,,,,,,,,,,,2
+author:bolcskei-helmut,author,Helmut Bölcskei,Helmut Bölcskei,,,,,,,,,,,,1
+author:brunton-steven-l,author,Steven L. Brunton,Steven L. Brunton,,,,,,,,,,,,1
+author:proctor-joshua-l,author,Joshua L. Proctor,Joshua L. Proctor,,,,,,,,,,,,1
+author:kutz-j-nathan,author,J. Nathan Kutz,J. Nathan Kutz,,,,,,,,,,,,1
+author:adcock-ben,author,Ben Adcock,Ben Adcock,,,,,,,,,,,,4
+author:brugiapaglia-simone,author,Simone Brugiapaglia,Simone Brugiapaglia,,,,,,,,,,,,2
+author:webster-clayton-g,author,Clayton G. Webster,Clayton G. Webster,,,,,,,,,,,,1
+author:bora-ashish,author,Ashish Bora,Ashish Bora,,,,,,,,,,,,1
+author:jalal-ajil,author,Ajil Jalal,Ajil Jalal,,,,,,,,,,,,1
+author:price-eric,author,Eric Price,Eric Price,,,,,,,,,,,,1
+author:dimakis-alexandros-g,author,Alexandros G. Dimakis,Alexandros G. Dimakis,,,,,,,,,,,,1
+author:hernandez-j-a,author,J. A. Hernandez,J. A. Hernandez,,,,,,,,,,,,3
+author:caicedo-m-a,author,M. A. Caicedo,M. A. Caicedo,,,,,,,,,,,,1
+author:ferrer-a,author,A. Ferrer,A. Ferrer,,,,,,,,,,,,1
+author:ha-david,author,David Ha,David Ha,,,,,,,,,,,,1
+author:schmidhuber-jurgen,author,Jürgen Schmidhuber,Jürgen Schmidhuber,,,,,,,,,,,,1
+author:lu-lu,author,Lu Lu,Lu Lu,,,,,,,,,,,,1
+author:jin-pengzhan,author,Pengzhan Jin,Pengzhan Jin,,,,,,,,,,,,1
+author:karniadakis-george-em,author,George Em Karniadakis,George Em Karniadakis,,,,,,,,,,,,2
+author:li-zongyi,author,Zongyi Li,Zongyi Li,,,,,,,,,,,,7
+author:kovachki-nikola,author,Nikola Kovachki,Nikola Kovachki,,,,,,,,,,,,5
+author:azizzadenesheli-kamyar,author,Kamyar Azizzadenesheli,Kamyar Azizzadenesheli,,,,,,,,,,,,10
+author:liu-burigede,author,Burigede Liu,Burigede Liu,,,,,,,,,,,,3
+author:bhattacharya-kaushik,author,Kaushik Bhattacharya,Kaushik Bhattacharya,,,,,,,,,,,,3
+author:stuart-andrew,author,Andrew Stuart,Andrew Stuart,,,,,,,,,,,,5
+author:anandkumar-anima,author,Anima Anandkumar,Anima Anandkumar,,,,,,,,,,,,12
+author:sanchez-gonzalez-alvaro,author,Alvaro Sanchez-Gonzalez,Alvaro Sanchez-Gonzalez,,,,,,,,,,,,1
+author:godwin-jonathan,author,Jonathan Godwin,Jonathan Godwin,,,,,,,,,,,,1
+author:pfaff-tobias,author,Tobias Pfaff,Tobias Pfaff,,,,,,,,,,,,1
+author:ying-rex,author,Rex Ying,Rex Ying,,,,,,,,,,,,1
+author:leskovec-jure,author,Jure Leskovec,Jure Leskovec,,,,,,,,,,,,1
+author:battaglia-peter-w,author,Peter W. Battaglia,Peter W. Battaglia,,,,,,,,,,,,1
+author:wen-gege,author,Gege Wen,Gege Wen,,,,,,,,,,,,1
+author:benson-sally-m,author,Sally M. Benson,Sally M. Benson,,,,,,,,,,,,1
+author:yang-yan,author,Yan Yang,Yan Yang,,,,,,,,,,,,1
+author:gao-angela-f,author,Angela F. Gao,Angela F. Gao,,,,,,,,,,,,1
+author:castellanos-jorge-c,author,Jorge C. Castellanos,Jorge C. Castellanos,,,,,,,,,,,,1
+author:ross-zachary-e,author,Zachary E. Ross,Zachary E. Ross,,,,,,,,,,,,1
+author:clayton-robert-w,author,Robert W. Clayton,Robert W. Clayton,,,,,,,,,,,,1
+author:pathak-jaideep,author,Jaideep Pathak,Jaideep Pathak,,,,,,,,,,,,2
+author:subramanian-shashank,author,Shashank Subramanian,Shashank Subramanian,,,,,,,,,,,,1
+author:harrington-peter,author,Peter Harrington,Peter Harrington,,,,,,,,,,,,1
+author:raja-sanjeev,author,Sanjeev Raja,Sanjeev Raja,,,,,,,,,,,,1
+author:chattopadhyay-ashesh,author,Ashesh Chattopadhyay,Ashesh Chattopadhyay,,,,,,,,,,,,1
+author:mardani-morteza,author,Morteza Mardani,Morteza Mardani,,,,,,,,,,,,1
+author:kurth-thorsten,author,Thorsten Kurth,Thorsten Kurth,,,,,,,,,,,,3
+author:hall-david,author,David Hall,David Hall,,,,,,,,,,,,1
+author:hassanzadeh-pedram,author,Pedram Hassanzadeh,Pedram Hassanzadeh,,,,,,,,,,,,1
+author:kashinath-karthik,author,Karthik Kashinath,Karthik Kashinath,,,,,,,,,,,,3
+author:takamoto-makoto,author,Makoto Takamoto,Makoto Takamoto,,,,,,,,,,,,1
+author:praditia-timothy,author,Timothy Praditia,Timothy Praditia,,,,,,,,,,,,1
+author:leiteritz-raphael,author,Raphael Leiteritz,Raphael Leiteritz,,,,,,,,,,,,1
+author:mackinlay-dan,author,Dan MacKinlay,Dan MacKinlay,,,,,,,,,,,,1
+author:alesiani-francesco,author,Francesco Alesiani,Francesco Alesiani,,,,,,,,,,,,1
+author:pfluger-dirk,author,Dirk Pflüger,Dirk Pflüger,,,,,,,,,,,,1
+author:niepert-mathias,author,Mathias Niepert,Mathias Niepert,,,,,,,,,,,,1
+author:molinaro-roberto,author,Roberto Molinaro,Roberto Molinaro,,,,,,,,,,,,3
+author:yang-yunan,author,Yunan Yang,Yunan Yang,,,,,,,,,,,,1
+author:engquist-bjorn,author,Björn Engquist,Björn Engquist,,,,,,,,,,,,1
+author:mishra-siddhartha,author,Siddhartha Mishra,Siddhartha Mishra,,,,,,,,,,,,3
+author:augenstein-yannick,author,Yannick Augenstein,Yannick Augenstein,,,,,,,,,,,,1
+author:repan-taavi,author,Taavi Repän,Taavi Repän,,,,,,,,,,,,1
+author:rockstuhl-carsten,author,Carsten Rockstuhl,Carsten Rockstuhl,,,,,,,,,,,,1
+author:bonev-boris,author,Boris Bonev,Boris Bonev,,,,,,,,,,,,4
+author:hundt-christian,author,Christian Hundt,Christian Hundt,,,,,,,,,,,,2
+author:baust-maximilian,author,Maximilian Baust,Maximilian Baust,,,,,,,,,,,,1
+author:qi-jie,author,Jie Qi,Jie Qi,,,,,,,,,,,,1
+author:zhang-jing,author,Jing Zhang,Jing Zhang,,,,,,,,,,,,1
+author:krstic-miroslav,author,Miroslav Krstic,Miroslav Krstic,,,,,,,,,,,,1
+author:choy-chris,author,Chris Choy,Chris Choy,,,,,,,,,,,,1
+author:li-boyi,author,Boyi Li,Boyi Li,,,,,,,,,,,,1
+author:kossaifi-jean,author,Jean Kossaifi,Jean Kossaifi,,,,,,,,,,,,5
+author:otta-shourya-prakash,author,Shourya Prakash Otta,Shourya Prakash Otta,,,,,,,,,,,,1
+author:nabian-mohammad-amin,author,Mohammad Amin Nabian,Mohammad Amin Nabian,,,,,,,,,,,,1
+author:stadler-maximilian,author,Maximilian Stadler,Maximilian Stadler,,,,,,,,,,,,1
+author:bravo-j-r,author,J. R. Bravo,J. R. Bravo,,,,,,,,,,,,1
+author:de-parga-s-ares,author,S. Ares de Parga,S. Ares de Parga,,,,,,,,,,,,2
+author:hafner-danijar,author,Danijar Hafner,Danijar Hafner,,,,,,,,,,,,1
+author:pasukonis-jurgis,author,Jurgis Pasukonis,Jurgis Pasukonis,,,,,,,,,,,,1
+author:ba-jimmy,author,Jimmy Ba,Jimmy Ba,,,,,,,,,,,,1
+author:lillicrap-timothy,author,Timothy Lillicrap,Timothy Lillicrap,,,,,,,,,,,,1
+author:griebel-michael,author,Michael Griebel,Michael Griebel,,,,,,,,,,,,1
+author:maier-gregor,author,Gregor Maier,Gregor Maier,,,,,,,,,,,,1
+author:cardenas-juan-m,author,Juan M. Cardenas,Juan M. Cardenas,,,,,,,,,,,,1
+author:dexter-nick,author,Nick Dexter,Nick Dexter,,,,,,,,,,,,1
+author:lanthaler-samuel,author,Samuel Lanthaler,Samuel Lanthaler,,,,,,,,,,,,2
+author:trautner-margaret,author,Margaret Trautner,Margaret Trautner,,,,,,,,,,,,1
+author:herde-maximilian,author,Maximilian Herde,Maximilian Herde,,,,,,,,,,,,1
+author:raonic-bogdan,author,Bogdan Raonić,Bogdan Raonić,,,,,,,,,,,,2
+author:rohner-tobias,author,Tobias Rohner,Tobias Rohner,,,,,,,,,,,,1
+author:kappeli-roger,author,Roger Käppeli,Roger Käppeli,,,,,,,,,,,,1
+author:de-bezenac-emmanuel,author,Emmanuel de Bézenac,Emmanuel de Bézenac,,,,,,,,,,,,2
+author:lowery-matthew,author,Matthew Lowery,Matthew Lowery,,,,,,,,,,,,1
+author:turnage-john,author,John Turnage,John Turnage,,,,,,,,,,,,1
+author:morrow-zachary,author,Zachary Morrow,Zachary Morrow,,,,,,,,,,,,1
+author:jakeman-john-d,author,John D. Jakeman,John D. Jakeman,,,,,,,,,,,,1
+author:narayan-akil,author,Akil Narayan,Akil Narayan,,,,,,,,,,,,1
+author:zhe-shandian,author,Shandian Zhe,Shandian Zhe,,,,,,,,,,,,1
+author:shankar-varun,author,Varun Shankar,Varun Shankar,,,,,,,,,,,,2
+author:ohana-ruben,author,Ruben Ohana,Ruben Ohana,,,,,,,,,,,,1
+author:mccabe-michael,author,Michael McCabe,Michael McCabe,,,,,,,,,,,,1
+author:meyer-lucas,author,Lucas Meyer,Lucas Meyer,,,,,,,,,,,,1
+author:morel-rudy,author,Rudy Morel,Rudy Morel,,,,,,,,,,,,1
+author:agocs-fruzsina-j,author,Fruzsina J. Agocs,Fruzsina J. Agocs,,,,,,,,,,,,1
+author:beneitez-miguel,author,Miguel Beneitez,Miguel Beneitez,,,,,,,,,,,,1
+author:berger-marsha,author,Marsha Berger,Marsha Berger,,,,,,,,,,,,1
+author:burkhart-blakesley,author,Blakesley Burkhart,Blakesley Burkhart,,,,,,,,,,,,1
+author:burns-keaton,author,Keaton Burns,Keaton Burns,,,,,,,,,,,,1
+author:dalziel-stuart-b,author,Stuart B. Dalziel,Stuart B. Dalziel,,,,,,,,,,,,1
+author:fielding-drummond-b,author,Drummond B. Fielding,Drummond B. Fielding,,,,,,,,,,,,1
+author:fortunato-daniel,author,Daniel Fortunato,Daniel Fortunato,,,,,,,,,,,,1
+author:goldberg-jared-a,author,Jared A. Goldberg,Jared A. Goldberg,,,,,,,,,,,,1
+author:hirashima-keiya,author,Keiya Hirashima,Keiya Hirashima,,,,,,,,,,,,1
+author:jiang-yan-fei,author,Yan-Fei Jiang,Yan-Fei Jiang,,,,,,,,,,,,1
+author:kerswell-rich-r,author,Rich R. Kerswell,Rich R. Kerswell,,,,,,,,,,,,1
+author:maddu-suryanarayana,author,Suryanarayana Maddu,Suryanarayana Maddu,,,,,,,,,,,,1
+author:miller-jonah,author,Jonah Miller,Jonah Miller,,,,,,,,,,,,1
+author:mukhopadhyay-payel,author,Payel Mukhopadhyay,Payel Mukhopadhyay,,,,,,,,,,,,1
+author:nixon-stefan-s,author,Stefan S. Nixon,Stefan S. Nixon,,,,,,,,,,,,1
+author:shen-jeff,author,Jeff Shen,Jeff Shen,,,,,,,,,,,,1
+author:watteaux-romain,author,Romain Watteaux,Romain Watteaux,,,,,,,,,,,,1
+author:blancard-bruno-regaldo-saint,author,Bruno Régaldo-Saint Blancard,Bruno Régaldo-Saint Blancard,,,,,,,,,,,,1
+author:rozet-francois,author,François Rozet,François Rozet,,,,,,,,,,,,1
+author:parker-liam-h,author,Liam H. Parker,Liam H. Parker,,,,,,,,,,,,1
+author:cranmer-miles,author,Miles Cranmer,Miles Cranmer,,,,,,,,,,,,1
+author:ho-shirley,author,Shirley Ho,Shirley Ho,,,,,,,,,,,,1
+author:matada-sharath,author,Sharath Matada,Sharath Matada,,,,,,,,,,,,1
+author:bhan-luke,author,Luke Bhan,Luke Bhan,,,,,,,,,,,,1
+author:shi-yuanyuan,author,Yuanyuan Shi,Yuanyuan Shi,,,,,,,,,,,,1
+author:atanasov-nikolay,author,Nikolay Atanasov,Nikolay Atanasov,,,,,,,,,,,,1
+author:kim-minjung,author,Minjung Kim,Minjung Kim,,,,,,,,,,,,1
+author:hioka-yusuke,author,Yusuke Hioka,Yusuke Hioka,,,,,,,,,,,,1
+author:witbrock-michael,author,Michael Witbrock,Michael Witbrock,,,,,,,,,,,,1
+author:pitt-david,author,David Pitt,David Pitt,,,,,,,,,,,,1
+author:liu-schiaffini-miguel,author,Miguel Liu-Schiaffini,Miguel Liu-Schiaffini,,,,,,,,,,,,3
+author:george-robert-joseph,author,Robert Joseph George,Robert Joseph George,,,,,,,,,,,,1
+author:berner-julius,author,Julius Berner,Julius Berner,,,,,,,,,,,,2
+author:duruisseaux-valentin,author,Valentin Duruisseaux,Valentin Duruisseaux,,,,,,,,,,,,3
+author:kumar-avisha,author,Avisha Kumar,Avisha Kumar,,,,,,,,,,,,1
+author:zhi-xuzhe,author,Xuzhe Zhi,Xuzhe Zhi,,,,,,,,,,,,1
+author:ahmad-zan,author,Zan Ahmad,Zan Ahmad,,,,,,,,,,,,1
+author:yin-minglang,author,Minglang Yin,Minglang Yin,,,,,,,,,,,,1
+author:manbachi-amir,author,Amir Manbachi,Amir Manbachi,,,,,,,,,,,,1
+author:wan-ruyin,author,Ruyin Wan,Ruyin Wan,,,,,,,,,,,,1
+author:kharazmi-ehsan,author,Ehsan Kharazmi,Ehsan Kharazmi,,,,,,,,,,,,1
+author:triantafyllou-michael-s,author,Michael S Triantafyllou,Michael S Triantafyllou,,,,,,,,,,,,1
+author:assran-mido,author,Mido Assran,Mido Assran,,,,,,,,,,,,2
+author:bardes-adrien,author,Adrien Bardes,Adrien Bardes,,,,,,,,,,,,2
+author:fan-david,author,David Fan,David Fan,,,,,,,,,,,,1
+author:garrido-quentin,author,Quentin Garrido,Quentin Garrido,,,,,,,,,,,,1
+author:howes-russell,author,Russell Howes,Russell Howes,,,,,,,,,,,,1
+author:mojtaba,author,Mojtaba,Mojtaba,,,,,,,,,,,,1
+author:komeili,author,Komeili,Komeili,,,,,,,,,,,,1
+author:muckley-matthew,author,Matthew Muckley,Matthew Muckley,,,,,,,,,,,,2
+author:rizvi-ammar,author,Ammar Rizvi,Ammar Rizvi,,,,,,,,,,,,1
+author:roberts-claire,author,Claire Roberts,Claire Roberts,,,,,,,,,,,,1
+author:sinha-koustuv,author,Koustuv Sinha,Koustuv Sinha,,,,,,,,,,,,2
+author:zholus-artem,author,Artem Zholus,Artem Zholus,,,,,,,,,,,,1
+author:arnaud-sergio,author,Sergio Arnaud,Sergio Arnaud,,,,,,,,,,,,1
+author:gejji-abha,author,Abha Gejji,Abha Gejji,,,,,,,,,,,,1
+author:martin-ada,author,Ada Martin,Ada Martin,,,,,,,,,,,,1
+author:hogan-francois-robert,author,Francois Robert Hogan,Francois Robert Hogan,,,,,,,,,,,,1
+author:dugas-daniel,author,Daniel Dugas,Daniel Dugas,,,,,,,,,,,,1
+author:bojanowski-piotr,author,Piotr Bojanowski,Piotr Bojanowski,,,,,,,,,,,,1
+author:khalidov-vasil,author,Vasil Khalidov,Vasil Khalidov,,,,,,,,,,,,1
+author:labatut-patrick,author,Patrick Labatut,Patrick Labatut,,,,,,,,,,,,1
+author:massa-francisco,author,Francisco Massa,Francisco Massa,,,,,,,,,,,,1
+author:szafraniec-marc,author,Marc Szafraniec,Marc Szafraniec,,,,,,,,,,,,1
+author:krishnakumar-kapil,author,Kapil Krishnakumar,Kapil Krishnakumar,,,,,,,,,,,,1
+author:li-yong,author,Yong Li,Yong Li,,,,,,,,,,,,1
+author:ma-xiaodong,author,Xiaodong Ma,Xiaodong Ma,,,,,,,,,,,,1
+author:chandar-sarath,author,Sarath Chandar,Sarath Chandar,,,,,,,,,,,,1
+author:meier-franziska,author,Franziska Meier,Franziska Meier,,,,,,,,,,,,1
+author:lecun-yann,author,Yann LeCun,Yann LeCun,,,,,,,,,,,,2
+author:rabbat-michael,author,Michael Rabbat,Michael Rabbat,,,,,,,,,,,,1
+author:ballas-nicolas,author,Nicolas Ballas,Nicolas Ballas,,,,,,,,,,,,2
+author:mahesh-ankur,author,Ankur Mahesh,Ankur Mahesh,,,,,,,,,,,,1
+author:bisson-mauro,author,Mauro Bisson,Mauro Bisson,,,,,,,,,,,,1
+author:collins-william-d,author,William D. Collins,William D. Collins,,,,,,,,,,,,1
+author:pritchard-michael-s,author,Michael S. Pritchard,Michael S. Pritchard,,,,,,,,,,,,1
+author:keller-alexander,author,Alexander Keller,Alexander Keller,,,,,,,,,,,,1
+author:pal-sourav,author,Sourav Pal,Sourav Pal,,,,,,,,,,,,1
+author:singh-vikas,author,Vikas Singh,Vikas Singh,,,,,,,,,,,,1
+author:tian-mingxuan,author,Mingxuan Tian,Mingxuan Tian,,,,,,,,,,,,1
+author:mu-haochen,author,Haochen Mu,Haochen Mu,,,,,,,,,,,,1
+author:ding-donghong,author,Donghong Ding,Donghong Ding,,,,,,,,,,,,1
+author:li-mengjiao,author,Mengjiao Li,Mengjiao Li,,,,,,,,,,,,1
+author:ding-yuhan,author,Yuhan Ding,Yuhan Ding,,,,,,,,,,,,1
+author:zhao-jianping,author,Jianping Zhao,Jianping Zhao,,,,,,,,,,,,1
+author:veil-carina,author,Carina Veil,Carina Veil,,,,,,,,,,,,1
+author:flaschel-moritz,author,Moritz Flaschel,Moritz Flaschel,,,,,,,,,,,,1
+author:kuhl-ellen,author,Ellen Kuhl,Ellen Kuhl,,,,,,,,,,,,1
+author:della-santina-cosimo,author,Cosimo Della Santina,Cosimo Della Santina,,,,,,,,,,,,1
+author:franco-nicola-rares,author,Nicola Rares Franco,Nicola Rares Franco,,,,,,,,,,,,1
+author:nelsen-nicholas-h,author,Nicholas H. Nelsen,Nicholas H. Nelsen,,,,,,,,,,,,1
+author:mur-labadia-lorenzo,author,Lorenzo Mur-Labadia,Lorenzo Mur-Labadia,,,,,,,,,,,,1
+author:bar-amir,author,Amir Bar,Amir Bar,,,,,,,,,,,,1
+author:rabbat-mike,author,Mike Rabbat,Mike Rabbat,,,,,,,,,,,,1
+author:khan-muhammad-idrees,author,Muhammad Idrees Khan,Muhammad Idrees Khan,,,,,,,,,,,,1
+author:yao-hua-dong,author,Hua-Dong Yao,Hua-Dong Yao,,,,,,,,,,,,1
+author:chen-zituo,author,Zituo Chen,Zituo Chen,,,,,,,,,,,,1
+author:zhang-baiming,author,Baiming Zhang,Baiming Zhang,,,,,,,,,,,,1
+author:deng-sili,author,Sili Deng,Sili Deng,,,,,,,,,,,,1
+author:rossi-riccardo,author,Riccardo Rossi,Riccardo Rossi,,,,,,,,,,,,1
+author:frieden-branden,author,Branden Frieden,Branden Frieden,,,,,,,,,,,,1
+author:whitehead-ryan,author,Ryan Whitehead,Ryan Whitehead,,,,,,,,,,,,1
+author:ballard-m-keith,author,M. Keith Ballard,M. Keith Ballard,,,,,,,,,,,,1
+author:kirby-robert-m,author,Robert M. Kirby,Robert M. Kirby,,,,,,,,,,,,1
+field:operator-learning,field,Operator Learning,Operator Learning,,,,,,,,,,,,35
+field:theory,field,Theory,Theory,,,,,,,,,,,,17
+field:quadrature,field,Quadrature,Quadrature,,,,,,,,,,,,10
+field:hyper-reduction,field,Hyper Reduction,Hyper Reduction,,,,,,,,,,,,5
+field:sampling,field,Sampling,Sampling,,,,,,,,,,,,9
+field:compressed-sensing,field,Compressed Sensing,Compressed Sensing,,,,,,,,,,,,10
+field:system-identification,field,System Identification,System Identification,,,,,,,,,,,,2
+field:inverse-problems,field,Inverse Problems,Inverse Problems,,,,,,,,,,,,6
+field:world-models,field,World Models,World Models,,,,,,,,,,,,5
+field:control,field,Control,Control,,,,,,,,,,,,4
+field:graphs,field,Graphs,Graphs,,,,,,,,,,,,2
+field:fourier,field,Fourier,Fourier,,,,,,,,,,,,4
+field:fourier-neural-operators,field,Fourier Neural Operators,Fourier Neural Operators,,,,,,,,,,,,10
+field:physical-simulation,field,Physical Simulation,Physical Simulation,,,,,,,,,,,,3
+field:subsurface,field,Subsurface,Subsurface,,,,,,,,,,,,1
+field:seismology,field,Seismology,Seismology,,,,,,,,,,,,1
+field:weather,field,Weather,Weather,,,,,,,,,,,,3
+field:benchmarks,field,Benchmarks,Benchmarks,,,,,,,,,,,,2
+field:inverse-design,field,Inverse Design,Inverse Design,,,,,,,,,,,,1
+field:electromagnetics,field,Electromagnetics,Electromagnetics,,,,,,,,,,,,1
+field:geometry,field,Geometry,Geometry,,,,,,,,,,,,1
+field:aerodynamics,field,Aerodynamics,Aerodynamics,,,,,,,,,,,,1
+field:foundation-models,field,Foundation Models,Foundation Models,,,,,,,,,,,,2
+field:efficiency,field,Efficiency,Efficiency,,,,,,,,,,,,2
+field:robotics,field,Robotics,Robotics,,,,,,,,,,,,3
+field:planning,field,Planning,Planning,,,,,,,,,,,,2
+field:time-series,field,Time Series,Time Series,,,,,,,,,,,,2
+field:software,field,Software,Software,,,,,,,,,,,,1
+field:biomedicine,field,Biomedicine,Biomedicine,,,,,,,,,,,,1
+field:acoustics,field,Acoustics,Acoustics,,,,,,,,,,,,2
+field:structural-monitoring,field,Structural Monitoring,Structural Monitoring,,,,,,,,,,,,1
+field:probabilistic-models,field,Probabilistic Models,Probabilistic Models,,,,,,,,,,,,1
+field:physics-informed-learning,field,Physics Informed Learning,Physics Informed Learning,,,,,,,,,,,,1
+field:manufacturing,field,Manufacturing,Manufacturing,,,,,,,,,,,,1
+field:representation-learning,field,Representation Learning,Representation Learning,,,,,,,,,,,,1
+field:domain-decomposition,field,Domain Decomposition,Domain Decomposition,,,,,,,,,,,,1
+field:multiscale,field,Multiscale,Multiscale,,,,,,,,,,,,1
+area:operators,area,Operator learning,Operator learning,,,,,,,,,,,,41
+area:fourier,area,Fourier neural operators,Fourier neural operators,,,,,,,,,,,,16
+area:sparse,area,Sparse recovery & sampling,Sparse recovery & sampling,,,,,,,,,,,,18
+area:integration,area,Quadrature & model reduction,Quadrature & model reduction,,,,,,,,,,,,12
+area:engineering,area,Physical simulation & engineering,Physical simulation & engineering,,,,,,,,,,,,17
+area:weather,area,Weather & climate,Weather & climate,,,,,,,,,,,,5
+area:robotics,area,Robotics & control,Robotics & control,,,,,,,,,,,,8
 area:world,area,World models & representations,World models & representations,,,,,,,,,,,,5
 area:foundation,area,Foundation models & transfer,Foundation models & transfer,,,,,,,,,,,,2
-area:inverse,area,Inverse problems & design,Inverse problems & design,,,,,,,,,,,,4
-area:timeseries,area,Time series & monitoring,Time series & monitoring,,,,,,,,,,,,3
-field:wavelets,field,Wavelet operators,Wavelets and multiscale operator representations,,,,,,,,,,,,
+area:inverse,area,Inverse problems & design,Inverse problems & design,,,,,,,,,,,,11
+area:timeseries,area,Time series & monitoring,Time series & monitoring,,,,,,,,,,,,7
+field:wavelets,field,Wavelet operators,Wavelets and multiscale operator representations,,,,,,,,,,,,2
 mwt-2021,paper,Multiwavelet operator,Multiwavelet-based Operator Learning for Differential Equations,2021,core,Projects operator kernels onto fixed multiwavelet polynomial bases and learns interactions across scales. Demonstrated on several PDE families.,"Kernel compression here is a multiscale representation, not a compressed-sensing recovery guarantee. The abstract does not establish embedded vibration-monitoring latency.",https://arxiv.org/abs/2109.13459,mwt-2021.pdf,"[""Gaurav Gupta"", ""Xiongye Xiao"", ""Paul Bogdan""]","[""operator-learning"", ""wavelets""]",Primary arXiv record; year denotes first preprint,abstract_screened,False,
 author:gaurav-gupta,author,Gaurav Gupta,Gaurav Gupta,,,,,,,,,,,,1
 author:xiongye-xiao,author,Xiongye Xiao,Xiongye Xiao,,,,,,,,,,,,1
@@ -326,3 +326,61 @@ author:paul-bogdan,author,Paul Bogdan,Paul Bogdan,,,,,,,,,,,,1
 wno-2022,paper,Wavelet Neural Operator,Wavelet neural operator: a neural operator for parametric partial differential equations,2022,core,Combines learned integral-kernel operations with localized wavelet transforms. Examples include PDE solution maps and air-temperature prediction.,"Spatial/frequency localization motivates studying transient signals, but this paper is not evidence of millisecond fault detection inside an IMU. Validate sampling, window length, memory and end-to-end delay separately.",https://arxiv.org/abs/2205.02191,wno-2022.pdf,"[""Tapas Tripura"", ""Souvik Chakraborty""]","[""operator-learning"", ""wavelets""]",Primary arXiv record; year denotes first preprint,abstract_screened,False,
 author:tapas-tripura,author,Tapas Tripura,Tapas Tripura,,,,,,,,,,,,1
 author:souvik-chakraborty,author,Souvik Chakraborty,Souvik Chakraborty,,,,,,,,,,,,1
+gauss-nodes-hale-townsend-2013,paper,Fast Gaussian quadrature,Fast and Accurate Computation of Gauss–Legendre and Gauss–Jacobi Quadrature Nodes and Weights,2013,background,Constructs Gauss–Legendre and Gauss–Jacobi nodes and weights efficiently using asymptotic formulas and Newton iteration.,Background for the Gaussian quadrature article. Fast construction of a rule is distinct from integration error and neural-operator training cost; no benchmark was reproduced.,https://appliedmaths.sun.ac.za/~nhale/publications/HaleTownsend2013a.pdf,gauss-nodes-hale-townsend-2013.pdf,"[""Nicholas Hale"", ""Alex Townsend""]","[""quadrature"", ""theory""]","SIAM Journal on Scientific Computing 35(2), A652–A674 (2013)",abstract_and_introduction_screened,False,
+author:hale-nicholas,author,Nicholas Hale,Nicholas Hale,,,,,,,,,,,,1
+author:townsend-alex,author,Alex Townsend,Alex Townsend,,,,,,,,,,,,1
+nomri-2025,paper,Neural operators for CS-MRI,A Unified Model for Compressed Sensing MRI Across Undersampling Patterns,2024,core,Uses neural operators in measurement and image space with data-consistency updates to reconstruct MRI across undersampling patterns and resolutions.,"Direct neural-operator application to compressed-sensing reconstruction. Learns a prior for undersampled MRI; it does not use sparse recovery to make arbitrary kernel training faster. CVPR 2025 experiments, not a clinical deployment claim.",https://arxiv.org/abs/2410.16290,nomri-2025.pdf,"[""Armeet Singh Jatyani"", ""Jiayun Wang"", ""Aditi Chandrashekar"", ""Zihui Wu"", ""Miguel Liu-Schiaffini"", ""Bahareh Tolooshams"", ""Anima Anandkumar""]","[""operator-learning"", ""compressed-sensing"", ""inverse-problems"", ""sampling""]",CVPR 2025; arXiv first posted 2024,primary_sections_and_references_screened,False,
+author:armeet-singh-jatyani,author,Armeet Singh Jatyani,Armeet Singh Jatyani,,,,,,,,,,,,1
+author:jiayun-wang,author,Jiayun Wang,Jiayun Wang,,,,,,,,,,,,1
+author:aditi-chandrashekar,author,Aditi Chandrashekar,Aditi Chandrashekar,,,,,,,,,,,,1
+author:zihui-wu,author,Zihui Wu,Zihui Wu,,,,,,,,,,,,1
+author:bahareh-tolooshams,author,Bahareh Tolooshams,Bahareh Tolooshams,,,,,,,,,,,,1
+spectral-cs-2024,paper,Sparse spectral PDE learning,When Differentiable Programming Meets Spectral PDE Solver,2024,core,"Proposes sparse random-feature encoders recovered by Lasso, learned spectral time stepping, and an extension with learned basis parameters.",Direct conceptual bridge to using compressed sensing inside operator learning. Sections 2.2 and 3 allow distinct random input/output grids and recover sparse coefficients before learning dynamics. Physics is built into the spectral evolution. Workshop proposal: large-scale systematic evaluation is explicitly future work; not evidence of a generic training speedup or an unconditional exact-recovery guarantee.,https://qijiaj.github.io/operator_learning_2024.pdf,spectral-cs-2024.pdf,"[""Qijia Jiang""]","[""operator-learning"", ""compressed-sensing"", ""sampling"", ""theory""]",D3S3 workshop at NeurIPS 2024; author-hosted workshop paper,primary_sections_and_references_screened,False,
+author:qijia-jiang,author,Qijia Jiang,Qijia Jiang,,,,,,,,,,,,1
+inverse-theory-2023,paper,Modern inverse-problem theory,Theoretical Perspectives on Deep Learning Methods in Inverse Problems,2022,core,"Surveys theoretical guarantees and open problems for generative priors, untrained neural priors, and unfolded reconstruction algorithms.","Explains the evolution of compressed sensing toward learned priors and reconstruction networks. Adjacent background, not a neural-operator paper. Separates signal-model assumptions, optimization, sample complexity and generalization.",https://arxiv.org/abs/2206.14373,inverse-theory-2023.pdf,"[""Jonathan Scarlett"", ""Reinhard Heckel"", ""Miguel R. D. Rodrigues"", ""Paul Hand"", ""Yonina C. Eldar""]","[""compressed-sensing"", ""inverse-problems"", ""theory""]","IEEE JSAIT 3(3):433–453, issue year 2022; revised 2023; DOI 10.1109/JSAIT.2023.3241123",primary_sections_and_references_screened,False,
+author:jonathan-scarlett,author,Jonathan Scarlett,Jonathan Scarlett,,,,,,,,,,,,1
+author:miguel-r-d-rodrigues,author,Miguel R. D. Rodrigues,Miguel R. D. Rodrigues,,,,,,,,,,,,1
+author:paul-hand,author,Paul Hand,Paul Hand,,,,,,,,,,,,2
+author:yonina-c-eldar,author,Yonina C. Eldar,Yonina C. Eldar,,,,,,,,,,,,1
+tunable-cs-2026,paper,Tunable generative CS priors,Latent Generative Models with Tunable Complexity for Compressed Sensing and other Inverse Problems,2026,core,"Uses nested dropout to vary latent-prior complexity in diffusion models, normalizing flows and variational autoencoders for inverse problems.","Current compressed-sensing direction: tune prior complexity to balance representation error and noise overfitting. Adjacent to operator learning, not a neural-operator architecture. March 2026 preprint; general experiments and theory for the linear denoising setting do not establish universal compressed-sensing guarantees.",https://arxiv.org/abs/2603.07357,tunable-cs-2026.pdf,"[""Sean Gunn"", ""Jorio Cocola"", ""Oliver De Candido"", ""Vaggos Chatziafratis"", ""Paul Hand""]","[""compressed-sensing"", ""inverse-problems"", ""theory""]","arXiv preprint, March 2026, v2",primary_sections_and_references_screened,False,
+author:sean-gunn,author,Sean Gunn,Sean Gunn,,,,,,,,,,,,1
+author:jorio-cocola,author,Jorio Cocola,Jorio Cocola,,,,,,,,,,,,1
+author:oliver-de-candido,author,Oliver De Candido,Oliver De Candido,,,,,,,,,,,,1
+author:vaggos-chatziafratis,author,Vaggos Chatziafratis,Vaggos Chatziafratis,,,,,,,,,,,,1
+parametric-complexity-2023,paper,Operator learning complexity,The Parametric Complexity of Operator Learning,2023,core,"Proves a curse of parametric complexity for general regular operator classes, and shows how Hamilton–Jacobi structure permits a more efficient architecture.","Addresses whether operator models can be smaller: no universal compression law follows from using an operator architecture. Efficiency depends on structure in the target operator. These are approximation-complexity results, not empirical training scaling laws.",https://arxiv.org/abs/2306.15924,parametric-complexity-2023.pdf,"[""Samuel Lanthaler"", ""Andrew M. Stuart""]","[""operator-learning"", ""theory""]",arXiv preprint; year denotes first posting,abstract_and_references_screened,False,
+reno-2023,paper,Representation equivalent operators,Representation Equivalent Neural Operators: a Framework for Alias-free Operator Learning,2023,core,Introduces representation equivalence and operator aliasing to analyze consistency between continuous operators and their discrete implementations.,"Explains why shared weights across grids do not alone guarantee the same field-level computation. Varying training grids can encourage robustness, but cannot by itself guarantee alias-free evaluation or recover unmeasured information.",https://arxiv.org/abs/2305.19913,reno-2023.pdf,"[""Francesca Bartolucci"", ""Emmanuel de Bézenac"", ""Bogdan Raonić"", ""Roberto Molinaro"", ""Siddhartha Mishra"", ""Rima Alaifari""]","[""operator-learning"", ""theory"", ""sampling""]",arXiv preprint; year denotes first posting,abstract_and_references_screened,False,
+author:francesca-bartolucci,author,Francesca Bartolucci,Francesca Bartolucci,,,,,,,,,,,,1
+author:rima-alaifari,author,Rima Alaifari,Rima Alaifari,,,,,,,,,,,,1
+recfno-2023,paper,RecFNO,RecFNO: a resolution-invariant flow and heat field reconstruction method from sparse observations via Fourier neural operator,2023,application,"Reconstructs heat and flow fields from sparse observations using MLP, mask or Voronoi embeddings and Fourier layers.",Direct prior art for sparse thermal reconstruction. Output resolution transfer is distinct from generalization to arbitrary input layouts. Public code: https://github.com/zhaoxiaoyu1995/RecFNO ; data links are external SharePoint links and access has not been tested.,https://arxiv.org/abs/2302.09808,recfno-2023.pdf,"[""Xiaoyu Zhao"", ""Xiaoqian Chen"", ""Zhiqiang Gong"", ""Weien Zhou"", ""Wen Yao"", ""Yunyang Zhang""]","[""operator-learning"", ""fourier-neural-operators"", ""inverse-problems"", ""sampling"", ""physical-simulation""]","International Journal of Thermal Sciences 195 (2024), 108619; DOI 10.1016/j.ijthermalsci.2023.108619",primary_abstract_screened,False,
+author:xiaoyu-zhao,author,Xiaoyu Zhao,Xiaoyu Zhao,,,,,,,,,,,,
+author:xiaoqian-chen,author,Xiaoqian Chen,Xiaoqian Chen,,,,,,,,,,,,
+author:zhiqiang-gong,author,Zhiqiang Gong,Zhiqiang Gong,,,,,,,,,,,,
+author:weien-zhou,author,Weien Zhou,Weien Zhou,,,,,,,,,,,,
+author:wen-yao,author,Wen Yao,Wen Yao,,,,,,,,,,,,
+author:yunyang-zhang,author,Yunyang Zhang,Yunyang Zhang,,,,,,,,,,,,
+stator-sparse-2016,paper,Sparse Reconstruction for Temperature Distribution Using DTS Fiber Optic Sensors with Applications in Electrical Generator Stator Monitoring,Sparse Reconstruction for Temperature Distribution Using DTS Fiber Optic Sensors with Applications in Electrical Generator Stator Monitoring,2016,application,Uses a finite-element hotspot dictionary and sparse reconstruction with distributed fibre temperatures to monitor generator stators.,"A direct industrial sparse-recovery baseline, not a neural operator. Experiments use a representative prototype; no reusable dataset was verified. Useful motivation for a thermal-plate autumn study and stator extension.",https://doi.org/10.3390/s16091425,stator-sparse-2016.pdf,"[""João Paulo Bazzo"", ""Daniel Rodrigues Pipa"", ""Erlon Vagner da Silva"", ""Cicero Martelli"", ""Jean Carlos Cardozo da Silva""]","[""compressed-sensing"", ""inverse-problems"", ""structural-monitoring"", ""physical-simulation""]","Sensors 16(9), 1425 (2016); DOI 10.3390/s16091425",primary_abstract_screened,False,
+author:joao-paulo-bazzo,author,João Paulo Bazzo,João Paulo Bazzo,,,,,,,,,,,,
+author:daniel-rodrigues-pipa,author,Daniel Rodrigues Pipa,Daniel Rodrigues Pipa,,,,,,,,,,,,
+author:erlon-vagner-da-silva,author,Erlon Vagner da Silva,Erlon Vagner da Silva,,,,,,,,,,,,
+author:cicero-martelli,author,Cicero Martelli,Cicero Martelli,,,,,,,,,,,,
+author:jean-carlos-cardozo-da-silva,author,Jean Carlos Cardozo da Silva,Jean Carlos Cardozo da Silva,,,,,,,,,,,,
+vibrating-plates-2023,paper,Learning to Predict Structural Vibrations,Learning to Predict Structural Vibrations,2023,application,"Introduces a 12000-geometry harmonically excited plate benchmark and Frequency-Query Operator, comparing FNO and DeepONet baselines.","Forward vibration prediction is already studied. A sparse-sensor inverse task would be a proposed adaptation. Code and data links: https://github.com/ecker-lab/Learning_Vibrating_Plates ; published example dataset is 4 GB, full subsets 21 GB.",https://arxiv.org/abs/2310.05469,vibrating-plates-2023.pdf,"[""Jan van Delden"", ""Julius Schultz"", ""Christopher Blech"", ""Sabine C. Langer"", ""Timo Lüddecke""]","[""operator-learning"", ""structural-monitoring"", ""physical-simulation"", ""acoustics""]",NeurIPS 2024; first arXiv posting 2023,primary_abstract_screened,False,
+author:jan-van-delden,author,Jan van Delden,Jan van Delden,,,,,,,,,,,,
+author:julius-schultz,author,Julius Schultz,Julius Schultz,,,,,,,,,,,,
+author:christopher-blech,author,Christopher Blech,Christopher Blech,,,,,,,,,,,,
+author:sabine-c-langer,author,Sabine C. Langer,Sabine C. Langer,,,,,,,,,,,,
+author:timo-luddecke,author,Timo Lüddecke,Timo Lüddecke,,,,,,,,,,,,
+motor-thermal-li-2026,paper,Neural Operator–Based Thermal Modeling for Electric Motor and Power Electronics Systems,Neural Operator–Based Thermal Modeling for Electric Motor and Power Electronics Systems,2026,application,Studies load-memory-enhanced FNO prediction of two-dimensional transient temperature fields in a 15 kW induction motor.,Master thesis prior art: motor thermal FNO itself is not new. FEM data are placed on a common 512x512 grid; variable sparse sensor observation is a separate proposed question. Few load trajectories limit broad extrapolation claims.,https://odr.chalmers.se/items/bf1e419a-85d8-44fa-8968-13c84f76cca1,motor-thermal-li-2026.pdf,"[""Jinghao Li""]","[""operator-learning"", ""fourier-neural-operators"", ""physical-simulation"", ""structural-monitoring""]","Chalmers master thesis, Systems, Control and Mechatronics, 2026",primary_abstract_screened,False,
+author:jinghao-li,author,Jinghao Li,Jinghao Li,,,,,,,,,,,,
+lagrangian-assimilation-2025,paper,Generative Lagrangian data assimilation for ocean dynamics under extreme sparsity,Generative Lagrangian data assimilation for ocean dynamics under extreme sparsity,2025,application,Combines neural operators and diffusion models for ocean-state reconstruction from very sparse Lagrangian observations.,Prior art for moving-sensor reconstruction; a controlled active-sampling study on 2D passive tracer dynamics is a narrower potential thesis. Sparse reconstructions depend on learned priors and are not unique recovery guarantees.,https://arxiv.org/abs/2507.06479,lagrangian-assimilation-2025.pdf,"[""Niloofar Asefi"", ""Leonard Lupin-Jimenez"", ""Tianning Wu"", ""Ruoying He"", ""Ashesh Chattopadhyay""]","[""operator-learning"", ""inverse-problems"", ""sampling"", ""weather"", ""robotics""]","arXiv preprint, July 2025",primary_abstract_screened,False,
+author:niloofar-asefi,author,Niloofar Asefi,Niloofar Asefi,,,,,,,,,,,,
+author:leonard-lupin-jimenez,author,Leonard Lupin-Jimenez,Leonard Lupin-Jimenez,,,,,,,,,,,,
+author:tianning-wu,author,Tianning Wu,Tianning Wu,,,,,,,,,,,,
+author:ruoying-he,author,Ruoying He,Ruoying He,,,,,,,,,,,,
+ventilation-control-2025,paper,Operator learning for energy-efficient building ventilation control with computational fluid dynamics simulation of a real-world classroom,Operator learning for energy-efficient building ventilation control with computational fluid dynamics simulation of a real-world classroom,2025,application,"Uses neural operator transformer models of airflow and carbon dioxide fields inside optimization-based ventilation control, with an open CFD-based benchmark.",Direct prior art against claiming first neural-operator ventilation control. A new thesis needs a narrower variable-sensor observation or active sampling question. Reported solver speedup is a specific CFD comparison.,https://doi.org/10.1016/j.apenergy.2025.127035,ventilation-control-2025.pdf,"[""Yuexin Bian"", ""Oliver Schmidt"", ""Yuanyuan Shi""]","[""operator-learning"", ""control"", ""physical-simulation""]","Applied Energy 404 (2026), 127035; online November 2025",primary_abstract_screened,False,
+author:yuexin-bian,author,Yuexin Bian,Yuexin Bian,,,,,,,,,,,,
+author:oliver-schmidt,author,Oliver Schmidt,Oliver Schmidt,,,,,,,,,,,,
+structures-distributed-2025,paper,Training Structures as Distributed Sensors,Training Structures as Distributed Sensors: A case study of impact force identification using neural operators,2025,application,Uses Fourier neural operators and spatial upsampling to identify impact forces from sparse structural vibration sensors.,"Sparse structural sensing and force localization are already studied. Any panel thesis should isolate changing layouts, dropout, uncertainty or another concrete distinction. No openly accessible PDF located in this search.",https://doi.org/10.1016/j.jsv.2025.119395,,"[""Yujie Gan"", ""Haoze Song"", ""Zhilu Lai""]","[""operator-learning"", ""fourier-neural-operators"", ""inverse-problems"", ""structural-monitoring""]","Journal of Sound and Vibration 619 (2025), 119395",primary_abstract_screened,False,
+author:yujie-gan,author,Yujie Gan,Yujie Gan,,,,,,,,,,,,
+author:haoze-song,author,Haoze Song,Haoze Song,,,,,,,,,,,,
+author:zhilu-lai,author,Zhilu Lai,Zhilu Lai,,,,,,,,,,,,

@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <title>Bucket LLM · Matrix laboratory</title>
+  <meta name="description" content="Explore Ax + b with editable matrices and signed buckets of water. A volume-based foundation for a water transformer." />
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Cpath d='M7 4v24h18V4M8 17h16' fill='none' stroke='%236fd3ff' stroke-width='3'/%3E%3C/svg%3E" />
+  <link rel="stylesheet" href="/src/style.css" />
+</head>
+<body>
+  <div id="app">
+    <aside id="sidebar">
+      <a class="back" href="https://andeplane.github.io/projects">← Projects</a>
+      <header><span class="eyebrow">A computer in buckets</span><h1>Bucket LLM</h1></header>
+      <nav aria-label="Experiments">
+        <button class="nav-active" aria-current="page">01 <span>Matrix multiplication</span></button>
+        <button disabled>02 <span>Calc-GPT <small>Later</small></span></button>
+      </nav>
+      <button id="about">How does it work? <span>↗</span></button>
+      <p class="sidebar-note">One matrix for now.<br />Chaining comes next.</p>
+      <a class="old-version" href="https://andeplane.github.io/demos/water-gpt/">Original Water GPT ↗</a>
+    </aside>
+    <main id="workspace">
+      <header class="workspace-head"><div><span class="eyebrow">Matrix multiplication</span><h2>Ax + b <span id="dimensions">2 × 2</span></h2></div><div class="size-controls"><label>Rows <select id="rows" aria-label="Matrix rows"><option>1</option><option selected>2</option><option>3</option><option>4</option></select></label><label>Columns <select id="cols" aria-label="Matrix columns"><option>1</option><option selected>2</option><option>3</option><option>4</option></select></label><button id="example" class="quiet">Example</button></div></header>
+      <section class="math-area" aria-label="Editable matrix equation">
+        <div class="equation">
+          <div class="math-group"><span class="math-label">A <small>weights</small></span><div id="A" class="matrix"></div></div><span class="operator">×</span>
+          <div class="math-group"><span class="math-label">x <small>input</small></span><div id="x" class="matrix"></div></div><span class="operator">+</span>
+          <div class="math-group"><span class="math-label">b <small>bias</small></span><div id="b" class="matrix"></div></div>
+        </div><div class="equation-help"><p>Click any value. Trace its water below.</p><p id="scale"></p><details><summary>Why a scale?</summary><p>Each input is split into fractions |Aᵢⱼ| / S, where S is the largest absolute column sum (at least 1). The output rulers multiply collected litres by S. Bias buckets start with |bᵢ| / S litres. Every drop comes from a visible bucket.</p></details><p id="validation" role="status"></p></div>
+      </section>
+      <section class="experiment" aria-label="Connected water matrix simulation">
+        <div class="experiment-toolbar"><div class="actions"><button id="run" class="primary">Pour</button><button id="pause" disabled>Pause</button><button id="reset">Reset</button><button id="speed" class="quiet">1× speed</button></div><div class="zoom-controls"><button id="zoom-out" aria-label="Zoom out">−</button><span id="zoom">100%</span><button id="zoom-in" aria-label="Zoom in">+</button><button id="fit">Fit</button></div></div>
+        <div id="stage"><div id="circuit"></div></div>
+        <div class="circuit-footer"><p id="status" role="status"></p><div id="results" aria-label="Measured output vector"></div></div>
+      </section>
+      <div class="below-circuit"><p id="inspect"></p><details><summary>Arithmetic & water balance</summary><div id="arithmetic"></div><p id="mass"></p></details></div>
+    </main>
+  </div>
+  <dialog id="welcome" aria-labelledby="welcome-title">
+    <div class="welcome-head"><span class="eyebrow">Welcome to the bucket lab</span><button id="close-welcome" aria-label="Close introduction">×</button></div>
+    <h2 id="welcome-title">Could an LLM run on buckets?</h2>
+    <p class="intro">Let a number be an amount of water. Add by pouring together, multiply with a measuring mechanism, and keep the result in another bucket. We’ll start with <b>Ax + b</b>, then work toward Calc-GPT.</p>
+    <div class="principles"><p><b>Negative numbers</b><br />Two buckets: x = V<sub>+</sub> − V<sub>−</sub>. Neither volume is negative.</p><p><b>Shaped tanks</b><br />Shape maps volume to height. A float-controlled measuring bucket converts that height back into output litres.</p><p><b>This layer splits, never copies</b><br />Input water is divided among the weights. Calibrated output rulers recover the numerical result without adding water.</p></div>
+    <h3>The operations inside an LLM</h3>
+    <p class="subtle">Choose an operation to explore its bucket model. These small previews illustrate the algebra; the main experiment transports conserved water through the full connected network.</p>
+    <div class="operation-lab"><nav id="operations" aria-label="LLM operations"></nav><section id="operation-detail" aria-live="polite"></section></div>
+    <details class="limits"><summary>What is assumed in this first version?</summary><p>For this fixed matrix, each input pours through a splitter. Branch (i,j) takes the fraction |Aᵢⱼ|/S, with S = max(1, largest absolute column sum). The remaining fraction goes into the visible spare-water bucket. After the input pour settles, the product and bias buckets open into the signed output pairs. The final reading is S × (V+ − V−) = Ax + b. Output volumes come only from incoming water, never from precomputed answer targets.</p><p>Inputs start with |x| litres, and bias buckets with |b|/S litres. Positive and negative output buckets use the same calibrated height scale: one litre represents S units. No supply is connected during a run. Ideal splitter ratios, leak-free buckets and sequenced gates are assumed; flow timing is illustrative, not a CFD simulation.</p><p>For a smooth, strictly increasing h = f(V), the required cross-sectional area is A(h) = 1 / f′(f⁻¹(h)). Decreasing functions need a reversed readout or a complementary mechanism; exact plateaus and singular endpoints require idealization or approximation. Draining the shaped tank still returns V, so a separate transducer is essential.</p><p>The operation list follows the existing Calc-GPT: embeddings, causal attention, LayerNorm, ReLU MLP and token selection. Other LLMs may add RMSNorm, rotary positions or non-monotone activations such as GELU/SiLU. There is no running LLM or matrix chain on this page yet.</p><p><a href="https://arxiv.org/abs/1706.03762" target="_blank" rel="noreferrer">Transformer architecture reference ↗</a> · <a href="https://andeplane.github.io/demos/water-tanks/#multiply">Original hydraulic calculator ↗</a></p></details>
+    <div class="welcome-bottom"><span>Start small. Understand every pour.</span><button id="start" class="primary">Explore Ax + b →</button></div>
+  </dialog>
+  <script type="module" src="/src/main.ts"></script>
+</body>
+</html>

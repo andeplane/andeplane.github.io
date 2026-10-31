@@ -12,6 +12,7 @@ const Interests = lazy(() => import('@/pages/Interests'))
 const Music = lazy(() => import('@/pages/Music'))
 const Rendering = lazy(() => import('@/pages/Rendering'))
 const NeuralOperators = lazy(() => import('@/features/neural-operators/NeuralOperators'))
+const PendulumWriter = lazy(() => import('@/features/pendulum-writer/PendulumWriter'))
 
 export const router = createHashRouter([
   {
@@ -20,6 +21,7 @@ export const router = createHashRouter([
     children: [
       { index: true, element: <Home /> },
       { path: 'projects', element: <Projects /> },
+      { path: 'experiments/pendulum-writer', element: <Suspense fallback={<p>Loading the pendulum writer…</p>}><PendulumWriter /></Suspense> },
       { path: 'interests', element: <Suspense fallback={<p>Loading interests…</p>}><Interests /></Suspense> },
       { path: 'interests/music', element: <Suspense fallback={<p>Loading music…</p>}><Music /></Suspense> },
       { path: 'interests/3d-rendering', element: <Suspense fallback={<p>Loading 3D rendering…</p>}><Rendering /></Suspense> },

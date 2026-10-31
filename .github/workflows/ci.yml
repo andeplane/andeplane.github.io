@@ -29,6 +29,9 @@ jobs:
       - name: Test neural operator numerics
         run: npm run test:neural-operators
 
+      - name: Test pendulum writer mechanics and fitting
+        run: npm run test:pendulum-writer
+
       # Same entry point the Pages deploy uses: builds every demo under
       # demos/ (each demo's own build script, including its test suite)
       # and then typechecks and builds the site itself.

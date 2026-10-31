@@ -1,6 +1,6 @@
 {
   "schema_version": "1.0",
-  "as_of": "2026-09-10",
+  "as_of": "2026-09-14",
   "description": "Curated literature graph. Only cites edges assert a verified citation. Other paper links are explicitly typed reading relationships or hypotheses; author/topic edges derive from metadata and task classification.",
   "nodes": [
     {
@@ -1398,1592 +1398,1849 @@
       "id": "author:chen-tianping",
       "type": "author",
       "label": "Tianping Chen",
-      "title": "Tianping Chen"
+      "title": "Tianping Chen",
+      "paper_count": 1
     },
     {
       "id": "author:chen-hong",
       "type": "author",
       "label": "Hong Chen",
-      "title": "Hong Chen"
+      "title": "Hong Chen",
+      "paper_count": 1
     },
     {
       "id": "author:barrault-maxime",
       "type": "author",
       "label": "Maxime Barrault",
-      "title": "Maxime Barrault"
+      "title": "Maxime Barrault",
+      "paper_count": 1
     },
     {
       "id": "author:maday-yvon",
       "type": "author",
       "label": "Yvon Maday",
-      "title": "Yvon Maday"
+      "title": "Yvon Maday",
+      "paper_count": 1
     },
     {
       "id": "author:nguyen-ngoc-cuong",
       "type": "author",
       "label": "Ngoc Cuong Nguyen",
-      "title": "Ngoc Cuong Nguyen"
+      "title": "Ngoc Cuong Nguyen",
+      "paper_count": 1
     },
     {
       "id": "author:patera-anthony-t",
       "type": "author",
       "label": "Anthony T. Patera",
-      "title": "Anthony T. Patera"
+      "title": "Anthony T. Patera",
+      "paper_count": 1
     },
     {
       "id": "author:chaturantabut-saifon",
       "type": "author",
       "label": "Saifon Chaturantabut",
-      "title": "Saifon Chaturantabut"
+      "title": "Saifon Chaturantabut",
+      "paper_count": 1
     },
     {
       "id": "author:sorensen-danny-c",
       "type": "author",
       "label": "Danny C. Sorensen",
-      "title": "Danny C. Sorensen"
+      "title": "Danny C. Sorensen",
+      "paper_count": 1
     },
     {
       "id": "author:candes-emmanuel",
       "type": "author",
       "label": "Emmanuel Candes",
-      "title": "Emmanuel Candes"
+      "title": "Emmanuel Candes",
+      "paper_count": 1
     },
     {
       "id": "author:romberg-justin",
       "type": "author",
       "label": "Justin Romberg",
-      "title": "Justin Romberg"
+      "title": "Justin Romberg",
+      "paper_count": 1
     },
     {
       "id": "author:tao-terence",
       "type": "author",
       "label": "Terence Tao",
-      "title": "Terence Tao"
+      "title": "Terence Tao",
+      "paper_count": 1
     },
     {
       "id": "author:heckel-reinhard",
       "type": "author",
       "label": "Reinhard Heckel",
-      "title": "Reinhard Heckel"
+      "title": "Reinhard Heckel",
+      "paper_count": 2
     },
     {
       "id": "author:bolcskei-helmut",
       "type": "author",
       "label": "Helmut Bölcskei",
-      "title": "Helmut Bölcskei"
+      "title": "Helmut Bölcskei",
+      "paper_count": 1
     },
     {
       "id": "author:brunton-steven-l",
       "type": "author",
       "label": "Steven L. Brunton",
-      "title": "Steven L. Brunton"
+      "title": "Steven L. Brunton",
+      "paper_count": 1
     },
     {
       "id": "author:proctor-joshua-l",
       "type": "author",
       "label": "Joshua L. Proctor",
-      "title": "Joshua L. Proctor"
+      "title": "Joshua L. Proctor",
+      "paper_count": 1
     },
     {
       "id": "author:kutz-j-nathan",
       "type": "author",
       "label": "J. Nathan Kutz",
-      "title": "J. Nathan Kutz"
+      "title": "J. Nathan Kutz",
+      "paper_count": 1
     },
     {
       "id": "author:adcock-ben",
       "type": "author",
       "label": "Ben Adcock",
-      "title": "Ben Adcock"
+      "title": "Ben Adcock",
+      "paper_count": 4
     },
     {
       "id": "author:brugiapaglia-simone",
       "type": "author",
       "label": "Simone Brugiapaglia",
-      "title": "Simone Brugiapaglia"
+      "title": "Simone Brugiapaglia",
+      "paper_count": 2
     },
     {
       "id": "author:webster-clayton-g",
       "type": "author",
       "label": "Clayton G. Webster",
-      "title": "Clayton G. Webster"
+      "title": "Clayton G. Webster",
+      "paper_count": 1
     },
     {
       "id": "author:bora-ashish",
       "type": "author",
       "label": "Ashish Bora",
-      "title": "Ashish Bora"
+      "title": "Ashish Bora",
+      "paper_count": 1
     },
     {
       "id": "author:jalal-ajil",
       "type": "author",
       "label": "Ajil Jalal",
-      "title": "Ajil Jalal"
+      "title": "Ajil Jalal",
+      "paper_count": 1
     },
     {
       "id": "author:price-eric",
       "type": "author",
       "label": "Eric Price",
-      "title": "Eric Price"
+      "title": "Eric Price",
+      "paper_count": 1
     },
     {
       "id": "author:dimakis-alexandros-g",
       "type": "author",
       "label": "Alexandros G. Dimakis",
-      "title": "Alexandros G. Dimakis"
+      "title": "Alexandros G. Dimakis",
+      "paper_count": 1
     },
     {
       "id": "author:hernandez-j-a",
       "type": "author",
       "label": "J. A. Hernandez",
-      "title": "J. A. Hernandez"
+      "title": "J. A. Hernandez",
+      "paper_count": 3
     },
     {
       "id": "author:caicedo-m-a",
       "type": "author",
       "label": "M. A. Caicedo",
-      "title": "M. A. Caicedo"
+      "title": "M. A. Caicedo",
+      "paper_count": 1
     },
     {
       "id": "author:ferrer-a",
       "type": "author",
       "label": "A. Ferrer",
-      "title": "A. Ferrer"
+      "title": "A. Ferrer",
+      "paper_count": 1
     },
     {
       "id": "author:ha-david",
       "type": "author",
       "label": "David Ha",
-      "title": "David Ha"
+      "title": "David Ha",
+      "paper_count": 1
     },
     {
       "id": "author:schmidhuber-jurgen",
       "type": "author",
       "label": "Jürgen Schmidhuber",
-      "title": "Jürgen Schmidhuber"
+      "title": "Jürgen Schmidhuber",
+      "paper_count": 1
     },
     {
       "id": "author:lu-lu",
       "type": "author",
       "label": "Lu Lu",
-      "title": "Lu Lu"
+      "title": "Lu Lu",
+      "paper_count": 1
     },
     {
       "id": "author:jin-pengzhan",
       "type": "author",
       "label": "Pengzhan Jin",
-      "title": "Pengzhan Jin"
+      "title": "Pengzhan Jin",
+      "paper_count": 1
     },
     {
       "id": "author:karniadakis-george-em",
       "type": "author",
       "label": "George Em Karniadakis",
-      "title": "George Em Karniadakis"
+      "title": "George Em Karniadakis",
+      "paper_count": 2
     },
     {
       "id": "author:li-zongyi",
       "type": "author",
       "label": "Zongyi Li",
-      "title": "Zongyi Li"
+      "title": "Zongyi Li",
+      "paper_count": 7
     },
     {
       "id": "author:kovachki-nikola",
       "type": "author",
       "label": "Nikola Kovachki",
-      "title": "Nikola Kovachki"
+      "title": "Nikola Kovachki",
+      "paper_count": 5
     },
     {
       "id": "author:azizzadenesheli-kamyar",
       "type": "author",
       "label": "Kamyar Azizzadenesheli",
-      "title": "Kamyar Azizzadenesheli"
+      "title": "Kamyar Azizzadenesheli",
+      "paper_count": 10
     },
     {
       "id": "author:liu-burigede",
       "type": "author",
       "label": "Burigede Liu",
-      "title": "Burigede Liu"
+      "title": "Burigede Liu",
+      "paper_count": 3
     },
     {
       "id": "author:bhattacharya-kaushik",
       "type": "author",
       "label": "Kaushik Bhattacharya",
-      "title": "Kaushik Bhattacharya"
+      "title": "Kaushik Bhattacharya",
+      "paper_count": 3
     },
     {
       "id": "author:stuart-andrew",
       "type": "author",
       "label": "Andrew Stuart",
-      "title": "Andrew Stuart"
+      "title": "Andrew Stuart",
+      "paper_count": 5
     },
     {
       "id": "author:anandkumar-anima",
       "type": "author",
       "label": "Anima Anandkumar",
-      "title": "Anima Anandkumar"
+      "title": "Anima Anandkumar",
+      "paper_count": 12
     },
     {
       "id": "author:sanchez-gonzalez-alvaro",
       "type": "author",
       "label": "Alvaro Sanchez-Gonzalez",
-      "title": "Alvaro Sanchez-Gonzalez"
+      "title": "Alvaro Sanchez-Gonzalez",
+      "paper_count": 1
     },
     {
       "id": "author:godwin-jonathan",
       "type": "author",
       "label": "Jonathan Godwin",
-      "title": "Jonathan Godwin"
+      "title": "Jonathan Godwin",
+      "paper_count": 1
     },
     {
       "id": "author:pfaff-tobias",
       "type": "author",
       "label": "Tobias Pfaff",
-      "title": "Tobias Pfaff"
+      "title": "Tobias Pfaff",
+      "paper_count": 1
     },
     {
       "id": "author:ying-rex",
       "type": "author",
       "label": "Rex Ying",
-      "title": "Rex Ying"
+      "title": "Rex Ying",
+      "paper_count": 1
     },
     {
       "id": "author:leskovec-jure",
       "type": "author",
       "label": "Jure Leskovec",
-      "title": "Jure Leskovec"
+      "title": "Jure Leskovec",
+      "paper_count": 1
     },
     {
       "id": "author:battaglia-peter-w",
       "type": "author",
       "label": "Peter W. Battaglia",
-      "title": "Peter W. Battaglia"
+      "title": "Peter W. Battaglia",
+      "paper_count": 1
     },
     {
       "id": "author:wen-gege",
       "type": "author",
       "label": "Gege Wen",
-      "title": "Gege Wen"
+      "title": "Gege Wen",
+      "paper_count": 1
     },
     {
       "id": "author:benson-sally-m",
       "type": "author",
       "label": "Sally M. Benson",
-      "title": "Sally M. Benson"
+      "title": "Sally M. Benson",
+      "paper_count": 1
     },
     {
       "id": "author:yang-yan",
       "type": "author",
       "label": "Yan Yang",
-      "title": "Yan Yang"
+      "title": "Yan Yang",
+      "paper_count": 1
     },
     {
       "id": "author:gao-angela-f",
       "type": "author",
       "label": "Angela F. Gao",
-      "title": "Angela F. Gao"
+      "title": "Angela F. Gao",
+      "paper_count": 1
     },
     {
       "id": "author:castellanos-jorge-c",
       "type": "author",
       "label": "Jorge C. Castellanos",
-      "title": "Jorge C. Castellanos"
+      "title": "Jorge C. Castellanos",
+      "paper_count": 1
     },
     {
       "id": "author:ross-zachary-e",
       "type": "author",
       "label": "Zachary E. Ross",
-      "title": "Zachary E. Ross"
+      "title": "Zachary E. Ross",
+      "paper_count": 1
     },
     {
       "id": "author:clayton-robert-w",
       "type": "author",
       "label": "Robert W. Clayton",
-      "title": "Robert W. Clayton"
+      "title": "Robert W. Clayton",
+      "paper_count": 1
     },
     {
       "id": "author:pathak-jaideep",
       "type": "author",
       "label": "Jaideep Pathak",
-      "title": "Jaideep Pathak"
+      "title": "Jaideep Pathak",
+      "paper_count": 2
     },
     {
       "id": "author:subramanian-shashank",
       "type": "author",
       "label": "Shashank Subramanian",
-      "title": "Shashank Subramanian"
+      "title": "Shashank Subramanian",
+      "paper_count": 1
     },
     {
       "id": "author:harrington-peter",
       "type": "author",
       "label": "Peter Harrington",
-      "title": "Peter Harrington"
+      "title": "Peter Harrington",
+      "paper_count": 1
     },
     {
       "id": "author:raja-sanjeev",
       "type": "author",
       "label": "Sanjeev Raja",
-      "title": "Sanjeev Raja"
+      "title": "Sanjeev Raja",
+      "paper_count": 1
     },
     {
       "id": "author:chattopadhyay-ashesh",
       "type": "author",
       "label": "Ashesh Chattopadhyay",
-      "title": "Ashesh Chattopadhyay"
+      "title": "Ashesh Chattopadhyay",
+      "paper_count": 1
     },
     {
       "id": "author:mardani-morteza",
       "type": "author",
       "label": "Morteza Mardani",
-      "title": "Morteza Mardani"
+      "title": "Morteza Mardani",
+      "paper_count": 1
     },
     {
       "id": "author:kurth-thorsten",
       "type": "author",
       "label": "Thorsten Kurth",
-      "title": "Thorsten Kurth"
+      "title": "Thorsten Kurth",
+      "paper_count": 3
     },
     {
       "id": "author:hall-david",
       "type": "author",
       "label": "David Hall",
-      "title": "David Hall"
+      "title": "David Hall",
+      "paper_count": 1
     },
     {
       "id": "author:hassanzadeh-pedram",
       "type": "author",
       "label": "Pedram Hassanzadeh",
-      "title": "Pedram Hassanzadeh"
+      "title": "Pedram Hassanzadeh",
+      "paper_count": 1
     },
     {
       "id": "author:kashinath-karthik",
       "type": "author",
       "label": "Karthik Kashinath",
-      "title": "Karthik Kashinath"
+      "title": "Karthik Kashinath",
+      "paper_count": 3
     },
     {
       "id": "author:takamoto-makoto",
       "type": "author",
       "label": "Makoto Takamoto",
-      "title": "Makoto Takamoto"
+      "title": "Makoto Takamoto",
+      "paper_count": 1
     },
     {
       "id": "author:praditia-timothy",
       "type": "author",
       "label": "Timothy Praditia",
-      "title": "Timothy Praditia"
+      "title": "Timothy Praditia",
+      "paper_count": 1
     },
     {
       "id": "author:leiteritz-raphael",
       "type": "author",
       "label": "Raphael Leiteritz",
-      "title": "Raphael Leiteritz"
+      "title": "Raphael Leiteritz",
+      "paper_count": 1
     },
     {
       "id": "author:mackinlay-dan",
       "type": "author",
       "label": "Dan MacKinlay",
-      "title": "Dan MacKinlay"
+      "title": "Dan MacKinlay",
+      "paper_count": 1
     },
     {
       "id": "author:alesiani-francesco",
       "type": "author",
       "label": "Francesco Alesiani",
-      "title": "Francesco Alesiani"
+      "title": "Francesco Alesiani",
+      "paper_count": 1
     },
     {
       "id": "author:pfluger-dirk",
       "type": "author",
       "label": "Dirk Pflüger",
-      "title": "Dirk Pflüger"
+      "title": "Dirk Pflüger",
+      "paper_count": 1
     },
     {
       "id": "author:niepert-mathias",
       "type": "author",
       "label": "Mathias Niepert",
-      "title": "Mathias Niepert"
+      "title": "Mathias Niepert",
+      "paper_count": 1
     },
     {
       "id": "author:molinaro-roberto",
       "type": "author",
       "label": "Roberto Molinaro",
-      "title": "Roberto Molinaro"
+      "title": "Roberto Molinaro",
+      "paper_count": 3
     },
     {
       "id": "author:yang-yunan",
       "type": "author",
       "label": "Yunan Yang",
-      "title": "Yunan Yang"
+      "title": "Yunan Yang",
+      "paper_count": 1
     },
     {
       "id": "author:engquist-bjorn",
       "type": "author",
       "label": "Björn Engquist",
-      "title": "Björn Engquist"
+      "title": "Björn Engquist",
+      "paper_count": 1
     },
     {
       "id": "author:mishra-siddhartha",
       "type": "author",
       "label": "Siddhartha Mishra",
-      "title": "Siddhartha Mishra"
+      "title": "Siddhartha Mishra",
+      "paper_count": 3
     },
     {
       "id": "author:augenstein-yannick",
       "type": "author",
       "label": "Yannick Augenstein",
-      "title": "Yannick Augenstein"
+      "title": "Yannick Augenstein",
+      "paper_count": 1
     },
     {
       "id": "author:repan-taavi",
       "type": "author",
       "label": "Taavi Repän",
-      "title": "Taavi Repän"
+      "title": "Taavi Repän",
+      "paper_count": 1
     },
     {
       "id": "author:rockstuhl-carsten",
       "type": "author",
       "label": "Carsten Rockstuhl",
-      "title": "Carsten Rockstuhl"
+      "title": "Carsten Rockstuhl",
+      "paper_count": 1
     },
     {
       "id": "author:bonev-boris",
       "type": "author",
       "label": "Boris Bonev",
-      "title": "Boris Bonev"
+      "title": "Boris Bonev",
+      "paper_count": 4
     },
     {
       "id": "author:hundt-christian",
       "type": "author",
       "label": "Christian Hundt",
-      "title": "Christian Hundt"
+      "title": "Christian Hundt",
+      "paper_count": 2
     },
     {
       "id": "author:baust-maximilian",
       "type": "author",
       "label": "Maximilian Baust",
-      "title": "Maximilian Baust"
+      "title": "Maximilian Baust",
+      "paper_count": 1
     },
     {
       "id": "author:qi-jie",
       "type": "author",
       "label": "Jie Qi",
-      "title": "Jie Qi"
+      "title": "Jie Qi",
+      "paper_count": 1
     },
     {
       "id": "author:zhang-jing",
       "type": "author",
       "label": "Jing Zhang",
-      "title": "Jing Zhang"
+      "title": "Jing Zhang",
+      "paper_count": 1
     },
     {
       "id": "author:krstic-miroslav",
       "type": "author",
       "label": "Miroslav Krstic",
-      "title": "Miroslav Krstic"
+      "title": "Miroslav Krstic",
+      "paper_count": 1
     },
     {
       "id": "author:choy-chris",
       "type": "author",
       "label": "Chris Choy",
-      "title": "Chris Choy"
+      "title": "Chris Choy",
+      "paper_count": 1
     },
     {
       "id": "author:li-boyi",
       "type": "author",
       "label": "Boyi Li",
-      "title": "Boyi Li"
+      "title": "Boyi Li",
+      "paper_count": 1
     },
     {
       "id": "author:kossaifi-jean",
       "type": "author",
       "label": "Jean Kossaifi",
-      "title": "Jean Kossaifi"
+      "title": "Jean Kossaifi",
+      "paper_count": 5
     },
     {
       "id": "author:otta-shourya-prakash",
       "type": "author",
       "label": "Shourya Prakash Otta",
-      "title": "Shourya Prakash Otta"
+      "title": "Shourya Prakash Otta",
+      "paper_count": 1
     },
     {
       "id": "author:nabian-mohammad-amin",
       "type": "author",
       "label": "Mohammad Amin Nabian",
-      "title": "Mohammad Amin Nabian"
+      "title": "Mohammad Amin Nabian",
+      "paper_count": 1
     },
     {
       "id": "author:stadler-maximilian",
       "type": "author",
       "label": "Maximilian Stadler",
-      "title": "Maximilian Stadler"
+      "title": "Maximilian Stadler",
+      "paper_count": 1
     },
     {
       "id": "author:bravo-j-r",
       "type": "author",
       "label": "J. R. Bravo",
-      "title": "J. R. Bravo"
+      "title": "J. R. Bravo",
+      "paper_count": 1
     },
     {
       "id": "author:de-parga-s-ares",
       "type": "author",
       "label": "S. Ares de Parga",
-      "title": "S. Ares de Parga"
+      "title": "S. Ares de Parga",
+      "paper_count": 2
     },
     {
       "id": "author:hafner-danijar",
       "type": "author",
       "label": "Danijar Hafner",
-      "title": "Danijar Hafner"
+      "title": "Danijar Hafner",
+      "paper_count": 1
     },
     {
       "id": "author:pasukonis-jurgis",
       "type": "author",
       "label": "Jurgis Pasukonis",
-      "title": "Jurgis Pasukonis"
+      "title": "Jurgis Pasukonis",
+      "paper_count": 1
     },
     {
       "id": "author:ba-jimmy",
       "type": "author",
       "label": "Jimmy Ba",
-      "title": "Jimmy Ba"
+      "title": "Jimmy Ba",
+      "paper_count": 1
     },
     {
       "id": "author:lillicrap-timothy",
       "type": "author",
       "label": "Timothy Lillicrap",
-      "title": "Timothy Lillicrap"
+      "title": "Timothy Lillicrap",
+      "paper_count": 1
     },
     {
       "id": "author:griebel-michael",
       "type": "author",
       "label": "Michael Griebel",
-      "title": "Michael Griebel"
+      "title": "Michael Griebel",
+      "paper_count": 1
     },
     {
       "id": "author:maier-gregor",
       "type": "author",
       "label": "Gregor Maier",
-      "title": "Gregor Maier"
+      "title": "Gregor Maier",
+      "paper_count": 1
     },
     {
       "id": "author:cardenas-juan-m",
       "type": "author",
       "label": "Juan M. Cardenas",
-      "title": "Juan M. Cardenas"
+      "title": "Juan M. Cardenas",
+      "paper_count": 1
     },
     {
       "id": "author:dexter-nick",
       "type": "author",
       "label": "Nick Dexter",
-      "title": "Nick Dexter"
+      "title": "Nick Dexter",
+      "paper_count": 1
     },
     {
       "id": "author:lanthaler-samuel",
       "type": "author",
       "label": "Samuel Lanthaler",
-      "title": "Samuel Lanthaler"
+      "title": "Samuel Lanthaler",
+      "paper_count": 2
     },
     {
       "id": "author:trautner-margaret",
       "type": "author",
       "label": "Margaret Trautner",
-      "title": "Margaret Trautner"
+      "title": "Margaret Trautner",
+      "paper_count": 1
     },
     {
       "id": "author:herde-maximilian",
       "type": "author",
       "label": "Maximilian Herde",
-      "title": "Maximilian Herde"
+      "title": "Maximilian Herde",
+      "paper_count": 1
     },
     {
       "id": "author:raonic-bogdan",
       "type": "author",
       "label": "Bogdan Raonić",
-      "title": "Bogdan Raonić"
+      "title": "Bogdan Raonić",
+      "paper_count": 2
     },
     {
       "id": "author:rohner-tobias",
       "type": "author",
       "label": "Tobias Rohner",
-      "title": "Tobias Rohner"
+      "title": "Tobias Rohner",
+      "paper_count": 1
     },
     {
       "id": "author:kappeli-roger",
       "type": "author",
       "label": "Roger Käppeli",
-      "title": "Roger Käppeli"
+      "title": "Roger Käppeli",
+      "paper_count": 1
     },
     {
       "id": "author:de-bezenac-emmanuel",
       "type": "author",
       "label": "Emmanuel de Bézenac",
-      "title": "Emmanuel de Bézenac"
+      "title": "Emmanuel de Bézenac",
+      "paper_count": 2
     },
     {
       "id": "author:lowery-matthew",
       "type": "author",
       "label": "Matthew Lowery",
-      "title": "Matthew Lowery"
+      "title": "Matthew Lowery",
+      "paper_count": 1
     },
     {
       "id": "author:turnage-john",
       "type": "author",
       "label": "John Turnage",
-      "title": "John Turnage"
+      "title": "John Turnage",
+      "paper_count": 1
     },
     {
       "id": "author:morrow-zachary",
       "type": "author",
       "label": "Zachary Morrow",
-      "title": "Zachary Morrow"
+      "title": "Zachary Morrow",
+      "paper_count": 1
     },
     {
       "id": "author:jakeman-john-d",
       "type": "author",
       "label": "John D. Jakeman",
-      "title": "John D. Jakeman"
+      "title": "John D. Jakeman",
+      "paper_count": 1
     },
     {
       "id": "author:narayan-akil",
       "type": "author",
       "label": "Akil Narayan",
-      "title": "Akil Narayan"
+      "title": "Akil Narayan",
+      "paper_count": 1
     },
     {
       "id": "author:zhe-shandian",
       "type": "author",
       "label": "Shandian Zhe",
-      "title": "Shandian Zhe"
+      "title": "Shandian Zhe",
+      "paper_count": 1
     },
     {
       "id": "author:shankar-varun",
       "type": "author",
       "label": "Varun Shankar",
-      "title": "Varun Shankar"
+      "title": "Varun Shankar",
+      "paper_count": 2
     },
     {
       "id": "author:ohana-ruben",
       "type": "author",
       "label": "Ruben Ohana",
-      "title": "Ruben Ohana"
+      "title": "Ruben Ohana",
+      "paper_count": 1
     },
     {
       "id": "author:mccabe-michael",
       "type": "author",
       "label": "Michael McCabe",
-      "title": "Michael McCabe"
+      "title": "Michael McCabe",
+      "paper_count": 1
     },
     {
       "id": "author:meyer-lucas",
       "type": "author",
       "label": "Lucas Meyer",
-      "title": "Lucas Meyer"
+      "title": "Lucas Meyer",
+      "paper_count": 1
     },
     {
       "id": "author:morel-rudy",
       "type": "author",
       "label": "Rudy Morel",
-      "title": "Rudy Morel"
+      "title": "Rudy Morel",
+      "paper_count": 1
     },
     {
       "id": "author:agocs-fruzsina-j",
       "type": "author",
       "label": "Fruzsina J. Agocs",
-      "title": "Fruzsina J. Agocs"
+      "title": "Fruzsina J. Agocs",
+      "paper_count": 1
     },
     {
       "id": "author:beneitez-miguel",
       "type": "author",
       "label": "Miguel Beneitez",
-      "title": "Miguel Beneitez"
+      "title": "Miguel Beneitez",
+      "paper_count": 1
     },
     {
       "id": "author:berger-marsha",
       "type": "author",
       "label": "Marsha Berger",
-      "title": "Marsha Berger"
+      "title": "Marsha Berger",
+      "paper_count": 1
     },
     {
       "id": "author:burkhart-blakesley",
       "type": "author",
       "label": "Blakesley Burkhart",
-      "title": "Blakesley Burkhart"
+      "title": "Blakesley Burkhart",
+      "paper_count": 1
     },
     {
       "id": "author:burns-keaton",
       "type": "author",
       "label": "Keaton Burns",
-      "title": "Keaton Burns"
+      "title": "Keaton Burns",
+      "paper_count": 1
     },
     {
       "id": "author:dalziel-stuart-b",
       "type": "author",
       "label": "Stuart B. Dalziel",
-      "title": "Stuart B. Dalziel"
+      "title": "Stuart B. Dalziel",
+      "paper_count": 1
     },
     {
       "id": "author:fielding-drummond-b",
       "type": "author",
       "label": "Drummond B. Fielding",
-      "title": "Drummond B. Fielding"
+      "title": "Drummond B. Fielding",
+      "paper_count": 1
     },
     {
       "id": "author:fortunato-daniel",
       "type": "author",
       "label": "Daniel Fortunato",
-      "title": "Daniel Fortunato"
+      "title": "Daniel Fortunato",
+      "paper_count": 1
     },
     {
       "id": "author:goldberg-jared-a",
       "type": "author",
       "label": "Jared A. Goldberg",
-      "title": "Jared A. Goldberg"
+      "title": "Jared A. Goldberg",
+      "paper_count": 1
     },
     {
       "id": "author:hirashima-keiya",
       "type": "author",
       "label": "Keiya Hirashima",
-      "title": "Keiya Hirashima"
+      "title": "Keiya Hirashima",
+      "paper_count": 1
     },
     {
       "id": "author:jiang-yan-fei",
       "type": "author",
       "label": "Yan-Fei Jiang",
-      "title": "Yan-Fei Jiang"
+      "title": "Yan-Fei Jiang",
+      "paper_count": 1
     },
     {
       "id": "author:kerswell-rich-r",
       "type": "author",
       "label": "Rich R. Kerswell",
-      "title": "Rich R. Kerswell"
+      "title": "Rich R. Kerswell",
+      "paper_count": 1
     },
     {
       "id": "author:maddu-suryanarayana",
       "type": "author",
       "label": "Suryanarayana Maddu",
-      "title": "Suryanarayana Maddu"
+      "title": "Suryanarayana Maddu",
+      "paper_count": 1
     },
     {
       "id": "author:miller-jonah",
       "type": "author",
       "label": "Jonah Miller",
-      "title": "Jonah Miller"
+      "title": "Jonah Miller",
+      "paper_count": 1
     },
     {
       "id": "author:mukhopadhyay-payel",
       "type": "author",
       "label": "Payel Mukhopadhyay",
-      "title": "Payel Mukhopadhyay"
+      "title": "Payel Mukhopadhyay",
+      "paper_count": 1
     },
     {
       "id": "author:nixon-stefan-s",
       "type": "author",
       "label": "Stefan S. Nixon",
-      "title": "Stefan S. Nixon"
+      "title": "Stefan S. Nixon",
+      "paper_count": 1
     },
     {
       "id": "author:shen-jeff",
       "type": "author",
       "label": "Jeff Shen",
-      "title": "Jeff Shen"
+      "title": "Jeff Shen",
+      "paper_count": 1
     },
     {
       "id": "author:watteaux-romain",
       "type": "author",
       "label": "Romain Watteaux",
-      "title": "Romain Watteaux"
+      "title": "Romain Watteaux",
+      "paper_count": 1
     },
     {
       "id": "author:blancard-bruno-regaldo-saint",
       "type": "author",
       "label": "Bruno Régaldo-Saint Blancard",
-      "title": "Bruno Régaldo-Saint Blancard"
+      "title": "Bruno Régaldo-Saint Blancard",
+      "paper_count": 1
     },
     {
       "id": "author:rozet-francois",
       "type": "author",
       "label": "François Rozet",
-      "title": "François Rozet"
+      "title": "François Rozet",
+      "paper_count": 1
     },
     {
       "id": "author:parker-liam-h",
       "type": "author",
       "label": "Liam H. Parker",
-      "title": "Liam H. Parker"
+      "title": "Liam H. Parker",
+      "paper_count": 1
     },
     {
       "id": "author:cranmer-miles",
       "type": "author",
       "label": "Miles Cranmer",
-      "title": "Miles Cranmer"
+      "title": "Miles Cranmer",
+      "paper_count": 1
     },
     {
       "id": "author:ho-shirley",
       "type": "author",
       "label": "Shirley Ho",
-      "title": "Shirley Ho"
+      "title": "Shirley Ho",
+      "paper_count": 1
     },
     {
       "id": "author:matada-sharath",
       "type": "author",
       "label": "Sharath Matada",
-      "title": "Sharath Matada"
+      "title": "Sharath Matada",
+      "paper_count": 1
     },
     {
       "id": "author:bhan-luke",
       "type": "author",
       "label": "Luke Bhan",
-      "title": "Luke Bhan"
+      "title": "Luke Bhan",
+      "paper_count": 1
     },
     {
       "id": "author:shi-yuanyuan",
       "type": "author",
       "label": "Yuanyuan Shi",
-      "title": "Yuanyuan Shi"
+      "title": "Yuanyuan Shi",
+      "paper_count": 1
     },
     {
       "id": "author:atanasov-nikolay",
       "type": "author",
       "label": "Nikolay Atanasov",
-      "title": "Nikolay Atanasov"
+      "title": "Nikolay Atanasov",
+      "paper_count": 1
     },
     {
       "id": "author:kim-minjung",
       "type": "author",
       "label": "Minjung Kim",
-      "title": "Minjung Kim"
+      "title": "Minjung Kim",
+      "paper_count": 1
     },
     {
       "id": "author:hioka-yusuke",
       "type": "author",
       "label": "Yusuke Hioka",
-      "title": "Yusuke Hioka"
+      "title": "Yusuke Hioka",
+      "paper_count": 1
     },
     {
       "id": "author:witbrock-michael",
       "type": "author",
       "label": "Michael Witbrock",
-      "title": "Michael Witbrock"
+      "title": "Michael Witbrock",
+      "paper_count": 1
     },
     {
       "id": "author:pitt-david",
       "type": "author",
       "label": "David Pitt",
-      "title": "David Pitt"
+      "title": "David Pitt",
+      "paper_count": 1
     },
     {
       "id": "author:liu-schiaffini-miguel",
       "type": "author",
       "label": "Miguel Liu-Schiaffini",
-      "title": "Miguel Liu-Schiaffini"
+      "title": "Miguel Liu-Schiaffini",
+      "paper_count": 3
     },
     {
       "id": "author:george-robert-joseph",
       "type": "author",
       "label": "Robert Joseph George",
-      "title": "Robert Joseph George"
+      "title": "Robert Joseph George",
+      "paper_count": 1
     },
     {
       "id": "author:berner-julius",
       "type": "author",
       "label": "Julius Berner",
-      "title": "Julius Berner"
+      "title": "Julius Berner",
+      "paper_count": 2
     },
     {
       "id": "author:duruisseaux-valentin",
       "type": "author",
       "label": "Valentin Duruisseaux",
-      "title": "Valentin Duruisseaux"
+      "title": "Valentin Duruisseaux",
+      "paper_count": 3
     },
     {
       "id": "author:kumar-avisha",
       "type": "author",
       "label": "Avisha Kumar",
-      "title": "Avisha Kumar"
+      "title": "Avisha Kumar",
+      "paper_count": 1
     },
     {
       "id": "author:zhi-xuzhe",
       "type": "author",
       "label": "Xuzhe Zhi",
-      "title": "Xuzhe Zhi"
+      "title": "Xuzhe Zhi",
+      "paper_count": 1
     },
     {
       "id": "author:ahmad-zan",
       "type": "author",
       "label": "Zan Ahmad",
-      "title": "Zan Ahmad"
+      "title": "Zan Ahmad",
+      "paper_count": 1
     },
     {
       "id": "author:yin-minglang",
       "type": "author",
       "label": "Minglang Yin",
-      "title": "Minglang Yin"
+      "title": "Minglang Yin",
+      "paper_count": 1
     },
     {
       "id": "author:manbachi-amir",
       "type": "author",
       "label": "Amir Manbachi",
-      "title": "Amir Manbachi"
+      "title": "Amir Manbachi",
+      "paper_count": 1
     },
     {
       "id": "author:wan-ruyin",
       "type": "author",
       "label": "Ruyin Wan",
-      "title": "Ruyin Wan"
+      "title": "Ruyin Wan",
+      "paper_count": 1
     },
     {
       "id": "author:kharazmi-ehsan",
       "type": "author",
       "label": "Ehsan Kharazmi",
-      "title": "Ehsan Kharazmi"
+      "title": "Ehsan Kharazmi",
+      "paper_count": 1
     },
     {
       "id": "author:triantafyllou-michael-s",
       "type": "author",
       "label": "Michael S Triantafyllou",
-      "title": "Michael S Triantafyllou"
+      "title": "Michael S Triantafyllou",
+      "paper_count": 1
     },
     {
       "id": "author:assran-mido",
       "type": "author",
       "label": "Mido Assran",
-      "title": "Mido Assran"
+      "title": "Mido Assran",
+      "paper_count": 2
     },
     {
       "id": "author:bardes-adrien",
       "type": "author",
       "label": "Adrien Bardes",
-      "title": "Adrien Bardes"
+      "title": "Adrien Bardes",
+      "paper_count": 2
     },
     {
       "id": "author:fan-david",
       "type": "author",
       "label": "David Fan",
-      "title": "David Fan"
+      "title": "David Fan",
+      "paper_count": 1
     },
     {
       "id": "author:garrido-quentin",
       "type": "author",
       "label": "Quentin Garrido",
-      "title": "Quentin Garrido"
+      "title": "Quentin Garrido",
+      "paper_count": 1
     },
     {
       "id": "author:howes-russell",
       "type": "author",
       "label": "Russell Howes",
-      "title": "Russell Howes"
+      "title": "Russell Howes",
+      "paper_count": 1
     },
     {
       "id": "author:mojtaba",
       "type": "author",
       "label": "Mojtaba",
-      "title": "Mojtaba"
+      "title": "Mojtaba",
+      "paper_count": 1
     },
     {
       "id": "author:komeili",
       "type": "author",
       "label": "Komeili",
-      "title": "Komeili"
+      "title": "Komeili",
+      "paper_count": 1
     },
     {
       "id": "author:muckley-matthew",
       "type": "author",
       "label": "Matthew Muckley",
-      "title": "Matthew Muckley"
+      "title": "Matthew Muckley",
+      "paper_count": 2
     },
     {
       "id": "author:rizvi-ammar",
       "type": "author",
       "label": "Ammar Rizvi",
-      "title": "Ammar Rizvi"
+      "title": "Ammar Rizvi",
+      "paper_count": 1
     },
     {
       "id": "author:roberts-claire",
       "type": "author",
       "label": "Claire Roberts",
-      "title": "Claire Roberts"
+      "title": "Claire Roberts",
+      "paper_count": 1
     },
     {
       "id": "author:sinha-koustuv",
       "type": "author",
       "label": "Koustuv Sinha",
-      "title": "Koustuv Sinha"
+      "title": "Koustuv Sinha",
+      "paper_count": 2
     },
     {
       "id": "author:zholus-artem",
       "type": "author",
       "label": "Artem Zholus",
-      "title": "Artem Zholus"
+      "title": "Artem Zholus",
+      "paper_count": 1
     },
     {
       "id": "author:arnaud-sergio",
       "type": "author",
       "label": "Sergio Arnaud",
-      "title": "Sergio Arnaud"
+      "title": "Sergio Arnaud",
+      "paper_count": 1
     },
     {
       "id": "author:gejji-abha",
       "type": "author",
       "label": "Abha Gejji",
-      "title": "Abha Gejji"
+      "title": "Abha Gejji",
+      "paper_count": 1
     },
     {
       "id": "author:martin-ada",
       "type": "author",
       "label": "Ada Martin",
-      "title": "Ada Martin"
+      "title": "Ada Martin",
+      "paper_count": 1
     },
     {
       "id": "author:hogan-francois-robert",
       "type": "author",
       "label": "Francois Robert Hogan",
-      "title": "Francois Robert Hogan"
+      "title": "Francois Robert Hogan",
+      "paper_count": 1
     },
     {
       "id": "author:dugas-daniel",
       "type": "author",
       "label": "Daniel Dugas",
-      "title": "Daniel Dugas"
+      "title": "Daniel Dugas",
+      "paper_count": 1
     },
     {
       "id": "author:bojanowski-piotr",
       "type": "author",
       "label": "Piotr Bojanowski",
-      "title": "Piotr Bojanowski"
+      "title": "Piotr Bojanowski",
+      "paper_count": 1
     },
     {
       "id": "author:khalidov-vasil",
       "type": "author",
       "label": "Vasil Khalidov",
-      "title": "Vasil Khalidov"
+      "title": "Vasil Khalidov",
+      "paper_count": 1
     },
     {
       "id": "author:labatut-patrick",
       "type": "author",
       "label": "Patrick Labatut",
-      "title": "Patrick Labatut"
+      "title": "Patrick Labatut",
+      "paper_count": 1
     },
     {
       "id": "author:massa-francisco",
       "type": "author",
       "label": "Francisco Massa",
-      "title": "Francisco Massa"
+      "title": "Francisco Massa",
+      "paper_count": 1
     },
     {
       "id": "author:szafraniec-marc",
       "type": "author",
       "label": "Marc Szafraniec",
-      "title": "Marc Szafraniec"
+      "title": "Marc Szafraniec",
+      "paper_count": 1
     },
     {
       "id": "author:krishnakumar-kapil",
       "type": "author",
       "label": "Kapil Krishnakumar",
-      "title": "Kapil Krishnakumar"
+      "title": "Kapil Krishnakumar",
+      "paper_count": 1
     },
     {
       "id": "author:li-yong",
       "type": "author",
       "label": "Yong Li",
-      "title": "Yong Li"
+      "title": "Yong Li",
+      "paper_count": 1
     },
     {
       "id": "author:ma-xiaodong",
       "type": "author",
       "label": "Xiaodong Ma",
-      "title": "Xiaodong Ma"
+      "title": "Xiaodong Ma",
+      "paper_count": 1
     },
     {
       "id": "author:chandar-sarath",
       "type": "author",
       "label": "Sarath Chandar",
-      "title": "Sarath Chandar"
+      "title": "Sarath Chandar",
+      "paper_count": 1
     },
     {
       "id": "author:meier-franziska",
       "type": "author",
       "label": "Franziska Meier",
-      "title": "Franziska Meier"
+      "title": "Franziska Meier",
+      "paper_count": 1
     },
     {
       "id": "author:lecun-yann",
       "type": "author",
       "label": "Yann LeCun",
-      "title": "Yann LeCun"
+      "title": "Yann LeCun",
+      "paper_count": 2
     },
     {
       "id": "author:rabbat-michael",
       "type": "author",
       "label": "Michael Rabbat",
-      "title": "Michael Rabbat"
+      "title": "Michael Rabbat",
+      "paper_count": 1
     },
     {
       "id": "author:ballas-nicolas",
       "type": "author",
       "label": "Nicolas Ballas",
-      "title": "Nicolas Ballas"
+      "title": "Nicolas Ballas",
+      "paper_count": 2
     },
     {
       "id": "author:mahesh-ankur",
       "type": "author",
       "label": "Ankur Mahesh",
-      "title": "Ankur Mahesh"
+      "title": "Ankur Mahesh",
+      "paper_count": 1
     },
     {
       "id": "author:bisson-mauro",
       "type": "author",
       "label": "Mauro Bisson",
-      "title": "Mauro Bisson"
+      "title": "Mauro Bisson",
+      "paper_count": 1
     },
     {
       "id": "author:collins-william-d",
       "type": "author",
       "label": "William D. Collins",
-      "title": "William D. Collins"
+      "title": "William D. Collins",
+      "paper_count": 1
     },
     {
       "id": "author:pritchard-michael-s",
       "type": "author",
       "label": "Michael S. Pritchard",
-      "title": "Michael S. Pritchard"
+      "title": "Michael S. Pritchard",
+      "paper_count": 1
     },
     {
       "id": "author:keller-alexander",
       "type": "author",
       "label": "Alexander Keller",
-      "title": "Alexander Keller"
+      "title": "Alexander Keller",
+      "paper_count": 1
     },
     {
       "id": "author:pal-sourav",
       "type": "author",
       "label": "Sourav Pal",
-      "title": "Sourav Pal"
+      "title": "Sourav Pal",
+      "paper_count": 1
     },
     {
       "id": "author:singh-vikas",
       "type": "author",
       "label": "Vikas Singh",
-      "title": "Vikas Singh"
+      "title": "Vikas Singh",
+      "paper_count": 1
     },
     {
       "id": "author:tian-mingxuan",
       "type": "author",
       "label": "Mingxuan Tian",
-      "title": "Mingxuan Tian"
+      "title": "Mingxuan Tian",
+      "paper_count": 1
     },
     {
       "id": "author:mu-haochen",
       "type": "author",
       "label": "Haochen Mu",
-      "title": "Haochen Mu"
+      "title": "Haochen Mu",
+      "paper_count": 1
     },
     {
       "id": "author:ding-donghong",
       "type": "author",
       "label": "Donghong Ding",
-      "title": "Donghong Ding"
+      "title": "Donghong Ding",
+      "paper_count": 1
     },
     {
       "id": "author:li-mengjiao",
       "type": "author",
       "label": "Mengjiao Li",
-      "title": "Mengjiao Li"
+      "title": "Mengjiao Li",
+      "paper_count": 1
     },
     {
       "id": "author:ding-yuhan",
       "type": "author",
       "label": "Yuhan Ding",
-      "title": "Yuhan Ding"
+      "title": "Yuhan Ding",
+      "paper_count": 1
     },
     {
       "id": "author:zhao-jianping",
       "type": "author",
       "label": "Jianping Zhao",
-      "title": "Jianping Zhao"
+      "title": "Jianping Zhao",
+      "paper_count": 1
     },
     {
       "id": "author:veil-carina",
       "type": "author",
       "label": "Carina Veil",
-      "title": "Carina Veil"
+      "title": "Carina Veil",
+      "paper_count": 1
     },
     {
       "id": "author:flaschel-moritz",
       "type": "author",
       "label": "Moritz Flaschel",
-      "title": "Moritz Flaschel"
+      "title": "Moritz Flaschel",
+      "paper_count": 1
     },
     {
       "id": "author:kuhl-ellen",
       "type": "author",
       "label": "Ellen Kuhl",
-      "title": "Ellen Kuhl"
+      "title": "Ellen Kuhl",
+      "paper_count": 1
     },
     {
       "id": "author:della-santina-cosimo",
       "type": "author",
       "label": "Cosimo Della Santina",
-      "title": "Cosimo Della Santina"
+      "title": "Cosimo Della Santina",
+      "paper_count": 1
     },
     {
       "id": "author:franco-nicola-rares",
       "type": "author",
       "label": "Nicola Rares Franco",
-      "title": "Nicola Rares Franco"
+      "title": "Nicola Rares Franco",
+      "paper_count": 1
     },
     {
       "id": "author:nelsen-nicholas-h",
       "type": "author",
       "label": "Nicholas H. Nelsen",
-      "title": "Nicholas H. Nelsen"
+      "title": "Nicholas H. Nelsen",
+      "paper_count": 1
     },
     {
       "id": "author:mur-labadia-lorenzo",
       "type": "author",
       "label": "Lorenzo Mur-Labadia",
-      "title": "Lorenzo Mur-Labadia"
+      "title": "Lorenzo Mur-Labadia",
+      "paper_count": 1
     },
     {
       "id": "author:bar-amir",
       "type": "author",
       "label": "Amir Bar",
-      "title": "Amir Bar"
+      "title": "Amir Bar",
+      "paper_count": 1
     },
     {
       "id": "author:rabbat-mike",
       "type": "author",
       "label": "Mike Rabbat",
-      "title": "Mike Rabbat"
+      "title": "Mike Rabbat",
+      "paper_count": 1
     },
     {
       "id": "author:khan-muhammad-idrees",
       "type": "author",
       "label": "Muhammad Idrees Khan",
-      "title": "Muhammad Idrees Khan"
+      "title": "Muhammad Idrees Khan",
+      "paper_count": 1
     },
     {
       "id": "author:yao-hua-dong",
       "type": "author",
       "label": "Hua-Dong Yao",
-      "title": "Hua-Dong Yao"
+      "title": "Hua-Dong Yao",
+      "paper_count": 1
     },
     {
       "id": "author:chen-zituo",
       "type": "author",
       "label": "Zituo Chen",
-      "title": "Zituo Chen"
+      "title": "Zituo Chen",
+      "paper_count": 1
     },
     {
       "id": "author:zhang-baiming",
       "type": "author",
       "label": "Baiming Zhang",
-      "title": "Baiming Zhang"
+      "title": "Baiming Zhang",
+      "paper_count": 1
     },
     {
       "id": "author:deng-sili",
       "type": "author",
       "label": "Sili Deng",
-      "title": "Sili Deng"
+      "title": "Sili Deng",
+      "paper_count": 1
     },
     {
       "id": "author:rossi-riccardo",
       "type": "author",
       "label": "Riccardo Rossi",
-      "title": "Riccardo Rossi"
+      "title": "Riccardo Rossi",
+      "paper_count": 1
     },
     {
       "id": "author:frieden-branden",
       "type": "author",
       "label": "Branden Frieden",
-      "title": "Branden Frieden"
+      "title": "Branden Frieden",
+      "paper_count": 1
     },
     {
       "id": "author:whitehead-ryan",
       "type": "author",
       "label": "Ryan Whitehead",
-      "title": "Ryan Whitehead"
+      "title": "Ryan Whitehead",
+      "paper_count": 1
     },
     {
       "id": "author:ballard-m-keith",
       "type": "author",
       "label": "M. Keith Ballard",
-      "title": "M. Keith Ballard"
+      "title": "M. Keith Ballard",
+      "paper_count": 1
     },
     {
       "id": "author:kirby-robert-m",
       "type": "author",
       "label": "Robert M. Kirby",
-      "title": "Robert M. Kirby"
+      "title": "Robert M. Kirby",
+      "paper_count": 1
     },
     {
       "id": "field:operator-learning",
       "type": "field",
       "label": "Operator Learning",
-      "title": "Operator Learning"
+      "title": "Operator Learning",
+      "paper_count": 35
     },
     {
       "id": "field:theory",
       "type": "field",
       "label": "Theory",
-      "title": "Theory"
+      "title": "Theory",
+      "paper_count": 17
     },
     {
       "id": "field:quadrature",
       "type": "field",
       "label": "Quadrature",
-      "title": "Quadrature"
+      "title": "Quadrature",
+      "paper_count": 10
     },
     {
       "id": "field:hyper-reduction",
       "type": "field",
       "label": "Hyper Reduction",
-      "title": "Hyper Reduction"
+      "title": "Hyper Reduction",
+      "paper_count": 5
     },
     {
       "id": "field:sampling",
       "type": "field",
       "label": "Sampling",
-      "title": "Sampling"
+      "title": "Sampling",
+      "paper_count": 9
     },
     {
       "id": "field:compressed-sensing",
       "type": "field",
       "label": "Compressed Sensing",
-      "title": "Compressed Sensing"
+      "title": "Compressed Sensing",
+      "paper_count": 10
     },
     {
       "id": "field:system-identification",
       "type": "field",
       "label": "System Identification",
-      "title": "System Identification"
+      "title": "System Identification",
+      "paper_count": 2
     },
     {
       "id": "field:inverse-problems",
       "type": "field",
       "label": "Inverse Problems",
-      "title": "Inverse Problems"
+      "title": "Inverse Problems",
+      "paper_count": 6
     },
     {
       "id": "field:world-models",
       "type": "field",
       "label": "World Models",
-      "title": "World Models"
+      "title": "World Models",
+      "paper_count": 5
     },
     {
       "id": "field:control",
       "type": "field",
       "label": "Control",
-      "title": "Control"
+      "title": "Control",
+      "paper_count": 4
     },
     {
       "id": "field:graphs",
       "type": "field",
       "label": "Graphs",
-      "title": "Graphs"
+      "title": "Graphs",
+      "paper_count": 2
     },
     {
       "id": "field:fourier",
       "type": "field",
       "label": "Fourier",
-      "title": "Fourier"
+      "title": "Fourier",
+      "paper_count": 4
     },
     {
       "id": "field:fourier-neural-operators",
       "type": "field",
       "label": "Fourier Neural Operators",
-      "title": "Fourier Neural Operators"
+      "title": "Fourier Neural Operators",
+      "paper_count": 10
     },
     {
       "id": "field:physical-simulation",
       "type": "field",
       "label": "Physical Simulation",
-      "title": "Physical Simulation"
+      "title": "Physical Simulation",
+      "paper_count": 3
     },
     {
       "id": "field:subsurface",
       "type": "field",
       "label": "Subsurface",
-      "title": "Subsurface"
+      "title": "Subsurface",
+      "paper_count": 1
     },
     {
       "id": "field:seismology",
       "type": "field",
       "label": "Seismology",
-      "title": "Seismology"
+      "title": "Seismology",
+      "paper_count": 1
     },
     {
       "id": "field:weather",
       "type": "field",
       "label": "Weather",
-      "title": "Weather"
+      "title": "Weather",
+      "paper_count": 3
     },
     {
       "id": "field:benchmarks",
       "type": "field",
       "label": "Benchmarks",
-      "title": "Benchmarks"
+      "title": "Benchmarks",
+      "paper_count": 2
     },
     {
       "id": "field:inverse-design",
       "type": "field",
       "label": "Inverse Design",
-      "title": "Inverse Design"
+      "title": "Inverse Design",
+      "paper_count": 1
     },
     {
       "id": "field:electromagnetics",
       "type": "field",
       "label": "Electromagnetics",
-      "title": "Electromagnetics"
+      "title": "Electromagnetics",
+      "paper_count": 1
     },
     {
       "id": "field:geometry",
       "type": "field",
       "label": "Geometry",
-      "title": "Geometry"
+      "title": "Geometry",
+      "paper_count": 1
     },
     {
       "id": "field:aerodynamics",
       "type": "field",
       "label": "Aerodynamics",
-      "title": "Aerodynamics"
+      "title": "Aerodynamics",
+      "paper_count": 1
     },
     {
       "id": "field:foundation-models",
       "type": "field",
       "label": "Foundation Models",
-      "title": "Foundation Models"
+      "title": "Foundation Models",
+      "paper_count": 2
     },
     {
       "id": "field:efficiency",
       "type": "field",
       "label": "Efficiency",
-      "title": "Efficiency"
+      "title": "Efficiency",
+      "paper_count": 2
     },
     {
       "id": "field:robotics",
       "type": "field",
       "label": "Robotics",
-      "title": "Robotics"
+      "title": "Robotics",
+      "paper_count": 3
     },
     {
       "id": "field:planning",
       "type": "field",
       "label": "Planning",
-      "title": "Planning"
+      "title": "Planning",
+      "paper_count": 2
     },
     {
       "id": "field:time-series",
       "type": "field",
       "label": "Time Series",
-      "title": "Time Series"
+      "title": "Time Series",
+      "paper_count": 2
     },
     {
       "id": "field:software",
       "type": "field",
       "label": "Software",
-      "title": "Software"
+      "title": "Software",
+      "paper_count": 1
     },
     {
       "id": "field:biomedicine",
       "type": "field",
       "label": "Biomedicine",
-      "title": "Biomedicine"
+      "title": "Biomedicine",
+      "paper_count": 1
     },
     {
       "id": "field:acoustics",
       "type": "field",
       "label": "Acoustics",
-      "title": "Acoustics"
+      "title": "Acoustics",
+      "paper_count": 2
     },
     {
       "id": "field:structural-monitoring",
       "type": "field",
       "label": "Structural Monitoring",
-      "title": "Structural Monitoring"
+      "title": "Structural Monitoring",
+      "paper_count": 1
     },
     {
       "id": "field:probabilistic-models",
       "type": "field",
       "label": "Probabilistic Models",
-      "title": "Probabilistic Models"
+      "title": "Probabilistic Models",
+      "paper_count": 1
     },
     {
       "id": "field:physics-informed-learning",
       "type": "field",
       "label": "Physics Informed Learning",
-      "title": "Physics Informed Learning"
+      "title": "Physics Informed Learning",
+      "paper_count": 1
     },
     {
       "id": "field:manufacturing",
       "type": "field",
       "label": "Manufacturing",
-      "title": "Manufacturing"
+      "title": "Manufacturing",
+      "paper_count": 1
     },
     {
       "id": "field:representation-learning",
       "type": "field",
       "label": "Representation Learning",
-      "title": "Representation Learning"
+      "title": "Representation Learning",
+      "paper_count": 1
     },
     {
       "id": "field:domain-decomposition",
       "type": "field",
       "label": "Domain Decomposition",
-      "title": "Domain Decomposition"
+      "title": "Domain Decomposition",
+      "paper_count": 1
     },
     {
       "id": "field:multiscale",
       "type": "field",
       "label": "Multiscale",
-      "title": "Multiscale"
+      "title": "Multiscale",
+      "paper_count": 1
     },
     {
       "id": "area:operators",
       "type": "area",
       "label": "Operator learning",
       "title": "Operator learning",
-      "paper_count": 31
+      "paper_count": 41
     },
     {
       "id": "area:fourier",
       "type": "area",
       "label": "Fourier neural operators",
       "title": "Fourier neural operators",
-      "paper_count": 10
+      "paper_count": 16
     },
     {
       "id": "area:sparse",
       "type": "area",
       "label": "Sparse recovery & sampling",
       "title": "Sparse recovery & sampling",
-      "paper_count": 10
+      "paper_count": 18
     },
     {
       "id": "area:integration",
       "type": "area",
       "label": "Quadrature & model reduction",
       "title": "Quadrature & model reduction",
-      "paper_count": 11
+      "paper_count": 12
     },
     {
       "id": "area:engineering",
       "type": "area",
       "label": "Physical simulation & engineering",
       "title": "Physical simulation & engineering",
-      "paper_count": 12
+      "paper_count": 17
     },
     {
       "id": "area:weather",
       "type": "area",
       "label": "Weather & climate",
       "title": "Weather & climate",
-      "paper_count": 4
+      "paper_count": 5
     },
     {
       "id": "area:robotics",
       "type": "area",
       "label": "Robotics & control",
       "title": "Robotics & control",
-      "paper_count": 6
+      "paper_count": 8
     },
     {
       "id": "area:world",
@@ -3004,20 +3261,21 @@
       "type": "area",
       "label": "Inverse problems & design",
       "title": "Inverse problems & design",
-      "paper_count": 4
+      "paper_count": 11
     },
     {
       "id": "area:timeseries",
       "type": "area",
       "label": "Time series & monitoring",
       "title": "Time series & monitoring",
-      "paper_count": 3
+      "paper_count": 7
     },
     {
       "id": "field:wavelets",
       "type": "field",
       "label": "Wavelet operators",
-      "title": "Wavelets and multiscale operator representations"
+      "title": "Wavelets and multiscale operator representations",
+      "paper_count": 2
     },
     {
       "id": "mwt-2021",
@@ -3100,6 +3358,660 @@
       "label": "Souvik Chakraborty",
       "title": "Souvik Chakraborty",
       "paper_count": 1
+    },
+    {
+      "id": "gauss-nodes-hale-townsend-2013",
+      "type": "paper",
+      "label": "Fast Gaussian quadrature",
+      "title": "Fast and Accurate Computation of Gauss–Legendre and Gauss–Jacobi Quadrature Nodes and Weights",
+      "year": 2013,
+      "priority": "background",
+      "summary": "Constructs Gauss–Legendre and Gauss–Jacobi nodes and weights efficiently using asymptotic formulas and Newton iteration.",
+      "limits": "Background for the Gaussian quadrature article. Fast construction of a rule is distinct from integration error and neural-operator training cost; no benchmark was reproduced.",
+      "url": "https://appliedmaths.sun.ac.za/~nhale/publications/HaleTownsend2013a.pdf",
+      "file": "gauss-nodes-hale-townsend-2013.pdf",
+      "authors": [
+        "Nicholas Hale",
+        "Alex Townsend"
+      ],
+      "tags": [
+        "quadrature",
+        "theory"
+      ],
+      "publication_status": "SIAM Journal on Scientific Computing 35(2), A652–A674 (2013)",
+      "review_level": "abstract_and_introduction_screened",
+      "seed": false
+    },
+    {
+      "id": "author:hale-nicholas",
+      "type": "author",
+      "label": "Nicholas Hale",
+      "title": "Nicholas Hale",
+      "paper_count": 1
+    },
+    {
+      "id": "author:townsend-alex",
+      "type": "author",
+      "label": "Alex Townsend",
+      "title": "Alex Townsend",
+      "paper_count": 1
+    },
+    {
+      "id": "nomri-2025",
+      "type": "paper",
+      "label": "Neural operators for CS-MRI",
+      "title": "A Unified Model for Compressed Sensing MRI Across Undersampling Patterns",
+      "year": 2024,
+      "priority": "core",
+      "summary": "Uses neural operators in measurement and image space with data-consistency updates to reconstruct MRI across undersampling patterns and resolutions.",
+      "limits": "Direct neural-operator application to compressed-sensing reconstruction. Learns a prior for undersampled MRI; it does not use sparse recovery to make arbitrary kernel training faster. CVPR 2025 experiments, not a clinical deployment claim.",
+      "url": "https://arxiv.org/abs/2410.16290",
+      "file": "nomri-2025.pdf",
+      "authors": [
+        "Armeet Singh Jatyani",
+        "Jiayun Wang",
+        "Aditi Chandrashekar",
+        "Zihui Wu",
+        "Miguel Liu-Schiaffini",
+        "Bahareh Tolooshams",
+        "Anima Anandkumar"
+      ],
+      "tags": [
+        "operator-learning",
+        "compressed-sensing",
+        "inverse-problems",
+        "sampling"
+      ],
+      "publication_status": "CVPR 2025; arXiv first posted 2024",
+      "review_level": "primary_sections_and_references_screened",
+      "seed": false
+    },
+    {
+      "id": "author:armeet-singh-jatyani",
+      "type": "author",
+      "label": "Armeet Singh Jatyani",
+      "title": "Armeet Singh Jatyani",
+      "paper_count": 1
+    },
+    {
+      "id": "author:jiayun-wang",
+      "type": "author",
+      "label": "Jiayun Wang",
+      "title": "Jiayun Wang",
+      "paper_count": 1
+    },
+    {
+      "id": "author:aditi-chandrashekar",
+      "type": "author",
+      "label": "Aditi Chandrashekar",
+      "title": "Aditi Chandrashekar",
+      "paper_count": 1
+    },
+    {
+      "id": "author:zihui-wu",
+      "type": "author",
+      "label": "Zihui Wu",
+      "title": "Zihui Wu",
+      "paper_count": 1
+    },
+    {
+      "id": "author:bahareh-tolooshams",
+      "type": "author",
+      "label": "Bahareh Tolooshams",
+      "title": "Bahareh Tolooshams",
+      "paper_count": 1
+    },
+    {
+      "id": "spectral-cs-2024",
+      "type": "paper",
+      "label": "Sparse spectral PDE learning",
+      "title": "When Differentiable Programming Meets Spectral PDE Solver",
+      "year": 2024,
+      "priority": "core",
+      "summary": "Proposes sparse random-feature encoders recovered by Lasso, learned spectral time stepping, and an extension with learned basis parameters.",
+      "limits": "Direct conceptual bridge to using compressed sensing inside operator learning. Sections 2.2 and 3 allow distinct random input/output grids and recover sparse coefficients before learning dynamics. Physics is built into the spectral evolution. Workshop proposal: large-scale systematic evaluation is explicitly future work; not evidence of a generic training speedup or an unconditional exact-recovery guarantee.",
+      "url": "https://qijiaj.github.io/operator_learning_2024.pdf",
+      "file": "spectral-cs-2024.pdf",
+      "authors": [
+        "Qijia Jiang"
+      ],
+      "tags": [
+        "operator-learning",
+        "compressed-sensing",
+        "sampling",
+        "theory"
+      ],
+      "publication_status": "D3S3 workshop at NeurIPS 2024; author-hosted workshop paper",
+      "review_level": "primary_sections_and_references_screened",
+      "seed": false
+    },
+    {
+      "id": "author:qijia-jiang",
+      "type": "author",
+      "label": "Qijia Jiang",
+      "title": "Qijia Jiang",
+      "paper_count": 1
+    },
+    {
+      "id": "inverse-theory-2023",
+      "type": "paper",
+      "label": "Modern inverse-problem theory",
+      "title": "Theoretical Perspectives on Deep Learning Methods in Inverse Problems",
+      "year": 2022,
+      "priority": "core",
+      "summary": "Surveys theoretical guarantees and open problems for generative priors, untrained neural priors, and unfolded reconstruction algorithms.",
+      "limits": "Explains the evolution of compressed sensing toward learned priors and reconstruction networks. Adjacent background, not a neural-operator paper. Separates signal-model assumptions, optimization, sample complexity and generalization.",
+      "url": "https://arxiv.org/abs/2206.14373",
+      "file": "inverse-theory-2023.pdf",
+      "authors": [
+        "Jonathan Scarlett",
+        "Reinhard Heckel",
+        "Miguel R. D. Rodrigues",
+        "Paul Hand",
+        "Yonina C. Eldar"
+      ],
+      "tags": [
+        "compressed-sensing",
+        "inverse-problems",
+        "theory"
+      ],
+      "publication_status": "IEEE JSAIT 3(3):433–453, issue year 2022; revised 2023; DOI 10.1109/JSAIT.2023.3241123",
+      "review_level": "primary_sections_and_references_screened",
+      "seed": false
+    },
+    {
+      "id": "author:jonathan-scarlett",
+      "type": "author",
+      "label": "Jonathan Scarlett",
+      "title": "Jonathan Scarlett",
+      "paper_count": 1
+    },
+    {
+      "id": "author:miguel-r-d-rodrigues",
+      "type": "author",
+      "label": "Miguel R. D. Rodrigues",
+      "title": "Miguel R. D. Rodrigues",
+      "paper_count": 1
+    },
+    {
+      "id": "author:paul-hand",
+      "type": "author",
+      "label": "Paul Hand",
+      "title": "Paul Hand",
+      "paper_count": 2
+    },
+    {
+      "id": "author:yonina-c-eldar",
+      "type": "author",
+      "label": "Yonina C. Eldar",
+      "title": "Yonina C. Eldar",
+      "paper_count": 1
+    },
+    {
+      "id": "tunable-cs-2026",
+      "type": "paper",
+      "label": "Tunable generative CS priors",
+      "title": "Latent Generative Models with Tunable Complexity for Compressed Sensing and other Inverse Problems",
+      "year": 2026,
+      "priority": "core",
+      "summary": "Uses nested dropout to vary latent-prior complexity in diffusion models, normalizing flows and variational autoencoders for inverse problems.",
+      "limits": "Current compressed-sensing direction: tune prior complexity to balance representation error and noise overfitting. Adjacent to operator learning, not a neural-operator architecture. March 2026 preprint; general experiments and theory for the linear denoising setting do not establish universal compressed-sensing guarantees.",
+      "url": "https://arxiv.org/abs/2603.07357",
+      "file": "tunable-cs-2026.pdf",
+      "authors": [
+        "Sean Gunn",
+        "Jorio Cocola",
+        "Oliver De Candido",
+        "Vaggos Chatziafratis",
+        "Paul Hand"
+      ],
+      "tags": [
+        "compressed-sensing",
+        "inverse-problems",
+        "theory"
+      ],
+      "publication_status": "arXiv preprint, March 2026, v2",
+      "review_level": "primary_sections_and_references_screened",
+      "seed": false
+    },
+    {
+      "id": "author:sean-gunn",
+      "type": "author",
+      "label": "Sean Gunn",
+      "title": "Sean Gunn",
+      "paper_count": 1
+    },
+    {
+      "id": "author:jorio-cocola",
+      "type": "author",
+      "label": "Jorio Cocola",
+      "title": "Jorio Cocola",
+      "paper_count": 1
+    },
+    {
+      "id": "author:oliver-de-candido",
+      "type": "author",
+      "label": "Oliver De Candido",
+      "title": "Oliver De Candido",
+      "paper_count": 1
+    },
+    {
+      "id": "author:vaggos-chatziafratis",
+      "type": "author",
+      "label": "Vaggos Chatziafratis",
+      "title": "Vaggos Chatziafratis",
+      "paper_count": 1
+    },
+    {
+      "id": "parametric-complexity-2023",
+      "type": "paper",
+      "label": "Operator learning complexity",
+      "title": "The Parametric Complexity of Operator Learning",
+      "year": 2023,
+      "priority": "core",
+      "summary": "Proves a curse of parametric complexity for general regular operator classes, and shows how Hamilton–Jacobi structure permits a more efficient architecture.",
+      "limits": "Addresses whether operator models can be smaller: no universal compression law follows from using an operator architecture. Efficiency depends on structure in the target operator. These are approximation-complexity results, not empirical training scaling laws.",
+      "url": "https://arxiv.org/abs/2306.15924",
+      "file": "parametric-complexity-2023.pdf",
+      "authors": [
+        "Samuel Lanthaler",
+        "Andrew M. Stuart"
+      ],
+      "tags": [
+        "operator-learning",
+        "theory"
+      ],
+      "publication_status": "arXiv preprint; year denotes first posting",
+      "review_level": "abstract_and_references_screened",
+      "seed": false
+    },
+    {
+      "id": "reno-2023",
+      "type": "paper",
+      "label": "Representation equivalent operators",
+      "title": "Representation Equivalent Neural Operators: a Framework for Alias-free Operator Learning",
+      "year": 2023,
+      "priority": "core",
+      "summary": "Introduces representation equivalence and operator aliasing to analyze consistency between continuous operators and their discrete implementations.",
+      "limits": "Explains why shared weights across grids do not alone guarantee the same field-level computation. Varying training grids can encourage robustness, but cannot by itself guarantee alias-free evaluation or recover unmeasured information.",
+      "url": "https://arxiv.org/abs/2305.19913",
+      "file": "reno-2023.pdf",
+      "authors": [
+        "Francesca Bartolucci",
+        "Emmanuel de Bézenac",
+        "Bogdan Raonić",
+        "Roberto Molinaro",
+        "Siddhartha Mishra",
+        "Rima Alaifari"
+      ],
+      "tags": [
+        "operator-learning",
+        "theory",
+        "sampling"
+      ],
+      "publication_status": "arXiv preprint; year denotes first posting",
+      "review_level": "abstract_and_references_screened",
+      "seed": false
+    },
+    {
+      "id": "author:francesca-bartolucci",
+      "type": "author",
+      "label": "Francesca Bartolucci",
+      "title": "Francesca Bartolucci",
+      "paper_count": 1
+    },
+    {
+      "id": "author:rima-alaifari",
+      "type": "author",
+      "label": "Rima Alaifari",
+      "title": "Rima Alaifari",
+      "paper_count": 1
+    },
+    {
+      "id": "recfno-2023",
+      "type": "paper",
+      "label": "RecFNO",
+      "title": "RecFNO: a resolution-invariant flow and heat field reconstruction method from sparse observations via Fourier neural operator",
+      "year": 2023,
+      "priority": "application",
+      "summary": "Reconstructs heat and flow fields from sparse observations using MLP, mask or Voronoi embeddings and Fourier layers.",
+      "limits": "Direct prior art for sparse thermal reconstruction. Output resolution transfer is distinct from generalization to arbitrary input layouts. Public code: https://github.com/zhaoxiaoyu1995/RecFNO ; data links are external SharePoint links and access has not been tested.",
+      "url": "https://arxiv.org/abs/2302.09808",
+      "file": "recfno-2023.pdf",
+      "authors": [
+        "Xiaoyu Zhao",
+        "Xiaoqian Chen",
+        "Zhiqiang Gong",
+        "Weien Zhou",
+        "Wen Yao",
+        "Yunyang Zhang"
+      ],
+      "tags": [
+        "operator-learning",
+        "fourier-neural-operators",
+        "inverse-problems",
+        "sampling",
+        "physical-simulation"
+      ],
+      "publication_status": "International Journal of Thermal Sciences 195 (2024), 108619; DOI 10.1016/j.ijthermalsci.2023.108619",
+      "review_level": "primary_abstract_screened",
+      "seed": false
+    },
+    {
+      "id": "author:xiaoyu-zhao",
+      "type": "author",
+      "label": "Xiaoyu Zhao",
+      "title": "Xiaoyu Zhao"
+    },
+    {
+      "id": "author:xiaoqian-chen",
+      "type": "author",
+      "label": "Xiaoqian Chen",
+      "title": "Xiaoqian Chen"
+    },
+    {
+      "id": "author:zhiqiang-gong",
+      "type": "author",
+      "label": "Zhiqiang Gong",
+      "title": "Zhiqiang Gong"
+    },
+    {
+      "id": "author:weien-zhou",
+      "type": "author",
+      "label": "Weien Zhou",
+      "title": "Weien Zhou"
+    },
+    {
+      "id": "author:wen-yao",
+      "type": "author",
+      "label": "Wen Yao",
+      "title": "Wen Yao"
+    },
+    {
+      "id": "author:yunyang-zhang",
+      "type": "author",
+      "label": "Yunyang Zhang",
+      "title": "Yunyang Zhang"
+    },
+    {
+      "id": "stator-sparse-2016",
+      "type": "paper",
+      "label": "Sparse Reconstruction for Temperature Distribution Using DTS Fiber Optic Sensors with Applications in Electrical Generator Stator Monitoring",
+      "title": "Sparse Reconstruction for Temperature Distribution Using DTS Fiber Optic Sensors with Applications in Electrical Generator Stator Monitoring",
+      "year": 2016,
+      "priority": "application",
+      "summary": "Uses a finite-element hotspot dictionary and sparse reconstruction with distributed fibre temperatures to monitor generator stators.",
+      "limits": "A direct industrial sparse-recovery baseline, not a neural operator. Experiments use a representative prototype; no reusable dataset was verified. Useful motivation for a thermal-plate autumn study and stator extension.",
+      "url": "https://doi.org/10.3390/s16091425",
+      "file": "stator-sparse-2016.pdf",
+      "authors": [
+        "João Paulo Bazzo",
+        "Daniel Rodrigues Pipa",
+        "Erlon Vagner da Silva",
+        "Cicero Martelli",
+        "Jean Carlos Cardozo da Silva"
+      ],
+      "tags": [
+        "compressed-sensing",
+        "inverse-problems",
+        "structural-monitoring",
+        "physical-simulation"
+      ],
+      "publication_status": "Sensors 16(9), 1425 (2016); DOI 10.3390/s16091425",
+      "review_level": "primary_abstract_screened",
+      "seed": false
+    },
+    {
+      "id": "author:joao-paulo-bazzo",
+      "type": "author",
+      "label": "João Paulo Bazzo",
+      "title": "João Paulo Bazzo"
+    },
+    {
+      "id": "author:daniel-rodrigues-pipa",
+      "type": "author",
+      "label": "Daniel Rodrigues Pipa",
+      "title": "Daniel Rodrigues Pipa"
+    },
+    {
+      "id": "author:erlon-vagner-da-silva",
+      "type": "author",
+      "label": "Erlon Vagner da Silva",
+      "title": "Erlon Vagner da Silva"
+    },
+    {
+      "id": "author:cicero-martelli",
+      "type": "author",
+      "label": "Cicero Martelli",
+      "title": "Cicero Martelli"
+    },
+    {
+      "id": "author:jean-carlos-cardozo-da-silva",
+      "type": "author",
+      "label": "Jean Carlos Cardozo da Silva",
+      "title": "Jean Carlos Cardozo da Silva"
+    },
+    {
+      "id": "vibrating-plates-2023",
+      "type": "paper",
+      "label": "Learning to Predict Structural Vibrations",
+      "title": "Learning to Predict Structural Vibrations",
+      "year": 2023,
+      "priority": "application",
+      "summary": "Introduces a 12000-geometry harmonically excited plate benchmark and Frequency-Query Operator, comparing FNO and DeepONet baselines.",
+      "limits": "Forward vibration prediction is already studied. A sparse-sensor inverse task would be a proposed adaptation. Code and data links: https://github.com/ecker-lab/Learning_Vibrating_Plates ; published example dataset is 4 GB, full subsets 21 GB.",
+      "url": "https://arxiv.org/abs/2310.05469",
+      "file": "vibrating-plates-2023.pdf",
+      "authors": [
+        "Jan van Delden",
+        "Julius Schultz",
+        "Christopher Blech",
+        "Sabine C. Langer",
+        "Timo Lüddecke"
+      ],
+      "tags": [
+        "operator-learning",
+        "structural-monitoring",
+        "physical-simulation",
+        "acoustics"
+      ],
+      "publication_status": "NeurIPS 2024; first arXiv posting 2023",
+      "review_level": "primary_abstract_screened",
+      "seed": false
+    },
+    {
+      "id": "author:jan-van-delden",
+      "type": "author",
+      "label": "Jan van Delden",
+      "title": "Jan van Delden"
+    },
+    {
+      "id": "author:julius-schultz",
+      "type": "author",
+      "label": "Julius Schultz",
+      "title": "Julius Schultz"
+    },
+    {
+      "id": "author:christopher-blech",
+      "type": "author",
+      "label": "Christopher Blech",
+      "title": "Christopher Blech"
+    },
+    {
+      "id": "author:sabine-c-langer",
+      "type": "author",
+      "label": "Sabine C. Langer",
+      "title": "Sabine C. Langer"
+    },
+    {
+      "id": "author:timo-luddecke",
+      "type": "author",
+      "label": "Timo Lüddecke",
+      "title": "Timo Lüddecke"
+    },
+    {
+      "id": "motor-thermal-li-2026",
+      "type": "paper",
+      "label": "Neural Operator–Based Thermal Modeling for Electric Motor and Power Electronics Systems",
+      "title": "Neural Operator–Based Thermal Modeling for Electric Motor and Power Electronics Systems",
+      "year": 2026,
+      "priority": "application",
+      "summary": "Studies load-memory-enhanced FNO prediction of two-dimensional transient temperature fields in a 15 kW induction motor.",
+      "limits": "Master thesis prior art: motor thermal FNO itself is not new. FEM data are placed on a common 512x512 grid; variable sparse sensor observation is a separate proposed question. Few load trajectories limit broad extrapolation claims.",
+      "url": "https://odr.chalmers.se/items/bf1e419a-85d8-44fa-8968-13c84f76cca1",
+      "file": "motor-thermal-li-2026.pdf",
+      "authors": [
+        "Jinghao Li"
+      ],
+      "tags": [
+        "operator-learning",
+        "fourier-neural-operators",
+        "physical-simulation",
+        "structural-monitoring"
+      ],
+      "publication_status": "Chalmers master thesis, Systems, Control and Mechatronics, 2026",
+      "review_level": "primary_abstract_screened",
+      "seed": false
+    },
+    {
+      "id": "author:jinghao-li",
+      "type": "author",
+      "label": "Jinghao Li",
+      "title": "Jinghao Li"
+    },
+    {
+      "id": "lagrangian-assimilation-2025",
+      "type": "paper",
+      "label": "Generative Lagrangian data assimilation for ocean dynamics under extreme sparsity",
+      "title": "Generative Lagrangian data assimilation for ocean dynamics under extreme sparsity",
+      "year": 2025,
+      "priority": "application",
+      "summary": "Combines neural operators and diffusion models for ocean-state reconstruction from very sparse Lagrangian observations.",
+      "limits": "Prior art for moving-sensor reconstruction; a controlled active-sampling study on 2D passive tracer dynamics is a narrower potential thesis. Sparse reconstructions depend on learned priors and are not unique recovery guarantees.",
+      "url": "https://arxiv.org/abs/2507.06479",
+      "file": "lagrangian-assimilation-2025.pdf",
+      "authors": [
+        "Niloofar Asefi",
+        "Leonard Lupin-Jimenez",
+        "Tianning Wu",
+        "Ruoying He",
+        "Ashesh Chattopadhyay"
+      ],
+      "tags": [
+        "operator-learning",
+        "inverse-problems",
+        "sampling",
+        "weather",
+        "robotics"
+      ],
+      "publication_status": "arXiv preprint, July 2025",
+      "review_level": "primary_abstract_screened",
+      "seed": false
+    },
+    {
+      "id": "author:niloofar-asefi",
+      "type": "author",
+      "label": "Niloofar Asefi",
+      "title": "Niloofar Asefi"
+    },
+    {
+      "id": "author:leonard-lupin-jimenez",
+      "type": "author",
+      "label": "Leonard Lupin-Jimenez",
+      "title": "Leonard Lupin-Jimenez"
+    },
+    {
+      "id": "author:tianning-wu",
+      "type": "author",
+      "label": "Tianning Wu",
+      "title": "Tianning Wu"
+    },
+    {
+      "id": "author:ruoying-he",
+      "type": "author",
+      "label": "Ruoying He",
+      "title": "Ruoying He"
+    },
+    {
+      "id": "ventilation-control-2025",
+      "type": "paper",
+      "label": "Operator learning for energy-efficient building ventilation control with computational fluid dynamics simulation of a real-world classroom",
+      "title": "Operator learning for energy-efficient building ventilation control with computational fluid dynamics simulation of a real-world classroom",
+      "year": 2025,
+      "priority": "application",
+      "summary": "Uses neural operator transformer models of airflow and carbon dioxide fields inside optimization-based ventilation control, with an open CFD-based benchmark.",
+      "limits": "Direct prior art against claiming first neural-operator ventilation control. A new thesis needs a narrower variable-sensor observation or active sampling question. Reported solver speedup is a specific CFD comparison.",
+      "url": "https://doi.org/10.1016/j.apenergy.2025.127035",
+      "file": "ventilation-control-2025.pdf",
+      "authors": [
+        "Yuexin Bian",
+        "Oliver Schmidt",
+        "Yuanyuan Shi"
+      ],
+      "tags": [
+        "operator-learning",
+        "control",
+        "physical-simulation"
+      ],
+      "publication_status": "Applied Energy 404 (2026), 127035; online November 2025",
+      "review_level": "primary_abstract_screened",
+      "seed": false
+    },
+    {
+      "id": "author:yuexin-bian",
+      "type": "author",
+      "label": "Yuexin Bian",
+      "title": "Yuexin Bian"
+    },
+    {
+      "id": "author:oliver-schmidt",
+      "type": "author",
+      "label": "Oliver Schmidt",
+      "title": "Oliver Schmidt"
+    },
+    {
+      "id": "structures-distributed-2025",
+      "type": "paper",
+      "label": "Training Structures as Distributed Sensors",
+      "title": "Training Structures as Distributed Sensors: A case study of impact force identification using neural operators",
+      "year": 2025,
+      "priority": "application",
+      "summary": "Uses Fourier neural operators and spatial upsampling to identify impact forces from sparse structural vibration sensors.",
+      "limits": "Sparse structural sensing and force localization are already studied. Any panel thesis should isolate changing layouts, dropout, uncertainty or another concrete distinction. No openly accessible PDF located in this search.",
+      "url": "https://doi.org/10.1016/j.jsv.2025.119395",
+      "file": null,
+      "authors": [
+        "Yujie Gan",
+        "Haoze Song",
+        "Zhilu Lai"
+      ],
+      "tags": [
+        "operator-learning",
+        "fourier-neural-operators",
+        "inverse-problems",
+        "structural-monitoring"
+      ],
+      "publication_status": "Journal of Sound and Vibration 619 (2025), 119395",
+      "review_level": "primary_abstract_screened",
+      "seed": false
+    },
+    {
+      "id": "author:yujie-gan",
+      "type": "author",
+      "label": "Yujie Gan",
+      "title": "Yujie Gan"
+    },
+    {
+      "id": "author:haoze-song",
+      "type": "author",
+      "label": "Haoze Song",
+      "title": "Haoze Song"
+    },
+    {
+      "id": "author:zhilu-lai",
+      "type": "author",
+      "label": "Zhilu Lai",
+      "title": "Zhilu Lai"
     }
   ],
   "edges": [
@@ -10354,6 +11266,1606 @@
       "evidence_url": "https://arxiv.org/abs/2205.02191",
       "evidence_locator": "Primary abstract and byline, checked 2026-09-10",
       "epistemic_status": "analyst_inference"
+    },
+    {
+      "id": "gauss-ref-702",
+      "source": "author:hale-nicholas",
+      "target": "gauss-nodes-hale-townsend-2013",
+      "relation": "authored",
+      "evidence": "Verified author on the PDF byline.",
+      "evidence_url": "https://appliedmaths.sun.ac.za/~nhale/publications/HaleTownsend2013a.pdf",
+      "evidence_locator": "Page 1: byline, abstract and introduction",
+      "epistemic_status": "documented"
+    },
+    {
+      "id": "gauss-ref-703",
+      "source": "author:townsend-alex",
+      "target": "gauss-nodes-hale-townsend-2013",
+      "relation": "authored",
+      "evidence": "Verified author on the PDF byline.",
+      "evidence_url": "https://appliedmaths.sun.ac.za/~nhale/publications/HaleTownsend2013a.pdf",
+      "evidence_locator": "Page 1: byline, abstract and introduction",
+      "epistemic_status": "documented"
+    },
+    {
+      "id": "gauss-ref-704",
+      "source": "gauss-nodes-hale-townsend-2013",
+      "target": "field:quadrature",
+      "relation": "classified_in",
+      "evidence": "Constructs Gauss–Legendre and Gauss–Jacobi nodes and weights efficiently using asymptotic formulas and Newton iteration.",
+      "evidence_url": "https://appliedmaths.sun.ac.za/~nhale/publications/HaleTownsend2013a.pdf",
+      "evidence_locator": "Page 1: byline, abstract and introduction",
+      "epistemic_status": "curated_classification"
+    },
+    {
+      "id": "gauss-ref-705",
+      "source": "gauss-nodes-hale-townsend-2013",
+      "target": "field:theory",
+      "relation": "classified_in",
+      "evidence": "Constructs Gauss–Legendre and Gauss–Jacobi nodes and weights efficiently using asymptotic formulas and Newton iteration.",
+      "evidence_url": "https://appliedmaths.sun.ac.za/~nhale/publications/HaleTownsend2013a.pdf",
+      "evidence_locator": "Page 1: byline, abstract and introduction",
+      "epistemic_status": "curated_classification"
+    },
+    {
+      "id": "gauss-ref-706",
+      "source": "gauss-nodes-hale-townsend-2013",
+      "target": "area:integration",
+      "relation": "bridges_field",
+      "evidence": "Constructs Gauss–Legendre and Gauss–Jacobi nodes and weights efficiently using asymptotic formulas and Newton iteration.",
+      "evidence_url": "https://appliedmaths.sun.ac.za/~nhale/publications/HaleTownsend2013a.pdf",
+      "evidence_locator": "Page 1: byline, abstract and introduction",
+      "epistemic_status": "curated_classification"
+    },
+    {
+      "id": "addition-author-armeet-singh-jatyani-authored-nomri-2025",
+      "source": "author:armeet-singh-jatyani",
+      "target": "nomri-2025",
+      "relation": "authored",
+      "evidence": "Author verified against primary byline.",
+      "evidence_url": "https://arxiv.org/abs/2410.16290",
+      "evidence_locator": "Byline",
+      "epistemic_status": "documented"
+    },
+    {
+      "id": "addition-author-jiayun-wang-authored-nomri-2025",
+      "source": "author:jiayun-wang",
+      "target": "nomri-2025",
+      "relation": "authored",
+      "evidence": "Author verified against primary byline.",
+      "evidence_url": "https://arxiv.org/abs/2410.16290",
+      "evidence_locator": "Byline",
+      "epistemic_status": "documented"
+    },
+    {
+      "id": "addition-author-aditi-chandrashekar-authored-nomri-2025",
+      "source": "author:aditi-chandrashekar",
+      "target": "nomri-2025",
+      "relation": "authored",
+      "evidence": "Author verified against primary byline.",
+      "evidence_url": "https://arxiv.org/abs/2410.16290",
+      "evidence_locator": "Byline",
+      "epistemic_status": "documented"
+    },
+    {
+      "id": "addition-author-zihui-wu-authored-nomri-2025",
+      "source": "author:zihui-wu",
+      "target": "nomri-2025",
+      "relation": "authored",
+      "evidence": "Author verified against primary byline.",
+      "evidence_url": "https://arxiv.org/abs/2410.16290",
+      "evidence_locator": "Byline",
+      "epistemic_status": "documented"
+    },
+    {
+      "id": "addition-author-liu-schiaffini-miguel-authored-nomri-2025",
+      "source": "author:liu-schiaffini-miguel",
+      "target": "nomri-2025",
+      "relation": "authored",
+      "evidence": "Author verified against primary byline.",
+      "evidence_url": "https://arxiv.org/abs/2410.16290",
+      "evidence_locator": "Byline",
+      "epistemic_status": "documented"
+    },
+    {
+      "id": "addition-author-bahareh-tolooshams-authored-nomri-2025",
+      "source": "author:bahareh-tolooshams",
+      "target": "nomri-2025",
+      "relation": "authored",
+      "evidence": "Author verified against primary byline.",
+      "evidence_url": "https://arxiv.org/abs/2410.16290",
+      "evidence_locator": "Byline",
+      "epistemic_status": "documented"
+    },
+    {
+      "id": "addition-author-anandkumar-anima-authored-nomri-2025",
+      "source": "author:anandkumar-anima",
+      "target": "nomri-2025",
+      "relation": "authored",
+      "evidence": "Author verified against primary byline.",
+      "evidence_url": "https://arxiv.org/abs/2410.16290",
+      "evidence_locator": "Byline",
+      "epistemic_status": "documented"
+    },
+    {
+      "id": "addition-nomri-2025-classified-in-field-operator-learning",
+      "source": "nomri-2025",
+      "target": "field:operator-learning",
+      "relation": "classified_in",
+      "evidence": "Uses neural operators in measurement and image space with data-consistency updates to reconstruct MRI across undersampling patterns and resolutions.",
+      "evidence_url": "https://arxiv.org/abs/2410.16290",
+      "evidence_locator": "Abstract and relevant methods",
+      "epistemic_status": "curated_classification"
+    },
+    {
+      "id": "addition-nomri-2025-classified-in-field-compressed-sensing",
+      "source": "nomri-2025",
+      "target": "field:compressed-sensing",
+      "relation": "classified_in",
+      "evidence": "Uses neural operators in measurement and image space with data-consistency updates to reconstruct MRI across undersampling patterns and resolutions.",
+      "evidence_url": "https://arxiv.org/abs/2410.16290",
+      "evidence_locator": "Abstract and relevant methods",
+      "epistemic_status": "curated_classification"
+    },
+    {
+      "id": "addition-nomri-2025-classified-in-field-inverse-problems",
+      "source": "nomri-2025",
+      "target": "field:inverse-problems",
+      "relation": "classified_in",
+      "evidence": "Uses neural operators in measurement and image space with data-consistency updates to reconstruct MRI across undersampling patterns and resolutions.",
+      "evidence_url": "https://arxiv.org/abs/2410.16290",
+      "evidence_locator": "Abstract and relevant methods",
+      "epistemic_status": "curated_classification"
+    },
+    {
+      "id": "addition-nomri-2025-classified-in-field-sampling",
+      "source": "nomri-2025",
+      "target": "field:sampling",
+      "relation": "classified_in",
+      "evidence": "Uses neural operators in measurement and image space with data-consistency updates to reconstruct MRI across undersampling patterns and resolutions.",
+      "evidence_url": "https://arxiv.org/abs/2410.16290",
+      "evidence_locator": "Abstract and relevant methods",
+      "epistemic_status": "curated_classification"
+    },
+    {
+      "id": "addition-nomri-2025-bridges-field-area-operators",
+      "source": "nomri-2025",
+      "target": "area:operators",
+      "relation": "bridges_field",
+      "evidence": "Direct neural-operator application to compressed-sensing reconstruction. Learns a prior for undersampled MRI; it does not use sparse recovery to make arbitrary kernel training faster. CVPR 2025 experiments, not a clinical deployment claim.",
+      "evidence_url": "https://arxiv.org/abs/2410.16290",
+      "evidence_locator": "Abstract and relevant methods",
+      "epistemic_status": "curated_classification"
+    },
+    {
+      "id": "addition-nomri-2025-bridges-field-area-sparse",
+      "source": "nomri-2025",
+      "target": "area:sparse",
+      "relation": "bridges_field",
+      "evidence": "Direct neural-operator application to compressed-sensing reconstruction. Learns a prior for undersampled MRI; it does not use sparse recovery to make arbitrary kernel training faster. CVPR 2025 experiments, not a clinical deployment claim.",
+      "evidence_url": "https://arxiv.org/abs/2410.16290",
+      "evidence_locator": "Abstract and relevant methods",
+      "epistemic_status": "curated_classification"
+    },
+    {
+      "id": "addition-nomri-2025-bridges-field-area-inverse",
+      "source": "nomri-2025",
+      "target": "area:inverse",
+      "relation": "bridges_field",
+      "evidence": "Direct neural-operator application to compressed-sensing reconstruction. Learns a prior for undersampled MRI; it does not use sparse recovery to make arbitrary kernel training faster. CVPR 2025 experiments, not a clinical deployment claim.",
+      "evidence_url": "https://arxiv.org/abs/2410.16290",
+      "evidence_locator": "Abstract and relevant methods",
+      "epistemic_status": "curated_classification"
+    },
+    {
+      "id": "addition-nomri-2025-cites-fno-2020",
+      "source": "nomri-2025",
+      "target": "fno-2020",
+      "relation": "cites",
+      "evidence": "Verified title and authors in downloaded PDF reference list.",
+      "evidence_url": "https://arxiv.org/abs/2410.16290",
+      "evidence_locator": "References [24]",
+      "epistemic_status": "documented"
+    },
+    {
+      "id": "addition-author-qijia-jiang-authored-spectral-cs-2024",
+      "source": "author:qijia-jiang",
+      "target": "spectral-cs-2024",
+      "relation": "authored",
+      "evidence": "Author verified against primary byline.",
+      "evidence_url": "https://qijiaj.github.io/operator_learning_2024.pdf",
+      "evidence_locator": "Byline",
+      "epistemic_status": "documented"
+    },
+    {
+      "id": "addition-spectral-cs-2024-classified-in-field-operator-learning",
+      "source": "spectral-cs-2024",
+      "target": "field:operator-learning",
+      "relation": "classified_in",
+      "evidence": "Proposes sparse random-feature encoders recovered by Lasso, learned spectral time stepping, and an extension with learned basis parameters.",
+      "evidence_url": "https://qijiaj.github.io/operator_learning_2024.pdf",
+      "evidence_locator": "Abstract and relevant methods",
+      "epistemic_status": "curated_classification"
+    },
+    {
+      "id": "addition-spectral-cs-2024-classified-in-field-compressed-sensing",
+      "source": "spectral-cs-2024",
+      "target": "field:compressed-sensing",
+      "relation": "classified_in",
+      "evidence": "Proposes sparse random-feature encoders recovered by Lasso, learned spectral time stepping, and an extension with learned basis parameters.",
+      "evidence_url": "https://qijiaj.github.io/operator_learning_2024.pdf",
+      "evidence_locator": "Abstract and relevant methods",
+      "epistemic_status": "curated_classification"
+    },
+    {
+      "id": "addition-spectral-cs-2024-classified-in-field-sampling",
+      "source": "spectral-cs-2024",
+      "target": "field:sampling",
+      "relation": "classified_in",
+      "evidence": "Proposes sparse random-feature encoders recovered by Lasso, learned spectral time stepping, and an extension with learned basis parameters.",
+      "evidence_url": "https://qijiaj.github.io/operator_learning_2024.pdf",
+      "evidence_locator": "Abstract and relevant methods",
+      "epistemic_status": "curated_classification"
+    },
+    {
+      "id": "addition-spectral-cs-2024-classified-in-field-theory",
+      "source": "spectral-cs-2024",
+      "target": "field:theory",
+      "relation": "classified_in",
+      "evidence": "Proposes sparse random-feature encoders recovered by Lasso, learned spectral time stepping, and an extension with learned basis parameters.",
+      "evidence_url": "https://qijiaj.github.io/operator_learning_2024.pdf",
+      "evidence_locator": "Abstract and relevant methods",
+      "epistemic_status": "curated_classification"
+    },
+    {
+      "id": "addition-spectral-cs-2024-bridges-field-area-operators",
+      "source": "spectral-cs-2024",
+      "target": "area:operators",
+      "relation": "bridges_field",
+      "evidence": "Direct conceptual bridge to using compressed sensing inside operator learning. Sections 2.2 and 3 allow distinct random input/output grids and recover sparse coefficients before learning dynamics. Physics is built into the spectral evolution. Workshop proposal: large-scale systematic evaluation is explicitly future work; not evidence of a generic training speedup or an unconditional exact-recovery guarantee.",
+      "evidence_url": "https://qijiaj.github.io/operator_learning_2024.pdf",
+      "evidence_locator": "Abstract and relevant methods",
+      "epistemic_status": "curated_classification"
+    },
+    {
+      "id": "addition-spectral-cs-2024-bridges-field-area-sparse",
+      "source": "spectral-cs-2024",
+      "target": "area:sparse",
+      "relation": "bridges_field",
+      "evidence": "Direct conceptual bridge to using compressed sensing inside operator learning. Sections 2.2 and 3 allow distinct random input/output grids and recover sparse coefficients before learning dynamics. Physics is built into the spectral evolution. Workshop proposal: large-scale systematic evaluation is explicitly future work; not evidence of a generic training speedup or an unconditional exact-recovery guarantee.",
+      "evidence_url": "https://qijiaj.github.io/operator_learning_2024.pdf",
+      "evidence_locator": "Abstract and relevant methods",
+      "epistemic_status": "curated_classification"
+    },
+    {
+      "id": "addition-spectral-cs-2024-bridges-field-area-fourier",
+      "source": "spectral-cs-2024",
+      "target": "area:fourier",
+      "relation": "bridges_field",
+      "evidence": "Direct conceptual bridge to using compressed sensing inside operator learning. Sections 2.2 and 3 allow distinct random input/output grids and recover sparse coefficients before learning dynamics. Physics is built into the spectral evolution. Workshop proposal: large-scale systematic evaluation is explicitly future work; not evidence of a generic training speedup or an unconditional exact-recovery guarantee.",
+      "evidence_url": "https://qijiaj.github.io/operator_learning_2024.pdf",
+      "evidence_locator": "Abstract and relevant methods",
+      "epistemic_status": "curated_classification"
+    },
+    {
+      "id": "addition-spectral-cs-2024-cites-fno-2020",
+      "source": "spectral-cs-2024",
+      "target": "fno-2020",
+      "relation": "cites",
+      "evidence": "Verified title and authors in downloaded PDF reference list.",
+      "evidence_url": "https://qijiaj.github.io/operator_learning_2024.pdf",
+      "evidence_locator": "References [13]",
+      "epistemic_status": "documented"
+    },
+    {
+      "id": "addition-author-jonathan-scarlett-authored-inverse-theory-2023",
+      "source": "author:jonathan-scarlett",
+      "target": "inverse-theory-2023",
+      "relation": "authored",
+      "evidence": "Author verified against primary byline.",
+      "evidence_url": "https://arxiv.org/abs/2206.14373",
+      "evidence_locator": "Byline",
+      "epistemic_status": "documented"
+    },
+    {
+      "id": "addition-author-heckel-reinhard-authored-inverse-theory-2023",
+      "source": "author:heckel-reinhard",
+      "target": "inverse-theory-2023",
+      "relation": "authored",
+      "evidence": "Author verified against primary byline.",
+      "evidence_url": "https://arxiv.org/abs/2206.14373",
+      "evidence_locator": "Byline",
+      "epistemic_status": "documented"
+    },
+    {
+      "id": "addition-author-miguel-r-d-rodrigues-authored-inverse-theory-2023",
+      "source": "author:miguel-r-d-rodrigues",
+      "target": "inverse-theory-2023",
+      "relation": "authored",
+      "evidence": "Author verified against primary byline.",
+      "evidence_url": "https://arxiv.org/abs/2206.14373",
+      "evidence_locator": "Byline",
+      "epistemic_status": "documented"
+    },
+    {
+      "id": "addition-author-paul-hand-authored-inverse-theory-2023",
+      "source": "author:paul-hand",
+      "target": "inverse-theory-2023",
+      "relation": "authored",
+      "evidence": "Author verified against primary byline.",
+      "evidence_url": "https://arxiv.org/abs/2206.14373",
+      "evidence_locator": "Byline",
+      "epistemic_status": "documented"
+    },
+    {
+      "id": "addition-author-yonina-c-eldar-authored-inverse-theory-2023",
+      "source": "author:yonina-c-eldar",
+      "target": "inverse-theory-2023",
+      "relation": "authored",
+      "evidence": "Author verified against primary byline.",
+      "evidence_url": "https://arxiv.org/abs/2206.14373",
+      "evidence_locator": "Byline",
+      "epistemic_status": "documented"
+    },
+    {
+      "id": "addition-inverse-theory-2023-classified-in-field-compressed-sensing",
+      "source": "inverse-theory-2023",
+      "target": "field:compressed-sensing",
+      "relation": "classified_in",
+      "evidence": "Surveys theoretical guarantees and open problems for generative priors, untrained neural priors, and unfolded reconstruction algorithms.",
+      "evidence_url": "https://arxiv.org/abs/2206.14373",
+      "evidence_locator": "Abstract and relevant methods",
+      "epistemic_status": "curated_classification"
+    },
+    {
+      "id": "addition-inverse-theory-2023-classified-in-field-inverse-problems",
+      "source": "inverse-theory-2023",
+      "target": "field:inverse-problems",
+      "relation": "classified_in",
+      "evidence": "Surveys theoretical guarantees and open problems for generative priors, untrained neural priors, and unfolded reconstruction algorithms.",
+      "evidence_url": "https://arxiv.org/abs/2206.14373",
+      "evidence_locator": "Abstract and relevant methods",
+      "epistemic_status": "curated_classification"
+    },
+    {
+      "id": "addition-inverse-theory-2023-classified-in-field-theory",
+      "source": "inverse-theory-2023",
+      "target": "field:theory",
+      "relation": "classified_in",
+      "evidence": "Surveys theoretical guarantees and open problems for generative priors, untrained neural priors, and unfolded reconstruction algorithms.",
+      "evidence_url": "https://arxiv.org/abs/2206.14373",
+      "evidence_locator": "Abstract and relevant methods",
+      "epistemic_status": "curated_classification"
+    },
+    {
+      "id": "addition-inverse-theory-2023-bridges-field-area-sparse",
+      "source": "inverse-theory-2023",
+      "target": "area:sparse",
+      "relation": "bridges_field",
+      "evidence": "Explains the evolution of compressed sensing toward learned priors and reconstruction networks. Adjacent background, not a neural-operator paper. Separates signal-model assumptions, optimization, sample complexity and generalization.",
+      "evidence_url": "https://arxiv.org/abs/2206.14373",
+      "evidence_locator": "Abstract and relevant methods",
+      "epistemic_status": "curated_classification"
+    },
+    {
+      "id": "addition-inverse-theory-2023-bridges-field-area-inverse",
+      "source": "inverse-theory-2023",
+      "target": "area:inverse",
+      "relation": "bridges_field",
+      "evidence": "Explains the evolution of compressed sensing toward learned priors and reconstruction networks. Adjacent background, not a neural-operator paper. Separates signal-model assumptions, optimization, sample complexity and generalization.",
+      "evidence_url": "https://arxiv.org/abs/2206.14373",
+      "evidence_locator": "Abstract and relevant methods",
+      "epistemic_status": "curated_classification"
+    },
+    {
+      "id": "addition-inverse-theory-2023-cites-cs-generative-2017",
+      "source": "inverse-theory-2023",
+      "target": "cs-generative-2017",
+      "relation": "cites",
+      "evidence": "Verified title and authors in downloaded PDF reference list.",
+      "evidence_url": "https://arxiv.org/abs/2206.14373",
+      "evidence_locator": "References [17]",
+      "epistemic_status": "documented"
+    },
+    {
+      "id": "addition-author-sean-gunn-authored-tunable-cs-2026",
+      "source": "author:sean-gunn",
+      "target": "tunable-cs-2026",
+      "relation": "authored",
+      "evidence": "Author verified against primary byline.",
+      "evidence_url": "https://arxiv.org/abs/2603.07357",
+      "evidence_locator": "Byline",
+      "epistemic_status": "documented"
+    },
+    {
+      "id": "addition-author-jorio-cocola-authored-tunable-cs-2026",
+      "source": "author:jorio-cocola",
+      "target": "tunable-cs-2026",
+      "relation": "authored",
+      "evidence": "Author verified against primary byline.",
+      "evidence_url": "https://arxiv.org/abs/2603.07357",
+      "evidence_locator": "Byline",
+      "epistemic_status": "documented"
+    },
+    {
+      "id": "addition-author-oliver-de-candido-authored-tunable-cs-2026",
+      "source": "author:oliver-de-candido",
+      "target": "tunable-cs-2026",
+      "relation": "authored",
+      "evidence": "Author verified against primary byline.",
+      "evidence_url": "https://arxiv.org/abs/2603.07357",
+      "evidence_locator": "Byline",
+      "epistemic_status": "documented"
+    },
+    {
+      "id": "addition-author-vaggos-chatziafratis-authored-tunable-cs-2026",
+      "source": "author:vaggos-chatziafratis",
+      "target": "tunable-cs-2026",
+      "relation": "authored",
+      "evidence": "Author verified against primary byline.",
+      "evidence_url": "https://arxiv.org/abs/2603.07357",
+      "evidence_locator": "Byline",
+      "epistemic_status": "documented"
+    },
+    {
+      "id": "addition-author-paul-hand-authored-tunable-cs-2026",
+      "source": "author:paul-hand",
+      "target": "tunable-cs-2026",
+      "relation": "authored",
+      "evidence": "Author verified against primary byline.",
+      "evidence_url": "https://arxiv.org/abs/2603.07357",
+      "evidence_locator": "Byline",
+      "epistemic_status": "documented"
+    },
+    {
+      "id": "addition-tunable-cs-2026-classified-in-field-compressed-sensing",
+      "source": "tunable-cs-2026",
+      "target": "field:compressed-sensing",
+      "relation": "classified_in",
+      "evidence": "Uses nested dropout to vary latent-prior complexity in diffusion models, normalizing flows and variational autoencoders for inverse problems.",
+      "evidence_url": "https://arxiv.org/abs/2603.07357",
+      "evidence_locator": "Abstract and relevant methods",
+      "epistemic_status": "curated_classification"
+    },
+    {
+      "id": "addition-tunable-cs-2026-classified-in-field-inverse-problems",
+      "source": "tunable-cs-2026",
+      "target": "field:inverse-problems",
+      "relation": "classified_in",
+      "evidence": "Uses nested dropout to vary latent-prior complexity in diffusion models, normalizing flows and variational autoencoders for inverse problems.",
+      "evidence_url": "https://arxiv.org/abs/2603.07357",
+      "evidence_locator": "Abstract and relevant methods",
+      "epistemic_status": "curated_classification"
+    },
+    {
+      "id": "addition-tunable-cs-2026-classified-in-field-theory",
+      "source": "tunable-cs-2026",
+      "target": "field:theory",
+      "relation": "classified_in",
+      "evidence": "Uses nested dropout to vary latent-prior complexity in diffusion models, normalizing flows and variational autoencoders for inverse problems.",
+      "evidence_url": "https://arxiv.org/abs/2603.07357",
+      "evidence_locator": "Abstract and relevant methods",
+      "epistemic_status": "curated_classification"
+    },
+    {
+      "id": "addition-tunable-cs-2026-bridges-field-area-sparse",
+      "source": "tunable-cs-2026",
+      "target": "area:sparse",
+      "relation": "bridges_field",
+      "evidence": "Current compressed-sensing direction: tune prior complexity to balance representation error and noise overfitting. Adjacent to operator learning, not a neural-operator architecture. March 2026 preprint; general experiments and theory for the linear denoising setting do not establish universal compressed-sensing guarantees.",
+      "evidence_url": "https://arxiv.org/abs/2603.07357",
+      "evidence_locator": "Abstract and relevant methods",
+      "epistemic_status": "curated_classification"
+    },
+    {
+      "id": "addition-tunable-cs-2026-bridges-field-area-inverse",
+      "source": "tunable-cs-2026",
+      "target": "area:inverse",
+      "relation": "bridges_field",
+      "evidence": "Current compressed-sensing direction: tune prior complexity to balance representation error and noise overfitting. Adjacent to operator learning, not a neural-operator architecture. March 2026 preprint; general experiments and theory for the linear denoising setting do not establish universal compressed-sensing guarantees.",
+      "evidence_url": "https://arxiv.org/abs/2603.07357",
+      "evidence_locator": "Abstract and relevant methods",
+      "epistemic_status": "curated_classification"
+    },
+    {
+      "id": "addition-tunable-cs-2026-cites-cs-generative-2017",
+      "source": "tunable-cs-2026",
+      "target": "cs-generative-2017",
+      "relation": "cites",
+      "evidence": "Verified title and authors in downloaded PDF reference list.",
+      "evidence_url": "https://arxiv.org/abs/2603.07357",
+      "evidence_locator": "References [4]",
+      "epistemic_status": "documented"
+    },
+    {
+      "id": "addition-tunable-cs-2026-cites-inverse-theory-2023",
+      "source": "tunable-cs-2026",
+      "target": "inverse-theory-2023",
+      "relation": "cites",
+      "evidence": "Verified title and authors in downloaded PDF reference list.",
+      "evidence_url": "https://arxiv.org/abs/2603.07357",
+      "evidence_locator": "References [40]",
+      "epistemic_status": "documented"
+    },
+    {
+      "id": "addition-author-lanthaler-samuel-authored-parametric-complexity-2023",
+      "source": "author:lanthaler-samuel",
+      "target": "parametric-complexity-2023",
+      "relation": "authored",
+      "evidence": "Author verified in downloaded PDF byline.",
+      "evidence_url": "https://arxiv.org/abs/2306.15924",
+      "evidence_locator": "PDF page 1",
+      "epistemic_status": "documented"
+    },
+    {
+      "id": "addition-parametric-complexity-2023-classified-in-field-operator-learning",
+      "source": "parametric-complexity-2023",
+      "target": "field:operator-learning",
+      "relation": "classified_in",
+      "evidence": "Proves a curse of parametric complexity for general regular operator classes, and shows how Hamilton–Jacobi structure permits a more efficient architecture.",
+      "evidence_url": "https://arxiv.org/abs/2306.15924",
+      "evidence_locator": "Abstract",
+      "epistemic_status": "curated_classification"
+    },
+    {
+      "id": "addition-parametric-complexity-2023-classified-in-field-theory",
+      "source": "parametric-complexity-2023",
+      "target": "field:theory",
+      "relation": "classified_in",
+      "evidence": "Proves a curse of parametric complexity for general regular operator classes, and shows how Hamilton–Jacobi structure permits a more efficient architecture.",
+      "evidence_url": "https://arxiv.org/abs/2306.15924",
+      "evidence_locator": "Abstract",
+      "epistemic_status": "curated_classification"
+    },
+    {
+      "id": "addition-parametric-complexity-2023-bridges-field-area-operators",
+      "source": "parametric-complexity-2023",
+      "target": "area:operators",
+      "relation": "bridges_field",
+      "evidence": "Proves a curse of parametric complexity for general regular operator classes, and shows how Hamilton–Jacobi structure permits a more efficient architecture.",
+      "evidence_url": "https://arxiv.org/abs/2306.15924",
+      "evidence_locator": "Abstract",
+      "epistemic_status": "curated_classification"
+    },
+    {
+      "id": "addition-parametric-complexity-2023-bridges-field-area-fourier",
+      "source": "parametric-complexity-2023",
+      "target": "area:fourier",
+      "relation": "bridges_field",
+      "evidence": "Proves a curse of parametric complexity for general regular operator classes, and shows how Hamilton–Jacobi structure permits a more efficient architecture.",
+      "evidence_url": "https://arxiv.org/abs/2306.15924",
+      "evidence_locator": "Abstract",
+      "epistemic_status": "curated_classification"
+    },
+    {
+      "id": "addition-parametric-complexity-2023-cites-fno-2020",
+      "source": "parametric-complexity-2023",
+      "target": "fno-2020",
+      "relation": "cites",
+      "evidence": "Verified title in downloaded PDF reference list.",
+      "evidence_url": "https://arxiv.org/abs/2306.15924",
+      "evidence_locator": "References [46], downloaded v4",
+      "epistemic_status": "documented"
+    },
+    {
+      "id": "addition-parametric-complexity-2023-cites-neural-operator-2021",
+      "source": "parametric-complexity-2023",
+      "target": "neural-operator-2021",
+      "relation": "cites",
+      "evidence": "Verified title in downloaded PDF reference list.",
+      "evidence_url": "https://arxiv.org/abs/2306.15924",
+      "evidence_locator": "References [40], downloaded v4",
+      "epistemic_status": "documented"
+    },
+    {
+      "id": "addition-author-francesca-bartolucci-authored-reno-2023",
+      "source": "author:francesca-bartolucci",
+      "target": "reno-2023",
+      "relation": "authored",
+      "evidence": "Author verified in downloaded PDF byline.",
+      "evidence_url": "https://arxiv.org/abs/2305.19913",
+      "evidence_locator": "PDF page 1",
+      "epistemic_status": "documented"
+    },
+    {
+      "id": "addition-author-de-bezenac-emmanuel-authored-reno-2023",
+      "source": "author:de-bezenac-emmanuel",
+      "target": "reno-2023",
+      "relation": "authored",
+      "evidence": "Author verified in downloaded PDF byline.",
+      "evidence_url": "https://arxiv.org/abs/2305.19913",
+      "evidence_locator": "PDF page 1",
+      "epistemic_status": "documented"
+    },
+    {
+      "id": "addition-author-raonic-bogdan-authored-reno-2023",
+      "source": "author:raonic-bogdan",
+      "target": "reno-2023",
+      "relation": "authored",
+      "evidence": "Author verified in downloaded PDF byline.",
+      "evidence_url": "https://arxiv.org/abs/2305.19913",
+      "evidence_locator": "PDF page 1",
+      "epistemic_status": "documented"
+    },
+    {
+      "id": "addition-author-molinaro-roberto-authored-reno-2023",
+      "source": "author:molinaro-roberto",
+      "target": "reno-2023",
+      "relation": "authored",
+      "evidence": "Author verified in downloaded PDF byline.",
+      "evidence_url": "https://arxiv.org/abs/2305.19913",
+      "evidence_locator": "PDF page 1",
+      "epistemic_status": "documented"
+    },
+    {
+      "id": "addition-author-mishra-siddhartha-authored-reno-2023",
+      "source": "author:mishra-siddhartha",
+      "target": "reno-2023",
+      "relation": "authored",
+      "evidence": "Author verified in downloaded PDF byline.",
+      "evidence_url": "https://arxiv.org/abs/2305.19913",
+      "evidence_locator": "PDF page 1",
+      "epistemic_status": "documented"
+    },
+    {
+      "id": "addition-author-rima-alaifari-authored-reno-2023",
+      "source": "author:rima-alaifari",
+      "target": "reno-2023",
+      "relation": "authored",
+      "evidence": "Author verified in downloaded PDF byline.",
+      "evidence_url": "https://arxiv.org/abs/2305.19913",
+      "evidence_locator": "PDF page 1",
+      "epistemic_status": "documented"
+    },
+    {
+      "id": "addition-reno-2023-classified-in-field-operator-learning",
+      "source": "reno-2023",
+      "target": "field:operator-learning",
+      "relation": "classified_in",
+      "evidence": "Introduces representation equivalence and operator aliasing to analyze consistency between continuous operators and their discrete implementations.",
+      "evidence_url": "https://arxiv.org/abs/2305.19913",
+      "evidence_locator": "Abstract",
+      "epistemic_status": "curated_classification"
+    },
+    {
+      "id": "addition-reno-2023-classified-in-field-theory",
+      "source": "reno-2023",
+      "target": "field:theory",
+      "relation": "classified_in",
+      "evidence": "Introduces representation equivalence and operator aliasing to analyze consistency between continuous operators and their discrete implementations.",
+      "evidence_url": "https://arxiv.org/abs/2305.19913",
+      "evidence_locator": "Abstract",
+      "epistemic_status": "curated_classification"
+    },
+    {
+      "id": "addition-reno-2023-classified-in-field-sampling",
+      "source": "reno-2023",
+      "target": "field:sampling",
+      "relation": "classified_in",
+      "evidence": "Introduces representation equivalence and operator aliasing to analyze consistency between continuous operators and their discrete implementations.",
+      "evidence_url": "https://arxiv.org/abs/2305.19913",
+      "evidence_locator": "Abstract",
+      "epistemic_status": "curated_classification"
+    },
+    {
+      "id": "addition-reno-2023-bridges-field-area-operators",
+      "source": "reno-2023",
+      "target": "area:operators",
+      "relation": "bridges_field",
+      "evidence": "Introduces representation equivalence and operator aliasing to analyze consistency between continuous operators and their discrete implementations.",
+      "evidence_url": "https://arxiv.org/abs/2305.19913",
+      "evidence_locator": "Abstract",
+      "epistemic_status": "curated_classification"
+    },
+    {
+      "id": "addition-reno-2023-bridges-field-area-fourier",
+      "source": "reno-2023",
+      "target": "area:fourier",
+      "relation": "bridges_field",
+      "evidence": "Introduces representation equivalence and operator aliasing to analyze consistency between continuous operators and their discrete implementations.",
+      "evidence_url": "https://arxiv.org/abs/2305.19913",
+      "evidence_locator": "Abstract",
+      "epistemic_status": "curated_classification"
+    },
+    {
+      "id": "addition-reno-2023-bridges-field-area-sparse",
+      "source": "reno-2023",
+      "target": "area:sparse",
+      "relation": "bridges_field",
+      "evidence": "Introduces representation equivalence and operator aliasing to analyze consistency between continuous operators and their discrete implementations.",
+      "evidence_url": "https://arxiv.org/abs/2305.19913",
+      "evidence_locator": "Abstract",
+      "epistemic_status": "curated_classification"
+    },
+    {
+      "id": "addition-reno-2023-cites-fno-2020",
+      "source": "reno-2023",
+      "target": "fno-2020",
+      "relation": "cites",
+      "evidence": "Verified title in downloaded PDF reference list.",
+      "evidence_url": "https://arxiv.org/abs/2305.19913",
+      "evidence_locator": "References [17], downloaded v2",
+      "epistemic_status": "documented"
+    },
+    {
+      "id": "addition-reno-2023-cites-neural-operator-2021",
+      "source": "reno-2023",
+      "target": "neural-operator-2021",
+      "relation": "cites",
+      "evidence": "Verified title in downloaded PDF reference list.",
+      "evidence_url": "https://arxiv.org/abs/2305.19913",
+      "evidence_locator": "References [15], downloaded v2",
+      "epistemic_status": "documented"
+    },
+    {
+      "id": "addition-author-stuart-andrew-authored-parametric-complexity-2023",
+      "source": "author:stuart-andrew",
+      "target": "parametric-complexity-2023",
+      "relation": "authored",
+      "evidence": "Author verified in downloaded PDF byline.",
+      "evidence_url": "https://arxiv.org/abs/2306.15924",
+      "evidence_locator": "PDF page 1",
+      "epistemic_status": "documented"
+    },
+    {
+      "id": "addition-spectral-cs-2024-cites-reno-2023",
+      "source": "spectral-cs-2024",
+      "target": "reno-2023",
+      "relation": "cites",
+      "evidence": "Verified title and authors in downloaded PDF reference list.",
+      "evidence_url": "https://qijiaj.github.io/operator_learning_2024.pdf",
+      "evidence_locator": "References [3]",
+      "epistemic_status": "documented"
+    },
+    {
+      "id": "thesis-author-xiaoyu-zhao-authored-recfno-2023",
+      "source": "author:xiaoyu-zhao",
+      "target": "recfno-2023",
+      "relation": "authored",
+      "evidence": "Reconstructs heat and flow fields from sparse observations using MLP, mask or Voronoi embeddings and Fourier layers.",
+      "evidence_url": "https://arxiv.org/abs/2302.09808",
+      "evidence_locator": "Primary abstract and byline; thematic classification is curator interpretation",
+      "epistemic_status": "documented"
+    },
+    {
+      "id": "thesis-author-xiaoqian-chen-authored-recfno-2023",
+      "source": "author:xiaoqian-chen",
+      "target": "recfno-2023",
+      "relation": "authored",
+      "evidence": "Reconstructs heat and flow fields from sparse observations using MLP, mask or Voronoi embeddings and Fourier layers.",
+      "evidence_url": "https://arxiv.org/abs/2302.09808",
+      "evidence_locator": "Primary abstract and byline; thematic classification is curator interpretation",
+      "epistemic_status": "documented"
+    },
+    {
+      "id": "thesis-author-zhiqiang-gong-authored-recfno-2023",
+      "source": "author:zhiqiang-gong",
+      "target": "recfno-2023",
+      "relation": "authored",
+      "evidence": "Reconstructs heat and flow fields from sparse observations using MLP, mask or Voronoi embeddings and Fourier layers.",
+      "evidence_url": "https://arxiv.org/abs/2302.09808",
+      "evidence_locator": "Primary abstract and byline; thematic classification is curator interpretation",
+      "epistemic_status": "documented"
+    },
+    {
+      "id": "thesis-author-weien-zhou-authored-recfno-2023",
+      "source": "author:weien-zhou",
+      "target": "recfno-2023",
+      "relation": "authored",
+      "evidence": "Reconstructs heat and flow fields from sparse observations using MLP, mask or Voronoi embeddings and Fourier layers.",
+      "evidence_url": "https://arxiv.org/abs/2302.09808",
+      "evidence_locator": "Primary abstract and byline; thematic classification is curator interpretation",
+      "epistemic_status": "documented"
+    },
+    {
+      "id": "thesis-author-wen-yao-authored-recfno-2023",
+      "source": "author:wen-yao",
+      "target": "recfno-2023",
+      "relation": "authored",
+      "evidence": "Reconstructs heat and flow fields from sparse observations using MLP, mask or Voronoi embeddings and Fourier layers.",
+      "evidence_url": "https://arxiv.org/abs/2302.09808",
+      "evidence_locator": "Primary abstract and byline; thematic classification is curator interpretation",
+      "epistemic_status": "documented"
+    },
+    {
+      "id": "thesis-author-yunyang-zhang-authored-recfno-2023",
+      "source": "author:yunyang-zhang",
+      "target": "recfno-2023",
+      "relation": "authored",
+      "evidence": "Reconstructs heat and flow fields from sparse observations using MLP, mask or Voronoi embeddings and Fourier layers.",
+      "evidence_url": "https://arxiv.org/abs/2302.09808",
+      "evidence_locator": "Primary abstract and byline; thematic classification is curator interpretation",
+      "epistemic_status": "documented"
+    },
+    {
+      "id": "thesis-recfno-2023-classified-in-field-operator-learning",
+      "source": "recfno-2023",
+      "target": "field:operator-learning",
+      "relation": "classified_in",
+      "evidence": "Reconstructs heat and flow fields from sparse observations using MLP, mask or Voronoi embeddings and Fourier layers.",
+      "evidence_url": "https://arxiv.org/abs/2302.09808",
+      "evidence_locator": "Primary abstract and byline; thematic classification is curator interpretation",
+      "epistemic_status": "curated_classification"
+    },
+    {
+      "id": "thesis-recfno-2023-classified-in-field-fourier-neural-operators",
+      "source": "recfno-2023",
+      "target": "field:fourier-neural-operators",
+      "relation": "classified_in",
+      "evidence": "Reconstructs heat and flow fields from sparse observations using MLP, mask or Voronoi embeddings and Fourier layers.",
+      "evidence_url": "https://arxiv.org/abs/2302.09808",
+      "evidence_locator": "Primary abstract and byline; thematic classification is curator interpretation",
+      "epistemic_status": "curated_classification"
+    },
+    {
+      "id": "thesis-recfno-2023-classified-in-field-inverse-problems",
+      "source": "recfno-2023",
+      "target": "field:inverse-problems",
+      "relation": "classified_in",
+      "evidence": "Reconstructs heat and flow fields from sparse observations using MLP, mask or Voronoi embeddings and Fourier layers.",
+      "evidence_url": "https://arxiv.org/abs/2302.09808",
+      "evidence_locator": "Primary abstract and byline; thematic classification is curator interpretation",
+      "epistemic_status": "curated_classification"
+    },
+    {
+      "id": "thesis-recfno-2023-classified-in-field-sampling",
+      "source": "recfno-2023",
+      "target": "field:sampling",
+      "relation": "classified_in",
+      "evidence": "Reconstructs heat and flow fields from sparse observations using MLP, mask or Voronoi embeddings and Fourier layers.",
+      "evidence_url": "https://arxiv.org/abs/2302.09808",
+      "evidence_locator": "Primary abstract and byline; thematic classification is curator interpretation",
+      "epistemic_status": "curated_classification"
+    },
+    {
+      "id": "thesis-recfno-2023-classified-in-field-physical-simulation",
+      "source": "recfno-2023",
+      "target": "field:physical-simulation",
+      "relation": "classified_in",
+      "evidence": "Reconstructs heat and flow fields from sparse observations using MLP, mask or Voronoi embeddings and Fourier layers.",
+      "evidence_url": "https://arxiv.org/abs/2302.09808",
+      "evidence_locator": "Primary abstract and byline; thematic classification is curator interpretation",
+      "epistemic_status": "curated_classification"
+    },
+    {
+      "id": "thesis-recfno-2023-bridges-field-area-operators",
+      "source": "recfno-2023",
+      "target": "area:operators",
+      "relation": "bridges_field",
+      "evidence": "Reconstructs heat and flow fields from sparse observations using MLP, mask or Voronoi embeddings and Fourier layers.",
+      "evidence_url": "https://arxiv.org/abs/2302.09808",
+      "evidence_locator": "Primary abstract and byline; thematic classification is curator interpretation",
+      "epistemic_status": "curated_classification"
+    },
+    {
+      "id": "thesis-recfno-2023-bridges-field-area-fourier",
+      "source": "recfno-2023",
+      "target": "area:fourier",
+      "relation": "bridges_field",
+      "evidence": "Reconstructs heat and flow fields from sparse observations using MLP, mask or Voronoi embeddings and Fourier layers.",
+      "evidence_url": "https://arxiv.org/abs/2302.09808",
+      "evidence_locator": "Primary abstract and byline; thematic classification is curator interpretation",
+      "epistemic_status": "curated_classification"
+    },
+    {
+      "id": "thesis-recfno-2023-bridges-field-area-sparse",
+      "source": "recfno-2023",
+      "target": "area:sparse",
+      "relation": "bridges_field",
+      "evidence": "Reconstructs heat and flow fields from sparse observations using MLP, mask or Voronoi embeddings and Fourier layers.",
+      "evidence_url": "https://arxiv.org/abs/2302.09808",
+      "evidence_locator": "Primary abstract and byline; thematic classification is curator interpretation",
+      "epistemic_status": "curated_classification"
+    },
+    {
+      "id": "thesis-recfno-2023-bridges-field-area-engineering",
+      "source": "recfno-2023",
+      "target": "area:engineering",
+      "relation": "bridges_field",
+      "evidence": "Reconstructs heat and flow fields from sparse observations using MLP, mask or Voronoi embeddings and Fourier layers.",
+      "evidence_url": "https://arxiv.org/abs/2302.09808",
+      "evidence_locator": "Primary abstract and byline; thematic classification is curator interpretation",
+      "epistemic_status": "curated_classification"
+    },
+    {
+      "id": "thesis-recfno-2023-bridges-field-area-inverse",
+      "source": "recfno-2023",
+      "target": "area:inverse",
+      "relation": "bridges_field",
+      "evidence": "Reconstructs heat and flow fields from sparse observations using MLP, mask or Voronoi embeddings and Fourier layers.",
+      "evidence_url": "https://arxiv.org/abs/2302.09808",
+      "evidence_locator": "Primary abstract and byline; thematic classification is curator interpretation",
+      "epistemic_status": "curated_classification"
+    },
+    {
+      "id": "thesis-author-joao-paulo-bazzo-authored-stator-sparse-2016",
+      "source": "author:joao-paulo-bazzo",
+      "target": "stator-sparse-2016",
+      "relation": "authored",
+      "evidence": "Uses a finite-element hotspot dictionary and sparse reconstruction with distributed fibre temperatures to monitor generator stators.",
+      "evidence_url": "https://doi.org/10.3390/s16091425",
+      "evidence_locator": "Primary abstract and byline; thematic classification is curator interpretation",
+      "epistemic_status": "documented"
+    },
+    {
+      "id": "thesis-author-daniel-rodrigues-pipa-authored-stator-sparse-2016",
+      "source": "author:daniel-rodrigues-pipa",
+      "target": "stator-sparse-2016",
+      "relation": "authored",
+      "evidence": "Uses a finite-element hotspot dictionary and sparse reconstruction with distributed fibre temperatures to monitor generator stators.",
+      "evidence_url": "https://doi.org/10.3390/s16091425",
+      "evidence_locator": "Primary abstract and byline; thematic classification is curator interpretation",
+      "epistemic_status": "documented"
+    },
+    {
+      "id": "thesis-author-erlon-vagner-da-silva-authored-stator-sparse-2016",
+      "source": "author:erlon-vagner-da-silva",
+      "target": "stator-sparse-2016",
+      "relation": "authored",
+      "evidence": "Uses a finite-element hotspot dictionary and sparse reconstruction with distributed fibre temperatures to monitor generator stators.",
+      "evidence_url": "https://doi.org/10.3390/s16091425",
+      "evidence_locator": "Primary abstract and byline; thematic classification is curator interpretation",
+      "epistemic_status": "documented"
+    },
+    {
+      "id": "thesis-author-cicero-martelli-authored-stator-sparse-2016",
+      "source": "author:cicero-martelli",
+      "target": "stator-sparse-2016",
+      "relation": "authored",
+      "evidence": "Uses a finite-element hotspot dictionary and sparse reconstruction with distributed fibre temperatures to monitor generator stators.",
+      "evidence_url": "https://doi.org/10.3390/s16091425",
+      "evidence_locator": "Primary abstract and byline; thematic classification is curator interpretation",
+      "epistemic_status": "documented"
+    },
+    {
+      "id": "thesis-author-jean-carlos-cardozo-da-silva-authored-stator-sparse-2016",
+      "source": "author:jean-carlos-cardozo-da-silva",
+      "target": "stator-sparse-2016",
+      "relation": "authored",
+      "evidence": "Uses a finite-element hotspot dictionary and sparse reconstruction with distributed fibre temperatures to monitor generator stators.",
+      "evidence_url": "https://doi.org/10.3390/s16091425",
+      "evidence_locator": "Primary abstract and byline; thematic classification is curator interpretation",
+      "epistemic_status": "documented"
+    },
+    {
+      "id": "thesis-stator-sparse-2016-classified-in-field-compressed-sensing",
+      "source": "stator-sparse-2016",
+      "target": "field:compressed-sensing",
+      "relation": "classified_in",
+      "evidence": "Uses a finite-element hotspot dictionary and sparse reconstruction with distributed fibre temperatures to monitor generator stators.",
+      "evidence_url": "https://doi.org/10.3390/s16091425",
+      "evidence_locator": "Primary abstract and byline; thematic classification is curator interpretation",
+      "epistemic_status": "curated_classification"
+    },
+    {
+      "id": "thesis-stator-sparse-2016-classified-in-field-inverse-problems",
+      "source": "stator-sparse-2016",
+      "target": "field:inverse-problems",
+      "relation": "classified_in",
+      "evidence": "Uses a finite-element hotspot dictionary and sparse reconstruction with distributed fibre temperatures to monitor generator stators.",
+      "evidence_url": "https://doi.org/10.3390/s16091425",
+      "evidence_locator": "Primary abstract and byline; thematic classification is curator interpretation",
+      "epistemic_status": "curated_classification"
+    },
+    {
+      "id": "thesis-stator-sparse-2016-classified-in-field-structural-monitoring",
+      "source": "stator-sparse-2016",
+      "target": "field:structural-monitoring",
+      "relation": "classified_in",
+      "evidence": "Uses a finite-element hotspot dictionary and sparse reconstruction with distributed fibre temperatures to monitor generator stators.",
+      "evidence_url": "https://doi.org/10.3390/s16091425",
+      "evidence_locator": "Primary abstract and byline; thematic classification is curator interpretation",
+      "epistemic_status": "curated_classification"
+    },
+    {
+      "id": "thesis-stator-sparse-2016-classified-in-field-physical-simulation",
+      "source": "stator-sparse-2016",
+      "target": "field:physical-simulation",
+      "relation": "classified_in",
+      "evidence": "Uses a finite-element hotspot dictionary and sparse reconstruction with distributed fibre temperatures to monitor generator stators.",
+      "evidence_url": "https://doi.org/10.3390/s16091425",
+      "evidence_locator": "Primary abstract and byline; thematic classification is curator interpretation",
+      "epistemic_status": "curated_classification"
+    },
+    {
+      "id": "thesis-stator-sparse-2016-bridges-field-area-sparse",
+      "source": "stator-sparse-2016",
+      "target": "area:sparse",
+      "relation": "bridges_field",
+      "evidence": "Uses a finite-element hotspot dictionary and sparse reconstruction with distributed fibre temperatures to monitor generator stators.",
+      "evidence_url": "https://doi.org/10.3390/s16091425",
+      "evidence_locator": "Primary abstract and byline; thematic classification is curator interpretation",
+      "epistemic_status": "curated_classification"
+    },
+    {
+      "id": "thesis-stator-sparse-2016-bridges-field-area-engineering",
+      "source": "stator-sparse-2016",
+      "target": "area:engineering",
+      "relation": "bridges_field",
+      "evidence": "Uses a finite-element hotspot dictionary and sparse reconstruction with distributed fibre temperatures to monitor generator stators.",
+      "evidence_url": "https://doi.org/10.3390/s16091425",
+      "evidence_locator": "Primary abstract and byline; thematic classification is curator interpretation",
+      "epistemic_status": "curated_classification"
+    },
+    {
+      "id": "thesis-stator-sparse-2016-bridges-field-area-inverse",
+      "source": "stator-sparse-2016",
+      "target": "area:inverse",
+      "relation": "bridges_field",
+      "evidence": "Uses a finite-element hotspot dictionary and sparse reconstruction with distributed fibre temperatures to monitor generator stators.",
+      "evidence_url": "https://doi.org/10.3390/s16091425",
+      "evidence_locator": "Primary abstract and byline; thematic classification is curator interpretation",
+      "epistemic_status": "curated_classification"
+    },
+    {
+      "id": "thesis-stator-sparse-2016-bridges-field-area-timeseries",
+      "source": "stator-sparse-2016",
+      "target": "area:timeseries",
+      "relation": "bridges_field",
+      "evidence": "Uses a finite-element hotspot dictionary and sparse reconstruction with distributed fibre temperatures to monitor generator stators.",
+      "evidence_url": "https://doi.org/10.3390/s16091425",
+      "evidence_locator": "Primary abstract and byline; thematic classification is curator interpretation",
+      "epistemic_status": "curated_classification"
+    },
+    {
+      "id": "thesis-author-jan-van-delden-authored-vibrating-plates-2023",
+      "source": "author:jan-van-delden",
+      "target": "vibrating-plates-2023",
+      "relation": "authored",
+      "evidence": "Introduces a 12000-geometry harmonically excited plate benchmark and Frequency-Query Operator, comparing FNO and DeepONet baselines.",
+      "evidence_url": "https://arxiv.org/abs/2310.05469",
+      "evidence_locator": "Primary abstract and byline; thematic classification is curator interpretation",
+      "epistemic_status": "documented"
+    },
+    {
+      "id": "thesis-author-julius-schultz-authored-vibrating-plates-2023",
+      "source": "author:julius-schultz",
+      "target": "vibrating-plates-2023",
+      "relation": "authored",
+      "evidence": "Introduces a 12000-geometry harmonically excited plate benchmark and Frequency-Query Operator, comparing FNO and DeepONet baselines.",
+      "evidence_url": "https://arxiv.org/abs/2310.05469",
+      "evidence_locator": "Primary abstract and byline; thematic classification is curator interpretation",
+      "epistemic_status": "documented"
+    },
+    {
+      "id": "thesis-author-christopher-blech-authored-vibrating-plates-2023",
+      "source": "author:christopher-blech",
+      "target": "vibrating-plates-2023",
+      "relation": "authored",
+      "evidence": "Introduces a 12000-geometry harmonically excited plate benchmark and Frequency-Query Operator, comparing FNO and DeepONet baselines.",
+      "evidence_url": "https://arxiv.org/abs/2310.05469",
+      "evidence_locator": "Primary abstract and byline; thematic classification is curator interpretation",
+      "epistemic_status": "documented"
+    },
+    {
+      "id": "thesis-author-sabine-c-langer-authored-vibrating-plates-2023",
+      "source": "author:sabine-c-langer",
+      "target": "vibrating-plates-2023",
+      "relation": "authored",
+      "evidence": "Introduces a 12000-geometry harmonically excited plate benchmark and Frequency-Query Operator, comparing FNO and DeepONet baselines.",
+      "evidence_url": "https://arxiv.org/abs/2310.05469",
+      "evidence_locator": "Primary abstract and byline; thematic classification is curator interpretation",
+      "epistemic_status": "documented"
+    },
+    {
+      "id": "thesis-author-timo-luddecke-authored-vibrating-plates-2023",
+      "source": "author:timo-luddecke",
+      "target": "vibrating-plates-2023",
+      "relation": "authored",
+      "evidence": "Introduces a 12000-geometry harmonically excited plate benchmark and Frequency-Query Operator, comparing FNO and DeepONet baselines.",
+      "evidence_url": "https://arxiv.org/abs/2310.05469",
+      "evidence_locator": "Primary abstract and byline; thematic classification is curator interpretation",
+      "epistemic_status": "documented"
+    },
+    {
+      "id": "thesis-vibrating-plates-2023-classified-in-field-operator-learning",
+      "source": "vibrating-plates-2023",
+      "target": "field:operator-learning",
+      "relation": "classified_in",
+      "evidence": "Introduces a 12000-geometry harmonically excited plate benchmark and Frequency-Query Operator, comparing FNO and DeepONet baselines.",
+      "evidence_url": "https://arxiv.org/abs/2310.05469",
+      "evidence_locator": "Primary abstract and byline; thematic classification is curator interpretation",
+      "epistemic_status": "curated_classification"
+    },
+    {
+      "id": "thesis-vibrating-plates-2023-classified-in-field-structural-monitoring",
+      "source": "vibrating-plates-2023",
+      "target": "field:structural-monitoring",
+      "relation": "classified_in",
+      "evidence": "Introduces a 12000-geometry harmonically excited plate benchmark and Frequency-Query Operator, comparing FNO and DeepONet baselines.",
+      "evidence_url": "https://arxiv.org/abs/2310.05469",
+      "evidence_locator": "Primary abstract and byline; thematic classification is curator interpretation",
+      "epistemic_status": "curated_classification"
+    },
+    {
+      "id": "thesis-vibrating-plates-2023-classified-in-field-physical-simulation",
+      "source": "vibrating-plates-2023",
+      "target": "field:physical-simulation",
+      "relation": "classified_in",
+      "evidence": "Introduces a 12000-geometry harmonically excited plate benchmark and Frequency-Query Operator, comparing FNO and DeepONet baselines.",
+      "evidence_url": "https://arxiv.org/abs/2310.05469",
+      "evidence_locator": "Primary abstract and byline; thematic classification is curator interpretation",
+      "epistemic_status": "curated_classification"
+    },
+    {
+      "id": "thesis-vibrating-plates-2023-classified-in-field-acoustics",
+      "source": "vibrating-plates-2023",
+      "target": "field:acoustics",
+      "relation": "classified_in",
+      "evidence": "Introduces a 12000-geometry harmonically excited plate benchmark and Frequency-Query Operator, comparing FNO and DeepONet baselines.",
+      "evidence_url": "https://arxiv.org/abs/2310.05469",
+      "evidence_locator": "Primary abstract and byline; thematic classification is curator interpretation",
+      "epistemic_status": "curated_classification"
+    },
+    {
+      "id": "thesis-vibrating-plates-2023-bridges-field-area-operators",
+      "source": "vibrating-plates-2023",
+      "target": "area:operators",
+      "relation": "bridges_field",
+      "evidence": "Introduces a 12000-geometry harmonically excited plate benchmark and Frequency-Query Operator, comparing FNO and DeepONet baselines.",
+      "evidence_url": "https://arxiv.org/abs/2310.05469",
+      "evidence_locator": "Primary abstract and byline; thematic classification is curator interpretation",
+      "epistemic_status": "curated_classification"
+    },
+    {
+      "id": "thesis-vibrating-plates-2023-bridges-field-area-engineering",
+      "source": "vibrating-plates-2023",
+      "target": "area:engineering",
+      "relation": "bridges_field",
+      "evidence": "Introduces a 12000-geometry harmonically excited plate benchmark and Frequency-Query Operator, comparing FNO and DeepONet baselines.",
+      "evidence_url": "https://arxiv.org/abs/2310.05469",
+      "evidence_locator": "Primary abstract and byline; thematic classification is curator interpretation",
+      "epistemic_status": "curated_classification"
+    },
+    {
+      "id": "thesis-vibrating-plates-2023-bridges-field-area-timeseries",
+      "source": "vibrating-plates-2023",
+      "target": "area:timeseries",
+      "relation": "bridges_field",
+      "evidence": "Introduces a 12000-geometry harmonically excited plate benchmark and Frequency-Query Operator, comparing FNO and DeepONet baselines.",
+      "evidence_url": "https://arxiv.org/abs/2310.05469",
+      "evidence_locator": "Primary abstract and byline; thematic classification is curator interpretation",
+      "epistemic_status": "curated_classification"
+    },
+    {
+      "id": "thesis-author-jinghao-li-authored-motor-thermal-li-2026",
+      "source": "author:jinghao-li",
+      "target": "motor-thermal-li-2026",
+      "relation": "authored",
+      "evidence": "Studies load-memory-enhanced FNO prediction of two-dimensional transient temperature fields in a 15 kW induction motor.",
+      "evidence_url": "https://odr.chalmers.se/items/bf1e419a-85d8-44fa-8968-13c84f76cca1",
+      "evidence_locator": "Primary abstract and byline; thematic classification is curator interpretation",
+      "epistemic_status": "documented"
+    },
+    {
+      "id": "thesis-motor-thermal-li-2026-classified-in-field-operator-learning",
+      "source": "motor-thermal-li-2026",
+      "target": "field:operator-learning",
+      "relation": "classified_in",
+      "evidence": "Studies load-memory-enhanced FNO prediction of two-dimensional transient temperature fields in a 15 kW induction motor.",
+      "evidence_url": "https://odr.chalmers.se/items/bf1e419a-85d8-44fa-8968-13c84f76cca1",
+      "evidence_locator": "Primary abstract and byline; thematic classification is curator interpretation",
+      "epistemic_status": "curated_classification"
+    },
+    {
+      "id": "thesis-motor-thermal-li-2026-classified-in-field-fourier-neural-operators",
+      "source": "motor-thermal-li-2026",
+      "target": "field:fourier-neural-operators",
+      "relation": "classified_in",
+      "evidence": "Studies load-memory-enhanced FNO prediction of two-dimensional transient temperature fields in a 15 kW induction motor.",
+      "evidence_url": "https://odr.chalmers.se/items/bf1e419a-85d8-44fa-8968-13c84f76cca1",
+      "evidence_locator": "Primary abstract and byline; thematic classification is curator interpretation",
+      "epistemic_status": "curated_classification"
+    },
+    {
+      "id": "thesis-motor-thermal-li-2026-classified-in-field-physical-simulation",
+      "source": "motor-thermal-li-2026",
+      "target": "field:physical-simulation",
+      "relation": "classified_in",
+      "evidence": "Studies load-memory-enhanced FNO prediction of two-dimensional transient temperature fields in a 15 kW induction motor.",
+      "evidence_url": "https://odr.chalmers.se/items/bf1e419a-85d8-44fa-8968-13c84f76cca1",
+      "evidence_locator": "Primary abstract and byline; thematic classification is curator interpretation",
+      "epistemic_status": "curated_classification"
+    },
+    {
+      "id": "thesis-motor-thermal-li-2026-classified-in-field-structural-monitoring",
+      "source": "motor-thermal-li-2026",
+      "target": "field:structural-monitoring",
+      "relation": "classified_in",
+      "evidence": "Studies load-memory-enhanced FNO prediction of two-dimensional transient temperature fields in a 15 kW induction motor.",
+      "evidence_url": "https://odr.chalmers.se/items/bf1e419a-85d8-44fa-8968-13c84f76cca1",
+      "evidence_locator": "Primary abstract and byline; thematic classification is curator interpretation",
+      "epistemic_status": "curated_classification"
+    },
+    {
+      "id": "thesis-motor-thermal-li-2026-bridges-field-area-operators",
+      "source": "motor-thermal-li-2026",
+      "target": "area:operators",
+      "relation": "bridges_field",
+      "evidence": "Studies load-memory-enhanced FNO prediction of two-dimensional transient temperature fields in a 15 kW induction motor.",
+      "evidence_url": "https://odr.chalmers.se/items/bf1e419a-85d8-44fa-8968-13c84f76cca1",
+      "evidence_locator": "Primary abstract and byline; thematic classification is curator interpretation",
+      "epistemic_status": "curated_classification"
+    },
+    {
+      "id": "thesis-motor-thermal-li-2026-bridges-field-area-fourier",
+      "source": "motor-thermal-li-2026",
+      "target": "area:fourier",
+      "relation": "bridges_field",
+      "evidence": "Studies load-memory-enhanced FNO prediction of two-dimensional transient temperature fields in a 15 kW induction motor.",
+      "evidence_url": "https://odr.chalmers.se/items/bf1e419a-85d8-44fa-8968-13c84f76cca1",
+      "evidence_locator": "Primary abstract and byline; thematic classification is curator interpretation",
+      "epistemic_status": "curated_classification"
+    },
+    {
+      "id": "thesis-motor-thermal-li-2026-bridges-field-area-engineering",
+      "source": "motor-thermal-li-2026",
+      "target": "area:engineering",
+      "relation": "bridges_field",
+      "evidence": "Studies load-memory-enhanced FNO prediction of two-dimensional transient temperature fields in a 15 kW induction motor.",
+      "evidence_url": "https://odr.chalmers.se/items/bf1e419a-85d8-44fa-8968-13c84f76cca1",
+      "evidence_locator": "Primary abstract and byline; thematic classification is curator interpretation",
+      "epistemic_status": "curated_classification"
+    },
+    {
+      "id": "thesis-motor-thermal-li-2026-bridges-field-area-timeseries",
+      "source": "motor-thermal-li-2026",
+      "target": "area:timeseries",
+      "relation": "bridges_field",
+      "evidence": "Studies load-memory-enhanced FNO prediction of two-dimensional transient temperature fields in a 15 kW induction motor.",
+      "evidence_url": "https://odr.chalmers.se/items/bf1e419a-85d8-44fa-8968-13c84f76cca1",
+      "evidence_locator": "Primary abstract and byline; thematic classification is curator interpretation",
+      "epistemic_status": "curated_classification"
+    },
+    {
+      "id": "thesis-author-niloofar-asefi-authored-lagrangian-assimilation-2025",
+      "source": "author:niloofar-asefi",
+      "target": "lagrangian-assimilation-2025",
+      "relation": "authored",
+      "evidence": "Combines neural operators and diffusion models for ocean-state reconstruction from very sparse Lagrangian observations.",
+      "evidence_url": "https://arxiv.org/abs/2507.06479",
+      "evidence_locator": "Primary abstract and byline; thematic classification is curator interpretation",
+      "epistemic_status": "documented"
+    },
+    {
+      "id": "thesis-author-leonard-lupin-jimenez-authored-lagrangian-assimilation-2025",
+      "source": "author:leonard-lupin-jimenez",
+      "target": "lagrangian-assimilation-2025",
+      "relation": "authored",
+      "evidence": "Combines neural operators and diffusion models for ocean-state reconstruction from very sparse Lagrangian observations.",
+      "evidence_url": "https://arxiv.org/abs/2507.06479",
+      "evidence_locator": "Primary abstract and byline; thematic classification is curator interpretation",
+      "epistemic_status": "documented"
+    },
+    {
+      "id": "thesis-author-tianning-wu-authored-lagrangian-assimilation-2025",
+      "source": "author:tianning-wu",
+      "target": "lagrangian-assimilation-2025",
+      "relation": "authored",
+      "evidence": "Combines neural operators and diffusion models for ocean-state reconstruction from very sparse Lagrangian observations.",
+      "evidence_url": "https://arxiv.org/abs/2507.06479",
+      "evidence_locator": "Primary abstract and byline; thematic classification is curator interpretation",
+      "epistemic_status": "documented"
+    },
+    {
+      "id": "thesis-author-ruoying-he-authored-lagrangian-assimilation-2025",
+      "source": "author:ruoying-he",
+      "target": "lagrangian-assimilation-2025",
+      "relation": "authored",
+      "evidence": "Combines neural operators and diffusion models for ocean-state reconstruction from very sparse Lagrangian observations.",
+      "evidence_url": "https://arxiv.org/abs/2507.06479",
+      "evidence_locator": "Primary abstract and byline; thematic classification is curator interpretation",
+      "epistemic_status": "documented"
+    },
+    {
+      "id": "thesis-author-chattopadhyay-ashesh-authored-lagrangian-assimilation-2025",
+      "source": "author:chattopadhyay-ashesh",
+      "target": "lagrangian-assimilation-2025",
+      "relation": "authored",
+      "evidence": "Combines neural operators and diffusion models for ocean-state reconstruction from very sparse Lagrangian observations.",
+      "evidence_url": "https://arxiv.org/abs/2507.06479",
+      "evidence_locator": "Primary abstract and byline; thematic classification is curator interpretation",
+      "epistemic_status": "documented"
+    },
+    {
+      "id": "thesis-lagrangian-assimilation-2025-classified-in-field-operator-learning",
+      "source": "lagrangian-assimilation-2025",
+      "target": "field:operator-learning",
+      "relation": "classified_in",
+      "evidence": "Combines neural operators and diffusion models for ocean-state reconstruction from very sparse Lagrangian observations.",
+      "evidence_url": "https://arxiv.org/abs/2507.06479",
+      "evidence_locator": "Primary abstract and byline; thematic classification is curator interpretation",
+      "epistemic_status": "curated_classification"
+    },
+    {
+      "id": "thesis-lagrangian-assimilation-2025-classified-in-field-inverse-problems",
+      "source": "lagrangian-assimilation-2025",
+      "target": "field:inverse-problems",
+      "relation": "classified_in",
+      "evidence": "Combines neural operators and diffusion models for ocean-state reconstruction from very sparse Lagrangian observations.",
+      "evidence_url": "https://arxiv.org/abs/2507.06479",
+      "evidence_locator": "Primary abstract and byline; thematic classification is curator interpretation",
+      "epistemic_status": "curated_classification"
+    },
+    {
+      "id": "thesis-lagrangian-assimilation-2025-classified-in-field-sampling",
+      "source": "lagrangian-assimilation-2025",
+      "target": "field:sampling",
+      "relation": "classified_in",
+      "evidence": "Combines neural operators and diffusion models for ocean-state reconstruction from very sparse Lagrangian observations.",
+      "evidence_url": "https://arxiv.org/abs/2507.06479",
+      "evidence_locator": "Primary abstract and byline; thematic classification is curator interpretation",
+      "epistemic_status": "curated_classification"
+    },
+    {
+      "id": "thesis-lagrangian-assimilation-2025-classified-in-field-weather",
+      "source": "lagrangian-assimilation-2025",
+      "target": "field:weather",
+      "relation": "classified_in",
+      "evidence": "Combines neural operators and diffusion models for ocean-state reconstruction from very sparse Lagrangian observations.",
+      "evidence_url": "https://arxiv.org/abs/2507.06479",
+      "evidence_locator": "Primary abstract and byline; thematic classification is curator interpretation",
+      "epistemic_status": "curated_classification"
+    },
+    {
+      "id": "thesis-lagrangian-assimilation-2025-classified-in-field-robotics",
+      "source": "lagrangian-assimilation-2025",
+      "target": "field:robotics",
+      "relation": "classified_in",
+      "evidence": "Combines neural operators and diffusion models for ocean-state reconstruction from very sparse Lagrangian observations.",
+      "evidence_url": "https://arxiv.org/abs/2507.06479",
+      "evidence_locator": "Primary abstract and byline; thematic classification is curator interpretation",
+      "epistemic_status": "curated_classification"
+    },
+    {
+      "id": "thesis-lagrangian-assimilation-2025-bridges-field-area-operators",
+      "source": "lagrangian-assimilation-2025",
+      "target": "area:operators",
+      "relation": "bridges_field",
+      "evidence": "Combines neural operators and diffusion models for ocean-state reconstruction from very sparse Lagrangian observations.",
+      "evidence_url": "https://arxiv.org/abs/2507.06479",
+      "evidence_locator": "Primary abstract and byline; thematic classification is curator interpretation",
+      "epistemic_status": "curated_classification"
+    },
+    {
+      "id": "thesis-lagrangian-assimilation-2025-bridges-field-area-sparse",
+      "source": "lagrangian-assimilation-2025",
+      "target": "area:sparse",
+      "relation": "bridges_field",
+      "evidence": "Combines neural operators and diffusion models for ocean-state reconstruction from very sparse Lagrangian observations.",
+      "evidence_url": "https://arxiv.org/abs/2507.06479",
+      "evidence_locator": "Primary abstract and byline; thematic classification is curator interpretation",
+      "epistemic_status": "curated_classification"
+    },
+    {
+      "id": "thesis-lagrangian-assimilation-2025-bridges-field-area-inverse",
+      "source": "lagrangian-assimilation-2025",
+      "target": "area:inverse",
+      "relation": "bridges_field",
+      "evidence": "Combines neural operators and diffusion models for ocean-state reconstruction from very sparse Lagrangian observations.",
+      "evidence_url": "https://arxiv.org/abs/2507.06479",
+      "evidence_locator": "Primary abstract and byline; thematic classification is curator interpretation",
+      "epistemic_status": "curated_classification"
+    },
+    {
+      "id": "thesis-lagrangian-assimilation-2025-bridges-field-area-robotics",
+      "source": "lagrangian-assimilation-2025",
+      "target": "area:robotics",
+      "relation": "bridges_field",
+      "evidence": "Combines neural operators and diffusion models for ocean-state reconstruction from very sparse Lagrangian observations.",
+      "evidence_url": "https://arxiv.org/abs/2507.06479",
+      "evidence_locator": "Primary abstract and byline; thematic classification is curator interpretation",
+      "epistemic_status": "curated_classification"
+    },
+    {
+      "id": "thesis-lagrangian-assimilation-2025-bridges-field-area-weather",
+      "source": "lagrangian-assimilation-2025",
+      "target": "area:weather",
+      "relation": "bridges_field",
+      "evidence": "Combines neural operators and diffusion models for ocean-state reconstruction from very sparse Lagrangian observations.",
+      "evidence_url": "https://arxiv.org/abs/2507.06479",
+      "evidence_locator": "Primary abstract and byline; thematic classification is curator interpretation",
+      "epistemic_status": "curated_classification"
+    },
+    {
+      "id": "thesis-author-yuexin-bian-authored-ventilation-control-2025",
+      "source": "author:yuexin-bian",
+      "target": "ventilation-control-2025",
+      "relation": "authored",
+      "evidence": "Uses neural operator transformer models of airflow and carbon dioxide fields inside optimization-based ventilation control, with an open CFD-based benchmark.",
+      "evidence_url": "https://doi.org/10.1016/j.apenergy.2025.127035",
+      "evidence_locator": "Primary abstract and byline; thematic classification is curator interpretation",
+      "epistemic_status": "documented"
+    },
+    {
+      "id": "thesis-author-oliver-schmidt-authored-ventilation-control-2025",
+      "source": "author:oliver-schmidt",
+      "target": "ventilation-control-2025",
+      "relation": "authored",
+      "evidence": "Uses neural operator transformer models of airflow and carbon dioxide fields inside optimization-based ventilation control, with an open CFD-based benchmark.",
+      "evidence_url": "https://doi.org/10.1016/j.apenergy.2025.127035",
+      "evidence_locator": "Primary abstract and byline; thematic classification is curator interpretation",
+      "epistemic_status": "documented"
+    },
+    {
+      "id": "thesis-author-shi-yuanyuan-authored-ventilation-control-2025",
+      "source": "author:shi-yuanyuan",
+      "target": "ventilation-control-2025",
+      "relation": "authored",
+      "evidence": "Uses neural operator transformer models of airflow and carbon dioxide fields inside optimization-based ventilation control, with an open CFD-based benchmark.",
+      "evidence_url": "https://doi.org/10.1016/j.apenergy.2025.127035",
+      "evidence_locator": "Primary abstract and byline; thematic classification is curator interpretation",
+      "epistemic_status": "documented"
+    },
+    {
+      "id": "thesis-ventilation-control-2025-classified-in-field-operator-learning",
+      "source": "ventilation-control-2025",
+      "target": "field:operator-learning",
+      "relation": "classified_in",
+      "evidence": "Uses neural operator transformer models of airflow and carbon dioxide fields inside optimization-based ventilation control, with an open CFD-based benchmark.",
+      "evidence_url": "https://doi.org/10.1016/j.apenergy.2025.127035",
+      "evidence_locator": "Primary abstract and byline; thematic classification is curator interpretation",
+      "epistemic_status": "curated_classification"
+    },
+    {
+      "id": "thesis-ventilation-control-2025-classified-in-field-control",
+      "source": "ventilation-control-2025",
+      "target": "field:control",
+      "relation": "classified_in",
+      "evidence": "Uses neural operator transformer models of airflow and carbon dioxide fields inside optimization-based ventilation control, with an open CFD-based benchmark.",
+      "evidence_url": "https://doi.org/10.1016/j.apenergy.2025.127035",
+      "evidence_locator": "Primary abstract and byline; thematic classification is curator interpretation",
+      "epistemic_status": "curated_classification"
+    },
+    {
+      "id": "thesis-ventilation-control-2025-classified-in-field-physical-simulation",
+      "source": "ventilation-control-2025",
+      "target": "field:physical-simulation",
+      "relation": "classified_in",
+      "evidence": "Uses neural operator transformer models of airflow and carbon dioxide fields inside optimization-based ventilation control, with an open CFD-based benchmark.",
+      "evidence_url": "https://doi.org/10.1016/j.apenergy.2025.127035",
+      "evidence_locator": "Primary abstract and byline; thematic classification is curator interpretation",
+      "epistemic_status": "curated_classification"
+    },
+    {
+      "id": "thesis-ventilation-control-2025-bridges-field-area-operators",
+      "source": "ventilation-control-2025",
+      "target": "area:operators",
+      "relation": "bridges_field",
+      "evidence": "Uses neural operator transformer models of airflow and carbon dioxide fields inside optimization-based ventilation control, with an open CFD-based benchmark.",
+      "evidence_url": "https://doi.org/10.1016/j.apenergy.2025.127035",
+      "evidence_locator": "Primary abstract and byline; thematic classification is curator interpretation",
+      "epistemic_status": "curated_classification"
+    },
+    {
+      "id": "thesis-ventilation-control-2025-bridges-field-area-engineering",
+      "source": "ventilation-control-2025",
+      "target": "area:engineering",
+      "relation": "bridges_field",
+      "evidence": "Uses neural operator transformer models of airflow and carbon dioxide fields inside optimization-based ventilation control, with an open CFD-based benchmark.",
+      "evidence_url": "https://doi.org/10.1016/j.apenergy.2025.127035",
+      "evidence_locator": "Primary abstract and byline; thematic classification is curator interpretation",
+      "epistemic_status": "curated_classification"
+    },
+    {
+      "id": "thesis-ventilation-control-2025-bridges-field-area-robotics",
+      "source": "ventilation-control-2025",
+      "target": "area:robotics",
+      "relation": "bridges_field",
+      "evidence": "Uses neural operator transformer models of airflow and carbon dioxide fields inside optimization-based ventilation control, with an open CFD-based benchmark.",
+      "evidence_url": "https://doi.org/10.1016/j.apenergy.2025.127035",
+      "evidence_locator": "Primary abstract and byline; thematic classification is curator interpretation",
+      "epistemic_status": "curated_classification"
+    },
+    {
+      "id": "thesis-author-yujie-gan-authored-structures-distributed-2025",
+      "source": "author:yujie-gan",
+      "target": "structures-distributed-2025",
+      "relation": "authored",
+      "evidence": "Uses Fourier neural operators and spatial upsampling to identify impact forces from sparse structural vibration sensors.",
+      "evidence_url": "https://doi.org/10.1016/j.jsv.2025.119395",
+      "evidence_locator": "Primary abstract and byline; thematic classification is curator interpretation",
+      "epistemic_status": "documented"
+    },
+    {
+      "id": "thesis-author-haoze-song-authored-structures-distributed-2025",
+      "source": "author:haoze-song",
+      "target": "structures-distributed-2025",
+      "relation": "authored",
+      "evidence": "Uses Fourier neural operators and spatial upsampling to identify impact forces from sparse structural vibration sensors.",
+      "evidence_url": "https://doi.org/10.1016/j.jsv.2025.119395",
+      "evidence_locator": "Primary abstract and byline; thematic classification is curator interpretation",
+      "epistemic_status": "documented"
+    },
+    {
+      "id": "thesis-author-zhilu-lai-authored-structures-distributed-2025",
+      "source": "author:zhilu-lai",
+      "target": "structures-distributed-2025",
+      "relation": "authored",
+      "evidence": "Uses Fourier neural operators and spatial upsampling to identify impact forces from sparse structural vibration sensors.",
+      "evidence_url": "https://doi.org/10.1016/j.jsv.2025.119395",
+      "evidence_locator": "Primary abstract and byline; thematic classification is curator interpretation",
+      "epistemic_status": "documented"
+    },
+    {
+      "id": "thesis-structures-distributed-2025-classified-in-field-operator-learning",
+      "source": "structures-distributed-2025",
+      "target": "field:operator-learning",
+      "relation": "classified_in",
+      "evidence": "Uses Fourier neural operators and spatial upsampling to identify impact forces from sparse structural vibration sensors.",
+      "evidence_url": "https://doi.org/10.1016/j.jsv.2025.119395",
+      "evidence_locator": "Primary abstract and byline; thematic classification is curator interpretation",
+      "epistemic_status": "curated_classification"
+    },
+    {
+      "id": "thesis-structures-distributed-2025-classified-in-field-fourier-neural-operators",
+      "source": "structures-distributed-2025",
+      "target": "field:fourier-neural-operators",
+      "relation": "classified_in",
+      "evidence": "Uses Fourier neural operators and spatial upsampling to identify impact forces from sparse structural vibration sensors.",
+      "evidence_url": "https://doi.org/10.1016/j.jsv.2025.119395",
+      "evidence_locator": "Primary abstract and byline; thematic classification is curator interpretation",
+      "epistemic_status": "curated_classification"
+    },
+    {
+      "id": "thesis-structures-distributed-2025-classified-in-field-inverse-problems",
+      "source": "structures-distributed-2025",
+      "target": "field:inverse-problems",
+      "relation": "classified_in",
+      "evidence": "Uses Fourier neural operators and spatial upsampling to identify impact forces from sparse structural vibration sensors.",
+      "evidence_url": "https://doi.org/10.1016/j.jsv.2025.119395",
+      "evidence_locator": "Primary abstract and byline; thematic classification is curator interpretation",
+      "epistemic_status": "curated_classification"
+    },
+    {
+      "id": "thesis-structures-distributed-2025-classified-in-field-structural-monitoring",
+      "source": "structures-distributed-2025",
+      "target": "field:structural-monitoring",
+      "relation": "classified_in",
+      "evidence": "Uses Fourier neural operators and spatial upsampling to identify impact forces from sparse structural vibration sensors.",
+      "evidence_url": "https://doi.org/10.1016/j.jsv.2025.119395",
+      "evidence_locator": "Primary abstract and byline; thematic classification is curator interpretation",
+      "epistemic_status": "curated_classification"
+    },
+    {
+      "id": "thesis-structures-distributed-2025-bridges-field-area-operators",
+      "source": "structures-distributed-2025",
+      "target": "area:operators",
+      "relation": "bridges_field",
+      "evidence": "Uses Fourier neural operators and spatial upsampling to identify impact forces from sparse structural vibration sensors.",
+      "evidence_url": "https://doi.org/10.1016/j.jsv.2025.119395",
+      "evidence_locator": "Primary abstract and byline; thematic classification is curator interpretation",
+      "epistemic_status": "curated_classification"
+    },
+    {
+      "id": "thesis-structures-distributed-2025-bridges-field-area-fourier",
+      "source": "structures-distributed-2025",
+      "target": "area:fourier",
+      "relation": "bridges_field",
+      "evidence": "Uses Fourier neural operators and spatial upsampling to identify impact forces from sparse structural vibration sensors.",
+      "evidence_url": "https://doi.org/10.1016/j.jsv.2025.119395",
+      "evidence_locator": "Primary abstract and byline; thematic classification is curator interpretation",
+      "epistemic_status": "curated_classification"
+    },
+    {
+      "id": "thesis-structures-distributed-2025-bridges-field-area-inverse",
+      "source": "structures-distributed-2025",
+      "target": "area:inverse",
+      "relation": "bridges_field",
+      "evidence": "Uses Fourier neural operators and spatial upsampling to identify impact forces from sparse structural vibration sensors.",
+      "evidence_url": "https://doi.org/10.1016/j.jsv.2025.119395",
+      "evidence_locator": "Primary abstract and byline; thematic classification is curator interpretation",
+      "epistemic_status": "curated_classification"
+    },
+    {
+      "id": "thesis-structures-distributed-2025-bridges-field-area-timeseries",
+      "source": "structures-distributed-2025",
+      "target": "area:timeseries",
+      "relation": "bridges_field",
+      "evidence": "Uses Fourier neural operators and spatial upsampling to identify impact forces from sparse structural vibration sensors.",
+      "evidence_url": "https://doi.org/10.1016/j.jsv.2025.119395",
+      "evidence_locator": "Primary abstract and byline; thematic classification is curator interpretation",
+      "epistemic_status": "curated_classification"
     }
   ],
   "author_aliases": {

@@ -57,3 +57,26 @@ Research snapshot: 10 September 2026. Year = first posting/publication in the co
 | [Infinite-Dimensional Closed-Loop Inverse Kinematics for Soft Robots via Neural Operators](https://arxiv.org/abs/2602.18655) | 2026 | core | [PDF](soft-robot-2026.pdf) | [Note](notes/soft-robot-2026.md) |
 | [A short tour of operator learning theory: Convergence rates, statistical limits, and open questions](https://arxiv.org/abs/2603.00819) | 2026 | core | [PDF](theory-tour-2026.pdf) | [Note](notes/theory-tour-2026.md) |
 | [V-JEPA 2.1: Unlocking Dense Features in Video Self-Supervised Learning](https://arxiv.org/abs/2603.14482) | 2026 | application | [PDF](vjepa21-2026.pdf) | [Note](notes/vjepa21-2026.md) |
+
+### Gaussian quadrature background (added 2026-09-11)
+
+- [Fast and Accurate Computation of Gauss–Legendre and Gauss–Jacobi Quadrature Nodes and Weights](https://appliedmaths.sun.ac.za/~nhale/publications/HaleTownsend2013a.pdf) — Nicholas Hale and Alex Townsend (2013). Constructs Gauss–Legendre and Gauss–Jacobi nodes and weights efficiently using asymptotic formulas and Newton iteration. Local PDF: `gauss-nodes-hale-townsend-2013.pdf`.
+
+| [A Unified Model for Compressed Sensing MRI Across Undersampling Patterns](https://arxiv.org/abs/2410.16290) | 2024 | core | [Open PDF](https://openaccess.thecvf.com/content/CVPR2025/papers/Jatyani_A_Unified_Model_for_Compressed_Sensing_MRI_Across_Undersampling_Patterns_CVPR_2025_paper.pdf) | [Note](notes/nomri-2025.md) |
+
+| [When Differentiable Programming Meets Spectral PDE Solver](https://qijiaj.github.io/operator_learning_2024.pdf) | 2024 | core | [Open PDF](https://qijiaj.github.io/operator_learning_2024.pdf) | [Note](notes/spectral-cs-2024.md) |
+
+| [Theoretical Perspectives on Deep Learning Methods in Inverse Problems](https://arxiv.org/abs/2206.14373) | 2022 | core | [Open PDF](https://arxiv.org/pdf/2206.14373) | [Note](notes/inverse-theory-2023.md) |
+
+| [Latent Generative Models with Tunable Complexity for Compressed Sensing and other Inverse Problems](https://arxiv.org/abs/2603.07357) | 2026 | core | [Open PDF](https://arxiv.org/pdf/2603.07357) | [Note](notes/tunable-cs-2026.md) |
+
+| [Representation Equivalent Neural Operators: a Framework for Alias-free Operator Learning](https://arxiv.org/abs/2305.19913) | 2023 | core | [PDF](https://arxiv.org/pdf/2305.19913) | [Note](notes/reno-2023.md) |
+
+| [The Parametric Complexity of Operator Learning](https://arxiv.org/abs/2306.15924) | 2023 | core | [PDF](https://arxiv.org/pdf/2306.15924) | [Note](notes/parametric-complexity-2023.md) |
+| [RecFNO: a resolution-invariant flow and heat field reconstruction method from sparse observations via Fourier neural operator](https://arxiv.org/abs/2302.09808) | 2023 | application | [PDF](recfno-2023.pdf) | [Note](notes/recfno-2023.md) |
+| [Sparse Reconstruction for Temperature Distribution Using DTS Fiber Optic Sensors with Applications in Electrical Generator Stator Monitoring](https://doi.org/10.3390/s16091425) | 2016 | application | [PDF](stator-sparse-2016.pdf) | [Note](notes/stator-sparse-2016.md) |
+| [Learning to Predict Structural Vibrations](https://arxiv.org/abs/2310.05469) | 2023 | application | [PDF](vibrating-plates-2023.pdf) | [Note](notes/vibrating-plates-2023.md) |
+| [Neural Operator–Based Thermal Modeling for Electric Motor and Power Electronics Systems](https://odr.chalmers.se/items/bf1e419a-85d8-44fa-8968-13c84f76cca1) | 2026 | application | [PDF](motor-thermal-li-2026.pdf) | [Note](notes/motor-thermal-li-2026.md) |
+| [Generative Lagrangian data assimilation for ocean dynamics under extreme sparsity](https://arxiv.org/abs/2507.06479) | 2025 | application | [PDF](lagrangian-assimilation-2025.pdf) | [Note](notes/lagrangian-assimilation-2025.md) |
+| [Operator learning for energy-efficient building ventilation control with computational fluid dynamics simulation of a real-world classroom](https://doi.org/10.1016/j.apenergy.2025.127035) | 2025 | application | [PDF](ventilation-control-2025.pdf) | [Note](notes/ventilation-control-2025.md) |
+| [Training Structures as Distributed Sensors: A case study of impact force identification using neural operators](https://doi.org/10.1016/j.jsv.2025.119395) | 2025 | application | Metadata only | [Note](notes/structures-distributed-2025.md) |
