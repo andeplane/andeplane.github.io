@@ -41,6 +41,9 @@ jobs:
       - name: Test Gaussian quadrature numerics
         run: node --experimental-strip-types --test tests/gaussian-quadrature/*.test.ts
 
+      - name: Test visitor analytics
+        run: npm run test:analytics
+
       - name: Test FNO sketch numerics
         run: npm run test:fno-sketch
 
