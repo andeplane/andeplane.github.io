@@ -4,7 +4,7 @@ const project: ProjectMeta = {
   slug: 'kurvi-packing-loop',
   title: 'Kurvi Packing Loop',
   description:
-    'A 3D simulation of a grocery packing line: boxes circulate a conveyor loop past 26 stations, where people or robot arms pack real products, and leave for the trucks. Tune demand, layout and strategy live and watch throughput respond.',
+    'A 3D simulation of a grocery packing line, inspired by how Oda works: boxes circulate a conveyor loop past 26 stations, where people or robot arms pack real products, and leave for the trucks. Tune demand, layout and strategy live and watch throughput respond.',
   tags: ['Simulation', 'Logistics', 'Three.js', 'TypeScript'],
   liveUrl: 'https://andeplane.github.io/groceries-manufacturing/',
   repoUrl: 'https://github.com/andeplane/groceries-manufacturing',
@@ -13,7 +13,8 @@ const project: ProjectMeta = {
     'An orange robot arm packing groceries into Kurvi boxes on a roller conveyor, with throughput statistics and a station utilisation chart',
   longDescription: `
 How many items per hour can one person pack in an online grocery warehouse, and what
-decides it? This is a simulation of a packing loop for Kurvi, a made-up online grocer.
+decides it? This is a simulation of a packing loop for Kurvi, a made-up online grocer,
+inspired by how the Norwegian online grocer Oda works.
 Orders come in and are split into boxes. The boxes ride a circulating conveyor past 26
 packing stations, divert into a station's cache lane when they need products from it,
 get packed, merge back, and leave for the dock, where a truck for their delivery area
