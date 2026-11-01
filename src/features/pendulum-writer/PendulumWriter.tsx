@@ -40,7 +40,7 @@ export default function PendulumWriter() {
   const [target,setTarget]=useState<Target>(andersPath)
   const [solution,setSolution]=useState<Solution>(()=>fitPath(andersPath(),defaults))
   const [name,setName]=useState('Anders'),[targetLabel,setTargetLabel]=useState('Anders'),[nameBusy,setNameBusy]=useState(false),[edited,setEdited]=useState(false)
-  const [time,setTime]=useState(0),[playing,setPlaying]=useState(()=>!matchMedia('(prefers-reduced-motion: reduce)').matches)
+  const [time,setTime]=useState(0),[playing,setPlaying]=useState(false)
   const [showTarget,setShowTarget]=useState(true),[liftPen,setLiftPen]=useState(true),[drawing,setDrawing]=useState(false)
   const [custom,setCustom]=useState<Point[][]>([]),[error,setError]=useState(''),[sceneError,setSceneError]=useState(false)
   const [paperView,setPaperView]=useState({zoom:1,x:0,y:0})
@@ -83,9 +83,12 @@ export default function PendulumWriter() {
     frame=requestAnimationFrame(animate);return()=>cancelAnimationFrame(frame)
   },[playing,solution])
   const seek=(t:number)=>{timeRef.current=t;setTime(t)}
-  function release(path:Target=target,settings=draft,label=targetLabel) {
+  const togglePlay=()=>{if(time>=solution.settings.duration)seek(0);setPlaying(!playing)}
+  // Fitting only sets the machine up: the 3D view holds every pendulum at its
+  // starting angle until the visitor presses play, unless they asked to release.
+  function release(path:Target=target,settings=draft,label=targetLabel,play=false) {
     clearTimeout(nameTimer.current)
-    try {const fitted=fitPath(path,settings);setSolution(fitted);fittedRef.current=fitted;setTarget(path);setTargetLabel(label);seek(0);setPlaying(true);setError('');setDrawing(false);setEdited(false);setPaperView({zoom:1,x:0,y:0})}
+    try {const fitted=fitPath(path,settings);setSolution(fitted);fittedRef.current=fitted;setTarget(path);setTargetLabel(label);seek(0);setPlaying(play);setError('');setDrawing(false);setEdited(false);setPaperView({zoom:1,x:0,y:0})}
     catch(e){setError(e instanceof Error?e.message:'Could not fit this stroke.')}
     setNameBusy(false)
   }
@@ -184,6 +187,7 @@ export default function PendulumWriter() {
         <div className="pw-apparatus">
           <div className="pw-scene" ref={sceneHost}>{sceneError&&<p className="pw-webgl-error">3D preview unavailable. The drawing and physics still work below.</p>}</div>
           <div className="pw-scene-label"><span className="pw-live-dot"/> {solution.settings.count*2} {solution.settings.kind==='coupled'?'pendulums · four suspension wires':'ideal oscillators · schematic apparatus'}</div>
+          {!playing&&!drawing&&!sceneError&&<button type="button" className="pw-scene-play" onClick={togglePlay}><Play size={18}/> {time===0?'Release':time>=solution.settings.duration?'Play again':'Resume'}</button>}
           <div className="pw-scene-bottom"><span><i className="pw-cyan"/> x bank <i className="pw-orange"/> y bank</span><span>Drag to orbit · scroll to zoom</span></div>
         </div>
 
@@ -194,9 +198,9 @@ export default function PendulumWriter() {
           <label htmlFor="pw-duration"><span>Drawing duration <output>{draft.duration} s</output></span><input id="pw-duration" type="range" min="3" max="12" step="1" value={draft.duration} onChange={e=>setDraft({...draft,duration:Number(e.target.value)})}/></label>
           <label htmlFor="pw-damping"><span>Damping <output>{draft.damping.toFixed(2)} s⁻¹</output></span><input id="pw-damping" type="range" min="0" max="0.08" step="0.01" value={draft.damping} onChange={e=>setDraft({...draft,damping:Number(e.target.value)})}/></label>
           <div className="pw-presets"><button type="button" onClick={()=>release(loopPath(),draft,'Loops')}>Try loops</button><button type="button" aria-pressed={drawing} onClick={()=>{clearTimeout(nameTimer.current);setNameBusy(false);setPlaying(false);setDrawing(!drawing);setCustom([]);strokeRef.current=[];setError('');setPaperView({zoom:1,x:0,y:0})}}>Draw a target</button></div>
-          <button className="pw-primary" type="button" onClick={()=>release(drawing?{strokes:custom}:target,draft,drawing?'Your drawing':targetLabel)}>{drawing?'Fit my drawing & release':'Fit & release'} <ArrowUpRight size={17}/></button>
+          <button className="pw-primary" type="button" onClick={()=>release(drawing?{strokes:custom}:target,draft,drawing?'Your drawing':targetLabel,true)}>{drawing?'Fit my drawing & release':'Fit & release'} <ArrowUpRight size={17}/></button>
           {error&&<p className="pw-error" role="alert">{error}</p>}
-          <p className="pw-control-note">Fitting sets every initial position and velocity. After release, the machine evolves freely.</p>
+          <p className="pw-control-note">Fitting sets every initial position and velocity, shown held in the 3D view. After release, the machine evolves freely.</p>
           {solution.settings.kind==='coupled'&&<p className="pw-control-note">Small-angle Newton equations. Pencil contact and collisions are not simulated.</p>}
         </aside>
       </section>
@@ -219,7 +223,7 @@ export default function PendulumWriter() {
           <div className="pw-paper-footer"><span>{drawing?`${custom.length} strokes · lift between strokes`:solution.settings.kind==='coupled'?`Physical writing width ${mm(solution.widthMm)} mm · view magnified`:'Ideal independent oscillators · mathematical construction'}</span>{!drawing&&<span>{solution.errorPercent.toFixed(2)}% shape RMS</span>}</div>
         </div>
         <div className="pw-transport">
-          <button type="button" aria-label={playing?'Pause drawing':'Play drawing'} onClick={()=>{if(time>=solution.settings.duration)seek(0);setPlaying(!playing)}}>{playing?<Pause size={18}/>:<Play size={18}/>}</button>
+          <button type="button" aria-label={playing?'Pause drawing':'Play drawing'} onClick={togglePlay}>{playing?<Pause size={18}/>:<Play size={18}/>}</button>
           <button type="button" aria-label="Restart drawing" onClick={()=>{seek(0);setPlaying(true)}}><RotateCcw size={18}/></button>
           <input aria-label="Drawing time" type="range" min="0" max={solution.settings.duration} step="0.01" value={time} onChange={e=>{setPlaying(false);seek(Number(e.target.value))}}/>
           <output>{time.toFixed(1)} / {solution.settings.duration} s</output>
