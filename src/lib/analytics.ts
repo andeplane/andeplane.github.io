@@ -23,12 +23,19 @@ export interface ClassifiedLink {
   demo: string | null
 }
 
+// A page opened directly arrives as /projects/x/ while in-app navigation
+// gives /projects/x, so drop trailing slashes to count both as one page.
+export function normalizePath(pathname: string): string {
+  return pathname.replace(/\/+$/, '') || '/'
+}
+
 // Splits a path into the site area (first segment) and the item in it, so a
 // dashboard can break page views down by "projects" and then by project slug.
 export function pageViewProperties(location: PageLocation, title: string): EventProperties {
-  const segments = location.pathname.split('/').filter(Boolean)
+  const path = normalizePath(location.pathname)
+  const segments = path.split('/').filter(Boolean)
   return {
-    path: location.pathname,
+    path,
     section: segments[0] ?? 'home',
     item: segments.length > 1 ? segments.slice(1).join('/') : null,
     query: location.search || null,
@@ -87,7 +94,7 @@ export function createAnalytics(
     pageView(location, title) {
       // The router reports state changes that keep the same URL (loaders,
       // revalidation); only a new path or query is a new page view.
-      const key = location.pathname + location.search
+      const key = normalizePath(location.pathname) + location.search
       if (key === lastPage) return
       lastPage = key
       tracker.track(EVENT_PREFIX + 'Page Viewed', pageViewProperties(location, title), false)

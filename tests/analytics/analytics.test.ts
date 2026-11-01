@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict'
 import { test } from 'node:test'
-import { classifyLink, createAnalytics, pageViewProperties, type EventProperties, type Tracker } from '../../src/lib/analytics.ts'
+import { classifyLink, createAnalytics, normalizePath, pageViewProperties, type EventProperties, type Tracker } from '../../src/lib/analytics.ts'
 
 const base = 'https://andeplane.github.io/projects/tube-sim'
 const appRoutes = ['/', '/projects', '/projects/tube-sim', '/blog', '/about', '/interests/music']
@@ -16,6 +16,8 @@ function recordingTracker(): { tracker: Tracker, sent: Sent[] } {
 test('page views name the section and the item within it', () => {
   assert.deepEqual(pageViewProperties({ pathname: '/', search: '' }, 'Home'), { path: '/', section: 'home', item: null, query: null, title: 'Home' })
   assert.deepEqual(pageViewProperties({ pathname: '/projects/tube-sim', search: '?x=1' }, ''), { path: '/projects/tube-sim', section: 'projects', item: 'tube-sim', query: '?x=1', title: null })
+  assert.deepEqual(pageViewProperties({ pathname: '/experiments/pendulum-writer/', search: '' }, ''), { path: '/experiments/pendulum-writer', section: 'experiments', item: 'pendulum-writer', query: null, title: null })
+  assert.equal(normalizePath('//'), '/')
   assert.equal(pageViewProperties({ pathname: '/interests/neural-operators/reading', search: '' }, '').item, 'neural-operators/reading')
 })
 
@@ -44,6 +46,7 @@ test('a page view is sent once per distinct path and query', () => {
   analytics.pageView({ pathname: '/', search: '' }, 'Home')
   analytics.pageView({ pathname: '/', search: '?tab=2' }, 'Home')
   analytics.pageView({ pathname: '/about', search: '' }, 'About')
+  analytics.pageView({ pathname: '/about/', search: '' }, 'About')
   assert.deepEqual(sent.map(s => [s.event, s.properties.path, s.properties.query, s.viaBeacon]), [
     ['Homepage.Page Viewed', '/', null, false],
     ['Homepage.Page Viewed', '/', '?tab=2', false],
