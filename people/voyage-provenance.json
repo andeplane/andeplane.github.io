@@ -1,0 +1,344 @@
+{
+  "schema": "public-voyage/1",
+  "seed": 1912,
+  "producerInputs": {
+    "content/decks/A.json": {
+      "bytes": 330885,
+      "sha256": "d7daed2ea21e7dbfa7c76e7ee9b00fc5d878a7a64ce8a9aead12f23829db287b"
+    },
+    "content/decks/B.json": {
+      "bytes": 663610,
+      "sha256": "533e983a8a7741fed77081aad88e0731bcdd5c3fd89875f675d0fbc048bd3baa"
+    },
+    "content/decks/C.json": {
+      "bytes": 744492,
+      "sha256": "bee2202538d0ef964b7811d3895417648a2cb87316354542a17e07718b52b002"
+    },
+    "content/decks/D.json": {
+      "bytes": 768976,
+      "sha256": "337935e96f7d3245b367d076eee54448bd13643a8caa53db55e419b6f4c67f6e"
+    },
+    "content/decks/E.json": {
+      "bytes": 920620,
+      "sha256": "0d8ee8a4bdbb3c77387d3c7f56463103819d264bed57f891d2a81b2109f2977d"
+    },
+    "content/decks/F.json": {
+      "bytes": 844854,
+      "sha256": "06224dbc18e87659c193179b007a639982afeb0f0d3434f87e0e1811dd37477d"
+    },
+    "content/decks/G.json": {
+      "bytes": 373089,
+      "sha256": "5ddf9de8bdb1544a29b39c7dc1fca1793a3c52fd23957e11a728bab9e9875798"
+    },
+    "content/decks/boat.json": {
+      "bytes": 243119,
+      "sha256": "45e1d87e3db4a310ec78130224fe8425fe92aacf7c60da5ca1749ed083be77c2"
+    },
+    "content/decks/lower_orlop.json": {
+      "bytes": 10772,
+      "sha256": "be053e92634367c17c49f1288960c84124016f687fb62369520612b3c3fa3baa"
+    },
+    "content/decks/orlop.json": {
+      "bytes": 151167,
+      "sha256": "ab54798b24892ca1a5a584065defb68429b7c46bcb59229c44fe58556a7377b3"
+    },
+    "content/decks/tank.json": {
+      "bytes": 176836,
+      "sha256": "27815a2c2cc3e7c0cef5bd9910b24dad8292419d181126b8d44e6b10330e1529"
+    },
+    "content/people/archetypes.json": {
+      "bytes": 18708,
+      "sha256": "fc0d98938e3f8dbfcac34dbfc508fa3864be1dc1e68504b752424365b53dfd5a"
+    },
+    "content/people/crew.json": {
+      "bytes": 23782,
+      "sha256": "464611c938fa5d063d9caf8610548c180c075ef4382e459024abd079b0764734"
+    },
+    "content/people/demographics.json": {
+      "bytes": 123029,
+      "sha256": "1ca1e4bf4c58864c7fade9d1436d9bab76e2e718f5edd91a0fd727978edb6e0b"
+    },
+    "content/people/names.json": {
+      "bytes": 21372,
+      "sha256": "37de8ed4462b16ce9ed767a32814996d26294bd1ef4bbeb0ff95c4a2af8d4879"
+    },
+    "content/people/news.json": {
+      "bytes": 8218,
+      "sha256": "7194c887a8b243cfa1976eaabfe3bfbba82937aeb8d1d935a1c75cf535742486"
+    },
+    "content/people/population.json": {
+      "bytes": 7303,
+      "sha256": "c4a84f26f148909292950a45de4947e75ac8d6a887b37ff9dcc6bbe68cd3d4d4"
+    },
+    "content/people/room-ids.json": {
+      "bytes": 304,
+      "sha256": "5abad3dcd87071d83cd751328105e6f1604bb72b8cd8c0c1ee0178e1319d913c"
+    },
+    "content/people/story.json": {
+      "bytes": 10953,
+      "sha256": "11f5cc5afe02b50b5bda35f94c8a3d2560edbc67abe1101883d1ce6537ec9630"
+    },
+    "content/people/timetable.json": {
+      "bytes": 13061,
+      "sha256": "714c5641410ddc3fa90dbb4c8131acc02d40fd7e0df5183cd570eb5614ce2664"
+    },
+    "dev/people.mjs": {
+      "bytes": 4763,
+      "sha256": "8e93721911e5fec980d674390ee3d49115f57bd76aff88e547e77388da17be5c"
+    },
+    "package-lock.json": {
+      "bytes": 68558,
+      "sha256": "9bf0b3ea2adf221c94ac6749b8d0e93ed7e509d4232ff1da3d00493b1373368b"
+    },
+    "src/people/render/slots.ts": {
+      "bytes": 19694,
+      "sha256": "d972d1fe5515a0e34b34f3d8a7862a39ca7a6dccd898a71408c308e0196ff0dc"
+    },
+    "src/people/sim/card.ts": {
+      "bytes": 3454,
+      "sha256": "83df508da5e6b4f3b3c5e154534782955aeea2e0bee22cf7fa12f84730741acf"
+    },
+    "src/people/sim/check.ts": {
+      "bytes": 16709,
+      "sha256": "902d58a1db47311d94f3df7f95346a78e0f23f370eac1579aed196dcc51cbabc"
+    },
+    "src/people/sim/demographics-check.ts": {
+      "bytes": 6483,
+      "sha256": "ece8d7b8f6375588c5130abee3992d804d3a5d1d5c66b436309c0d733868da8e"
+    },
+    "src/people/sim/format.ts": {
+      "bytes": 5210,
+      "sha256": "7a1cf5a72e07d15f5ef14fed1621e0d556cf40eabb2b0737cc366235d93df525"
+    },
+    "src/people/sim/ledger.ts": {
+      "bytes": 18353,
+      "sha256": "583f3772aec88c78708e56d937b0702fd2f222aba749509b59d75a0e7998535f"
+    },
+    "src/people/sim/mood.ts": {
+      "bytes": 5832,
+      "sha256": "2841f46456b39b42e36d78379f269e76f169bda03825c13bdb5174990bfb6956"
+    },
+    "src/people/sim/pipeline/bake.ts": {
+      "bytes": 5704,
+      "sha256": "8079ce8170c8ccbd9d08130a64d61f6b4186027a25f4963cc56278470db8be5a"
+    },
+    "src/people/sim/pipeline/blocks.ts": {
+      "bytes": 3655,
+      "sha256": "14ab3dba6ec2db05ba8b94979a691631df87819f2e729ee70f0cc769c19854a0"
+    },
+    "src/people/sim/pipeline/cabins.ts": {
+      "bytes": 9120,
+      "sha256": "95483e13bf7d8c4b5e57b64888f01a5833f58310a7c8d112e42e9c45577e7c07"
+    },
+    "src/people/sim/pipeline/content.ts": {
+      "bytes": 9938,
+      "sha256": "d8cc5f13fc1d6d6693e047630f3473eb283447b5956ec8b10c356a89b7cf4684"
+    },
+    "src/people/sim/pipeline/index.ts": {
+      "bytes": 3882,
+      "sha256": "e7c62386faf4bc2286ed7482a39ac92a0246773ac32bc7d2dc3d09a112b2d920"
+    },
+    "src/people/sim/pipeline/phrases.ts": {
+      "bytes": 1958,
+      "sha256": "e203404ced2d5d4599b659c707a2f8eca1abe9a6b6be03735de37ef5d3a508b1"
+    },
+    "src/people/sim/pipeline/planner.ts": {
+      "bytes": 52366,
+      "sha256": "59422940647d37190f4656f689e79252f6143d159c568df632a77d3ac811db3f"
+    },
+    "src/people/sim/pipeline/population.ts": {
+      "bytes": 56307,
+      "sha256": "5454ac137fadc952c9b9a028287a040da4dec4d0af3f36e09983696426624f76"
+    },
+    "src/people/sim/pipeline/roomids.ts": {
+      "bytes": 2089,
+      "sha256": "6fc7ae5044377f53e1bb30cf6d42f4261844b0e5f632fa0b8cc070f7aaba353a"
+    },
+    "src/people/sim/pipeline/rooms.ts": {
+      "bytes": 4739,
+      "sha256": "49ce5b8ede15754461f4fdad7950bc9c0dd1ef7db458df266638558f4f4e9df0"
+    },
+    "src/people/sim/pipeline/social.ts": {
+      "bytes": 26800,
+      "sha256": "baac2aeadf8a0fcfe63dafe2fc57b073c0afe8ac9b4a30288d2595f57efe5fd8"
+    },
+    "src/people/sim/pipeline/story.ts": {
+      "bytes": 8315,
+      "sha256": "be8979fca248a5122e47110279942411d751df9a74d11874bf3fdf6c0ad4b9a1"
+    },
+    "src/people/sim/pipeline/voyage.ts": {
+      "bytes": 14384,
+      "sha256": "f4c6ebfa947cd0c6c395b44e55903c7874aec3ed1ce54f1cf9b0726225952a8b"
+    },
+    "src/people/sim/rng.ts": {
+      "bytes": 2480,
+      "sha256": "a182cda7797d7af976fdc30d1cf0638d06fb9500a58b940b6abc19d5b9f1544d"
+    },
+    "src/people/sim/time.ts": {
+      "bytes": 2148,
+      "sha256": "b6148789235e5172671842fca989d0527458cfab2b41b7bced2d9f6ba9090c31"
+    },
+    "src/people/sim/tool.ts": {
+      "bytes": 14028,
+      "sha256": "9e94c911db1c18307cd4500f9de45d34113f397b9f4f8584586e1389e447f0fd"
+    },
+    "src/people/types.ts": {
+      "bytes": 16757,
+      "sha256": "5b35f399ca7a857f668de7b54d9b53d6a2991c93596a3e624d7d29e781803572"
+    }
+  },
+  "files": {
+    "roster.json": {
+      "bytes": 449115,
+      "sha256": "2878532dfc1f73a34f99e238e0621b23762ff57a1911dfeface61de4dd14f8db"
+    },
+    "ties.json": {
+      "bytes": 416417,
+      "sha256": "f82ceb4eac5ddee4f141647e6f577064c4c966d03204faca7fcd8f4e1ebdb059"
+    },
+    "moods.json": {
+      "bytes": 2344449,
+      "sha256": "0a98d1332a1f7edf381fd86de18297eaea78a300944687786cb0861f63c72447"
+    },
+    "news.json": {
+      "bytes": 322963,
+      "sha256": "043f1540c2cc32eec5a5d49bc4b16f90deec255961fd92d5e27ba469426c12ab"
+    },
+    "check.json": {
+      "bytes": 3875,
+      "sha256": "8b433aaddf24294769c87639867e0e5e86ac1e66bedd6347e41a75bfa5bbb4d4"
+    },
+    "timeline/boat.json": {
+      "bytes": 128047,
+      "sha256": "3f3f5feb8fe02e341ff5a82d554261ee0297edf897ea8c7a55e5eb14cbde2141"
+    },
+    "timeline/A.json": {
+      "bytes": 454594,
+      "sha256": "b69636c817196a8c6b3d74ff08c678399f0420ae97d418bfbf77eaa179ad1f62"
+    },
+    "timeline/B.json": {
+      "bytes": 566807,
+      "sha256": "059448fd19e273a3e5e842ed32a5cf3aa4c4b7aff4f8fc2078b4744a94fdf412"
+    },
+    "timeline/C.json": {
+      "bytes": 1435290,
+      "sha256": "cdad8ddf3e4519c3186f6c0a1c291b88683196c97a207906fa0b9f3d3165c5a7"
+    },
+    "timeline/D.json": {
+      "bytes": 973038,
+      "sha256": "4f0b9a351807b6b60f6109575c71e9ec7a424d2141b637331f3cb5aa57f4d13f"
+    },
+    "timeline/E.json": {
+      "bytes": 1043017,
+      "sha256": "53dbe9df98d430e6b08859579a4d98125a95d5d798a4c78b72383077bf3a6978"
+    },
+    "timeline/F.json": {
+      "bytes": 805783,
+      "sha256": "3766af3651f1cb9d773e616c30b306344aced7877a6df821730ed2ddc67b5122"
+    },
+    "timeline/G.json": {
+      "bytes": 117745,
+      "sha256": "99d7e2c2d8c903e5e663f2da1419b67c87512406867219c6de2d742ef2e53ee3"
+    },
+    "timeline/tank.json": {
+      "bytes": 45838,
+      "sha256": "44d03625dcca7f7220d3afb4950c4d421df58fadf5c88852da3d7b2c87b643b3"
+    },
+    "timeline/ashore.json": {
+      "bytes": 12851,
+      "sha256": "e87d2aa183440b03b515721ed73e36df312e8fe1a51c2c45eb2db90e7c7947e9"
+    },
+    "story/00.json": {
+      "bytes": 135848,
+      "sha256": "c02053f5c116ff7346efc083cccda625fc76361523ee3d0cd391dc02d2ef7339"
+    },
+    "story/01.json": {
+      "bytes": 130174,
+      "sha256": "a76eb0d79dbbd0975bc67c5146194392883049c8cf73ab9c8aeb857434073697"
+    },
+    "story/02.json": {
+      "bytes": 135236,
+      "sha256": "56a612d6d7335b595e242fe0648819eda9cd0c81f5eae401b21d5896b1173f57"
+    },
+    "story/03.json": {
+      "bytes": 124332,
+      "sha256": "7688bf6452a3896d65a10643a35f54d597bb425ece3317f763f1d021014bc54e"
+    },
+    "story/04.json": {
+      "bytes": 130122,
+      "sha256": "bbd2e114919d922bf52bfeca86c8c588ffce0504ff28e802090b34d162ac1ebc"
+    },
+    "story/05.json": {
+      "bytes": 127171,
+      "sha256": "692da80f2ba085d92265184877b4dab2c2076296c8b711d526527b52435d9b52"
+    },
+    "story/06.json": {
+      "bytes": 118971,
+      "sha256": "dbac40827b09de216e16d060733a147255f9f3ac2dde0ce92011a802a9075e4f"
+    },
+    "story/07.json": {
+      "bytes": 125446,
+      "sha256": "381d9dda01923e73cf8b7ba032efe6f9f3a24cdc0e85734aaad07fc5177e94c3"
+    },
+    "story/08.json": {
+      "bytes": 128766,
+      "sha256": "49be0a5095340c1d4397d67530da17648cd71cbeb9eb47dcf10e115f92c7ce9d"
+    },
+    "story/09.json": {
+      "bytes": 131919,
+      "sha256": "47896698385efd072c4dffb855834a3de471069902fda7855bf60ea4b9702025"
+    },
+    "story/10.json": {
+      "bytes": 126157,
+      "sha256": "cf596bcf97deb067f80f542cb51bd66a6e4e2d4464db2cb0f83697d31cad269e"
+    },
+    "story/11.json": {
+      "bytes": 131150,
+      "sha256": "c641001ecf90c7d524e58cfabead69302342ab22e3cd98f6065e7024f8008fcb"
+    },
+    "story/12.json": {
+      "bytes": 128518,
+      "sha256": "a76b058ae558e37a9bc68676f89846de097cf5392f6fc2d4b69ef29aced205b7"
+    },
+    "story/13.json": {
+      "bytes": 119529,
+      "sha256": "7439e338ebde8a6688beb54c93d06c64d01ec5f5b8a5a3b6a7f340bf4cd1cf0e"
+    },
+    "story/14.json": {
+      "bytes": 119193,
+      "sha256": "1286f32acba065414a45a6d752ec0a4522d8d80e71f53f8a9839d0e42954fa6a"
+    },
+    "story/15.json": {
+      "bytes": 120277,
+      "sha256": "7c8a98ef030e20b4a2f334863bd712ba2a76aa1a8c14528e5e55324dd4e3b8bc"
+    },
+    "story/16.json": {
+      "bytes": 118226,
+      "sha256": "33907ce34f36bf40be6a330c84496613c31ebf2c75d12aaa06ffbb1668462db8"
+    },
+    "story/17.json": {
+      "bytes": 122122,
+      "sha256": "d1041da85ac14d5d195ab5899b3c5af6e831356039f54f3bae2dc267aab0b109"
+    },
+    "story/18.json": {
+      "bytes": 122025,
+      "sha256": "66a9f171425b1e62924fe4c8cb5f9424a5be22275c2edb4743ee024a5da57212"
+    },
+    "story/19.json": {
+      "bytes": 118630,
+      "sha256": "f839e1b515410c331cc175a2f6917c45ba949374cbb6b900bbf7fbc030ef888b"
+    },
+    "story/20.json": {
+      "bytes": 121370,
+      "sha256": "926bf03b9901a62ace3f7dc3f1fa67a5139645ec30072d0098d821f8604195d3"
+    },
+    "story/21.json": {
+      "bytes": 119258,
+      "sha256": "82fa87d0442a6b509cd253db56414d13dc3caa8378148fa4e8a070e64d5ee880"
+    },
+    "story/22.json": {
+      "bytes": 9442,
+      "sha256": "3b64a9a5a5824e55b9b58d0bf6005d433dd07a271e3a29a151e2d9702a276bce"
+    }
+  }
+}
