@@ -750,5 +750,139 @@
     "year": 2013,
     "source_url": "https://appliedmaths.sun.ac.za/~nhale/publications/HaleTownsend2013a.pdf",
     "publication_status": "SIAM Journal on Scientific Computing 35(2), A652–A674 (2013)"
+  },
+  "nomri-2025": {
+    "title": "A Unified Model for Compressed Sensing MRI Across Undersampling Patterns",
+    "authors": [
+      "Armeet Singh Jatyani",
+      "Jiayun Wang",
+      "Aditi Chandrashekar",
+      "Zihui Wu",
+      "Miguel Liu-Schiaffini",
+      "Bahareh Tolooshams",
+      "Anima Anandkumar"
+    ],
+    "year": 2024,
+    "source_url": "https://arxiv.org/abs/2410.16290",
+    "publication_status": "CVPR 2025; arXiv first posted 2024"
+  },
+  "spectral-cs-2024": {
+    "title": "When Differentiable Programming Meets Spectral PDE Solver",
+    "authors": [
+      "Qijia Jiang"
+    ],
+    "year": 2024,
+    "source_url": "https://qijiaj.github.io/operator_learning_2024.pdf",
+    "publication_status": "D3S3 workshop at NeurIPS 2024; author-hosted workshop paper"
+  },
+  "inverse-theory-2023": {
+    "title": "Theoretical Perspectives on Deep Learning Methods in Inverse Problems",
+    "authors": [
+      "Jonathan Scarlett",
+      "Reinhard Heckel",
+      "Miguel R. D. Rodrigues",
+      "Paul Hand",
+      "Yonina C. Eldar"
+    ],
+    "year": 2022,
+    "source_url": "https://arxiv.org/abs/2206.14373",
+    "publication_status": "IEEE JSAIT 3(3):433–453, issue year 2022; revised 2023; DOI 10.1109/JSAIT.2023.3241123"
+  },
+  "tunable-cs-2026": {
+    "title": "Latent Generative Models with Tunable Complexity for Compressed Sensing and other Inverse Problems",
+    "authors": [
+      "Sean Gunn",
+      "Jorio Cocola",
+      "Oliver De Candido",
+      "Vaggos Chatziafratis",
+      "Paul Hand"
+    ],
+    "year": 2026,
+    "source_url": "https://arxiv.org/abs/2603.07357",
+    "publication_status": "arXiv preprint, March 2026, v2"
+  },
+  "stator-sparse-2016": {
+    "title": "Sparse Reconstruction for Temperature Distribution Using DTS Fiber Optic Sensors with Applications in Electrical Generator Stator Monitoring",
+    "authors": [
+      "João Paulo Bazzo",
+      "Daniel Rodrigues Pipa",
+      "Erlon Vagner da Silva",
+      "Cicero Martelli",
+      "Jean Carlos Cardozo da Silva"
+    ],
+    "year": 2016,
+    "source_url": "https://doi.org/10.3390/s16091425",
+    "publication_status": "Sensors 16(9), 1425 (2016); DOI 10.3390/s16091425"
+  },
+  "recfno-2023": {
+    "title": "RecFNO: a resolution-invariant flow and heat field reconstruction method from sparse observations via Fourier neural operator",
+    "authors": [
+      "Xiaoyu Zhao",
+      "Xiaoqian Chen",
+      "Zhiqiang Gong",
+      "Weien Zhou",
+      "Wen Yao",
+      "Yunyang Zhang"
+    ],
+    "year": 2023,
+    "source_url": "https://arxiv.org/abs/2302.09808",
+    "publication_status": "International Journal of Thermal Sciences 195 (2024), 108619; DOI 10.1016/j.ijthermalsci.2023.108619"
+  },
+  "vibrating-plates-2023": {
+    "title": "Learning to Predict Structural Vibrations",
+    "authors": [
+      "Jan van Delden",
+      "Julius Schultz",
+      "Christopher Blech",
+      "Sabine C. Langer",
+      "Timo Lüddecke"
+    ],
+    "year": 2023,
+    "source_url": "https://arxiv.org/abs/2310.05469",
+    "publication_status": "NeurIPS 2024; first arXiv posting 2023"
+  },
+  "lagrangian-assimilation-2025": {
+    "title": "Generative Lagrangian data assimilation for ocean dynamics under extreme sparsity",
+    "authors": [
+      "Niloofar Asefi",
+      "Leonard Lupin-Jimenez",
+      "Tianning Wu",
+      "Ruoying He",
+      "Ashesh Chattopadhyay"
+    ],
+    "year": 2025,
+    "source_url": "https://arxiv.org/abs/2507.06479",
+    "publication_status": "arXiv preprint, July 2025"
+  },
+  "structures-distributed-2025": {
+    "title": "Training Structures as Distributed Sensors: A case study of impact force identification using neural operators",
+    "authors": [
+      "Yujie Gan",
+      "Haoze Song",
+      "Zhilu Lai"
+    ],
+    "year": 2025,
+    "source_url": "https://doi.org/10.1016/j.jsv.2025.119395",
+    "publication_status": "Journal of Sound and Vibration 619 (2025), 119395"
+  },
+  "ventilation-control-2025": {
+    "title": "Operator learning for energy-efficient building ventilation control with computational fluid dynamics simulation of a real-world classroom",
+    "authors": [
+      "Yuexin Bian",
+      "Oliver Schmidt",
+      "Yuanyuan Shi"
+    ],
+    "year": 2025,
+    "source_url": "https://doi.org/10.1016/j.apenergy.2025.127035",
+    "publication_status": "Applied Energy 404 (2026), 127035; online November 2025"
+  },
+  "motor-thermal-li-2026": {
+    "title": "Neural Operator–Based Thermal Modeling for Electric Motor and Power Electronics Systems",
+    "authors": [
+      "Jinghao Li"
+    ],
+    "year": 2026,
+    "source_url": "https://odr.chalmers.se/items/bf1e419a-85d8-44fa-8968-13c84f76cca1",
+    "publication_status": "Chalmers master thesis, Systems, Control and Mechatronics, 2026"
   }
 }
