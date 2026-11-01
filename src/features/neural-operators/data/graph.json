@@ -1475,7 +1475,7 @@
       "type": "author",
       "label": "Reinhard Heckel",
       "title": "Reinhard Heckel",
-      "paper_count": 1
+      "paper_count": 2
     },
     {
       "id": "author:bolcskei-helmut",
@@ -1657,7 +1657,7 @@
       "type": "author",
       "label": "Anima Anandkumar",
       "title": "Anima Anandkumar",
-      "paper_count": 11
+      "paper_count": 12
     },
     {
       "id": "author:sanchez-gonzalez-alvaro",
@@ -1783,7 +1783,7 @@
       "type": "author",
       "label": "Ashesh Chattopadhyay",
       "title": "Ashesh Chattopadhyay",
-      "paper_count": 1
+      "paper_count": 2
     },
     {
       "id": "author:mardani-morteza",
@@ -2378,7 +2378,7 @@
       "type": "author",
       "label": "Yuanyuan Shi",
       "title": "Yuanyuan Shi",
-      "paper_count": 1
+      "paper_count": 2
     },
     {
       "id": "author:atanasov-nikolay",
@@ -2420,7 +2420,7 @@
       "type": "author",
       "label": "Miguel Liu-Schiaffini",
       "title": "Miguel Liu-Schiaffini",
-      "paper_count": 2
+      "paper_count": 3
     },
     {
       "id": "author:george-robert-joseph",
@@ -3153,21 +3153,21 @@
       "type": "area",
       "label": "Operator learning",
       "title": "Operator learning",
-      "paper_count": 31
+      "paper_count": 39
     },
     {
       "id": "area:fourier",
       "type": "area",
       "label": "Fourier neural operators",
       "title": "Fourier neural operators",
-      "paper_count": 10
+      "paper_count": 14
     },
     {
       "id": "area:sparse",
       "type": "area",
       "label": "Sparse recovery & sampling",
       "title": "Sparse recovery & sampling",
-      "paper_count": 10
+      "paper_count": 17
     },
     {
       "id": "area:integration",
@@ -3181,21 +3181,21 @@
       "type": "area",
       "label": "Physical simulation & engineering",
       "title": "Physical simulation & engineering",
-      "paper_count": 12
+      "paper_count": 17
     },
     {
       "id": "area:weather",
       "type": "area",
       "label": "Weather & climate",
       "title": "Weather & climate",
-      "paper_count": 4
+      "paper_count": 5
     },
     {
       "id": "area:robotics",
       "type": "area",
       "label": "Robotics & control",
       "title": "Robotics & control",
-      "paper_count": 6
+      "paper_count": 8
     },
     {
       "id": "area:world",
@@ -3216,14 +3216,14 @@
       "type": "area",
       "label": "Inverse problems & design",
       "title": "Inverse problems & design",
-      "paper_count": 4
+      "paper_count": 11
     },
     {
       "id": "area:timeseries",
       "type": "area",
       "label": "Time series & monitoring",
       "title": "Time series & monitoring",
-      "paper_count": 3
+      "paper_count": 7
     },
     {
       "id": "field:wavelets",
@@ -3414,6 +3414,572 @@
       "label": "Alex Townsend",
       "title": "Alex Townsend",
       "paper_count": 1
+    },
+    {
+      "id": "author:mojtaba",
+      "type": "author",
+      "label": "Mojtaba",
+      "title": "Mojtaba",
+      "paper_count": 1
+    },
+    {
+      "id": "author:komeili",
+      "type": "author",
+      "label": "Komeili",
+      "title": "Komeili",
+      "paper_count": 1
+    },
+    {
+      "id": "nomri-2025",
+      "type": "paper",
+      "label": "Neural operators for CS-MRI",
+      "title": "A Unified Model for Compressed Sensing MRI Across Undersampling Patterns",
+      "year": 2024,
+      "priority": "core",
+      "summary": "Uses neural operators in measurement and image space with data-consistency updates to reconstruct MRI across undersampling patterns and resolutions.",
+      "limits": "Direct neural-operator application to compressed-sensing reconstruction. Learns a prior for undersampled MRI; it does not use sparse recovery to make arbitrary kernel training faster. CVPR 2025 experiments, not a clinical deployment claim.",
+      "url": "https://arxiv.org/abs/2410.16290",
+      "file": "nomri-2025.pdf",
+      "authors": [
+        "Armeet Singh Jatyani",
+        "Jiayun Wang",
+        "Aditi Chandrashekar",
+        "Zihui Wu",
+        "Miguel Liu-Schiaffini",
+        "Bahareh Tolooshams",
+        "Anima Anandkumar"
+      ],
+      "tags": [
+        "operator-learning",
+        "compressed-sensing",
+        "inverse-problems",
+        "sampling"
+      ],
+      "publication_status": "CVPR 2025; arXiv first posted 2024",
+      "review_level": "primary_sections_and_references_screened",
+      "seed": false
+    },
+    {
+      "id": "author:armeet-singh-jatyani",
+      "type": "author",
+      "label": "Armeet Singh Jatyani",
+      "title": "Armeet Singh Jatyani",
+      "paper_count": 1
+    },
+    {
+      "id": "author:jiayun-wang",
+      "type": "author",
+      "label": "Jiayun Wang",
+      "title": "Jiayun Wang",
+      "paper_count": 1
+    },
+    {
+      "id": "author:aditi-chandrashekar",
+      "type": "author",
+      "label": "Aditi Chandrashekar",
+      "title": "Aditi Chandrashekar",
+      "paper_count": 1
+    },
+    {
+      "id": "author:zihui-wu",
+      "type": "author",
+      "label": "Zihui Wu",
+      "title": "Zihui Wu",
+      "paper_count": 1
+    },
+    {
+      "id": "author:bahareh-tolooshams",
+      "type": "author",
+      "label": "Bahareh Tolooshams",
+      "title": "Bahareh Tolooshams",
+      "paper_count": 1
+    },
+    {
+      "id": "spectral-cs-2024",
+      "type": "paper",
+      "label": "Sparse spectral PDE learning",
+      "title": "When Differentiable Programming Meets Spectral PDE Solver",
+      "year": 2024,
+      "priority": "core",
+      "summary": "Proposes sparse random-feature encoders recovered by Lasso, learned spectral time stepping, and an extension with learned basis parameters.",
+      "limits": "Direct conceptual bridge to using compressed sensing inside operator learning. Sections 2.2 and 3 allow distinct random input/output grids and recover sparse coefficients before learning dynamics. Physics is built into the spectral evolution. Workshop proposal: large-scale systematic evaluation is explicitly future work; not evidence of a generic training speedup or an unconditional exact-recovery guarantee.",
+      "url": "https://qijiaj.github.io/operator_learning_2024.pdf",
+      "file": "spectral-cs-2024.pdf",
+      "authors": [
+        "Qijia Jiang"
+      ],
+      "tags": [
+        "operator-learning",
+        "compressed-sensing",
+        "sampling",
+        "theory"
+      ],
+      "publication_status": "D3S3 workshop at NeurIPS 2024; author-hosted workshop paper",
+      "review_level": "primary_sections_and_references_screened",
+      "seed": false
+    },
+    {
+      "id": "author:qijia-jiang",
+      "type": "author",
+      "label": "Qijia Jiang",
+      "title": "Qijia Jiang",
+      "paper_count": 1
+    },
+    {
+      "id": "inverse-theory-2023",
+      "type": "paper",
+      "label": "Modern inverse-problem theory",
+      "title": "Theoretical Perspectives on Deep Learning Methods in Inverse Problems",
+      "year": 2022,
+      "priority": "core",
+      "summary": "Surveys theoretical guarantees and open problems for generative priors, untrained neural priors, and unfolded reconstruction algorithms.",
+      "limits": "Explains the evolution of compressed sensing toward learned priors and reconstruction networks. Adjacent background, not a neural-operator paper. Separates signal-model assumptions, optimization, sample complexity and generalization.",
+      "url": "https://arxiv.org/abs/2206.14373",
+      "file": "inverse-theory-2023.pdf",
+      "authors": [
+        "Jonathan Scarlett",
+        "Reinhard Heckel",
+        "Miguel R. D. Rodrigues",
+        "Paul Hand",
+        "Yonina C. Eldar"
+      ],
+      "tags": [
+        "compressed-sensing",
+        "inverse-problems",
+        "theory"
+      ],
+      "publication_status": "IEEE JSAIT 3(3):433–453, issue year 2022; revised 2023; DOI 10.1109/JSAIT.2023.3241123",
+      "review_level": "primary_sections_and_references_screened",
+      "seed": false
+    },
+    {
+      "id": "author:jonathan-scarlett",
+      "type": "author",
+      "label": "Jonathan Scarlett",
+      "title": "Jonathan Scarlett",
+      "paper_count": 1
+    },
+    {
+      "id": "author:miguel-r-d-rodrigues",
+      "type": "author",
+      "label": "Miguel R. D. Rodrigues",
+      "title": "Miguel R. D. Rodrigues",
+      "paper_count": 1
+    },
+    {
+      "id": "author:paul-hand",
+      "type": "author",
+      "label": "Paul Hand",
+      "title": "Paul Hand",
+      "paper_count": 2
+    },
+    {
+      "id": "author:yonina-c-eldar",
+      "type": "author",
+      "label": "Yonina C. Eldar",
+      "title": "Yonina C. Eldar",
+      "paper_count": 1
+    },
+    {
+      "id": "tunable-cs-2026",
+      "type": "paper",
+      "label": "Tunable generative CS priors",
+      "title": "Latent Generative Models with Tunable Complexity for Compressed Sensing and other Inverse Problems",
+      "year": 2026,
+      "priority": "core",
+      "summary": "Uses nested dropout to vary latent-prior complexity in diffusion models, normalizing flows and variational autoencoders for inverse problems.",
+      "limits": "Current compressed-sensing direction: tune prior complexity to balance representation error and noise overfitting. Adjacent to operator learning, not a neural-operator architecture. March 2026 preprint; general experiments and theory for the linear denoising setting do not establish universal compressed-sensing guarantees.",
+      "url": "https://arxiv.org/abs/2603.07357",
+      "file": "tunable-cs-2026.pdf",
+      "authors": [
+        "Sean Gunn",
+        "Jorio Cocola",
+        "Oliver De Candido",
+        "Vaggos Chatziafratis",
+        "Paul Hand"
+      ],
+      "tags": [
+        "compressed-sensing",
+        "inverse-problems",
+        "theory"
+      ],
+      "publication_status": "arXiv preprint, March 2026, v2",
+      "review_level": "primary_sections_and_references_screened",
+      "seed": false
+    },
+    {
+      "id": "author:sean-gunn",
+      "type": "author",
+      "label": "Sean Gunn",
+      "title": "Sean Gunn",
+      "paper_count": 1
+    },
+    {
+      "id": "author:jorio-cocola",
+      "type": "author",
+      "label": "Jorio Cocola",
+      "title": "Jorio Cocola",
+      "paper_count": 1
+    },
+    {
+      "id": "author:oliver-de-candido",
+      "type": "author",
+      "label": "Oliver De Candido",
+      "title": "Oliver De Candido",
+      "paper_count": 1
+    },
+    {
+      "id": "author:vaggos-chatziafratis",
+      "type": "author",
+      "label": "Vaggos Chatziafratis",
+      "title": "Vaggos Chatziafratis",
+      "paper_count": 1
+    },
+    {
+      "id": "recfno-2023",
+      "type": "paper",
+      "label": "RecFNO",
+      "title": "RecFNO: a resolution-invariant flow and heat field reconstruction method from sparse observations via Fourier neural operator",
+      "year": 2023,
+      "priority": "application",
+      "summary": "Reconstructs heat and flow fields from sparse observations using MLP, mask or Voronoi embeddings and Fourier layers.",
+      "limits": "Direct prior art for sparse thermal reconstruction. Output resolution transfer is distinct from generalization to arbitrary input layouts. Public code: https://github.com/zhaoxiaoyu1995/RecFNO ; data links are external SharePoint links and access has not been tested.",
+      "url": "https://arxiv.org/abs/2302.09808",
+      "file": "recfno-2023.pdf",
+      "authors": [
+        "Xiaoyu Zhao",
+        "Xiaoqian Chen",
+        "Zhiqiang Gong",
+        "Weien Zhou",
+        "Wen Yao",
+        "Yunyang Zhang"
+      ],
+      "tags": [
+        "operator-learning",
+        "fourier-neural-operators",
+        "inverse-problems",
+        "sampling",
+        "physical-simulation"
+      ],
+      "publication_status": "International Journal of Thermal Sciences 195 (2024), 108619; DOI 10.1016/j.ijthermalsci.2023.108619",
+      "review_level": "primary_abstract_screened",
+      "seed": false
+    },
+    {
+      "id": "author:xiaoyu-zhao",
+      "type": "author",
+      "label": "Xiaoyu Zhao",
+      "title": "Xiaoyu Zhao"
+    },
+    {
+      "id": "author:xiaoqian-chen",
+      "type": "author",
+      "label": "Xiaoqian Chen",
+      "title": "Xiaoqian Chen"
+    },
+    {
+      "id": "author:zhiqiang-gong",
+      "type": "author",
+      "label": "Zhiqiang Gong",
+      "title": "Zhiqiang Gong"
+    },
+    {
+      "id": "author:weien-zhou",
+      "type": "author",
+      "label": "Weien Zhou",
+      "title": "Weien Zhou"
+    },
+    {
+      "id": "author:wen-yao",
+      "type": "author",
+      "label": "Wen Yao",
+      "title": "Wen Yao"
+    },
+    {
+      "id": "author:yunyang-zhang",
+      "type": "author",
+      "label": "Yunyang Zhang",
+      "title": "Yunyang Zhang"
+    },
+    {
+      "id": "stator-sparse-2016",
+      "type": "paper",
+      "label": "Sparse Reconstruction for Temperature Distribution Using DTS Fiber Optic Sensors with Applications in Electrical Generator Stator Monitoring",
+      "title": "Sparse Reconstruction for Temperature Distribution Using DTS Fiber Optic Sensors with Applications in Electrical Generator Stator Monitoring",
+      "year": 2016,
+      "priority": "application",
+      "summary": "Uses a finite-element hotspot dictionary and sparse reconstruction with distributed fibre temperatures to monitor generator stators.",
+      "limits": "A direct industrial sparse-recovery baseline, not a neural operator. Experiments use a representative prototype; no reusable dataset was verified. Useful motivation for a thermal-plate autumn study and stator extension.",
+      "url": "https://doi.org/10.3390/s16091425",
+      "file": "stator-sparse-2016.pdf",
+      "authors": [
+        "João Paulo Bazzo",
+        "Daniel Rodrigues Pipa",
+        "Erlon Vagner da Silva",
+        "Cicero Martelli",
+        "Jean Carlos Cardozo da Silva"
+      ],
+      "tags": [
+        "compressed-sensing",
+        "inverse-problems",
+        "structural-monitoring",
+        "physical-simulation"
+      ],
+      "publication_status": "Sensors 16(9), 1425 (2016); DOI 10.3390/s16091425",
+      "review_level": "primary_abstract_screened",
+      "seed": false
+    },
+    {
+      "id": "author:joao-paulo-bazzo",
+      "type": "author",
+      "label": "João Paulo Bazzo",
+      "title": "João Paulo Bazzo"
+    },
+    {
+      "id": "author:daniel-rodrigues-pipa",
+      "type": "author",
+      "label": "Daniel Rodrigues Pipa",
+      "title": "Daniel Rodrigues Pipa"
+    },
+    {
+      "id": "author:erlon-vagner-da-silva",
+      "type": "author",
+      "label": "Erlon Vagner da Silva",
+      "title": "Erlon Vagner da Silva"
+    },
+    {
+      "id": "author:cicero-martelli",
+      "type": "author",
+      "label": "Cicero Martelli",
+      "title": "Cicero Martelli"
+    },
+    {
+      "id": "author:jean-carlos-cardozo-da-silva",
+      "type": "author",
+      "label": "Jean Carlos Cardozo da Silva",
+      "title": "Jean Carlos Cardozo da Silva"
+    },
+    {
+      "id": "vibrating-plates-2023",
+      "type": "paper",
+      "label": "Learning to Predict Structural Vibrations",
+      "title": "Learning to Predict Structural Vibrations",
+      "year": 2023,
+      "priority": "application",
+      "summary": "Introduces a 12000-geometry harmonically excited plate benchmark and Frequency-Query Operator, comparing FNO and DeepONet baselines.",
+      "limits": "Forward vibration prediction is already studied. A sparse-sensor inverse task would be a proposed adaptation. Code and data links: https://github.com/ecker-lab/Learning_Vibrating_Plates ; published example dataset is 4 GB, full subsets 21 GB.",
+      "url": "https://arxiv.org/abs/2310.05469",
+      "file": "vibrating-plates-2023.pdf",
+      "authors": [
+        "Jan van Delden",
+        "Julius Schultz",
+        "Christopher Blech",
+        "Sabine C. Langer",
+        "Timo Lüddecke"
+      ],
+      "tags": [
+        "operator-learning",
+        "structural-monitoring",
+        "physical-simulation",
+        "acoustics"
+      ],
+      "publication_status": "NeurIPS 2024; first arXiv posting 2023",
+      "review_level": "primary_abstract_screened",
+      "seed": false
+    },
+    {
+      "id": "author:jan-van-delden",
+      "type": "author",
+      "label": "Jan van Delden",
+      "title": "Jan van Delden"
+    },
+    {
+      "id": "author:julius-schultz",
+      "type": "author",
+      "label": "Julius Schultz",
+      "title": "Julius Schultz"
+    },
+    {
+      "id": "author:christopher-blech",
+      "type": "author",
+      "label": "Christopher Blech",
+      "title": "Christopher Blech"
+    },
+    {
+      "id": "author:sabine-c-langer",
+      "type": "author",
+      "label": "Sabine C. Langer",
+      "title": "Sabine C. Langer"
+    },
+    {
+      "id": "author:timo-luddecke",
+      "type": "author",
+      "label": "Timo Lüddecke",
+      "title": "Timo Lüddecke"
+    },
+    {
+      "id": "motor-thermal-li-2026",
+      "type": "paper",
+      "label": "Neural Operator–Based Thermal Modeling for Electric Motor and Power Electronics Systems",
+      "title": "Neural Operator–Based Thermal Modeling for Electric Motor and Power Electronics Systems",
+      "year": 2026,
+      "priority": "application",
+      "summary": "Studies load-memory-enhanced FNO prediction of two-dimensional transient temperature fields in a 15 kW induction motor.",
+      "limits": "Master thesis prior art: motor thermal FNO itself is not new. FEM data are placed on a common 512x512 grid; variable sparse sensor observation is a separate proposed question. Few load trajectories limit broad extrapolation claims.",
+      "url": "https://odr.chalmers.se/items/bf1e419a-85d8-44fa-8968-13c84f76cca1",
+      "file": "motor-thermal-li-2026.pdf",
+      "authors": [
+        "Jinghao Li"
+      ],
+      "tags": [
+        "operator-learning",
+        "fourier-neural-operators",
+        "physical-simulation",
+        "structural-monitoring"
+      ],
+      "publication_status": "Chalmers master thesis, Systems, Control and Mechatronics, 2026",
+      "review_level": "primary_abstract_screened",
+      "seed": false
+    },
+    {
+      "id": "author:jinghao-li",
+      "type": "author",
+      "label": "Jinghao Li",
+      "title": "Jinghao Li"
+    },
+    {
+      "id": "lagrangian-assimilation-2025",
+      "type": "paper",
+      "label": "Generative Lagrangian data assimilation for ocean dynamics under extreme sparsity",
+      "title": "Generative Lagrangian data assimilation for ocean dynamics under extreme sparsity",
+      "year": 2025,
+      "priority": "application",
+      "summary": "Combines neural operators and diffusion models for ocean-state reconstruction from very sparse Lagrangian observations.",
+      "limits": "Prior art for moving-sensor reconstruction; a controlled active-sampling study on 2D passive tracer dynamics is a narrower potential thesis. Sparse reconstructions depend on learned priors and are not unique recovery guarantees.",
+      "url": "https://arxiv.org/abs/2507.06479",
+      "file": "lagrangian-assimilation-2025.pdf",
+      "authors": [
+        "Niloofar Asefi",
+        "Leonard Lupin-Jimenez",
+        "Tianning Wu",
+        "Ruoying He",
+        "Ashesh Chattopadhyay"
+      ],
+      "tags": [
+        "operator-learning",
+        "inverse-problems",
+        "sampling",
+        "weather",
+        "robotics"
+      ],
+      "publication_status": "arXiv preprint, July 2025",
+      "review_level": "primary_abstract_screened",
+      "seed": false
+    },
+    {
+      "id": "author:niloofar-asefi",
+      "type": "author",
+      "label": "Niloofar Asefi",
+      "title": "Niloofar Asefi"
+    },
+    {
+      "id": "author:leonard-lupin-jimenez",
+      "type": "author",
+      "label": "Leonard Lupin-Jimenez",
+      "title": "Leonard Lupin-Jimenez"
+    },
+    {
+      "id": "author:tianning-wu",
+      "type": "author",
+      "label": "Tianning Wu",
+      "title": "Tianning Wu"
+    },
+    {
+      "id": "author:ruoying-he",
+      "type": "author",
+      "label": "Ruoying He",
+      "title": "Ruoying He"
+    },
+    {
+      "id": "ventilation-control-2025",
+      "type": "paper",
+      "label": "Operator learning for energy-efficient building ventilation control with computational fluid dynamics simulation of a real-world classroom",
+      "title": "Operator learning for energy-efficient building ventilation control with computational fluid dynamics simulation of a real-world classroom",
+      "year": 2025,
+      "priority": "application",
+      "summary": "Uses neural operator transformer models of airflow and carbon dioxide fields inside optimization-based ventilation control, with an open CFD-based benchmark.",
+      "limits": "Direct prior art against claiming first neural-operator ventilation control. A new thesis needs a narrower variable-sensor observation or active sampling question. Reported solver speedup is a specific CFD comparison.",
+      "url": "https://doi.org/10.1016/j.apenergy.2025.127035",
+      "file": "ventilation-control-2025.pdf",
+      "authors": [
+        "Yuexin Bian",
+        "Oliver Schmidt",
+        "Yuanyuan Shi"
+      ],
+      "tags": [
+        "operator-learning",
+        "control",
+        "physical-simulation"
+      ],
+      "publication_status": "Applied Energy 404 (2026), 127035; online November 2025",
+      "review_level": "primary_abstract_screened",
+      "seed": false
+    },
+    {
+      "id": "author:yuexin-bian",
+      "type": "author",
+      "label": "Yuexin Bian",
+      "title": "Yuexin Bian"
+    },
+    {
+      "id": "author:oliver-schmidt",
+      "type": "author",
+      "label": "Oliver Schmidt",
+      "title": "Oliver Schmidt"
+    },
+    {
+      "id": "structures-distributed-2025",
+      "type": "paper",
+      "label": "Training Structures as Distributed Sensors",
+      "title": "Training Structures as Distributed Sensors: A case study of impact force identification using neural operators",
+      "year": 2025,
+      "priority": "application",
+      "summary": "Uses Fourier neural operators and spatial upsampling to identify impact forces from sparse structural vibration sensors.",
+      "limits": "Sparse structural sensing and force localization are already studied. Any panel thesis should isolate changing layouts, dropout, uncertainty or another concrete distinction. No openly accessible PDF located in this search.",
+      "url": "https://doi.org/10.1016/j.jsv.2025.119395",
+      "file": null,
+      "authors": [
+        "Yujie Gan",
+        "Haoze Song",
+        "Zhilu Lai"
+      ],
+      "tags": [
+        "operator-learning",
+        "fourier-neural-operators",
+        "inverse-problems",
+        "structural-monitoring"
+      ],
+      "publication_status": "Journal of Sound and Vibration 619 (2025), 119395",
+      "review_level": "primary_abstract_screened",
+      "seed": false
+    },
+    {
+      "id": "author:yujie-gan",
+      "type": "author",
+      "label": "Yujie Gan",
+      "title": "Yujie Gan"
+    },
+    {
+      "id": "author:haoze-song",
+      "type": "author",
+      "label": "Haoze Song",
+      "title": "Haoze Song"
+    },
+    {
+      "id": "author:zhilu-lai",
+      "type": "author",
+      "label": "Zhilu Lai",
+      "title": "Zhilu Lai"
     }
   ],
   "edges": [
@@ -10927,6 +11493,1356 @@
       "evidence": "Constructs Gauss–Legendre and Gauss–Jacobi nodes and weights efficiently using asymptotic formulas and Newton iteration.",
       "evidence_url": "https://appliedmaths.sun.ac.za/~nhale/publications/HaleTownsend2013a.pdf",
       "evidence_locator": "Page 1: byline, abstract and introduction",
+      "epistemic_status": "curated_classification"
+    },
+    {
+      "id": "e703",
+      "source": "author:mojtaba",
+      "target": "vjepa2-2025",
+      "relation": "authored",
+      "evidence": "Author listed in primary bibliographic metadata or PDF.",
+      "evidence_url": "https://arxiv.org/abs/2506.09985",
+      "evidence_locator": "citation_author metadata / paper byline",
+      "epistemic_status": "documented"
+    },
+    {
+      "id": "e307",
+      "source": "author:komeili",
+      "target": "vjepa2-2025",
+      "relation": "authored",
+      "evidence": "Author listed in primary bibliographic metadata or PDF.",
+      "evidence_url": "https://arxiv.org/abs/2506.09985",
+      "evidence_locator": "citation_author metadata / paper byline",
+      "epistemic_status": "documented"
+    },
+    {
+      "id": "addition-author-armeet-singh-jatyani-authored-nomri-2025",
+      "source": "author:armeet-singh-jatyani",
+      "target": "nomri-2025",
+      "relation": "authored",
+      "evidence": "Author verified against primary byline.",
+      "evidence_url": "https://arxiv.org/abs/2410.16290",
+      "evidence_locator": "Byline",
+      "epistemic_status": "documented"
+    },
+    {
+      "id": "addition-author-jiayun-wang-authored-nomri-2025",
+      "source": "author:jiayun-wang",
+      "target": "nomri-2025",
+      "relation": "authored",
+      "evidence": "Author verified against primary byline.",
+      "evidence_url": "https://arxiv.org/abs/2410.16290",
+      "evidence_locator": "Byline",
+      "epistemic_status": "documented"
+    },
+    {
+      "id": "addition-author-aditi-chandrashekar-authored-nomri-2025",
+      "source": "author:aditi-chandrashekar",
+      "target": "nomri-2025",
+      "relation": "authored",
+      "evidence": "Author verified against primary byline.",
+      "evidence_url": "https://arxiv.org/abs/2410.16290",
+      "evidence_locator": "Byline",
+      "epistemic_status": "documented"
+    },
+    {
+      "id": "addition-author-zihui-wu-authored-nomri-2025",
+      "source": "author:zihui-wu",
+      "target": "nomri-2025",
+      "relation": "authored",
+      "evidence": "Author verified against primary byline.",
+      "evidence_url": "https://arxiv.org/abs/2410.16290",
+      "evidence_locator": "Byline",
+      "epistemic_status": "documented"
+    },
+    {
+      "id": "addition-author-liu-schiaffini-miguel-authored-nomri-2025",
+      "source": "author:liu-schiaffini-miguel",
+      "target": "nomri-2025",
+      "relation": "authored",
+      "evidence": "Author verified against primary byline.",
+      "evidence_url": "https://arxiv.org/abs/2410.16290",
+      "evidence_locator": "Byline",
+      "epistemic_status": "documented"
+    },
+    {
+      "id": "addition-author-bahareh-tolooshams-authored-nomri-2025",
+      "source": "author:bahareh-tolooshams",
+      "target": "nomri-2025",
+      "relation": "authored",
+      "evidence": "Author verified against primary byline.",
+      "evidence_url": "https://arxiv.org/abs/2410.16290",
+      "evidence_locator": "Byline",
+      "epistemic_status": "documented"
+    },
+    {
+      "id": "addition-author-anandkumar-anima-authored-nomri-2025",
+      "source": "author:anandkumar-anima",
+      "target": "nomri-2025",
+      "relation": "authored",
+      "evidence": "Author verified against primary byline.",
+      "evidence_url": "https://arxiv.org/abs/2410.16290",
+      "evidence_locator": "Byline",
+      "epistemic_status": "documented"
+    },
+    {
+      "id": "addition-nomri-2025-classified-in-field-operator-learning",
+      "source": "nomri-2025",
+      "target": "field:operator-learning",
+      "relation": "classified_in",
+      "evidence": "Uses neural operators in measurement and image space with data-consistency updates to reconstruct MRI across undersampling patterns and resolutions.",
+      "evidence_url": "https://arxiv.org/abs/2410.16290",
+      "evidence_locator": "Abstract and relevant methods",
+      "epistemic_status": "curated_classification"
+    },
+    {
+      "id": "addition-nomri-2025-classified-in-field-compressed-sensing",
+      "source": "nomri-2025",
+      "target": "field:compressed-sensing",
+      "relation": "classified_in",
+      "evidence": "Uses neural operators in measurement and image space with data-consistency updates to reconstruct MRI across undersampling patterns and resolutions.",
+      "evidence_url": "https://arxiv.org/abs/2410.16290",
+      "evidence_locator": "Abstract and relevant methods",
+      "epistemic_status": "curated_classification"
+    },
+    {
+      "id": "addition-nomri-2025-classified-in-field-inverse-problems",
+      "source": "nomri-2025",
+      "target": "field:inverse-problems",
+      "relation": "classified_in",
+      "evidence": "Uses neural operators in measurement and image space with data-consistency updates to reconstruct MRI across undersampling patterns and resolutions.",
+      "evidence_url": "https://arxiv.org/abs/2410.16290",
+      "evidence_locator": "Abstract and relevant methods",
+      "epistemic_status": "curated_classification"
+    },
+    {
+      "id": "addition-nomri-2025-classified-in-field-sampling",
+      "source": "nomri-2025",
+      "target": "field:sampling",
+      "relation": "classified_in",
+      "evidence": "Uses neural operators in measurement and image space with data-consistency updates to reconstruct MRI across undersampling patterns and resolutions.",
+      "evidence_url": "https://arxiv.org/abs/2410.16290",
+      "evidence_locator": "Abstract and relevant methods",
+      "epistemic_status": "curated_classification"
+    },
+    {
+      "id": "addition-nomri-2025-bridges-field-area-operators",
+      "source": "nomri-2025",
+      "target": "area:operators",
+      "relation": "bridges_field",
+      "evidence": "Direct neural-operator application to compressed-sensing reconstruction. Learns a prior for undersampled MRI; it does not use sparse recovery to make arbitrary kernel training faster. CVPR 2025 experiments, not a clinical deployment claim.",
+      "evidence_url": "https://arxiv.org/abs/2410.16290",
+      "evidence_locator": "Abstract and relevant methods",
+      "epistemic_status": "curated_classification"
+    },
+    {
+      "id": "addition-nomri-2025-bridges-field-area-sparse",
+      "source": "nomri-2025",
+      "target": "area:sparse",
+      "relation": "bridges_field",
+      "evidence": "Direct neural-operator application to compressed-sensing reconstruction. Learns a prior for undersampled MRI; it does not use sparse recovery to make arbitrary kernel training faster. CVPR 2025 experiments, not a clinical deployment claim.",
+      "evidence_url": "https://arxiv.org/abs/2410.16290",
+      "evidence_locator": "Abstract and relevant methods",
+      "epistemic_status": "curated_classification"
+    },
+    {
+      "id": "addition-nomri-2025-bridges-field-area-inverse",
+      "source": "nomri-2025",
+      "target": "area:inverse",
+      "relation": "bridges_field",
+      "evidence": "Direct neural-operator application to compressed-sensing reconstruction. Learns a prior for undersampled MRI; it does not use sparse recovery to make arbitrary kernel training faster. CVPR 2025 experiments, not a clinical deployment claim.",
+      "evidence_url": "https://arxiv.org/abs/2410.16290",
+      "evidence_locator": "Abstract and relevant methods",
+      "epistemic_status": "curated_classification"
+    },
+    {
+      "id": "addition-nomri-2025-cites-fno-2020",
+      "source": "nomri-2025",
+      "target": "fno-2020",
+      "relation": "cites",
+      "evidence": "Verified title and authors in downloaded PDF reference list.",
+      "evidence_url": "https://arxiv.org/abs/2410.16290",
+      "evidence_locator": "References [24]",
+      "epistemic_status": "documented"
+    },
+    {
+      "id": "addition-author-qijia-jiang-authored-spectral-cs-2024",
+      "source": "author:qijia-jiang",
+      "target": "spectral-cs-2024",
+      "relation": "authored",
+      "evidence": "Author verified against primary byline.",
+      "evidence_url": "https://qijiaj.github.io/operator_learning_2024.pdf",
+      "evidence_locator": "Byline",
+      "epistemic_status": "documented"
+    },
+    {
+      "id": "addition-spectral-cs-2024-classified-in-field-operator-learning",
+      "source": "spectral-cs-2024",
+      "target": "field:operator-learning",
+      "relation": "classified_in",
+      "evidence": "Proposes sparse random-feature encoders recovered by Lasso, learned spectral time stepping, and an extension with learned basis parameters.",
+      "evidence_url": "https://qijiaj.github.io/operator_learning_2024.pdf",
+      "evidence_locator": "Abstract and relevant methods",
+      "epistemic_status": "curated_classification"
+    },
+    {
+      "id": "addition-spectral-cs-2024-classified-in-field-compressed-sensing",
+      "source": "spectral-cs-2024",
+      "target": "field:compressed-sensing",
+      "relation": "classified_in",
+      "evidence": "Proposes sparse random-feature encoders recovered by Lasso, learned spectral time stepping, and an extension with learned basis parameters.",
+      "evidence_url": "https://qijiaj.github.io/operator_learning_2024.pdf",
+      "evidence_locator": "Abstract and relevant methods",
+      "epistemic_status": "curated_classification"
+    },
+    {
+      "id": "addition-spectral-cs-2024-classified-in-field-sampling",
+      "source": "spectral-cs-2024",
+      "target": "field:sampling",
+      "relation": "classified_in",
+      "evidence": "Proposes sparse random-feature encoders recovered by Lasso, learned spectral time stepping, and an extension with learned basis parameters.",
+      "evidence_url": "https://qijiaj.github.io/operator_learning_2024.pdf",
+      "evidence_locator": "Abstract and relevant methods",
+      "epistemic_status": "curated_classification"
+    },
+    {
+      "id": "addition-spectral-cs-2024-classified-in-field-theory",
+      "source": "spectral-cs-2024",
+      "target": "field:theory",
+      "relation": "classified_in",
+      "evidence": "Proposes sparse random-feature encoders recovered by Lasso, learned spectral time stepping, and an extension with learned basis parameters.",
+      "evidence_url": "https://qijiaj.github.io/operator_learning_2024.pdf",
+      "evidence_locator": "Abstract and relevant methods",
+      "epistemic_status": "curated_classification"
+    },
+    {
+      "id": "addition-spectral-cs-2024-bridges-field-area-operators",
+      "source": "spectral-cs-2024",
+      "target": "area:operators",
+      "relation": "bridges_field",
+      "evidence": "Direct conceptual bridge to using compressed sensing inside operator learning. Sections 2.2 and 3 allow distinct random input/output grids and recover sparse coefficients before learning dynamics. Physics is built into the spectral evolution. Workshop proposal: large-scale systematic evaluation is explicitly future work; not evidence of a generic training speedup or an unconditional exact-recovery guarantee.",
+      "evidence_url": "https://qijiaj.github.io/operator_learning_2024.pdf",
+      "evidence_locator": "Abstract and relevant methods",
+      "epistemic_status": "curated_classification"
+    },
+    {
+      "id": "addition-spectral-cs-2024-bridges-field-area-sparse",
+      "source": "spectral-cs-2024",
+      "target": "area:sparse",
+      "relation": "bridges_field",
+      "evidence": "Direct conceptual bridge to using compressed sensing inside operator learning. Sections 2.2 and 3 allow distinct random input/output grids and recover sparse coefficients before learning dynamics. Physics is built into the spectral evolution. Workshop proposal: large-scale systematic evaluation is explicitly future work; not evidence of a generic training speedup or an unconditional exact-recovery guarantee.",
+      "evidence_url": "https://qijiaj.github.io/operator_learning_2024.pdf",
+      "evidence_locator": "Abstract and relevant methods",
+      "epistemic_status": "curated_classification"
+    },
+    {
+      "id": "addition-spectral-cs-2024-bridges-field-area-fourier",
+      "source": "spectral-cs-2024",
+      "target": "area:fourier",
+      "relation": "bridges_field",
+      "evidence": "Direct conceptual bridge to using compressed sensing inside operator learning. Sections 2.2 and 3 allow distinct random input/output grids and recover sparse coefficients before learning dynamics. Physics is built into the spectral evolution. Workshop proposal: large-scale systematic evaluation is explicitly future work; not evidence of a generic training speedup or an unconditional exact-recovery guarantee.",
+      "evidence_url": "https://qijiaj.github.io/operator_learning_2024.pdf",
+      "evidence_locator": "Abstract and relevant methods",
+      "epistemic_status": "curated_classification"
+    },
+    {
+      "id": "addition-spectral-cs-2024-cites-fno-2020",
+      "source": "spectral-cs-2024",
+      "target": "fno-2020",
+      "relation": "cites",
+      "evidence": "Verified title and authors in downloaded PDF reference list.",
+      "evidence_url": "https://qijiaj.github.io/operator_learning_2024.pdf",
+      "evidence_locator": "References [13]",
+      "epistemic_status": "documented"
+    },
+    {
+      "id": "addition-author-jonathan-scarlett-authored-inverse-theory-2023",
+      "source": "author:jonathan-scarlett",
+      "target": "inverse-theory-2023",
+      "relation": "authored",
+      "evidence": "Author verified against primary byline.",
+      "evidence_url": "https://arxiv.org/abs/2206.14373",
+      "evidence_locator": "Byline",
+      "epistemic_status": "documented"
+    },
+    {
+      "id": "addition-author-heckel-reinhard-authored-inverse-theory-2023",
+      "source": "author:heckel-reinhard",
+      "target": "inverse-theory-2023",
+      "relation": "authored",
+      "evidence": "Author verified against primary byline.",
+      "evidence_url": "https://arxiv.org/abs/2206.14373",
+      "evidence_locator": "Byline",
+      "epistemic_status": "documented"
+    },
+    {
+      "id": "addition-author-miguel-r-d-rodrigues-authored-inverse-theory-2023",
+      "source": "author:miguel-r-d-rodrigues",
+      "target": "inverse-theory-2023",
+      "relation": "authored",
+      "evidence": "Author verified against primary byline.",
+      "evidence_url": "https://arxiv.org/abs/2206.14373",
+      "evidence_locator": "Byline",
+      "epistemic_status": "documented"
+    },
+    {
+      "id": "addition-author-paul-hand-authored-inverse-theory-2023",
+      "source": "author:paul-hand",
+      "target": "inverse-theory-2023",
+      "relation": "authored",
+      "evidence": "Author verified against primary byline.",
+      "evidence_url": "https://arxiv.org/abs/2206.14373",
+      "evidence_locator": "Byline",
+      "epistemic_status": "documented"
+    },
+    {
+      "id": "addition-author-yonina-c-eldar-authored-inverse-theory-2023",
+      "source": "author:yonina-c-eldar",
+      "target": "inverse-theory-2023",
+      "relation": "authored",
+      "evidence": "Author verified against primary byline.",
+      "evidence_url": "https://arxiv.org/abs/2206.14373",
+      "evidence_locator": "Byline",
+      "epistemic_status": "documented"
+    },
+    {
+      "id": "addition-inverse-theory-2023-classified-in-field-compressed-sensing",
+      "source": "inverse-theory-2023",
+      "target": "field:compressed-sensing",
+      "relation": "classified_in",
+      "evidence": "Surveys theoretical guarantees and open problems for generative priors, untrained neural priors, and unfolded reconstruction algorithms.",
+      "evidence_url": "https://arxiv.org/abs/2206.14373",
+      "evidence_locator": "Abstract and relevant methods",
+      "epistemic_status": "curated_classification"
+    },
+    {
+      "id": "addition-inverse-theory-2023-classified-in-field-inverse-problems",
+      "source": "inverse-theory-2023",
+      "target": "field:inverse-problems",
+      "relation": "classified_in",
+      "evidence": "Surveys theoretical guarantees and open problems for generative priors, untrained neural priors, and unfolded reconstruction algorithms.",
+      "evidence_url": "https://arxiv.org/abs/2206.14373",
+      "evidence_locator": "Abstract and relevant methods",
+      "epistemic_status": "curated_classification"
+    },
+    {
+      "id": "addition-inverse-theory-2023-classified-in-field-theory",
+      "source": "inverse-theory-2023",
+      "target": "field:theory",
+      "relation": "classified_in",
+      "evidence": "Surveys theoretical guarantees and open problems for generative priors, untrained neural priors, and unfolded reconstruction algorithms.",
+      "evidence_url": "https://arxiv.org/abs/2206.14373",
+      "evidence_locator": "Abstract and relevant methods",
+      "epistemic_status": "curated_classification"
+    },
+    {
+      "id": "addition-inverse-theory-2023-bridges-field-area-sparse",
+      "source": "inverse-theory-2023",
+      "target": "area:sparse",
+      "relation": "bridges_field",
+      "evidence": "Explains the evolution of compressed sensing toward learned priors and reconstruction networks. Adjacent background, not a neural-operator paper. Separates signal-model assumptions, optimization, sample complexity and generalization.",
+      "evidence_url": "https://arxiv.org/abs/2206.14373",
+      "evidence_locator": "Abstract and relevant methods",
+      "epistemic_status": "curated_classification"
+    },
+    {
+      "id": "addition-inverse-theory-2023-bridges-field-area-inverse",
+      "source": "inverse-theory-2023",
+      "target": "area:inverse",
+      "relation": "bridges_field",
+      "evidence": "Explains the evolution of compressed sensing toward learned priors and reconstruction networks. Adjacent background, not a neural-operator paper. Separates signal-model assumptions, optimization, sample complexity and generalization.",
+      "evidence_url": "https://arxiv.org/abs/2206.14373",
+      "evidence_locator": "Abstract and relevant methods",
+      "epistemic_status": "curated_classification"
+    },
+    {
+      "id": "addition-inverse-theory-2023-cites-cs-generative-2017",
+      "source": "inverse-theory-2023",
+      "target": "cs-generative-2017",
+      "relation": "cites",
+      "evidence": "Verified title and authors in downloaded PDF reference list.",
+      "evidence_url": "https://arxiv.org/abs/2206.14373",
+      "evidence_locator": "References [17]",
+      "epistemic_status": "documented"
+    },
+    {
+      "id": "addition-author-sean-gunn-authored-tunable-cs-2026",
+      "source": "author:sean-gunn",
+      "target": "tunable-cs-2026",
+      "relation": "authored",
+      "evidence": "Author verified against primary byline.",
+      "evidence_url": "https://arxiv.org/abs/2603.07357",
+      "evidence_locator": "Byline",
+      "epistemic_status": "documented"
+    },
+    {
+      "id": "addition-author-jorio-cocola-authored-tunable-cs-2026",
+      "source": "author:jorio-cocola",
+      "target": "tunable-cs-2026",
+      "relation": "authored",
+      "evidence": "Author verified against primary byline.",
+      "evidence_url": "https://arxiv.org/abs/2603.07357",
+      "evidence_locator": "Byline",
+      "epistemic_status": "documented"
+    },
+    {
+      "id": "addition-author-oliver-de-candido-authored-tunable-cs-2026",
+      "source": "author:oliver-de-candido",
+      "target": "tunable-cs-2026",
+      "relation": "authored",
+      "evidence": "Author verified against primary byline.",
+      "evidence_url": "https://arxiv.org/abs/2603.07357",
+      "evidence_locator": "Byline",
+      "epistemic_status": "documented"
+    },
+    {
+      "id": "addition-author-vaggos-chatziafratis-authored-tunable-cs-2026",
+      "source": "author:vaggos-chatziafratis",
+      "target": "tunable-cs-2026",
+      "relation": "authored",
+      "evidence": "Author verified against primary byline.",
+      "evidence_url": "https://arxiv.org/abs/2603.07357",
+      "evidence_locator": "Byline",
+      "epistemic_status": "documented"
+    },
+    {
+      "id": "addition-author-paul-hand-authored-tunable-cs-2026",
+      "source": "author:paul-hand",
+      "target": "tunable-cs-2026",
+      "relation": "authored",
+      "evidence": "Author verified against primary byline.",
+      "evidence_url": "https://arxiv.org/abs/2603.07357",
+      "evidence_locator": "Byline",
+      "epistemic_status": "documented"
+    },
+    {
+      "id": "addition-tunable-cs-2026-classified-in-field-compressed-sensing",
+      "source": "tunable-cs-2026",
+      "target": "field:compressed-sensing",
+      "relation": "classified_in",
+      "evidence": "Uses nested dropout to vary latent-prior complexity in diffusion models, normalizing flows and variational autoencoders for inverse problems.",
+      "evidence_url": "https://arxiv.org/abs/2603.07357",
+      "evidence_locator": "Abstract and relevant methods",
+      "epistemic_status": "curated_classification"
+    },
+    {
+      "id": "addition-tunable-cs-2026-classified-in-field-inverse-problems",
+      "source": "tunable-cs-2026",
+      "target": "field:inverse-problems",
+      "relation": "classified_in",
+      "evidence": "Uses nested dropout to vary latent-prior complexity in diffusion models, normalizing flows and variational autoencoders for inverse problems.",
+      "evidence_url": "https://arxiv.org/abs/2603.07357",
+      "evidence_locator": "Abstract and relevant methods",
+      "epistemic_status": "curated_classification"
+    },
+    {
+      "id": "addition-tunable-cs-2026-classified-in-field-theory",
+      "source": "tunable-cs-2026",
+      "target": "field:theory",
+      "relation": "classified_in",
+      "evidence": "Uses nested dropout to vary latent-prior complexity in diffusion models, normalizing flows and variational autoencoders for inverse problems.",
+      "evidence_url": "https://arxiv.org/abs/2603.07357",
+      "evidence_locator": "Abstract and relevant methods",
+      "epistemic_status": "curated_classification"
+    },
+    {
+      "id": "addition-tunable-cs-2026-bridges-field-area-sparse",
+      "source": "tunable-cs-2026",
+      "target": "area:sparse",
+      "relation": "bridges_field",
+      "evidence": "Current compressed-sensing direction: tune prior complexity to balance representation error and noise overfitting. Adjacent to operator learning, not a neural-operator architecture. March 2026 preprint; general experiments and theory for the linear denoising setting do not establish universal compressed-sensing guarantees.",
+      "evidence_url": "https://arxiv.org/abs/2603.07357",
+      "evidence_locator": "Abstract and relevant methods",
+      "epistemic_status": "curated_classification"
+    },
+    {
+      "id": "addition-tunable-cs-2026-bridges-field-area-inverse",
+      "source": "tunable-cs-2026",
+      "target": "area:inverse",
+      "relation": "bridges_field",
+      "evidence": "Current compressed-sensing direction: tune prior complexity to balance representation error and noise overfitting. Adjacent to operator learning, not a neural-operator architecture. March 2026 preprint; general experiments and theory for the linear denoising setting do not establish universal compressed-sensing guarantees.",
+      "evidence_url": "https://arxiv.org/abs/2603.07357",
+      "evidence_locator": "Abstract and relevant methods",
+      "epistemic_status": "curated_classification"
+    },
+    {
+      "id": "addition-tunable-cs-2026-cites-cs-generative-2017",
+      "source": "tunable-cs-2026",
+      "target": "cs-generative-2017",
+      "relation": "cites",
+      "evidence": "Verified title and authors in downloaded PDF reference list.",
+      "evidence_url": "https://arxiv.org/abs/2603.07357",
+      "evidence_locator": "References [4]",
+      "epistemic_status": "documented"
+    },
+    {
+      "id": "addition-tunable-cs-2026-cites-inverse-theory-2023",
+      "source": "tunable-cs-2026",
+      "target": "inverse-theory-2023",
+      "relation": "cites",
+      "evidence": "Verified title and authors in downloaded PDF reference list.",
+      "evidence_url": "https://arxiv.org/abs/2603.07357",
+      "evidence_locator": "References [40]",
+      "epistemic_status": "documented"
+    },
+    {
+      "id": "addition-spectral-cs-2024-cites-reno-2023",
+      "source": "spectral-cs-2024",
+      "target": "reno-2023",
+      "relation": "cites",
+      "evidence": "Verified title and authors in downloaded PDF reference list.",
+      "evidence_url": "https://qijiaj.github.io/operator_learning_2024.pdf",
+      "evidence_locator": "References [3]",
+      "epistemic_status": "documented"
+    },
+    {
+      "id": "thesis-author-xiaoyu-zhao-authored-recfno-2023",
+      "source": "author:xiaoyu-zhao",
+      "target": "recfno-2023",
+      "relation": "authored",
+      "evidence": "Reconstructs heat and flow fields from sparse observations using MLP, mask or Voronoi embeddings and Fourier layers.",
+      "evidence_url": "https://arxiv.org/abs/2302.09808",
+      "evidence_locator": "Primary abstract and byline; thematic classification is curator interpretation",
+      "epistemic_status": "documented"
+    },
+    {
+      "id": "thesis-author-xiaoqian-chen-authored-recfno-2023",
+      "source": "author:xiaoqian-chen",
+      "target": "recfno-2023",
+      "relation": "authored",
+      "evidence": "Reconstructs heat and flow fields from sparse observations using MLP, mask or Voronoi embeddings and Fourier layers.",
+      "evidence_url": "https://arxiv.org/abs/2302.09808",
+      "evidence_locator": "Primary abstract and byline; thematic classification is curator interpretation",
+      "epistemic_status": "documented"
+    },
+    {
+      "id": "thesis-author-zhiqiang-gong-authored-recfno-2023",
+      "source": "author:zhiqiang-gong",
+      "target": "recfno-2023",
+      "relation": "authored",
+      "evidence": "Reconstructs heat and flow fields from sparse observations using MLP, mask or Voronoi embeddings and Fourier layers.",
+      "evidence_url": "https://arxiv.org/abs/2302.09808",
+      "evidence_locator": "Primary abstract and byline; thematic classification is curator interpretation",
+      "epistemic_status": "documented"
+    },
+    {
+      "id": "thesis-author-weien-zhou-authored-recfno-2023",
+      "source": "author:weien-zhou",
+      "target": "recfno-2023",
+      "relation": "authored",
+      "evidence": "Reconstructs heat and flow fields from sparse observations using MLP, mask or Voronoi embeddings and Fourier layers.",
+      "evidence_url": "https://arxiv.org/abs/2302.09808",
+      "evidence_locator": "Primary abstract and byline; thematic classification is curator interpretation",
+      "epistemic_status": "documented"
+    },
+    {
+      "id": "thesis-author-wen-yao-authored-recfno-2023",
+      "source": "author:wen-yao",
+      "target": "recfno-2023",
+      "relation": "authored",
+      "evidence": "Reconstructs heat and flow fields from sparse observations using MLP, mask or Voronoi embeddings and Fourier layers.",
+      "evidence_url": "https://arxiv.org/abs/2302.09808",
+      "evidence_locator": "Primary abstract and byline; thematic classification is curator interpretation",
+      "epistemic_status": "documented"
+    },
+    {
+      "id": "thesis-author-yunyang-zhang-authored-recfno-2023",
+      "source": "author:yunyang-zhang",
+      "target": "recfno-2023",
+      "relation": "authored",
+      "evidence": "Reconstructs heat and flow fields from sparse observations using MLP, mask or Voronoi embeddings and Fourier layers.",
+      "evidence_url": "https://arxiv.org/abs/2302.09808",
+      "evidence_locator": "Primary abstract and byline; thematic classification is curator interpretation",
+      "epistemic_status": "documented"
+    },
+    {
+      "id": "thesis-recfno-2023-classified-in-field-operator-learning",
+      "source": "recfno-2023",
+      "target": "field:operator-learning",
+      "relation": "classified_in",
+      "evidence": "Reconstructs heat and flow fields from sparse observations using MLP, mask or Voronoi embeddings and Fourier layers.",
+      "evidence_url": "https://arxiv.org/abs/2302.09808",
+      "evidence_locator": "Primary abstract and byline; thematic classification is curator interpretation",
+      "epistemic_status": "curated_classification"
+    },
+    {
+      "id": "thesis-recfno-2023-classified-in-field-fourier-neural-operators",
+      "source": "recfno-2023",
+      "target": "field:fourier-neural-operators",
+      "relation": "classified_in",
+      "evidence": "Reconstructs heat and flow fields from sparse observations using MLP, mask or Voronoi embeddings and Fourier layers.",
+      "evidence_url": "https://arxiv.org/abs/2302.09808",
+      "evidence_locator": "Primary abstract and byline; thematic classification is curator interpretation",
+      "epistemic_status": "curated_classification"
+    },
+    {
+      "id": "thesis-recfno-2023-classified-in-field-inverse-problems",
+      "source": "recfno-2023",
+      "target": "field:inverse-problems",
+      "relation": "classified_in",
+      "evidence": "Reconstructs heat and flow fields from sparse observations using MLP, mask or Voronoi embeddings and Fourier layers.",
+      "evidence_url": "https://arxiv.org/abs/2302.09808",
+      "evidence_locator": "Primary abstract and byline; thematic classification is curator interpretation",
+      "epistemic_status": "curated_classification"
+    },
+    {
+      "id": "thesis-recfno-2023-classified-in-field-sampling",
+      "source": "recfno-2023",
+      "target": "field:sampling",
+      "relation": "classified_in",
+      "evidence": "Reconstructs heat and flow fields from sparse observations using MLP, mask or Voronoi embeddings and Fourier layers.",
+      "evidence_url": "https://arxiv.org/abs/2302.09808",
+      "evidence_locator": "Primary abstract and byline; thematic classification is curator interpretation",
+      "epistemic_status": "curated_classification"
+    },
+    {
+      "id": "thesis-recfno-2023-classified-in-field-physical-simulation",
+      "source": "recfno-2023",
+      "target": "field:physical-simulation",
+      "relation": "classified_in",
+      "evidence": "Reconstructs heat and flow fields from sparse observations using MLP, mask or Voronoi embeddings and Fourier layers.",
+      "evidence_url": "https://arxiv.org/abs/2302.09808",
+      "evidence_locator": "Primary abstract and byline; thematic classification is curator interpretation",
+      "epistemic_status": "curated_classification"
+    },
+    {
+      "id": "thesis-recfno-2023-bridges-field-area-operators",
+      "source": "recfno-2023",
+      "target": "area:operators",
+      "relation": "bridges_field",
+      "evidence": "Reconstructs heat and flow fields from sparse observations using MLP, mask or Voronoi embeddings and Fourier layers.",
+      "evidence_url": "https://arxiv.org/abs/2302.09808",
+      "evidence_locator": "Primary abstract and byline; thematic classification is curator interpretation",
+      "epistemic_status": "curated_classification"
+    },
+    {
+      "id": "thesis-recfno-2023-bridges-field-area-fourier",
+      "source": "recfno-2023",
+      "target": "area:fourier",
+      "relation": "bridges_field",
+      "evidence": "Reconstructs heat and flow fields from sparse observations using MLP, mask or Voronoi embeddings and Fourier layers.",
+      "evidence_url": "https://arxiv.org/abs/2302.09808",
+      "evidence_locator": "Primary abstract and byline; thematic classification is curator interpretation",
+      "epistemic_status": "curated_classification"
+    },
+    {
+      "id": "thesis-recfno-2023-bridges-field-area-sparse",
+      "source": "recfno-2023",
+      "target": "area:sparse",
+      "relation": "bridges_field",
+      "evidence": "Reconstructs heat and flow fields from sparse observations using MLP, mask or Voronoi embeddings and Fourier layers.",
+      "evidence_url": "https://arxiv.org/abs/2302.09808",
+      "evidence_locator": "Primary abstract and byline; thematic classification is curator interpretation",
+      "epistemic_status": "curated_classification"
+    },
+    {
+      "id": "thesis-recfno-2023-bridges-field-area-engineering",
+      "source": "recfno-2023",
+      "target": "area:engineering",
+      "relation": "bridges_field",
+      "evidence": "Reconstructs heat and flow fields from sparse observations using MLP, mask or Voronoi embeddings and Fourier layers.",
+      "evidence_url": "https://arxiv.org/abs/2302.09808",
+      "evidence_locator": "Primary abstract and byline; thematic classification is curator interpretation",
+      "epistemic_status": "curated_classification"
+    },
+    {
+      "id": "thesis-recfno-2023-bridges-field-area-inverse",
+      "source": "recfno-2023",
+      "target": "area:inverse",
+      "relation": "bridges_field",
+      "evidence": "Reconstructs heat and flow fields from sparse observations using MLP, mask or Voronoi embeddings and Fourier layers.",
+      "evidence_url": "https://arxiv.org/abs/2302.09808",
+      "evidence_locator": "Primary abstract and byline; thematic classification is curator interpretation",
+      "epistemic_status": "curated_classification"
+    },
+    {
+      "id": "thesis-author-joao-paulo-bazzo-authored-stator-sparse-2016",
+      "source": "author:joao-paulo-bazzo",
+      "target": "stator-sparse-2016",
+      "relation": "authored",
+      "evidence": "Uses a finite-element hotspot dictionary and sparse reconstruction with distributed fibre temperatures to monitor generator stators.",
+      "evidence_url": "https://doi.org/10.3390/s16091425",
+      "evidence_locator": "Primary abstract and byline; thematic classification is curator interpretation",
+      "epistemic_status": "documented"
+    },
+    {
+      "id": "thesis-author-daniel-rodrigues-pipa-authored-stator-sparse-2016",
+      "source": "author:daniel-rodrigues-pipa",
+      "target": "stator-sparse-2016",
+      "relation": "authored",
+      "evidence": "Uses a finite-element hotspot dictionary and sparse reconstruction with distributed fibre temperatures to monitor generator stators.",
+      "evidence_url": "https://doi.org/10.3390/s16091425",
+      "evidence_locator": "Primary abstract and byline; thematic classification is curator interpretation",
+      "epistemic_status": "documented"
+    },
+    {
+      "id": "thesis-author-erlon-vagner-da-silva-authored-stator-sparse-2016",
+      "source": "author:erlon-vagner-da-silva",
+      "target": "stator-sparse-2016",
+      "relation": "authored",
+      "evidence": "Uses a finite-element hotspot dictionary and sparse reconstruction with distributed fibre temperatures to monitor generator stators.",
+      "evidence_url": "https://doi.org/10.3390/s16091425",
+      "evidence_locator": "Primary abstract and byline; thematic classification is curator interpretation",
+      "epistemic_status": "documented"
+    },
+    {
+      "id": "thesis-author-cicero-martelli-authored-stator-sparse-2016",
+      "source": "author:cicero-martelli",
+      "target": "stator-sparse-2016",
+      "relation": "authored",
+      "evidence": "Uses a finite-element hotspot dictionary and sparse reconstruction with distributed fibre temperatures to monitor generator stators.",
+      "evidence_url": "https://doi.org/10.3390/s16091425",
+      "evidence_locator": "Primary abstract and byline; thematic classification is curator interpretation",
+      "epistemic_status": "documented"
+    },
+    {
+      "id": "thesis-author-jean-carlos-cardozo-da-silva-authored-stator-sparse-2016",
+      "source": "author:jean-carlos-cardozo-da-silva",
+      "target": "stator-sparse-2016",
+      "relation": "authored",
+      "evidence": "Uses a finite-element hotspot dictionary and sparse reconstruction with distributed fibre temperatures to monitor generator stators.",
+      "evidence_url": "https://doi.org/10.3390/s16091425",
+      "evidence_locator": "Primary abstract and byline; thematic classification is curator interpretation",
+      "epistemic_status": "documented"
+    },
+    {
+      "id": "thesis-stator-sparse-2016-classified-in-field-compressed-sensing",
+      "source": "stator-sparse-2016",
+      "target": "field:compressed-sensing",
+      "relation": "classified_in",
+      "evidence": "Uses a finite-element hotspot dictionary and sparse reconstruction with distributed fibre temperatures to monitor generator stators.",
+      "evidence_url": "https://doi.org/10.3390/s16091425",
+      "evidence_locator": "Primary abstract and byline; thematic classification is curator interpretation",
+      "epistemic_status": "curated_classification"
+    },
+    {
+      "id": "thesis-stator-sparse-2016-classified-in-field-inverse-problems",
+      "source": "stator-sparse-2016",
+      "target": "field:inverse-problems",
+      "relation": "classified_in",
+      "evidence": "Uses a finite-element hotspot dictionary and sparse reconstruction with distributed fibre temperatures to monitor generator stators.",
+      "evidence_url": "https://doi.org/10.3390/s16091425",
+      "evidence_locator": "Primary abstract and byline; thematic classification is curator interpretation",
+      "epistemic_status": "curated_classification"
+    },
+    {
+      "id": "thesis-stator-sparse-2016-classified-in-field-structural-monitoring",
+      "source": "stator-sparse-2016",
+      "target": "field:structural-monitoring",
+      "relation": "classified_in",
+      "evidence": "Uses a finite-element hotspot dictionary and sparse reconstruction with distributed fibre temperatures to monitor generator stators.",
+      "evidence_url": "https://doi.org/10.3390/s16091425",
+      "evidence_locator": "Primary abstract and byline; thematic classification is curator interpretation",
+      "epistemic_status": "curated_classification"
+    },
+    {
+      "id": "thesis-stator-sparse-2016-classified-in-field-physical-simulation",
+      "source": "stator-sparse-2016",
+      "target": "field:physical-simulation",
+      "relation": "classified_in",
+      "evidence": "Uses a finite-element hotspot dictionary and sparse reconstruction with distributed fibre temperatures to monitor generator stators.",
+      "evidence_url": "https://doi.org/10.3390/s16091425",
+      "evidence_locator": "Primary abstract and byline; thematic classification is curator interpretation",
+      "epistemic_status": "curated_classification"
+    },
+    {
+      "id": "thesis-stator-sparse-2016-bridges-field-area-sparse",
+      "source": "stator-sparse-2016",
+      "target": "area:sparse",
+      "relation": "bridges_field",
+      "evidence": "Uses a finite-element hotspot dictionary and sparse reconstruction with distributed fibre temperatures to monitor generator stators.",
+      "evidence_url": "https://doi.org/10.3390/s16091425",
+      "evidence_locator": "Primary abstract and byline; thematic classification is curator interpretation",
+      "epistemic_status": "curated_classification"
+    },
+    {
+      "id": "thesis-stator-sparse-2016-bridges-field-area-engineering",
+      "source": "stator-sparse-2016",
+      "target": "area:engineering",
+      "relation": "bridges_field",
+      "evidence": "Uses a finite-element hotspot dictionary and sparse reconstruction with distributed fibre temperatures to monitor generator stators.",
+      "evidence_url": "https://doi.org/10.3390/s16091425",
+      "evidence_locator": "Primary abstract and byline; thematic classification is curator interpretation",
+      "epistemic_status": "curated_classification"
+    },
+    {
+      "id": "thesis-stator-sparse-2016-bridges-field-area-inverse",
+      "source": "stator-sparse-2016",
+      "target": "area:inverse",
+      "relation": "bridges_field",
+      "evidence": "Uses a finite-element hotspot dictionary and sparse reconstruction with distributed fibre temperatures to monitor generator stators.",
+      "evidence_url": "https://doi.org/10.3390/s16091425",
+      "evidence_locator": "Primary abstract and byline; thematic classification is curator interpretation",
+      "epistemic_status": "curated_classification"
+    },
+    {
+      "id": "thesis-stator-sparse-2016-bridges-field-area-timeseries",
+      "source": "stator-sparse-2016",
+      "target": "area:timeseries",
+      "relation": "bridges_field",
+      "evidence": "Uses a finite-element hotspot dictionary and sparse reconstruction with distributed fibre temperatures to monitor generator stators.",
+      "evidence_url": "https://doi.org/10.3390/s16091425",
+      "evidence_locator": "Primary abstract and byline; thematic classification is curator interpretation",
+      "epistemic_status": "curated_classification"
+    },
+    {
+      "id": "thesis-author-jan-van-delden-authored-vibrating-plates-2023",
+      "source": "author:jan-van-delden",
+      "target": "vibrating-plates-2023",
+      "relation": "authored",
+      "evidence": "Introduces a 12000-geometry harmonically excited plate benchmark and Frequency-Query Operator, comparing FNO and DeepONet baselines.",
+      "evidence_url": "https://arxiv.org/abs/2310.05469",
+      "evidence_locator": "Primary abstract and byline; thematic classification is curator interpretation",
+      "epistemic_status": "documented"
+    },
+    {
+      "id": "thesis-author-julius-schultz-authored-vibrating-plates-2023",
+      "source": "author:julius-schultz",
+      "target": "vibrating-plates-2023",
+      "relation": "authored",
+      "evidence": "Introduces a 12000-geometry harmonically excited plate benchmark and Frequency-Query Operator, comparing FNO and DeepONet baselines.",
+      "evidence_url": "https://arxiv.org/abs/2310.05469",
+      "evidence_locator": "Primary abstract and byline; thematic classification is curator interpretation",
+      "epistemic_status": "documented"
+    },
+    {
+      "id": "thesis-author-christopher-blech-authored-vibrating-plates-2023",
+      "source": "author:christopher-blech",
+      "target": "vibrating-plates-2023",
+      "relation": "authored",
+      "evidence": "Introduces a 12000-geometry harmonically excited plate benchmark and Frequency-Query Operator, comparing FNO and DeepONet baselines.",
+      "evidence_url": "https://arxiv.org/abs/2310.05469",
+      "evidence_locator": "Primary abstract and byline; thematic classification is curator interpretation",
+      "epistemic_status": "documented"
+    },
+    {
+      "id": "thesis-author-sabine-c-langer-authored-vibrating-plates-2023",
+      "source": "author:sabine-c-langer",
+      "target": "vibrating-plates-2023",
+      "relation": "authored",
+      "evidence": "Introduces a 12000-geometry harmonically excited plate benchmark and Frequency-Query Operator, comparing FNO and DeepONet baselines.",
+      "evidence_url": "https://arxiv.org/abs/2310.05469",
+      "evidence_locator": "Primary abstract and byline; thematic classification is curator interpretation",
+      "epistemic_status": "documented"
+    },
+    {
+      "id": "thesis-author-timo-luddecke-authored-vibrating-plates-2023",
+      "source": "author:timo-luddecke",
+      "target": "vibrating-plates-2023",
+      "relation": "authored",
+      "evidence": "Introduces a 12000-geometry harmonically excited plate benchmark and Frequency-Query Operator, comparing FNO and DeepONet baselines.",
+      "evidence_url": "https://arxiv.org/abs/2310.05469",
+      "evidence_locator": "Primary abstract and byline; thematic classification is curator interpretation",
+      "epistemic_status": "documented"
+    },
+    {
+      "id": "thesis-vibrating-plates-2023-classified-in-field-operator-learning",
+      "source": "vibrating-plates-2023",
+      "target": "field:operator-learning",
+      "relation": "classified_in",
+      "evidence": "Introduces a 12000-geometry harmonically excited plate benchmark and Frequency-Query Operator, comparing FNO and DeepONet baselines.",
+      "evidence_url": "https://arxiv.org/abs/2310.05469",
+      "evidence_locator": "Primary abstract and byline; thematic classification is curator interpretation",
+      "epistemic_status": "curated_classification"
+    },
+    {
+      "id": "thesis-vibrating-plates-2023-classified-in-field-structural-monitoring",
+      "source": "vibrating-plates-2023",
+      "target": "field:structural-monitoring",
+      "relation": "classified_in",
+      "evidence": "Introduces a 12000-geometry harmonically excited plate benchmark and Frequency-Query Operator, comparing FNO and DeepONet baselines.",
+      "evidence_url": "https://arxiv.org/abs/2310.05469",
+      "evidence_locator": "Primary abstract and byline; thematic classification is curator interpretation",
+      "epistemic_status": "curated_classification"
+    },
+    {
+      "id": "thesis-vibrating-plates-2023-classified-in-field-physical-simulation",
+      "source": "vibrating-plates-2023",
+      "target": "field:physical-simulation",
+      "relation": "classified_in",
+      "evidence": "Introduces a 12000-geometry harmonically excited plate benchmark and Frequency-Query Operator, comparing FNO and DeepONet baselines.",
+      "evidence_url": "https://arxiv.org/abs/2310.05469",
+      "evidence_locator": "Primary abstract and byline; thematic classification is curator interpretation",
+      "epistemic_status": "curated_classification"
+    },
+    {
+      "id": "thesis-vibrating-plates-2023-classified-in-field-acoustics",
+      "source": "vibrating-plates-2023",
+      "target": "field:acoustics",
+      "relation": "classified_in",
+      "evidence": "Introduces a 12000-geometry harmonically excited plate benchmark and Frequency-Query Operator, comparing FNO and DeepONet baselines.",
+      "evidence_url": "https://arxiv.org/abs/2310.05469",
+      "evidence_locator": "Primary abstract and byline; thematic classification is curator interpretation",
+      "epistemic_status": "curated_classification"
+    },
+    {
+      "id": "thesis-vibrating-plates-2023-bridges-field-area-operators",
+      "source": "vibrating-plates-2023",
+      "target": "area:operators",
+      "relation": "bridges_field",
+      "evidence": "Introduces a 12000-geometry harmonically excited plate benchmark and Frequency-Query Operator, comparing FNO and DeepONet baselines.",
+      "evidence_url": "https://arxiv.org/abs/2310.05469",
+      "evidence_locator": "Primary abstract and byline; thematic classification is curator interpretation",
+      "epistemic_status": "curated_classification"
+    },
+    {
+      "id": "thesis-vibrating-plates-2023-bridges-field-area-engineering",
+      "source": "vibrating-plates-2023",
+      "target": "area:engineering",
+      "relation": "bridges_field",
+      "evidence": "Introduces a 12000-geometry harmonically excited plate benchmark and Frequency-Query Operator, comparing FNO and DeepONet baselines.",
+      "evidence_url": "https://arxiv.org/abs/2310.05469",
+      "evidence_locator": "Primary abstract and byline; thematic classification is curator interpretation",
+      "epistemic_status": "curated_classification"
+    },
+    {
+      "id": "thesis-vibrating-plates-2023-bridges-field-area-timeseries",
+      "source": "vibrating-plates-2023",
+      "target": "area:timeseries",
+      "relation": "bridges_field",
+      "evidence": "Introduces a 12000-geometry harmonically excited plate benchmark and Frequency-Query Operator, comparing FNO and DeepONet baselines.",
+      "evidence_url": "https://arxiv.org/abs/2310.05469",
+      "evidence_locator": "Primary abstract and byline; thematic classification is curator interpretation",
+      "epistemic_status": "curated_classification"
+    },
+    {
+      "id": "thesis-author-jinghao-li-authored-motor-thermal-li-2026",
+      "source": "author:jinghao-li",
+      "target": "motor-thermal-li-2026",
+      "relation": "authored",
+      "evidence": "Studies load-memory-enhanced FNO prediction of two-dimensional transient temperature fields in a 15 kW induction motor.",
+      "evidence_url": "https://odr.chalmers.se/items/bf1e419a-85d8-44fa-8968-13c84f76cca1",
+      "evidence_locator": "Primary abstract and byline; thematic classification is curator interpretation",
+      "epistemic_status": "documented"
+    },
+    {
+      "id": "thesis-motor-thermal-li-2026-classified-in-field-operator-learning",
+      "source": "motor-thermal-li-2026",
+      "target": "field:operator-learning",
+      "relation": "classified_in",
+      "evidence": "Studies load-memory-enhanced FNO prediction of two-dimensional transient temperature fields in a 15 kW induction motor.",
+      "evidence_url": "https://odr.chalmers.se/items/bf1e419a-85d8-44fa-8968-13c84f76cca1",
+      "evidence_locator": "Primary abstract and byline; thematic classification is curator interpretation",
+      "epistemic_status": "curated_classification"
+    },
+    {
+      "id": "thesis-motor-thermal-li-2026-classified-in-field-fourier-neural-operators",
+      "source": "motor-thermal-li-2026",
+      "target": "field:fourier-neural-operators",
+      "relation": "classified_in",
+      "evidence": "Studies load-memory-enhanced FNO prediction of two-dimensional transient temperature fields in a 15 kW induction motor.",
+      "evidence_url": "https://odr.chalmers.se/items/bf1e419a-85d8-44fa-8968-13c84f76cca1",
+      "evidence_locator": "Primary abstract and byline; thematic classification is curator interpretation",
+      "epistemic_status": "curated_classification"
+    },
+    {
+      "id": "thesis-motor-thermal-li-2026-classified-in-field-physical-simulation",
+      "source": "motor-thermal-li-2026",
+      "target": "field:physical-simulation",
+      "relation": "classified_in",
+      "evidence": "Studies load-memory-enhanced FNO prediction of two-dimensional transient temperature fields in a 15 kW induction motor.",
+      "evidence_url": "https://odr.chalmers.se/items/bf1e419a-85d8-44fa-8968-13c84f76cca1",
+      "evidence_locator": "Primary abstract and byline; thematic classification is curator interpretation",
+      "epistemic_status": "curated_classification"
+    },
+    {
+      "id": "thesis-motor-thermal-li-2026-classified-in-field-structural-monitoring",
+      "source": "motor-thermal-li-2026",
+      "target": "field:structural-monitoring",
+      "relation": "classified_in",
+      "evidence": "Studies load-memory-enhanced FNO prediction of two-dimensional transient temperature fields in a 15 kW induction motor.",
+      "evidence_url": "https://odr.chalmers.se/items/bf1e419a-85d8-44fa-8968-13c84f76cca1",
+      "evidence_locator": "Primary abstract and byline; thematic classification is curator interpretation",
+      "epistemic_status": "curated_classification"
+    },
+    {
+      "id": "thesis-motor-thermal-li-2026-bridges-field-area-operators",
+      "source": "motor-thermal-li-2026",
+      "target": "area:operators",
+      "relation": "bridges_field",
+      "evidence": "Studies load-memory-enhanced FNO prediction of two-dimensional transient temperature fields in a 15 kW induction motor.",
+      "evidence_url": "https://odr.chalmers.se/items/bf1e419a-85d8-44fa-8968-13c84f76cca1",
+      "evidence_locator": "Primary abstract and byline; thematic classification is curator interpretation",
+      "epistemic_status": "curated_classification"
+    },
+    {
+      "id": "thesis-motor-thermal-li-2026-bridges-field-area-fourier",
+      "source": "motor-thermal-li-2026",
+      "target": "area:fourier",
+      "relation": "bridges_field",
+      "evidence": "Studies load-memory-enhanced FNO prediction of two-dimensional transient temperature fields in a 15 kW induction motor.",
+      "evidence_url": "https://odr.chalmers.se/items/bf1e419a-85d8-44fa-8968-13c84f76cca1",
+      "evidence_locator": "Primary abstract and byline; thematic classification is curator interpretation",
+      "epistemic_status": "curated_classification"
+    },
+    {
+      "id": "thesis-motor-thermal-li-2026-bridges-field-area-engineering",
+      "source": "motor-thermal-li-2026",
+      "target": "area:engineering",
+      "relation": "bridges_field",
+      "evidence": "Studies load-memory-enhanced FNO prediction of two-dimensional transient temperature fields in a 15 kW induction motor.",
+      "evidence_url": "https://odr.chalmers.se/items/bf1e419a-85d8-44fa-8968-13c84f76cca1",
+      "evidence_locator": "Primary abstract and byline; thematic classification is curator interpretation",
+      "epistemic_status": "curated_classification"
+    },
+    {
+      "id": "thesis-motor-thermal-li-2026-bridges-field-area-timeseries",
+      "source": "motor-thermal-li-2026",
+      "target": "area:timeseries",
+      "relation": "bridges_field",
+      "evidence": "Studies load-memory-enhanced FNO prediction of two-dimensional transient temperature fields in a 15 kW induction motor.",
+      "evidence_url": "https://odr.chalmers.se/items/bf1e419a-85d8-44fa-8968-13c84f76cca1",
+      "evidence_locator": "Primary abstract and byline; thematic classification is curator interpretation",
+      "epistemic_status": "curated_classification"
+    },
+    {
+      "id": "thesis-author-niloofar-asefi-authored-lagrangian-assimilation-2025",
+      "source": "author:niloofar-asefi",
+      "target": "lagrangian-assimilation-2025",
+      "relation": "authored",
+      "evidence": "Combines neural operators and diffusion models for ocean-state reconstruction from very sparse Lagrangian observations.",
+      "evidence_url": "https://arxiv.org/abs/2507.06479",
+      "evidence_locator": "Primary abstract and byline; thematic classification is curator interpretation",
+      "epistemic_status": "documented"
+    },
+    {
+      "id": "thesis-author-leonard-lupin-jimenez-authored-lagrangian-assimilation-2025",
+      "source": "author:leonard-lupin-jimenez",
+      "target": "lagrangian-assimilation-2025",
+      "relation": "authored",
+      "evidence": "Combines neural operators and diffusion models for ocean-state reconstruction from very sparse Lagrangian observations.",
+      "evidence_url": "https://arxiv.org/abs/2507.06479",
+      "evidence_locator": "Primary abstract and byline; thematic classification is curator interpretation",
+      "epistemic_status": "documented"
+    },
+    {
+      "id": "thesis-author-tianning-wu-authored-lagrangian-assimilation-2025",
+      "source": "author:tianning-wu",
+      "target": "lagrangian-assimilation-2025",
+      "relation": "authored",
+      "evidence": "Combines neural operators and diffusion models for ocean-state reconstruction from very sparse Lagrangian observations.",
+      "evidence_url": "https://arxiv.org/abs/2507.06479",
+      "evidence_locator": "Primary abstract and byline; thematic classification is curator interpretation",
+      "epistemic_status": "documented"
+    },
+    {
+      "id": "thesis-author-ruoying-he-authored-lagrangian-assimilation-2025",
+      "source": "author:ruoying-he",
+      "target": "lagrangian-assimilation-2025",
+      "relation": "authored",
+      "evidence": "Combines neural operators and diffusion models for ocean-state reconstruction from very sparse Lagrangian observations.",
+      "evidence_url": "https://arxiv.org/abs/2507.06479",
+      "evidence_locator": "Primary abstract and byline; thematic classification is curator interpretation",
+      "epistemic_status": "documented"
+    },
+    {
+      "id": "thesis-author-chattopadhyay-ashesh-authored-lagrangian-assimilation-2025",
+      "source": "author:chattopadhyay-ashesh",
+      "target": "lagrangian-assimilation-2025",
+      "relation": "authored",
+      "evidence": "Combines neural operators and diffusion models for ocean-state reconstruction from very sparse Lagrangian observations.",
+      "evidence_url": "https://arxiv.org/abs/2507.06479",
+      "evidence_locator": "Primary abstract and byline; thematic classification is curator interpretation",
+      "epistemic_status": "documented"
+    },
+    {
+      "id": "thesis-lagrangian-assimilation-2025-classified-in-field-operator-learning",
+      "source": "lagrangian-assimilation-2025",
+      "target": "field:operator-learning",
+      "relation": "classified_in",
+      "evidence": "Combines neural operators and diffusion models for ocean-state reconstruction from very sparse Lagrangian observations.",
+      "evidence_url": "https://arxiv.org/abs/2507.06479",
+      "evidence_locator": "Primary abstract and byline; thematic classification is curator interpretation",
+      "epistemic_status": "curated_classification"
+    },
+    {
+      "id": "thesis-lagrangian-assimilation-2025-classified-in-field-inverse-problems",
+      "source": "lagrangian-assimilation-2025",
+      "target": "field:inverse-problems",
+      "relation": "classified_in",
+      "evidence": "Combines neural operators and diffusion models for ocean-state reconstruction from very sparse Lagrangian observations.",
+      "evidence_url": "https://arxiv.org/abs/2507.06479",
+      "evidence_locator": "Primary abstract and byline; thematic classification is curator interpretation",
+      "epistemic_status": "curated_classification"
+    },
+    {
+      "id": "thesis-lagrangian-assimilation-2025-classified-in-field-sampling",
+      "source": "lagrangian-assimilation-2025",
+      "target": "field:sampling",
+      "relation": "classified_in",
+      "evidence": "Combines neural operators and diffusion models for ocean-state reconstruction from very sparse Lagrangian observations.",
+      "evidence_url": "https://arxiv.org/abs/2507.06479",
+      "evidence_locator": "Primary abstract and byline; thematic classification is curator interpretation",
+      "epistemic_status": "curated_classification"
+    },
+    {
+      "id": "thesis-lagrangian-assimilation-2025-classified-in-field-weather",
+      "source": "lagrangian-assimilation-2025",
+      "target": "field:weather",
+      "relation": "classified_in",
+      "evidence": "Combines neural operators and diffusion models for ocean-state reconstruction from very sparse Lagrangian observations.",
+      "evidence_url": "https://arxiv.org/abs/2507.06479",
+      "evidence_locator": "Primary abstract and byline; thematic classification is curator interpretation",
+      "epistemic_status": "curated_classification"
+    },
+    {
+      "id": "thesis-lagrangian-assimilation-2025-classified-in-field-robotics",
+      "source": "lagrangian-assimilation-2025",
+      "target": "field:robotics",
+      "relation": "classified_in",
+      "evidence": "Combines neural operators and diffusion models for ocean-state reconstruction from very sparse Lagrangian observations.",
+      "evidence_url": "https://arxiv.org/abs/2507.06479",
+      "evidence_locator": "Primary abstract and byline; thematic classification is curator interpretation",
+      "epistemic_status": "curated_classification"
+    },
+    {
+      "id": "thesis-lagrangian-assimilation-2025-bridges-field-area-operators",
+      "source": "lagrangian-assimilation-2025",
+      "target": "area:operators",
+      "relation": "bridges_field",
+      "evidence": "Combines neural operators and diffusion models for ocean-state reconstruction from very sparse Lagrangian observations.",
+      "evidence_url": "https://arxiv.org/abs/2507.06479",
+      "evidence_locator": "Primary abstract and byline; thematic classification is curator interpretation",
+      "epistemic_status": "curated_classification"
+    },
+    {
+      "id": "thesis-lagrangian-assimilation-2025-bridges-field-area-sparse",
+      "source": "lagrangian-assimilation-2025",
+      "target": "area:sparse",
+      "relation": "bridges_field",
+      "evidence": "Combines neural operators and diffusion models for ocean-state reconstruction from very sparse Lagrangian observations.",
+      "evidence_url": "https://arxiv.org/abs/2507.06479",
+      "evidence_locator": "Primary abstract and byline; thematic classification is curator interpretation",
+      "epistemic_status": "curated_classification"
+    },
+    {
+      "id": "thesis-lagrangian-assimilation-2025-bridges-field-area-inverse",
+      "source": "lagrangian-assimilation-2025",
+      "target": "area:inverse",
+      "relation": "bridges_field",
+      "evidence": "Combines neural operators and diffusion models for ocean-state reconstruction from very sparse Lagrangian observations.",
+      "evidence_url": "https://arxiv.org/abs/2507.06479",
+      "evidence_locator": "Primary abstract and byline; thematic classification is curator interpretation",
+      "epistemic_status": "curated_classification"
+    },
+    {
+      "id": "thesis-lagrangian-assimilation-2025-bridges-field-area-robotics",
+      "source": "lagrangian-assimilation-2025",
+      "target": "area:robotics",
+      "relation": "bridges_field",
+      "evidence": "Combines neural operators and diffusion models for ocean-state reconstruction from very sparse Lagrangian observations.",
+      "evidence_url": "https://arxiv.org/abs/2507.06479",
+      "evidence_locator": "Primary abstract and byline; thematic classification is curator interpretation",
+      "epistemic_status": "curated_classification"
+    },
+    {
+      "id": "thesis-lagrangian-assimilation-2025-bridges-field-area-weather",
+      "source": "lagrangian-assimilation-2025",
+      "target": "area:weather",
+      "relation": "bridges_field",
+      "evidence": "Combines neural operators and diffusion models for ocean-state reconstruction from very sparse Lagrangian observations.",
+      "evidence_url": "https://arxiv.org/abs/2507.06479",
+      "evidence_locator": "Primary abstract and byline; thematic classification is curator interpretation",
+      "epistemic_status": "curated_classification"
+    },
+    {
+      "id": "thesis-author-yuexin-bian-authored-ventilation-control-2025",
+      "source": "author:yuexin-bian",
+      "target": "ventilation-control-2025",
+      "relation": "authored",
+      "evidence": "Uses neural operator transformer models of airflow and carbon dioxide fields inside optimization-based ventilation control, with an open CFD-based benchmark.",
+      "evidence_url": "https://doi.org/10.1016/j.apenergy.2025.127035",
+      "evidence_locator": "Primary abstract and byline; thematic classification is curator interpretation",
+      "epistemic_status": "documented"
+    },
+    {
+      "id": "thesis-author-oliver-schmidt-authored-ventilation-control-2025",
+      "source": "author:oliver-schmidt",
+      "target": "ventilation-control-2025",
+      "relation": "authored",
+      "evidence": "Uses neural operator transformer models of airflow and carbon dioxide fields inside optimization-based ventilation control, with an open CFD-based benchmark.",
+      "evidence_url": "https://doi.org/10.1016/j.apenergy.2025.127035",
+      "evidence_locator": "Primary abstract and byline; thematic classification is curator interpretation",
+      "epistemic_status": "documented"
+    },
+    {
+      "id": "thesis-author-shi-yuanyuan-authored-ventilation-control-2025",
+      "source": "author:shi-yuanyuan",
+      "target": "ventilation-control-2025",
+      "relation": "authored",
+      "evidence": "Uses neural operator transformer models of airflow and carbon dioxide fields inside optimization-based ventilation control, with an open CFD-based benchmark.",
+      "evidence_url": "https://doi.org/10.1016/j.apenergy.2025.127035",
+      "evidence_locator": "Primary abstract and byline; thematic classification is curator interpretation",
+      "epistemic_status": "documented"
+    },
+    {
+      "id": "thesis-ventilation-control-2025-classified-in-field-operator-learning",
+      "source": "ventilation-control-2025",
+      "target": "field:operator-learning",
+      "relation": "classified_in",
+      "evidence": "Uses neural operator transformer models of airflow and carbon dioxide fields inside optimization-based ventilation control, with an open CFD-based benchmark.",
+      "evidence_url": "https://doi.org/10.1016/j.apenergy.2025.127035",
+      "evidence_locator": "Primary abstract and byline; thematic classification is curator interpretation",
+      "epistemic_status": "curated_classification"
+    },
+    {
+      "id": "thesis-ventilation-control-2025-classified-in-field-control",
+      "source": "ventilation-control-2025",
+      "target": "field:control",
+      "relation": "classified_in",
+      "evidence": "Uses neural operator transformer models of airflow and carbon dioxide fields inside optimization-based ventilation control, with an open CFD-based benchmark.",
+      "evidence_url": "https://doi.org/10.1016/j.apenergy.2025.127035",
+      "evidence_locator": "Primary abstract and byline; thematic classification is curator interpretation",
+      "epistemic_status": "curated_classification"
+    },
+    {
+      "id": "thesis-ventilation-control-2025-classified-in-field-physical-simulation",
+      "source": "ventilation-control-2025",
+      "target": "field:physical-simulation",
+      "relation": "classified_in",
+      "evidence": "Uses neural operator transformer models of airflow and carbon dioxide fields inside optimization-based ventilation control, with an open CFD-based benchmark.",
+      "evidence_url": "https://doi.org/10.1016/j.apenergy.2025.127035",
+      "evidence_locator": "Primary abstract and byline; thematic classification is curator interpretation",
+      "epistemic_status": "curated_classification"
+    },
+    {
+      "id": "thesis-ventilation-control-2025-bridges-field-area-operators",
+      "source": "ventilation-control-2025",
+      "target": "area:operators",
+      "relation": "bridges_field",
+      "evidence": "Uses neural operator transformer models of airflow and carbon dioxide fields inside optimization-based ventilation control, with an open CFD-based benchmark.",
+      "evidence_url": "https://doi.org/10.1016/j.apenergy.2025.127035",
+      "evidence_locator": "Primary abstract and byline; thematic classification is curator interpretation",
+      "epistemic_status": "curated_classification"
+    },
+    {
+      "id": "thesis-ventilation-control-2025-bridges-field-area-engineering",
+      "source": "ventilation-control-2025",
+      "target": "area:engineering",
+      "relation": "bridges_field",
+      "evidence": "Uses neural operator transformer models of airflow and carbon dioxide fields inside optimization-based ventilation control, with an open CFD-based benchmark.",
+      "evidence_url": "https://doi.org/10.1016/j.apenergy.2025.127035",
+      "evidence_locator": "Primary abstract and byline; thematic classification is curator interpretation",
+      "epistemic_status": "curated_classification"
+    },
+    {
+      "id": "thesis-ventilation-control-2025-bridges-field-area-robotics",
+      "source": "ventilation-control-2025",
+      "target": "area:robotics",
+      "relation": "bridges_field",
+      "evidence": "Uses neural operator transformer models of airflow and carbon dioxide fields inside optimization-based ventilation control, with an open CFD-based benchmark.",
+      "evidence_url": "https://doi.org/10.1016/j.apenergy.2025.127035",
+      "evidence_locator": "Primary abstract and byline; thematic classification is curator interpretation",
+      "epistemic_status": "curated_classification"
+    },
+    {
+      "id": "thesis-author-yujie-gan-authored-structures-distributed-2025",
+      "source": "author:yujie-gan",
+      "target": "structures-distributed-2025",
+      "relation": "authored",
+      "evidence": "Uses Fourier neural operators and spatial upsampling to identify impact forces from sparse structural vibration sensors.",
+      "evidence_url": "https://doi.org/10.1016/j.jsv.2025.119395",
+      "evidence_locator": "Primary abstract and byline; thematic classification is curator interpretation",
+      "epistemic_status": "documented"
+    },
+    {
+      "id": "thesis-author-haoze-song-authored-structures-distributed-2025",
+      "source": "author:haoze-song",
+      "target": "structures-distributed-2025",
+      "relation": "authored",
+      "evidence": "Uses Fourier neural operators and spatial upsampling to identify impact forces from sparse structural vibration sensors.",
+      "evidence_url": "https://doi.org/10.1016/j.jsv.2025.119395",
+      "evidence_locator": "Primary abstract and byline; thematic classification is curator interpretation",
+      "epistemic_status": "documented"
+    },
+    {
+      "id": "thesis-author-zhilu-lai-authored-structures-distributed-2025",
+      "source": "author:zhilu-lai",
+      "target": "structures-distributed-2025",
+      "relation": "authored",
+      "evidence": "Uses Fourier neural operators and spatial upsampling to identify impact forces from sparse structural vibration sensors.",
+      "evidence_url": "https://doi.org/10.1016/j.jsv.2025.119395",
+      "evidence_locator": "Primary abstract and byline; thematic classification is curator interpretation",
+      "epistemic_status": "documented"
+    },
+    {
+      "id": "thesis-structures-distributed-2025-classified-in-field-operator-learning",
+      "source": "structures-distributed-2025",
+      "target": "field:operator-learning",
+      "relation": "classified_in",
+      "evidence": "Uses Fourier neural operators and spatial upsampling to identify impact forces from sparse structural vibration sensors.",
+      "evidence_url": "https://doi.org/10.1016/j.jsv.2025.119395",
+      "evidence_locator": "Primary abstract and byline; thematic classification is curator interpretation",
+      "epistemic_status": "curated_classification"
+    },
+    {
+      "id": "thesis-structures-distributed-2025-classified-in-field-fourier-neural-operators",
+      "source": "structures-distributed-2025",
+      "target": "field:fourier-neural-operators",
+      "relation": "classified_in",
+      "evidence": "Uses Fourier neural operators and spatial upsampling to identify impact forces from sparse structural vibration sensors.",
+      "evidence_url": "https://doi.org/10.1016/j.jsv.2025.119395",
+      "evidence_locator": "Primary abstract and byline; thematic classification is curator interpretation",
+      "epistemic_status": "curated_classification"
+    },
+    {
+      "id": "thesis-structures-distributed-2025-classified-in-field-inverse-problems",
+      "source": "structures-distributed-2025",
+      "target": "field:inverse-problems",
+      "relation": "classified_in",
+      "evidence": "Uses Fourier neural operators and spatial upsampling to identify impact forces from sparse structural vibration sensors.",
+      "evidence_url": "https://doi.org/10.1016/j.jsv.2025.119395",
+      "evidence_locator": "Primary abstract and byline; thematic classification is curator interpretation",
+      "epistemic_status": "curated_classification"
+    },
+    {
+      "id": "thesis-structures-distributed-2025-classified-in-field-structural-monitoring",
+      "source": "structures-distributed-2025",
+      "target": "field:structural-monitoring",
+      "relation": "classified_in",
+      "evidence": "Uses Fourier neural operators and spatial upsampling to identify impact forces from sparse structural vibration sensors.",
+      "evidence_url": "https://doi.org/10.1016/j.jsv.2025.119395",
+      "evidence_locator": "Primary abstract and byline; thematic classification is curator interpretation",
+      "epistemic_status": "curated_classification"
+    },
+    {
+      "id": "thesis-structures-distributed-2025-bridges-field-area-operators",
+      "source": "structures-distributed-2025",
+      "target": "area:operators",
+      "relation": "bridges_field",
+      "evidence": "Uses Fourier neural operators and spatial upsampling to identify impact forces from sparse structural vibration sensors.",
+      "evidence_url": "https://doi.org/10.1016/j.jsv.2025.119395",
+      "evidence_locator": "Primary abstract and byline; thematic classification is curator interpretation",
+      "epistemic_status": "curated_classification"
+    },
+    {
+      "id": "thesis-structures-distributed-2025-bridges-field-area-fourier",
+      "source": "structures-distributed-2025",
+      "target": "area:fourier",
+      "relation": "bridges_field",
+      "evidence": "Uses Fourier neural operators and spatial upsampling to identify impact forces from sparse structural vibration sensors.",
+      "evidence_url": "https://doi.org/10.1016/j.jsv.2025.119395",
+      "evidence_locator": "Primary abstract and byline; thematic classification is curator interpretation",
+      "epistemic_status": "curated_classification"
+    },
+    {
+      "id": "thesis-structures-distributed-2025-bridges-field-area-inverse",
+      "source": "structures-distributed-2025",
+      "target": "area:inverse",
+      "relation": "bridges_field",
+      "evidence": "Uses Fourier neural operators and spatial upsampling to identify impact forces from sparse structural vibration sensors.",
+      "evidence_url": "https://doi.org/10.1016/j.jsv.2025.119395",
+      "evidence_locator": "Primary abstract and byline; thematic classification is curator interpretation",
+      "epistemic_status": "curated_classification"
+    },
+    {
+      "id": "thesis-structures-distributed-2025-bridges-field-area-timeseries",
+      "source": "structures-distributed-2025",
+      "target": "area:timeseries",
+      "relation": "bridges_field",
+      "evidence": "Uses Fourier neural operators and spatial upsampling to identify impact forces from sparse structural vibration sensors.",
+      "evidence_url": "https://doi.org/10.1016/j.jsv.2025.119395",
+      "evidence_locator": "Primary abstract and byline; thematic classification is curator interpretation",
       "epistemic_status": "curated_classification"
     }
   ],
