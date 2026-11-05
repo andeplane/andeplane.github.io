@@ -86,7 +86,6 @@ export class VoyageHud {
       <div class="menu-atmosphere" aria-hidden="true"><div class="moon"></div><div class="distant-rocks"></div><div class="hero-ship">${pirateShipArt()}</div><div class="ocean-mist"></div><div class="menu-embers"></div></div>
       <div id="main-menu" class="menu-page">${homeMenu({
         title: ["Broadside"],
-        eyebrow: "A PIRATE’S TREASURE ADVENTURE",
         description: "Brave the seas. Bring home the treasure.",
         illustration: pirateShipArt(),
         primary: { id: "menu-play", label: "Play", detail: "Choose your next voyage" },
