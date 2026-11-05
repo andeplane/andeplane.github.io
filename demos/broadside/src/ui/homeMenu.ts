@@ -8,6 +8,8 @@ interface HomeAction extends Destination { label: string; detail?: string; }
 interface TreasureDestination extends Destination { title: string; value: string; detail: string; icon: "ship" | "chest"; }
 export interface HomeMenuOptions {
   title: readonly string[];
+  /** Accepted for older entrypoints; the compact home no longer renders it. */
+  eyebrow?: string;
   description: string;
   illustration: string;
   primary: HomeAction;

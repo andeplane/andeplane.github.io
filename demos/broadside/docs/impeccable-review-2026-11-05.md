@@ -12,6 +12,8 @@ Reviewed 5 November 2026 using [Impeccable](https://github.com/pbakaus/impeccabl
 
 The existing typefaces, colors, ship artwork, navigation hierarchy, gold reward rules, saves and gameplay are preserved. No assets, runtime dependencies, global skills or automatic hooks were installed in the games.
 
+Merge review found that the open Captain Reader PR #123 still supplies `eyebrow` to the shared home component. The field remains optional in `HomeMenuOptions` for compatibility; it is not rendered. This changes only the TypeScript contract and leaves the reviewed UI unchanged.
+
 ## Browser evidence
 
 All screenshots were captured with an isolated **headless agent-browser Chromium** session. The matrix includes both home screens with empty saves and large saves (Captain Calculus: 20 chests, 1,000,000 banked gold and 120 cleared levels; Broadside: all 36 levels cleared).
