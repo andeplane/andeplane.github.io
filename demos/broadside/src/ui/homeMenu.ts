@@ -8,7 +8,8 @@ interface HomeAction extends Destination { label: string; detail?: string; }
 interface TreasureDestination extends Destination { title: string; value: string; detail: string; icon: "ship" | "chest"; }
 export interface HomeMenuOptions {
   title: readonly string[];
-  eyebrow: string;
+  /** Accepted for older entrypoints; the compact home no longer renders it. */
+  eyebrow?: string;
   description: string;
   illustration: string;
   primary: HomeAction;
@@ -24,7 +25,7 @@ export function homeMenu(options: HomeMenuOptions): string {
   const destination = (item: TreasureDestination) => `<button${target(item)} class="pirate-home-destination" data-home-destination="${item.icon}"><span class="pirate-home-destination-icon">${icon(item.icon)}</span><span class="pirate-home-destination-copy"><span class="pirate-home-destination-title">${escape(item.title)}</span><strong>${escape(item.value)}</strong><small>${escape(item.detail)}</small></span>${icon("arrow", "pirate-home-card-arrow")}</button>`;
   return `<div class="pirate-home">
     <div class="pirate-home-layout">
-      <div class="pirate-home-intro"><p class="pirate-home-eyebrow">${escape(options.eyebrow)}</p><h1 class="pirate-home-title">${options.title.map(line => `<span>${escape(line)}</span>`).join("")}</h1><p class="pirate-home-description">${escape(options.description)}</p></div>
+      <div class="pirate-home-intro"><h1 class="pirate-home-title">${options.title.map(line => `<span>${escape(line)}</span>`).join("")}</h1><p class="pirate-home-description">${escape(options.description)}</p></div>
       <div class="pirate-home-art" aria-hidden="true"><span class="pirate-home-moon"></span><span class="pirate-home-horizon"></span><div class="pirate-home-ship">${options.illustration}</div></div>
       <div class="pirate-home-controls">
         <nav class="pirate-home-play" aria-label="Play"><button${target(options.primary)} class="pirate-home-primary"><span><strong>${escape(options.primary.label)}</strong>${options.primary.detail ? `<small>${escape(options.primary.detail)}</small>` : ""}</span>${icon("arrow")}</button>${options.chooseLevels ? `<button${target(options.chooseLevels)} class="pirate-home-choose">${icon("map")} ${escape(options.chooseLevels.label)}</button>` : ""}</nav>

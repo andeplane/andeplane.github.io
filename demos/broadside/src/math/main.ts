@@ -99,7 +99,6 @@ function home(): string {
   const canResume = !!run;
   return `<section class="pirate-home-shell">${homeMenu({
     title: ["Captain", "Calculus"],
-    eyebrow: "A PIRATE MATH ADVENTURE",
     description: "Solve a little. Bring home a fortune.",
     illustration: pirateShipArt("calculus"),
     primary: canResume
