@@ -169,6 +169,7 @@ public class ReadingSpeechPlugin: CAPPlugin, CAPBridgedPlugin, AVSpeechSynthesiz
                                     }
                                 }
                                 self.engine.prepare(); try self.engine.start()
+                                self.timer = Timer.scheduledTimer(withTimeInterval: 45, repeats: false) { [weak self] _ in self?.failure("NO_CLEAR_SPEECH") }
                                 call.resolve()
                             } catch { self.clear(); call.reject("AUDIO_UNAVAILABLE") }
                         }

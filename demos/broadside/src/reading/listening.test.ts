@@ -21,50 +21,54 @@ const send=(text:string,final=false,id=token())=>runtime.result!({kind:"transcri
 const target=()=>document.querySelector('.reading-word')!.textContent!;
 const flush=async()=>{await vi.advanceTimersByTimeAsync(0);};
 const saved=()=>JSON.parse(sessionStorage.getItem("broadside.reading.v1")!);
-it("listens continuously, accepts live speech once, and always trusts Next without an adult gate",async()=>{
+it("completes device readings hands-free, rewards only correct speech, and suspends safely",async()=>{
  vi.useFakeTimers();history.replaceState(null,"","/reading/?qa=true&fresh=1&language=en&view=reading");
  Object.defineProperty(document,"hidden",{value:false,configurable:true});
  document.body.innerHTML='<canvas id="reader-world" hidden></canvas><main id="reader"></main>';
  await import("./main");await flush();
  expect(runtime.start).toHaveBeenCalledTimes(1);
- expect(document.querySelector('[data-action="stop-reading"]')).toBeNull();
- expect(document.querySelector('[data-action="adult"]')).toBeNull();
- expect(document.querySelector('[data-action="next"]')).not.toBeNull();
- // An unmatched utterance restarts by itself, with no record/finish button.
+ expect(document.querySelector('.reading-actions')).toBeNull();
+ expect(document.querySelector('[data-action="next"]')).toBeNull();
  send("zzzz",true);await vi.advanceTimersByTimeAsync(400);
- expect(runtime.start).toHaveBeenCalledTimes(2);
+ expect(runtime.start).toHaveBeenCalledTimes(2);expect(saved().practised).toBe(0);
  const old=token(),word=target();send(word,false);await flush();
  expect(document.querySelector('.reading-paper.accepted')).not.toBeNull();expect(saved().practised).toBe(1);
  send(word,true,old);expect(saved().practised).toBe(1);
- click("next");await flush();expect(runtime.start).toHaveBeenCalledTimes(3);
- send(word,true,old);expect(saved().practised).toBe(1);
- // A manual Next awards once and advances in one tap, including while listening is paused.
- click("cancel-reading");const beforePause=runtime.start.mock.calls.length;
- click("next");await vi.advanceTimersByTimeAsync(5000);
- expect(runtime.start).toHaveBeenCalledTimes(beforePause);expect(saved().practised).toBe(2);
- expect(saved().tracks['en-1'].run.evidence).toEqual(["independent","self"]);
- click("listen");await flush();
- // Do not recognize the example voice; resume only after playback finishes.
- let finishOldExample!:()=>void,finishExample!:()=>void;runtime.speak.mockImplementationOnce(()=>new Promise<void>(r=>{finishOldExample=r;})).mockImplementationOnce(()=>new Promise<void>(r=>{finishExample=r;}));
- const exampleToken=token(),exampleWord=target();click("example");await flush();
- click("example");await flush();finishOldExample();await flush();
- const beforeExample=runtime.start.mock.calls.length;send(exampleWord,false,exampleToken);
- await vi.advanceTimersByTimeAsync(5000);expect(runtime.start).toHaveBeenCalledTimes(beforeExample);expect(saved().practised).toBe(2);
- finishExample();await flush();await vi.advanceTimersByTimeAsync(400);expect(runtime.start).toHaveBeenCalledTimes(beforeExample+1);
- // Background cancels pending capture and foreground resumes automatically.
- runtime.active!({isActive:false});const beforeBackground=runtime.start.mock.calls.length;
- await vi.advanceTimersByTimeAsync(5000);expect(runtime.start).toHaveBeenCalledTimes(beforeBackground);
+ await vi.advanceTimersByTimeAsync(1100);expect(runtime.start).toHaveBeenCalledTimes(3);
+ send(target(),true,old);expect(saved().practised).toBe(1);
+ // Background cancels pending capture. Late results cannot earn anything.
+ const backgroundToken=token();runtime.active!({isActive:false});const beforeBackground=runtime.start.mock.calls.length;
+ send(target(),true,backgroundToken);await vi.advanceTimersByTimeAsync(5000);
+ expect(saved().practised).toBe(1);expect(runtime.start).toHaveBeenCalledTimes(beforeBackground);
  runtime.active!({isActive:true});await vi.advanceTimersByTimeAsync(750);expect(runtime.start).toHaveBeenCalledTimes(beforeBackground+1);
- // Navigation cancels automatic restarts and rejects late speech.
- send("zzzz",true);const leavingToken=token();click("back");const beforeBack=runtime.start.mock.calls.length;
- await vi.advanceTimersByTimeAsync(5000);expect(runtime.start).toHaveBeenCalledTimes(beforeBack);
- send(exampleWord,false,leavingToken);expect(saved().practised).toBe(2);
- // Browser/unavailable mode still has a one-tap Next and unchanged rewards.
- runtime.native=false;runtime.onDevice=false;
- document.querySelector<HTMLButtonElement>('[data-level="1"]')!.click();await flush();
- for(let i=0;i<8;i++)click("next");
+ // Suspend an accepted reward, then resume its transition without awarding twice.
+ send(target());runtime.active!({isActive:false});const beforeReward=runtime.start.mock.calls.length;
+ await vi.advanceTimersByTimeAsync(5000);expect(document.querySelector('.reading-paper.accepted')).not.toBeNull();
+ runtime.active!({isActive:true});await vi.advanceTimersByTimeAsync(1100);expect(runtime.start).toHaveBeenCalledTimes(beforeReward+1);expect(saved().practised).toBe(2);
+ // Native interruptions and unmatched final results recover automatically.
+ runtime.result!({kind:"interrupted",token:token()});await vi.advanceTimersByTimeAsync(800);
+ expect(runtime.start).toHaveBeenCalledTimes(beforeReward+2);
+ for(let i=2;i<10;i++){send(target());await vi.advanceTimersByTimeAsync(1100);}
  expect(document.querySelector('#reader')!.getAttribute('data-screen')).toBe("complete");
  expect(saved().cargo).toEqual([{id:1,area:1,gold:100}]);expect(saved().practised).toBe(10);
- expect(document.querySelector('dialog')).toBeNull();
+ // Leaving during a reward cancels the queued advance and rejects late callbacks.
+ click("next-level");await flush();send(target());const leavingToken=token();click("back");const beforeBack=runtime.start.mock.calls.length;
+ await vi.advanceTimersByTimeAsync(5000);expect(runtime.start).toHaveBeenCalledTimes(beforeBack);send(word,false,leavingToken);expect(saved().practised).toBe(11);
+ // Story questions also accept spoken answers and advance without buttons.
+ const p=saved();delete p.tracks['en-1'].run;
+ p.tracks['en-10']={cleared:0,seed:1,run:{id:p.nextRun++,level:1,language:"en",pack:10,items:Array.from({length:2},(_,i)=>({id:`story-${i}`,text:"A pirate sails.",chunks:["A pirate sails."],question:{text:"Who sails?",answers:["A pirate","A bird","A fish"],correct:0}})),index:0,chunk:0,helped:false,evidence:[],value:500,rewardVersion:1,contentVersion:1}};
+ // Resume through a fresh module to read the saved story fixture.
+ window.dispatchEvent(new Event("pagehide"));sessionStorage.setItem("broadside.reading.v1",JSON.stringify(p));
+ vi.resetModules();document.body.innerHTML='<canvas id="reader-world" hidden></canvas><main id="reader"></main>';
+ history.replaceState(null,"","/reading/?qa=true&language=en");await import("./main");await flush();click("resume");await flush();
+ send("A pirate sails.");await vi.advanceTimersByTimeAsync(1100);
+ expect(document.querySelector('#reader')!.getAttribute('data-screen')).toBe("comprehension");
+ expect(document.querySelector('[data-answer]')).toBeNull();
+ send("A bird",true);await vi.advanceTimersByTimeAsync(400);expect(document.querySelector('#reader')!.getAttribute('data-screen')).toBe("comprehension");
+ send("A pirate");await vi.advanceTimersByTimeAsync(1100);expect(document.querySelector('#reader')!.getAttribute('data-screen')).toBe("reading");
+ // Permission failure leaves a clear explanation and no tap-to-award escape hatch.
+ runtime.start.mockRejectedValueOnce(new Error("MICROPHONE_PERMISSION"));send("wrong",true);await vi.advanceTimersByTimeAsync(400);
+ expect(document.body.textContent).toContain("Enable both permissions");expect(document.querySelector('[data-action="next"]')).toBeNull();
+ const practiceBefore=saved().practised;click("back");await vi.advanceTimersByTimeAsync(5000);expect(saved().practised).toBe(practiceBefore);
  window.dispatchEvent(new Event("pagehide"));vi.useRealTimers();
 });
