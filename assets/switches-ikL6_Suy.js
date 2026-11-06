@@ -1,0 +1,1 @@
+var e=()=>{try{return globalThis.location?.search??``}catch{return``}},t=t=>t instanceof URLSearchParams?t:new URLSearchParams(t??e());function n(e,n){try{return t(n).get(e)}catch{return null}}function r(e,n){try{return t(n).has(e)}catch{return!1}}export{n,r as t};

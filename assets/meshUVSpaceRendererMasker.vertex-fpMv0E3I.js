@@ -1,0 +1,2 @@
+import{E as e}from"./math.scalar.functions-Spa4Rbhm.js";import{t}from"./shaderStore-D-XQlhUT.js";var n=e({meshUVSpaceRendererMaskerVertexShaderWGSL:()=>a}),r=`meshUVSpaceRendererMaskerVertexShader`,i=`attribute uv: vec2f;varying vUV: vec2f;@vertex
+fn main(input : VertexInputs)->FragmentInputs {vertexOutputs.position= vec4f( vec2f(vertexInputs.uv.x,vertexInputs.uv.y)*2.0-1.0,0.,1.0);vertexOutputs.vUV=vertexInputs.uv;}`;t.ShadersStoreWGSL[r]||(t.ShadersStoreWGSL[r]=i);var a={name:r,shader:i};export{n,a as t};

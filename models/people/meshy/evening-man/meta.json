@@ -1,0 +1,285 @@
+{
+ "id": "evening-man",
+ "issue": 878,
+ "prompt": "Photorealistic full-length studio photograph of one English gentleman of about 45 with a neat moustache and short side-parted hair, in 1912 first-class white-tie evening dress: a black wool tailcoat cut away at the waist with long tails behind, a white pique waistcoat, a white pique bow tie, a stiff wing collar, a starched white dress shirt with studs, black trousers with a silk braid down the outer seam, black patent leather shoes. The whole body from the top of the head to the soles of the feet is in frame, front view, facing the camera, standing in a relaxed A-pose with the arms held a little away from the body, empty open hands, feet slightly apart and fully visible. Plain light grey seamless background, soft even studio lighting, no cast shadows, no props, no text, no logos. Historically accurate 1912 Edwardian clothing and hair, a natural realistic face, sharp fabric detail.",
+ "height_m": 1.76,
+ "measured_height_m": 1.76,
+ "tasks": {
+  "text_to_image": {
+   "task_id": "01a162be-df6e-7410-b0ac-c93a4d09f4f3",
+   "endpoint": "/v1/text-to-image",
+   "request": {
+    "ai_model": "nano-banana-pro",
+    "prompt": "Photorealistic full-length studio photograph of one English gentleman of about 45 with a neat moustache and short side-parted hair, in 1912 first-class white-tie evening dress: a black wool tailcoat cut away at the waist with long tails behind, a white pique waistcoat, a white pique bow tie, a stiff wing collar, a starched white dress shirt with studs, black trousers with a silk braid down the outer seam, black patent leather shoes. The whole body from the top of the head to the soles of the feet is in frame, front view, facing the camera, standing in a relaxed A-pose with the arms held a little away from the body, empty open hands, feet slightly apart and fully visible. Plain light grey seamless background, soft even studio lighting, no cast shadows, no props, no text, no logos. Historically accurate 1912 Edwardian clothing and hair, a natural realistic face, sharp fabric detail.",
+    "pose_mode": "a-pose"
+   },
+   "credits": 9
+  },
+  "image_to_3d": {
+   "task_id": "01a162c0-6837-74c8-af53-a82782e826d7",
+   "endpoint": "/v1/image-to-3d",
+   "request": {
+    "model_type": "smart-topology",
+    "ai_model": "meshy-t2.5",
+    "target_polycount": 20000,
+    "pose_mode": "a-pose",
+    "should_texture": true,
+    "enable_pbr": true,
+    "texture_resolution": "4k",
+    "target_formats": [
+     "glb"
+    ],
+    "input_task_id": "01a162be-df6e-7410-b0ac-c93a4d09f4f3"
+   },
+   "credits": 15
+  },
+  "remesh_lod1": {
+   "task_id": "01a162c2-37d9-725b-aa87-d09abaaa0cec",
+   "endpoint": "/v1/remesh",
+   "request": {
+    "input_task_id": "01a162c0-6837-74c8-af53-a82782e826d7",
+    "target_formats": [
+     "glb"
+    ],
+    "topology": "triangle",
+    "target_polycount": 5000
+   },
+   "credits": 5
+  },
+  "remesh_lod2": {
+   "task_id": "01a162c3-cfd3-7687-88f3-a5e3e4b3530a",
+   "endpoint": "/v1/remesh",
+   "request": {
+    "input_task_id": "01a162c0-6837-74c8-af53-a82782e826d7",
+    "target_formats": [
+     "glb"
+    ],
+    "topology": "triangle",
+    "target_polycount": 1500
+   },
+   "credits": 5
+  },
+  "rigging": {
+   "task_id": "01a162c5-7c49-761b-b9b2-e6843403ae7d",
+   "endpoint": "/v1/rigging",
+   "request": {
+    "input_task_id": "01a162c0-6837-74c8-af53-a82782e826d7",
+    "height_meters": 1.76
+   },
+   "credits": 5
+  },
+  "animation_library": {
+   "task_id": "01a162c5-d8f1-76db-b56b-f2754399c320",
+   "endpoint": "/v1/animations",
+   "request": {
+    "rig_task_id": "01a162c5-7c49-761b-b9b2-e6843403ae7d",
+    "action_ids": [
+     32,
+     307,
+     343,
+     11,
+     56,
+     30
+    ]
+   },
+   "credits": 18
+  },
+  "animation_motion": {
+   "task_id": "01a162c6-9639-76cd-aa11-ba7fa51eeee1",
+   "endpoint": "/v1/animations",
+   "request": {
+    "rig_task_id": "01a162c5-7c49-761b-b9b2-e6843403ae7d",
+    "motion_task_id": "01a162c6-64bf-7696-b79f-2a5dfafe7033"
+   },
+   "credits": 3
+  },
+  "animation_stand_idle": {
+   "task_id": "01a162cb-d3c4-76de-aa88-9fb66d4aa1a6",
+   "endpoint": "/v1/animations",
+   "request": {
+    "rig_task_id": "01a162c5-7c49-761b-b9b2-e6843403ae7d",
+    "action_id": 243
+   },
+   "credits": 3
+  }
+ },
+ "motion_task_id": "01a162c6-64bf-7696-b79f-2a5dfafe7033",
+ "credits": 63,
+ "lods": {
+  "lod0": {
+   "file": "character.glb",
+   "triangles": 20955,
+   "rigged": true
+  },
+  "lod1": {
+   "file": "lod1.glb",
+   "triangles": 5092,
+   "rigged": true,
+   "skinning": "weights transferred in Blender from LOD0 (same skeleton)",
+   "fit_scale": 1.8532
+  },
+  "lod2": {
+   "file": "lod2.glb",
+   "triangles": 1551,
+   "rigged": true,
+   "skinning": "weights transferred in Blender from LOD0 (same skeleton)",
+   "fit_scale": 1.8532
+  }
+ },
+ "textures": {
+  "format": "webp (EXT_texture_webp), quality 90",
+  "px": {
+   "lod0": {
+    "base": 4096,
+    "other": 2048
+   },
+   "lod1": {
+    "base": 1024,
+    "other": 1024
+   },
+   "lod2": {
+    "base": 512,
+    "other": 512
+   }
+  },
+  "lod0_pbr": "normal + metallic-roughness restored from the unrigged LOD0 (same UVs)"
+ },
+ "bones": [
+  "Hips",
+  "Spine02",
+  "Spine01",
+  "Spine",
+  "neck",
+  "Head",
+  "head_end",
+  "headfront",
+  "LeftShoulder",
+  "LeftArm",
+  "LeftForeArm",
+  "LeftHand",
+  "RightShoulder",
+  "RightArm",
+  "RightForeArm",
+  "RightHand",
+  "LeftUpLeg",
+  "LeftLeg",
+  "LeftFoot",
+  "LeftToeBase",
+  "RightUpLeg",
+  "RightLeg",
+  "RightFoot",
+  "RightToeBase"
+ ],
+ "clips": [
+  {
+   "name": "sit_idle",
+   "source": "authored in Blender (round 2): seated on a dining chair, back against the chair back, feet flat, hands resting on the lap",
+   "frames": 240,
+   "duration_s": 10.0,
+   "seat_height_m": 0.441,
+   "hips_world": [
+    -0.004,
+    0.0,
+    0.531
+   ],
+   "table_height_m": null
+  },
+  {
+   "name": "sit_talk",
+   "source": "authored in Blender (round 2): seated on a dining chair, back against the chair back, feet flat, one hand on the lap, the other gesturing",
+   "frames": 240,
+   "duration_s": 10.0,
+   "seat_height_m": 0.441,
+   "hips_world": [
+    -0.004,
+    0.0,
+    0.531
+   ],
+   "table_height_m": null
+  },
+  {
+   "name": "sit_table",
+   "source": "authored in Blender (round 2): seated at a table, back against the chair back, feet flat, forearms and hands on the table edge",
+   "frames": 240,
+   "duration_s": 10.0,
+   "seat_height_m": 0.441,
+   "hips_world": [
+    -0.004,
+    0.0,
+    0.531
+   ],
+   "table_height_m": 0.76
+  },
+  {
+   "name": "sit_drink",
+   "source": "Sit and Drink (Sit_and_Drink)",
+   "action_id": 343,
+   "frames": 268,
+   "duration_s": 11.167,
+   "hips_start_gltf": [
+    -0.008,
+    0.564,
+    -0.017
+   ],
+   "seat_height_est_m": 0.359
+  },
+  {
+   "name": "sit_eat",
+   "source": "text-to-motion: seated at a dinner table eating with knife and fork, upright Edwardian posture",
+   "action_id": null,
+   "frames": 143,
+   "duration_s": 5.967,
+   "hips_start_gltf": [
+    0.025,
+    0.65,
+    0.024
+   ],
+   "seat_height_est_m": 0.456
+  },
+  {
+   "name": "stand_idle",
+   "source": "Idle 3 (replaces Idle 1, 11)",
+   "action_id": 243,
+   "frames": 239,
+   "duration_s": 9.967,
+   "hips_start_gltf": [
+    -0.003,
+    0.966,
+    -0.01
+   ]
+  },
+  {
+   "name": "stand_talk",
+   "source": "Stand and Chat (Stand_and_Chat)",
+   "action_id": 56,
+   "frames": 124,
+   "duration_s": 5.167,
+   "hips_start_gltf": [
+    0.435,
+    0.971,
+    -0.285
+   ]
+  },
+  {
+   "name": "walk",
+   "source": "Casual Walk (Casual_Walk)",
+   "action_id": 30,
+   "frames": 99,
+   "duration_s": 4.133,
+   "hips_start_gltf": [
+    -0.004,
+    0.988,
+    -0.02
+   ]
+  }
+ ],
+ "fps": 24,
+ "units": "metres, +Y up (glTF), feet at y=0, facing +Z",
+ "round2": {
+  "changes": [
+   "sit_idle, sit_talk replaced and sit_table added: authored seated clips (10 s loops) - upright back, thighs level, shins vertical, feet flat; hands on the lap, a talking right hand, or forearms on a 0.76 m table edge"
+  ],
+  "credits": 0,
+  "credits_note": "round 2 credits: the hat (21, walking-woman) plus 84 spent on Text to Motion seated clips that were not used (they reclined ~35 degrees)"
+ }
+}

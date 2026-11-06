@@ -1,0 +1,131 @@
+{
+ "errors": 0,
+ "warnings": 5,
+ "sections": [
+  {
+   "name": "demographics",
+   "errors": 0,
+   "warnings": 0,
+   "examples": [],
+   "info": "measured / target",
+   "table": [
+    "group  people     women          median age  under 14       alone          median fare           Southampton    Cherbourg      Queenstown     top origins",
+    "1st    321 / 321  44.9% / 44.9%  39 / 39     2.2% / 2.2%    30.8% / 30.0%  £32 10s 3d / £30      54.5% / 54.5%  44.5% / 44.5%  0.9% / 0.9%    American 65.4% / 65.4%, British 13.7% / 13.9%, Canadian 8.4% / 8.3%",
+    "2nd    270 / 270  39.3% / 39.3%  28 / 29     9.3% / 9.3%    47.0% / 46.1%  £11 14s 5d / £12 13s  87.8% / 87.8%  9.6% / 9.6%    2.6% / 2.6%    British 57.8% / 57.8%, American 17.8% / 18.0%, French 4.8% / 4.9%",
+    "3rd    709 / 709  30.5% / 30.5%  24 / 24     11.8% / 11.9%  61.8% / 61.5%  £7 13s 11d / £7 15s   69.7% / 69.7%  14.4% / 14.4%  15.9% / 15.9%  British 16.5% / 16.6%, Irish 15.8% / 15.8%, Swedish 14.5% / 14.6%",
+    "",
+    "department   people     women    median age  Belfast",
+    "deck         66 / 66    0 / 0    32 / 32     34.8% / 34.8%",
+    "engine       325 / 325  0 / 0    30 / 30     13.2% / 13.3%",
+    "victualling  426 / 426  21 / 21  32 / 32     28.4% / 28.3%",
+    "restaurant   69 / 69    2 / 2    24 / 24     0.0% / 0.0%",
+    "postal       5 / 5      0 / 0    37 / -      0.0% / 0.0%",
+    "guarantee    9 / 9      0 / 0    30 / 30     100.0% / 100.0%",
+    "band         8 / 8      0 / 0    25.5 / 26   0.0% / 0.0%",
+    "all crew     908 / 908  23 / 23  31 / -",
+    "",
+    "English none or a few words: 438 / about 447"
+   ]
+  },
+  {
+   "name": "berths",
+   "errors": 0,
+   "warnings": 0,
+   "examples": [],
+   "info": "1st 324/324 in 791 berths, 2nd 276/276 in 563 berths, 3rd 709/709 in 1113 berths, crew 899/899 in 948 berths"
+  },
+  {
+   "name": "class rooms",
+   "errors": 0,
+   "warnings": 0,
+   "examples": []
+  },
+  {
+   "name": "ties",
+   "errors": 0,
+   "warnings": 0,
+   "examples": [],
+   "info": "10194 ties before sailing, 3372 tie events"
+  },
+  {
+   "name": "one place at a time",
+   "errors": 0,
+   "warnings": 0,
+   "examples": []
+  },
+  {
+   "name": "groups together",
+   "errors": 0,
+   "warnings": 0,
+   "examples": [],
+   "info": "338 groups, 21875 whole-group blocks"
+  },
+  {
+   "name": "seats per sitting",
+   "errors": 0,
+   "warnings": 0,
+   "examples": [],
+   "info": "fullest: C:c-firemens-mess 96/96"
+  },
+  {
+   "name": "posts manned",
+   "errors": 0,
+   "warnings": 0,
+   "examples": [],
+   "info": "bridge >= 3, wheel >= 1, crows-nest >= 2, furnace >= 9, engine >= 19, marconi >= 1, galley >= 14, galley >= 14, galley >= 14, 3rd-galley >= 16, 3rd-galley >= 16, bakery >= 13"
+  },
+  {
+   "name": "everyone sleeps",
+   "errors": 0,
+   "warnings": 0,
+   "examples": [],
+   "info": "least sleep in a day: 270 min"
+  },
+  {
+   "name": "timetable",
+   "errors": 0,
+   "warnings": 0,
+   "examples": [],
+   "info": "divine-service 162, 2nd-service 185, 3rd-mass 144, hymn-singing 111, 3rd-dance-fri 214, 3rd-dance-sat 293, after lights out 0"
+  },
+  {
+   "name": "meals",
+   "errors": 0,
+   "warnings": 5,
+   "examples": [
+    "(warning) p0011 (1st-gentleman) dines 1 times on day 2",
+    "(warning) p0012 (1st-lady) dines 1 times on day 2",
+    "(warning) p0013 (1st-lady) dines 1 times on day 2",
+    "(warning) p0265 (1st-gentleman) dines 1 times on day 3",
+    "(warning) p0315 (1st-gentleman) dines 1 times on day 2"
+   ]
+  },
+  {
+   "name": "words",
+   "errors": 0,
+   "warnings": 0,
+   "examples": [],
+   "info": "11730 texts"
+  },
+  {
+   "name": "names",
+   "errors": 0,
+   "warnings": 0,
+   "examples": []
+  },
+  {
+   "name": "bake round trip",
+   "errors": 0,
+   "warnings": 0,
+   "examples": [],
+   "info": "1264 probes"
+  },
+  {
+   "name": "stories",
+   "errors": 0,
+   "warnings": 0,
+   "examples": [],
+   "info": "stub 2208"
+  }
+ ]
+}

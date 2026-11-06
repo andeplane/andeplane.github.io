@@ -1,0 +1,2 @@
+import{E as e}from"./math.scalar.functions-Spa4Rbhm.js";import{t}from"./shaderStore-D-XQlhUT.js";var n=e({meshUVSpaceRendererMaskerPixelShader:()=>a}),r=`meshUVSpaceRendererMaskerPixelShader`,i=`varying vec2 vUV;void main(void) {gl_FragColor=vec4(1.0,1.0,1.0,1.0);}
+`;t.ShadersStore[r]||(t.ShadersStore[r]=i);var a={name:r,shader:i};export{n,a as t};

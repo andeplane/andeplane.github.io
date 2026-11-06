@@ -1,0 +1,286 @@
+{
+ "id": "steward",
+ "issue": 878,
+ "prompt": "Photorealistic full-length studio photograph of one clean-shaven young man of about 25 with short neat hair, a 1912 ocean-liner saloon steward: a short white cotton mess jacket fastened with brass buttons, a white shirt, a black bow tie, black trousers and polished black shoes, no badges. The whole body from the top of the head to the soles of the feet is in frame, front view, facing the camera, standing in a relaxed A-pose with the arms held a little away from the body, empty open hands, feet slightly apart and fully visible. Plain light grey seamless background, soft even studio lighting, no cast shadows, no props, no text, no logos. Historically accurate 1912 Edwardian clothing and hair, a natural realistic face, sharp fabric detail.",
+ "height_m": 1.75,
+ "measured_height_m": 1.75,
+ "tasks": {
+  "text_to_image": {
+   "task_id": "01a162be-df74-71ed-90de-c1dbf73d312f",
+   "endpoint": "/v1/text-to-image",
+   "request": {
+    "ai_model": "nano-banana-pro",
+    "prompt": "Photorealistic full-length studio photograph of one clean-shaven young man of about 25 with short neat hair, a 1912 ocean-liner saloon steward: a short white cotton mess jacket fastened with brass buttons, a white shirt, a black bow tie, black trousers and polished black shoes, no badges. The whole body from the top of the head to the soles of the feet is in frame, front view, facing the camera, standing in a relaxed A-pose with the arms held a little away from the body, empty open hands, feet slightly apart and fully visible. Plain light grey seamless background, soft even studio lighting, no cast shadows, no props, no text, no logos. Historically accurate 1912 Edwardian clothing and hair, a natural realistic face, sharp fabric detail.",
+    "pose_mode": "a-pose"
+   },
+   "credits": 9
+  },
+  "image_to_3d": {
+   "task_id": "01a162c0-6837-74c6-a51e-ed78a8c43a27",
+   "endpoint": "/v1/image-to-3d",
+   "request": {
+    "model_type": "smart-topology",
+    "ai_model": "meshy-t2.5",
+    "target_polycount": 20000,
+    "pose_mode": "a-pose",
+    "should_texture": true,
+    "enable_pbr": true,
+    "texture_resolution": "4k",
+    "target_formats": [
+     "glb"
+    ],
+    "input_task_id": "01a162be-df74-71ed-90de-c1dbf73d312f"
+   },
+   "credits": 15
+  },
+  "remesh_lod1": {
+   "task_id": "01a162c2-37e1-72bf-bc32-961438518359",
+   "endpoint": "/v1/remesh",
+   "request": {
+    "input_task_id": "01a162c0-6837-74c6-a51e-ed78a8c43a27",
+    "target_formats": [
+     "glb"
+    ],
+    "topology": "triangle",
+    "target_polycount": 5000
+   },
+   "credits": 5
+  },
+  "remesh_lod2": {
+   "task_id": "01a162c3-e55f-75cd-a43a-4934c44411f7",
+   "endpoint": "/v1/remesh",
+   "request": {
+    "input_task_id": "01a162c0-6837-74c6-a51e-ed78a8c43a27",
+    "target_formats": [
+     "glb"
+    ],
+    "topology": "triangle",
+    "target_polycount": 1500
+   },
+   "credits": 5
+  },
+  "rigging": {
+   "task_id": "01a162c5-a6e6-71a7-b896-c49730b2dcf1",
+   "endpoint": "/v1/rigging",
+   "request": {
+    "input_task_id": "01a162c0-6837-74c6-a51e-ed78a8c43a27",
+    "height_meters": 1.75
+   },
+   "credits": 5
+  },
+  "animation_library": {
+   "task_id": "01a162c5-ff3c-7530-8db6-9217d9e43258",
+   "endpoint": "/v1/animations",
+   "request": {
+    "rig_task_id": "01a162c5-a6e6-71a7-b896-c49730b2dcf1",
+    "action_ids": [
+     32,
+     307,
+     343,
+     11,
+     56,
+     30
+    ]
+   },
+   "credits": 18
+  },
+  "animation_motion": {
+   "task_id": "01a162c6-a99a-76b3-82d6-724516bccbd5",
+   "endpoint": "/v1/animations",
+   "request": {
+    "rig_task_id": "01a162c5-a6e6-71a7-b896-c49730b2dcf1",
+    "motion_task_id": "01a162c6-64bf-7696-b79f-2a5dfafe7033"
+   },
+   "credits": 3
+  },
+  "animation_stand_idle": {
+   "task_id": "01a162cb-d3bf-7786-9c64-2b0ab306d309",
+   "endpoint": "/v1/animations",
+   "request": {
+    "rig_task_id": "01a162c5-a6e6-71a7-b896-c49730b2dcf1",
+    "action_id": 243
+   },
+   "credits": 3
+  }
+ },
+ "motion_task_id": "01a162c6-64bf-7696-b79f-2a5dfafe7033",
+ "credits": 63,
+ "lods": {
+  "lod0": {
+   "file": "character.glb",
+   "triangles": 19648,
+   "rigged": true
+  },
+  "lod1": {
+   "file": "lod1.glb",
+   "triangles": 5103,
+   "rigged": true,
+   "skinning": "weights transferred in Blender from LOD0 (same skeleton)",
+   "fit_scale": 1.84173
+  },
+  "lod2": {
+   "file": "lod2.glb",
+   "triangles": 1554,
+   "rigged": true,
+   "skinning": "weights transferred in Blender from LOD0 (same skeleton)",
+   "fit_scale": 1.84173
+  }
+ },
+ "textures": {
+  "format": "webp (EXT_texture_webp), quality 90",
+  "px": {
+   "lod0": {
+    "base": 4096,
+    "other": 2048
+   },
+   "lod1": {
+    "base": 1024,
+    "other": 1024
+   },
+   "lod2": {
+    "base": 512,
+    "other": 512
+   }
+  },
+  "lod0_pbr": "base colour only (Meshy rigging output; UVs differ from LOD0)"
+ },
+ "bones": [
+  "Hips",
+  "Spine02",
+  "Spine01",
+  "Spine",
+  "neck",
+  "Head",
+  "head_end",
+  "headfront",
+  "LeftShoulder",
+  "LeftArm",
+  "LeftForeArm",
+  "LeftHand",
+  "RightShoulder",
+  "RightArm",
+  "RightForeArm",
+  "RightHand",
+  "LeftUpLeg",
+  "LeftLeg",
+  "LeftFoot",
+  "LeftToeBase",
+  "RightUpLeg",
+  "RightLeg",
+  "RightFoot",
+  "RightToeBase"
+ ],
+ "clips": [
+  {
+   "name": "sit_idle",
+   "source": "authored in Blender (round 2): seated on a dining chair, back against the chair back, feet flat, hands resting on the lap",
+   "frames": 240,
+   "duration_s": 10.0,
+   "seat_height_m": 0.448,
+   "hips_world": [
+    -0.008,
+    0.0,
+    0.538
+   ],
+   "table_height_m": null
+  },
+  {
+   "name": "sit_talk",
+   "source": "authored in Blender (round 2): seated on a dining chair, back against the chair back, feet flat, one hand on the lap, the other gesturing",
+   "frames": 240,
+   "duration_s": 10.0,
+   "seat_height_m": 0.448,
+   "hips_world": [
+    -0.008,
+    0.0,
+    0.538
+   ],
+   "table_height_m": null
+  },
+  {
+   "name": "sit_table",
+   "source": "authored in Blender (round 2): seated at a table, back against the chair back, feet flat, forearms and hands on the table edge",
+   "frames": 240,
+   "duration_s": 10.0,
+   "seat_height_m": 0.448,
+   "hips_world": [
+    -0.008,
+    0.0,
+    0.538
+   ],
+   "table_height_m": 0.76
+  },
+  {
+   "name": "sit_drink",
+   "source": "Sit and Drink (Sit_and_Drink)",
+   "action_id": 343,
+   "frames": 268,
+   "duration_s": 11.167,
+   "hips_start_gltf": [
+    -0.012,
+    0.552,
+    -0.039
+   ],
+   "seat_height_est_m": 0.351
+  },
+  {
+   "name": "sit_eat",
+   "source": "text-to-motion: seated at a dinner table eating with knife and fork, upright Edwardian posture",
+   "action_id": null,
+   "frames": 143,
+   "duration_s": 5.967,
+   "hips_start_gltf": [
+    0.021,
+    0.637,
+    0.002
+   ],
+   "seat_height_est_m": 0.446
+  },
+  {
+   "name": "stand_idle",
+   "source": "Idle 3 (replaces Idle 1, 11)",
+   "action_id": 243,
+   "frames": 239,
+   "duration_s": 9.967,
+   "hips_start_gltf": [
+    -0.006,
+    0.949,
+    -0.032
+   ]
+  },
+  {
+   "name": "stand_talk",
+   "source": "Stand and Chat (Stand_and_Chat)",
+   "action_id": 56,
+   "frames": 124,
+   "duration_s": 5.167,
+   "hips_start_gltf": [
+    0.426,
+    0.955,
+    -0.304
+   ]
+  },
+  {
+   "name": "walk",
+   "source": "Casual Walk (Casual_Walk)",
+   "action_id": 30,
+   "frames": 99,
+   "duration_s": 4.133,
+   "hips_start_gltf": [
+    -0.008,
+    0.971,
+    -0.042
+   ]
+  }
+ ],
+ "fps": 24,
+ "units": "metres, +Y up (glTF), feet at y=0, facing +Z",
+ "round2": {
+  "changes": [
+   "sit_idle, sit_talk replaced and sit_table added: authored seated clips (10 s loops) - upright back, thighs level, shins vertical, feet flat; hands on the lap, a talking right hand, or forearms on a 0.76 m table edge",
+   "forehead: the two dark spots were holes in the mesh; 3 small holes on the face filled (UVs from the surrounding skin)"
+  ],
+  "credits": 0,
+  "credits_note": "round 2 credits: the hat (21, walking-woman) plus 84 spent on Text to Motion seated clips that were not used (they reclined ~35 degrees)"
+ }
+}

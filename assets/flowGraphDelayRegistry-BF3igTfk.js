@@ -1,0 +1,1 @@
+const e=`activeDelayIndices`;function t(t){let n=t._getGlobalContextVariable(e,null);return n||(n=/* @__PURE__ */ new Set,t._setGlobalContextVariable(e,n)),n}function n(e,n){t(e).add(n)}function r(t,n){t._getGlobalContextVariable(e,null)?.delete(n)}function i(t,n){return t._getGlobalContextVariable(e,null)?.has(n)??!1}export{n,r,i as t};
