@@ -45,7 +45,15 @@ const BEFORE_SIMPLIFICATION_SAMPLE: Person[] = [
 
 const BEFORE_ONE_CHILD_SAMPLE=BEFORE_SIMPLIFICATION_SAMPLE.filter(person=>person.id!=='sister')
 const BEFORE_QUIET_FAREWELL_SAMPLE=BEFORE_ONE_CHILD_SAMPLE.filter(person=>person.id!=='daughter')
-export const SAMPLE=BEFORE_QUIET_FAREWELL_SAMPLE.map(person=>person.id==='college-friends'?{...person,end:27}:person)
+const BEFORE_PARTNER_LABELS_SAMPLE=BEFORE_QUIET_FAREWELL_SAMPLE.map(person=>person.id==='college-friends'?{...person,end:27}:person)
+const BEFORE_PARTNER_LABELS_HUSBAND_SAMPLE=BEFORE_PARTNER_LABELS_SAMPLE.map(p=>p.id==='partner'?{...p,name:'Husband',nameBefore:'Boyfriend'}:p)
+export const SAMPLE=BEFORE_PARTNER_LABELS_SAMPLE.map(person=>{
+  if(person.id==='partner') {
+    const { nameBefore: _before, renameAt: _at, ...partner } = person
+    return {...partner,name:'Partner'}
+  }
+  return person.id==='child-partner'?{...person,name:'His partner'}:person
+})
 
 export const presentY=(age:number)=>505-170*smooth((age-85)/7)
 export function ageAxis(progress: number, afterEnding=0) {
@@ -231,19 +239,18 @@ const PREVIOUS_SAMPLE: Person[] = [
 function matches(value: Person[], expected: Person[]) {
   return value.length === expected.length && value.every((p, i) => Object.keys(p).length === Object.keys(expected[i]).length && Object.entries(expected[i]).every(([key, item]) => p[key as keyof Person] === item))
 }
-export function restorePeople(saved: unknown, legacy: unknown, random = Math.random): Person[] {
+export function restorePeople(saved: unknown, legacy: unknown): Person[] {
   const current = readPeople(saved)
   const oldTwelve = PREVIOUS_SAMPLE.filter(p => p.id !== 'first-love').map(p => {
     const { nameBefore: _before, renameAt: _at, ...old } = p
     return p.id === 'partner' ? { ...old, lane: .43 } : p.id === 'college-friends' ? { ...old, name: 'College friends' } : old
   })
   const oldHusband = PREVIOUS_SAMPLE.map(p => p.id === 'partner' ? { ...p, name: 'Husband', nameBefore: 'Boyfriend' } : p)
-  if (current && ![BEFORE_QUIET_FAREWELL_SAMPLE, BEFORE_QUIET_FAREWELL_SAMPLE.map(p=>p.id==='partner'?{...p,name:'Husband',nameBefore:'Boyfriend'}:p), BEFORE_ONE_CHILD_SAMPLE, BEFORE_ONE_CHILD_SAMPLE.map(p=>p.id==='partner'?{...p,name:'Husband',nameBefore:'Boyfriend'}:p), BEFORE_SIMPLIFICATION_SAMPLE, BEFORE_SIMPLIFICATION_SAMPLE.map(p=>p.id==='partner'?{...p,name:'Husband',nameBefore:'Boyfriend'}:p), PREVIOUS_SAMPLE, oldHusband, oldTwelve, LAST_SAMPLE, LAST_HUSBAND_SAMPLE, BEFORE_PASS_SAMPLE, BEFORE_PASS_HUSBAND_SAMPLE, BEFORE_MEMORIAL_SAMPLE, BEFORE_MEMORIAL_HUSBAND_SAMPLE, BEFORE_CROSSINGS_SAMPLE, BEFORE_CROSSINGS_HUSBAND_SAMPLE].some(expected => matches(current, expected))) return current
+  if (current && ![BEFORE_PARTNER_LABELS_SAMPLE, BEFORE_PARTNER_LABELS_HUSBAND_SAMPLE, BEFORE_QUIET_FAREWELL_SAMPLE, BEFORE_QUIET_FAREWELL_SAMPLE.map(p=>p.id==='partner'?{...p,name:'Husband',nameBefore:'Boyfriend'}:p), BEFORE_ONE_CHILD_SAMPLE, BEFORE_ONE_CHILD_SAMPLE.map(p=>p.id==='partner'?{...p,name:'Husband',nameBefore:'Boyfriend'}:p), BEFORE_SIMPLIFICATION_SAMPLE, BEFORE_SIMPLIFICATION_SAMPLE.map(p=>p.id==='partner'?{...p,name:'Husband',nameBefore:'Boyfriend'}:p), PREVIOUS_SAMPLE, oldHusband, oldTwelve, LAST_SAMPLE, LAST_HUSBAND_SAMPLE, BEFORE_PASS_SAMPLE, BEFORE_PASS_HUSBAND_SAMPLE, BEFORE_MEMORIAL_SAMPLE, BEFORE_MEMORIAL_HUSBAND_SAMPLE, BEFORE_CROSSINGS_SAMPLE, BEFORE_CROSSINGS_HUSBAND_SAMPLE].some(expected => matches(current, expected))) return current
   const previous = readPeople(legacy)
   const names = ['Grandma','Grandpa','Mom','Dad','My love','Me','Our child']
   const ends = [19,28,66,54,null,null,null]
   const starts = [0,0,0,0,25,0,32]
   if (previous && !(previous.length === 7 && previous.every((p, i) => p.name === names[i] && p.start === starts[i] && p.end === ends[i]))) return previous
-  const husband = random() >= .5
-  return SAMPLE.map(p => p.id === 'partner' && husband ? { ...p, name: 'Husband', nameBefore: 'Boyfriend' } : { ...p })
+  return SAMPLE.map(p => ({ ...p }))
 }
