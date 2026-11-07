@@ -13,7 +13,6 @@ const frame=frameAtYear(Number(params.get('age') || 20))
 const future=Number(params.get('future') || frame.afterEnding)
 const progress = params.has('progress') ? Number(params.get('progress')) : frame.progress
 const people = SAMPLE.map(p => ({ ...p }))
-if (params.get('partner') === 'man') Object.assign(people.find(p => p.id === 'partner'), { name: 'Husband', nameBefore: 'Boyfriend' })
 if (params.has('large')) people.forEach((p,i) => { p.name = `Family member ${i}` })
 const root = createRoot(document.getElementById('root'))
 function render() {

@@ -1,6 +1,6 @@
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
-import { COLORS, MAX_PEOPLE, SAMPLE, YEAR_SPACING, ageAxis, attentionOpacity, birthHighlight, brotherMoment, lifeEndpoint, personAppearance, personLabelOpacity, personName, personOpacity, progressAtAge, readPeople, restorePeople, starPosition, storyAge, trailPoints } from '../../src/features/constellation/story.ts'
+import { COLORS, MAX_PEOPLE, SAMPLE, YEAR_SPACING, ageAxis, attentionOpacity, birthHighlight, brotherMoment, lifeEndpoint, personAppearance, personLabelOpacity, personOpacity, progressAtAge, readPeople, restorePeople, starPosition, storyAge, trailPoints } from '../../src/features/constellation/story.ts'
 const person = (id: string) => SAMPLE.find(p => p.id === id)!
 const pos = (id: string, age: number) => { const p = person(id); return starPosition(p, SAMPLE.indexOf(p), SAMPLE.length, progressAtAge(age), SAMPLE) }
 
@@ -36,7 +36,7 @@ test('the kindergarten encounter crosses near You once and continues offscreen w
   assert.ok(Math.abs(pos('childhood-friend',10).x-pos('self',10).x)<50,'the lasting childhood friendship still stays close')
 })
 test('the prenatal opening contains family, never future acquaintances or their trails',()=>{
-  const encounters=SAMPLE.filter(p=>p.exit==='fade'||p.nameBefore)
+  const encounters=SAMPLE.filter(p=>p.exit==='fade'||p.id==='partner'||p.id==='child-partner')
   for(let age=-2;age<=1;age+=.1)for(const p of encounters) {
     const progress=progressAtAge(age)
     assert.equal(personOpacity(p,progress),0,`${p.id} appeared at age ${age}`)
@@ -82,12 +82,12 @@ test('a brother remains as a small neutral star while living people continue', (
   assert.equal(pos('brother', 50).year, 38)
   assert.ok(Math.abs(pos('child', 100).year-100)<1e-8)
 })
-test('wife or husband is the same continuous dating partner', () => {
-  for (const gender of [.25,.75]) {
-    const family = restorePeople(null, null, () => gender)
-    const p = family.find(p => p.id === 'partner')!
-    assert.equal(personName(p, progressAtAge(28)), gender < .5 ? 'Girlfriend' : 'Boyfriend')
-    assert.equal(personName(p, progressAtAge(40)), gender < .5 ? 'Wife' : 'Husband')
+test('saved default casts with gendered partner labels migrate, without renaming custom casts', () => {
+  for (const [name, nameBefore] of [['Wife', 'Girlfriend'], ['Husband', 'Boyfriend']]) {
+    const saved = SAMPLE.map(p => p.id === 'partner' ? { ...p, name, nameBefore, renameAt: 29 } : p.id === 'child-partner' ? { ...p, name: 'His wife' } : p)
+    assert.deepEqual(restorePeople(saved, null), restorePeople(null, null))
+    const custom = saved.map(p => p.id === 'partner' ? { ...p, end: 80 } : p)
+    assert.deepEqual(restorePeople(custom, null), custom)
   }
 })
 test('every trail ends at its living head or completed life endpoint across every narrative year', () => {
@@ -125,9 +125,9 @@ test('previous fictional casts upgrade, while edits to those same casts are pres
   const {readFileSync}=await import('node:fs')
   const fixtures=JSON.parse(readFileSync(new URL('./previous-samples.json',import.meta.url),'utf8'))
   for(const fixture of fixtures) {
-    assert.deepEqual(restorePeople(fixture,null,()=>.25),SAMPLE)
+    assert.deepEqual(restorePeople(fixture,null),SAMPLE)
     const custom=fixture.map((p:typeof SAMPLE[number],i:number)=>i===0?{...p,name:'Nana'}:p)
-    assert.deepEqual(restorePeople(custom,null,()=>.25),custom)
+    assert.deepEqual(restorePeople(custom,null),custom)
   }
 })
 

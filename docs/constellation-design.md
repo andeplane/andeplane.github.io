@@ -27,8 +27,7 @@ death at 43. The melody and timing are preserved, with no lyrics, voice or hummi
 - College friend approaches from the left, becomes a close companion in the twenties,
   and begins leaving at 27. The full exit finishes before 35, leaving a quiet
   interval before Brother dies at 38. The two friendships trade prominence.
-- Girlfriend or Boyfriend approaches from an existing life at 26, becomes Wife or
-  Husband at 29, and stays adjacent. The partner dies at 82, before You at 85.
+- Partner approaches from an existing life at 26 and stays adjacent. The partner dies at 82, before You at 85.
   One son arrives at 30. Parenting spreads
   the household; the couple gradually finds closeness again.
 - Children move with the household while young. Their own paths bend outward as
@@ -144,63 +143,63 @@ away from the parents is made by You, not by moving the parents left.
 | 26 | Girlfriend (21), College friend (43), Childhood friend (80) | Left 3 | Grandpa: left 27; Girlfriend: left 12 |
 | 27 | Girlfriend (22), Childhood friend (86), Mom (154) | Left 3 | Steady shared travel |
 | 28 | Girlfriend (24), Mom (151), Dad (181) | Left 3 | Steady shared travel |
-| 29 | Wife (26), Mom (149), Dad (179) | Left 3 | Steady shared travel |
-| 30 | Son (19), Wife (61), Mom (148) | Steady | Wife: right 34; Son: right 16 |
-| 31 | Son (27), Wife (76), Mom (145) | Left 3 | Wife: right 13 |
-| 32 | Son (35), Wife (92), Mom (139) | Left 7 | Steady shared travel |
-| 33 | Son (36), Wife (93), Mom (130) | Left 9 | Brother: left 10 |
-| 34 | Son (37), Wife (95), Mom (123) | Left 7 | Brother: left 27 |
-| 35 | Son (37), Wife (96), Mom (120) | Left 3 | Brother: left 35 |
-| 36 | Son (37), Wife (96), Mom (113) | Left 6 | Brother: left 34 |
-| 37 | Son (37), Wife (96), Mom (103) | Left 11 | Brother: left 26; Son: left 11; Wife: left 11 |
-| 38 | Son (36), Wife (95), Mom (96) | Left 6 | Steady shared travel |
-| 39 | Son (36), Mom (93), Wife (94) | Left 3 | Steady shared travel |
-| 40 | Son (35), Mom (85), Wife (93) | Left 8 | Steady shared travel |
-| 41 | Son (36), Mom (75), Wife (92) | Left 9 | Wife: left 10 |
-| 42 | Son (39), Mom (67), Wife (90) | Left 7 | Steady shared travel |
-| 43 | Son (43), Mom (64), Wife (89) | Left 3 | Steady shared travel |
-| 44 | Son (42), Mom (63), Wife (85) | Steady | Steady shared travel |
-| 45 | Son (46), Mom (62), Wife (77) | Steady | Steady shared travel |
-| 46 | Son (60), Mom (62), Wife (69) | Steady | Son: right 13 |
-| 47 | Mom (61), Wife (65), Son (76) | Steady | Son: right 15 |
-| 48 | Mom (60), Wife (61), Son (82) | Steady | Steady shared travel |
-| 49 | Wife (52), Mom (60), Son (84) | Steady | Steady shared travel |
-| 50 | Wife (43), Mom (60), Son (94) | Steady | Dad: left 12; Son: right 10 |
-| 51 | Wife (39), Mom (60), Son (110) | Steady | Dad: left 29; Son: right 15 |
-| 52 | Wife (38), Mom (59), Son (124) | Steady | Dad: left 37; Son: right 13 |
-| 53 | Wife (34), Mom (58), Son (128) | Steady | Dad: left 37 |
-| 54 | Wife (30), Mom (57), Son (128) | Steady | Dad: left 28 |
-| 55 | Wife (27), Mom (57), Son (130) | Steady | Steady shared travel |
-| 56 | Wife (26), Mom (57), Son (131) | Steady | Steady shared travel |
-| 57 | Wife (27), Mom (56), Son (128) | Left 2 | Steady shared travel |
-| 58 | Wife (28), Mom (54), Son (118) | Left 3 | Son: left 13; His wife: left 13 |
-| 59 | Wife (29), Mom (51), Son (104) | Left 3 | Son: left 17; His wife: left 16 |
-| 60 | Wife (30), Mom (49), Son (91) | Left 3 | Son: left 17; His wife: left 16 |
-| 61 | Wife (31), Mom (58), Son (80) | Left 3 | Son: left 13; Mom: left 12 |
-| 62 | Wife (31), Granddaughter (52), Son (76) | Steady | Mom: left 28; His wife: right 15 |
-| 63 | Wife (32), Granddaughter (53), Son (77) | Steady | Mom: left 36 |
-| 64 | Wife (32), Granddaughter (53), Son (77) | Left 2 | Mom: left 36 |
-| 65 | Wife (32), Granddaughter (53), Son (77) | Left 2 | Mom: left 28 |
-| 66 | Wife (32), Granddaughter (53), Son (76) | Steady | Steady shared travel |
-| 67 | Wife (32), Granddaughter (53), Son (76) | Steady | Steady shared travel |
-| 68 | Wife (31), Granddaughter (52), Son (75) | Steady | Steady shared travel |
-| 69 | Wife (30), Granddaughter (64), Son (88) | Steady | His wife: right 13; Grandson: right 13; Son: right 12 |
-| 70 | Wife (29), Granddaughter (76), Son (100) | Steady | His wife: right 13; Grandson: right 13; Son: right 12 |
-| 71 | Wife (28), Granddaughter (90), Son (116) | Steady | Grandson: right 17; His wife: right 17; Son: right 16 |
-| 72 | Wife (27), Granddaughter (119), Son (146) | Steady | Grandson: right 32; His wife: right 31; Son: right 31 |
-| 73 | Wife (26), Granddaughter (133), Son (163) | Steady | Grandson: right 17; His wife: right 17; Son: right 17 |
-| 74 | Wife (25), Granddaughter (137), Son (167) | Steady | Steady shared travel |
-| 75 | Wife (24), Granddaughter (145), Son (178) | Steady | Grandson: right 12; Son: right 11; His wife: right 11 |
-| 76 | Wife (23), Granddaughter (151), Son (188) | Steady | Grandson: right 13; Son: right 11; His wife: right 11 |
-| 77 | Wife (11), Granddaughter (149), Son (193) | Steady | Wife: left 11 |
-| 78 | Wife (17), Granddaughter (141), Son (193) | Steady | Wife: left 28 |
-| 79 | Wife (53), Granddaughter (133), Son (193) | Steady | Wife: left 36 |
-| 80 | Wife (89), Granddaughter (127), Son (193) | Steady | Wife: left 36 |
-| 81 | Wife (117), Granddaughter (122), Son (193) | Steady | Wife: left 27 |
-| 82 | Granddaughter (121), Son (194), His wife (264) | Steady | Steady shared travel |
-| 83 | Granddaughter (121), Son (194), His wife (263) | Steady | Steady shared travel |
-| 84 | Granddaughter (121), Son (195), His wife (263) | Steady | Steady shared travel |
-| 85 | Granddaughter (120), Son (196), His wife (263) | Steady | Steady shared travel |
+| 29 | Partner (26), Mom (149), Dad (179) | Left 3 | Steady shared travel |
+| 30 | Son (19), Partner (61), Mom (148) | Steady | Partner: right 34; Son: right 16 |
+| 31 | Son (27), Partner (76), Mom (145) | Left 3 | Partner: right 13 |
+| 32 | Son (35), Partner (92), Mom (139) | Left 7 | Steady shared travel |
+| 33 | Son (36), Partner (93), Mom (130) | Left 9 | Brother: left 10 |
+| 34 | Son (37), Partner (95), Mom (123) | Left 7 | Brother: left 27 |
+| 35 | Son (37), Partner (96), Mom (120) | Left 3 | Brother: left 35 |
+| 36 | Son (37), Partner (96), Mom (113) | Left 6 | Brother: left 34 |
+| 37 | Son (37), Partner (96), Mom (103) | Left 11 | Brother: left 26; Son: left 11; Partner: left 11 |
+| 38 | Son (36), Partner (95), Mom (96) | Left 6 | Steady shared travel |
+| 39 | Son (36), Mom (93), Partner (94) | Left 3 | Steady shared travel |
+| 40 | Son (35), Mom (85), Partner (93) | Left 8 | Steady shared travel |
+| 41 | Son (36), Mom (75), Partner (92) | Left 9 | Partner: left 10 |
+| 42 | Son (39), Mom (67), Partner (90) | Left 7 | Steady shared travel |
+| 43 | Son (43), Mom (64), Partner (89) | Left 3 | Steady shared travel |
+| 44 | Son (42), Mom (63), Partner (85) | Steady | Steady shared travel |
+| 45 | Son (46), Mom (62), Partner (77) | Steady | Steady shared travel |
+| 46 | Son (60), Mom (62), Partner (69) | Steady | Son: right 13 |
+| 47 | Mom (61), Partner (65), Son (76) | Steady | Son: right 15 |
+| 48 | Mom (60), Partner (61), Son (82) | Steady | Steady shared travel |
+| 49 | Partner (52), Mom (60), Son (84) | Steady | Steady shared travel |
+| 50 | Partner (43), Mom (60), Son (94) | Steady | Dad: left 12; Son: right 10 |
+| 51 | Partner (39), Mom (60), Son (110) | Steady | Dad: left 29; Son: right 15 |
+| 52 | Partner (38), Mom (59), Son (124) | Steady | Dad: left 37; Son: right 13 |
+| 53 | Partner (34), Mom (58), Son (128) | Steady | Dad: left 37 |
+| 54 | Partner (30), Mom (57), Son (128) | Steady | Dad: left 28 |
+| 55 | Partner (27), Mom (57), Son (130) | Steady | Steady shared travel |
+| 56 | Partner (26), Mom (57), Son (131) | Steady | Steady shared travel |
+| 57 | Partner (27), Mom (56), Son (128) | Left 2 | Steady shared travel |
+| 58 | Partner (28), Mom (54), Son (118) | Left 3 | Son: left 13; His partner: left 13 |
+| 59 | Partner (29), Mom (51), Son (104) | Left 3 | Son: left 17; His partner: left 16 |
+| 60 | Partner (30), Mom (49), Son (91) | Left 3 | Son: left 17; His partner: left 16 |
+| 61 | Partner (31), Mom (58), Son (80) | Left 3 | Son: left 13; Mom: left 12 |
+| 62 | Partner (31), Granddaughter (52), Son (76) | Steady | Mom: left 28; His partner: right 15 |
+| 63 | Partner (32), Granddaughter (53), Son (77) | Steady | Mom: left 36 |
+| 64 | Partner (32), Granddaughter (53), Son (77) | Left 2 | Mom: left 36 |
+| 65 | Partner (32), Granddaughter (53), Son (77) | Left 2 | Mom: left 28 |
+| 66 | Partner (32), Granddaughter (53), Son (76) | Steady | Steady shared travel |
+| 67 | Partner (32), Granddaughter (53), Son (76) | Steady | Steady shared travel |
+| 68 | Partner (31), Granddaughter (52), Son (75) | Steady | Steady shared travel |
+| 69 | Partner (30), Granddaughter (64), Son (88) | Steady | His partner: right 13; Grandson: right 13; Son: right 12 |
+| 70 | Partner (29), Granddaughter (76), Son (100) | Steady | His partner: right 13; Grandson: right 13; Son: right 12 |
+| 71 | Partner (28), Granddaughter (90), Son (116) | Steady | Grandson: right 17; His partner: right 17; Son: right 16 |
+| 72 | Partner (27), Granddaughter (119), Son (146) | Steady | Grandson: right 32; His partner: right 31; Son: right 31 |
+| 73 | Partner (26), Granddaughter (133), Son (163) | Steady | Grandson: right 17; His partner: right 17; Son: right 17 |
+| 74 | Partner (25), Granddaughter (137), Son (167) | Steady | Steady shared travel |
+| 75 | Partner (24), Granddaughter (145), Son (178) | Steady | Grandson: right 12; Son: right 11; His partner: right 11 |
+| 76 | Partner (23), Granddaughter (151), Son (188) | Steady | Grandson: right 13; Son: right 11; His partner: right 11 |
+| 77 | Partner (11), Granddaughter (149), Son (193) | Steady | Partner: left 11 |
+| 78 | Partner (17), Granddaughter (141), Son (193) | Steady | Partner: left 28 |
+| 79 | Partner (53), Granddaughter (133), Son (193) | Steady | Partner: left 36 |
+| 80 | Partner (89), Granddaughter (127), Son (193) | Steady | Partner: left 36 |
+| 81 | Partner (117), Granddaughter (122), Son (193) | Steady | Partner: left 27 |
+| 82 | Granddaughter (121), Son (194), His partner (264) | Steady | Steady shared travel |
+| 83 | Granddaughter (121), Son (194), His partner (263) | Steady | Steady shared travel |
+| 84 | Granddaughter (121), Son (195), His partner (263) | Steady | Steady shared travel |
+| 85 | Granddaughter (120), Son (196), His partner (263) | Steady | Steady shared travel |
 
 ## Sound and reference
 
