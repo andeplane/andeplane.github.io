@@ -1,0 +1,10 @@
+import {copyFile,readFile,writeFile} from 'node:fs/promises';
+import {createHash} from 'node:crypto';
+const root=new URL('../',import.meta.url);
+const entry=new URL('dist-reading-ios/reading/index.html',root);
+const html=await readFile(entry,'utf8');
+if(!html.includes('<title>Captain Reader · A Pirate Reading Adventure</title>'))throw new Error('Native entry must be Captain Reader');
+await copyFile(entry,new URL('dist-reading-ios/index.html',root));
+const native={};
+for(const [name,path] of Object.entries({scene:'ios-reading/App/App/SceneDelegate.swift',permissions:'ios-reading/App/App/Info.plist',icon:'ios-reading/App/App/Assets.xcassets/AppIcon.appiconset/AppIcon-512@2x.png'}))native[name]=createHash('sha256').update(await readFile(new URL(path,root))).digest('hex');
+await writeFile(new URL('dist-reading-ios/reading-native-build.json',root),JSON.stringify(native,null,2)+'\n');

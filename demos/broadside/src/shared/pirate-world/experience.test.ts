@@ -22,6 +22,13 @@ const fixture=()=>{
 };
 beforeEach(()=>{fake.caves.length=fake.holds.length=0;fake.fail=false;});
 describe('common presentation lifecycle',()=>{
+  it('keeps the ship loading until its actual chest asset is ready, including non-reveal visits',async()=>{
+    const {world,events}=fixture();world.showShip({chapter:0,seed:1},false);await Promise.resolve();
+    expect(events.ready).not.toHaveBeenCalled();expect(world.status).toBe('loading');
+    const hold=fake.holds[0];hold.pose.discovered=true;hold.presentationReady=false;world.render(.1,false);
+    expect(events.ready).not.toHaveBeenCalled();hold.presentationReady=true;world.render(.1,false);world.render(.1,false);
+    expect(events.ready).toHaveBeenCalledOnce();expect(world.status).toBe('ready');world.dispose();
+  });
   it('cancels stale readiness, keeps one scene and restarts pending cargo with the same ID',async()=>{
     const {world,engine,progress,events}=fixture();world.showShip({chapter:0,seed:1},false);world.cancel();await Promise.resolve();
     expect(events.ready).not.toHaveBeenCalled();expect(engine.scenes).toHaveLength(0);
