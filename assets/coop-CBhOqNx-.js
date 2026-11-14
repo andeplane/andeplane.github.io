@@ -1,0 +1,1 @@
+var e=!1;function t(t){e=t}function n(t){return e?Math.max(t,40):t}var r=null,i=[];function a(){return r||(r=new MessageChannel,r.port1.onmessage=()=>i.shift()?.()),new Promise(e=>{i.push(e),r.port2.postMessage(0)})}function o(){return e&&typeof MessageChannel<`u`?a():new Promise(e=>setTimeout(e,0))}export{o as n,t as r,n as t};

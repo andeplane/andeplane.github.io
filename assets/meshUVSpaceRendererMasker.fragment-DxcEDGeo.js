@@ -1,0 +1,3 @@
+import{E as e}from"./math.scalar.functions-Spa4Rbhm.js";import{t}from"./shaderStore-D-XQlhUT.js";var n=e({meshUVSpaceRendererMaskerPixelShaderWGSL:()=>a}),r=`meshUVSpaceRendererMaskerPixelShader`,i=`varying vUV: vec2f;@fragment
+fn main(input: FragmentInputs)->FragmentOutputs {fragmentOutputs.color= vec4f(1.0,1.0,1.0,1.0);}
+`;t.ShadersStoreWGSL[r]||(t.ShadersStoreWGSL[r]=i);var a={name:r,shader:i};export{n,a as t};

@@ -1,0 +1,1 @@
+const e=self;e.onmessage=async t=>{try{let n=t.data,r=Array.from(new Uint8Array(await crypto.subtle.digest(`SHA-256`,n))).map(e=>e.toString(16).padStart(2,`0`)).join(``);e.postMessage({buffer:n,sha256:r},[n])}catch(t){e.postMessage({error:t instanceof Error?t.message:String(t)})}};
