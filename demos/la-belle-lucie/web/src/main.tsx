@@ -248,6 +248,36 @@ function Game() {
       "(prefers-reduced-motion: reduce)",
     ).matches;
     if (source && target && !reducedMotion) {
+      if (
+        (remainingPlan !== undefined || replayCursor !== undefined) &&
+        source.getClientRects().length
+      ) {
+        const actions = document.querySelector<HTMLElement>(".play-actions");
+        const viewportBottom =
+          actions && getComputedStyle(actions).position === "fixed"
+            ? actions.getBoundingClientRect().top
+            : innerHeight;
+        const visible = (element: HTMLElement) => {
+          const rectangle = element.getBoundingClientRect();
+          return (
+            rectangle.bottom > 0 &&
+            rectangle.top < viewportBottom &&
+            rectangle.right > 0 &&
+            rectangle.left < innerWidth
+          );
+        };
+        if (!visible(source) && !visible(target)) {
+          source.scrollIntoView({
+            block: "center",
+            inline: "nearest",
+            behavior: "instant",
+          });
+          await new Promise<void>((resolve) =>
+            requestAnimationFrame(() => resolve()),
+          );
+          if (generation !== actionGeneration.current) return;
+        }
+      }
       const from = source.getBoundingClientRect(),
         to = target.getBoundingClientRect();
       if (move.destination >= 0) {

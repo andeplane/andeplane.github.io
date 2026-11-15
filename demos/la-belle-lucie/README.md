@@ -29,8 +29,9 @@ Hint highlights every movable card and draws its legal destination arrows.
 Click a card to find its same-suit successor in blue, even if it is buried.
 Card faces use standard 5:7 poker dimensions and self-hosted CC0 artwork.
 On phones, Back and Next stay in a bottom action bar while the piles scroll;
-the end of the page reserves room for it, including safe-area insets. Learning's
-thin evaluation bar shows how much of the original round potential is retained.
+the end of the page reserves room for it, including safe-area insets.
+Assisted normal-motion moves reveal their source if both endpoints are offscreen.
+Learning's thin evaluation bar shows how much of the original round potential is retained.
 It is separate from the actual foundation count and does not represent win odds.
 
 **Statistics** (`?view=stats`) explores one million games: cumulative and new-card

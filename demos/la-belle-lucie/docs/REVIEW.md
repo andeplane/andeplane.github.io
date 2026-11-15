@@ -53,7 +53,8 @@ after the GitHub Pages deployment; a successful local build does not establish i
 - Checked 1440×1080, 390×844, 320×740 and 844×390, including simulated landscape
   safe areas. The layout checks verified proportions, 44px minimum control targets,
   dock reachability, unobscured page end and no dock interception in Statistics.
-- Verified a normal-motion card flight as well as reduced-motion behavior.
+- Verified normal-motion card flights, including revealing an assisted move when
+  both endpoints were offscreen, as well as reduced-motion behavior.
   Physical-device and assistive-technology testing were not performed.
 - The scoped polish preserves the incumbent visual system; its detector findings
   are palette/type advisories and the existing Arial warning, with no error-level
