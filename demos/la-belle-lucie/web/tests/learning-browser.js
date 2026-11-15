@@ -54,6 +54,14 @@
     throw Error("First mistake evaluation incorrect");
   if (document.querySelector(".evaluation-loss").textContent !== "−15")
     throw Error("Red loss missing");
+  const potential = document.querySelector('[role="progressbar"]');
+  if (
+    potential.getAttribute("aria-valuemax") !== "50" ||
+    potential.getAttribute("aria-valuenow") !== "35"
+  )
+    throw Error(
+      "Potential indicator does not represent the actual round evaluation",
+    );
   await selectAndMove(20, 21, 13);
   if (
     evaluation().ideal !== "50" ||
@@ -73,6 +81,8 @@
   );
   if (evaluation().loss !== "0" || board() !== initial)
     throw Error("Undo did not restore the ideal position");
+  if (potential.getAttribute("aria-valuenow") !== "50")
+    throw Error("Undo did not restore the potential indicator");
   const covered = document.querySelector('[data-card="2"]'),
     rectangle = covered.getBoundingClientRect();
   covered.scrollIntoView({ block: "center" });

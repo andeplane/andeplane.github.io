@@ -17,6 +17,7 @@ import {
 import "./styles.css";
 import "./statistics.css";
 import { HintArrows } from "./HintArrows";
+import { GameIcon } from "./GameIcon";
 import { useRoundAnalysis } from "./useRoundAnalysis";
 import {
   appendAction,
@@ -520,21 +521,28 @@ function Game() {
             : "Next move";
 
   return (
-    <main>
+    <main className="play-page">
       <header className="header">
-        <h1>Ingrid’s Solitaire</h1>
+        <div className="game-title">
+          <GameIcon name="cards" />
+          <h1>Ingrid’s Solitaire</h1>
+        </div>
         <div className="new-games">
           <button onClick={() => restart(true)} disabled={disabled}>
-            Winning example
+            <GameIcon name="example" />
+            <span>Winning example</span>
           </button>
           <button onClick={() => restart(false)} disabled={disabled}>
-            New random game
+            <GameIcon name="shuffle" />
+            <span>New random game</span>
           </button>
           <button
+            className="share-button"
             onClick={() => void share()}
             disabled={sharing || loadingShared}
           >
-            {sharing ? "Preparing link…" : "Share"}
+            <GameIcon name="share" />
+            <span>{sharing ? "Preparing link…" : "Share"}</span>
           </button>
         </div>
       </header>
@@ -575,53 +583,63 @@ function Game() {
           </button>
         </div>
         <div className="step-controls">
-          <button
-            className="hint-button"
-            aria-pressed={showHints}
-            onClick={() => setShowHints(!showHints)}
-            disabled={disabled}
-          >
-            Hint
-          </button>
-          {mode === "learning" && (
+          <div className="assist-controls">
             <button
-              className="foundation-hint-button"
-              aria-pressed={showFoundationTargets}
-              onClick={() => setShowFoundationTargets(!showFoundationTargets)}
+              className="hint-button"
+              aria-pressed={showHints}
+              onClick={() => setShowHints(!showHints)}
               disabled={disabled}
             >
-              Foundation targets
+              <GameIcon name="hint" />
+              <span>Hint</span>
             </button>
-          )}
-          <button
-            onClick={undo}
-            disabled={
-              busy ||
-              searching ||
-              loadingShared ||
-              sharing ||
-              !session.data.cursor
-            }
-          >
-            Back
-          </button>
-          {mode === "learning" ? (
+            {mode === "learning" && (
+              <button
+                className="foundation-hint-button"
+                aria-pressed={showFoundationTargets}
+                onClick={() => setShowFoundationTargets(!showFoundationTargets)}
+                disabled={disabled}
+              >
+                <GameIcon name="target" />
+                <span>Foundation targets</span>
+              </button>
+            )}
+          </div>
+          <div className="play-actions">
             <button
-              className="primary"
-              onClick={nextMove}
-              disabled={disabled || won || lost}
+              className="back-button"
+              onClick={undo}
+              disabled={
+                busy ||
+                searching ||
+                loadingShared ||
+                sharing ||
+                !session.data.cursor
+              }
             >
-              {nextLabel}
+              <GameIcon name="back" />
+              <span>Back</span>
             </button>
-          ) : stuck && !won && !lost ? (
-            <button
-              className="primary"
-              onClick={() => void performRedeal()}
-              disabled={disabled}
-            >
-              Shuffle for round {board.round + 1}
-            </button>
-          ) : null}
+            {mode === "learning" ? (
+              <button
+                className="primary"
+                onClick={nextMove}
+                disabled={disabled || won || lost}
+              >
+                <span>{nextLabel}</span>
+                <GameIcon name={won ? "check" : "next"} />
+              </button>
+            ) : stuck && !won && !lost ? (
+              <button
+                className="primary"
+                onClick={() => void performRedeal()}
+                disabled={disabled}
+              >
+                <GameIcon name="shuffle" />
+                <span>Shuffle for round {board.round + 1}</span>
+              </button>
+            ) : null}
+          </div>
         </div>
       </div>
       {mode === "learning" && (
@@ -664,9 +682,34 @@ function Game() {
               </>
             )}
           </div>
+          {analysis.idealBest !== null && analysis.idealBest > 0 && (
+            <div
+              className="potential-track"
+              role="progressbar"
+              aria-label="Round potential still reachable"
+              aria-valuemin={0}
+              aria-valuemax={analysis.idealBest}
+              aria-valuenow={analysis.currentBest ?? undefined}
+              aria-valuetext={
+                analysis.currentBest === null
+                  ? analysis.error || "Analyzing…"
+                  : undefined
+              }
+            >
+              <span
+                style={{
+                  width: `${analysis.currentBest === null ? 0 : Math.max(0, Math.min(100, (100 * analysis.currentBest) / analysis.idealBest))}%`,
+                }}
+              />
+            </div>
+          )}
         </section>
       )}
-      <section ref={table} className="game" aria-label="Card table">
+      <section
+        ref={table}
+        className={`game ${won ? "game-won" : ""}`}
+        aria-label="Card table"
+      >
         <div className="table-status">
           <span>
             Round <strong>{board.round} of 3</strong>
@@ -677,6 +720,12 @@ function Game() {
           <span>
             Move <strong>{step}</strong>
           </span>
+          {won && (
+            <span className="completion-label">
+              <GameIcon name="check" />
+              Complete
+            </span>
+          )}
         </div>
         <div className="foundations" aria-label="Foundations">
           {board.foundations.map((rank, suit) => {

@@ -38,3 +38,23 @@
 
 This records source and local acceptance. Live publication is checked separately
 after the GitHub Pages deployment; a successful local build does not establish it.
+
+## Game interface polish
+
+- Preserved the classic SVG faces, 5:7 proportions, nine/six/three-column layout,
+  rule engine, hint colors, straight arrows, inverted foundation targets and logs.
+- Refined control grouping, icons, table lighting, card edges, learning feedback,
+  move descriptions and history presentation. Added a narrow-screen action dock
+  and a compact completed-game board.
+- Existing foundation-target, learning/mistake, share/replay and 69-action winning
+  browser regressions passed. The learning test also checks the accessible
+  potential indicator after a mistake and undo. Nineteen TypeScript tests and the
+  production TypeScript/Vite build passed.
+- Checked 1440×1080, 390×844, 320×740 and 844×390, including simulated landscape
+  safe areas. The layout checks verified proportions, 44px minimum control targets,
+  dock reachability, unobscured page end and no dock interception in Statistics.
+- Verified a normal-motion card flight as well as reduced-motion behavior.
+  Physical-device and assistive-technology testing were not performed.
+- The scoped polish preserves the incumbent visual system; its detector findings
+  are palette/type advisories and the existing Arial warning, with no error-level
+  findings. Captures remain local and are not committed.

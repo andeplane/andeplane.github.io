@@ -38,6 +38,8 @@ across all three deals.
 - Manual play and Learning mode, where people can play freely or use Next move.
 - Learning keeps the exact ideal foundation total for the current deal visible, shows cumulative lost potential in red, and evaluates each move. Back restores the earlier evaluation; a new deal starts a new target.
 - Animate moves clearly from source to destination; provide Back.
+- On narrow phones and short landscape screens, keep Back and Next in a bottom action bar with reserved content space and safe-area padding. Hide it when switching away from Play.
+- A learning indicator visualizes retained round potential, with an indeterminate state while calculating; it is not a win-probability meter. The board collapses empty piles after a completed game, while Back restores the prior position.
 - A Hint toggle highlights every exposed card with a legal move in muted yellow and draws straight arrows to every legal destination, including foundations. Arrows update with the board and responsive layout.
 - Foundation targets in Learning inverts the next required card in each unfinished suit, including buried cards. Empty foundations target the aces. Targets update after moves, undo and redeals.
 - Clicking any tableau card highlights its same-suit successor in blue, including when buried; inspection does not permit moving covered cards.
@@ -50,7 +52,7 @@ across all three deals.
 - Correct rules and statistics take priority over decoration.
 - Statistics and Theory are separate views alongside Play, preserving game state when switching. Statistics includes cumulative/incremental histograms, conditional cohorts and outcomes, Wilson intervals, win curves, conditional transition heatmaps, first-win and stall rates, real reproducible example deals, policy comparison, streak probabilities and downloadable joint data.
 - Conditional results come from actual joint per-game round scores, with empty cohorts distinguished from observed zero success. Already-won games remain at 52; stall rates exclude them.
-- The native simulator and theory/statistics views are being prepared for andeplane.github.io. Show the measured statistics to the user before publication.
+- The native simulator and theory/statistics views are published on andeplane.github.io. The measured statistics were shown to the user before the initial publication.
 - M4 execution and many parallel simulation threads are explicitly authorized.
 
 ## Product Principles
