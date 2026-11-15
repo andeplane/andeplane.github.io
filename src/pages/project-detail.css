@@ -170,3 +170,9 @@
     grid-template-columns: minmax(0, 1fr);
   }
 }
+[data-project="la-belle-lucie"] > a,
+[data-project="la-belle-lucie"] > div > a {
+  min-height: 44px;
+  display: inline-flex;
+  align-items: center;
+}
