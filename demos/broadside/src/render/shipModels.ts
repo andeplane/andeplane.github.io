@@ -6,6 +6,8 @@ import { LoadAssetContainerAsync } from "@babylonjs/core/Loading/sceneLoader.js"
 import { Mesh } from "@babylonjs/core/Meshes/mesh.js";
 import { MeshBuilder } from "@babylonjs/core/Meshes/meshBuilder.js";
 import { StandardMaterial } from "@babylonjs/core/Materials/standardMaterial.js";
+import { PBRMaterial } from "@babylonjs/core/Materials/PBR/pbrMaterial.js";
+import { VertexBuffer } from "@babylonjs/core/Buffers/buffer.js";
 import { TransformNode } from "@babylonjs/core/Meshes/transformNode.js";
 import { Vector3 } from "@babylonjs/core/Maths/math.vector.js";
 import { VertexData } from "@babylonjs/core/Meshes/mesh.vertexData.js";
@@ -17,6 +19,8 @@ import { SHIP_SPECS, type ShipClass } from "../sim/ships";
 import { PALETTE } from "./palette";
 import { isPhoneRendering } from "../shared/pirate-world/render/quality";
 import { PRIVATE_PEARL, privatePearlModelUrl } from "../privatePearl";
+import { timberTexture } from "../shared/pirate-world/render/timber";
+import { canvasWeave, splitPublicCanvas } from "./shipCanvas";
 
 export const SHIP_CLASSES: readonly ShipClass[] = [
   "sloop",
@@ -93,10 +97,72 @@ export class ShipModels {
       for (const root of entries.rootNodes) root.parent = align;
       alignModel(holder, align, SHIP_SPECS[cls].length);
       if (livery !== "player") tintSails(holder, livery);
+      else {
+        splitPublicCanvas(holder, SHIP_SPECS[cls].length, SHIP_SPECS[cls].beam, this.scene);
+        finishPlayerShip(holder, SHIP_SPECS[cls].length, SHIP_SPECS[cls].beam, this.scene);
+      }
     } else {
       buildFallbackShip(this.scene, cls, livery, holder);
     }
     return holder;
+  }
+}
+
+/** Keep the existing Pearl geometry and attribution; give its timber and cloth distinct finishes. */
+function finishPlayerShip(root: TransformNode, length: number, beam: number, scene: Scene): void {
+  let deckTexture: ReturnType<typeof timberTexture> | undefined;
+  let clothWeave: ReturnType<typeof canvasWeave> | undefined;
+  root.computeWorldMatrix(true);
+  const inverse = root.getWorldMatrix().clone().invert();
+  for (const mesh of root.getChildMeshes(false)) {
+    const material = mesh.material;
+    if (!(material instanceof PBRMaterial)) continue;
+    material.maxSimultaneousLights = 4;
+    material.directIntensity = 1.12;
+    if (/aged_teak_deck|weathered_ebony_hull/.test(material.name)) {
+      const isDeck = material.name.includes("aged_teak_deck");
+      deckTexture ??= timberTexture(scene, "hand-laid teak deck", 10);
+      material.albedoTexture = deckTexture;
+      material.albedoColor.set(...(isDeck ? [.92, .86, .74] : [.55, .42, .28]) as [number, number, number]);
+      material.metallic = 0; material.roughness = isDeck ? .64 : .72;
+      material.emissiveColor.set(isDeck ? .025 : .009, isDeck ? .014 : .005, isDeck ? .006 : .002);
+      if (mesh instanceof Mesh) {
+        mesh.makeGeometryUnique(); mesh.computeWorldMatrix(true);
+        const matrix = mesh.getWorldMatrix().multiply(inverse);
+        const positions = mesh.getVerticesData(VertexBuffer.PositionKind)!;
+        const uvs: number[] = [];
+        for (let i = 0; i < positions.length; i += 3) {
+          const p = Vector3.TransformCoordinates(Vector3.FromArray(positions, i), matrix);
+          uvs.push(p.x / beam + .5, p.z / length + .5);
+        }
+        mesh.setVerticesData(VertexBuffer.UVKind, uvs);
+      }
+    } else if (material.name.includes("black_canvas")) {
+      material.albedoColor.set(.09, .105, .10);
+      material.roughness = .9; material.metallic = 0;
+      material.backFaceCulling = false; material.twoSidedLighting = true;
+      material.emissiveColor.set(.012, .015, .015);
+      const weave = clothWeave ??= canvasWeave(scene);
+      material.bumpTexture = weave.normal; weave.normal.level = .22;
+      material.metallicTexture = weave.roughness;
+      material.useRoughnessFromMetallicTextureAlpha = false;
+      material.useRoughnessFromMetallicTextureGreen = true;
+      material.useMetallnessFromMetallicTextureBlue = true;
+      if (mesh instanceof Mesh) {
+        mesh.makeGeometryUnique(); mesh.computeWorldMatrix(true);
+        const matrix = mesh.getWorldMatrix().multiply(inverse);
+        const positions = mesh.getVerticesData(VertexBuffer.PositionKind)!;
+        const uvs: number[] = [];
+        for (let i = 0; i < positions.length; i += 3) {
+          const p = Vector3.TransformCoordinates(Vector3.FromArray(positions, i), matrix);
+          uvs.push(p.x * 8, p.y * 8);
+        }
+        mesh.setVerticesData(VertexBuffer.UVKind, uvs);
+      }
+    } else if (material.name.includes("iron_cannons")) {
+      material.albedoColor.set(.08, .09, .087);
+      material.metallic = .35; material.roughness = .53;
+    }
   }
 }
 

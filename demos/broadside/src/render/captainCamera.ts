@@ -17,7 +17,9 @@ export class CaptainCamera {
   }
   centre(): void { this.yaw = 0; this.pitch = .03; }
   apply(camera: FreeCamera, view: ShipView, dt: number): void {
-    this.blend += ((this.enabled ? 1 : 0) - this.blend) * (1 - Math.exp(-dt * 5));
+    // A mode cut avoids flying the camera through canvas, rigging and the hull.
+    // Looking and walking still follow the real moving deck after the cut.
+    this.blend = this.enabled ? 1 : 0;
     if (this.blend < .0001) { camera.rotation.z = 0; return; }
     view.root.computeWorldMatrix(true);
     const seat = Vector3.TransformCoordinates(this.deckEye ?? view.captainSeat, view.root.getWorldMatrix());

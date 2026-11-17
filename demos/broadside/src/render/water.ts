@@ -1,21 +1,72 @@
 import { Effect } from "@babylonjs/core/Materials/effect.js";
-import { MeshBuilder } from "@babylonjs/core/Meshes/meshBuilder.js";
 import { ShaderMaterial } from "@babylonjs/core/Materials/shaderMaterial.js";
 import { Vector3 } from "@babylonjs/core/Maths/math.vector.js";
-import { type Mesh } from "@babylonjs/core/Meshes/mesh.js";
 import { type Scene } from "@babylonjs/core/scene.js";
 import { DEFAULT_WAVES } from "../sim/waves";
 import { Color3 } from "@babylonjs/core/Maths/math.color.js";
 import { PALETTE, SUN_DIRECTION } from "./palette";
 import type { VoyageWeather } from "../game/weather";
 import { wrapCoordinate } from "../sim/math";
-import { worldStyle } from "./worldStyle";
+import { worldStyle, skyZenith } from "./worldStyle";
+import { coastPhase, COAST_GLSL } from "./islandShape";
+import { DynamicTexture } from "@babylonjs/core/Materials/Textures/dynamicTexture.js";
+import { Texture } from "@babylonjs/core/Materials/Textures/texture.js";
+import { Mesh } from "@babylonjs/core/Meshes/mesh.js";
+import { VertexData } from "@babylonjs/core/Meshes/mesh.vertexData.js";
 
 export const MAX_ISLANDS = 12;
 export const MAX_SHIPS = 8;
 const MAX_WHIRLPOOLS = 3;
-const GRID_SIZE = 420;
-const GRID_SUBDIVISIONS = 160;
+const GRID_RINGS = 112;
+const GRID_SEGMENTS = 192;
+const GRID_SIZE = 1100;
+
+/** A fixed budget radial surface: dense around the ship and continuous to the horizon. */
+function oceanGrid(scene: Scene): Mesh {
+  const mesh = new Mesh("ocean", scene);
+  const positions = [0, 0, 0], indices: number[] = [];
+  for (let ring = 1; ring <= GRID_RINGS; ring++) {
+    const radius = GRID_SIZE * Math.pow(ring / GRID_RINGS, 2.3);
+    for (let j = 0; j < GRID_SEGMENTS; j++) {
+      const a = j / GRID_SEGMENTS * Math.PI * 2;
+      positions.push(Math.sin(a) * radius, 0, Math.cos(a) * radius);
+    }
+  }
+  for (let j = 0; j < GRID_SEGMENTS; j++) indices.push(0, 1 + (j + 1) % GRID_SEGMENTS, 1 + j);
+  for (let ring = 1; ring < GRID_RINGS; ring++) for (let j = 0; j < GRID_SEGMENTS; j++) {
+    const a = 1 + (ring - 1) * GRID_SEGMENTS + j, b = 1 + ring * GRID_SEGMENTS + j;
+    const an = 1 + (ring - 1) * GRID_SEGMENTS + (j + 1) % GRID_SEGMENTS;
+    const bn = 1 + ring * GRID_SEGMENTS + (j + 1) % GRID_SEGMENTS;
+    indices.push(a, an, b, an, bn, b);
+  }
+  const data = new VertexData(); data.positions = positions; data.indices = indices; data.applyToMesh(mesh);
+  return mesh;
+}
+
+/** Seamless crossed wave slopes, generated once; mipmaps prevent distant glitter crawling. */
+function rippleTexture(scene: Scene): DynamicTexture {
+  const size = 256;
+  const texture = new DynamicTexture("crossed ocean ripple slopes", size, scene, true, Texture.TRILINEAR_SAMPLINGMODE);
+  const ctx = texture.getContext() as CanvasRenderingContext2D;
+  const pixels = ctx.createImageData(size, size);
+  const directions = [[1, 2], [2, -3], [3, 1], [-2, 5], [5, 2], [-3, -7], [7, 3], [4, 9], [-5, 6], [9, -4], [2, 11], [-7, -8]]
+    .map(([x, z], i) => ({ x: x!, z: z!, weight: 1 / ((12 + i * 2) * Math.hypot(x!, z!)), phase: i * 2.399 }));
+  for (let y = 0; y < size; y++) for (let x = 0; x < size; x++) {
+    let sx = 0, sz = 0;
+    for (const d of directions) {
+      const a = Math.cos((x * d.x + y * d.z) * Math.PI * 2 / size + d.phase) * d.weight;
+      sx += a * d.x; sz += a * d.z;
+    }
+    const i = (y * size + x) * 4;
+    pixels.data[i] = Math.round(128 + sx * 190);
+    pixels.data[i + 1] = Math.round(128 + sz * 190);
+    pixels.data[i + 2] = 128; pixels.data[i + 3] = 255;
+  }
+  ctx.putImageData(pixels, 0, 0); texture.update();
+  texture.wrapU = texture.wrapV = Texture.WRAP_ADDRESSMODE;
+  texture.anisotropicFilteringLevel = 4;
+  return texture;
+}
 
 Effect.ShadersStore["oceanVertexShader"] = /* glsl */ `
 precision highp float;
@@ -26,6 +77,8 @@ uniform float time;
 uniform float amplitude;
 uniform vec4 whirlpools[3]; // x, z, radius, spin
 uniform vec4 waves[4]; // dirX, dirZ, wavelength, steepness
+uniform vec4 islands[${MAX_ISLANDS}];
+${COAST_GLSL}
 varying vec3 vWorld;
 varying vec3 vNormal;
 varying float vCrest;
@@ -50,6 +103,12 @@ void main() {
     sz += w.y * a * k * cf;
     crest += max(0.0, sin(f)) * w.w;
   }
+  float coast = 1e5;
+  for (int i = 0; i < ${MAX_ISLANDS}; i++) {
+    if (islands[i].z > 0.0) coast = min(coast, coastDistance(p.xz, islands[i]));
+  }
+  // A calm shoreline meets the beach; geometric waves stay in navigable water.
+  disp *= smoothstep(-1.0, 8.0, coast);
   p += disp;
   for (int i=0; i<3; i++) {
     vec4 w = whirlpools[i];
@@ -86,8 +145,11 @@ uniform vec3 fogColor;
 uniform float fogDensity;
 uniform float time;
 uniform vec4 whirlpools[3]; // x, z, radius, spin
-uniform vec4 islands[${MAX_ISLANDS}]; // x, z, radius, -
+uniform vec4 islands[${MAX_ISLANDS}]; // original phase survives periodic wrapping
 uniform vec4 ships[${MAX_SHIPS}];     // x, z, heading, length (length 0 = unused)
+uniform sampler2D ripples;
+uniform float shipSpeeds[${MAX_SHIPS}];
+${COAST_GLSL}
 
 float hash(vec2 p) { return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453); }
 float noise(vec2 p) {
@@ -121,38 +183,57 @@ void main() {
     gl_FragColor=vec4(mix(ceiling,vec3(.031,.282,.329),haze),1.);
     return;
   }
-  float r1 = noise(p * 0.2 + vec2(time * 0.07, 0.0));
-  float r2 = noise(p * 0.26 - vec2(0.0, time * 0.08));
-  // Broad, calm swells with fine animated ripples, not a field of white foam.
-  vec3 N = normalize(vec3(vNormal.x * (0.35 + storm * 0.55) + sin(p.y * 1.2 + time) * 0.015, 1.0,
-    vNormal.z * (0.35 + storm * 0.55) + sin(p.x * 1.5 - time * 0.8) * 0.015));
+  float distanceToEye = length(cameraPosition - vWorld);
+  vec2 slopes = texture2D(ripples, p * .075 + vec2(time * .014, time * .006)).rg * 2.0 - 1.0;
+  slopes += (texture2D(ripples, p * .123 + vec2(-time * .009, time * .012)).gr * 2.0 - 1.0) * .55;
+  // Normals keep detail on the water even when geometry is coarse in the distance.
+  float detailFade = 1.0 - smoothstep(150.0, 800.0, distanceToEye);
+  vec3 N = normalize(vec3(vNormal.x * .75 + slopes.x * (.45 + storm * .30) * detailFade, 1.0,
+    vNormal.z * .75 + slopes.y * (.45 + storm * .30) * detailFade));
   vec3 V = normalize(cameraPosition - vWorld);
   float shoreDist = 1e5;
   for (int i = 0; i < ${MAX_ISLANDS}; i++) {
     vec4 isl = islands[i];
     if (isl.z <= 0.0) continue;
-    shoreDist = min(shoreDist, length(p - isl.xy) - isl.z);
+    shoreDist = min(shoreDist, coastDistance(p, isl));
   }
-  float shallow = 1.0 - smoothstep(1.0, 23.0, shoreDist);
-  vec3 col = mix(deepColor, shallowColor, shallow);
-  col *= (0.9 + dot(N, sunDirection) * 0.13) * (0.82 + noise(p * 0.022 + vec2(time * 0.012, -time * 0.008)) * 0.18);
-  // Broad drifting cloud shadows give the squall depth without overlay planes.
-  col *= 1.0 - clouds * smoothstep(.25, .72, fbm(p * .017 + vec2(time * .027, -time * .015))) * .28;
-  float rippleLine = smoothstep(0.96, 1.0, sin(p.y * 0.62 + sin(p.x * 0.18) - time * 0.8));
-  float rippleBreak = smoothstep(0.55, 0.75, noise(p * vec2(0.09, 0.18)));
-  col = mix(col, shallowColor * 1.15, rippleLine * rippleBreak * 0.045);
-  // Delicate caustic threads are confined to the shallows.
-  float thread = abs(sin(p.x * 0.72 + sin(p.y * 0.38) + time * 0.35) * sin(p.y * 0.7 - time * 0.22));
-  col += shallowColor * smoothstep(0.88, 0.99, thread) * shallow * 0.09;
+  // Broad dark sea, a narrow clear shelf, then the warm sand beneath the wash.
+  float shelf = exp(-max(shoreDist, 0.0) * .17);
+  float shallow = 1.0 - smoothstep(-1.0, 10.0, shoreDist);
+  vec3 col = mix(deepColor * .42, shallowColor, shallow * .93);
+  float broad = noise(p * .021 + vec2(time * .006, -time * .004));
+  col *= .88 + broad * .20 + max(0.0, dot(N, sunDirection)) * .1;
+  col *= 1.0 - clouds * smoothstep(.25, .72, fbm(p * .017 + vec2(time * .027, -time * .015))) * .25;
+  // The shelf reads through the surface as filtered patches of submerged sand and rock.
+  float sandPatch = fbm(p * .29 + slopes * .7);
+  col += shallowColor * shelf * (sandPatch - .35) * .28;
+  float caustic = abs(sin(p.x * 1.13 + sin(p.y * .71) + time * .7)
+    * sin(p.y * 1.07 + sin(p.x * .63) - time * .5));
+  col += shallowColor * smoothstep(.83, .98, caustic) * shallow * .13;
   vec3 R = reflect(-V, N);
-  float spec = pow(max(0.0, dot(R, sunDirection)), 160.0);
-  col += sunColor * spec * 0.13;
-  float fres = pow(1.0 - max(0.0, dot(N, V)), 4.0);
-  col = mix(col, horizon, fres * 0.13);
-  // A narrow, softly broken surf line around beaches.
-  float shoreFoam = (1.0 - smoothstep(0.2, 2.2, shoreDist)) * smoothstep(-1.6, -0.4, shoreDist);
-  float waveBand = 1.0 - smoothstep(0.15, 0.65, abs(shoreDist - (2.0 + sin(time * 0.8) * 0.7)));
-  shoreFoam = max(shoreFoam, waveBand * 0.2) * (0.65 + r2 * 0.35);
+  vec3 reflectedSky = mix(horizon, skyTop, smoothstep(-.05, .9, R.y));
+  // Water's refractive index gives 2% reflection head-on and nearly all at grazing angles.
+  float fresnel = .0204 + .9796 * pow(1.0 - max(0.0, dot(N, V)), 5.0);
+  col = mix(col, reflectedSky * (.66 - clouds * .12), fresnel * .72);
+  // A broad sun path with finer glints, widened as unresolved ripples recede.
+  vec3 H = normalize(V + sunDirection);
+  float roughness = .065 + storm * .06 + (1.0 - detailFade) * .18;
+  float aa = roughness * roughness;
+  float nh = max(0.0, dot(N, H));
+  float denom = nh * nh * (aa - 1.0) + 1.0;
+  float glitter = aa / max(.00003, 3.14159 * denom * denom);
+  float glintF = .0204 + .9796 * pow(1.0 - max(0.0, dot(V, H)), 5.0);
+  col += sunColor * min(.65, glitter * glintF * .13) * (1.0 - clouds * .65);
+  // Backlit crest water stays translucent teal rather than turning every swell white.
+  float through = pow(max(0.0, dot(-sunDirection, V)), 3.0) * max(0.0, vCrest - .12);
+  col += shallowColor * through * .48;
+  // Broken wash follows the actual irregular coast. Two receding fronts leave lace, never a solid ring.
+  float wash = shoreDist + sin(time * .85 + p.x * .014) * .75;
+  float front = exp(-pow((wash - 1.0) / 1.05, 2.0));
+  float outerFront = exp(-pow((wash - 3.8) / .75, 2.0)) * .28;
+  float lace = fbm(p * 1.7 + slopes * 2.0 - vec2(time * .11, time * .04));
+  float bubbles = smoothstep(.28, .60, lace);
+  float shoreFoam = max(front, outerFront) * bubbles * (.58 + .42 * noise(p * .17));
   float hullFoam = 0.0;
   for (int i = 0; i < ${MAX_SHIPS}; i++) {
     vec4 ship = ships[i];
@@ -161,11 +242,24 @@ void main() {
     vec2 fwd = vec2(sin(ship.z), cos(ship.z));
     vec2 right = vec2(cos(ship.z), -sin(ship.z));
     vec2 local = vec2(dot(d, right), dot(d, fwd));
-    float e = length(vec2(local.x / (ship.w * 0.17), local.y / (ship.w * 0.52)));
-    float edge = (1.0 - smoothstep(1.02, 1.15, e)) * smoothstep(0.9, 1.02, e);
-    hullFoam = max(hullFoam, edge * 0.24);
+    float e = length(vec2(local.x / (ship.w * .17), local.y / (ship.w * .52)));
+    float edge = exp(-pow((e - 1.0) * 12.0, 2.0));
+    hullFoam = max(hullFoam, edge * bubbles * .54);
+    // Surface-bound stern turbulence and a spreading V, with a fading broken trail.
+    float speed = shipSpeeds[i];
+    float back = -local.y - ship.w * .42;
+    float trailLength = max(3.0, speed * 4.3);
+    if (speed > .2 && back > 0.0 && back < trailLength) {
+      float age = back / trailLength;
+      float width = ship.w * .07 + back * .16;
+      float outer = exp(-pow((abs(local.x) - width) / (.35 + back * .025), 2.0));
+      float churn = exp(-pow(local.x / max(.2, width * .7), 2.0)) * .48;
+      float trail = max(outer, churn) * smoothstep(0.0, 1.5, back)
+        * pow(1.0 - age, 1.2) * min(1.0, speed * .15);
+      hullFoam = max(hullFoam, trail * (.18 + bubbles * .82) * .7);
+    }
   }
-  col = mix(col, foamColor, clamp(max(shoreFoam * 0.65, hullFoam), 0.0, 0.75));
+  col = mix(col, foamColor, clamp(max(shoreFoam * .82, hullFoam), 0.0, .88));
 
   // Spiral foam and a dark eye are part of the water itself, with no overlay planes.
   for (int i=0; i<3; i++) {
@@ -207,12 +301,15 @@ export interface OceanShip {
   z: number;
   heading: number;
   length: number;
+  speed?: number;
 }
 
 export class Ocean {
   readonly mesh: Mesh;
   readonly material: ShaderMaterial;
+  private readonly rippleMap: DynamicTexture;
   private readonly shipData = new Float32Array(MAX_SHIPS * 4);
+  private readonly shipSpeeds = new Float32Array(MAX_SHIPS);
   private chapter = 0;
   private readonly shores: readonly { pos: { x: number; z: number }; radius: number }[];
   private shoreFocus = { x: Infinity, z: Infinity };
@@ -224,11 +321,8 @@ export class Ocean {
     private readonly periodicBounds?: number,
   ) {
     this.shores = islands;
-    this.mesh = MeshBuilder.CreateGround(
-      "ocean",
-      { width: GRID_SIZE, height: GRID_SIZE, subdivisions: GRID_SUBDIVISIONS },
-      scene,
-    );
+    this.mesh = oceanGrid(scene);
+    this.rippleMap = rippleTexture(scene);
     this.mesh.isPickable = false;
     this.mesh.alwaysSelectAsActiveMesh = true;
 
@@ -238,6 +332,7 @@ export class Ocean {
       { vertex: "ocean", fragment: "ocean" },
       {
         attributes: ["position"],
+        samplers: ["ripples"],
         uniforms: [
           "world",
           "viewProjection",
@@ -260,11 +355,13 @@ export class Ocean {
           "fogDensity",
           "islands",
           "ships",
+          "shipSpeeds",
           "whirlpools",
         ],
       },
     );
     const m = this.material;
+    m.setTexture("ripples", this.rippleMap);
     m.backFaceCulling = false;
     m.setArray4(
       "waves",
@@ -296,6 +393,7 @@ export class Ocean {
     m.setFloat("fogDensity", fogDensity);
     this.updateShores({ x: 0, z: 0 });
     m.setArray4("ships", Array.from(this.shipData));
+    m.setFloats("shipSpeeds", Array.from(this.shipSpeeds));
     this.setWhirlpools([]);
     this.mesh.material = m;
   }
@@ -317,6 +415,7 @@ export class Ocean {
   setChapter(chapter: number): void {
     this.chapter = chapter;
     const style = worldStyle(chapter);
+    this.material.setColor3("skyTop", Color3.FromHexString(skyZenith(chapter)));
     this.material.setColor3("deepColor", Color3.FromHexString(style.deepWater));
     this.material.setColor3("shallowColor", Color3.FromHexString(style.shallowWater));
     this.material.setColor3("fogColor", Color3.FromHexString(style.fog));
@@ -347,11 +446,11 @@ export class Ocean {
     const nearby = this.shores.map(i => this.periodicBounds ? {
       ...i, pos: { x: focus.x + wrapCoordinate(i.pos.x - focus.x, this.periodicBounds),
         z: focus.z + wrapCoordinate(i.pos.z - focus.z, this.periodicBounds) },
-    } : i).sort((a, b) =>
+    } : i).map((i, n) => ({ ...i, phase: coastPhase(this.shores[n]!) })).sort((a, b) =>
       Math.hypot(a.pos.x - focus.x, a.pos.z - focus.z) - a.radius -
       (Math.hypot(b.pos.x - focus.x, b.pos.z - focus.z) - b.radius));
     const data = new Float32Array(MAX_ISLANDS * 4);
-    nearby.slice(0, MAX_ISLANDS).forEach((i, n) => data.set([i.pos.x, i.pos.z, i.radius, 0], n * 4));
+    nearby.slice(0, MAX_ISLANDS).forEach((i, n) => data.set([i.pos.x, i.pos.z, i.radius, i.phase], n * 4));
     this.material.setArray4("islands", Array.from(data));
   }
 
@@ -363,17 +462,20 @@ export class Ocean {
   ): void {
     this.updateShores(focus);
     // Follow the camera in whole grid cells so vertices never swim.
-    const cell = GRID_SIZE / GRID_SUBDIVISIONS;
+    const cell = .5;
     this.mesh.position.x = Math.round(focus.x / cell) * cell;
     this.mesh.position.z = Math.round(focus.z / cell) * cell;
     this.material.setFloat("time", time);
     this.material.setVector3("cameraPosition", camera);
     this.shipData.fill(0);
+    this.shipSpeeds.fill(0);
     ships
       .slice(0, MAX_SHIPS)
       .forEach((s, i) =>
         this.shipData.set([s.x, s.z, s.heading, s.length], i * 4),
       );
+    ships.slice(0, MAX_SHIPS).forEach((ship, i) => { this.shipSpeeds[i] = Math.max(0, ship.speed ?? 0); });
     this.material.setArray4("ships", Array.from(this.shipData));
+    this.material.setFloats("shipSpeeds", Array.from(this.shipSpeeds));
   }
 }

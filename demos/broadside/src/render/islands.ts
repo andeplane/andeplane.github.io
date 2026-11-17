@@ -15,6 +15,7 @@ import { buildPirateScenery } from "./pirateScenery";
 import { PALETTE } from "./palette";
 import { buildIslandDetails } from "./islandDetails";
 import { islandSurface } from "./islandSurface";
+import { coastPhase, coastRadius } from "./islandShape";
 import { worldStyle, type WorldStyle } from "./worldStyle";
 import { islandStreamingPlan } from "../game/islandStreaming";
 import { wrapCoordinate } from "../sim/math";
@@ -46,7 +47,7 @@ const buildIslandMesh = (
   const rings = 36;
   const segments = 112;
   const rock = def.kind === "rock";
-  const phase = [rng.range(0, 6.28), rng.range(0, 6.28), rng.range(0, 6.28)];
+  const phase = [coastPhase(def), coastPhase(def) * 1.7, coastPhase(def) * .6];
   const peak = rock
     ? def.radius * 0.55 + 2
     : Math.min(9, 2.5 + def.radius * 0.12);
@@ -58,14 +59,10 @@ const buildIslandMesh = (
   const grass = Color3.FromHexString(style.grass), darkGrass = Color3.FromHexString(style.grassDark);
   const stone = Color3.FromHexString(style.rock), darkStone = Color3.FromHexString(style.rockDark);
 
-  const shoreline = (a: number) =>
-    1 +
-    0.12 * Math.sin(3 * a + phase[0]!) +
-    0.07 * Math.sin(7 * a + phase[1]!) +
-    (rock ? 0.1 * Math.sin(11 * a + phase[2]!) : 0);
+  const shoreline = (a: number) => coastRadius(a, phase[0]!);
 
   const heightAt = (t: number, a: number): number => {
-    if (t > 1) return 0.2 - (t - 1) * 14; // underwater skirt
+    if (t > 1) return 0.12 - (t - 1) * 22; // submerged sand shelf under the transparent-looking shallows
     const bump = (rock ? 0.23 : 0.12) * Math.sin(3 * a + phase[2]! + t * 4)
       * smooth(0, .28, t);
     if (rock) return peak * Math.pow(1 - t * t, 1.3) * (0.8 + bump) + 0.2;
@@ -166,7 +163,7 @@ const buildPalmTemplate = (scene: Scene, material: StandardMaterial, style: Worl
   trunk.setVerticesData("color", bark);
   parts.push(trunk);
   const top = path[path.length - 1]!;
-  const leaves = 8;
+  const leaves = 10;
   const leafDark = Color3.FromHexString(style.leaf), leafLight = Color3.FromHexString(style.leafLight);
   for (let l = 0; l < leaves; l++) {
     const a = (l / leaves) * Math.PI * 2 + 0.3;
@@ -185,9 +182,19 @@ const buildPalmTemplate = (scene: Scene, material: StandardMaterial, style: Worl
     }, scene);
     paint(rib, Color3.Lerp(leafDark, leafLight, .55));
     parts.push(rib);
+    const bladePaths = [[], [], []] as Vector3[][];
+    for (let j = 0; j <= 14; j++) {
+      const t = j / 14, centre = centreAt(t), width = Math.sin(t * Math.PI) * .48;
+      bladePaths[0]!.push(centre.add(side.scale(width)).add(new Vector3(0, -.08, 0)));
+      bladePaths[1]!.push(centre.add(new Vector3(0, .035, 0)));
+      bladePaths[2]!.push(centre.subtract(side.scale(width)).add(new Vector3(0, -.08, 0)));
+    }
+    const blade = MeshBuilder.CreateRibbon("folded palm leaf", { pathArray: bladePaths, sideOrientation: Mesh.DOUBLESIDE }, scene);
+    paint(blade, Color3.Lerp(leafDark, leafLight, .13 + l % 3 * .08));
+    parts.push(blade);
     // Each frond has separate curved leaflets, giving a feathered silhouette.
-    for (let pair = 0; pair < 8; pair++) for (const sign of [-1, 1]) {
-      const t = .12 + pair * .098, origin = centreAt(t);
+    for (let pair = 0; pair < 10; pair++) for (const sign of [-1, 1]) {
+      const t = .12 + pair * .078, origin = centreAt(t);
       const length = (.42 + Math.sin(t * Math.PI) * 1.25) * (sign === 1 ? 1 : .94);
       const edgeA: Vector3[] = [], edgeB: Vector3[] = [];
       for (let j = 0; j <= 4; j++) {
@@ -195,14 +202,14 @@ const buildPalmTemplate = (scene: Scene, material: StandardMaterial, style: Worl
         const centre = origin.add(side.scale(sign * u * length))
           .add(dir.scale(u * (.25 + t * .45)))
           .add(new Vector3(0, Math.sin(u * Math.PI) * .14 - u * u * .45, 0));
-        const width = Math.sin(u * Math.PI) * .16 + .008 * (1 - u);
+        const width = Math.sin(u * Math.PI) * .25 + .008 * (1 - u);
         edgeA.push(centre.add(dir.scale(width)));
         edgeB.push(centre.subtract(dir.scale(width)));
       }
       const leaflet = MeshBuilder.CreateRibbon("individual palm leaflet", {
         pathArray: [edgeA, edgeB], sideOrientation: Mesh.DOUBLESIDE,
       }, scene);
-      paint(leaflet, Color3.Lerp(leafDark, leafLight, .18 + .5 * (pair / 7) + l % 2 * .08));
+      paint(leaflet, Color3.Lerp(leafDark, leafLight, .12 + .4 * (pair / 9) + l % 2 * .08));
       parts.push(leaflet);
     }
   }
@@ -338,26 +345,6 @@ export const buildIslands = (
           rock.rotation.y = rng.range(0, Math.PI * 2);
           shadows.addShadowCaster(rock);
         }
-        const foam = MeshBuilder.CreateTorus(
-          "sea-rock-breaking-surf",
-          {
-            diameter: def.radius * 2.05,
-            thickness: 0.3,
-            tessellation: 32,
-          },
-          scene,
-        );
-        foam.parent = root;
-        foam.position.y = 0.15;
-        foam.material = flatMaterial(
-          scene,
-          "sea-rock-foam",
-          Color3.FromHexString("#c2ddd6"),
-        );
-        animators.push((time) => {
-          const pulse = 1 + Math.sin(time * 1.6 + def.pos.x) * 0.04;
-          foam.scaling.set(pulse, 1, pulse);
-        });
         return;
       }
       const terrain = buildIslandMesh(scene, def, rng, terrainMat, style);
@@ -382,7 +369,7 @@ export const buildIslands = (
       };
 
       if (def.props.includes("palms")) {
-        const count = Math.min(35, Math.round(def.radius * (def.props.includes("fort") ? 0.55 : 0.8)));
+        const count = Math.min(50, Math.round(def.radius * (def.props.includes("fort") ? 0.65 : 1.15)));
         for (let i = 0; i < count; i++) {
           const p = palm.createInstance(`palm-${def.pos.x}-${i}`);
           p.parent = root;
@@ -402,7 +389,7 @@ export const buildIslands = (
             p.position = place(.65, .84);
           if (inLandmarkClearing(def, p.position.x, p.position.z, 2.4)) { p.dispose(); continue; }
           p.rotation.y = rng.range(0, Math.PI * 2);
-          p.scaling.setAll(rng.range(0.55, 1.3));
+          p.scaling.setAll(rng.range(0.7, 1.55));
           shadows.addShadowCaster(p);
           palms.push({ mesh: p, phase: i + def.pos.x });
         }

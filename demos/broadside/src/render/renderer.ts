@@ -508,6 +508,7 @@ export class GameRenderer {
         z: s.pos.z,
         heading: s.heading,
         length: s.alive ? s.spec.length : 0,
+        speed: s.alive ? s.speed : 0,
       })),
     );
     this.islands.update(this.time, world.wind, session.player.pos);

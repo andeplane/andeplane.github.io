@@ -3,11 +3,11 @@ import { Mesh } from "@babylonjs/core/Meshes/mesh.js";
 import { MeshBuilder } from "@babylonjs/core/Meshes/meshBuilder.js";
 import { DynamicTexture } from "@babylonjs/core/Materials/Textures/dynamicTexture.js";
 import { StandardMaterial } from "@babylonjs/core/Materials/standardMaterial.js";
+import { PointLight } from "@babylonjs/core/Lights/pointLight.js";
 import { TransformNode } from "@babylonjs/core/Meshes/transformNode.js";
 import { Vector3 } from "@babylonjs/core/Maths/math.vector.js";
 import { VertexBuffer } from "@babylonjs/core/Buffers/buffer.js";
 import { VertexData } from "@babylonjs/core/Meshes/mesh.vertexData.js";
-import { Ray } from "@babylonjs/core/Culling/ray.js";
 import { type AbstractMesh } from "@babylonjs/core/Meshes/abstractMesh.js";
 import { type ParticleSystem } from "@babylonjs/core/Particles/particleSystem.js";
 import { type Scene } from "@babylonjs/core/scene.js";
@@ -20,6 +20,9 @@ import type { Effects } from "./effects";
 import { PALETTE } from "./palette";
 import type { DeckGeometry } from "../game/deckWalk";
 import type { Livery, ShipModels } from "./shipModels";
+import { timberTexture } from "../shared/pirate-world/render/timber";
+import { shipDeckGeometry } from "./shipDeck";
+import { furledCanvasPositions } from "./shipCanvas";
 
 const lerpAngle = (a: number, b: number, t: number) => a + wrapAngle(b - a) * t;
 
@@ -62,39 +65,13 @@ export class ShipView {
     const model = models.create(ship.spec.class, livery, name);
     model.parent = this.root;
     const seatZ = -ship.spec.length * .34;
-    // Keep the wheel, standing captain and walking interaction on the centreline.
-    const helmX = 0;
-    model.computeWorldMatrix(true);
-    // Model alignment changes its parent's scale. Refresh child bounds before
-    // ray picking; the loaded GLB otherwise still has its export-space bounds.
-    for (const mesh of model.getChildMeshes(false)) mesh.computeWorldMatrix(true);
-    const deck = scene.pickWithRay(new Ray(new Vector3(helmX, ship.spec.length, seatZ), new Vector3(0, -1, 0)),
-      mesh => mesh.isDescendantOf(model) && /deck|teak|hull/i.test(mesh.material?.name ?? ""));
-    const deckY = Math.max(1.35, deck?.pickedPoint?.y ?? 2.7);
-    this.captainSeat = new Vector3(helmX, deckY + 1.65, seatZ - 1.35);
-    const floors = new Map<string, number>();
-    const sample = (x:number,z:number): number => {
-      const key = `${x},${z}`;
-      if (floors.has(key)) return floors.get(key)!;
-      this.root.computeWorldMatrix(true);
-      const matrix=this.root.getWorldMatrix(), inverse=matrix.clone().invert();
-      const origin=Vector3.TransformCoordinates(new Vector3(x,deckY+3,z),matrix);
-      const down=Vector3.TransformNormal(new Vector3(0,-1,0),matrix).normalize();
-      const hit=scene.pickWithRay(new Ray(origin,down,ship.spec.length*2),
-        mesh=>mesh.isDescendantOf(model)&&/deck|teak|hull/i.test(mesh.material?.name ?? ""));
-      const y=hit?.pickedPoint ? Vector3.TransformCoordinates(hit.pickedPoint,inverse).y : deckY;
-      const floor=Math.max(1.35,Math.min(deckY+2.5,y));floors.set(key,floor);return floor;
-    };
-    this.deckGeometry = {
-      length:ship.spec.length,beam:ship.spec.beam,
-      helm:{x:helmX,y:deckY,z:seatZ-1.35},
-      floor:(x,z)=>{
-        const cell=.6, x0=Math.floor(x/cell)*cell,z0=Math.floor(z/cell)*cell;
-        const u=(x-x0)/cell,v=(z-z0)/cell;
-        return lerp(lerp(sample(x0,z0),sample(x0+cell,z0),u),
-          lerp(sample(x0,z0+cell),sample(x0+cell,z0+cell),u),v);
-      },
-    };
+    // Stand beside the centre mast: the wheel and forward walkway stay legible.
+    const helmX = -ship.spec.beam * .16;
+    this.deckGeometry = shipDeckGeometry(scene, model, this.root,
+      ship.spec.length, ship.spec.beam, helmX, seatZ - 1.35, seatZ);
+    const deckY = this.deckGeometry.floor(helmX, seatZ + .3);
+    this.captainSeat = new Vector3(helmX + .26,
+      this.deckGeometry.floor(helmX + .26, seatZ - 1.35) + 1.65, seatZ - 1.35);
     if (ship.team === "player") this.helm = this.buildHelm(scene, deckY, helmX, seatZ + .3);
     for (const m of model.getChildMeshes(false)) {
       shadows.addShadowCaster(m, false);
@@ -150,7 +127,7 @@ export class ShipView {
       scene,
     );
     pole.parent = this.root;
-    pole.position.set(0, 5, -ship.spec.length * 0.32);
+    pole.position.set(0, 5, -ship.spec.length * 0.46);
     pole.material = flagMat;
     const flag = MeshBuilder.CreatePlane(
       `${name}-pirate-flag`,
@@ -162,7 +139,7 @@ export class ShipView {
       scene,
     );
     flag.parent = this.root;
-    flag.position.set(ship.spec.beam * 0.4, 8, -ship.spec.length * 0.32);
+    flag.position.set(ship.spec.beam * 0.4, 8, -ship.spec.length * 0.46);
     flag.rotation.y = -0.45;
     flag.material = flagMat;
     shadows.addShadowCaster(flag);
@@ -184,6 +161,7 @@ export class ShipView {
             starboard: this.makeRangeArc(scene, ship, "starboard"),
           }
         : null;
+    if (ship.team === "player") this.buildDeckLanterns(scene, ship, deckY);
     this.capture(ship);
     this.capture(ship);
   }
@@ -209,16 +187,8 @@ export class ShipView {
       }
       sail.computeWorldMatrix(true);
       const toDeck = sail.getWorldMatrix().multiply(this.root.getWorldMatrix().clone().invert());
-      const fromDeck = toDeck.clone().invert(), positions = [...original.positions];
-      const furledHeight = this.length * .48;
-      for (let i = 0; i < positions.length; i += 3) {
-        const p = Vector3.TransformCoordinates(Vector3.FromArray(positions, i), toDeck);
-        if (p.y > this.length * .08 && p.y < furledHeight) {
-          p.y = furledHeight - (furledHeight - p.y) * .08;
-          const folded = Vector3.TransformCoordinates(p, fromDeck);
-          positions[i] = folded.x; positions[i + 1] = folded.y; positions[i + 2] = folded.z;
-        }
-      }
+      const positions = furledCanvasPositions(original.positions, toDeck,
+        Math.max(this.length * .48, this.captainSeat.y + 2.2));
       const normals: number[] = [];
       VertexData.ComputeNormals(positions, sail.getIndices()!, normals);
       sail.setVerticesData(VertexBuffer.PositionKind, positions);
@@ -229,16 +199,25 @@ export class ShipView {
   private buildHelm(scene: Scene, deckY: number, x: number, z: number): TransformNode {
     const wood = new StandardMaterial("captain's polished wheel", scene);
     wood.diffuseColor = Color3.FromHexString("#96653d");
-    wood.specularColor.set(.18, .13, .08);
+    wood.diffuseTexture = timberTexture(scene, "polished wheel timber");
+    wood.diffuseColor.set(.94, .83, .65);
+    wood.specularColor.set(.22, .15, .075); wood.specularPower = 48;
     const brass = new StandardMaterial("wheel brass fittings", scene);
     brass.diffuseColor = PALETTE.brass;
-    brass.specularColor.set(.5, .4, .2);
-    const post = MeshBuilder.CreateBox("helm pedestal", { width: .25, height: .9, depth: .28 }, scene);
+    brass.specularColor.set(.65, .48, .2); brass.specularPower = 64;
+    wood.maxSimultaneousLights = brass.maxSimultaneousLights = 4;
+    const post = MeshBuilder.CreateBox("helm pedestal", { width: .31, height: .9, depth: .32 }, scene);
     post.parent = this.root; post.position.set(x, deckY + .45, z); post.material = wood;
+    for (const y of [.1, .78]) {
+      const collar = MeshBuilder.CreateBox("brass pedestal collar", { width: .34, height: .045, depth: .35 }, scene);
+      collar.parent = this.root; collar.position.set(x, deckY + y, z); collar.material = brass;
+    }
     const pivot = new TransformNode("turning ship's wheel", scene);
     pivot.parent = this.root; pivot.position.set(x, deckY + 1.02, z - .12);
     const rim = MeshBuilder.CreateTorus("smooth wheel rim", { diameter: .9, thickness: .075, tessellation: 40 }, scene);
     rim.parent = pivot; rim.rotation.x = Math.PI / 2; rim.material = wood;
+    const inlay = MeshBuilder.CreateTorus("brass wheel rim inlay", { diameter: .9, thickness: .012, tessellation: 40 }, scene);
+    inlay.parent = pivot; inlay.position.z = -.039; inlay.rotation.x = Math.PI / 2; inlay.material = brass;
     for (let i = 0; i < 8; i++) {
       const a = i * Math.PI / 4;
       const spoke = MeshBuilder.CreateCylinder("wheel spoke and handle", { height: .62, diameter: .047, tessellation: 10 }, scene);
@@ -246,10 +225,49 @@ export class ShipView {
       spoke.rotation.z = -a; spoke.material = wood;
       const tip = MeshBuilder.CreateSphere("rounded wheel grip", { diameter: .08, segments: 8 }, scene);
       tip.parent = pivot; tip.position.set(Math.sin(a) * .54, Math.cos(a) * .54, 0); tip.material = wood;
+      const ferrule = MeshBuilder.CreateCylinder("brass spoke ferrule", { height: .065, diameter: .064, tessellation: 8 }, scene);
+      ferrule.parent = pivot; ferrule.position.set(Math.sin(a) * .38, Math.cos(a) * .38, 0);
+      ferrule.rotation.z = -a; ferrule.material = brass;
     }
     const hub = MeshBuilder.CreateSphere("brass wheel hub", { diameter: .16, segments: 12 }, scene);
     hub.parent = pivot; hub.scaling.z = .6; hub.material = brass;
+    for (const mesh of pivot.getChildMeshes()) mesh.receiveShadows = true;
     return pivot;
+  }
+
+  /** Four small fixtures, two bounded lights: warm joinery without extra shadow maps. */
+  private buildDeckLanterns(scene: Scene, ship: Ship, deckY: number): void {
+    const brass = new StandardMaterial("deck lantern aged brass", scene);
+    brass.diffuseColor = Color3.FromHexString("#ad7e35");
+    brass.specularColor = Color3.FromHexString("#e4bd70"); brass.specularPower = 48;
+    const glass = new StandardMaterial("deck lantern amber glass", scene);
+    glass.diffuseColor = Color3.FromHexString("#ffd483");
+    glass.emissiveColor = Color3.FromHexString("#ffc66c").scale(1.4);
+    const lamps: PointLight[] = [];
+    for (const x of [-1, 1]) for (const stern of [true, false]) {
+      const z = ship.spec.length * (stern ? -.25 : .2);
+      const px = x * ship.spec.beam * .34, y = deckY + 1.0;
+      const fixture = MeshBuilder.CreateCylinder("deck lantern glass", { height: .26, diameter: .16, tessellation: 8 }, scene);
+      fixture.parent = this.root; fixture.position.set(px, y, z); fixture.material = glass;
+      for (const dy of [-.16, .16]) {
+        const cap = MeshBuilder.CreateCylinder("deck lantern brass cap", { height: .055, diameter: .24, tessellation: 8 }, scene);
+        cap.parent = this.root; cap.position.set(px, y + dy, z); cap.material = brass;
+      }
+      const stand = MeshBuilder.CreateCylinder("deck lantern post", { height: .8, diameter: .045, tessellation: 6 }, scene);
+      stand.parent = this.root; stand.position.set(px, y - .57, z); stand.material = brass;
+      for (const dx of [-.08, .08]) {
+        const rib = MeshBuilder.CreateCylinder("deck lantern protective rib", { height: .29, diameter: .018, tessellation: 4 }, scene);
+        rib.parent = this.root; rib.position.set(px + dx, y, z - .04); rib.material = brass;
+      }
+      if (stern) {
+        const light = new PointLight("warm light across the quarterdeck", new Vector3(px, y + .1, z), scene);
+        light.parent = this.root; light.diffuse = Color3.FromHexString("#ffcc87");
+        light.intensity = .85; light.range = ship.spec.beam * 2;
+        lamps.push(light);
+      }
+    }
+    const meshes = this.root.getChildMeshes(false);
+    for (const lamp of lamps) lamp.includedOnlyMeshes = meshes;
   }
 
   /** Red glowing gunports: the enemy is about to fire this side. */

@@ -10,6 +10,7 @@ import type { Rng } from "../sim/rng";
 import type { WorldStyle } from "./worldStyle";
 import { StandardMaterial } from "@babylonjs/core/Materials/standardMaterial.js";
 import { inLandmarkClearing } from "../game/landmarkLayout";
+import { coastPhase, coastRadius } from "./islandShape";
 
 /** Shared geometry keeps a lush shoreline affordable on phones. */
 export function buildIslandDetails(
@@ -112,7 +113,7 @@ export function buildIslandDetails(
       return mesh;
     };
     const polar = (a: number, distance: number) =>
-      [Math.sin(a) * def.radius * distance, Math.cos(a) * def.radius * distance] as const;
+      [Math.sin(a) * def.radius * coastRadius(a, coastPhase(def)) * distance, Math.cos(a) * def.radius * coastRadius(a, coastPhase(def)) * distance] as const;
     if (crystal) for (let i = 0; i < 14; i++) {
       const [x, z] = polar(rng.range(0, Math.PI * 2), rng.range(.4, .82));
       instance(crystal, "luminous shore minerals", x, z, rng.range(.7, 1.8), undefined, undefined, false);
@@ -136,25 +137,27 @@ export function buildIslandDetails(
     const shoreCount = Math.min(70, Math.round(def.radius * 2));
     for (let i = 0; i < shoreCount; i++) {
       const a = rng.range(0, Math.PI * 2);
-      const [x, z] = polar(a, rng.range(0.72, 0.9));
+      const cluster = Math.sin(a * 3 + coastPhase(def));
+      if (cluster < -.25) continue; // Leave broad open coves between rocky headlands.
+      const [x, z] = polar(a, rng.range(0.83, 1.02));
       if (Math.abs(x) < 3.5 && z < 0) continue; // Keep landing stage open.
-      const size = rng.range(0.3, 1.4);
+      const size = rng.range(0.6, 2.5) * (def.radius > 20 ? 1.25 : 1);
       if (inLandmarkClearing(def, x, z, size)) continue;
       const m = instance(rng.pick(rocks), "shore boulder", x, z, size * 1.4, size * 0.8, size, size > 0.8);
       m.position.y += size * 0.2;
     }
     if (def.kind !== "sand") return;
     const dense = def.props.includes("palms");
-    const vegetation = Math.min(90, Math.round(def.radius * (dense ? 2.5 : 1)));
+    const vegetation = Math.min(110, Math.round(def.radius * (dense ? 3.3 : 1.1)));
     for (let i = 0; i < vegetation; i++) {
       const [x, z] = polar(rng.range(0, Math.PI * 2), rng.range(0.33, 0.78));
       if (Math.abs(x) < 3.2 && z < 3) continue;
       if (def.props.includes("fort") && Math.hypot(x, z) < def.radius * 0.5) continue;
       if (inLandmarkClearing(def, x, z, 1.5)) continue;
       if (surface(x, z) < 1) continue;
-      const source = i % 3 === 0 ? bush : fern;
+      const source = i % 3 === 0 || (dense && i % 5 === 0) ? bush : fern;
       instance(source, source === bush ? "jungle shrub" : "jungle fern", x, z,
-        rng.range(0.6, source === bush ? 1.8 : 1.3), undefined, undefined, source === bush);
+        rng.range(0.75, source === bush ? 2.6 : 1.45), undefined, undefined, source === bush);
     }
     for (let i = 0; i < 24; i++) {
       const [x, z] = polar(rng.range(0, Math.PI * 2), rng.range(0.73, 0.87));

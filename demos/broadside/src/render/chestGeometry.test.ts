@@ -2,7 +2,9 @@ import {describe,expect,it,vi} from 'vitest';
 import {NullEngine} from '@babylonjs/core/Engines/nullEngine.js';
 import {Scene} from '@babylonjs/core/scene.js';
 import {StandardMaterial} from '@babylonjs/core/Materials/standardMaterial.js';
+import {Texture} from '@babylonjs/core/Materials/Textures/texture.js';
 vi.mock('../shared/pirate-world/render/coin',async(importOriginal)=>({...await importOriginal<typeof import('../shared/pirate-world/render/coin')>(),doubloonMaterial:(scene:Scene)=>new StandardMaterial('test gold',scene)}));
+vi.mock('../shared/pirate-world/render/timber',()=>({timberTexture:(scene:Scene)=>new Texture(null,scene)}));
 vi.mock('../shared/pirate-world/game/chestCoins',()=>({chestCoinPoses:()=>Promise.resolve(new Float32Array(7000)),CHEST_COIN_SCALE:1}));
 import {RewardChest} from '../shared/pirate-world/render/chest';
 describe('reward chest geometry',()=>{

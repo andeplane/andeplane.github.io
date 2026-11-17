@@ -10,6 +10,7 @@ import { Vector3 } from "@babylonjs/core/Maths/math.vector.js";
 import { PointLight } from "@babylonjs/core/Lights/pointLight.js";
 import type { Scene } from "@babylonjs/core/scene.js";
 import { chestCoinPoses, CHEST_COIN_SCALE } from "../game/chestCoins";
+import { timberTexture } from "./timber";
 
 const ease = (a: number, b: number, t: number) => {
   const u = Math.max(0, Math.min(1, (t - a) / (b - a)));
@@ -48,16 +49,22 @@ export class RewardChest {
       const m = new StandardMaterial(name, scene);
       m.diffuseColor = Color3.FromHexString(hex);
       m.emissiveColor = m.diffuseColor.scale(emission);
-      m.specularColor = Color3.FromHexString("#ae8b56");
-      m.specularPower = 64;
+      m.specularColor = Color3.FromHexString("#735332");
+      m.specularPower = 48;
       m.maxSimultaneousLights = 6;
       return m;
     };
-    const wood = mat("aged mahogany", "#593322"),
-      grain = mat("warm teak planks", "#815139"),
-      gold = mat("hammered gold fittings", "#e6b455", 0.09),
+    const wood = mat("aged mahogany", "#c59b72"),
+      grain = mat("warm teak planks", "#d6ab81"),
+      gold = mat("hammered gold fittings", "#c99c4a", 0.025),
       interior = mat("velvet inside the chest", "#211b2b"),
       gem = mat("lock's ocean sapphire", "#69dedf", 0.5);
+    // Real plank geometry carries a continuous, restrained wood surface.
+    const timber = timberTexture(scene, "treasure chest mahogany grain");
+    timber.wAng = Math.PI / 2;
+    wood.diffuseTexture = timber; grain.diffuseTexture = timber;
+    wood.specularColor.set(.16, .085, .035); grain.specularColor.copyFrom(wood.specularColor);
+    gold.specularColor = Color3.FromHexString("#d9bc7b"); gold.specularPower = 96;
     this.glow = mat("treasure light spilling through seam", "#ffcd76", 1.4);
     const box = (name: string, w: number, h: number, d: number, x: number, y: number, z: number, material: StandardMaterial, parent = this.root) => {
       const m = MeshBuilder.CreateBox(name, { width: w, height: h, depth: d }, scene);
@@ -118,7 +125,7 @@ export class RewardChest {
     for (const z of [-0.84,0.84]) box("light at lid seam", 3.26, 0.025, 0.025, 0, 1.43, z, this.glow);
     for (const x of [-1.63,1.63]) box("light at lid seam", 0.025, 0.025, 1.66, x, 1.43, 0, this.glow);
     this.contents = doubloonMesh(scene, "one thousand doubloons inside the chest");
-    this.contents.parent = this.root; this.contents.material = doubloonMaterial(scene); this.contents.isPickable = false;
+    this.contents.parent = this.root; this.contents.material = doubloonMaterial(scene, true); this.contents.isPickable = false;
     this.contents.setEnabled(false);
     void chestCoinPoses().then(poses => {
       if (this.contents.isDisposed()) return;
@@ -134,7 +141,7 @@ export class RewardChest {
     }).catch(error => { this.error=String(error); console.error("Chest contents:", error); });
     this.light = new PointLight("chest's hidden glow", new Vector3(0, 2, -0.4), scene);
     this.light.renderPriority = 4;
-    this.light.parent = this.root; this.light.diffuse = Color3.FromHexString("#ffcc75"); this.light.range = 8;
+    this.light.parent = this.root; this.light.diffuse = Color3.FromHexString("#ffcf83"); this.light.range = 5.5;
     this.root.setEnabled(false); this.light.setEnabled(false);
   }
   fade(alpha: number) {
@@ -158,7 +165,7 @@ export class RewardChest {
     this.root.rotation.set(0, -0.16, 0);
     this.open(p.lid);
     this.glow.emissiveColor = Color3.FromHexString("#ffcc75").scale(.08 + p.glow * .15);
-    this.light.intensity = .4 + p.lid * .9;
+    this.light.intensity = .12 + p.lid * .85;
     return p;
   }
 }
