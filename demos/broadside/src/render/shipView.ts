@@ -23,6 +23,7 @@ import type { Livery, ShipModels } from "./shipModels";
 import { timberTexture } from "../shared/pirate-world/render/timber";
 import { shipDeckGeometry } from "./shipDeck";
 import { furledCanvasPositions } from "./shipCanvas";
+import { batchShipDetails } from "./shipDetailBatch";
 
 const lerpAngle = (a: number, b: number, t: number) => a + wrapAngle(b - a) * t;
 
@@ -208,9 +209,11 @@ export class ShipView {
     wood.maxSimultaneousLights = brass.maxSimultaneousLights = 4;
     const post = MeshBuilder.CreateBox("helm pedestal", { width: .31, height: .9, depth: .32 }, scene);
     post.parent = this.root; post.position.set(x, deckY + .45, z); post.material = wood;
+    const baseParts = [post];
     for (const y of [.1, .78]) {
       const collar = MeshBuilder.CreateBox("brass pedestal collar", { width: .34, height: .045, depth: .35 }, scene);
       collar.parent = this.root; collar.position.set(x, deckY + y, z); collar.material = brass;
+      baseParts.push(collar);
     }
     const pivot = new TransformNode("turning ship's wheel", scene);
     pivot.parent = this.root; pivot.position.set(x, deckY + 1.02, z - .12);
@@ -231,7 +234,10 @@ export class ShipView {
     }
     const hub = MeshBuilder.CreateSphere("brass wheel hub", { diameter: .16, segments: 12 }, scene);
     hub.parent = pivot; hub.scaling.z = .6; hub.material = brass;
-    for (const mesh of pivot.getChildMeshes()) mesh.receiveShadows = true;
+    const wheelParts = pivot.getChildMeshes().filter((mesh): mesh is Mesh => mesh instanceof Mesh);
+    for (const mesh of wheelParts) mesh.receiveShadows = true;
+    batchShipDetails(this.root, baseParts, "helm base");
+    batchShipDetails(pivot, wheelParts, "turning wheel");
     return pivot;
   }
 
@@ -244,20 +250,25 @@ export class ShipView {
     glass.diffuseColor = Color3.FromHexString("#ffd483");
     glass.emissiveColor = Color3.FromHexString("#ffc66c").scale(1.4);
     const lamps: PointLight[] = [];
+    const fittings: Mesh[] = [];
     for (const x of [-1, 1]) for (const stern of [true, false]) {
       const z = ship.spec.length * (stern ? -.25 : .2);
       const px = x * ship.spec.beam * .34, y = deckY + 1.0;
       const fixture = MeshBuilder.CreateCylinder("deck lantern glass", { height: .26, diameter: .16, tessellation: 8 }, scene);
       fixture.parent = this.root; fixture.position.set(px, y, z); fixture.material = glass;
+      fittings.push(fixture);
       for (const dy of [-.16, .16]) {
         const cap = MeshBuilder.CreateCylinder("deck lantern brass cap", { height: .055, diameter: .24, tessellation: 8 }, scene);
         cap.parent = this.root; cap.position.set(px, y + dy, z); cap.material = brass;
+        fittings.push(cap);
       }
       const stand = MeshBuilder.CreateCylinder("deck lantern post", { height: .8, diameter: .045, tessellation: 6 }, scene);
       stand.parent = this.root; stand.position.set(px, y - .57, z); stand.material = brass;
+      fittings.push(stand);
       for (const dx of [-.08, .08]) {
         const rib = MeshBuilder.CreateCylinder("deck lantern protective rib", { height: .29, diameter: .018, tessellation: 4 }, scene);
         rib.parent = this.root; rib.position.set(px + dx, y, z - .04); rib.material = brass;
+        fittings.push(rib);
       }
       if (stern) {
         const light = new PointLight("warm light across the quarterdeck", new Vector3(px, y + .1, z), scene);
@@ -266,6 +277,7 @@ export class ShipView {
         lamps.push(light);
       }
     }
+    batchShipDetails(this.root, fittings, "deck lanterns");
     const meshes = this.root.getChildMeshes(false);
     for (const lamp of lamps) lamp.includedOnlyMeshes = meshes;
   }
