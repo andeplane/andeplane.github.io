@@ -615,3 +615,29 @@
   .walking-view .cave-heading .eyebrow, .walking-view .cave-controls { display: none; }
   #math-cave-pad { width: 80px; height: 80px; }
 }
+
+/* Language preferences use native controls and allow translated copy to wrap. */
+.language-setting { padding-bottom: 22px; border-bottom: 1px solid #a8b79b2e; }
+.language-setting label { display: block; font-weight: 700; font-size: 14px; margin-bottom: 10px; }
+.language-setting label span { color: #b6c8b9; font-size: 12px; font-weight: 400; }
+.language-setting select {
+  width: 100%; min-width: 0; border: 1px solid #869581; border-radius: 8px;
+  padding: 12px 10px; background: #142d34; color: #f9e8c7; font: inherit; font-size: 16px;
+}
+.language-setting select:focus-visible { outline: 3px solid #82e1d3; outline-offset: 3px; }
+.language-setting p { font-size: 12px; line-height: 1.6; color: #b6c8b9; margin-top: 10px; }
+.language-setting #language-save-error { color: #ffdfb5; }
+
+.language-setting { margin-block: 12px 22px; }
+.operator-card h2 { overflow-wrap: anywhere; hyphens: auto; }
+.pirate-nav-link small { overflow-wrap: anywhere; }
+.number-pad .key-clear { font-size: 18px; }
+@media (max-width: 480px) {
+  #academy .topbar .pirate-menu-header-actions { gap: 6px; }
+  #academy .topbar .pirate-nav-link { width: 48px; min-width: 48px; padding: 5px 2px; gap: 2px; flex-direction: column; align-items: center; }
+  #academy .topbar .pirate-nav-link > span { font-size: 10px; }
+  #academy .topbar .pirate-nav-link small { display: none; }
+  #academy .language-shortcut { width: 44px; min-width: 44px; height: 44px; }
+}
+
+#academy .expedition-intro { background: #102a37; }

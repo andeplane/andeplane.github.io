@@ -11,3 +11,9 @@ Suno Extend source: https://suno.com/song/0009394f-0a2a-410f-9c8d-950070e22c70
 Lyrics were left empty. Vocals, lyrics, singing, speech, humming, and choir
 were explicitly excluded. Original source retained as a recoverable version.
 Downloaded through Suno’s own export interface on 25 October 2026.
+
+Memorial mix: `life-goes-on-memorial.mp3`, made by
+`scripts/arrange-constellation-score.mjs`. The original composition and 120-second
+timing are preserved. From 39–43 seconds the brighter accompaniment recedes into
+a quieter, warmer mix; it holds through 45 and returns by 51. This is a mix edit,
+not a new Suno generation or a change to the melody. The original MP3 is untouched.

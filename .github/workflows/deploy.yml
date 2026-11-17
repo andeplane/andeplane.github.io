@@ -31,6 +31,11 @@ jobs:
 
       - name: Build
         run: npm run build
+        env:
+          # Mixpanel project token (public by design; it ships in the bundle).
+          # Set as a repository variable; when empty, tracking is disabled.
+          VITE_MIXPANEL_TOKEN: ${{ vars.MIXPANEL_TOKEN }}
+          VITE_MIXPANEL_API_HOST: ${{ vars.MIXPANEL_API_HOST }}
 
       # The Explore Titanic game at /explore-titanic/: built in its private repository
       # (dev/build-public.mjs there) and pushed to the explore-titanic-build branch as one

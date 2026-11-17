@@ -1,10 +1,10 @@
-export interface LabelItem { id: string; name: string; x: number; y: number; visible: boolean; opacity?: number; memorial?: boolean; singleLine?: boolean }
+export interface LabelItem { id: string; name: string; x: number; y: number; visible: boolean; opacity?: number; memorial?: boolean; singleLine?: boolean; foreground?: boolean }
 export interface LabelBox { left: number; right: number; top: number; bottom: number }
 export interface SkyLabel { id: string; x: number; y: number; font: number; lineHeight: number; lines: string[]; box: LabelBox; leader: { x: number; y: number } }
 const clamp=(n:number,a:number,b:number)=>Math.max(a,Math.min(b,n))
 // A person always owns this tier. Other arrivals cannot swap their label to
 // another row. Siblings, friends and children also have separate physical lanes.
-export const LABEL_TIERS:Record<string,number>={self:-1,partner:1,mom:-2,dad:1,brother:-3,sister:2,grandma:-1,grandpa:3,'kindergarten-friend':2,'grade-school-friend':2,'middle-school-friend':2,coworker:-6,'childhood-friend':-4,'first-love':-2,'college-friends':2,child:-2,daughter:3,'child-partner':1,'grandchild-1':-3,'grandchild-2':-4}
+export const LABEL_TIERS:Record<string,number>={self:-1,partner:1,mom:-2,dad:1,brother:-3,sister:2,grandma:-1,grandpa:1,'kindergarten-friend':2,'grade-school-friend':2,'middle-school-friend':2,coworker:-6,'childhood-friend':-4,'first-love':-2,'college-friends':2,child:-2,daughter:3,'child-partner':1,'grandchild-1':-3,'grandchild-2':-4}
 const hash=(id:string)=>[...id].reduce((n,c)=>n*31+c.charCodeAt(0),0)>>>0
 function withPosition(label:SkyLabel,x:number,y:number,item:LabelItem):SkyLabel {
   const dx=x-label.x,dy=y-label.y
@@ -12,7 +12,8 @@ function withPosition(label:SkyLabel,x:number,y:number,item:LabelItem):SkyLabel 
   return {...label,x,y,box,leader:{x:clamp(item.x,box.left+4,box.right-4),y:item.y<box.top?box.top:box.bottom}}
 }
 export function layoutLabels(items:LabelItem[],width:number,viewHeight:number) {
-  const font=Math.min(34,16*800/width),step=font*1.08+16
+  const unit=800/width,short=viewHeight/unit<500
+  const font=Math.min(34,16*unit),step=font*1.08+11*unit,gap=10*unit
   const sources=new Map(items.map(item=>[item.id,item]))
   const labels:SkyLabel[]=[]
   for(const item of items) {
@@ -20,11 +21,11 @@ export function layoutLabels(items:LabelItem[],width:number,viewHeight:number) {
     const spaces=[...item.name.matchAll(/ /g)].map(m=>m.index)
     const split=spaces.sort((a,b)=>Math.abs(a-item.name.length/2)-Math.abs(b-item.name.length/2))[0]
     const lines=!item.singleLine&&item.name.length>11&&split!==undefined?[item.name.slice(0,split),item.name.slice(split+1)]:[item.name]
-    const w=Math.max(...lines.map(line=>line.length))*font*.60+8,h=lines.length*font*1.08+6
-    const shortTiers:Record<string,number>={sister:-5,daughter:-4,grandpa:1,'kindergarten-friend':2,coworker:2,'college-friends':-4,'grandchild-2':-5}
-    const tier=item.memorial?(['grandpa','partner'].includes(item.id)?1:-1):((viewHeight<650?shortTiers[item.id]:undefined)??LABEL_TIERS[item.id]??((hash(item.id)%3)+1)*(hash(item.id)%2?1:-1))
+    const w=Math.max(...lines.map(line=>line.length))*font*.60+8*unit,h=lines.length*font*1.08+6*unit
+    const shortTiers:Record<string,number>={sister:-5,daughter:-4,grandpa:1,'kindergarten-friend':2,coworker:-3,'college-friends':-4,'grandchild-2':-5}
+    const tier=item.memorial?(['grandpa','partner'].includes(item.id)?1:-1):((short?shortTiers[item.id]:undefined)??LABEL_TIERS[item.id]??((hash(item.id)%3)+1)*(hash(item.id)%2?1:-1))
     const bottomLimit=viewHeight*(item.singleLine?.85:.74)
-    const top=item.singleLine?Math.min(width>700?item.y+font*1.08+30:viewHeight*.77,bottomLimit-h):item.memorial&&viewHeight<650?18:clamp(tier<0?item.y-h-14-(Math.abs(tier)-1)*step:item.y+14+(tier-1)*step,18,bottomLimit-h)
+    const top=item.singleLine?Math.min(width>700?item.y+font*1.08+30:viewHeight*.77,bottomLimit-h):item.memorial&&short&&!item.foreground?18:clamp(tier<0?item.y-h-gap-(Math.abs(tier)-1)*step:item.y+gap+(tier-1)*step,18,bottomLimit-h)
     const x=clamp(item.x,104+w/2,788-w/2),y=top+font
     labels.push({id:item.id,x,y,font,lineHeight:font*1.08,lines,box:{left:x-w/2,right:x+w/2,top,bottom:top+h},leader:{x:item.x,y:item.y<top?top:top+h}})
   }
@@ -32,7 +33,7 @@ export function layoutLabels(items:LabelItem[],width:number,viewHeight:number) {
   // or sorting nearest candidates. Separation is planned while names fade in.
   for(let pass=0;pass<24;pass++)for(let i=0;i<labels.length;i++)for(let j=i+1;j<labels.length;j++) {
     const a=labels[i],b=labels[j],ab=a.box,bb=b.box
-    const ox=Math.min(ab.right,bb.right)-Math.max(ab.left,bb.left)+12
+    const ox=Math.min(ab.right,bb.right)-Math.max(ab.left,bb.left)+24*unit
     const oy=Math.min(ab.bottom,bb.bottom)-Math.max(ab.top,bb.top)+4
     if(ox<=0||oy<=0)continue
     const ai=sources.get(a.id)!,bi=sources.get(b.id)!
@@ -61,9 +62,12 @@ export class StableLabelLayout {
       this.lastPoints.set(item.id,{x:item.x,y:item.y})
       return {...item,x:clamp(item.x+vx*.8,104,788),y:clamp(item.y+vy*.8,15,height*.73)}
     })
+    const presentTargets=new Map(layoutLabels(items,width,height).map(label=>[label.id,label]))
     const targets=layoutLabels(ahead,width,height).map(label=>{
       const actual=items.find(item=>item.id===label.id)!,future=ahead.find(item=>item.id===label.id)!
-      return withPosition(label,label.x+actual.x-future.x,label.y+actual.y-future.y,actual)
+      const present=presentTargets.get(label.id)
+      const predicted=withPosition(label,label.x+actual.x-future.x,label.y+actual.y-future.y,actual)
+      return present&&Math.abs(present.x-actual.x)>Math.abs(predicted.x-actual.x)?present:predicted
     })
     const visibleIds=new Set(targets.map(target=>target.id))
     for(const id of this.previous.keys())if(!visibleIds.has(id))this.previous.delete(id)

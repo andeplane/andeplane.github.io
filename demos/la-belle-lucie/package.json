@@ -1,0 +1,9 @@
+{
+  "name": "la-belle-lucie",
+  "private": true,
+  "scripts": {
+    "dev": "npm --prefix web run dev",
+    "build": "npm --prefix web ci --no-audit --no-fund && npm --prefix web run build && python3 tools/package_web.py",
+    "test": "make test && npm --prefix web test"
+  }
+}

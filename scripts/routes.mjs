@@ -17,6 +17,12 @@ const STATIC_ROUTES = [
     image: '/projects/constellation/preview.jpg',
   },
   {
+    path: '/experiments/pendulum-writer',
+    title: 'Pendulum Writer',
+    description: 'Type a name or draw a shape, and fit the swings of a frame hung with pendulums so its pencil writes it. Edit the oscillations and watch the drawing change.',
+    image: '/projects/pendulum-writer/preview.png',
+  },
+  {
     path: '/hardware',
     title: 'Hardware',
     description: 'Printed mechanisms and robots, with editable CAD, component lists, assembly guides, and physical prototype experiments.',

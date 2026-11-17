@@ -44,7 +44,7 @@ export default function ProjectDetail() {
   }
 
   return (
-    <div style={{ maxWidth: '800px' }}>
+    <div data-project={project.slug} style={{ maxWidth: '800px' }}>
       <Link
         to="/projects"
         style={{ fontSize: '0.875rem', color: 'var(--color-text-muted)', textDecoration: 'none', display: 'inline-flex', alignItems: 'center', gap: '0.25rem', marginBottom: '2rem' }}

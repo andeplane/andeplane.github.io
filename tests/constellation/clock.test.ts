@@ -14,22 +14,22 @@ test('two minutes includes one second per year and thirty seconds after death', 
 
 test('the story never resets or fades to black after its ending', () => {
   for (const elapsed of [120, 180, 300, 3600]) assert.deepEqual(playbackFrame(elapsed), { progress: 1, opacity: 1 })
-  assert.ok(storyAge(playbackFrame(1000).progress)>160)
+  assert.equal(storyAge(playbackFrame(1000).progress),211.25)
 })
 
-test('the generic text is constrained to six brief cards and thirty words', () => {
+test('the generic text is constrained to seven brief cards and thirty-seven words', () => {
   const words = CAPTIONS.flatMap(c => [c.title, ...c.lines]).join(' ').trim().split(/\s+/)
   assert.equal(CAPTIONS.length, TEXT_BUDGET.cards)
   assert.ok(words.length <= TEXT_BUDGET.words)
-  assert.equal(words.length, 30)
+  assert.equal(words.length, 37)
   assert.equal(CAPTIONS[4].lines[0], 'Sometimes people die young.')
   assert.equal(storyMessage(7/120)!.lines[0], 'Then you arrive.')
   assert.doesNotMatch(words.join(' '), /Mikael|my brother|dedicat/i)
   assert.equal(storyMessage(30 / 120), null)
-  assert.equal(storyMessage(70 / 120), null)
+  assert.equal(storyMessage(70 / 120)!.lines[0], 'Make time for your children, and theirs.')
   assert.equal(storyMessage(100 / 120), null)
   assert.equal(storyMessage(1)!.opacity, 1)
-  assert.ok(CAPTIONS[2].from - CAPTIONS[1].to >= 20)
+  assert.ok(CAPTIONS[2].from - CAPTIONS[1].to >= 19)
 })
 
 
@@ -46,5 +46,5 @@ test('opening fades in after loading; love and parenthood get distinct short bea
  assert.equal(storyMessage(2/120)!.lines[0],'Life is already moving.')
  assert.equal(storyMessage(32/120)!.lines[0],'Some paths become home.')
  assert.equal(storyMessage(38/120)!.lines[0],'And your world grows.')
- assert.equal(storyMessage(42/120),null)
+ assert.equal(storyMessage(42.75/120),null)
 })

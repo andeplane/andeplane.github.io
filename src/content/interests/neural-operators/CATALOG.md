@@ -59,6 +59,17 @@ Research snapshot: 10 September 2026. Year = first posting/publication in the co
 | [V-JEPA 2.1: Unlocking Dense Features in Video Self-Supervised Learning](https://arxiv.org/abs/2603.14482) | 2026 | application | [Note](notes/vjepa21-2026.md) |
 | [The Parametric Complexity of Operator Learning](https://arxiv.org/abs/2306.15924) | 2023 | core | [Note](notes/parametric-complexity-2023.md) |
 | [Representation Equivalent Neural Operators: a Framework for Alias-free Operator Learning](https://arxiv.org/abs/2305.19913) | 2023 | core | [Note](notes/reno-2023.md) |
+| [A Unified Model for Compressed Sensing MRI Across Undersampling Patterns](https://arxiv.org/abs/2410.16290) | 2024 | core | [Note](notes/nomri-2025.md) |
+| [When Differentiable Programming Meets Spectral PDE Solver](https://qijiaj.github.io/operator_learning_2024.pdf) | 2024 | core | [Note](notes/spectral-cs-2024.md) |
+| [Theoretical Perspectives on Deep Learning Methods in Inverse Problems](https://arxiv.org/abs/2206.14373) | 2022 | core | [Note](notes/inverse-theory-2023.md) |
+| [Latent Generative Models with Tunable Complexity for Compressed Sensing and other Inverse Problems](https://arxiv.org/abs/2603.07357) | 2026 | core | [Note](notes/tunable-cs-2026.md) |
+| [RecFNO: a resolution-invariant flow and heat field reconstruction method from sparse observations via Fourier neural operator](https://arxiv.org/abs/2302.09808) | 2023 | application | [Note](notes/recfno-2023.md) |
+| [Sparse Reconstruction for Temperature Distribution Using DTS Fiber Optic Sensors with Applications in Electrical Generator Stator Monitoring](https://doi.org/10.3390/s16091425) | 2016 | application | [Note](notes/stator-sparse-2016.md) |
+| [Learning to Predict Structural Vibrations](https://arxiv.org/abs/2310.05469) | 2023 | application | [Note](notes/vibrating-plates-2023.md) |
+| [Neural Operator–Based Thermal Modeling for Electric Motor and Power Electronics Systems](https://odr.chalmers.se/items/bf1e419a-85d8-44fa-8968-13c84f76cca1) | 2026 | application | [Note](notes/motor-thermal-li-2026.md) |
+| [Generative Lagrangian data assimilation for ocean dynamics under extreme sparsity](https://arxiv.org/abs/2507.06479) | 2025 | application | [Note](notes/lagrangian-assimilation-2025.md) |
+| [Operator learning for energy-efficient building ventilation control with computational fluid dynamics simulation of a real-world classroom](https://doi.org/10.1016/j.apenergy.2025.127035) | 2025 | application | [Note](notes/ventilation-control-2025.md) |
+| [Training Structures as Distributed Sensors: A case study of impact force identification using neural operators](https://doi.org/10.1016/j.jsv.2025.119395) | 2025 | application | [Note](notes/structures-distributed-2025.md) |
 
 ### Gaussian quadrature background (added 2026-09-11)
 

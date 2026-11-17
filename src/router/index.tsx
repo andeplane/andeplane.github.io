@@ -18,6 +18,7 @@ const Physics = lazy(() => import('@/pages/Physics'))
 const NeuralOperators = lazy(() => import('@/features/neural-operators/NeuralOperators'))
 const FnoSketch = lazy(() => import('@/features/fno-sketch/FnoSketch'))
 const Constellation = lazy(() => import('@/features/constellation/Constellation'))
+const PendulumWriter = lazy(() => import('@/features/pendulum-writer/PendulumWriter'))
 
 export const router = createBrowserRouter([
   { path: 'experiments/constellation', element: <Suspense fallback={<div aria-hidden="true" style={{ background: '#080e1b', minHeight: '100svh' }} />}><Constellation /></Suspense> },
@@ -27,6 +28,7 @@ export const router = createBrowserRouter([
     children: [
       { index: true, element: <Home /> },
       { path: 'projects', element: <Projects /> },
+      { path: 'experiments/pendulum-writer', element: <Suspense fallback={<p>Loading the pendulum writer…</p>}><PendulumWriter /></Suspense> },
       { path: 'games', element: <Suspense fallback={<p>Loading games…</p>}><Games /></Suspense> },
       { path: 'hardware', element: <Suspense fallback={<p>Loading hardware…</p>}><Hardware /></Suspense> },
       { path: 'hardware/kiwi', element: <Suspense fallback={<p>Loading Kiwi…</p>}><Kiwi /></Suspense> },

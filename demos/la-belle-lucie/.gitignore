@@ -1,0 +1,10 @@
+build/
+__pycache__/
+*.tmp
+.DS_Store
+dist/
+node_modules/
+web/.impeccable/mocks/
+web/.impeccable/review/
+web/.impeccable/questions/
+web/.impeccable/config.local.json

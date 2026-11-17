@@ -1,3 +1,9 @@
+# Start from the latest maintained source
+
+Before changing code, identify the owning GitHub repository and maintained source path from Git remotes and project documentation. Fetch the remote default branch and inspect local status, branch divergence, and active PRs. Start new work from the latest remote default branch, or explicitly account for an active feature branch needed by the task. Never reset, overwrite, or silently fold in another task's uncommitted work.
+
+For Broadside and Captain Calculus, the maintained source is `demos/broadside/` in `andeplane/andeplane.github.io`. The standalone `/Users/anderhaf/projects/personal/games/broadside` checkout is an older prototype, not the release source. Port intended changes onto the latest maintained source before validation, commits, or PRs; do not replace current gameplay with prototype files. Verify the final PR diff and packaged build against that source.
+
 # Mandatory design review
 
 For every UI change, carefully review the complete affected experience before delivery. A passing build, test suite, or one attractive menu screenshot is not a completed design review.

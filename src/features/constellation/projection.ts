@@ -1,9 +1,10 @@
+import { memorialState, projectMemorial } from './memorial.ts'
 import { continuingYear, smooth } from './clock.ts'
 import { COLORS, SAMPLE, pathX, presentY } from './story.ts'
 import type { Person, StoryPoint } from './story.ts'
 // The position stays anchored to the viewer's life. Only the angle changes.
 export const CAMERA_ANGLE_DEGREES=30
-export const cameraAmount=(progress:number)=>smooth((progress*120-98)/16)
+export const cameraAmount=(progress:number)=>smooth((progress*120-94)/12)
 export function projectPoint(point:StoryPoint,progress:number,viewHeight:number,_viewYear=100) {
  const tilt=cameraAmount(progress),angle=CAMERA_ANGLE_DEGREES*Math.PI/180
  const eyeHeight=288,behind=eyeHeight/Math.tan(angle),focal=624
@@ -15,8 +16,15 @@ export function projectPoint(point:StoryPoint,progress:number,viewHeight:number,
  const targetY=viewHeight*(.6+(eyeHeight*Math.cos(angle)-z*Math.sin(angle))*scale/800)-(point.elevation??0)*scale
  return {x:point.x+(targetX-point.x)*tilt,y:point.y/800*viewHeight+(targetY-point.y/800*viewHeight)*tilt,scale:1+(scale-1)*tilt}
 }
+// Use the same projection in the renderer and layout checks. Remembered stars
+// stay in a foreground constellation; only living paths enter the distant plane.
+export function projectPerson(point:StoryPoint,person:Person,progress:number,viewHeight:number,afterEnding=0) {
+ return memorialState(person,progress,afterEnding).since>=0
+  ?projectMemorial(point,cameraAmount(progress),viewHeight)
+  :projectPoint(point,progress,viewHeight)
+}
 export interface FutureLife {
- id:string;parent:string;born:number;generation:number;head:StoryPoint;points:StoryPoint[];color:string;opacity:number;twinkle:number;birth:number
+ id:string;parent:string;born:number;generation:number;head:StoryPoint;points:StoryPoint[];color:string;opacity:number
 }
 const countAt=(generation:number)=>Math.min(64,4*Math.pow(2,generation))
 const birthAt=(generation:number,index:number)=>92+generation*24+index/countAt(generation)*20
@@ -25,7 +33,7 @@ function adultLane(generation:number,index:number,year:number) {
  const own=laneAt(generation,index),pair=Math.floor(index/2)*2
  const center=(laneAt(generation,pair)+laneAt(generation,pair+1))/2
  const paired=center+(index%2?1:-1)*(10+generation*2)
- return own+(paired-own)*smooth((year-birthAt(generation,index)-16)/8)+Math.sin(year*.22+index)*3
+ return own+(paired-own)*smooth((year-birthAt(generation,index)-16)/8)+Math.sin(year*.025+index)*2
 }
 function laneX(generation:number,index:number,year:number,root:Person,people:Person[]) {
  const born=birthAt(generation,index)
@@ -34,16 +42,16 @@ function laneX(generation:number,index:number,year:number,root:Person,people:Per
  const grow=smooth((year-born)/10)
  return parentX+(adultLane(generation,index,year)-parentX)*grow
 }
-const levelAt=(generation:number,index:number,year:number)=>Math.sin(index*2.39+generation*1.7)*42+Math.sin(year*.27+index)*7
+const levelAt=(generation:number,index:number)=>Math.sin(index*2.39+generation*1.7)*24
 function elevationAt(generation:number,index:number,year:number) {
  const born=birthAt(generation,index),parentIndex=generation>0?Math.floor(index*countAt(generation-1)/countAt(generation)):0
- const parent=generation===0?0:levelAt(generation-1,parentIndex,born)
- return parent+(levelAt(generation,index,year)-parent)*smooth((year-born)/10)
+ const parent=generation===0?0:levelAt(generation-1,parentIndex)
+ return parent+(levelAt(generation,index)-parent)*smooth((year-born)/10)
 }
 // Individual lives, not a capped decorative tree. New generations are generated
 // from world time forever, while the visible window stays bounded for rendering.
 export function futureLives(progress:number,afterEnding=0,people:Person[]=SAMPLE):FutureLife[] {
- const now=continuingYear(progress,afterEnding),seconds=progress*120+afterEnding
+ const now=continuingYear(progress,afterEnding)
  if(now<92)return[]
  const roots=people.filter(p=>p.id==='grandchild-1'||p.id==='grandchild-2')
  if(!roots.length)return[]
@@ -61,7 +69,7 @@ export function futureLives(progress:number,afterEnding=0,people:Person[]=SAMPLE
   for(let sample=born;sample<year;sample+=2)points.push(point(sample))
   points.push(head)
   const parentIndex=generation>0?Math.floor(index*countAt(generation-1)/countAt(generation)):0
-  lives.push({id:`future-${generation}-${index}`,parent:generation?`future-${generation-1}-${parentIndex}`:root.id,born,generation,head,points,color:age>82?'#8d99a9':COLORS[(index+generation*3+6)%COLORS.length],opacity:smooth(age/.65)*(1-.8*smooth((age-82)/8)),twinkle:.7+.3*Math.sin(seconds*(.7+index%3*.12)+index*2.7+generation),birth:age<1.6?Math.sin(Math.PI*age/1.6):0})
+  lives.push({id:`future-${generation}-${index}`,parent:generation?`future-${generation-1}-${parentIndex}`:root.id,born,generation,head,points,color:age>82?'#8d99a9':COLORS[(index+generation*3+6)%COLORS.length],opacity:smooth(age/.65)*(1-.8*smooth((age-82)/8))})
  }
  return lives.sort((a,b)=>b.born-a.born).slice(0,384).reverse()
 }

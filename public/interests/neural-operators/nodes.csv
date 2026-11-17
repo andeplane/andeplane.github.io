@@ -61,7 +61,7 @@ author:sorensen-danny-c,author,Danny C. Sorensen,Danny C. Sorensen,,,,,,,,,,,,1
 author:candes-emmanuel,author,Emmanuel Candes,Emmanuel Candes,,,,,,,,,,,,1
 author:romberg-justin,author,Justin Romberg,Justin Romberg,,,,,,,,,,,,1
 author:tao-terence,author,Terence Tao,Terence Tao,,,,,,,,,,,,1
-author:heckel-reinhard,author,Reinhard Heckel,Reinhard Heckel,,,,,,,,,,,,1
+author:heckel-reinhard,author,Reinhard Heckel,Reinhard Heckel,,,,,,,,,,,,2
 author:bolcskei-helmut,author,Helmut Bölcskei,Helmut Bölcskei,,,,,,,,,,,,1
 author:brunton-steven-l,author,Steven L. Brunton,Steven L. Brunton,,,,,,,,,,,,1
 author:proctor-joshua-l,author,Joshua L. Proctor,Joshua L. Proctor,,,,,,,,,,,,1
@@ -87,7 +87,7 @@ author:azizzadenesheli-kamyar,author,Kamyar Azizzadenesheli,Kamyar Azizzadeneshe
 author:liu-burigede,author,Burigede Liu,Burigede Liu,,,,,,,,,,,,3
 author:bhattacharya-kaushik,author,Kaushik Bhattacharya,Kaushik Bhattacharya,,,,,,,,,,,,3
 author:stuart-andrew,author,Andrew Stuart,Andrew Stuart,,,,,,,,,,,,5
-author:anandkumar-anima,author,Anima Anandkumar,Anima Anandkumar,,,,,,,,,,,,11
+author:anandkumar-anima,author,Anima Anandkumar,Anima Anandkumar,,,,,,,,,,,,12
 author:sanchez-gonzalez-alvaro,author,Alvaro Sanchez-Gonzalez,Alvaro Sanchez-Gonzalez,,,,,,,,,,,,1
 author:godwin-jonathan,author,Jonathan Godwin,Jonathan Godwin,,,,,,,,,,,,1
 author:pfaff-tobias,author,Tobias Pfaff,Tobias Pfaff,,,,,,,,,,,,1
@@ -105,7 +105,7 @@ author:pathak-jaideep,author,Jaideep Pathak,Jaideep Pathak,,,,,,,,,,,,2
 author:subramanian-shashank,author,Shashank Subramanian,Shashank Subramanian,,,,,,,,,,,,1
 author:harrington-peter,author,Peter Harrington,Peter Harrington,,,,,,,,,,,,1
 author:raja-sanjeev,author,Sanjeev Raja,Sanjeev Raja,,,,,,,,,,,,1
-author:chattopadhyay-ashesh,author,Ashesh Chattopadhyay,Ashesh Chattopadhyay,,,,,,,,,,,,1
+author:chattopadhyay-ashesh,author,Ashesh Chattopadhyay,Ashesh Chattopadhyay,,,,,,,,,,,,2
 author:mardani-morteza,author,Morteza Mardani,Morteza Mardani,,,,,,,,,,,,1
 author:kurth-thorsten,author,Thorsten Kurth,Thorsten Kurth,,,,,,,,,,,,3
 author:hall-david,author,David Hall,David Hall,,,,,,,,,,,,1
@@ -190,13 +190,13 @@ author:cranmer-miles,author,Miles Cranmer,Miles Cranmer,,,,,,,,,,,,1
 author:ho-shirley,author,Shirley Ho,Shirley Ho,,,,,,,,,,,,1
 author:matada-sharath,author,Sharath Matada,Sharath Matada,,,,,,,,,,,,1
 author:bhan-luke,author,Luke Bhan,Luke Bhan,,,,,,,,,,,,1
-author:shi-yuanyuan,author,Yuanyuan Shi,Yuanyuan Shi,,,,,,,,,,,,1
+author:shi-yuanyuan,author,Yuanyuan Shi,Yuanyuan Shi,,,,,,,,,,,,2
 author:atanasov-nikolay,author,Nikolay Atanasov,Nikolay Atanasov,,,,,,,,,,,,1
 author:kim-minjung,author,Minjung Kim,Minjung Kim,,,,,,,,,,,,1
 author:hioka-yusuke,author,Yusuke Hioka,Yusuke Hioka,,,,,,,,,,,,1
 author:witbrock-michael,author,Michael Witbrock,Michael Witbrock,,,,,,,,,,,,1
 author:pitt-david,author,David Pitt,David Pitt,,,,,,,,,,,,1
-author:liu-schiaffini-miguel,author,Miguel Liu-Schiaffini,Miguel Liu-Schiaffini,,,,,,,,,,,,2
+author:liu-schiaffini-miguel,author,Miguel Liu-Schiaffini,Miguel Liu-Schiaffini,,,,,,,,,,,,3
 author:george-robert-joseph,author,Robert Joseph George,Robert Joseph George,,,,,,,,,,,,1
 author:berner-julius,author,Julius Berner,Julius Berner,,,,,,,,,,,,2
 author:duruisseaux-valentin,author,Valentin Duruisseaux,Valentin Duruisseaux,,,,,,,,,,,,3
@@ -306,17 +306,17 @@ field:manufacturing,field,Manufacturing,Manufacturing,,,,,,,,,,,,
 field:representation-learning,field,Representation Learning,Representation Learning,,,,,,,,,,,,
 field:domain-decomposition,field,Domain Decomposition,Domain Decomposition,,,,,,,,,,,,
 field:multiscale,field,Multiscale,Multiscale,,,,,,,,,,,,
-area:operators,area,Operator learning,Operator learning,,,,,,,,,,,,31
-area:fourier,area,Fourier neural operators,Fourier neural operators,,,,,,,,,,,,10
-area:sparse,area,Sparse recovery & sampling,Sparse recovery & sampling,,,,,,,,,,,,10
+area:operators,area,Operator learning,Operator learning,,,,,,,,,,,,39
+area:fourier,area,Fourier neural operators,Fourier neural operators,,,,,,,,,,,,14
+area:sparse,area,Sparse recovery & sampling,Sparse recovery & sampling,,,,,,,,,,,,17
 area:integration,area,Quadrature & model reduction,Quadrature & model reduction,,,,,,,,,,,,11
-area:engineering,area,Physical simulation & engineering,Physical simulation & engineering,,,,,,,,,,,,12
-area:weather,area,Weather & climate,Weather & climate,,,,,,,,,,,,4
-area:robotics,area,Robotics & control,Robotics & control,,,,,,,,,,,,6
+area:engineering,area,Physical simulation & engineering,Physical simulation & engineering,,,,,,,,,,,,17
+area:weather,area,Weather & climate,Weather & climate,,,,,,,,,,,,5
+area:robotics,area,Robotics & control,Robotics & control,,,,,,,,,,,,8
 area:world,area,World models & representations,World models & representations,,,,,,,,,,,,5
 area:foundation,area,Foundation models & transfer,Foundation models & transfer,,,,,,,,,,,,2
-area:inverse,area,Inverse problems & design,Inverse problems & design,,,,,,,,,,,,4
-area:timeseries,area,Time series & monitoring,Time series & monitoring,,,,,,,,,,,,3
+area:inverse,area,Inverse problems & design,Inverse problems & design,,,,,,,,,,,,11
+area:timeseries,area,Time series & monitoring,Time series & monitoring,,,,,,,,,,,,7
 field:wavelets,field,Wavelet operators,Wavelets and multiscale operator representations,,,,,,,,,,,,
 mwt-2021,paper,Multiwavelet operator,Multiwavelet-based Operator Learning for Differential Equations,2021,core,Projects operator kernels onto fixed multiwavelet polynomial bases and learns interactions across scales. Demonstrated on several PDE families.,"Kernel compression here is a multiscale representation, not a compressed-sensing recovery guarantee. The abstract does not establish embedded vibration-monitoring latency.",https://arxiv.org/abs/2109.13459,mwt-2021.pdf,"[""Gaurav Gupta"", ""Xiongye Xiao"", ""Paul Bogdan""]","[""operator-learning"", ""wavelets""]",Primary arXiv record; year denotes first preprint,abstract_screened,False,
 author:gaurav-gupta,author,Gaurav Gupta,Gaurav Gupta,,,,,,,,,,,,1
@@ -332,3 +332,56 @@ author:rima-alaifari,author,Rima Alaifari,Rima Alaifari,,,,,,,,,,,,1
 gauss-nodes-hale-townsend-2013,paper,Fast Gaussian quadrature,Fast and Accurate Computation of Gauss–Legendre and Gauss–Jacobi Quadrature Nodes and Weights,2013,background,Constructs Gauss–Legendre and Gauss–Jacobi nodes and weights efficiently using asymptotic formulas and Newton iteration.,Background for the Gaussian quadrature article. Fast construction of a rule is distinct from integration error and neural-operator training cost; no benchmark was reproduced.,https://appliedmaths.sun.ac.za/~nhale/publications/HaleTownsend2013a.pdf,gauss-nodes-hale-townsend-2013.pdf,"[""Nicholas Hale"", ""Alex Townsend""]","[""quadrature"", ""theory""]","SIAM Journal on Scientific Computing 35(2), A652–A674 (2013)",abstract_and_introduction_screened,False,
 author:hale-nicholas,author,Nicholas Hale,Nicholas Hale,,,,,,,,,,,,1
 author:townsend-alex,author,Alex Townsend,Alex Townsend,,,,,,,,,,,,1
+author:mojtaba,author,Mojtaba,Mojtaba,,,,,,,,,,,,1
+author:komeili,author,Komeili,Komeili,,,,,,,,,,,,1
+nomri-2025,paper,Neural operators for CS-MRI,A Unified Model for Compressed Sensing MRI Across Undersampling Patterns,2024,core,Uses neural operators in measurement and image space with data-consistency updates to reconstruct MRI across undersampling patterns and resolutions.,"Direct neural-operator application to compressed-sensing reconstruction. Learns a prior for undersampled MRI; it does not use sparse recovery to make arbitrary kernel training faster. CVPR 2025 experiments, not a clinical deployment claim.",https://arxiv.org/abs/2410.16290,nomri-2025.pdf,"[""Armeet Singh Jatyani"", ""Jiayun Wang"", ""Aditi Chandrashekar"", ""Zihui Wu"", ""Miguel Liu-Schiaffini"", ""Bahareh Tolooshams"", ""Anima Anandkumar""]","[""operator-learning"", ""compressed-sensing"", ""inverse-problems"", ""sampling""]",CVPR 2025; arXiv first posted 2024,primary_sections_and_references_screened,False,
+author:armeet-singh-jatyani,author,Armeet Singh Jatyani,Armeet Singh Jatyani,,,,,,,,,,,,1
+author:jiayun-wang,author,Jiayun Wang,Jiayun Wang,,,,,,,,,,,,1
+author:aditi-chandrashekar,author,Aditi Chandrashekar,Aditi Chandrashekar,,,,,,,,,,,,1
+author:zihui-wu,author,Zihui Wu,Zihui Wu,,,,,,,,,,,,1
+author:bahareh-tolooshams,author,Bahareh Tolooshams,Bahareh Tolooshams,,,,,,,,,,,,1
+spectral-cs-2024,paper,Sparse spectral PDE learning,When Differentiable Programming Meets Spectral PDE Solver,2024,core,"Proposes sparse random-feature encoders recovered by Lasso, learned spectral time stepping, and an extension with learned basis parameters.",Direct conceptual bridge to using compressed sensing inside operator learning. Sections 2.2 and 3 allow distinct random input/output grids and recover sparse coefficients before learning dynamics. Physics is built into the spectral evolution. Workshop proposal: large-scale systematic evaluation is explicitly future work; not evidence of a generic training speedup or an unconditional exact-recovery guarantee.,https://qijiaj.github.io/operator_learning_2024.pdf,spectral-cs-2024.pdf,"[""Qijia Jiang""]","[""operator-learning"", ""compressed-sensing"", ""sampling"", ""theory""]",D3S3 workshop at NeurIPS 2024; author-hosted workshop paper,primary_sections_and_references_screened,False,
+author:qijia-jiang,author,Qijia Jiang,Qijia Jiang,,,,,,,,,,,,1
+inverse-theory-2023,paper,Modern inverse-problem theory,Theoretical Perspectives on Deep Learning Methods in Inverse Problems,2022,core,"Surveys theoretical guarantees and open problems for generative priors, untrained neural priors, and unfolded reconstruction algorithms.","Explains the evolution of compressed sensing toward learned priors and reconstruction networks. Adjacent background, not a neural-operator paper. Separates signal-model assumptions, optimization, sample complexity and generalization.",https://arxiv.org/abs/2206.14373,inverse-theory-2023.pdf,"[""Jonathan Scarlett"", ""Reinhard Heckel"", ""Miguel R. D. Rodrigues"", ""Paul Hand"", ""Yonina C. Eldar""]","[""compressed-sensing"", ""inverse-problems"", ""theory""]","IEEE JSAIT 3(3):433–453, issue year 2022; revised 2023; DOI 10.1109/JSAIT.2023.3241123",primary_sections_and_references_screened,False,
+author:jonathan-scarlett,author,Jonathan Scarlett,Jonathan Scarlett,,,,,,,,,,,,1
+author:miguel-r-d-rodrigues,author,Miguel R. D. Rodrigues,Miguel R. D. Rodrigues,,,,,,,,,,,,1
+author:paul-hand,author,Paul Hand,Paul Hand,,,,,,,,,,,,2
+author:yonina-c-eldar,author,Yonina C. Eldar,Yonina C. Eldar,,,,,,,,,,,,1
+tunable-cs-2026,paper,Tunable generative CS priors,Latent Generative Models with Tunable Complexity for Compressed Sensing and other Inverse Problems,2026,core,"Uses nested dropout to vary latent-prior complexity in diffusion models, normalizing flows and variational autoencoders for inverse problems.","Current compressed-sensing direction: tune prior complexity to balance representation error and noise overfitting. Adjacent to operator learning, not a neural-operator architecture. March 2026 preprint; general experiments and theory for the linear denoising setting do not establish universal compressed-sensing guarantees.",https://arxiv.org/abs/2603.07357,tunable-cs-2026.pdf,"[""Sean Gunn"", ""Jorio Cocola"", ""Oliver De Candido"", ""Vaggos Chatziafratis"", ""Paul Hand""]","[""compressed-sensing"", ""inverse-problems"", ""theory""]","arXiv preprint, March 2026, v2",primary_sections_and_references_screened,False,
+author:sean-gunn,author,Sean Gunn,Sean Gunn,,,,,,,,,,,,1
+author:jorio-cocola,author,Jorio Cocola,Jorio Cocola,,,,,,,,,,,,1
+author:oliver-de-candido,author,Oliver De Candido,Oliver De Candido,,,,,,,,,,,,1
+author:vaggos-chatziafratis,author,Vaggos Chatziafratis,Vaggos Chatziafratis,,,,,,,,,,,,1
+recfno-2023,paper,RecFNO,RecFNO: a resolution-invariant flow and heat field reconstruction method from sparse observations via Fourier neural operator,2023,application,"Reconstructs heat and flow fields from sparse observations using MLP, mask or Voronoi embeddings and Fourier layers.",Direct prior art for sparse thermal reconstruction. Output resolution transfer is distinct from generalization to arbitrary input layouts. Public code: https://github.com/zhaoxiaoyu1995/RecFNO ; data links are external SharePoint links and access has not been tested.,https://arxiv.org/abs/2302.09808,recfno-2023.pdf,"[""Xiaoyu Zhao"", ""Xiaoqian Chen"", ""Zhiqiang Gong"", ""Weien Zhou"", ""Wen Yao"", ""Yunyang Zhang""]","[""operator-learning"", ""fourier-neural-operators"", ""inverse-problems"", ""sampling"", ""physical-simulation""]","International Journal of Thermal Sciences 195 (2024), 108619; DOI 10.1016/j.ijthermalsci.2023.108619",primary_abstract_screened,False,
+author:xiaoyu-zhao,author,Xiaoyu Zhao,Xiaoyu Zhao,,,,,,,,,,,,
+author:xiaoqian-chen,author,Xiaoqian Chen,Xiaoqian Chen,,,,,,,,,,,,
+author:zhiqiang-gong,author,Zhiqiang Gong,Zhiqiang Gong,,,,,,,,,,,,
+author:weien-zhou,author,Weien Zhou,Weien Zhou,,,,,,,,,,,,
+author:wen-yao,author,Wen Yao,Wen Yao,,,,,,,,,,,,
+author:yunyang-zhang,author,Yunyang Zhang,Yunyang Zhang,,,,,,,,,,,,
+stator-sparse-2016,paper,Sparse Reconstruction for Temperature Distribution Using DTS Fiber Optic Sensors with Applications in Electrical Generator Stator Monitoring,Sparse Reconstruction for Temperature Distribution Using DTS Fiber Optic Sensors with Applications in Electrical Generator Stator Monitoring,2016,application,Uses a finite-element hotspot dictionary and sparse reconstruction with distributed fibre temperatures to monitor generator stators.,"A direct industrial sparse-recovery baseline, not a neural operator. Experiments use a representative prototype; no reusable dataset was verified. Useful motivation for a thermal-plate autumn study and stator extension.",https://doi.org/10.3390/s16091425,stator-sparse-2016.pdf,"[""João Paulo Bazzo"", ""Daniel Rodrigues Pipa"", ""Erlon Vagner da Silva"", ""Cicero Martelli"", ""Jean Carlos Cardozo da Silva""]","[""compressed-sensing"", ""inverse-problems"", ""structural-monitoring"", ""physical-simulation""]","Sensors 16(9), 1425 (2016); DOI 10.3390/s16091425",primary_abstract_screened,False,
+author:joao-paulo-bazzo,author,João Paulo Bazzo,João Paulo Bazzo,,,,,,,,,,,,
+author:daniel-rodrigues-pipa,author,Daniel Rodrigues Pipa,Daniel Rodrigues Pipa,,,,,,,,,,,,
+author:erlon-vagner-da-silva,author,Erlon Vagner da Silva,Erlon Vagner da Silva,,,,,,,,,,,,
+author:cicero-martelli,author,Cicero Martelli,Cicero Martelli,,,,,,,,,,,,
+author:jean-carlos-cardozo-da-silva,author,Jean Carlos Cardozo da Silva,Jean Carlos Cardozo da Silva,,,,,,,,,,,,
+vibrating-plates-2023,paper,Learning to Predict Structural Vibrations,Learning to Predict Structural Vibrations,2023,application,"Introduces a 12000-geometry harmonically excited plate benchmark and Frequency-Query Operator, comparing FNO and DeepONet baselines.","Forward vibration prediction is already studied. A sparse-sensor inverse task would be a proposed adaptation. Code and data links: https://github.com/ecker-lab/Learning_Vibrating_Plates ; published example dataset is 4 GB, full subsets 21 GB.",https://arxiv.org/abs/2310.05469,vibrating-plates-2023.pdf,"[""Jan van Delden"", ""Julius Schultz"", ""Christopher Blech"", ""Sabine C. Langer"", ""Timo Lüddecke""]","[""operator-learning"", ""structural-monitoring"", ""physical-simulation"", ""acoustics""]",NeurIPS 2024; first arXiv posting 2023,primary_abstract_screened,False,
+author:jan-van-delden,author,Jan van Delden,Jan van Delden,,,,,,,,,,,,
+author:julius-schultz,author,Julius Schultz,Julius Schultz,,,,,,,,,,,,
+author:christopher-blech,author,Christopher Blech,Christopher Blech,,,,,,,,,,,,
+author:sabine-c-langer,author,Sabine C. Langer,Sabine C. Langer,,,,,,,,,,,,
+author:timo-luddecke,author,Timo Lüddecke,Timo Lüddecke,,,,,,,,,,,,
+motor-thermal-li-2026,paper,Neural Operator–Based Thermal Modeling for Electric Motor and Power Electronics Systems,Neural Operator–Based Thermal Modeling for Electric Motor and Power Electronics Systems,2026,application,Studies load-memory-enhanced FNO prediction of two-dimensional transient temperature fields in a 15 kW induction motor.,Master thesis prior art: motor thermal FNO itself is not new. FEM data are placed on a common 512x512 grid; variable sparse sensor observation is a separate proposed question. Few load trajectories limit broad extrapolation claims.,https://odr.chalmers.se/items/bf1e419a-85d8-44fa-8968-13c84f76cca1,motor-thermal-li-2026.pdf,"[""Jinghao Li""]","[""operator-learning"", ""fourier-neural-operators"", ""physical-simulation"", ""structural-monitoring""]","Chalmers master thesis, Systems, Control and Mechatronics, 2026",primary_abstract_screened,False,
+author:jinghao-li,author,Jinghao Li,Jinghao Li,,,,,,,,,,,,
+lagrangian-assimilation-2025,paper,Generative Lagrangian data assimilation for ocean dynamics under extreme sparsity,Generative Lagrangian data assimilation for ocean dynamics under extreme sparsity,2025,application,Combines neural operators and diffusion models for ocean-state reconstruction from very sparse Lagrangian observations.,Prior art for moving-sensor reconstruction; a controlled active-sampling study on 2D passive tracer dynamics is a narrower potential thesis. Sparse reconstructions depend on learned priors and are not unique recovery guarantees.,https://arxiv.org/abs/2507.06479,lagrangian-assimilation-2025.pdf,"[""Niloofar Asefi"", ""Leonard Lupin-Jimenez"", ""Tianning Wu"", ""Ruoying He"", ""Ashesh Chattopadhyay""]","[""operator-learning"", ""inverse-problems"", ""sampling"", ""weather"", ""robotics""]","arXiv preprint, July 2025",primary_abstract_screened,False,
+author:niloofar-asefi,author,Niloofar Asefi,Niloofar Asefi,,,,,,,,,,,,
+author:leonard-lupin-jimenez,author,Leonard Lupin-Jimenez,Leonard Lupin-Jimenez,,,,,,,,,,,,
+author:tianning-wu,author,Tianning Wu,Tianning Wu,,,,,,,,,,,,
+author:ruoying-he,author,Ruoying He,Ruoying He,,,,,,,,,,,,
+ventilation-control-2025,paper,Operator learning for energy-efficient building ventilation control with computational fluid dynamics simulation of a real-world classroom,Operator learning for energy-efficient building ventilation control with computational fluid dynamics simulation of a real-world classroom,2025,application,"Uses neural operator transformer models of airflow and carbon dioxide fields inside optimization-based ventilation control, with an open CFD-based benchmark.",Direct prior art against claiming first neural-operator ventilation control. A new thesis needs a narrower variable-sensor observation or active sampling question. Reported solver speedup is a specific CFD comparison.,https://doi.org/10.1016/j.apenergy.2025.127035,ventilation-control-2025.pdf,"[""Yuexin Bian"", ""Oliver Schmidt"", ""Yuanyuan Shi""]","[""operator-learning"", ""control"", ""physical-simulation""]","Applied Energy 404 (2026), 127035; online November 2025",primary_abstract_screened,False,
+author:yuexin-bian,author,Yuexin Bian,Yuexin Bian,,,,,,,,,,,,
+author:oliver-schmidt,author,Oliver Schmidt,Oliver Schmidt,,,,,,,,,,,,
+structures-distributed-2025,paper,Training Structures as Distributed Sensors,Training Structures as Distributed Sensors: A case study of impact force identification using neural operators,2025,application,Uses Fourier neural operators and spatial upsampling to identify impact forces from sparse structural vibration sensors.,"Sparse structural sensing and force localization are already studied. Any panel thesis should isolate changing layouts, dropout, uncertainty or another concrete distinction. No openly accessible PDF located in this search.",https://doi.org/10.1016/j.jsv.2025.119395,,"[""Yujie Gan"", ""Haoze Song"", ""Zhilu Lai""]","[""operator-learning"", ""fourier-neural-operators"", ""inverse-problems"", ""structural-monitoring""]","Journal of Sound and Vibration 619 (2025), 119395",primary_abstract_screened,False,
+author:yujie-gan,author,Yujie Gan,Yujie Gan,,,,,,,,,,,,
+author:haoze-song,author,Haoze Song,Haoze Song,,,,,,,,,,,,
+author:zhilu-lai,author,Zhilu Lai,Zhilu Lai,,,,,,,,,,,,

@@ -1,0 +1,1 @@
+{"model":"models/continuation-512-128.txt","statesPerDepth":2380,"firstSamples":512,"secondSamples":128,"seed":90210,"elapsedSeconds":12.3709,"globallyProvenOptimal":false,"method":"sampled Bellman continuation values with exhaustive current-deal choices"}
