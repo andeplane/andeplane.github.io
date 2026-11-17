@@ -1,3 +1,4 @@
+import { installButtonHaptics } from "../ui/buttonHaptics";
 import { installPrivacy } from "../ui/privacy";
 import { installMenuPreview } from "../ui/menuPreview";
 import { icon } from "../ui/icons";
@@ -19,6 +20,7 @@ import type { GoldCave } from "./goldCave";
 import "./style.css";
 
 type Screen = "home" | "operators" | "map" | "levels" | "question" | "reward" | "ship" | "unloading" | "complete" | "cave" | "settings";
+installButtonHaptics();
 installMenuPreview();
 installPrivacy();
 const root = document.querySelector<HTMLDivElement>("#academy")!;
