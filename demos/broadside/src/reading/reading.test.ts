@@ -1,7 +1,7 @@
 import { describe,it,expect } from "vitest";
 import {itemsFor,PACKS,preferredLanguage,matches} from "./content";
 import {freshProgress,startRun,currentText,completeChunk,readProgress,saveProgress,deliverChest,trackKey,SAVE_KEY} from "./progress";
-import {ReadingAttempt,hearsTarget} from "./recognition";
+import {ReadingAttempt,hearsTarget,heardPrefix} from "./recognition";
 import {readingAdapter} from "./pirateAdapter";
 const finish=(p:ReturnType<typeof freshProgress>,r:NonNullable<ReturnType<typeof startRun>>)=>{while(p.tracks[trackKey(r.language,r.pack)]?.run){const out=completeChunk(p,r,{id:r.id,index:r.index,chunk:r.chunk},"independent");expect(out.accepted).toBe(true);}};
 describe("reading content",()=>{
@@ -41,6 +41,16 @@ describe("voyages and rewards",()=>{
  });
 });
 describe("recognition lifetime",()=>{
+ it("marks complete words in order without accepting gaps, substitutions or old prefixes",()=>{
+  expect(heardPrefix("the cat","The cat is on the ship.","en")).toBe(2);
+  expect(heardPrefix("the hat","The cat is on the ship.","en")).toBe(0);
+  expect(heardPrefix("the cat ship","The cat is on the ship.","en")).toBe(0);
+  expect(heardPrefix("uh the cat","The cat is on the ship.","en")).toBe(2);
+  expect(heardPrefix("the cat no","The cat is on the ship.","en")).toBe(0);
+  expect(heardPrefix("2 små","To små båter.","nb")).toBe(2);
+  expect(heardPrefix("bat","båt","nb")).toBe(0);
+  expect(heardPrefix("","cat","en")).toBe(0);
+ });
  it("accepts live matching speech without Finish, while ignoring unfinished or wrong readings",()=>{
   const a=new ReadingAttempt(),token=a.begin("cat");a.listening(token);
   expect(a.transcript(token,"ca",false)).toBe(false);expect(a.state).toBe("listening");

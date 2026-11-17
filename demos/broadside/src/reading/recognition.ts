@@ -6,6 +6,19 @@ export function hearsTarget(text:string,expected:string,language:Language):boole
  const recent=normalize(text).split(" ").slice(-count).join(" ");
  return !!normalize(expected)&&matches(recent,expected,language);
 }
+/** Number of complete expected words heard in the latest hypothesis. Visual feedback only.
+ * A fresh start may follow a false start, but skipped or substituted words never count.
+ */
+export function heardPrefix(text:string,expected:string,language:Language):number {
+ const words=normalize(text).split(" "),target=normalize(expected).split(" ");
+ if(!normalize(text)||!normalize(expected))return 0;
+ let best=0;
+ for(let start=0;start<words.length;start++){
+  const tail=words.slice(start);
+  if(tail.length<=target.length&&matches(tail.join(" "),target.slice(0,tail.length).join(" "),language))best=Math.max(best,tail.length);
+ }
+ return best;
+}
 /** Transcripts never own rewards. The caller also validates run/item/chunk identity. */
 export class ReadingAttempt {
  state:SpeechState="ready";private generation=0;token="";expected="";private language:Language="en";

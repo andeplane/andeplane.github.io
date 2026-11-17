@@ -27,14 +27,29 @@ it("completes device readings hands-free, rewards only correct speech, and suspe
  document.body.innerHTML='<canvas id="reader-world" hidden></canvas><main id="reader"></main>';
  await import("./main");await flush();
  expect(runtime.start).toHaveBeenCalledTimes(1);
+ expect(document.querySelector('[data-action="example"]')).not.toBeNull();
+ // Optional pause cannot award credit; a fresh level must not inherit the pause.
+ click("cancel-reading");expect(document.body.textContent).toContain("Take a breather");
+ const pausedToken=token();send(target(),true,pausedToken);
+ await vi.advanceTimersByTimeAsync(5000);expect(saved().practised).toBe(0);
+ click("back");click("back");click("back");click("back");click("resume");await flush();
+ expect(runtime.start).toHaveBeenCalledTimes(2);
+ // Spoken help is available on device, suspends capture, and cannot count itself.
+ let finishExample!:()=>void;
+ runtime.speak.mockImplementationOnce(()=>new Promise<void>(resolve=>{finishExample=resolve;}));
+ click("example");await flush();send(target(),true);
+ expect(saved().practised).toBe(0);expect(document.body.textContent).toContain("Listen to the example");
+ finishExample();await flush();await vi.advanceTimersByTimeAsync(400);
+ expect(runtime.start).toHaveBeenCalledTimes(3);
+ const startedBeforeMiss=runtime.start.mock.calls.length;
  expect(document.querySelector('.reading-actions')).toBeNull();
  expect(document.querySelector('[data-action="next"]')).toBeNull();
- send("zzzz",true);await vi.advanceTimersByTimeAsync(400);
- expect(runtime.start).toHaveBeenCalledTimes(2);expect(saved().practised).toBe(0);
+ send("zzzz",true);expect(document.body.textContent).toContain("Pip didn’t catch that");await vi.advanceTimersByTimeAsync(1400);
+ expect(runtime.start).toHaveBeenCalledTimes(startedBeforeMiss+1);expect(saved().practised).toBe(0);
  const old=token(),word=target();send(word,false);await flush();
  expect(document.querySelector('.reading-paper.accepted')).not.toBeNull();expect(saved().practised).toBe(1);
  send(word,true,old);expect(saved().practised).toBe(1);
- await vi.advanceTimersByTimeAsync(1100);expect(runtime.start).toHaveBeenCalledTimes(3);
+ await vi.advanceTimersByTimeAsync(1100);expect(runtime.start).toHaveBeenCalledTimes(startedBeforeMiss+2);
  send(target(),true,old);expect(saved().practised).toBe(1);
  // Background cancels pending capture. Late results cannot earn anything.
  const backgroundToken=token();runtime.active!({isActive:false});const beforeBackground=runtime.start.mock.calls.length;
@@ -64,11 +79,12 @@ it("completes device readings hands-free, rewards only correct speech, and suspe
  send("A pirate sails.");await vi.advanceTimersByTimeAsync(1100);
  expect(document.querySelector('#reader')!.getAttribute('data-screen')).toBe("comprehension");
  expect(document.querySelector('[data-answer]')).toBeNull();
- send("A bird",true);await vi.advanceTimersByTimeAsync(400);expect(document.querySelector('#reader')!.getAttribute('data-screen')).toBe("comprehension");
+ send("A bird",true);await vi.advanceTimersByTimeAsync(1400);expect(document.querySelector('#reader')!.getAttribute('data-screen')).toBe("comprehension");
  send("A pirate");await vi.advanceTimersByTimeAsync(1100);expect(document.querySelector('#reader')!.getAttribute('data-screen')).toBe("reading");
  // Permission failure leaves a clear explanation and no tap-to-award escape hatch.
- runtime.start.mockRejectedValueOnce(new Error("MICROPHONE_PERMISSION"));send("wrong",true);await vi.advanceTimersByTimeAsync(400);
- expect(document.body.textContent).toContain("Enable both permissions");expect(document.querySelector('[data-action="next"]')).toBeNull();
+ runtime.start.mockRejectedValueOnce(new Error("MICROPHONE_PERMISSION"));send("wrong",true);await vi.advanceTimersByTimeAsync(1400);
+ expect(document.body.textContent).toContain("Enable both permissions");
+ click("listen");await flush();expect(document.body.textContent).toContain("Pip is listening");expect(document.querySelector('[data-action="next"]')).toBeNull();
  const practiceBefore=saved().practised;click("back");await vi.advanceTimersByTimeAsync(5000);expect(saved().practised).toBe(practiceBefore);
  window.dispatchEvent(new Event("pagehide"));vi.useRealTimers();
 });
