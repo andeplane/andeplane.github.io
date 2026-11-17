@@ -294,3 +294,13 @@
  #reader .comprehension-view>.story-status {grid-column:2;grid-row:3;}
  #reader .comprehension-view>.reading-support {grid-column:2;grid-row:4;}
 }
+#reader h1[tabindex="-1"]:focus {outline:none;}
+.reader-complete {width:min(calc(100% - 28px - var(--pirate-safe-left) - var(--pirate-safe-right)),680px);}
+@media(max-height:700px) and (min-height:521px){
+ #reader .reader-complete .page-heading {padding:8px 0 12px;}
+ .reader-complete .reward-emblem {width:76px;height:76px;margin:12px auto;}
+ .reader-complete .reward-emblem .icon {width:44px;height:44px;}
+ .reader-complete .reward-total {font-size:36px;}
+ .reader-complete .reading-actions {margin:12px auto;gap:8px;}
+ .reader-complete .wood-button {min-height:48px;padding:10px;}
+}
