@@ -1,4 +1,4 @@
-import { en as english } from "../math/messages";
+import { en as english, nb as norwegian } from "../math/messages";
 import { icon } from "./icons";
 import "./expeditionTrail.css";
 import { worldFor } from "../math/worlds";
@@ -10,10 +10,11 @@ const INITIAL_NODES = LEVELS_PER_REGION * 3;
 const EXTEND_NODES = LEVELS_PER_REGION * 2;
 
 export interface TrailWindow { first: number; last: number; }
+export interface TrailWorld {name:string;image:string;accent:string;ocean:string;chapterNames:readonly string[];}
 /** Regions change the scenery; the selected arithmetic pack never changes. */
-export function regionForLevel(level: number, operator: OperatorId = "add") {
+export function regionForLevel(level: number, operator: OperatorId = "add", presentation?:TrailWorld) {
   const index = Math.floor((Math.max(1, level) - 1) / LEVELS_PER_REGION);
-  const world = worldFor(operator);
+  const world = presentation ?? worldFor(operator);
   const shortName = world.chapterNames[index % world.chapterNames.length]!;
   const voyage = Math.floor(index / world.chapterNames.length) + 1;
   return { index, shortName, first: index * LEVELS_PER_REGION + 1, last: (index + 1) * LEVELS_PER_REGION,
@@ -55,7 +56,12 @@ export function trailLevelPoint(level: number, window: TrailWindow) {
 interface ExpeditionOptions {
   text?: (key: import("../math/messages").MessageKey, values?: Record<string, string | number>) => string;
   format?: (value: number) => string;
-  operator: OperatorId;
+  operator?: OperatorId;
+  world?: TrailWorld;
+  promptsPerLevel?: number;
+  reading?: boolean;
+  goldRule?: string;
+  norwegian?: boolean;
   packName: string;
   operatorName: string;
   packLabel: string;
@@ -68,12 +74,12 @@ interface ExpeditionOptions {
 /** An unbroken, explorable island trail, with the same data-level actions as the questions. */
 export function expeditionTrail(options: ExpeditionOptions): string {
   const format = options.format ?? ((value: number) => value.toLocaleString("en-GB"));
-  const text = options.text ?? ((key, values = {}) => english[key].replace(/\{(\w+)\}/g, (placeholder, name: string) => String(values[name] ?? placeholder)));
+  const text = options.text ?? ((key, values = {}) => (options.norwegian ? norwegian : english)[key].replace(/\{(\w+)\}/g, (placeholder, name: string) => String(values[name] ?? placeholder)));
   const { track, window, baseUrl } = options, current = track.cleared + 1;
-  const world = worldFor(options.operator), focus = trailLevelPoint(current, window);
-  const currentRegion = regionForLevel(current, options.operator), regions: string[] = [];
+  const world = options.world ?? worldFor(options.operator ?? "add"), focus = trailLevelPoint(current, window);
+  const currentRegion = regionForLevel(current, options.operator, options.world), regions: string[] = [];
   for (let first = window.first; first <= window.last; first += LEVELS_PER_REGION) {
-    const region = regionForLevel(first, options.operator), uncharted = region.first > current;
+    const region = regionForLevel(first, options.operator, options.world), uncharted = region.first > current;
     const paths = [segment(50, 0, NODE_X[0]!, nodeY(0))];
     for (let i = 1; i < LEVELS_PER_REGION; i++) paths.push(segment(NODE_X[i - 1]!, nodeY(i - 1), NODE_X[i]!, nodeY(i)));
     paths.push(segment(NODE_X.at(-1)!, nodeY(LEVELS_PER_REGION - 1), 50, REGION_HEIGHT));
@@ -81,8 +87,8 @@ export function expeditionTrail(options: ExpeditionOptions): string {
       const level = first + i, locked = level > current, score = track.stars[level] ?? 0, solved = track.runs[level]?.solved ?? 0;
       return `<div class="expedition-stop${level === current ? " is-current" : locked ? " is-locked" : " is-cleared"}" style="left:${NODE_X[i]}%;top:${nodeY(i)}px">
         ${level === current ? `<span class="expedition-here">${text("nextIslandMarker")}</span>` : ""}
-        <button class="expedition-node" data-level="${level}" ${locked ? "disabled" : ""}${level === current ? ` aria-current="step" id="expedition-current"` : ""} aria-label="${text("level", { count: format(level) })}, ${locked ? text("locked") : solved ? text("resumeCount", { count: solved }) : score ? `${text("stars", { count: score })}, ${text("replay")}` : text("start")}"><span style="font-size:${Math.max(10, Math.min(25, 100 / String(level).length))}px">${level}</span>${locked ? `<small class="expedition-node-lock">${lockIcon}</small>` : ""}</button>
-        ${solved ? `<span class="expedition-solved">${text("solvedCount", { count: solved })}</span>` : !locked ? `<span class="expedition-node-stars" aria-label="${text("stars", { count: score })}">${[1, 2, 3].map(n => `<i class="${n <= score ? "earned" : ""}">★</i>`).join("")}</span>` : ""}
+        <button class="expedition-node" data-level="${level}" ${locked ? "disabled" : ""}${level === current ? ` aria-current="step" id="expedition-current"` : ""} aria-label="${text("level", { count: format(level) })}, ${locked ? text("locked") : solved ? options.reading ? `${options.norwegian ? "fortsett" : "resume"}, ${solved}/${options.promptsPerLevel ?? 10} ${options.norwegian ? "lest" : "read"}` : text("resumeCount", { count: solved }) : score ? `${text("stars", { count: score })}, ${text("replay")}` : text("start")}"><span style="font-size:${Math.max(10, Math.min(25, 100 / String(level).length))}px">${level}</span>${locked ? `<small class="expedition-node-lock">${lockIcon}</small>` : ""}</button>
+        ${solved ? `<span class="expedition-solved">${options.reading ? `${solved}/${options.promptsPerLevel ?? 10} ${options.norwegian ? "lest" : "read"}` : text("solvedCount", { count: solved })}</span>` : !locked && !options.reading ? `<span class="expedition-node-stars" aria-label="${text("stars", { count: score })}">${[1, 2, 3].map(n => `<i class="${n <= score ? "earned" : ""}">★</i>`).join("")}</span>` : ""}
       </div>`;
     }).join("");
     regions.push(`<section class="expedition-region${uncharted ? " is-uncharted" : ""}" data-region="${region.index}" aria-label="${text("chapter", { count: format(region.index + 1) })}: ${escape(region.name)}" style="--region-reflection:${region.index % 2 ? -1 : 1};height:${REGION_HEIGHT}px">
@@ -104,7 +110,7 @@ export function expeditionTrail(options: ExpeditionOptions): string {
       <div class="expedition-map-tools" data-map-control><button data-map-center aria-label="${text("findIsland")}" title="${text("findIsland")}">${icon("compass")}</button><button data-map-zoom="in" aria-label="${text("zoomIn")}">+</button><button data-map-zoom="out" aria-label="${text("zoomOut")}">−</button></div>
       <p class="expedition-drag-hint" data-map-control>${text("dragExplore")}</p>
       <span class="map-keyboard-help" id="expedition-map-help">${text("mapKeyboard")}</span>
-      <div class="expedition-dock" data-map-control><div><small>${escape(options.packLabel)} · ${text("firstTryGold")}</small><button class="wood-button primary" data-level="${current}">${text("playLevel", { action: track.runs[current]?.solved ? text("continue") : text("play"), count: format(current) })} ${icon("ship")}</button></div></div>
+      <div class="expedition-dock" data-map-control><div><small>${escape(options.packLabel)} · ${escape(options.goldRule ?? text("firstTryGold"))}</small><button class="wood-button primary" data-level="${current}">${text("playLevel", { action: track.runs[current]?.solved ? text("continue") : text("play"), count: format(current) })} ${icon("ship")}</button></div></div>
     </div>
   </section>`;
 }

@@ -29,3 +29,9 @@ ios-calculus/App/App.xcodeproj/xcuserdata/
 ios-calculus/App/App.xcodeproj/project.xcworkspace/xcuserdata/
 ios-calculus/DerivedData/
 ios-calculus/build/
+
+# Captain Reader native output
+dist-reading-ios/
+ios-reading/App/CapApp-SPM/.build/
+ios-reading/App/App.xcodeproj/xcuserdata/
+ios-reading/App/App.xcodeproj/project.xcworkspace/xcuserdata/

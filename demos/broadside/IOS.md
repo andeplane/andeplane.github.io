@@ -81,3 +81,13 @@ then Run. Updates use `npm run calculus:ios:sync`. Unsigned simulator builds use
 
 The default `ios:*` commands continue to build Broadside. The `calculus:ios:*`
 commands select the separate project with `CAPTAIN_CALCULUS=1`.
+
+## Captain Reader
+
+`npm run reading:ios:sync` builds and synchronizes the independent `ios-reading` project (`com.andeplane.captainreader`). `npm run reading:ios:open` opens it. The icon is an open book, quill and sail in the other games' teal-and-gold family; it is not the Calculus icon.
+
+The app-local `ReadingSpeech` Capacitor plugin is registered in `ReadingViewController`. It checks locale support, availability and on-device capability before creating a recognition request, requests microphone/speech permissions in context and sets `requiresOnDeviceRecognition`. It never falls back to server recognition. It stops capture on navigation, native inactivity, interruption and cancellation. Example playback runs with recognition stopped and resolves only when playback finishes, so automatic listening cannot accept the example voice. Live matching results can accept the current prompt; completed unmatched utterances restart listening automatically. Next always permits self-confirmed progress with the same reward. Each speech result is tied to an attempt token; the TypeScript ledger additionally checks run, prompt and sentence identities before awarding gold.
+
+Debug launch argument `--reading-speech-diagnostics` writes `Documents/ReadingSpeechCapabilities.json`. This reads capability flags only, without starting capture, requesting permission or saving transcripts. The first physical-device report is recorded in the reading design review; actual child speech requires a separate human test.
+
+After packaging, `node tools/verifyPiratePackages.mjs /absolute/path/Reader/App.app` verifies Reader alone. The existing two-app invocation still works, and an optional third Reader package verifies all three together. Reader verification also checks native speech/permission/icon build metadata and the current reading artwork against the generated bundle. Inspect the compiled app-icon output before installing a test build.

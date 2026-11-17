@@ -1,0 +1,65 @@
+.map-view.operation-world { height: 100%; min-height: 0; padding: 0 16px calc(14px + var(--pirate-safe-bottom, env(safe-area-inset-bottom, 0px))); display: flex; flex-direction: column; overflow: hidden; }
+.world-map-heading { flex: 0 0 auto; padding: 12px 12px 15px; text-align: center; }
+.world-map-heading .eyebrow { color: var(--world-accent); font-size: 10px; }
+.world-map-heading h1 { margin-top: 6px; font-size: clamp(28px, 4vw, 40px); line-height: 1.1; }
+.world-map-heading p { margin-top: 6px; font-size: 12px; color: #b9ceca; }
+.world-map-viewport { position: relative; flex: 1 1 auto; min-height: 0; width: 100%; overflow: hidden; border: 1px solid color-mix(in srgb, var(--world-accent), transparent 65%); border-radius: 13px; background: var(--world-ocean); isolation: isolate; touch-action: none; cursor: grab; box-shadow: 0 10px 30px #06131a70; }
+.world-map-viewport:active { cursor: grabbing; }
+.world-map-viewport:focus-visible { outline: 2px solid var(--world-accent); outline-offset: -3px; }
+.world-map-plane { position: absolute; top: 0; left: 0; width: 1200px; height: 1800px; transform-origin: 0 0; will-change: transform; }
+.world-map-art { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; pointer-events: none; user-select: none; }
+.world-map-texture { position: absolute; inset: 0; background: linear-gradient(#0a20251f, #0a20251f), repeating-linear-gradient(0deg, transparent 0 109px, #ffffed09 110px 111px); pointer-events: none; }
+.world-pack-route { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; pointer-events: none; filter: drop-shadow(0 1px 2px #10272e); }
+.world-pack-route path { fill: none; stroke: #fcf3cfb0; stroke-width: 4; stroke-dasharray: 8 13; stroke-linecap: round; }
+.world-pack-stop { position: absolute; width: 190px; padding: 0; border: 0; background: transparent; color: var(--world-ink); transform: translate(-50%, -50%); text-align: center; touch-action: none; }
+.world-pack-pin { display: grid; place-items: center; margin: 0 auto -12px; position: relative; z-index: 1; width: 44px; height: 44px; border: 2px solid #fffae5; border-radius: 50%; background: var(--world-ocean); color: #fff0d1; font: 700 17px/1 "DM Sans", sans-serif; box-shadow: 0 4px 10px #061d294f; }
+.world-pack-label { display: block; padding: 23px 12px 12px; border: 1px solid #fff0cb8c; border-radius: 11px; background: var(--world-paper); box-shadow: 0 7px 18px #06192470, inset 0 1px #fff7; }
+.world-pack-label b { display: block; font: 700 20px/1.25 "DM Sans", sans-serif; }
+.world-pack-label small { display: block; margin-top: 4px; font-size: 11px; line-height: 1.35; }
+.world-pack-label > span { display: block; margin-top: 9px; font-weight: 700; font-size: 14px; }
+.world-pack-label em { display: flex; align-items: center; justify-content: center; gap: 6px; margin-top: 10px; padding-top: 8px; border-top: 1px solid #44675524; font: 400 10px/1.4 "DM Sans", sans-serif; }
+.world-pack-label em .icon { width: 14px; height: 14px; }
+.world-pack-stop:hover .world-pack-label { filter: brightness(1.06); }
+.world-map-tools { position: absolute; z-index: 4; bottom: 10px; left: 10px; right: 10px; display: flex; gap: 10px; align-items: center; justify-content: space-between; color: #edf2dc; pointer-events: none; }
+.world-map-tools > span { padding: 8px 10px; border-radius: 7px; background: #0c1b27d9; font-size: 10px; }
+.world-map-tools button { display: flex; align-items: center; justify-content: center; gap: 6px; min-height: 44px; padding: 8px 12px; border: 1px solid #ecdcab59; border-radius: 8px; background: #0c1b27eb; color: #edf2dc; font-size: 11px; pointer-events: auto; }
+.world-map-tools button .icon { width: 17px; height: 17px; color: var(--world-accent); }
+@media (max-width: 700px) {
+  .map-view.operation-world { padding: 0 10px calc(10px + var(--pirate-safe-bottom, env(safe-area-inset-bottom, 0px))); }
+}
+@media (max-width: 700px) {
+  .world-map-heading { padding-top: 5px; padding-bottom: 12px; }
+}
+@media (max-width: 700px) {
+  .world-map-heading h1 { font-size: 30px; }
+}
+@media (max-width: 700px) {
+  .world-map-heading p { font-size: 11px; }
+}
+@media (max-width: 700px) {
+  .world-map-tools { left: 8px; right: 8px; bottom: 8px; gap: 6px; }
+}
+@media (max-width: 700px) {
+  .world-map-tools > span { font-size: 9px; padding-inline: 8px; }
+}
+@media (max-width: 700px) {
+  .world-map-tools button { font-size: 10px; padding-inline: 9px; }
+}
+@media (max-width: 350px), (max-height: 700px) and (max-width: 700px) {
+  .world-map-heading h1 { font-size: 27px; }
+}
+@media (max-width: 350px), (max-height: 700px) and (max-width: 700px) {
+  .world-map-tools > span { max-width: 105px; }
+}
+@media (max-height: 480px) and (min-width: 651px) {
+  .world-map-heading { padding-block: 2px 7px; }
+}
+@media (max-height: 480px) and (min-width: 651px) {
+  .world-map-heading h1 { font-size: 27px; }
+}
+@media (max-height: 480px) and (min-width: 651px) {
+  .world-map-heading p { display: none; }
+}
+/* Map art can extend behind the glass; every control remains clear of side safe areas. */
+.map-view.operation-world {padding-left:max(16px,var(--pirate-safe-left));padding-right:max(16px,var(--pirate-safe-right));}
+@media(max-width:700px){.map-view.operation-world{padding-left:max(10px,var(--pirate-safe-left));padding-right:max(10px,var(--pirate-safe-right));}}

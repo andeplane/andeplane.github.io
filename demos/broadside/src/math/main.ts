@@ -18,6 +18,7 @@ import { LANGUAGES, readLanguagePreference, saveLanguagePreference, isLanguagePr
 import { selectLanguage } from "./language";
 import type { GoldCave } from "./goldCave";
 import "./style.css";
+import "../ui/difficultyMap.css";
 
 type Screen = "home" | "operators" | "map" | "levels" | "question" | "reward" | "ship" | "unloading" | "complete" | "cave" | "settings";
 installButtonHaptics();

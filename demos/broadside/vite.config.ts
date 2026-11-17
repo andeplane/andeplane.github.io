@@ -7,10 +7,12 @@ import { privateAssets, usePrivatePearl } from "./tools/privateAssets";
 
 export default defineConfig(({ mode }) => {
   const calculusIos = mode === "calculus-ios";
-  const pearl = !calculusIos && usePrivatePearl(mode, process.cwd());
+  const readingIos = mode === "reading-ios";
+  const pearl = !calculusIos && !readingIos && usePrivatePearl(mode, process.cwd());
   const input: Record<string, string> = calculusIos
     ? { calculus: "math/index.html" }
-    : { broadside: "index.html", calculus: "math/index.html" };
+    : readingIos ? { reading: "reading/index.html" }
+    : { broadside: "index.html", calculus: "math/index.html", reading: "reading/index.html" };
   return {
     plugins: [privateAssets(pearl, process.cwd()), pirateBuildProvenance(process.cwd(),pearl)],
     define: {
