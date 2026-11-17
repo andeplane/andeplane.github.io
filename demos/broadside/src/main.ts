@@ -1,3 +1,4 @@
+import { installButtonHaptics } from "./ui/buttonHaptics";
 import { installPrivacy } from "./ui/privacy";
 import { installMenuPreview } from "./ui/menuPreview";
 import { coinSounds, installCoinSounds } from "./shared/pirate-world/game/coinSounds";
@@ -50,6 +51,8 @@ import "./ui/sailing.css";
 import "./ui/journey.css";
 import "./ui/deck.css";
 import "./ui/liveHud.css";
+
+installButtonHaptics();
 
 installGameSurface();
 installCoinSounds(new URLSearchParams(location.search));
