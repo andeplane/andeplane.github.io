@@ -65,3 +65,47 @@ describe("Captain Calculus navigation destinations",()=>{
   });
 
 });
+
+describe("Captain Calculus language preferences", () => {
+  it("detects Norwegian and keeps its first-try reward instructions", async () => {
+    vi.spyOn(navigator, "languages", "get").mockReturnValue(["nb-NO", "en"]);
+    await import("./main");
+    expect(document.documentElement.lang).toBe("nb");
+    expect(root().textContent).toContain("Velg hva du vil øve på");
+    click("settings");
+    expect(root().textContent).toContain("100 gull per riktig svar på første forsøk");
+    expect(root().querySelector<HTMLSelectElement>("#game-language")!.value).toBe("auto");
+  });
+
+  it("changes language without losing the active question, answer, or saved rewards", async () => {
+    history.replaceState(null, "", "/?qa=true&view=question");
+    await import("./main");
+    root().querySelector<HTMLButtonElement>('[data-key="7"]')!.click();
+    const equation = root().querySelector(".left-term")!.textContent;
+    const before = sessionStorage.getItem("broadside.math.v1");
+    click("settings");
+    const select = root().querySelector<HTMLSelectElement>("#game-language")!;
+    select.value = "de"; select.dispatchEvent(new Event("change", { bubbles: true }));
+    expect(document.documentElement.lang).toBe("de");
+    expect(document.activeElement?.id).toBe("game-language");
+    expect(sessionStorage.getItem("broadside.math.v1")).toBe(before);
+    click("back");
+    expect(root().dataset.screen).toBe("question");
+    expect(root().querySelector(".left-term")!.textContent).toBe(equation);
+    expect(root().querySelector("#answer")!.textContent).toBe("7");
+    expect(root().textContent).toContain("Antwort prüfen");
+  });
+
+  it("uses a saved override before browser preferences and explains failed preference writes", async () => {
+    localStorage.setItem("broadside.math.language.v1", "fi");
+    await import("./main");
+    expect(document.documentElement.lang).toBe("fi");
+    click("settings");
+    vi.mocked(localStorage.setItem).mockImplementation(() => { throw Error("full"); });
+    const select = root().querySelector<HTMLSelectElement>("#game-language")!;
+    select.value = "fr"; select.dispatchEvent(new Event("change", { bubbles: true }));
+    expect(document.documentElement.lang).toBe("fr");
+    expect(root().querySelector<HTMLElement>("#language-save-error")!.hidden).toBe(false);
+    expect(root().textContent).toContain("n’a pas pu être sauvegardée");
+  });
+});
