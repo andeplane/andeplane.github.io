@@ -80,7 +80,10 @@ const buildIslandMesh = (
       const rr = def.radius * t * shoreline(a);
       const x = Math.sin(a) * rr, z = Math.cos(a) * rr;
       const relief = Math.sin(x * .27 + phase[0]!) * Math.sin(z * .24 + phase[1]!);
-      const h = heightAt(t, a) + relief * .13 * smooth(0, .35, t);
+      const inland = (1 - smooth(.68, .98, t)) * smooth(0, .2, t);
+      const ridge = Math.sin(x * .14 + phase[0]!) * Math.cos(z * .12 - phase[1]!) * .65
+        + Math.sin(x * .32 + z * .19) * .24;
+      const h = heightAt(t, a) + (relief * .17 + ridge) * inland;
       positions.push(x, h, z);
       colors.push(...colorFor(h, x, z).asArray());
       uvs.push(x * .28, z * .28);
@@ -106,7 +109,8 @@ const buildIslandMesh = (
       const inland = Color3.Lerp(grass, darkGrass, smooth(peak * .65, peak, h));
       color = Color3.Lerp(color, inland, smooth(.8 + patch * .3, 2.5 + patch * .4, h));
     }
-    color.scaleInPlace(1 + patch * .04);
+    const mottling = Math.sin(x * .47 + z * .22) * Math.sin(z * .51 - x * .13);
+    color.scaleInPlace(1 + patch * .055 + mottling * .025);
     return new Color4(color.r, color.g, color.b, 1);
   }
 
@@ -141,90 +145,109 @@ const groundHeight = (def: IslandDef, x: number, z: number): number => {
   return 0.2 + (1 - smooth(0.25, 1, t)) * peak * 0.85;
 };
 
-const buildPalmTemplate = (scene: Scene, material: StandardMaterial, style: WorldStyle): Mesh => {
+/** Three crown ages share instanced geometry, with overlapping, folded pinnae. */
+const buildPalmTemplate = (scene: Scene, material: StandardMaterial, style: WorldStyle, variant: number): Mesh => {
   const parts: Mesh[] = [];
-  const path: Vector3[] = [];
-  for (let i = 0; i <= 16; i++) {
-    const t = i / 16;
-    path.push(new Vector3(Math.sin(t * 1.2) * 1.4, t * 9, 0));
-  }
-  const trunk = MeshBuilder.CreateTube(
-    "trunk",
-    { path, radiusFunction: (i) => .42 - i * .015, tessellation: 12, cap: Mesh.CAP_ALL },
-    scene,
-  );
+  const rng = new Rng(7103 + variant * 997);
+  const height = 10 + variant * 1.1;
+  const path = Array.from({ length: 23 }, (_, i) => {
+    const t = i / 22;
+    return new Vector3(Math.sin(t * 1.3) * (1.1 + variant * .4), t * height, Math.sin(t * 2) * .3);
+  });
+  const trunk = MeshBuilder.CreateTube("ringed curved palm trunk", {
+    path, radiusFunction: (i) => .39 - i * .008, tessellation: 10, cap: Mesh.CAP_ALL,
+  }, scene);
   const trunkColor = Color3.FromHexString(style.trunk);
-  const trunkPositions = trunk.getVerticesData("position")!;
   const bark: number[] = [];
+  const trunkPositions = trunk.getVerticesData("position")!;
   for (let i = 0; i < trunkPositions.length; i += 3) {
-    const ring = .86 + .14 * smooth(-.6, .2, Math.sin(trunkPositions[i + 1]! * 9));
+    const y = trunkPositions[i + 1]!;
+    const ring = .7 + .25 * smooth(-.35, .5, Math.sin(y * 10.5)) + .05 * Math.sin(y * 41);
     bark.push(trunkColor.r * ring, trunkColor.g * ring, trunkColor.b * ring, 1);
   }
   trunk.setVerticesData("color", bark);
   parts.push(trunk);
   const top = path[path.length - 1]!;
-  const leaves = 10;
-  const leafDark = Color3.FromHexString(style.leaf), leafLight = Color3.FromHexString(style.leafLight);
-  for (let l = 0; l < leaves; l++) {
-    const a = (l / leaves) * Math.PI * 2 + 0.3;
+  const leafDark = Color3.Lerp(Color3.FromHexString(style.leaf), Color3.FromHexString(style.grassDark), .3).scale(.8);
+  const leafLight = Color3.FromHexString(style.leafLight);
+  const sunlit = Color3.Lerp(leafLight, Color3.FromHexString("#e0bc48"), .48);
+  // Hanging mature fronds, a wide middle crown, and upright new growth.
+  for (let l = 0; l < 13; l++) {
+    const tier = l < 5 ? 0 : l < 10 ? 1 : 2;
+    const a = l * 2.39996 + variant * .7 + rng.range(-.1, .1);
     const dir = new Vector3(Math.sin(a), 0, Math.cos(a));
     const side = new Vector3(dir.z, 0, -dir.x);
-    const centreAt = (t: number) => top.add(dir.scale(t * (5.2 + (l % 3) * .25)))
-      .add(new Vector3(0, 1.2 * Math.sin(t * Math.PI) - t * t * (2.6 + l % 2 * .5), 0));
+    const length = (tier === 2 ? 3.6 : tier === 1 ? 6.3 : 5.5) * rng.range(.9, 1.13);
+    const lift = tier === 2 ? 3.6 : tier === 1 ? 2 : .8;
+    const droop = tier === 0 ? 3.4 : tier === 1 ? 1.7 : -.3;
+    const centreAt = (t: number) => top.add(dir.scale(t * length)).add(new Vector3(
+      0, lift * Math.sin(t * Math.PI * .72) - t * t * droop, 0,
+    ));
+    const brightness = .22 + (Math.sin(a - .8) * .5 + .5) * .48 + (tier === 2 ? .12 : 0);
+    const color = Color3.Lerp(leafDark, sunlit, brightness);
     const spine = [[], []] as Vector3[][];
-    for (let i = 0; i <= 14; i++) {
-      const t = i / 14, centre = centreAt(t), width = .07 * (1 - t) + .008;
-      spine[0]!.push(centre.add(side.scale(width)));
-      spine[1]!.push(centre.subtract(side.scale(width)));
+    for (let i = 0; i <= 20; i++) {
+      const t = i / 20, centre = centreAt(t), width = .055 * (1 - t) + .006;
+      spine[0]!.push(centre.add(side.scale(width)).add(new Vector3(0, .045, 0)));
+      spine[1]!.push(centre.subtract(side.scale(width)).add(new Vector3(0, .045, 0)));
     }
-    const rib = MeshBuilder.CreateRibbon("curved palm frond spine", {
-      pathArray: spine, sideOrientation: Mesh.DOUBLESIDE,
-    }, scene);
-    paint(rib, Color3.Lerp(leafDark, leafLight, .55));
-    parts.push(rib);
+    const rib = MeshBuilder.CreateRibbon("golden palm rachis", { pathArray: spine, sideOrientation: Mesh.DOUBLESIDE }, scene);
+    paint(rib, Color3.Lerp(color, sunlit, .65)); parts.push(rib);
+    // A narrow continuous folded blade ties the pinnae into a legible frond.
     const bladePaths = [[], [], []] as Vector3[][];
-    for (let j = 0; j <= 14; j++) {
-      const t = j / 14, centre = centreAt(t), width = Math.sin(t * Math.PI) * .48;
+    for (let j = 0; j <= 22; j++) {
+      const t = j / 22, centre = centreAt(t);
+      const width = Math.sin(t * Math.PI) * .44 * (.88 + .12 * Math.sin(t * 37));
       bladePaths[0]!.push(centre.add(side.scale(width)).add(new Vector3(0, -.08, 0)));
-      bladePaths[1]!.push(centre.add(new Vector3(0, .035, 0)));
-      bladePaths[2]!.push(centre.subtract(side.scale(width)).add(new Vector3(0, -.08, 0)));
+      bladePaths[1]!.push(centre.add(new Vector3(0, .065, 0)));
+      bladePaths[2]!.push(centre.subtract(side.scale(width)).add(new Vector3(0, -.1, 0)));
     }
-    const blade = MeshBuilder.CreateRibbon("folded palm leaf", { pathArray: bladePaths, sideOrientation: Mesh.DOUBLESIDE }, scene);
-    paint(blade, Color3.Lerp(leafDark, leafLight, .13 + l % 3 * .08));
-    parts.push(blade);
-    // Each frond has separate curved leaflets, giving a feathered silhouette.
-    for (let pair = 0; pair < 10; pair++) for (const sign of [-1, 1]) {
-      const t = .12 + pair * .078, origin = centreAt(t);
-      const length = (.42 + Math.sin(t * Math.PI) * 1.25) * (sign === 1 ? 1 : .94);
-      const edgeA: Vector3[] = [], edgeB: Vector3[] = [];
-      for (let j = 0; j <= 4; j++) {
-        const u = j / 4;
-        const centre = origin.add(side.scale(sign * u * length))
-          .add(dir.scale(u * (.25 + t * .45)))
-          .add(new Vector3(0, Math.sin(u * Math.PI) * .14 - u * u * .45, 0));
-        const width = Math.sin(u * Math.PI) * .25 + .008 * (1 - u);
-        edgeA.push(centre.add(dir.scale(width)));
-        edgeB.push(centre.subtract(dir.scale(width)));
+    const foldedBlade = MeshBuilder.CreateRibbon("cohesive folded palm blade", { pathArray: bladePaths, sideOrientation: Mesh.DOUBLESIDE }, scene);
+    const bladeNormals = foldedBlade.getVerticesData("normal")!;
+    const bladeColors: number[] = [];
+    for (let i = 0; i < foldedBlade.getTotalVertices(); i++) {
+      const upper = bladeNormals[i * 3 + 1]! > 0;
+      const c = upper ? color : Color3.Lerp(leafDark, color, .26);
+      bladeColors.push(c.r, c.g, c.b, 1);
+    }
+    foldedBlade.setVerticesData("color", bladeColors); parts.push(foldedBlade);
+    for (let pair = 0; pair < 11; pair++) for (const sign of [-1, 1]) {
+      const t = .09 + pair * .081;
+      const origin = centreAt(t);
+      const span = (.35 + Math.pow(Math.sin(t * Math.PI), .7) * 1.1) * (tier === 2 ? .68 : 1);
+      const blade = [[], [], []] as Vector3[][];
+      for (let j = 0; j <= 5; j++) {
+        const u = j / 5;
+        const centre = origin.add(side.scale(sign * u * span)).add(dir.scale(u * (.18 + t * .38)))
+          .add(new Vector3(0, .16 * Math.sin(u * Math.PI) - u * u * (.32 + t * .22), 0));
+        const width = (.23 + .065 * Math.sin(t * Math.PI)) * Math.pow(1 - u, .72);
+        blade[0]!.push(centre.add(dir.scale(width)).add(new Vector3(0, -.045, 0)));
+        blade[1]!.push(centre.add(new Vector3(0, .055 * (1 - u), 0)));
+        blade[2]!.push(centre.subtract(dir.scale(width)).add(new Vector3(0, -.06, 0)));
       }
-      const leaflet = MeshBuilder.CreateRibbon("individual palm leaflet", {
-        pathArray: [edgeA, edgeB], sideOrientation: Mesh.DOUBLESIDE,
-      }, scene);
-      paint(leaflet, Color3.Lerp(leafDark, leafLight, .12 + .4 * (pair / 9) + l % 2 * .08));
-      parts.push(leaflet);
+      const pinna = MeshBuilder.CreateRibbon("tapered folded palm pinna", { pathArray: blade, sideOrientation: Mesh.DOUBLESIDE }, scene);
+      const positions = pinna.getVerticesData("position")!, normals = pinna.getVerticesData("normal")!, colors: number[] = [];
+      const highlight = Color3.Lerp(color, sunlit, .24);
+      for (let i = 0; i < positions.length / 3; i++) {
+        const ridge = i % 18 >= 6 && i % 18 < 12;
+        const upper = normals[i * 3 + 1]! > 0;
+        const c = !upper ? Color3.Lerp(leafDark, color, .22)
+          : ridge ? highlight : color.scale(.9 + .05 * (pair % 3));
+        colors.push(c.r, c.g, c.b, 1);
+      }
+      pinna.setVerticesData("color", colors); parts.push(pinna);
     }
   }
-  for (let i = 0; i < 4; i++) {
-    const coconut = MeshBuilder.CreateSphere("coconut", { diameter: 0.6, segments: 8 }, scene);
-    coconut.position.copyFrom(top).addInPlace(new Vector3(
-      Math.sin(i * 1.8) * 0.5, -0.5, Math.cos(i * 1.8) * 0.5,
-    ));
-    paint(coconut, Color3.FromHexString("#584331"));
-    parts.push(coconut);
+  for (let i = 0; i < 5; i++) {
+    const coconut = MeshBuilder.CreateSphere("coconut", { diameter: .5, segments: 6 }, scene);
+    coconut.position.copyFrom(top).addInPlace(new Vector3(Math.sin(i * 2.4) * .45, -.4, Math.cos(i * 2.4) * .45));
+    paint(coconut, Color3.FromHexString("#634322")); parts.push(coconut);
   }
   const palm = Mesh.MergeMeshes(parts, true, true)!;
   palm.material = material;
-  palm.name = "palm-template";
+  palm.name = `palm-template-${variant}`;
   palm.isVisible = false;
+  palm.receiveShadows = true;
   return palm;
 };
 
@@ -244,8 +267,8 @@ const buildRockTemplate = (
   const pos = rock.getVerticesData("position")!;
   for (let i = 0; i < pos.length; i += 3) {
     const x = pos[i]!, y = pos[i + 1]!, z = pos[i + 2]!;
-    const j = .96 + .12 * Math.sin(x * 3 + phase) * Math.cos(z * 3 - phase)
-      + .07 * Math.sin(y * 4 + z * 2);
+    const j = .93 + .16 * Math.sin(x * 4 + phase) * Math.cos(z * 3 - phase)
+      + .10 * Math.sin(y * 5 + z * 2) + .035 * Math.sin(x * 15 + y * 12 + z * 9);
     pos[i] = x * j;
     pos[i + 1] = y * j * .75;
     pos[i + 2] = z * j;
@@ -258,7 +281,8 @@ const buildRockTemplate = (
   const light = Color3.FromHexString(style.rock), dark = Color3.FromHexString(style.rockDark);
   for (let i = 0; i < roundedPositions.length; i += 3) {
     const x = roundedPositions[i]!, y = roundedPositions[i + 1]!, z = roundedPositions[i + 2]!;
-    const shade = .55 + y * .2 + Math.sin(x * 3 + z * 4 + phase) * .1;
+    const shade = .42 + y * .28 + Math.sin(x * 3 + z * 4 + phase) * .14;
+    // Muted warm faces and dark weathered seams read as stone at gameplay scale.
     const c = Color3.Lerp(dark, light, shade);
     colors.push(c.r, c.g, c.b, 1);
     uvs.push(x * .5 + y * .3, z * .5 + y * .3);
@@ -297,7 +321,9 @@ export const buildIslands = (
   const vertexMat = flatMaterial(scene, "island-vertex");
   const terrainMat = islandSurface(scene);
   const rockMat = islandSurface(scene, true);
-  const palm = buildPalmTemplate(scene, vertexMat, style);
+  vertexMat.specularColor.set(.12, .16, .07);
+  vertexMat.specularPower = 24;
+  const palmTemplates = [0, 1, 2].map(variant => buildPalmTemplate(scene, vertexMat, style, variant));
   const rocks = [
     buildRockTemplate(scene, rockMat, seed + 1, style),
     buildRockTemplate(scene, rockMat, seed + 2, style),
@@ -369,9 +395,9 @@ export const buildIslands = (
       };
 
       if (def.props.includes("palms")) {
-        const count = Math.min(50, Math.round(def.radius * (def.props.includes("fort") ? 0.65 : 1.15)));
+        const count = Math.min(29, Math.round(def.radius * (def.props.includes("fort") ? .42 : .7)));
         for (let i = 0; i < count; i++) {
-          const p = palm.createInstance(`palm-${def.pos.x}-${i}`);
+          const p = palmTemplates[i % palmTemplates.length]!.createInstance(`palm-${def.pos.x}-${i}`);
           p.parent = root;
           p.position = place(0.15, 0.7);
           // Keep the landing route and the central landmark legible.
@@ -389,7 +415,8 @@ export const buildIslands = (
             p.position = place(.65, .84);
           if (inLandmarkClearing(def, p.position.x, p.position.z, 2.4)) { p.dispose(); continue; }
           p.rotation.y = rng.range(0, Math.PI * 2);
-          p.scaling.setAll(rng.range(0.7, 1.55));
+          const crown = rng.range(.82, 1.25);
+          p.scaling.set(crown, crown * rng.range(.86, 1.3), crown);
           shadows.addShadowCaster(p);
           palms.push({ mesh: p, phase: i + def.pos.x });
         }

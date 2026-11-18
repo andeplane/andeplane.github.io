@@ -35,12 +35,36 @@ export function buildIslandDetails(
     mesh.isPickable = false;
     return mesh;
   };
-  const bush = template([0, 1, 2, 3, 4].map((i) => {
-    const m = MeshBuilder.CreateIcoSphere("jungle canopy", { radius: 1, subdivisions: 3, flat: false }, scene);
-    m.position.set(Math.sin(i * 2.4) * 0.7, 0.65 + i % 2 * 0.3, Math.cos(i * 2.4) * 0.6);
-    m.scaling.set(1, 0.75, 0.9);
-    return paint(m, i % 2 ? style.grassDark : style.grass);
-  }), "island shrub template");
+  const leafColor = Color3.FromHexString(style.leaf);
+  const youngLeaf = Color3.Lerp(Color3.FromHexString(style.leafLight), Color3.FromHexString("#c4bd58"), .18);
+  const shrubParts: Mesh[] = [];
+  // A mound of discrete broad leaves catches light along its folded midribs.
+  // The former merged spheres made the understory read as green boulders.
+  for (let i = 0; i < 30; i++) {
+    const a = i * 2.39996, tier = i % 3;
+    const origin = new Vector3(Math.sin(a * 1.7) * .55, .35 + tier * .5, Math.cos(a * 1.3) * .55);
+    const direction = new Vector3(Math.sin(a), 0, Math.cos(a));
+    const side = new Vector3(direction.z, 0, -direction.x);
+    const length = 1.2 + (i % 5) * .17;
+    const paths = [[], [], []] as Vector3[][];
+    for (let j = 0; j <= 8; j++) {
+      const t = j / 8, w = Math.pow(Math.sin(t * Math.PI), .8) * (.32 + tier * .035);
+      const centre = origin.add(direction.scale(t * length)).add(new Vector3(0, Math.sin(t * Math.PI * .8) * (.65 + tier * .14) - t * t * .2, 0));
+      paths[0]!.push(centre.add(side.scale(w)).add(new Vector3(0, -.11 * Math.sin(t * Math.PI), 0)));
+      paths[1]!.push(centre.add(new Vector3(0, .055, 0)));
+      paths[2]!.push(centre.subtract(side.scale(w)).add(new Vector3(0, -.07 * Math.sin(t * Math.PI), 0)));
+    }
+    const leaf = MeshBuilder.CreateRibbon("overlapping jungle shrub leaf", { pathArray: paths, sideOrientation: Mesh.DOUBLESIDE }, scene);
+    const c = Color3.Lerp(leafColor, youngLeaf, .15 + tier * .22 + (i % 4) * .04);
+    const colors: number[] = [];
+    for (let v = 0; v < leaf.getTotalVertices(); v++) {
+      const highlight = v % 27 >= 9 && v % 27 < 18;
+      const shade = highlight ? 1.12 : .86;
+      colors.push(c.r * shade, c.g * shade, c.b * shade, 1);
+    }
+    leaf.setVerticesData("color", colors); shrubParts.push(leaf);
+  }
+  const bush = template(shrubParts, "layered broadleaf understory template");
 
   // Curved leaves with a raised central vein, rather than flat triangles.
   const fern = template(Array.from({ length: 9 }, (_, i) => {
@@ -134,30 +158,49 @@ export function buildIslandDetails(
       m.position.y += size * 0.25;
       m.rotation.z = rng.range(-0.2, 0.2);
     }
-    const shoreCount = Math.min(70, Math.round(def.radius * 2));
-    for (let i = 0; i < shoreCount; i++) {
-      const a = rng.range(0, Math.PI * 2);
-      const cluster = Math.sin(a * 3 + coastPhase(def));
-      if (cluster < -.25) continue; // Leave broad open coves between rocky headlands.
-      const [x, z] = polar(a, rng.range(0.83, 1.02));
-      if (Math.abs(x) < 3.5 && z < 0) continue; // Keep landing stage open.
-      const size = rng.range(0.6, 2.5) * (def.radius > 20 ? 1.25 : 1);
-      if (inLandmarkClearing(def, x, z, size)) continue;
-      const m = instance(rng.pick(rocks), "shore boulder", x, z, size * 1.4, size * 0.8, size, size > 0.8);
-      m.position.y += size * 0.2;
+    const headlands = Math.max(3, Math.min(7, Math.round(def.radius / 5)));
+    for (let cluster = 0; cluster < headlands; cluster++) {
+      const a = (cluster + .28) / headlands * Math.PI * 2 + coastPhase(def) * .3;
+      const [cx, cz] = polar(a, .87);
+      if (Math.abs(cx) < 5 && cz < 0) continue;
+      const count = 4 + cluster % 3;
+      for (let j = 0; j < count; j++) {
+        const size = j === 0 ? rng.range(2.6, 4.2) : rng.range(.45, 2.2);
+        const x = cx + rng.range(-3.3, 3.3), z = cz + rng.range(-2.8, 2.8);
+        if (Math.abs(x) < 4 && z < 0) continue;
+        if (inLandmarkClearing(def, x, z, size)) continue;
+        const m = instance(rng.pick(rocks), "clustered shore outcrop", x, z,
+          size * rng.range(1.05, 1.65), size * rng.range(.65, 1.15), size * rng.range(.8, 1.25), size > .8);
+        m.position.y -= size * .14;
+        m.rotation.z = rng.range(-.25, .25);
+      }
+    }
+    // Fully submerged reef heads give transparent shallows a real bottom to reveal.
+    // Their tops stay below the waterline and do not add invisible collision objects.
+    if (def.kind === "sand") for (let i = 0; i < 9; i++) {
+      const a = i * 2.39996 + coastPhase(def);
+      const [x, z] = polar(a, 1.04 + (i % 3) * .045);
+      if (Math.abs(x) < 5 && z < 0) continue;
+      const size = rng.range(.75, 1.8);
+      const m = instance(rng.pick(rocks), "submerged reef head", x, z,
+        size * 1.5, size * .55, size * 1.15, false);
+      m.position.y = -.3 - size * .75;
     }
     if (def.kind !== "sand") return;
     const dense = def.props.includes("palms");
-    const vegetation = Math.min(110, Math.round(def.radius * (dense ? 3.3 : 1.1)));
+    const vegetation = Math.min(92, Math.round(def.radius * (dense ? 2.8 : 1.1)));
     for (let i = 0; i < vegetation; i++) {
       const [x, z] = polar(rng.range(0, Math.PI * 2), rng.range(0.33, 0.78));
       if (Math.abs(x) < 3.2 && z < 3) continue;
       if (def.props.includes("fort") && Math.hypot(x, z) < def.radius * 0.5) continue;
       if (inLandmarkClearing(def, x, z, 1.5)) continue;
       if (surface(x, z) < 1) continue;
-      const source = i % 3 === 0 || (dense && i % 5 === 0) ? bush : fern;
+      // Break up the border into large clumps, small recruits and bare soil pockets.
+      if (Math.sin(x * .26 + z * .18) * Math.sin(z * .24 - x * .11) < -.4) continue;
+      const source = i % 4 === 0 ? fern : bush;
+      const size = i % 9 === 0 ? rng.range(1.8, 2.3) : rng.range(.55, source === bush ? 1.3 : 1.4);
       instance(source, source === bush ? "jungle shrub" : "jungle fern", x, z,
-        rng.range(0.75, source === bush ? 2.6 : 1.45), undefined, undefined, source === bush);
+        size, size * rng.range(.8, 1.25), size, source === bush);
     }
     for (let i = 0; i < 24; i++) {
       const [x, z] = polar(rng.range(0, Math.PI * 2), rng.range(0.73, 0.87));
