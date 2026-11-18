@@ -65,6 +65,8 @@ final class ReleaseUITests: XCTestCase {
         capture("broadside-captain-view-portrait",app:app)
         XCUIDevice.shared.orientation = .landscapeLeft
         capture("broadside-05-voyage-landscape",app:app)
+        XCTAssertGreaterThan(button(app, "Walk deck").frame.minX, app.frame.midX,
+                             "The sailing toolbar belongs on the right after leaving the chart.")
         tap(app,"Pause voyage"); capture("broadside-pause-landscape",app:app)
         XCUIDevice.shared.press(.home); app.activate()
         XCTAssertTrue(button(app,"Keep sailing").waitForExistence(timeout:15))
