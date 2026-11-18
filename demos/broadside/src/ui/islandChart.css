@@ -1,6 +1,6 @@
 .family-world-chart {
   box-sizing:border-box; min-height:100%; padding:clamp(8px,2vh,22px) 12px 20px;
-  background:#a2bca9 url("/assets/map/nautical-chart.webp") center / cover;
+  background:#a2bca9 url("/assets/map/chart-water.webp") center / 1120px repeat;
   color:#30271b; text-align:center;
 }
 .family-world-chart h1 { font:700 clamp(24px,5vw,40px)/1.12 Georgia,serif; color:#30271b; margin:4px 0 12px; }
@@ -15,7 +15,7 @@
   .family-world-chart .world-art {height:clamp(60px,22vh,105px);}
 }
 .world-map-plane.chart-water,.expedition-view .expedition-map-viewport,.expedition-view .expedition-region {
-  background: linear-gradient(#339db644,#339db644), #9ab6a8 url("/assets/map/chart-water.webp") center / 560px repeat;
+  background: linear-gradient(#339db644,#339db644), #9ab6a8 url("/assets/map/chart-water.webp") center / 1120px repeat;
 }
 .expedition-view .expedition-world-art,.expedition-view .expedition-region::before,.expedition-view .expedition-region::after {display:none;}
 .expedition-view .expedition-route .route-shadow {stroke:none;}
@@ -66,7 +66,7 @@
 /* Let the sea continue under the phone insets, with just the controls inset. */
 :is(#academy,#reader)[data-screen="levels"] :is(#main-content,#reader-content) {inset:0;padding:0;}
 :is(#academy,#reader)[data-screen="levels"] .expedition-view {
-  background:#9ab6a8 url("/assets/map/chart-water.webp") center / 560px repeat;
+  background:#9ab6a8 url("/assets/map/chart-water.webp") center / 1120px repeat;
 }
 .trail-heading {
   display:flex;align-items:center;gap:14px;flex:none;
@@ -83,4 +83,4 @@
 
 /* A stop on a chapter boundary can extend into the next stretch of water. */
 .expedition-view .expedition-region {background:transparent;isolation:auto;}
-.expedition-view .expedition-map {background:#9ab6a8 url("/assets/map/chart-water.webp") center / 560px repeat;}
+.expedition-view .expedition-map {background:#9ab6a8 url("/assets/map/chart-water.webp") center / 1120px repeat;}
