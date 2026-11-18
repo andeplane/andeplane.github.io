@@ -111,6 +111,13 @@ export function buildTreasureCabin(scene: Scene, shadows: ShadowGenerator, optio
   const deck = [material("cabin deck oak", "#a79b83", true), material("cabin deck worn oak", "#b7aa91", true), material("cabin deck aged oak", "#958b76", true)];
   const wall = material("cabin weathered hull planking", "#9c907a", true), frame = material("cabin dark carved oak", "#8b785a", true);
   if (options.walkable) { wall.diffuseColor=Color3.FromHexString("#8c826d"); wall.specularColor.set(.065,.055,.038); }
+  const relief = options.walkable ? material("cabin worn carved relief", "#9a8060", true) : frame;
+  if(options.walkable) {
+    frame.diffuseColor=Color3.FromHexString("#554b40");
+    for(const m of deck)m.diffuseColor.scaleInPlace(.76);
+    wall.diffuseColor=Color3.FromHexString("#776455");
+    textures.relief.level=.56;
+  }
   const iron = material("cabin forged black iron", "#302e28"), brass = material("cabin rubbed antique brass", "#ae8b4d"), rope = material("cabin tarred hemp", "#6d6250");
   brass.specularColor.set(.5, .38, .19); brass.specularPower = 64; iron.specularColor.set(.15, .15, .12);
   const add = (mesh: Mesh, mat: StandardMaterial, parent?: TransformNode) => { mesh.material = mat; if (parent) mesh.parent = parent; parts.get(mat)!.push(mesh); return mesh; };
@@ -219,7 +226,7 @@ export function buildTreasureCabin(scene: Scene, shadows: ShadowGenerator, optio
     const arch = Array.from({ length: 25 }, (_, i) => { const a = Math.PI - i / 24 * Math.PI; return new Vector3(Math.cos(a) * .65, 4.14 + Math.sin(a) * .56, -.03); });
     const reveal = [new Vector3(-.65, 1.83, -.03), ...arch, new Vector3(.65, 1.83, -.03)];
     beam("arched oak window reveal", reveal, .17, .3, frame, root);
-    beam("worn inner window moulding", reveal.map(v => v.add(new Vector3(0, 0, -.175))), .045, .055, brass, root);
+    beam("worn inner window moulding", reveal.map(v => v.add(new Vector3(0, 0, -.175))), .045, .055, options.walkable ? relief : brass, root);
     box("deep stern window sill", 1.55, .14, .48, 0, 1.79, -.12, frame, root);
     for (const x of [-.22, .22]) {
       const top=options.walkable?4.14+.56*Math.sqrt(1-(x/.65)**2):4.44,bottom=options.walkable?1.84:1.82;
@@ -235,12 +242,32 @@ export function buildTreasureCabin(scene: Scene, shadows: ShadowGenerator, optio
     const spandrel = MeshBuilder.CreateRibbon("fitted arch spandrel timber", { pathArray: [arch.map(v => new Vector3(v.x, v.y + .12, .04)), arch.map(v => new Vector3(v.x, 5.36, .04))], sideOrientation: Mesh.DOUBLESIDE }, scene); add(spandrel, wall, root);
     if(options.walkable)for(const x of[-.7,.7])box("fitted window spandrel shoulder",.18,1.25,.18,x,4.74,.09,wall,root);
     box("stern upper cornice", 1.6, .2, .39, 0, 5.34, -.04, frame, root);
-    box("stern cornice rubbed edge", 1.6, .035, .04, 0, 5.24, -.255, brass, root, .008);
+    if(options.walkable) {
+      // Thick stepped cornices and shell/scroll carving echo the native stern's
+      // restrained bronze-brown relief, never a luminous gold window outline.
+      box("stern carved cornice lower roll",1.64,.1,.42,0,5.18,-.12,frame,root);
+      box("stern carved cornice crown",1.67,.11,.49,0,5.48,-.1,relief,root);
+      box("stern raised panel lower rail",1.38,.08,.08,0,.89,-.2,relief,root);
+      for(const x of[-.61,.61])box("stern raised panel side moulding",.065,.52,.075,x,1.17,-.2,relief,root);
+      for(const side of[-1,1]) {
+        const scroll=Array.from({length:29},(_,i)=>{const t=i/28,a=t*Math.PI*2.1,r=.23*(1-t)+.035;return new Vector3(side*(.29+Math.cos(a)*r),4.95+Math.sin(a)*r*.65,-.19-t*.018);});
+        beam("carved stern volute",scroll,.045,.07,relief,root);
+        for(let leaf=0;leaf<3;leaf++) {
+          const x=side*(.24+leaf*.105),y=5.02+leaf*.018;
+          beam("carved acanthus leaf",[new Vector3(x,y,-.22),new Vector3(x+side*.07,y+.12,-.25),new Vector3(x+side*.025,y+.2,-.19)],.065,.04,relief,root);
+        }
+      }
+      for(let flute=-3;flute<=3;flute++) {
+        const a=flute*.2;
+        beam("carved shell fan",[new Vector3(0,4.86,-.18),new Vector3(Math.sin(a)*.18,5.01,-.25),new Vector3(Math.sin(a)*.27,5.13-Math.abs(flute)*.018,-.19)],.025,.045,relief,root);
+      }
+    }
+    box("stern cornice rubbed edge", 1.6, .035, .04, 0, 5.24, -.255, options.walkable ? relief : brass, root, .008);
     for (const x of [-.78, .78]) {
       const column = MeshBuilder.CreateLathe("turned stern pilaster", { shape: [new Vector3(.1, 0), new Vector3(.13, .12), new Vector3(.085, .19), new Vector3(.064, 1.5), new Vector3(.1, 1.61), new Vector3(.13, 1.7)], tessellation: 12, cap: Mesh.CAP_ALL }, scene);
       column.position.set(x, 1.93, -.22); add(column, frame, root);
       for (const y of [2.04, 3.55]) {
-        const collar = MeshBuilder.CreateTorus("pilaster brass collar", { diameter: .2, thickness: .025, tessellation: 12 }, scene); collar.position.set(x, y, -.22); add(collar, brass, root);
+        const collar = MeshBuilder.CreateTorus("pilaster brass collar", { diameter: .2, thickness: .025, tessellation: 12 }, scene); collar.position.set(x, y, -.22); add(collar, options.walkable ? iron : brass, root);
       }
     }
   }
@@ -305,7 +332,7 @@ export function buildTreasureCabin(scene: Scene, shadows: ShadowGenerator, optio
     const merged = Mesh.MergeMeshes(list, true, true)!; merged.name = `treasure cabin · ${mat.name}`;
     merged.material = mat; merged.receiveShadows = mat !== glass && mat !== flame && mat !== lanternGlass; merged.isPickable = false; meshes.push(merged);
     // Tiny fittings do not cast exaggerated shadows from the room's normal bias.
-    if (mat === frame) shadows.addShadowCaster(merged, false);
+    if (mat === frame || mat === relief) shadows.addShadowCaster(merged, false);
   }
   for (const root of windowRoots) root.dispose();
   return { meshes, lamps, timber: wall, frame, floorY: .7 };

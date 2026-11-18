@@ -8,7 +8,6 @@ import { Vector3 } from '@babylonjs/core/Maths/math.vector.js';
 import { Color3, Color4 } from '@babylonjs/core/Maths/math.color.js';
 import { HemisphericLight } from '@babylonjs/core/Lights/hemisphericLight.js';
 import { DirectionalLight } from '@babylonjs/core/Lights/directionalLight.js';
-import { PointLight } from '@babylonjs/core/Lights/pointLight.js';
 import { ShadowGenerator } from '@babylonjs/core/Lights/Shadows/shadowGenerator.js';
 import { DynamicTexture } from '@babylonjs/core/Materials/Textures/dynamicTexture.js';
 import { MeshBuilder } from '@babylonjs/core/Meshes/meshBuilder.js';
@@ -24,6 +23,7 @@ import { Ocean } from '../../../render/water';
 import { buildRelic } from './relics';
 import { buildTreasureCabin, type TreasureCabin } from './treasureCabin';
 import { clearPrivateCabinShell } from './privateCabinShell';
+import { fitPearlCabinFinish } from './pearlCabinFinish';
 import { RELICS } from '../catalog';
 import { VoyageSky } from '../../../render/voyageSky';
 import { RewardChest } from './chest';
@@ -74,6 +74,18 @@ export class PrivateShip {
     s.imageProcessingConfiguration.exposure=1.1;
     this.cargo = new CargoChests(s, 'Pearl cargo');
     this.buildCabin();this.heroChest=new RewardChest(s);
+    const chestMaterials=new Set(this.heroChest.root.getChildMeshes().map(mesh=>mesh.material));
+    for(const material of chestMaterials)if(material instanceof StandardMaterial) {
+      if(material.name==='aged mahogany'||material.name==='warm teak planks') {
+        material.name='Pearl chest '+material.name;
+        material.diffuseColor=Color3.FromHexString('#76604b');material.specularColor.set(.08,.065,.045);
+      }else if(material.name==='hammered gold fittings') {
+        material.diffuseColor=Color3.FromHexString('#8c7959');material.emissiveColor.set(0,0,0);
+        material.specularColor=Color3.FromHexString('#b7a179');material.specularPower=48;
+      }
+    }
+    const bandIron=s.getMaterialByName('cabin forged black iron');
+    for(const mesh of this.heroChest.root.getChildMeshes())if(/^(forged band|curved lid gold band)$/.test(mesh.name))mesh.material=bandIron;
     const glow=s.getLightByName("chest's hidden glow");if(glow)glow.includedOnlyMeshes=this.heroChest.root.getChildMeshes();
     for(const mesh of this.heroChest.root.getChildMeshes())if(!/doubloon|light at lid seam/.test(mesh.name))this.shadows.addShadowCaster(mesh,false);
     this.enter();
@@ -88,6 +100,7 @@ export class PrivateShip {
       const asset=await LoadAssetContainerAsync(source.modelUrl,ship.scene);
       asset.addAllToScene();
       clearPrivateCabinShell(asset.meshes);
+      await fitPearlCabinFinish(ship.scene,asset.materials);
       for (const mesh of asset.meshes) { mesh.receiveShadows=true; mesh.isPickable=false; ship.shadows.addShadowCaster(mesh); }
       ship.shadows.getShadowMap()!.refreshRate=0;
       return ship;
@@ -140,7 +153,7 @@ export class PrivateShip {
     box('flush oak doorway threshold',0,4.39,-10.9,2.35,.22,1.5);
     const brass=this.displayBrass=new StandardMaterial('keepsake display antique brass',s);
     brass.diffuseColor=Color3.FromHexString('#9f7a3e');brass.specularColor=Color3.FromHexString('#d3b272');brass.specularPower=64;
-    const cushion=this.displayVelvet=new StandardMaterial('keepsake dark velvet rests',s);cushion.diffuseColor=Color3.FromHexString('#173c3c');cushion.specularColor.set(.02,.025,.025);
+    const cushion=this.displayVelvet=new StandardMaterial('keepsake dark velvet rests',s);cushion.diffuseColor=Color3.FromHexString('#182323');cushion.specularColor.set(.02,.025,.025);
     // Functional cabinetry fills the low stair bay without pretending it is
     // another window or leaving a featureless box at the captain's eye level.
     box('under-stair stowage cabinet',4.02,5.48,-13.85,.48,1.9,3.2,room.frame);
@@ -148,9 +161,9 @@ export class PrivateShip {
       box('framed stowage cabinet door',3.75,5.48,z,.08,1.68,1.42);
       for(const edge of[-.65,.65])box('cabinet door oak stile',3.67,5.48,z+edge,.14,1.74,.11,room.frame);
       for(const y of[4.65,6.31])box('cabinet door oak rail',3.67,y,z,.14,.12,1.44,room.frame);
-      for(const y of[4.9,6.05])box('forged cupboard strap',3.59,y,z,.045,.055,1.2,brass);
+      for(const y of[4.9,6.05])box('forged cupboard strap',3.59,y,z,.045,.055,1.2,this.scene.getMaterialByName('cabin forged black iron') as StandardMaterial);
       const handle=MeshBuilder.CreateTorus('forged cabinet ring pull',{diameter:.14,thickness:.025,tessellation:16},s);
-      handle.position.set(3.69,5.55,z+.35);handle.rotation.z=Math.PI/2;handle.material=brass;
+      handle.position.set(3.69,5.55,z+.35);handle.rotation.z=Math.PI/2;handle.material=this.scene.getMaterialByName('cabin forged black iron') as StandardMaterial;
     }
     const hemp=new StandardMaterial('secured cabin running rigging',s);hemp.diffuseColor=Color3.FromHexString('#8d7957');hemp.specularColor.set(.03,.025,.015);
     box('belaying rack fitted backing',-4.58,6.45,-13.05,.12,1.4,2.7,room.frame);
@@ -175,26 +188,26 @@ export class PrivateShip {
     const places=earned.length===1?[state.pending.length ? .95 : 0]:earned.length===2?[-1.2,1.2]:earned.length===3?[-2.4,0,2.4]:[-2.7,-.9,.9,2.7];
     for(let i=0;i<earned.length;i++) {
       const id=earned[i]!,x=places[i]!,z=earned.length<=2?-19.35:-19;
-      const stand=MeshBuilder.CreateLathe('turned keepsake stand',{shape:[new Vector3(.46,0),new Vector3(.5,.12),new Vector3(.34,.22),new Vector3(.27,1.12),new Vector3(.4,1.25),new Vector3(.49,1.34)],tessellation:20,cap:3},this.scene);
+      const stand=MeshBuilder.CreateLathe('turned keepsake stand',{shape:[new Vector3(.33,0),new Vector3(.36,.1),new Vector3(.25,.18),new Vector3(.19,.96),new Vector3(.28,1.07),new Vector3(.35,1.16)],tessellation:20,cap:3},this.scene);
       stand.parent=this.displays;stand.position.set(x,4.5,z);stand.material=this.cabin.frame;stand.receiveShadows=true;this.shadows.addShadowCaster(stand);
-      const plate=MeshBuilder.CreateCylinder('brass keepsake tray',{height:.08,diameter:1.04,tessellation:32},this.scene);plate.parent=this.displays;plate.position.set(x,5.88,z);plate.material=this.displayBrass;
-      const rest=MeshBuilder.CreateCylinder('fitted velvet keepsake rest',{height:.16,diameter:.84,tessellation:32},this.scene);rest.parent=this.displays;rest.position.set(x,6,z);rest.material=this.displayVelvet;
-      for(let j=0;j<3;j++){const a=j*Math.PI*2/3,claw=MeshBuilder.CreateSphere('brass keepsake cradle',{diameter:.11,segments:10},this.scene);claw.parent=this.displays;claw.position.set(x+Math.sin(a)*.3,6.08,z+Math.cos(a)*.3);claw.material=this.displayBrass;}
+      const plate=MeshBuilder.CreateCylinder('brass keepsake tray',{height:.055,diameter:.73,tessellation:24},this.scene);plate.parent=this.displays;plate.position.set(x,5.69,z);plate.material=this.displayBrass;
+      const rest=MeshBuilder.CreateCylinder('fitted velvet keepsake rest',{height:.075,diameter:.61,tessellation:24},this.scene);rest.parent=this.displays;rest.position.set(x,5.75,z);rest.material=this.displayVelvet;
+      for(let j=0;j<3;j++){const a=j*Math.PI*2/3,claw=MeshBuilder.CreateSphere('brass keepsake cradle',{diameter:.07,segments:8},this.scene);claw.parent=this.displays;claw.position.set(x+Math.sin(a)*.21,5.81,z+Math.cos(a)*.21);claw.material=this.displayBrass;}
       const relic=buildRelic(this.scene,id);relic.parent=root;
       for(const mesh of relic.getChildMeshes())if(mesh.metadata?.sparkle!==undefined)mesh.dispose();
       const materials=new Set(relic.getChildMeshes().map(mesh=>mesh.material));
       for(const material of materials)if(material instanceof StandardMaterial){
         material.emissiveColor.scaleInPlace(.1);
-        if(material.name==='luminous relic'){material.diffuseColor=id===2?Color3.FromHexString('#8d244f'):material.diffuseColor.scale(.62);material.specularColor=Color3.FromHexString('#efd0dc');material.specularPower=140;}
+        if(material.name==='luminous relic'){material.diffuseColor=id===2?Color3.FromHexString('#66213d'):material.diffuseColor.scale(.62);material.specularColor=Color3.FromHexString('#efd0dc');material.specularPower=140;}
         if(material.name==='polished ancient gold'){material.diffuseColor=Color3.FromHexString('#9d7b43');material.specularColor=Color3.FromHexString('#d6b77a');material.specularPower=72;}
       }
-      const bounds=relic.getHierarchyBoundingVectors(true),size=bounds.max.subtract(bounds.min),scale=1.05/Math.max(size.x,size.y,size.z);
-      relic.scaling.setAll(scale);relic.position.set(x,6.1-bounds.min.y*scale,z);
+      const bounds=relic.getHierarchyBoundingVectors(true),size=bounds.max.subtract(bounds.min),scale=.66/Math.max(size.x,size.y,size.z);
+      relic.scaling.setAll(scale);relic.position.set(x,5.82-bounds.min.y*scale,z);
       for(const mesh of relic.getChildMeshes()){mesh.receiveShadows=true;this.shadows.addShadowCaster(mesh);}
       const label=new DynamicTexture('engraved keepsake name',{width:512,height:128},this.scene,false),c=label.getContext() as CanvasRenderingContext2D;
-      c.fillStyle='#4d3820';c.fillRect(0,0,512,128);c.strokeStyle='#a98a50';c.lineWidth=5;c.strokeRect(5,5,502,118);c.fillStyle='#ead7a8';c.textAlign='center';c.textBaseline='middle';c.font='36px Georgia';c.fillText(RELICS[id]!.name,256,64,472);label.update();
+      c.fillStyle='#241f19';c.fillRect(0,0,512,128);c.strokeStyle='#a98a50';c.lineWidth=5;c.strokeRect(5,5,502,118);c.fillStyle='#ead7a8';c.textAlign='center';c.textBaseline='middle';c.font='36px Georgia';c.fillText(RELICS[id]!.name,256,64,472);label.update();
       const mat=new StandardMaterial('engraved keepsake brass plaque',this.scene);mat.diffuseTexture=label;mat.specularColor.set(.12,.09,.04);mat.backFaceCulling=false;
-      const plaque=MeshBuilder.CreatePlane('mounted keepsake name',{width:1.15,height:.28},this.scene);plaque.parent=root;plaque.position.set(x,5.57,z+.61);plaque.material=mat;
+      const plaque=MeshBuilder.CreatePlane('mounted keepsake name',{width:.85,height:.19},this.scene);plaque.parent=root;plaque.position.set(x,5.4,z+.4);plaque.material=mat;
       this.displayObstacles.push({x,z,rx:.55,rz:.6,top:6.12});
     }
     if(state.pending.length){
