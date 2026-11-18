@@ -385,6 +385,7 @@ async function main() {
     stepper.reset(); canvas.focus();
   };
   const start = async (index: number, freeMode = false, pack = 0, respawn = false) => {
+    if (!freeMode && !qa && !levelUnlocked(progress.voyages, index)) return;
     stashSea(); resetDeck();
     if (harbour) { harbour.scene.dispose(); harbour = null; }
     if (respawn) {
@@ -399,7 +400,6 @@ async function main() {
     gesture.clear();
     clearWalking();
     reward = undefined;
-    if (!freeMode && !qa && !levelUnlocked(progress.voyages, index)) return;
     const id = ++loadId;
     mode = "loading";
     cave?.endReveal();

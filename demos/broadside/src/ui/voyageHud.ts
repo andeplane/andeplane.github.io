@@ -15,6 +15,7 @@ import {
   stageOf,
   worldLevels,
   worldStars,
+  worldUnlocked,
   levelUnlocked,
 } from "../game/campaign";
 import { generateVoyage } from "../game/voyage";
@@ -271,8 +272,8 @@ export class VoyageHud {
       this.showMenu("levels");
     };
     q("#world-packs").onclick = (e) => {
-      const b = (e.target as HTMLElement).closest<HTMLElement>("[data-pack]");
-      if (b) {
+      const b = (e.target as HTMLElement).closest<HTMLButtonElement>("[data-pack]");
+      if (b && !b.disabled) {
         this.pack = Number(b.dataset.pack);
         this.showMenu("levels");
       }
@@ -357,6 +358,7 @@ export class VoyageHud {
   }
   private menuPage: "main" | "worlds" | "levels" | "settings" = "main";
   showMenu(page: "main" | "worlds" | "levels" | "settings" = "main"): void {
+    if (page === "levels" && !worldUnlocked(this.progress.voyages, this.pack)) page = "worlds";
     this.closeShipPanel();
     this.q("#v-camera").hidden = true;
     this.q("#v-deck").hidden = true;
@@ -517,11 +519,11 @@ export class VoyageHud {
     const next =
       worldLevels(this.pack).find((i) => !this.progress.voyages[i]) ??
       (this.pack + 1) * LEVELS_PER_WORLD - 1;
-    const stars = (pack: number) => worldStars(this.progress.voyages, pack);
-    this.q("#world-packs").innerHTML = PACKS.map(
-      (p, i) =>
-        `<button data-pack="${i}" class="world-island world-${i}" aria-label="${p.name}, world ${i + 1}">${worldArt(i)}${mapLabel({ className: "world-label", eyebrow: `WORLD ${i + 1}`, title: p.name, detailHtml: !levelUnlocked(this.progress.voyages, i * LEVELS_PER_WORLD) ? icon("lock") + " Uncharted" : "★ " + stars(i) + " / 30" })}</button>`,
-    ).join("");
+    this.q("#world-packs").innerHTML = PACKS.map((p, i) => {
+      const locked = !worldUnlocked(this.progress.voyages, i);
+      const detail = locked ? icon("lock") + " Finish World 1" : "★ " + worldStars(this.progress.voyages, i) + " / 30";
+      return `<button data-pack="${i}" class="world-island world-${i}" ${locked ? "disabled" : ""} aria-label="${p.name}, world ${i + 1}${locked ? ", finish World 1 to unlock" : ""}">${worldArt(i)}${mapLabel({ className: "world-label", eyebrow: `WORLD ${i + 1}`, title: p.name, detailHtml: detail })}</button>`;
+    }).join("");
     const pack = PACKS[this.pack]!;
     this.q("#world-number").textContent = `WORLD ${this.pack + 1}`;
     this.q("#world-name").textContent = pack.name;

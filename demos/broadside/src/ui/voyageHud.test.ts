@@ -26,6 +26,27 @@ function setup(privateShip: boolean, cargo = false) {
 
 afterEach(() => { document.body.replaceChildren(); ship.private = false; });
 
+it("keeps later world charts closed until the tenth World 1 voyage is completed", () => {
+  const { hud, progress, button } = setup(false);
+  for (let i = 0; i < 9; i++) awardVoyage(progress, i, 1, 0);
+  hud.showMenu("worlds");
+  for (const i of [1, 2, 3]) {
+    const island = button(`[data-pack="${i}"]`);
+    expect(island.disabled).toBe(true);
+    island.click();
+    expect(hud.root.dataset.screen).toBe("worlds");
+  }
+  awardVoyage(progress, 9, 1, 0);
+  for (const i of [1, 2, 3]) {
+    hud.showMenu("worlds");
+    const island = button(`[data-pack="${i}"]`);
+    expect(island.disabled).toBe(false);
+    island.click();
+    expect(hud.root.dataset.screen).toBe("levels");
+    expect(hud.pack).toBe(i);
+  }
+});
+
 it("shows a recoverable ship-load failure in the redesigned home", () => {
   const { hud } = setup(true);
   hud.showMenu("main");

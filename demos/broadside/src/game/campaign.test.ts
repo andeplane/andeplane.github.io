@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import {
   levelUnlocked,
+  worldUnlocked,
   worldLevels,
   worldStars,
   worldOf,
@@ -18,8 +19,14 @@ describe("four worlds of ten voyages", () => {
     expect(stageOf(19)).toBe(9);
     expect(levelUnlocked({}, 0)).toBe(true);
     expect(levelUnlocked({}, 10)).toBe(false);
-    expect(levelUnlocked({ 9: {} }, 10)).toBe(true);
-    expect(levelUnlocked({ 10: {} }, 10)).toBe(true);
+    const finished = Object.fromEntries(worldLevels(0).map(i => [i, {stars: 1}]));
+    for (const world of [1, 2, 3]) {
+      expect(worldUnlocked({9: {}, 10: {}}, world)).toBe(false);
+      expect(worldUnlocked(finished, world)).toBe(true);
+    }
+    expect(levelUnlocked({9: {}, 10: {}}, 10)).toBe(false);
+    expect(levelUnlocked(finished, 10)).toBe(true);
+    expect(levelUnlocked(finished, 20)).toBe(false);
     expect(levelUnlocked({ 39: {} }, 40)).toBe(false);
     expect(levelUnlocked({}, -1)).toBe(false);
     expect(

@@ -64,7 +64,16 @@
   color: #302519;
   touch-action: manipulation;
 }
-#world-menu .world-island:hover {
+#world-menu .world-island:disabled {
+  cursor: default;
+  filter: none;
+  transform: none;
+  opacity: 1;
+}
+#world-menu .world-island:disabled .world-art {
+  filter: grayscale(1) contrast(.8);
+}
+#world-menu .world-island:enabled:hover {
   filter: brightness(1.06);
   transform: translateY(-3px);
 }
