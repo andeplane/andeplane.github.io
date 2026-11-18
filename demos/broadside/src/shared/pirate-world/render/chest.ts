@@ -44,7 +44,7 @@ export class RewardChest {
     this.root = new TransformNode("captain's treasure chest", scene);
     this.lid = new TransformNode("rear hinge", scene);
     this.lid.parent = this.root;
-    this.lid.position.set(0, 1.45, 0.88);
+    this.lid.position.set(0, 1.48, 0.88);
     const mat = (name: string, hex: string, emission = 0) => {
       const m = new StandardMaterial(name, scene);
       m.diffuseColor = Color3.FromHexString(hex);
@@ -81,13 +81,16 @@ export class RewardChest {
       }
     }
     for (const x of [-1.7, 1.7]) box("end wall", 0.18, 1.25, 1.8, x, 0.82, 0, grain);
-    for (const y of [0.3, 1.4]) {
-      for (const z of [-0.99, 0.99]) box("gold rim", 3.65, 0.09, 0.06, 0, y, z, gold);
-      for (const x of [-1.8, 1.8]) box("gold end rim", 0.06, 0.09, 1.98, x, y, 0, gold);
+    // Cap the timber rather than sharing its y=1.445 top face. Coplanar gold
+    // and wood alternated at subpixel camera positions around the upper rim.
+    for (const y of [0.3, 1.425]) {
+      for (const z of [-0.99, 0.99]) box("gold rim", 3.66, 0.09, 0.06, 0, y, z, gold);
+      // Butt against the front/rear bars; no coplanar overlapping corner faces.
+      for (const x of [-1.8, 1.8]) box("gold end rim", 0.06, 0.09, 1.92, x, y, 0, gold);
     }
     for (const x of [-1.3, 1.3]) {
       for (const z of [-1, 1]) {
-        box("forged band", 0.17, 1.23, 0.07, x, 0.83, z, gold);
+        box("forged band", 0.17, 1.1, 0.07, x, 0.83, z, gold);
         for (const y of [0.42, 0.73, 1.08, 1.32]) {
           const rivet = MeshBuilder.CreateSphere("gold rivet", { diameter: 0.085, segments: 8 }, scene);
           rivet.parent = this.root; rivet.position.set(x, y, z * 1.045); rivet.material = gold;
@@ -104,14 +107,16 @@ export class RewardChest {
       handle.parent = this.root; handle.position.set(x, 0.95, 0); handle.rotation.z = Math.PI / 2; handle.material = gold;
     }
     // Twelve curved planks form the barrel lid. Every piece shares the rear hinge.
-    const arc = (a: number, x: number) => new Vector3(x, Math.sin(a) * 0.78, -0.88 - Math.cos(a) * 0.97);
+    const arc = (a: number, x: number, relief = 0) => new Vector3(x, Math.sin(a) * (0.78 + relief), -0.88 - Math.cos(a) * (0.97 + relief));
     for (let j = 0; j < 12; j++) {
       const a = j / 12 * Math.PI, b = (j + 1) / 12 * Math.PI;
       const plank = MeshBuilder.CreateRibbon("curved lid plank", { pathArray: [[arc(a + 0.004, -1.75), arc(a + 0.004, 1.75)], [arc(b - 0.004, -1.75), arc(b - 0.004, 1.75)]], sideOrientation: 2 }, scene);
       plank.parent = this.lid; plank.material = j % 3 === 0 ? wood : grain;
     }
     for (const x of [-1.74, -1.3, 1.3, 1.74]) {
-      const strip = MeshBuilder.CreateRibbon("curved lid gold band", { pathArray: Array.from({ length: 25 }, (_, j) => [arc(j / 24 * Math.PI, x - 0.065), arc(j / 24 * Math.PI, x + 0.065)]), sideOrientation: 2 }, scene);
+      // Forged straps sit proud of the lid; their surfaces must not compete
+      // with the wood ribbons for the same depth during the opening.
+      const strip = MeshBuilder.CreateRibbon("curved lid gold band", { pathArray: Array.from({ length: 25 }, (_, j) => [arc(j / 24 * Math.PI, x - 0.065, .014), arc(j / 24 * Math.PI, x + 0.065, .014)]), sideOrientation: 2 }, scene);
       strip.parent = this.lid; strip.material = gold;
     }
     for (const x of [-1.74, 1.74]) {
