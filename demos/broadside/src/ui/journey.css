@@ -54,7 +54,7 @@
 
 /* A regional chart: ten islands joined by a winding navigable route. */
 #voyage-ui[data-screen="levels"] #captain-menu {
-  background: #839786 url('/assets/map/nautical-chart.webp') center / cover;
+  background: #839786 url("/assets/map/chart-water.webp") center / 1120px repeat;
 }
 #voyage-ui[data-screen="levels"] .menu-atmosphere { display: none; }
 #level-menu { inset: 0; overflow: hidden; }
@@ -155,7 +155,7 @@
 }
 
 #voyage-ui.chart-sailing :is(#world-menu,#level-menu) {overflow:hidden;}
-#voyage-ui .travel-viewport {position:absolute;inset:0;z-index:4;background:#9ab6a8 url('/assets/map/chart-water.webp') center / 560px repeat;}
+#voyage-ui .travel-viewport {position:absolute;inset:0;z-index:4;background:#9ab6a8 url('/assets/map/chart-water.webp') center / 1120px repeat;}
 .travel-viewport > [data-map-world] {width:100%;height:100%;pointer-events:none;background:inherit;}
 #voyage-ui .travel-viewport :is(.world-map,.level-board) {position:absolute;inset:8% 5%;width:auto;height:auto;min-height:0;max-width:none;animation:none;}
 #voyage-ui .travel-viewport :is(.level-note,.regional-center) {display:none;}
