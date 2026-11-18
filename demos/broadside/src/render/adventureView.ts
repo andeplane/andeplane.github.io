@@ -21,8 +21,6 @@ export class AdventureView {
     gems: Mesh[];
   }[] = [];
   private birds: TransformNode[] = [];
-  private destination: Mesh;
-  private destinationTime = 0;
   constructor(
     private readonly scene: Scene,
     session: Session,
@@ -148,13 +146,6 @@ export class AdventureView {
           m.material = wood;
         }
     }
-    this.destination = MeshBuilder.CreateTorus(
-      "tap destination",
-      { diameter: 8, thickness: 0.22, tessellation: 32 },
-      scene,
-    );
-    this.destination.material = ringMat;
-    this.destination.isVisible = false;
     for (let i = 0; i < 8; i++) {
       const bird = new TransformNode(`gull-${i}`, scene);
       const body = MeshBuilder.CreateSphere(
@@ -191,11 +182,6 @@ export class AdventureView {
       this.birds.push(bird);
     }
   }
-  showDestination(x: number, z: number): void {
-    this.destination.position.set(x, 0.9, z);
-    this.destinationTime = 3;
-    this.destination.isVisible = true;
-  }
   update(s: Session, time: number, dt: number): void {
     for (const v of this.chests) {
       const t = s.treasures[v.id]!;
@@ -217,9 +203,6 @@ export class AdventureView {
         g.scaling.setAll(0.65 + Math.sin(time * 3 + i) * 0.15);
       }
     }
-    this.destinationTime -= dt;
-    this.destination.isVisible = this.destinationTime > 0;
-    this.destination.scaling.setAll(1 + (3 - this.destinationTime) * 0.15);
     this.birds.forEach((b, i) => {
       const a = time * 0.08 + i * 0.8,
         r = 34 + i * 7;

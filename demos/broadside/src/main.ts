@@ -36,7 +36,7 @@ import type { PrivateShip } from "./shared/pirate-world/render/privateShip";
 import { privatePearlUrl, privatePearlModelUrl, PRIVATE_PEARL } from "./privatePearl";
 import { displayRenderScale, configurePhoneRendering, configureTextureQuality, isPhoneRendering } from "./shared/pirate-world/render/quality";
 import { FixedStepper } from "./sim/world";
-import { angleDiff, clamp } from "./sim/math";
+import { angleDiff } from "./sim/math";
 import { VoyageHud } from "./ui/voyageHud";
 import { arrivalPose } from "./ui/arrival";
 import "./ui/voyage.css";
@@ -156,10 +156,8 @@ async function main() {
   let mode: "menu" | "cave" | "harbour" | "hold" | "unloading" | "play" | "arrival" | "result" | "loading" | "travel" =
       "menu",
     paused = false,
-    heading: number | null = null,
     pendingFire = false,
-    loadId = 0,
-    tapHeading: number | null = null;
+    loadId = 0;
   let arrivalTime = 0,
     arrivalInCave = false;
   let captainPreferred = false, helmTurn = 0;
@@ -170,7 +168,9 @@ async function main() {
     if(renderer) renderer.captainCamera.deckEye = null;
   };
   const lookFromShip = (x:number,y:number) => {
-    if(deck?.active) deck.look(x,y); else renderer?.captainCamera.look(x,y);
+    if (deck?.active) deck.look(x, y);
+    else if (renderer?.captainCamera.enabled) renderer.captainCamera.look(x, y);
+    else renderer?.rig.look(x, y);
   };
   let seaChartOpen = false, lastSeaSave = 0;
   const stashSea = () => {
@@ -267,9 +267,7 @@ async function main() {
     cave?.endReveal();
     paused = false;
     hud.root.classList.remove("loading-voyage");
-    tapHeading = null;
     controls.clear();
-    heading = null;
     pendingFire = false;
     hud.paused(false);
     hud.home();
@@ -319,7 +317,6 @@ async function main() {
     mode = "menu";
     pirate.cancel(); cave=null; hold=null;
     paused = false;
-    heading = tapHeading = null;
     pendingFire = false;
     controls.clear();
     hud.paused(false);
@@ -332,7 +329,7 @@ async function main() {
     cancelUnloading();
     clearArrival(); gesture.clear(); clearWalking(); controls.clear();
     const id = ++loadId;
-    heading = tapHeading = null; pendingFire = false; paused = false;
+    pendingFire = false; paused = false;
     cave?.endReveal(); releaseCave();
     pirate.closeHold(); hold = null;
     hud.paused(false);
@@ -405,8 +402,6 @@ async function main() {
     cave?.endReveal();
     releaseCave();
     controls.clear();
-    heading = null;
-    tapHeading = null;
     pendingFire = false;
     helmTurn = 0;
     paused = false;
@@ -468,7 +463,7 @@ async function main() {
     seaChartOpen = open; paused = open;
     hud.seaChart(open, session);
     controls.clear(); clearWalking(); gesture.clear(); helmTurn = 0;
-    heading = tapHeading = null; pendingFire = false;
+    pendingFire = false;
     if (!open) canvas.focus();
     stashSea();
   };
@@ -477,7 +472,7 @@ async function main() {
     if (deck?.active) { hud.help("Walk back to the wheel and take the helm first.",session.elapsed+4);return; }
     captainPreferred = renderer.captainCamera.enabled = !renderer.captainCamera.enabled;
     renderer.captainCamera.centre();
-    heading = tapHeading = null; helmTurn = 0;
+    helmTurn = 0;
     controls.clear(); walking.clear(); gesture.clear(); releaseMouse();
     hud.camera(captainPreferred);
   };
@@ -488,7 +483,6 @@ async function main() {
     hud.paused(paused);
     controls.clear();
     clearWalking(); gesture.clear(); helmTurn = 0;
-    heading = null;
     pendingFire = false;
   };
   const walkDeck = () => {
@@ -505,7 +499,7 @@ async function main() {
       renderer.captainCamera.enabled=true;
       hud.help("The ship keeps sailing. Walk back to the wheel to steer again.",session.elapsed+6);
     }
-    controls.clear();clearWalking();gesture.clear();heading=tapHeading=null;helmTurn=0;pendingFire=false;
+    controls.clear();clearWalking();gesture.clear();helmTurn=0;pendingFire=false;
     hud.camera(renderer.captainCamera.enabled);
   };
   const fishFromDeck = () => {
@@ -568,7 +562,6 @@ async function main() {
     steer: (turn) => {
       if(deck?.active)return;
       helmTurn = turn ?? 0;
-      heading = tapHeading = null;
       if (turn) session.player.sail = 2;
     },
     anchor: () => {
@@ -584,19 +577,6 @@ async function main() {
     if (mode !== "play" || paused) return;
     let intent = controls.readIntent();
     if (helmTurn && !intent.turn) intent.turn = helmTurn;
-    if (intent.turn) tapHeading = null;
-    const direction = heading ?? tapHeading;
-    if (direction !== null)
-      intent.turn = clamp(
-        angleDiff(session.player.heading, direction) * 3,
-        -1,
-        1,
-      );
-    if (
-      tapHeading !== null &&
-      Math.abs(angleDiff(session.player.heading, tapHeading)) < 0.04
-    )
-      tapHeading = null;
     if (deck) intent=deck.helmIntent(intent);
     if (pendingFire) {
       intent.firePort = true;
@@ -616,7 +596,6 @@ async function main() {
       controls.clear();
       resetDeck();
       clearWalking(); gesture.clear(); helmTurn = 0;
-      heading = null;
       mode = "result";
       if (session.state === "won") {
         reward = awardVoyage(
@@ -685,7 +664,7 @@ async function main() {
     }
     if(e.code==='KeyV'&&!e.repeat){walkDeck();e.preventDefault();return;}
     if (e.code === "KeyC" && !e.repeat) { toggleCamera(); e.preventDefault(); return; }
-    if (e.code === "KeyR" && !e.repeat) { renderer?.captainCamera.centre(); e.preventDefault(); return; }
+    if (e.code === "KeyR" && !e.repeat) { renderer?.rig.centre(); renderer?.captainCamera.centre(); e.preventDefault(); return; }
     if (renderer?.captainCamera.enabled && e.code.startsWith("Arrow")) {
       if (!e.repeat) renderer.captainCamera.look(
         e.code === "ArrowRight" ? 12 : e.code === "ArrowLeft" ? -12 : 0,
@@ -705,7 +684,6 @@ async function main() {
     gesture.clear();
     clearWalking();
     controls.clear();
-    heading = null;
     helmTurn = 0;
     pendingFire = false;
   });
@@ -722,79 +700,40 @@ async function main() {
       gesture.clear();
       clearWalking();
       controls.clear();
-      heading = null;
       helmTurn = 0;
       pendingFire = false;
       if (mode === "play" && !paused) pause();
     });
   }
+  const sailingViewActive = () => mode === "play" && !paused && !!renderer;
   canvas.addEventListener("pointerdown", (e) => {
-    if (mode === "play" && !paused && renderer?.captainCamera.enabled) {
-      canvas.focus();
-      gesture.down(e.pointerId, e.clientX, e.clientY);
-      canvas.setPointerCapture(e.pointerId);
-      return;
-    }
-    if (mode === "harbour") {
-      canvas.focus();
-      if (document.pointerLockElement === canvas) {
-          return;
-      }
-      gesture.down(e.pointerId, e.clientX, e.clientY);
-      canvas.setPointerCapture(e.pointerId);
-    }
+    if ((!sailingViewActive() && mode !== "harbour") || e.button !== 0) return;
+    canvas.focus();
+    if (document.pointerLockElement === canvas) return;
+    gesture.down(e.pointerId, e.clientX, e.clientY);
+    canvas.setPointerCapture(e.pointerId);
   });
   canvas.addEventListener("pointermove", (e) => {
-    if (mode === "play" && !paused && renderer?.captainCamera.enabled) {
-      if (document.pointerLockElement === canvas) lookFromShip(e.movementX, e.movementY);
-      else {
-        const action = gesture.move(e.pointerId, e.clientX, e.clientY);
-        if (action?.type === "look") lookFromShip(action.dx, action.dy);
-      }
-      return;
-    }
-    if (mode !== "harbour") return;
-    const place = harbour!;
-    if (document.pointerLockElement === canvas) {
-      place.look(e.movementX, e.movementY);
-      return;
-    }
-    const action = gesture.move(e.pointerId, e.clientX, e.clientY);
-    if (action?.type === "look") place.look(action.dx, action.dy);
+    if (!sailingViewActive() && mode !== "harbour") return;
+    const action = document.pointerLockElement === canvas
+      ? { type: "look" as const, dx: e.movementX, dy: e.movementY }
+      : gesture.move(e.pointerId, e.clientX, e.clientY);
+    if (action?.type !== "look") return;
+    if (mode === "harbour") harbour!.look(action.dx, action.dy);
+    else lookFromShip(action.dx, action.dy);
   });
   canvas.addEventListener("pointerup", (e) => {
-    if (mode === "play" && !paused && renderer?.captainCamera.enabled) {
-      if (document.pointerLockElement === canvas) return;
-      const action = gesture.up(e.pointerId, e.clientX, e.clientY);
-      if (action?.type === "tap" && e.pointerType === "mouse")
-        void canvas.requestPointerLock?.()?.catch(() => {});
+    if ((!sailingViewActive() && mode !== "harbour") || document.pointerLockElement === canvas) return;
+    const action = gesture.up(e.pointerId, e.clientX, e.clientY);
+    if (action?.type !== "tap") return;
+    if (mode === "harbour" || deck?.active) {
+      if (e.pointerType === "mouse") void canvas.requestPointerLock?.()?.catch(() => {});
       return;
     }
-    if (mode === "harbour") {
-      if (document.pointerLockElement === canvas) return;
-      const action = gesture.up(e.pointerId, e.clientX, e.clientY);
-      if (action?.type === "tap" && e.pointerType === "mouse")
-        void canvas.requestPointerLock?.()?.catch(() => {});
-      return;
-    }
-    if (mode === "play" && !paused) {
-      const ray = renderer!.scene.createPickingRay(
-          e.clientX,
-          e.clientY,
-          null,
-          renderer!.rig.camera,
-        ),
-        d = -ray.origin.y / ray.direction.y,
-        pos = ray.origin.add(ray.direction.scale(d));
-      if (d > 0) {
-        tapHeading = Math.atan2(
-          pos.x - session.player.pos.x,
-          pos.z - session.player.pos.z,
-        );
-        session.player.sail = 2;
-        renderer!.showDestination(pos.x, pos.z);
-      }
-    }
+    // A tap turns the view toward that side. Normalize so it feels alike on phones and desktops.
+    const rect = canvas.getBoundingClientRect();
+    lookFromShip(((action.x - rect.left) / rect.width - .5) * 320,
+      ((action.y - rect.top) / rect.height - .5) * 180);
   });
   document.addEventListener("pointerlockchange", () => {
     gesture.clear();
@@ -921,7 +860,7 @@ async function main() {
         hud.deck(!!deck?.active,!!deck?.nearHelm,!!deck?.atRail,fishing.phase,fishing.catch?.kind??null,progress.fishing.fish);
         if(import.meta.env.DEV&&deck){canvas.dataset.deckPosition=[deck.walker.x,deck.walker.feet,deck.walker.z].join(',');canvas.dataset.deckHelm=String(deck.nearHelm);}
         hud.update(session, (x, y, z) => renderer!.project(x, y, z),
-          renderer!.captainCamera.enabled ? session.player.heading + renderer!.captainCamera.yaw : 0);
+          renderer!.captainCamera.enabled ? session.player.heading + renderer!.captainCamera.yaw : renderer!.rig.yaw);
         canvas.dataset.cameraView = renderer!.captainCamera.enabled ? "captain" : "overhead";
         canvas.dataset.sailingMode = session.voyage.freeSailing ? "free" : "campaign";
         if (session.voyage.freeSailing && session.elapsed - lastSeaSave > 1) {
@@ -930,7 +869,7 @@ async function main() {
         if (import.meta.env.DEV) {
           canvas.dataset.shipPosition = [session.player.pos.x, session.player.pos.z].map(n => n.toFixed(2)).join(",");
           canvas.dataset.shipHeading = session.player.heading.toFixed(3);
-          canvas.dataset.lookYaw = renderer!.captainCamera.yaw.toFixed(3);
+          canvas.dataset.lookYaw = (renderer!.captainCamera.enabled ? renderer!.captainCamera.yaw : renderer!.rig.yaw).toFixed(3);
           canvas.dataset.cameraPosition = renderer!.rig.camera.position.asArray().map(n => n.toFixed(2)).join(",");
           canvas.dataset.seaSeed = String(session.level.seed);
           canvas.dataset.totalIslands = String(session.level.islands.length);

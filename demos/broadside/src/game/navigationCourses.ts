@@ -28,7 +28,7 @@ const point = (x: number, z: number): Vec2 => ({ x, z });
 const COURSES: readonly NavigationCourse[] = [
   {
     intro:
-      "Your first short voyage! Steer toward the gold compass. Give the little rocks plenty of room.",
+      "Drag STEER to follow the gold compass. Tap or drag the sea to look around.",
     start: point(0, -70),
     heading: 0,
     finish: point(0, 65),

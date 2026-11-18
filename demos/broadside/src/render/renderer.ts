@@ -38,7 +38,7 @@ import { VoyageSession } from "../game/voyage";
 import { VoyageView } from "./voyageView";
 import type { Session } from "../game/session";
 import { sideVector } from "../sim/cannons";
-import { headingTo } from "../sim/math";
+import { headingTo, clamp, wrapAngle } from "../sim/math";
 import { sailEfficiency } from "../sim/wind";
 import { AdventureView } from "./adventureView";
 import { Effects } from "./effects";
@@ -60,11 +60,13 @@ const FOG_DENSITY = 0.0014;
 const CAMERA_PITCH = (49 * Math.PI) / 180;
 
 /** Smooth top-down follow camera with look-ahead, zoom and screen shake. */
-class CameraRig {
+export class CameraRig {
   readonly camera: FreeCamera;
   zoom = 92;
   title = true;
   actionTarget: { x: number; z: number } | null = null;
+  yaw = 0;
+  private pitch = CAMERA_PITCH;
   private currentZoom = 92;
   private readonly target = new Vector3();
   private shake = 0;
@@ -75,6 +77,16 @@ class CameraRig {
     this.camera.fov = 0.78;
     this.camera.minZ = 1;
     this.camera.maxZ = 1500;
+  }
+
+  look(dx: number, dy: number): void {
+    this.yaw = wrapAngle(this.yaw + dx * .004);
+    this.pitch = clamp(this.pitch + dy * .003, .35, 1.35);
+  }
+
+  centre(): void {
+    this.yaw = 0;
+    this.pitch = CAMERA_PITCH;
   }
 
   addShake(amount: number): void {
@@ -106,7 +118,8 @@ class CameraRig {
       (Math.random() - 0.5) * s,
       (Math.random() - 0.5) * s,
     );
-    const pitch = this.title ? 0.67 : CAMERA_PITCH;
+    const pitch = this.title ? 0.67 : this.pitch;
+    const yaw = this.title ? 0 : this.yaw;
     const desiredZoom = this.title
       ? portrait
         ? 97
@@ -123,9 +136,9 @@ class CameraRig {
       (desiredZoom - this.currentZoom) * Math.min(1, dt * 2.5);
     const zoom = this.currentZoom;
     const offset = new Vector3(
-      this.title && !portrait ? 18 : 0,
+      this.title && !portrait ? 18 : -Math.sin(yaw) * Math.cos(pitch) * zoom,
       Math.sin(pitch) * zoom,
-      -Math.cos(pitch) * zoom,
+      -Math.cos(yaw) * Math.cos(pitch) * zoom,
     );
     this.camera.position
       .copyFrom(this.target)
@@ -289,6 +302,7 @@ export class GameRenderer {
     this.views.clear();
     for (const b of this.activeBalls.values()) this.releaseBall(b);
     this.activeBalls.clear();
+    this.rig.centre();
     this.rig.snap(session.player.pos.x, session.player.pos.z);
   }
 
@@ -525,10 +539,6 @@ export class GameRenderer {
   resize(): void {
     this.rig.zoom = innerWidth < 600 ? 112 : innerHeight < 560 ? 98 : 92;
   }
-  showDestination(x: number, z: number): void {
-    this.adventure.showDestination(x, z);
-  }
-
   private releaseBall(inst: InstancedMesh): void {
     inst.isVisible = false;
     this.ballPool.push(inst);
