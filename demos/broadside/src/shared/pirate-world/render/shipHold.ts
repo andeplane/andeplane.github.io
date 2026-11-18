@@ -9,7 +9,6 @@ import { ImageProcessingConfiguration } from '@babylonjs/core/Materials/imagePro
 import { DynamicTexture } from '@babylonjs/core/Materials/Textures/dynamicTexture.js';
 import { HemisphericLight } from '@babylonjs/core/Lights/hemisphericLight.js';
 import { DirectionalLight } from '@babylonjs/core/Lights/directionalLight.js';
-import { PointLight } from '@babylonjs/core/Lights/pointLight.js';
 import { ShadowGenerator } from '@babylonjs/core/Lights/Shadows/shadowGenerator.js';
 import { DefaultRenderingPipeline } from '@babylonjs/core/PostProcesses/RenderPipeline/Pipelines/defaultRenderingPipeline.js';
 import { Ocean } from '../../../render/water';
@@ -21,7 +20,7 @@ import type { ShipPresentation } from "../types";
 import { CargoChests, holdCargoPosition } from './cargoChests';
 import { shipHoldCamera } from './shipHoldCamera';
 import { CoinHoard } from './coinHoard';
-import { timberTexture } from './timber';
+import { buildTreasureCabin } from './treasureCabin';
 import { chestCarry, chestExit, CHEST_EXIT_SECONDS, pourTilt } from '../game/coinPour';
 
 /** A shipboard cabin with an open stern window onto the island just reached. */
@@ -35,8 +34,6 @@ export class ShipHold {
   private revealTime = 0;
   private special: ReturnType<typeof buildRelic> | null = null;
   private cargo: CargoChests;
-  private wood: StandardMaterial;
-  private metal: StandardMaterial;
   private revealing = true;
   private coins = 0;
   private reducedMotion = false;
@@ -52,52 +49,18 @@ export class ShipHold {
     this.camera = new FreeCamera('inside the treasure hold', new Vector3(0,3.6,-8),s);
     this.camera.inputs.clear(); this.camera.minZ = .06; this.camera.maxZ = 350;
     const sky = new HemisphericLight('sea light through the stern windows',new Vector3(0,1,1),s);
-    sky.diffuse=Color3.FromHexString('#b7cbd2');sky.groundColor=Color3.FromHexString('#71523a');sky.intensity=.8;
+    sky.diffuse=Color3.FromHexString('#b7cbd2');sky.groundColor=Color3.FromHexString('#5d4e3c');sky.intensity=.8;
     const sun = new DirectionalLight('late sun across the treasure',new Vector3(-.4,-.9,-.7).normalize(),s);
-    sun.position.set(35,65,25);sun.diffuse=Color3.FromHexString('#ffdcaa');sun.intensity=1.1;
+    sun.position.set(35,65,25);sun.diffuse=Color3.FromHexString('#ffe3b6');sun.intensity=1.0;
     sun.shadowFrustumSize=100;sun.shadowMinZ=1;sun.shadowMaxZ=170;
     const shadows = new ShadowGenerator(1024,sun);shadows.usePercentageCloserFiltering=true;shadows.filteringQuality=ShadowGenerator.QUALITY_LOW;
     shadows.bias=.003;shadows.normalBias=.06;shadows.darkness=.3;
-    const mat = (name:string,hex:string) => {const m=new StandardMaterial(name,s);m.diffuseColor=Color3.FromHexString(hex);m.specularColor=Color3.FromHexString('#66503a');m.maxSimultaneousLights=4;return m;};
-    this.wood=mat('weathered oak of the Pearl','#6d4b31');
-    this.metal=mat('aged brass in the treasure hold','#ad8540');
-    const grain=timberTexture(s,'oak of the treasure hold');
-    this.wood.diffuseTexture=grain;this.wood.diffuseColor.set(.95,.85,.71);
-    this.wood.specularColor.set(.19,.11,.045);this.wood.specularPower=48;
-    const dark=mat('tarred curved hull beams','#2c241d'),rope=mat('hemp rope','#897754');
-    const box=(name:string,w:number,h:number,d:number,x:number,y:number,z:number,m:StandardMaterial)=>{const b=MeshBuilder.CreateBox(name,{width:w,height:h,depth:d},s);b.position.set(x,y,z);b.material=m;b.receiveShadows=true;return b;};
-    for(let i=0;i<18;i++) box('individual deck plank',.5,.16,15,(i-8.5)*.52,.62,0,this.wood);
-    for(const x of [-4.7,4.7]) {
-      box('oak hull wall',.22,5.3,15,x,3.2,0,this.wood);
-      for(const z of [-6,-2,2,6]) {
-        const rib=MeshBuilder.CreateTube('curved ship rib',{path:[new Vector3(x*.87,.7,z),new Vector3(x,.9,z),new Vector3(x,4.3,z),new Vector3(x*.65,5.9,z),new Vector3(0,6.2,z)],radius:.19,tessellation:10},s);
-        rib.material=dark;
-      }
-    }
-    box('cabin ceiling',9.8,.18,15,0,6.25,0,this.wood);
-    box('rear hold wall',9.6,5.6,.2,0,3.3,-7.6,this.wood);
-    // The large stern windows really open onto the sea: no backdrop painted on glass.
-    box('window breast wall',9.6,1,.24,0,1.15,7.4,this.wood);
-    box('window upper wall',9.6,1.4,.24,0,5.6,7.4,this.wood);
-    for(const x of [-4.65,-2.25,0,2.25,4.65]) box('stern window mullion',.18,3.4,.28,x,3.25,7.4,dark);
-    box('brass window ledge',9.5,.12,.55,0,1.72,7.25,this.metal);
-    for(const x of [-3.7,3.7]) for(const z of [-3.8,3.8]) {
-      const lantern = new PointLight('warm hanging lantern',new Vector3(x,4.5,z),s);lantern.diffuse=Color3.FromHexString('#ffce82');lantern.intensity=.9;lantern.range=9;
-      const glass=mat('warm lantern glass','#ffd68e');glass.emissiveColor=Color3.FromHexString('#ffc578');
-      const lamp=MeshBuilder.CreateCylinder('ship lantern glass',{height:.5,diameter:.26,tessellation:10},s);lamp.position.copyFrom(lantern.position);lamp.material=glass;
-      for(const y of [4.23,4.77])box('lantern brass cap',.34,.06,.34,x,y,z,this.metal);
-      const chain=MeshBuilder.CreateCylinder('lantern chain',{height:1.4,diameter:.03,tessellation:6},s);chain.position.set(x,5.4,z);chain.material=this.metal;
-    }
-    for(const x of [-3.7,3.7]) {
-      const barrel=MeshBuilder.CreateCylinder('provisions barrel',{height:1.4,diameterTop:.94,diameterBottom:.84,tessellation:16},s);barrel.position.set(x,1.4,5);barrel.material=this.wood;
-      for(const y of [1,1.8]) {const band=MeshBuilder.CreateTorus('barrel iron hoop',{diameter:.94,thickness:.05,tessellation:20},s);band.position.set(x,y,5);band.material=dark;}
-      const coil=MeshBuilder.CreateTorus('coiled rope on deck',{diameter:1.1,thickness:.09,tessellation:32},s);coil.position.set(x,.8,-5);coil.material=rope;
-    }
+    const cabin = buildTreasureCabin(s, shadows);
     this.ocean=new Ocean(s,[],s.fogDensity);this.ocean.setChapter(ship.chapter);
     // The cabin is above the waterline, even at the crest of a swell.
     this.ocean.mesh.position.y=-3;
     const island = ship.island;
-    this.islands=buildIslands(s,island?[{...island,pos:{x:0,z:island.radius+29}}]:[],shadows,ship.seed,ship.chapter);
+    this.islands=buildIslands(s,island?[{...island,pos:{x:0,z:island.radius+55}}]:[],shadows,ship.seed,ship.chapter);
     this.chest=new RewardChest(s);
     for(const mesh of this.chest.root.getChildMeshes()) {
       mesh.receiveShadows=true;
@@ -112,8 +75,11 @@ export class ShipHold {
     const contactMaterial=new StandardMaterial('soft chest contact',s);contactMaterial.diffuseTexture=contactTexture;
     contactMaterial.useAlphaFromDiffuseTexture=true;contactMaterial.disableLighting=true;contactMaterial.emissiveColor.set(1,1,1);
     const contact=MeshBuilder.CreateGround('shadow under the treasure chest',{width:4.8,height:3.1},s);
-    contact.position.set(0,.708,0);contact.material=contactMaterial;contact.isPickable=false;
+    contact.position.set(0,.715,0);contact.material=contactMaterial;contact.isPickable=false;
     this.cargo = new CargoChests(s, 'shipboard cargo');
+    const cargoTimber = s.getMaterialByName('shipboard cargo oak') as StandardMaterial;
+    cargoTimber.diffuseTexture = cabin.timber.diffuseTexture; cargoTimber.bumpTexture = cabin.timber.bumpTexture;
+    cargoTimber.diffuseColor = Color3.FromHexString('#8b7a60'); cargoTimber.specularColor.set(.12, .1, .07);
     const pipeline=new DefaultRenderingPipeline('golden light in the treasure hold', !isPhoneRendering(engine),s,[this.camera]);
     pipeline.bloomEnabled=true;pipeline.bloomThreshold=1.1;pipeline.bloomWeight=.08;pipeline.bloomKernel=24;
     pipeline.samples=antialiasSamples(engine);pipeline.fxaaEnabled=true;
