@@ -1,0 +1,354 @@
+@font-face { font-family: Fraunces; font-weight: 700; font-display: swap; src: url('/assets/fonts/fraunces.ttf'); }
+/* Captain Calculus only. Cave and reward scenes retain their existing presentation. */
+#academy:not([data-screen="cave"]):not([data-screen="reward"]):not([data-screen="ship"]):not([data-screen="unloading"]) {
+  --ink: #0b2840; --gold: #f5ba32; --muted: #415d6a;
+  color: var(--ink); background: #e7f5f3;
+  ::selection { color: #fff; background: #075d75; }
+  button:focus-visible, select:focus-visible { outline: 3px solid #075d75; outline-offset: 3px; }
+  h1, h2 { font-family: Fraunces, Georgia, serif; font-weight: 700; letter-spacing: -.025em; }
+  .topbar { height: calc(64px + var(--safe-top)); padding-block: calc(10px + var(--safe-top)) 10px; background: #fff6e3; }
+  #main-content { inset-block-start: calc(64px + var(--safe-top)); scrollbar-color: #477483 #e7f5f3; }
+  .brand { color: var(--ink); }
+  .brand small, .brand > span { display: none; }
+  .brand > .icon { color: #075d75; }
+  .back-button { color: var(--ink); border: 0; padding: 8px; font-size: 25px; }
+  .back-button span { font-size: 15px; }
+  .gold-bank, .round-button { background: #fff; color: var(--ink); border: 1px solid #78959c; box-shadow: none; }
+  .gold-bank { font-size: 15px; }
+  .gold-bank small { color: #415d6a; }
+  .eyebrow { display: none; }
+  .wood-button { background: #fff6e3; color: var(--ink); border: 0; box-shadow: 0 4px 12px #0b284022; border-radius: 14px; min-height: 52px; font-size: 16px; }
+  .wood-button.primary { background: #f5ba32; color: #0b2840; border: 0; box-shadow: 0 4px 12px #0b284025; }
+  .text-button { color: #174d60; font-size: 14px; }
+  .small-note, .page-heading p { color: #415d6a; font-size: 14px; }
+  .page-heading { padding: 20px 12px; }
+  .page-heading h1 { font-size: clamp(26px, 4vw, 40px); margin: 0; overflow-wrap: normal; }
+  .page-heading p { margin-top: 10px; }
+  .home-view { min-height: 100%; padding: 28px 24px calc(28px + var(--safe-bottom)); align-items: center; background: url('/assets/map/calculus-harbour.webp') center/cover; }
+  .night-sky, .hero-ship, .home-note { display: none; }
+  .home-copy { width: min(440px, 100%); margin: auto; text-align: center; min-height: min(730px, calc(100dvh - 120px)); display: flex; flex-direction: column; align-items: center; }
+  .home-copy h1 { font-size: clamp(42px, 7vw, 72px); line-height: 1.02; margin: 0; text-shadow: none; }
+  .home-copy h1 span { color: var(--ink); }
+  .tagline { color: #0b2840; font-size: 15px; line-height: 1.5; margin-top: 12px; padding: 8px 12px; background: #fff6e3eb; border-radius: 12px; }
+  .main-actions { margin-top: auto; padding-top: 180px; width: 100%; display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .main-actions .primary { grid-column: 1 / -1; min-height: 60px; font-size: 24px; }
+  .main-actions .wood-button { min-height: 52px; font-size: 16px; }
+  .resume-button { color: #0b2840; background: #fff6e3; border-radius: 12px; padding: 12px; margin-top: 12px; font-size: 15px; width: 100%; }
+  .operator-view { max-width: 940px; }
+  .operator-grid { grid-template-columns: 1fr 1fr; gap: 16px; margin: 0 0 20px; }
+  .operator-card { min-height: 210px; padding: 24px 24px 20px 45%; background: #fff6e3; border: 0; box-shadow: 0 6px 18px #0b284012; }
+  .operator-island { opacity: 1; filter: none; width: 43%; height: 100%; left: 0; top: 0; object-fit: cover; }
+  .operator-symbol { width: auto; height: auto; display: block; font-size: 36px; background: none; border: 0; color: #075d75; }
+  .operator-card h2 { font-family: 'DM Sans', sans-serif; font-size: 22px; color: var(--ink); margin: 0; overflow-wrap: normal; }
+  .operator-card p { font-size: 14px; color: #415d6a; }
+  .operator-card .example { color: #174d60; font-size: 22px; margin-top: 12px; letter-spacing: 0; }
+  .operator-footer { color: #415d6a; font-size: 13px; margin-top: 12px; padding-top: 10px; border-color: #c5d6d4; }
+  .operator-footer > span { color: #075d75; }
+  .map-view { max-width: 1000px; margin: auto; }
+  .sea-chart { height: auto; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; padding: 20px; background: #087e96; box-shadow: none; border-radius: 16px; }
+  .chart-route, .chart-sea-label, .map-cave { display: none; }
+  .map-island { position: relative; inset: auto; width: 100%; max-width: none; transform: none; display: flex; flex-direction: column; }
+  .island-art { aspect-ratio: 1.4; object-fit: contain; filter: none; }
+  .island-label { width: 100%; flex: 1; margin: 0; padding: 14px; border: 0; background: #fff6e3; border-radius: 12px; box-shadow: none; }
+  .island-label b { font-family: 'DM Sans', sans-serif; font-size: 22px; }
+  .island-label small, .island-label > span { font-size: 14px; color: #415d6a; }
+  .map-legend { color: #174d60; font-size: 14px; }
+  .level-board { grid-template-columns: .8fr 1.2fr; gap: 24px; }
+  .level-illustration img { filter: none; }
+  .island-caption { display: none; }
+  .level-trail { background: #fff6e3; border: 0; box-shadow: none; padding: 20px; }
+  .trail-heading { color: #415d6a; font-size: 14px; }
+  .trail-heading > span:last-child { display: none; }
+  .level-tile { background: #e2eeed; color: #0b2840; border: 1px solid #79939a; box-shadow: none; }
+  .level-tile.current { background: #f5ba32; color: #0b2840; border-color: #805c0b; box-shadow: none; }
+  .stars { color: #586f79; }
+  .stars .earned { color: #805300; text-shadow: none; }
+  .level-tile:disabled { opacity: 1; color: #526771; background: #e4e9e7; }
+  .question-view { width: min(640px, 100%); padding: 16px 20px calc(20px + var(--safe-bottom)); }
+  .voyage-status { color: #174d60; font-size: 14px; margin-bottom: 12px; }
+  .question-progress { gap: 6px; margin-bottom: 12px; }
+  .question-progress > span:not(.progress-chest) { color: #415d6a; background: #fff6e3; border-color: #66808b; font-size: 12px; }
+  .question-progress > span.active { color: #0b2840; background: #f5ba32; border-color: #805300; }
+  .question-progress > span.solved { color: #fff; background: #18614c; }
+  .progress-chest { color: #805300; }
+  .math-card { padding: 20px; background: #fff6e3; color: #0b2840; border: 0; box-shadow: none; }
+  .question-heading .eyebrow { display: block; color: #415d6a; font-size: 13px; letter-spacing: 0; }
+  .hint-button { background: #fff; color: #0b2840; border: 1px solid #78959c; font-size: 14px; padding: 10px; }
+  .equation { font-size: clamp(28px, 6vw, 56px); gap: 10px; margin: 24px 0 16px; flex-wrap: wrap; }
+  .equation-operator, .equals, .answer-box, .answer-feedback { color: #0b2840; }
+  .answer-box { min-width: 60px; min-height: 60px; border-color: #66808b; background: #fff; }
+  .answer-feedback { font-size: 15px; min-height: 50px; }
+  .number-pad { gap: 10px; }
+  .number-pad button { height: 56px; font-size: 28px; background: #fff; color: #0b2840; border: 1px solid #66808b; box-shadow: none; border-radius: 12px; }
+  .number-pad .key-clear { font-size: 15px; }
+  .check-answer { background: #f5ba32 !important; color: #0b2840 !important; border: 0 !important; box-shadow: none !important; font-size: 17px; }
+  .check-answer:disabled { opacity: 1; background: #d5dedb !important; color: #4a6068 !important; }
+  .chest-distance, .chest-distance small { color: #174d60; font-size: 14px; }
+  .hint-panel p, .hint-groups small { font-size: 14px; color: #174d60; }
+  .settings-card { background: #fff6e3; border: 0; }
+  .settings-card p, .settings-card small, .settings-card label span, .guide-footer, .complete-view p { color: #415d6a; font-size: 15px; }
+  .captains-guide h2 { color: #0b2840; }
+  .language-setting select { background: #fff; color: #0b2840; }
+  .complete-view h1 { font-size: 36px; }
+}
+@media (max-width: 600px) {
+  #academy:not([data-screen="cave"]):not([data-screen="reward"]):not([data-screen="ship"]):not([data-screen="unloading"]) {
+    .operator-grid { grid-template-columns: 1fr; gap: 12px; }
+    .operator-card { min-height: 152px; padding: 14px 14px 14px 44%; }
+    .operator-card h2 { font-size: 21px; }
+    .operator-symbol { font-size: 27px; }
+    .operator-card p { display: none; }
+    .operator-card .example { font-size: 20px; margin-top: 6px; }
+    .operator-footer { font-size: 12px; margin-top: 8px; padding-top: 8px; }
+    .sea-chart { grid-template-columns: 1fr; padding: 14px; }
+    .map-island { flex-direction: row; align-items: center; gap: 10px; text-align: left; }
+    .island-art { width: 34%; }
+    .island-label { width: auto; }
+    .level-board { grid-template-columns: 1fr; }
+    .level-illustration { height: 110px; }
+    .level-grid { gap: 10px; }
+    .level-tile { min-height: 74px; }
+    .trail-pagination .text-button { font-size: 13px; }
+    .chest-distance small { display: none; }
+    .question-view { padding-inline: 12px; }
+    .math-card { padding: 14px; }
+    .equation { font-size: clamp(26px, 9vw, 42px); margin-block: 18px 12px; }
+    .question-heading { flex-wrap: nowrap; }
+    .question-heading .eyebrow { font-size: 12px; }
+    .hint-button { font-size: 13px; }
+  }
+}
+@media (max-height: 650px) and (max-width: 600px) {
+  #academy[data-screen="question"] {
+    .question-view { padding-top: 8px; }
+    .voyage-status { margin-bottom: 8px; }
+    .question-progress { margin-bottom: 8px; }
+    .equation { margin-block: 8px; }
+    .answer-feedback { min-height: 42px; font-size: 14px; padding-bottom: 6px; }
+    .number-pad { gap: 6px; }
+    .number-pad button { height: 44px; font-size: 24px; }
+    .check-answer { min-height: 44px; margin-top: 10px; }
+    .chest-distance { margin-top: 8px; }
+  }
+}
+@media (max-height: 480px) and (min-width: 601px) {
+  #academy:not([data-screen="cave"]):not([data-screen="reward"]):not([data-screen="ship"]):not([data-screen="unloading"]) {
+    .home-copy { margin-left: 3%; width: 340px; min-height: 0; }
+    .home-copy h1 { font-size: 38px; }
+    .main-actions { padding-top: 24px; }
+    .tagline { display: none; }
+    .question-view { width: 100%; max-width: 900px; display: grid; grid-template-columns: 1fr 1.2fr; gap: 0 20px; }
+    .voyage-status { grid-column: 1; }
+    .question-progress { grid-column: 1; align-self: start; }
+    .math-card { grid-column: 2; grid-row: 1 / 5; position: relative; }
+    .equation { margin: 0; position: fixed; left: calc(24px + var(--safe-left)); top: 165px; width: 36%; font-size: 36px; }
+    .answer-feedback { position: fixed; left: calc(24px + var(--safe-left)); top: 245px; width: 36%; }
+    .number-pad { gap: 6px; margin-top: 8px; }
+    .number-pad button { height: 44px; font-size: 23px; }
+    .check-answer { min-height: 44px; margin-top: 8px; }
+    .chest-distance { grid-column: 1; align-self: end; }
+    .chest-distance small { display: none; }
+    .hint-panel { max-height: 130px; }
+  }
+}
+#academy:not([data-screen="cave"]):not([data-screen="reward"]):not([data-screen="ship"]):not([data-screen="unloading"]) {
+  .voyage-status b { color: #174d60; }
+  .level-tile .stars > span:not(.earned) { visibility: hidden; }
+  .level-illustration { overflow: visible; }
+  .level-illustration img { height: 110px; object-fit: contain; transform: none; opacity: 1; }
+}
+@media (max-height: 650px) and (max-width: 600px) {
+  #academy:not([data-screen="cave"]):not([data-screen="reward"]):not([data-screen="ship"]):not([data-screen="unloading"]) {
+    .question-view { padding-top: 6px; }
+    .voyage-status, .question-progress { margin-bottom: 8px; }
+    .math-card { padding: 10px; }
+    .equation { font-size: 30px; margin-block: 8px; }
+    .answer-box { min-height: 46px; }
+    .answer-feedback { min-height: 40px; font-size: 14px; padding-bottom: 6px; }
+    .number-pad { gap: 6px; }
+    .number-pad button { height: 44px; font-size: 24px; }
+    .check-answer { min-height: 44px; margin-top: 8px; }
+    .chest-distance { margin-top: 8px; }
+  }
+}
+@media (max-height: 480px) and (min-width: 601px) {
+  #academy:not([data-screen="cave"]):not([data-screen="reward"]):not([data-screen="ship"]):not([data-screen="unloading"]) {
+    .question-view { display: block; padding-top: 10px; }
+    .voyage-status { margin-bottom: 6px; }
+    .question-progress { max-width: 360px; margin-bottom: 10px; }
+    .math-card { display: grid; grid-template-columns: 1fr 1fr; gap: 8px 24px; padding: 12px; }
+    .question-heading { grid-column: 1; grid-row: 1; }
+    .equation { position: static; width: auto; grid-column: 1; grid-row: 2; font-size: 34px; }
+    .answer-feedback { position: static; width: auto; grid-column: 1; grid-row: 3; min-height: 40px; }
+    .number-pad { grid-column: 2; grid-row: 1 / 4; margin: 0; }
+    .check-answer { grid-column: 2; grid-row: 4; margin: 0; }
+    .hint-panel { grid-column: 1; grid-row: 4; margin: 0; max-height: 160px; }
+    .chest-distance { margin-top: 10px; }
+  }
+}
+@media (max-height: 480px) and (min-width: 601px) {
+  #academy:not([data-screen="cave"]):not([data-screen="reward"]):not([data-screen="ship"]):not([data-screen="unloading"]) {
+    .question-view { padding-block: 4px 12px; }
+    .voyage-status { margin-bottom: 2px; font-size: 13px; }
+    .question-progress { margin-block: 0 6px; }
+    .question-progress > span:not(.progress-chest) { height: 24px; max-width: 24px; }
+    .math-card { padding: 8px; }
+    .chest-distance { margin-top: 6px; }
+  }
+}
+/* Native app integration: keep existing gameplay, cargo, map cameras and cave. */
+#academy:not([data-screen="cave"]):not([data-screen="reward"]):not([data-screen="ship"]):not([data-screen="unloading"]) {
+  --safe-top: var(--pirate-safe-top, env(safe-area-inset-top, 0px));
+  --safe-bottom: var(--pirate-safe-bottom, env(safe-area-inset-bottom, 0px));
+  --safe-left: var(--pirate-safe-left, env(safe-area-inset-left, 0px));
+  --safe-right: var(--pirate-safe-right, env(safe-area-inset-right, 0px));
+  .pirate-menu-back, .pirate-nav-link { background: #fff6e3; color: #0b2840; border: 1px solid #78959c; min-height: 44px; border-radius: 12px; padding: 8px 12px; }
+  .pirate-nav-link { font-size: 14px; }
+  .pirate-nav-link small { display: none; }
+  .pirate-menu-header-actions { gap: 8px; }
+  .operator-world-art { position: absolute; inset: 0 auto 0 0; width: 40%; height: 100%; object-fit: cover; }
+  .operator-world-shade { display: none; }
+  .operator-copy { position: relative; inset: auto; padding: 0; display: block; }
+  .operator-world-name { display: none; }
+  .world-map-heading { padding: 12px; color: #0b2840; background: #fff6e3; text-align: center; }
+  .world-map-heading h1 { font-size: 28px; }
+  .world-map-heading p { color: #415d6a; font-size: 14px; }
+  .world-pack-label { background: #fff6e3; color: #0b2840; box-shadow: 0 4px 12px #0b284022; }
+  .world-pack-label b, .world-pack-label small, .world-pack-label span, .world-pack-label em { color: #0b2840; }
+  .world-pack-label b { font-family: 'DM Sans', sans-serif; }
+  .question-view { display: block; }
+  .number-pad, .check-answer { grid-column: auto; grid-row: auto; }
+}
+@media (max-height: 480px) and (min-width: 601px) {
+  #academy:not([data-screen="cave"]):not([data-screen="reward"]):not([data-screen="ship"]):not([data-screen="unloading"]) {
+    .number-pad { grid-column: 2; grid-row: 1 / 4; }
+    .check-answer { grid-column: 2; grid-row: 4; }
+  }
+}
+#academy:not([data-screen="cave"]):not([data-screen="reward"]):not([data-screen="ship"]):not([data-screen="unloading"]) {
+  .expedition-intro { background: #fff6e3; color: #0b2840; text-shadow: none; }
+  .expedition-intro h1, .expedition-intro p { color: #0b2840; }
+  .expedition-region-title { background: #fff6e3; color: #0b2840; }
+  .expedition-region-title h2, .expedition-region-title small, .expedition-region-title > span { color: #0b2840; }
+  .pirate-nav-link > .icon { color: #174d60; }
+  .equation { display: flex; }
+}
+@media (max-width: 600px) {
+  #academy:not([data-screen="cave"]):not([data-screen="reward"]):not([data-screen="ship"]):not([data-screen="unloading"]) {
+    .math-card { display: block; }
+    .equation { display: flex; }
+    .number-pad { display: grid; }
+    .check-answer { margin-top: 8px; }
+  }
+}
+/* Home has no navigation row. Artwork bleeds behind the island; only content is inset. */
+#academy[data-screen="home"] #main-content { inset: 0; }
+#academy[data-screen="home"] .home-view {
+  min-height: 100dvh;
+  padding-top: calc(20px + var(--safe-top));
+  padding-left: calc(24px + var(--safe-left));
+  padding-right: calc(24px + var(--safe-right));
+  padding-bottom: calc(16px + var(--safe-bottom));
+}
+#academy[data-screen="home"] .home-copy {
+  min-height: calc(100dvh - 36px - var(--safe-top) - var(--safe-bottom));
+}
+#academy[data-screen="home"] .main-actions { padding-top: 130px; }
+@media (max-height: 480px) and (min-width: 601px) {
+  #academy[data-screen="home"] .home-copy { min-height: 0; }
+  #academy[data-screen="home"] .home-view { padding-top: 16px; }
+  #academy[data-screen="home"] .main-actions { padding-top: 18px; }
+}
+#academy[data-screen="home"] #main-content { inset: 0 !important; }
+#academy:not([data-screen="cave"]):not([data-screen="reward"]):not([data-screen="ship"]):not([data-screen="unloading"]) {
+  .operator-footer > .icon { color: #174d60; }
+  .expedition-drag-hint { display: none; }
+  .expedition-intro { padding: 10px 14px; }
+  .expedition-intro h1 { font-size: 24px; line-height: 1.2; }
+  .expedition-intro p { margin-top: 4px; font-size: 13px; }
+  .captains-guide h2 { font-size: 22px; }
+}
+@media (max-width: 600px) {
+  #academy:not([data-screen="cave"]):not([data-screen="reward"]):not([data-screen="ship"]):not([data-screen="unloading"]) {
+    .hint-panel { max-height: 110px; overflow-y: auto; }
+    .hint-panel p { font-size: 13px; }
+  }
+}
+@media (max-height: 480px) and (min-width: 601px) {
+  #academy:not([data-screen="cave"]):not([data-screen="reward"]):not([data-screen="ship"]):not([data-screen="unloading"]) {
+    .hint-panel { max-height: 64px; overflow-y: auto; padding: 4px; }
+    .hint-panel p { font-size: 13px; }
+    .expedition-intro { width: auto; right: 90px; left: 12px; text-align: left; padding: 8px 12px; }
+    .expedition-intro h1 { font-size: 20px; }
+    .expedition-intro p { display: none; }
+  }
+}
+/* A map title is layout, not an overlay on chapter names. */
+#academy:not([data-screen="cave"]):not([data-screen="reward"]):not([data-screen="ship"]):not([data-screen="unloading"]) {
+  .expedition-view { display: flex; flex-direction: column; }
+  .expedition-intro { position: static; transform: none; width: auto; max-width: none; margin: 0; flex-shrink: 0; border-radius: 0; }
+  .expedition-map-viewport { position: relative; inset: auto; flex: 1; min-height: 0; width: 100%; }
+  .hint-panel { max-height: none; overflow: visible; }
+}
+@media (max-height: 650px) and (max-width: 600px) {
+  #academy:not([data-screen="cave"]):not([data-screen="reward"]):not([data-screen="ship"]):not([data-screen="unloading"]) {
+    .question-progress { display: none; }
+    .question-heading .eyebrow { font-size: 12px; }
+    .hint-panel { max-height: none; overflow: visible; }
+  }
+}
+@media (max-height: 480px) and (min-width: 601px) {
+  #academy:not([data-screen="cave"]):not([data-screen="reward"]):not([data-screen="ship"]):not([data-screen="unloading"]) {
+    .hint-panel { max-height: none; overflow: visible; }
+  }
+}
+/* Captain Calculus ship overlay only; cave/unloading and shared 3D stay owned separately. */
+#academy:is([data-screen="ship"], [data-screen="reward"]) .ship-view {
+  .cave-heading h1 { font-family: Fraunces, Georgia, serif; font-size: clamp(24px, 4vw, 34px); }
+  .cave-heading p, .hoard-total p { font-size: 14px; line-height: 1.5; }
+  .cave-bottom .wood-button, .cave-bottom .text-button { font-size: 16px; min-height: 44px; }
+  .empty-cargo { font-size: 14px; color: #f9e8c7; margin-bottom: 10px; }
+}
+@media (max-height: 650px) and (max-width: 600px) {
+  #academy:not([data-screen="cave"]):not([data-screen="reward"]):not([data-screen="ship"]):not([data-screen="unloading"]) {
+    .math-card { padding: 8px; }
+    .equation { margin-block: 4px; font-size: 28px; }
+    .answer-box { min-height: 44px; }
+    .answer-feedback { min-height: 36px; font-size: 13px; line-height: 1.4; }
+    .number-pad { gap: 4px; }
+    .check-answer { margin-top: 6px; }
+  }
+}
+#academy .active-chapter { display: none; }
+@media (max-height: 480px) and (min-width: 601px) {
+  #academy:not([data-screen="cave"]):not([data-screen="reward"]):not([data-screen="ship"]):not([data-screen="unloading"]) {
+    .expedition-intro { display: flex; gap: 16px; align-items: baseline; }
+    .active-chapter { display: block; color: #174d60; font-size: 14px; }
+    .expedition-region:has(#expedition-current) .expedition-region-title { visibility: hidden; }
+  }
+  #academy:is([data-screen="ship"], [data-screen="reward"]) .ship-view {
+    .cave-heading { width: calc(100% - 280px); padding: 10px 16px; }
+    .cave-heading h1 { font-size: 26px; overflow-wrap: anywhere; }
+    .cave-heading p { display: block; font-size: 14px; }
+    .cave-bottom { width: 240px; }
+    .hoard-total { margin-bottom: 8px; }
+  }
+}
+@media (max-height: 480px) and (min-width: 601px) {
+  #academy:is([data-screen="ship"], [data-screen="reward"]) .ship-view .cave-fallback {
+    top: 50%; left: 25%; width: 120px;
+  }
+}
+#academy:not([data-screen="cave"]):not([data-screen="reward"]):not([data-screen="ship"]):not([data-screen="unloading"]) {
+  .expedition-dock { position: static; inset: auto; transform: none; width: 100%; flex-shrink: 0; padding: 8px 16px calc(8px + var(--safe-bottom)); background: #fff6e3; }
+  .expedition-dock::before { display: none; }
+  .expedition-dock > div { width: 100%; max-width: 680px; margin: auto; }
+  .expedition-dock small { color: #174d60; font-size: 13px; }
+}
+#academy:not([data-screen="cave"]):not([data-screen="reward"]):not([data-screen="ship"]):not([data-screen="unloading"]) .expedition-map-tools { top: auto; bottom: calc(12px + var(--pirate-safe-bottom)); right: calc(12px + var(--pirate-safe-right)); }
+#academy:not([data-screen="cave"]):not([data-screen="reward"]):not([data-screen="ship"]):not([data-screen="unloading"]) {
+  .active-chapter { display: block; color: #174d60; font-size: 14px; margin-top: 4px; }
+  .expedition-region:has(#expedition-current) .expedition-region-title { visibility: hidden; }
+}
+
+#academy[data-screen="levels"] #main-content {inset:0 !important;}

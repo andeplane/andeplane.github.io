@@ -153,3 +153,27 @@
 @media (prefers-reduced-motion: reduce) {
   #level-menu .level-board, .chart-sailing .chart-ship > svg { animation: none; }
 }
+
+#voyage-ui.chart-sailing :is(#world-menu,#level-menu) {overflow:hidden;}
+#voyage-ui .travel-viewport {position:absolute;inset:0;z-index:4;background:#9ab6a8 url('/assets/map/chart-water.webp') center / 560px repeat;}
+.travel-viewport > [data-map-world] {width:100%;height:100%;pointer-events:none;background:inherit;}
+#voyage-ui .travel-viewport :is(.world-map,.level-board) {position:absolute;inset:8% 5%;width:auto;height:auto;min-height:0;max-width:none;animation:none;}
+#voyage-ui .travel-viewport :is(.level-note,.regional-center) {display:none;}
+#voyage-ui .travel-follow {position:absolute;right:calc(8px + var(--pirate-safe-right));bottom:calc(65px + var(--pirate-safe-bottom));min-height:44px;padding:6px 14px;border-radius:22px;background:#fff0ce;color:#332714;}
+
+#voyage-ui.chart-sailing :is(#menu-back,.voyage-brand,.menu-heading,#menu-free,.chart-ship-action) {visibility:hidden;}
+
+#voyage-ui.chart-sailing :is(#world-menu,#level-menu) .travel-viewport :is(.world-map,.level-board) {
+  position:absolute;inset:8% 5%;width:auto;height:auto;min-height:0;margin:0;max-width:none;
+}
+#voyage-ui.chart-sailing :is(#world-menu,#level-menu) .travel-viewport :is(#map-ship-marker,#level-ship-marker) {display:block;z-index:8;}
+#voyage-ui.chart-sailing #world-menu .world-label {visibility:hidden;}
+@media (max-height:500px) and (min-aspect-ratio:4/3) {
+  #voyage-ui.chart-sailing #world-menu .travel-viewport #world-packs {padding-top:8%;}
+  #voyage-ui.chart-sailing #world-menu .travel-viewport .world-art {height:26vh;max-height:none;}
+  #voyage-ui.chart-sailing #world-menu .travel-viewport #map-cave {
+    position:absolute;inset:auto auto 0 9%;padding:0;width:90px;height:75px;background:none;border:none;box-shadow:none;
+  }
+  #voyage-ui.chart-sailing #world-menu .travel-viewport #map-cave .cave-art {display:block;width:100%;height:100%;object-fit:contain;}
+  #voyage-ui.chart-sailing #world-menu #map-cave span {display:none;}
+}

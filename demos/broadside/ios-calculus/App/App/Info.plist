@@ -6,6 +6,17 @@
 	<string>$(CAPACITOR_DEBUG)</string>
 	<key>CFBundleDevelopmentRegion</key>
 	<string>en</string>
+	<key>CFBundleLocalizations</key>
+	<array>
+		<string>en</string>
+		<string>nb</string>
+		<string>sv</string>
+		<string>da</string>
+		<string>fi</string>
+		<string>de</string>
+		<string>es</string>
+		<string>fr</string>
+	</array>
 	<key>CFBundleDisplayName</key>
         <string>Captain Calculus</string>
 	<key>CFBundleExecutable</key>

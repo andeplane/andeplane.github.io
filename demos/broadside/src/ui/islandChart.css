@@ -1,0 +1,86 @@
+.family-world-chart {
+  box-sizing:border-box; min-height:100%; padding:clamp(8px,2vh,22px) 12px 20px;
+  background:#a2bca9 url("/assets/map/nautical-chart.webp") center / cover;
+  color:#30271b; text-align:center;
+}
+.family-world-chart h1 { font:700 clamp(24px,5vw,40px)/1.12 Georgia,serif; color:#30271b; margin:4px 0 12px; }
+.family-world-chart nav { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:clamp(8px,2vh,22px); max-width:700px; margin:auto; }
+.family-world-chart .world-island { position:static; display:grid; justify-items:center; align-content:end; width:100%; max-width:none; padding:0; color:#332916; background:none; border:none; transform:none; }
+.family-world-chart .world-art { display:block; width:100%; height:clamp(78px,21vh,170px); object-fit:contain; }
+.family-world-chart .world-label { display:grid; gap:2px; width:100%; padding:5px; box-sizing:border-box; background:#f6e8c6; border-radius:3px 9px; line-height:1.25; }
+.family-world-chart .world-label b { font:700 clamp(16px,4.2vw,22px)/1.15 Georgia,serif; }
+.family-world-chart .world-label small,.family-world-chart .world-label span { font:500 13px/1.2 system-ui,sans-serif; }
+@media (orientation:landscape) and (max-height:520px) {
+  .family-world-chart nav { grid-template-columns:repeat(auto-fit,minmax(120px,1fr)); }
+  .family-world-chart .world-art {height:clamp(60px,22vh,105px);}
+}
+.world-map-plane.chart-water,.expedition-view .expedition-map-viewport,.expedition-view .expedition-region {
+  background: linear-gradient(#339db644,#339db644), #9ab6a8 url("/assets/map/chart-water.webp") center / 560px repeat;
+}
+.expedition-view .expedition-world-art,.expedition-view .expedition-region::before,.expedition-view .expedition-region::after {display:none;}
+.expedition-view .expedition-route .route-shadow {stroke:none;}
+.expedition-view .expedition-route .route-line {stroke:#735e3c;stroke-width:3px;stroke-dasharray:4 9;}
+:is(#academy,#reader) .expedition-stop .expedition-node {
+  width:104px;height:80px;min-height:0;left:50%;transform:translateX(-50%);
+  display:grid;place-items:end center;background:none;border:0;border-radius:0;box-shadow:none;
+}
+.expedition-node .chart-island-art {position:absolute;inset:0;width:100%;height:100%;object-fit:contain;pointer-events:none;}
+.expedition-node .shore-number,#voyage-ui #level-menu .level-tile .tile-number {
+  position:relative;display:block;width:max-content;height:auto;min-width:22px;
+  padding:1px 5px;border:1px solid #796440;border-radius:8px;background:#fff0c9;color:#332714;
+  box-shadow:0 1px 2px #263b3855;font:700 15px/1.15 system-ui,sans-serif;text-shadow:none;transform:none;
+}
+.expedition-stop.is-current .shore-number,#voyage-ui #level-menu .next-level .tile-number {background:#ffd46b;outline:2px solid #5b4828;}
+.expedition-stop.is-locked .chart-island-art {filter:saturate(.62);}
+.expedition-view .expedition-node-stars {font-size:13px;top:100%;}
+.expedition-view .expedition-node-stars i.earned {color:#744716;text-shadow:none;}
+.expedition-view .expedition-node-lock {right:10px;top:38px;color:white;}
+.expedition-view .expedition-here {bottom:100%;font-size:10px;}
+.chart-water .world-pack-stop {width:150px;display:grid;justify-items:center;}
+.chart-water .world-pack-stop .world-art {width:100%;height:100px;object-fit:contain;}
+.chart-water .world-pack-label {width:max-content;max-width:100%;padding:4px 8px;background:#fff0ce;border:1px solid #827047;border-radius:7px;color:#332714;}
+.chart-water .world-pack-label b {font:700 16px/1.15 system-ui,sans-serif;}
+.chart-water .world-pack-label small {margin:2px 0 0;font-size:12px;}
+.chart-water .world-pack-route path {stroke:#65553c;stroke-width:3;stroke-dasharray:5 8;}
+#voyage-ui #level-menu .level-tile {display:grid;place-items:end center;min-width:58px;min-height:44px;}
+#voyage-ui #level-menu .route-island {inset:auto auto 0 50%;height:clamp(44px,8.7vh,93px);width:clamp(58px,12vh,115px);pointer-events:auto;}
+#voyage-ui #level-menu .tile-stars {bottom:-15px;font-size:11px;}
+
+#voyage-ui .regional-viewport {position:absolute;inset:-12px 0 -14px;overflow:hidden;}
+#voyage-ui .regional-center {position:absolute;bottom:0;right:0;min-width:44px;height:44px;background:#fff0cd;color:#382b16;border:1px solid #806942;border-radius:50%;}
+.regional-center .icon {width:20px;}
+#world-menu .world-label {display:grid;gap:2px;}
+#reader[data-screen="levels"] .expedition-view {display:flex;flex-direction:column;}
+#reader[data-screen="levels"] .expedition-intro,#reader[data-screen="levels"] .expedition-dock {position:static;flex:none;max-width:none;margin:0;width:auto;}
+#reader[data-screen="levels"] .expedition-map-viewport {position:relative;inset:auto;flex:1;min-height:0;}
+#reader[data-screen="levels"] .expedition-map-tools {bottom:calc(8px + var(--pirate-safe-bottom));right:calc(8px + var(--pirate-safe-right));}
+#reader[data-screen="levels"] .expedition-drag-hint {display:none;}
+:is(#academy,#reader)[data-screen="levels"] .expedition-stop button.expedition-node {
+  background:transparent;border:0;box-shadow:none;color:#332714;width:104px;height:80px;border-radius:0;
+}
+:is(#academy,#reader)[data-screen="levels"] .expedition-node .route-island {position:absolute;inset:0;}
+:is(#academy,#reader)[data-screen="levels"] .expedition-route .route-line {stroke:#725936;stroke-width:3;stroke-dasharray:4 9;}
+:is(#academy,#reader)[data-screen="levels"] .expedition-route .route-shadow {stroke:none;}
+.chart-water .world-pack-stop:focus-visible,.expedition-stop .expedition-node:focus-visible,.family-world-chart button:focus-visible {outline:3px solid #184f68;outline-offset:2px;}
+
+/* Let the sea continue under the phone insets, with just the controls inset. */
+:is(#academy,#reader)[data-screen="levels"] :is(#main-content,#reader-content) {inset:0;padding:0;}
+:is(#academy,#reader)[data-screen="levels"] .expedition-view {
+  background:#9ab6a8 url("/assets/map/chart-water.webp") center / 560px repeat;
+}
+.trail-heading {
+  display:flex;align-items:center;gap:14px;flex:none;
+  padding:calc(4px + var(--pirate-safe-top)) calc(12px + var(--pirate-safe-right)) 4px calc(12px + var(--pirate-safe-left));
+}
+:is(#academy,#reader) .trail-heading h1 {margin:0;color:#172e2a;font:700 clamp(18px,5vw,25px)/1.08 Georgia,serif;text-shadow:none;}
+.trail-heading small {display:block;margin-top:3px;font:600 13px/1.1 system-ui,sans-serif;}
+:is(#academy,#reader) .trail-heading .menu-back {position:static;min-height:44px;color:#332714;background:#fff0ce;}
+:is(#academy,#reader)[data-screen="levels"] .expedition-view .expedition-dock {
+  background:none;padding:4px calc(12px + var(--pirate-safe-right)) calc(4px + var(--pirate-safe-bottom)) calc(12px + var(--pirate-safe-left));
+}
+.trail-chapter {position:absolute;left:calc(50% + 48px);max-width:96px;transform:translateY(-50%);color:#203729;font:italic 700 15px/1.1 Georgia,serif;}
+.expedition-map .expedition-more.earlier {min-height:44px;width:auto;padding:4px 12px;gap:0;z-index:6;}
+
+/* A stop on a chapter boundary can extend into the next stretch of water. */
+.expedition-view .expedition-region {background:transparent;isolation:auto;}
+.expedition-view .expedition-map {background:#9ab6a8 url("/assets/map/chart-water.webp") center / 560px repeat;}

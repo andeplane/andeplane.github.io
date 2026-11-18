@@ -4,10 +4,12 @@ export interface MapPoint { x: number; y: number; }
 export interface MapCamera extends MapPoint { scale: number; }
 interface Size { width: number; height: number; }
 export interface MapPanOptions {
+  coverViewport?: boolean;
   focus?: MapPoint;
   state?: MapCamera;
   scale?: number;
   onChange?: (state: MapCamera) => void;
+  onGesture?: () => void;
   onCenter?: () => void;
 }
 export interface MapPanController {
@@ -20,7 +22,12 @@ const MIN_ZOOM = .65, MAX_ZOOM = 1.5, DRAG_THRESHOLD = 8;
 const limit = (n: number, min: number, max: number) => Math.max(min, Math.min(max, n));
 
 /** Cover the viewport horizontally, with vertical space to center the first island. */
-export function clampMapCamera(camera: MapCamera, viewport: Size, world: Size): MapCamera {
+export function clampMapCamera(camera: MapCamera, viewport: Size, world: Size, coverViewport = false): MapCamera {
+  if (coverViewport && world.width && world.height) {
+    const minimum = Math.max(MIN_ZOOM, viewport.width / world.width, viewport.height / world.height);
+    const scale = limit(camera.scale, minimum, Math.max(minimum, MAX_ZOOM));
+    return { scale, x: limit(camera.x, viewport.width - world.width * scale, 0), y: limit(camera.y, viewport.height - world.height * scale, 0) };
+  }
   const scale = limit(camera.scale, MIN_ZOOM, MAX_ZOOM), margin = 190;
   const horizontalSpace = viewport.width - world.width * scale;
   return { scale,
@@ -51,7 +58,7 @@ export function mountMapPan(viewport: HTMLElement, world: HTMLElement, options: 
     return { distance: Math.max(1, Math.hypot(b.x - a.x, b.y - a.y)), midpoint: local({ x: (a.x + b.x) / 2, y: (a.y + b.y) / 2 }) };
   };
   const publish = () => {
-    camera = clampMapCamera(camera, size(), worldSize());
+    camera = clampMapCamera(camera, size(), worldSize(), options.coverViewport);
     world.style.transform = `translate3d(${camera.x}px,${camera.y}px,0) scale(${camera.scale})`;
     viewport.dataset.mapX = camera.x.toFixed(1); viewport.dataset.mapY = camera.y.toFixed(1); viewport.dataset.mapZoom = camera.scale.toFixed(2);
     options.onChange?.({ ...camera });
@@ -63,7 +70,11 @@ export function mountMapPan(viewport: HTMLElement, world: HTMLElement, options: 
     publish();
   };
   const defaultFocus = options.focus ?? { x: worldSize().width / 2, y: worldSize().height / 2 };
-  const recenter = () => options.onCenter ? options.onCenter() : center(defaultFocus);
+  const recenter = () => {
+    if (options.onCenter) { options.onCenter(); return; }
+    camera.scale = options.scale ?? 1;
+    center(defaultFocus);
+  };
   const capture = (id: number) => { try { viewport.setPointerCapture(id); } catch { /* Keyboard and browsers without capture still work. */ } };
   const release = (id: number) => { try { if (viewport.hasPointerCapture(id)) viewport.releasePointerCapture(id); } catch { /* A cancelled touch may already be released. */ } };
 
@@ -91,6 +102,7 @@ export function mountMapPan(viewport: HTMLElement, world: HTMLElement, options: 
       moved = true; capture(event.pointerId);
       camera = { ...start.camera, x: start.camera.x + dx, y: start.camera.y + dy };
     }
+    options.onGesture?.();
     event.preventDefault(); viewport.classList.add("is-panning"); publish();
   }, { signal, passive: false });
   const finish = (event: PointerEvent) => {
@@ -118,6 +130,7 @@ export function mountMapPan(viewport: HTMLElement, world: HTMLElement, options: 
   }, { signal });
   viewport.addEventListener("wheel", event => {
     event.preventDefault();
+    options.onGesture?.();
     if (event.ctrlKey || event.metaKey) camera = zoomMapAt(camera, local({ x: event.clientX, y: event.clientY }), camera.scale * Math.exp(-event.deltaY * .005));
     else { camera.x -= event.deltaX; camera.y -= event.deltaY; }
     publish();
@@ -126,13 +139,13 @@ export function mountMapPan(viewport: HTMLElement, world: HTMLElement, options: 
     const delta = event.shiftKey ? 150 : 75;
     if (event.key === "Home") { event.preventDefault(); recenter(); return; }
     if (event.key === "+" || event.key === "=" || event.key === "-") {
-      event.preventDefault(); const bounds = size();
+      options.onGesture?.(); event.preventDefault(); const bounds = size();
       camera = zoomMapAt(camera, { x: bounds.width / 2, y: bounds.height * .46 }, camera.scale * (event.key === "-" ? 1 / 1.15 : 1.15)); publish(); return;
     }
     const movement: Record<string, MapPoint> = { ArrowLeft: { x: delta, y: 0 }, ArrowRight: { x: -delta, y: 0 }, ArrowUp: { x: 0, y: delta }, ArrowDown: { x: 0, y: -delta } };
     const direction = movement[event.key];
     if (!direction) return;
-    event.preventDefault(); camera.x += direction.x; camera.y += direction.y; publish();
+    options.onGesture?.(); event.preventDefault(); camera.x += direction.x; camera.y += direction.y; publish();
   }, { signal });
   viewport.addEventListener("focusin", event => {
     const button = (event.target as Element).closest<HTMLElement>("button");
