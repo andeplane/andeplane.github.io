@@ -1,0 +1,67 @@
+@font-face { font-family: "Grotto Fraunces"; src: url("/assets/fonts/fraunces.ttf"); font-weight: 100 900; font-display: swap; }
+#voyage-ui[data-screen="main"] .menu-atmosphere { display: none; }
+#voyage-ui #captain-menu #main-menu { inset: 0; padding: 0; overflow: auto; scrollbar-color: #bd944e #080b0d; }
+.lantern-home { position: relative; isolation: isolate; width: 100%; height: 100dvh; min-height: 520px; overflow: hidden; background: #080b0d; color: #fff0cc; }
+.lantern-scene { position: absolute; top: 0; left: 50%; width: max(100%, calc(100dvh * 851 / 1847)); height: max(100%, calc(100vw * 1847 / 851)); transform: translateX(-50%); pointer-events: none; }
+.lantern-scene picture { display: block; width: 100%; height: 100%; }
+.lantern-plate { display: block; width: 100%; height: 100%; object-fit: fill; }
+#voyage-ui #main-menu .lantern-title { position: absolute; z-index: 1; top: 12.5%; left: 0; right: 0; width: max-content; max-width: 92%; margin: 0 auto; color: #ffe9b5; font: 400 clamp(62px, 19vw, 96px)/1 "Pirata One", Georgia, serif; letter-spacing: -.015em; text-shadow: 0 3px 6px #0009; }
+.lantern-actions { position: absolute; left: 14%; top: 70.5%; right: 12%; display: grid; gap: 1px; align-content: start; }
+#voyage-ui .lantern-actions button { position: relative; width: max-content; max-width: 100%; min-height: 44px; padding: 2px 4px; border: 0; border-radius: 4px; background: transparent; color: #fff0ce; text-align: left; text-shadow: 0 2px 5px #000; font: 600 clamp(25px, 7vw, 38px)/1.12 "Grotto Fraunces", Georgia, serif; transition: color .15s; }
+#voyage-ui .lantern-actions button:hover { color: #ffd583; }
+#voyage-ui .lantern-actions button:focus-visible { outline: 3px solid #fff0ce; outline-offset: 3px; background: #14120be8; }
+#voyage-ui .lantern-actions .lantern-play { color: #ffd17a; font-size: clamp(34px, 9.6vw, 48px); margin-bottom: 1px; }
+.lantern-play-arrow { position: absolute; right: calc(100% + 6px); top: 50%; transform: translateY(-50%); width: 24px; height: 30px; }
+.lantern-play-arrow .icon { width: 24px; height: 30px; fill: currentColor; stroke-width: 0; }
+.lantern-action-title { display: block; }
+#voyage-ui .lantern-actions strong { display: block; margin: 2px 0 2px; color: #f0d5a3; font: 500 11px/1.2 "DM Sans", sans-serif; font-variant-numeric: tabular-nums; text-shadow: 0 2px 4px #000; }
+.lantern-actions small { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); }
+#voyage-ui .lantern-actions .lantern-settings { margin-top: 1px; }
+.lantern-message { position: absolute; left: 14%; right: 10%; bottom: calc(8px + var(--pirate-safe-bottom)); margin: 0; color: #ffecc4; font: 12px/1.4 "DM Sans", sans-serif; }
+.lantern-message:not([role="status"]) { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); }
+.lantern-message[role="status"] { top: 23%; bottom: auto; padding: 8px; background: #15110cf2; border-radius: 6px; }
+.lantern-light { position: absolute; left: 0; top: 26%; width: 29%; height: 15%; background: radial-gradient(ellipse at 45% 47%, #ffbc5140, #d58c1914 42%, transparent 70%); mix-blend-mode: screen; animation: grotto-lantern 6.7s ease-in-out infinite; }
+.lantern-water { position: absolute; inset: 0; clip-path: inset(0 0 0 50%); background: url("/assets/menu/lantern-grotto.webp") 0 0 / 100% 100%; mask-image: linear-gradient(transparent 48%, #000 51%, #000 63%, transparent 67%); opacity: .22; animation: grotto-water 8s ease-in-out infinite alternate; }
+.lantern-glint { position: absolute; left: var(--x); top: var(--y); width: clamp(7px, 1.8vw, 15px); height: clamp(7px, 1.8vw, 15px); transform: translate(-50%, -50%); opacity: 0; animation: grotto-glint 17.3s linear var(--delay) infinite; }
+.lantern-glint svg { display: block; width: 100%; height: 100%; fill: #fff6c9; filter: drop-shadow(0 1px 3px #ffcc5d); }
+@keyframes grotto-glint { 0%, 43%, 47%, 100% { opacity: 0; transform: translate(-50%, -50%) scale(.3); } 44.3% { opacity: .96; transform: translate(-50%, -50%) scale(1); } 45% { opacity: .2; } 46% { opacity: .65; transform: translate(-50%, -50%) scale(.65); } }
+@keyframes grotto-lantern { 0%,100% { opacity: .6; transform: scale(.98); } 36% { opacity: .9; } 68% { opacity: .68; transform: scale(1.025); } }
+@keyframes grotto-water { from { transform: translateX(-1px) scaleX(1.004); } to { transform: translateX(1px) scaleX(1.009); } }
+#voyage-ui:not([data-screen="main"]) .lantern-scene * { animation-play-state: paused; }
+@media (max-width: 600px) and (max-height: 730px) and (orientation: portrait) {
+  .lantern-home { min-height: 520px; }
+  .lantern-scene { width: 100%; height: 100%; }
+  .lantern-actions { top: auto; bottom: calc(20px + var(--pirate-safe-bottom)); left: 17%; gap: 0; }
+  #voyage-ui #main-menu .lantern-title { top: max(10%, calc(var(--pirate-safe-top) + 12px)); font-size: 62px; }
+  #voyage-ui .lantern-actions button { font-size: 26px; line-height: 1.05; }
+  #voyage-ui .lantern-actions .lantern-play { font-size: 34px; }
+  #voyage-ui .lantern-actions strong { font-size: 10px; }
+}
+@media (min-width: 601px), (orientation: landscape) {
+  .lantern-home { min-height: 320px; }
+  .lantern-scene { height: max(100%, calc(100vw * 941 / 1672)); width: max(100%, calc(100dvh * 1672 / 941)); left: 50%; top: 50%; transform: translate(-50%, -50%); }
+  .lantern-glint { left: var(--wide-x); top: var(--wide-y); }
+  .lantern-light { left: 48%; top: 22%; width: 17%; height: 24%; }
+  .lantern-water { clip-path: inset(0 0 0 68%); background-image: url("/assets/menu/lantern-grotto-wide.webp"); mask-image: linear-gradient(transparent 53%, #000 58%, #000 69%, transparent 76%); }
+  .lantern-home::after { position: absolute; z-index: 0; content: ""; inset: 0; pointer-events: none; background: linear-gradient(90deg, #080b0d50, transparent 45%); }
+  #voyage-ui #main-menu .lantern-title { z-index: 1; top: max(10%, calc(var(--pirate-safe-top) + 16px)); left: calc(6% + var(--pirate-safe-left)); right: auto; margin: 0; font-size: clamp(62px, 8vw, 96px); }
+  .lantern-actions { z-index: 1; left: calc(7% + var(--pirate-safe-left)); right: auto; top: 40%; gap: 10px; }
+  #voyage-ui .lantern-actions button { font-size: clamp(28px, 3vw, 42px); }
+  #voyage-ui .lantern-actions .lantern-play { font-size: clamp(38px, 4vw, 52px); }
+  .lantern-message { z-index: 1; max-width: 340px; left: calc(7% + var(--pirate-safe-left)); }
+}
+@media (max-height: 500px) and (orientation: landscape) {
+  #voyage-ui #main-menu .lantern-title { top: calc(10px + var(--pirate-safe-top)); font-size: 54px; }
+  .lantern-actions { top: 27%; gap: 0; }
+  #voyage-ui .lantern-actions button { font-size: 26px; }
+  #voyage-ui .lantern-actions .lantern-play { font-size: 34px; }
+}
+@media (prefers-reduced-motion: reduce) { .lantern-scene * { animation: none !important; } .lantern-glint { display: none; } .lantern-water { display: none; } #voyage-ui .lantern-actions button { transition: none; } }
+/* On short phones, the treasure ends above the action ledge rather than behind Play. */
+@media (max-width: 600px) and (max-height: 730px) and (orientation: portrait) {
+  .lantern-scene { height: 82%; }
+  .lantern-scene::after { content: ""; position: absolute; inset: 82% 0 0; background: linear-gradient(transparent, #080b0d); }
+}
+@media (max-width: 360px) and (orientation: portrait) {
+  #voyage-ui #main-menu .lantern-title { left: calc(14px + var(--pirate-safe-left)); right: auto; margin: 0; font-size: 54px; }
+}
