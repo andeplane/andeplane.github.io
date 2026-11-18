@@ -36,6 +36,9 @@ describe("captain view", () => {
     const seat = new Vector3(0, 5, -8);
     const captain = new CaptainCamera(); captain.enabled = true;
     const view = { root, captainSeat: seat } as ShipView;
+    captain.apply(camera, view, 1 / 60);
+    root.computeWorldMatrix(true);
+    expect(Vector3.Distance(camera.position, Vector3.TransformCoordinates(seat, root.getWorldMatrix()))).toBeLessThan(.01);
     const settle = () => { for (let i = 0; i < 160; i++) { camera.position.set(80, 80, -50); camera.setTarget(new Vector3(80, 0, 24)); captain.apply(camera, view, 1 / 60); } };
     settle();
     root.computeWorldMatrix(true);
@@ -64,7 +67,7 @@ describe("captain view", () => {
     expect(Vector3.Distance(camera.position,Vector3.TransformCoordinates(seat,root.getWorldMatrix()))).toBeLessThan(.01);
     scene.dispose();engine.dispose();
   });
-  it("returns smoothly to the overhead camera and keeps look angles bounded", () => {
+  it("cuts cleanly back to the overhead camera and keeps look angles bounded", () => {
     vi.stubGlobal("innerWidth", 390);
     const engine = new NullEngine(), scene = new Scene(engine);
     const camera = new FreeCamera("test", Vector3.Zero(), scene);

@@ -15,6 +15,7 @@ import {
   stageOf,
   worldLevels,
   worldStars,
+  worldUnlocked,
   levelUnlocked,
 } from "../game/campaign";
 import { generateVoyage } from "../game/voyage";
@@ -276,8 +277,8 @@ export class VoyageHud {
       this.showMenu("levels");
     };
     q("#world-packs").onclick = (e) => {
-      const b = (e.target as HTMLElement).closest<HTMLElement>("[data-pack]");
-      if (b) {
+      const b = (e.target as HTMLElement).closest<HTMLButtonElement>("[data-pack]");
+      if (b && !b.disabled) {
         this.pack = Number(b.dataset.pack);
         this.showMenu("levels");
       }
@@ -362,6 +363,7 @@ export class VoyageHud {
   }
   private menuPage: "main" | "worlds" | "levels" | "settings" = "main";
   showMenu(page: "main" | "worlds" | "levels" | "settings" = "main"): void {
+    if (page === "levels" && !worldUnlocked(this.progress.voyages, this.pack)) page = "worlds";
     this.closeShipPanel();
     this.q("#v-camera").hidden = true;
     this.q("#v-deck").hidden = true;
@@ -459,8 +461,9 @@ export class VoyageHud {
     this.q("#harbour-unload").hidden = !cargoChests(this.progress).length;
     this.q("#cave-pad").setAttribute("aria-label", PRIVATE_PEARL ? "Walk on the Black Pearl" : "Walk on the ship and quay");
     this.q(".cave-title .eyebrow").textContent = `YOUR SHIP · ${this.shipLocation.kind === "port" || this.shipLocation.kind === "cave" ? "BLACKWATER BAY" : PACKS[locationWorld(this.shipLocation)]!.name.toUpperCase()}`;
+    const keepsakes = this.progress.relics.filter(id => WORLD_RELICS.includes(id as 2|5|8|11)).length;
     this.q("#cave-count").textContent = PRIVATE_PEARL
-      ? `${goldTotal(this.progress).toLocaleString()} gold · ${this.progress.relics.filter(id => WORLD_RELICS.includes(id as 2|5|8|11)).length} keepsakes · Treasure room under the quarterdeck`
+      ? `${goldTotal(this.progress).toLocaleString()} gold · ${keepsakes} keepsake${keepsakes === 1 ? "" : "s"} · Treasure room under the quarterdeck`
       : "Explore the decks. Cross the gangplank to town.";
     this.harbourWalk(false, "Aboard the Black Pearl", false);
   }
@@ -536,8 +539,9 @@ export class VoyageHud {
     const stars = (pack: number) => worldStars(this.progress.voyages, pack);
     this.q("#world-packs").innerHTML = worldChoices("pack", PACKS.map((pack,i) => ({
       id: i, art: ["first-sails","pirate-waters","whirlpool-straits","glowing-deep"][i]!,
-      title: pack.name, ariaLabel: `${pack.name}, world ${i+1}`,
-      detail: levelUnlocked(this.progress.voyages, i * LEVELS_PER_WORLD) ? `★ ${stars(i)} / 30` : "🔒 Uncharted",
+      title: pack.name, disabled: !worldUnlocked(this.progress.voyages,i),
+      ariaLabel: `${pack.name}, world ${i+1}${worldUnlocked(this.progress.voyages,i) ? "" : ", finish World 1 to unlock"}`,
+      detail: worldUnlocked(this.progress.voyages, i) ? `★ ${stars(i)} / 30` : "🔒 Finish World 1",
     })));
     const pack = PACKS[this.pack]!;
     this.q("#world-number").textContent = `WORLD ${this.pack + 1}`;

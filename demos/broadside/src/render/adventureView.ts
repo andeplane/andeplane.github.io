@@ -7,6 +7,9 @@ import { type Mesh } from "@babylonjs/core/Meshes/mesh.js";
 import { type Scene } from "@babylonjs/core/scene.js";
 import { type ShadowGenerator } from "@babylonjs/core/Lights/Shadows/shadowGenerator.js";
 import type { Session } from "../game/session";
+import { coastPhase, coastRadius } from "./islandShape";
+import { Ray } from "@babylonjs/core/Culling/ray.js";
+import { timberTexture } from "../shared/pirate-world/render/timber";
 
 /** Beach treasure chests, golden docking rings and a flock of tiny gulls. */
 export class AdventureView {
@@ -18,8 +21,6 @@ export class AdventureView {
     gems: Mesh[];
   }[] = [];
   private birds: TransformNode[] = [];
-  private destination: Mesh;
-  private destinationTime = 0;
   constructor(
     private readonly scene: Scene,
     session: Session,
@@ -35,6 +36,7 @@ export class AdventureView {
     const wood = material("chest teak", "#885d38"),
       gold = material("chest gold", "#ffca6f", true),
       dark = material("chest inside", "#493329");
+    wood.diffuseTexture = timberTexture(scene, "beach chest and jetty weathered teak");
     const blue = material("treasure turquoise", "#91f9df", true),
       white = material("gull white", "#fff9df");
     const ringMat = material("dock glow", "#ffdb83", true);
@@ -45,11 +47,17 @@ export class AdventureView {
       const dx = t.pos.x - island.pos.x,
         dz = t.pos.z - island.pos.z,
         d = Math.hypot(dx, dz);
+      const angle = Math.atan2(dx, dz);
+      const shoreRadius = island.radius * coastRadius(angle, coastPhase(island));
+      const terrain = scene.getMeshByName(`island-${island.pos.x}-${island.pos.z}`);
+      const landX = (dx / d) * shoreRadius * .82, landZ = (dz / d) * shoreRadius * .82;
+      terrain?.computeWorldMatrix(true);
+      const ground = terrain?.intersects(new Ray(new Vector3(landX, 180, landZ), new Vector3(0, -1, 0), 220)).pickedPoint?.y ?? 1.2;
       const root = new TransformNode(`chest-${t.id}`, scene);
       root.position.set(
-        island.pos.x + (dx / d) * island.radius * 0.82,
-        1.7,
-        island.pos.z + (dz / d) * island.radius * 0.82,
+        island.pos.x + landX,
+        Math.max(.25, ground) + .05,
+        island.pos.z + landZ,
       );
       root.rotation.y = Math.atan2(dx, dz);
       const box = (
@@ -109,24 +117,25 @@ export class AdventureView {
       // A small landing jetty makes the beach feel like somewhere to visit.
       const jetty = new TransformNode("beach landing", scene);
       jetty.position.set(
-        island.pos.x + (dx / d) * (island.radius + 2),
+        island.pos.x + (dx / d) * (shoreRadius + 2),
         0.8,
-        island.pos.z + (dz / d) * (island.radius + 2),
+        island.pos.z + (dz / d) * (shoreRadius + 2),
       );
       jetty.rotation.y = root.rotation.y;
-      for (let i = 0; i < 6; i++) {
+      for (let i = 0; i < 8; i++) {
         const m = MeshBuilder.CreateBox(
           "jetty plank",
           { width: 4, depth: 1.1, height: 0.25 },
           scene,
         );
         m.parent = jetty;
-        m.position.z = i * 1.18 - 2.5;
+        m.position.z = i * 1.18 - 3.2;
+        m.position.y = Math.sin(i * 2.4) * .025;
         m.material = wood;
         shadows.addShadowCaster(m);
       }
       for (const x of [-1.8, 1.8])
-        for (const z of [-2.3, 3.2]) {
+        for (const z of [-3, .5, 4.8]) {
           const m = MeshBuilder.CreateCylinder(
             "jetty post",
             { height: 3, diameter: 0.3, tessellation: 7 },
@@ -137,13 +146,6 @@ export class AdventureView {
           m.material = wood;
         }
     }
-    this.destination = MeshBuilder.CreateTorus(
-      "tap destination",
-      { diameter: 8, thickness: 0.22, tessellation: 32 },
-      scene,
-    );
-    this.destination.material = ringMat;
-    this.destination.isVisible = false;
     for (let i = 0; i < 8; i++) {
       const bird = new TransformNode(`gull-${i}`, scene);
       const body = MeshBuilder.CreateSphere(
@@ -180,11 +182,6 @@ export class AdventureView {
       this.birds.push(bird);
     }
   }
-  showDestination(x: number, z: number): void {
-    this.destination.position.set(x, 0.9, z);
-    this.destinationTime = 3;
-    this.destination.isVisible = true;
-  }
   update(s: Session, time: number, dt: number): void {
     for (const v of this.chests) {
       const t = s.treasures[v.id]!;
@@ -206,9 +203,6 @@ export class AdventureView {
         g.scaling.setAll(0.65 + Math.sin(time * 3 + i) * 0.15);
       }
     }
-    this.destinationTime -= dt;
-    this.destination.isVisible = this.destinationTime > 0;
-    this.destination.scaling.setAll(1 + (3 - this.destinationTime) * 0.15);
     this.birds.forEach((b, i) => {
       const a = time * 0.08 + i * 0.8,
         r = 34 + i * 7;

@@ -312,13 +312,13 @@ export class Effects {
       new Vector3(-1.5, 0, -0.5),
       new Vector3(1.5, 0.2, 0.5),
     );
-    wake.minLifeTime = 1.8;
-    wake.maxLifeTime = 3.2;
+    wake.minLifeTime = 2.5;
+    wake.maxLifeTime = 4.2;
     wake.minEmitPower = 0.3;
     wake.maxEmitPower = 1;
-    wake.addSizeGradient(0, 0.7, 1.1);
-    wake.addSizeGradient(1, 1.8, 2.5);
-    wake.addColorGradient(0, new Color4(0.7, 0.82, 0.84, 0.42));
+    wake.addSizeGradient(0, 0.35, 0.7);
+    wake.addSizeGradient(1, 1.1, 1.8);
+    wake.addColorGradient(0, new Color4(0.78, 0.88, 0.86, 0.24));
     wake.addColorGradient(1, new Color4(1, 1, 1, 0));
     wake.minInitialRotation = 0;
     wake.maxInitialRotation = Math.PI * 2;
