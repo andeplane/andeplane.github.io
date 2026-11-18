@@ -1,11 +1,13 @@
 import { App } from "@capacitor/app";
+import { worldChoices, worldChart } from "../ui/islandChart";
+import { createI18n } from "../math/i18n";
 import { difficultyMap } from "../ui/difficultyMap";
 import { homeMenu } from "../ui/homeMenu";
 import { pirateShipArt } from "../ui/worldArt";
 import { backButton, menuHeader } from "../ui/menuChrome";
 import { icon } from "../ui/icons";
-import { expeditionTrail, initialTrailWindow, extendTrailWindow, type TrailWindow } from "../ui/expeditionTrail";
-import { mountMapPan, type MapPanController } from "../ui/mapPan";
+import { LEVELS_PER_REGION, REGION_HEIGHT, expeditionTrail, initialTrailWindow, extendTrailWindow, type TrailWindow } from "../ui/expeditionTrail";
+import { mountMapPan, type MapCamera, type MapPanController } from "../ui/mapPan";
 import { PACKS, packFor, preferredLanguage, type Language, type ReadingItem } from "./content";
 import { freshProgress, readProgress, saveProgress, startRun, currentItem, currentText, completeChunk, banked, aboard, trackKey, type Run, type ReadingProgress, type Evidence } from "./progress";
 import { ReadingAttempt, heardPrefix } from "./recognition";
@@ -23,6 +25,9 @@ let progress=initial.progress,saveFailed=false,saveWarning=initial.warning;
 let screen:Screen="home",packId=1,run:Run|null=null,worldReturn:Screen="home",epoch=0;
 let page:TrailWindow=initialTrailWindow(1),pan:MapPanController|null=null,host:ReadingPirateHost|null=null;
 let cap:speech.SpeechCapabilities={preferredLanguages:[],locales:[]},capLoaded=false;
+const trailPages = new Map<string,TrailWindow>();
+const cameras = new Map<string,MapCamera>();
+const cameraKey = () => [screen,progress.language,screen==="levels"?packId:0].join("/");
 const attempt=new ReadingAttempt();
 let shown:{item:ReadingItem;chunk:number;index:number;id:number}|null=null;
 let result:{itemComplete:boolean;levelComplete:boolean;gold:number}|null=null;
@@ -43,10 +48,10 @@ const area=()=>progress.language==="nb"?0:1;
 const track=()=>progress.tracks[trackKey(progress.language,packId)];
 const persist=()=>{saveFailed=!saveProgress(progress,storage);};
 const button=(action:string,label:string,primary=false)=>`<button class="wood-button${primary?" primary":""}" data-action="${action}">${esc(label)}</button>`;
-const flag=(language:Language)=>language==="nb"?`<svg class="language-flag" viewBox="0 0 66 48" aria-hidden="true"><path fill="#ba2635" d="M0 0h66v48H0z"/><path fill="#fff" d="M18 0h12v48H18zM0 18h66v12H0z"/><path fill="#142e67" d="M21 0h6v48h-6zM0 21h66v6H0z"/></svg>`:`<svg class="language-flag" viewBox="0 0 60 40" aria-hidden="true"><path fill="#142e67" d="M0 0h60v40H0z"/><path stroke="#fff" stroke-width="9" d="m0 0 60 40m0-40L0 40"/><path stroke="#bf2737" stroke-width="3" d="m0 0 60 40m0-40L0 40"/><path stroke="#fff" stroke-width="13" d="M30 0v40M0 20h60"/><path stroke="#bf2737" stroke-width="7" d="M30 0v40M0 20h60"/></svg>`;
+
 const heading=(h:string,sub:string)=>`<div class="page-heading"><h1>${esc(h)}</h1><p>${esc(sub)}</p></div>`;
 function header():string{
- if(screen==="home")return "";
+ if(screen==="home"||screen==="levels")return "";
  if((screen==="reading"||screen==="comprehension")&&run&&shown)return menuHeader({className:"reader-topbar",brand:"",back:backButton({action:"back",label:t("back")}),actions:`<span class="reading-location">${esc(packFor(run.pack).name[progress.ui])}<small>${t("level")} ${f(run.level)}</small></span>`});
  return menuHeader({className:"reader-topbar",brand:"",back:backButton({action:"back",label:t("back"),destination:screen==="languages"?t("home"):undefined}),actions:`<button class="pirate-nav-link" data-action="ship">${icon("ship")}<span>${esc(t("shipShort"))}<small>${f(aboard(progress))} ${t("gold")}</small></span></button><button class="pirate-nav-link" data-action="cave">${icon("chest")}<span>${esc(t("caveShort"))}<small>${f(banked(progress))} ${t("gold")}</small></span></button>`});
 }
@@ -55,17 +60,22 @@ function home():string{
  return `<section class="pirate-home-shell">${homeMenu({title:progress.ui==="nb"?["Kaptein","Leselyst"]:["Captain","Reader"],eyebrow:"",description:t("intro"),illustration:pirateShipArt("reader"),primary:{action:active?"resume":"play",label:active?t("continue"):t("play"),detail:active?`${packFor(active.pack).name[progress.ui]} · ${t("level")} ${f(active.level)} · ${active.index}/${active.items.length}`:t("practice")},chooseLevels:active?{action:"play",label:t("choose")}:undefined,ship:{action:"ship",icon:"ship",title:t("ship"),value:`${f(aboard(progress))} ${t("gold")}`,detail:progress.cargo.length?t("aboard"):t("empty")},cave:{action:"cave",icon:"chest",title:t("cave"),value:`${f(banked(progress))} ${t("gold")}`,detail:t("banked")},settings:{action:"settings",label:t("settings")},rule:t("rule")})}</section>`;
 }
 function languages():string{
- const width=innerHeight<520?800:innerWidth<350?850:1100,height=width*2/3;
- return `<section class="map-view operation-world language-map-view" style="--world-accent:#e9c98d;--world-ocean:#16454d"><div class="world-map-heading"><h1>${esc(t("languages"))}</h1><p>${esc(t("languageHelp"))}</p></div><div class="world-map-viewport" data-map-viewport tabindex="0" data-focus-x="${width*.51}" data-focus-y="${height*.5-(innerHeight<520?12:0)}" data-map-scale=".65" aria-label="Northern Europe language map"><div class="world-map-plane language-map-plane" data-map-world style="width:${width}px;height:${height}px"><img class="world-map-art" src="${import.meta.env.BASE_URL}reading/northern-europe.png" alt="" draggable="false"/>${(["nb","en"] as Language[]).map(l=>`<button data-language="${l}" class="language-stop ${l===progress.language?"selected":""} ${l}" aria-label="${l==="nb"?"Norsk bokmål":"English"}">${flag(l)}<strong>${l==="nb"?"Norsk":"English"}</strong></button>`).join("")}</div><div class="world-map-tools" data-map-control><span>${progress.ui==="nb"?"Dra for å utforske":"Drag to explore"}</span><button data-map-center>${icon("compass")} ${progress.ui==="nb"?"Begge språk":"Both languages"}</button></div></div><nav class="language-picker" aria-label="${esc(t("languages"))}">${(["nb","en"] as Language[]).map(l=>`<button data-language="${l}" aria-label="${l==="nb"?"Norsk bokmål":"English"}">${flag(l)}<span>${l==="nb"?"Norsk bokmål":"English"}</span>${icon("arrow")}</button>`).join("")}</nav></section>`;
+ return worldChart(t("languages"), worldChoices("language", [
+   {id:"nb", art:4, title:"Norsk bokmål", ariaLabel:"Norsk bokmål"},
+   {id:"en", art:9, title:"English", ariaLabel:"English"},
+ ]));
 }
 function packs():string{
  const nb=progress.language==="nb",ui=progress.ui;
- const world={name:nb?ui==="nb"?"Lesefjordene":"Reading Fjords":ui==="nb"?"Bokøyene":"Storybook Isles",image:nb?"reading/norwegian-world.png":"reading/english-world.png",accent:nb?"#b9e7f6":"#b6e4ad",ocean:nb?"#233f59":"#164d4e",paper:nb?"#e4eef1":"#f3e2ac",ink:nb?"#2c485c":"#254a3c"};
- return difficultyMap({world,eyebrow:nb?"NORSK · BOKMÅL":"ENGLISH",instructions:ui==="nb"?"Dra kartet. Velg lesepakke.":"Drag the map. Choose your reading pack.",baseUrl:import.meta.env.BASE_URL,height:3600,selected:packId,footer:ui==="nb"?"Ti lesepakker · alle åpne":"Ten reading packs · all open",centerLabel:ui==="nb"?"Nåværende øy":"Current island",stops:PACKS.map((p,i)=>({id:p.id,x:i%2?850:350,y:3250-i*320,number:p.id,label:p.name[ui],description:p.description[ui],example:`${f(p.gold)} ${t("gold")} / ${t("level").toLowerCase()}`,detail:ui==="nb"?"Utforsk øya":"Start exploring"}))})+`<nav class="pack-picker" aria-label="${esc(t("packs"))}"><p>${esc(t("packs"))}</p><div><button data-action="center-pack" aria-label="${ui==="nb"?"Nåværende øy":"Current island"}">${icon("compass")}</button>${PACKS.map(p=>`<button data-pack="${p.id}" aria-label="${esc(p.name[ui])}: ${esc(p.description[ui])}" ${p.id===packId?'aria-current="true"':""}>${p.id}<span>${esc(p.name[ui])}</span></button>`).join("")}</div></nav>`;
+ const name=nb?(ui==="nb"?"Lesefjordene":"Reading Fjords"):(ui==="nb"?"Bokøyene":"Storybook Isles");
+ return difficultyMap({name,accessibleName:name,instructions:ui==="nb"?"Velg en lesepakke.":"Choose a reading pack.",
+   selected:packId,centerLabel:ui==="nb"?"Nåværende øy":"Current island",firstArt:nb?4:9,
+   stops:PACKS.map(p=>({id:p.id,label:p.name[ui],ariaLabel:`${p.name[ui]}: ${p.description[ui]}`}))});
 }
 function levels():string{
  const p=packFor(packId),tr=track(),current=(tr?.cleared??0)+1;
- return expeditionTrail({world:{name:p.name[progress.ui],image:progress.language==="nb"?"reading/norwegian-world.png":"reading/english-world.png",accent:"#edcd8b",ocean:"#16474c",chapterNames:progress.ui==="nb"?["Ordvika","Bokstranden","Lesefjorden","Historiehavn","Skatteøya"]:["Word Bay","Book Beach","Reading Reach","Story Harbour","Treasure Island"]},reading:true,norwegian:progress.ui==="nb",promptsPerLevel:p.count,goldRule:`${f(p.gold)} ${t("gold")} / ${t("level").toLowerCase()}`,packName:p.name[progress.ui],operatorName:progress.language==="nb"?"Norsk":"English",packLabel:p.name[progress.ui],practiceRule:p.description[progress.ui],baseUrl:import.meta.env.BASE_URL,window:page,track:{cleared:tr?.cleared??0,stars:{},runs:tr?.run?{[tr.run.level]:{solved:tr.run.index}}:{}}});
+ const progressLabel = (n:number) => `${f(n)}/${f(p.count)} ${progress.ui==="nb"?"lest":"read"}`;
+ return expeditionTrail({world:{name:p.name[progress.ui],image:progress.language==="nb"?"reading/norwegian-world.png":"reading/english-world.png",accent:"#edcd8b",ocean:"#16474c",chapterNames:progress.ui==="nb"?["Ordvika","Bokstranden","Lesefjorden","Historiehavn","Skatteøya"]:["Word Bay","Book Beach","Reading Reach","Story Harbour","Treasure Island"]},text:createI18n(progress.ui,[]).t,format:f,showStars:false,progressLabel,resumeLabel:n=>t("resume")+", "+progressLabel(n),goldRule:`${f(p.gold)} ${t("gold")} / ${t("level").toLowerCase()}`,operatorName:progress.language==="nb"?"Norsk":"English",packLabel:p.name[progress.ui],practiceRule:p.description[progress.ui],window:page,track:{cleared:tr?.cleared??0,stars:{},runs:tr?.run?{[tr.run.level]:{solved:tr.run.index}}:{}}});
 }
 function statusText():string{
  if(errorMessage)return errorMessage;
@@ -109,9 +119,9 @@ function render():void{
  if(focusedAction&&["reading","comprehension"].includes(screen))root.querySelector<HTMLButtonElement>(`[data-action="${focusedAction}"]`)?.focus({preventScroll:true});
  updateHeardWords();
  if(screen==="reading"&&shown&&shown.chunk>0)root.querySelector<HTMLElement>(".reading-passage .current")?.scrollIntoView({block:"center",behavior:"auto"});
- if(screen==="packs"||screen==="levels"||screen==="languages"){
+ if(screen==="packs"||screen==="levels"){
   const viewport=root.querySelector<HTMLElement>("[data-map-viewport]"),world=viewport?.querySelector<HTMLElement>("[data-map-world]");
-  if(viewport&&world)pan=mountMapPan(viewport,world,{focus:{x:Number(viewport.dataset.focusX),y:Number(viewport.dataset.focusY)},scale:screen==="languages"?.65:screen==="packs"?1:.8,onCenter:screen==="levels"?()=>{page=initialTrailWindow((track()?.cleared??0)+1);render();}:undefined});
+  if(viewport&&world)pan=mountMapPan(viewport,world,{focus:{x:Number(viewport.dataset.focusX),y:Number(viewport.dataset.focusY)},scale:screen==="packs"?1:1.12,coverViewport:true,state:cameras.get(cameraKey()),onChange:state=>{cameras.set(cameraKey(),state);if(screen==="levels")trailPages.set(cameraKey(),page);},onCenter:screen==="levels"?()=>{page=initialTrailWindow((track()?.cleared??0)+1);cameras.delete(cameraKey());render();}:undefined});
  }
 }
 function updateHeardWords():void{
@@ -180,7 +190,7 @@ function back():void{
 root.addEventListener("click",e=>{
  const el=(e.target as Element).closest<HTMLButtonElement>("button");if(!el||el.disabled)return;
  if(el.dataset.language){progress.language=el.dataset.language as Language;packId=1;progress.chosen=true;persist();navigate("packs");return;}
- if(el.dataset.pack){packId=Number(el.dataset.pack);page=initialTrailWindow((track()?.cleared??0)+1);navigate("levels");return;}
+ if(el.dataset.pack){packId=Number(el.dataset.pack);page=trailPages.get(["levels",progress.language,packId].join("/"))??initialTrailWindow((track()?.cleared??0)+1);navigate("levels");return;}
  if(el.dataset.level){openLevel(Number(el.dataset.level),Number(el.dataset.level)<=(track()?.cleared??0));return;}
  if(el.dataset.answer!==undefined){const q=shown!.item.question!;comprehensionCorrect=Number(el.dataset.answer)===q.correct;errorMessage=comprehensionCorrect?"":t("compRetry");render();return;}
  switch(el.dataset.action){
@@ -194,7 +204,13 @@ root.addEventListener("click",e=>{
   case "after-question":nextReading();break;case "next-level":openLevel((run?.level??0)+1);break;
   case "ship":void openWorld("ship");break;case "cave":void openWorld("cave");break;case "unload":void openWorld("unload");break;case "inspect":host?.inspect();break;
   case "retry-world":void openWorld(screen as "ship"|"cave"|"unload");break;
-  case "trail-earlier":page=extendTrailWindow(page,"earlier");render();break;case "trail-further":page=extendTrailWindow(page,"further");render();break;
+  case "trail-earlier":case "trail-further":{
+   const old=page;
+   page=extendTrailWindow(old,el.dataset.action==="trail-earlier"?"earlier":"further");
+   const camera=cameras.get(cameraKey());
+   if(camera)camera.y+=(page.first-old.first)/LEVELS_PER_REGION*REGION_HEIGHT*camera.scale;
+   render();break;
+  }
  }
 });
 root.addEventListener("change",e=>{const select=e.target as HTMLSelectElement;if(select.dataset.setting==="ui"||select.dataset.setting==="language"){progress[select.dataset.setting]=select.value as Language;progress.chosen=true;persist();render();}});

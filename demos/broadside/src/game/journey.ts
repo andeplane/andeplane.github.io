@@ -49,7 +49,7 @@ export class WorldJourney {
   constructor(location: ShipLocation) { this.location = copy(location); }
   depart(to: ShipLocation, voyages: Progress["voyages"], reducedMotion = false): boolean {
     if (this.trip || !valid(to) || (to.kind === "course" && !levelUnlocked(voyages, to.index))) return false;
-    this.trip = { from: copy(this.location), to: copy(to), time: 0, duration: reducedMotion ? .12 : 1.15 };
+    this.trip = { from: copy(this.location), to: copy(to), time: 0, duration: reducedMotion ? .12 : 2.8 };
     return true;
   }
   get fraction(): number { return this.trip ? Math.min(1, this.trip.time / this.trip.duration) : 1; }

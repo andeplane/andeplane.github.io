@@ -10,11 +10,11 @@ describe("a ship travelling through one chart", () => {
     expect(j.depart({ kind: "cave" }, {})).toBe(false);
     expect(j.step(.5)).toBeNull();
     expect(j.location).toEqual({ kind: "port" });
-    expect(j.fraction).toBeCloseTo(.5 / 1.15);
+    expect(j.fraction).toBeCloseTo(.5 / 2.8);
     j.cancel(); expect(j.step(10)).toBeNull();
     expect(j.location).toEqual({ kind: "port" });
     j.depart({ kind: "course", index: 1 }, { 0: { stars: 1, gems: 0 } });
-    expect(j.step(2)).toEqual({ kind: "course", index: 1 });
+    expect(j.step(3)).toEqual({ kind: "course", index: 1 });
     expect(j.trip).toBeNull();
     j.depart({ kind: "cave" }, {}, true);
     expect(j.step(.12)).toEqual({ kind: "cave" });

@@ -2,14 +2,14 @@ import type { OperatorId, Pack } from "./academy";
 import { catalogs, type MessageKey } from "./messages";
 
 export const LANGUAGES = [
-  { id: "en", name: "English" },
-  { id: "nb", name: "Norsk (bokmål)" },
-  { id: "sv", name: "Svenska" },
-  { id: "da", name: "Dansk" },
-  { id: "fi", name: "Suomi" },
-  { id: "de", name: "Deutsch" },
-  { id: "es", name: "Español" },
-  { id: "fr", name: "Français" },
+  { id: "en", flag: "🇬🇧", name: "English" },
+  { id: "nb", flag: "🇳🇴", name: "Norsk (bokmål)" },
+  { id: "sv", flag: "🇸🇪", name: "Svenska" },
+  { id: "da", flag: "🇩🇰", name: "Dansk" },
+  { id: "fi", flag: "🇫🇮", name: "Suomi" },
+  { id: "de", flag: "🇩🇪", name: "Deutsch" },
+  { id: "es", flag: "🇪🇸", name: "Español" },
+  { id: "fr", flag: "🇫🇷", name: "Français" },
 ] as const;
 export type Language = typeof LANGUAGES[number]["id"];
 export type LanguagePreference = Language | "auto";

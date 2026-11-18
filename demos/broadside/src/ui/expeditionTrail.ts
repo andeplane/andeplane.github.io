@@ -1,8 +1,7 @@
-import { en as english, nb as norwegian } from "../math/messages";
+import { shoreMarker } from "./islandChart";
+import { backButton } from "./menuChrome";
 import { icon } from "./icons";
 import "./expeditionTrail.css";
-import { worldFor } from "../math/worlds";
-import type { OperatorId } from "../math/academy";
 
 export const LEVELS_PER_REGION = 12;
 export const MAX_TRAIL_NODES = 72;
@@ -12,18 +11,17 @@ const EXTEND_NODES = LEVELS_PER_REGION * 2;
 export interface TrailWindow { first: number; last: number; }
 export interface TrailWorld {name:string;image:string;accent:string;ocean:string;chapterNames:readonly string[];}
 /** Regions change the scenery; the selected arithmetic pack never changes. */
-export function regionForLevel(level: number, operator: OperatorId = "add", presentation?:TrailWorld) {
+export function regionForLevel(level: number, world: TrailWorld) {
   const index = Math.floor((Math.max(1, level) - 1) / LEVELS_PER_REGION);
-  const world = presentation ?? worldFor(operator);
   const shortName = world.chapterNames[index % world.chapterNames.length]!;
   const voyage = Math.floor(index / world.chapterNames.length) + 1;
   return { index, shortName, first: index * LEVELS_PER_REGION + 1, last: (index + 1) * LEVELS_PER_REGION,
-    name: `${shortName}${voyage > 1 ? ` · Far seas ${voyage}` : ""}` };
+    name: `${shortName}${voyage > 1 ? ` · ${voyage}` : ""}` };
 }
 
 export function initialTrailWindow(current: number): TrailWindow {
-  const region = regionForLevel(current);
-  const first = Math.max(1, region.first - LEVELS_PER_REGION);
+  const regionStart = 1 + Math.floor((Math.max(1, current) - 1) / LEVELS_PER_REGION) * LEVELS_PER_REGION;
+  const first = Math.max(1, regionStart - LEVELS_PER_REGION);
   return { first, last: first + INITIAL_NODES - 1 };
 }
 
@@ -38,13 +36,12 @@ export function extendTrailWindow(window: TrailWindow, direction: "earlier" | "f
 }
 
 const lockIcon = `<svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><rect x="5" y="10" width="14" height="11" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></svg>`;
-const format = (n: number) => n.toLocaleString("en-GB");
 const escape = (s: string) => s.replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]!));
-const NODE_X = [50, 40, 31, 37, 57, 69, 62, 44, 31, 37, 59, 50];
-const FIRST_NODE_Y = 196;
+const NODE_X = [50, 43, 39, 46, 55, 61, 57, 48, 40, 44, 56, 50];
+const FIRST_NODE_Y = 88;
 const NODE_STEP = 108;
 export const TRAIL_WORLD_WIDTH = 1000;
-export const REGION_HEIGHT = 1500;
+export const REGION_HEIGHT = NODE_STEP * LEVELS_PER_REGION;
 const nodeY = (i: number) => FIRST_NODE_Y + i * NODE_STEP;
 const segment = (x1: number, y1: number, x2: number, y2: number) => `M${x1 * 4} ${y1} C${x1 * 4} ${(y1 + y2) / 2},${x2 * 4} ${(y1 + y2) / 2},${x2 * 4} ${y2}`;
 
@@ -53,20 +50,18 @@ export function trailLevelPoint(level: number, window: TrailWindow) {
   return { x: NODE_X[relative % LEVELS_PER_REGION]! / 100 * TRAIL_WORLD_WIDTH, y: Math.floor(relative / LEVELS_PER_REGION) * REGION_HEIGHT + nodeY(relative % LEVELS_PER_REGION) };
 }
 
+type TrailKey = "back" | "chapter" | "continue" | "dragExplore" | "earlierShores" | "endlessTrail" | "exploreFurther" | "findIsland" | "firstTryGold" | "islandRange" | "islandsAhead" | "islandsBefore" | "level" | "locked" | "mapKeyboard" | "nextIslandMarker" | "play" | "playLevel" | "reachLevel" | "replay" | "resumeCount" | "solvedCount" | "stars" | "start" | "uncharted" | "worldLevelMap" | "zoomIn" | "zoomOut";
 interface ExpeditionOptions {
-  text?: (key: import("../math/messages").MessageKey, values?: Record<string, string | number>) => string;
+  text: (key: TrailKey, values?: Record<string, string | number>) => string;
   format?: (value: number) => string;
-  operator?: OperatorId;
-  world?: TrailWorld;
-  promptsPerLevel?: number;
-  reading?: boolean;
+  world: TrailWorld;
+  showStars: boolean;
+  resumeLabel: (count: number) => string;
+  progressLabel: (count: number) => string;
   goldRule?: string;
-  norwegian?: boolean;
-  packName: string;
   operatorName: string;
   packLabel: string;
   practiceRule: string;
-  baseUrl: string;
   window: TrailWindow;
   track: { cleared: number; stars: Record<string, number>; runs: Record<string, { solved: number }> };
 }
@@ -74,12 +69,11 @@ interface ExpeditionOptions {
 /** An unbroken, explorable island trail, with the same data-level actions as the questions. */
 export function expeditionTrail(options: ExpeditionOptions): string {
   const format = options.format ?? ((value: number) => value.toLocaleString("en-GB"));
-  const text = options.text ?? ((key, values = {}) => (options.norwegian ? norwegian : english)[key].replace(/\{(\w+)\}/g, (placeholder, name: string) => String(values[name] ?? placeholder)));
-  const { track, window, baseUrl } = options, current = track.cleared + 1;
-  const world = options.world ?? worldFor(options.operator ?? "add"), focus = trailLevelPoint(current, window);
-  const currentRegion = regionForLevel(current, options.operator, options.world), regions: string[] = [];
+  const { text, world, track, window } = options, current = track.cleared + 1;
+  const focus = trailLevelPoint(current, window);
+  const regions: string[] = [];
   for (let first = window.first; first <= window.last; first += LEVELS_PER_REGION) {
-    const region = regionForLevel(first, options.operator, options.world), uncharted = region.first > current;
+    const region = regionForLevel(first, world), uncharted = region.first > current;
     const paths = [segment(50, 0, NODE_X[0]!, nodeY(0))];
     for (let i = 1; i < LEVELS_PER_REGION; i++) paths.push(segment(NODE_X[i - 1]!, nodeY(i - 1), NODE_X[i]!, nodeY(i)));
     paths.push(segment(NODE_X.at(-1)!, nodeY(LEVELS_PER_REGION - 1), 50, REGION_HEIGHT));
@@ -87,30 +81,31 @@ export function expeditionTrail(options: ExpeditionOptions): string {
       const level = first + i, locked = level > current, score = track.stars[level] ?? 0, solved = track.runs[level]?.solved ?? 0;
       return `<div class="expedition-stop${level === current ? " is-current" : locked ? " is-locked" : " is-cleared"}" style="left:${NODE_X[i]}%;top:${nodeY(i)}px">
         ${level === current ? `<span class="expedition-here">${text("nextIslandMarker")}</span>` : ""}
-        <button class="expedition-node" data-level="${level}" ${locked ? "disabled" : ""}${level === current ? ` aria-current="step" id="expedition-current"` : ""} aria-label="${text("level", { count: format(level) })}, ${locked ? text("locked") : solved ? options.reading ? `${options.norwegian ? "fortsett" : "resume"}, ${solved}/${options.promptsPerLevel ?? 10} ${options.norwegian ? "lest" : "read"}` : text("resumeCount", { count: solved }) : score ? `${text("stars", { count: score })}, ${text("replay")}` : text("start")}"><span style="font-size:${Math.max(10, Math.min(25, 100 / String(level).length))}px">${level}</span>${locked ? `<small class="expedition-node-lock">${lockIcon}</small>` : ""}</button>
-        ${solved ? `<span class="expedition-solved">${options.reading ? `${solved}/${options.promptsPerLevel ?? 10} ${options.norwegian ? "lest" : "read"}` : text("solvedCount", { count: solved })}</span>` : !locked && !options.reading ? `<span class="expedition-node-stars" aria-label="${text("stars", { count: score })}">${[1, 2, 3].map(n => `<i class="${n <= score ? "earned" : ""}">★</i>`).join("")}</span>` : ""}
+        <button class="expedition-node" data-level="${level}" ${locked ? "disabled" : ""}${level === current ? ` aria-current="step" id="expedition-current"` : ""} aria-label="${text("level", { count: format(level) })}, ${locked ? text("locked") : solved ? options.resumeLabel(solved) : score ? `${text("stars", { count: score })}, ${text("replay")}` : text("start")}">${shoreMarker(level - 1, format(level), "shore-number")}${locked ? `<small class="expedition-node-lock">${lockIcon}</small>` : ""}</button>
+        ${solved ? `<span class="expedition-solved">${options.progressLabel(solved)}</span>` : !locked && options.showStars ? `<span class="expedition-node-stars" aria-label="${text("stars", { count: score })}">${[1, 2, 3].map(n => `<i class="${n <= score ? "earned" : ""}">★</i>`).join("")}</span>` : ""}
       </div>`;
     }).join("");
     regions.push(`<section class="expedition-region${uncharted ? " is-uncharted" : ""}" data-region="${region.index}" aria-label="${text("chapter", { count: format(region.index + 1) })}: ${escape(region.name)}" style="--region-reflection:${region.index % 2 ? -1 : 1};height:${REGION_HEIGHT}px">
-      <div class="expedition-world-art" aria-hidden="true"></div>
-      <div class="expedition-region-title"><span>${text("chapter", { count: format(region.index + 1) })}${uncharted ? ` · ${text("uncharted")}` : ""}</span><h2>${escape(region.shortName)}</h2><small>${text("islandRange", { first: format(region.first), last: format(region.last) })}${uncharted ? ` · ${text("reachLevel", { count: format(region.first) })}` : ""}</small></div>
+
+      ${first > 1 ? `<span class="trail-chapter" style="top:${nodeY(0)}px">${escape(region.name)}</span>` : ""}
       <span class="expedition-sea-mark sea-mark-one" aria-hidden="true">✦</span><span class="expedition-sea-mark sea-mark-two" aria-hidden="true">≈</span>
-      <svg class="expedition-route" viewBox="0 0 400 ${REGION_HEIGHT}" preserveAspectRatio="none" aria-hidden="true">${paths.map((d, i) => `<path class="route-shadow" d="${d}"/><path class="route-line${first + i <= current ? " is-travelled" : ""}" d="${d}"/>`).join("")}</svg>${nodes}
+      <svg class="expedition-route" viewBox="0 0 400 ${REGION_HEIGHT}" preserveAspectRatio="none" aria-hidden="true">${paths.map((d, i) => first === 1 && i === 0 ? "" : `<path class="route-shadow" d="${d}"/><path class="route-line${first + i <= current ? " is-travelled" : ""}" d="${d}"/>`).join("")}</svg>${nodes}
     </section>`);
   }
   const height = (window.last - window.first + 1) / LEVELS_PER_REGION * REGION_HEIGHT;
-  return `<section class="expedition-view" data-operation="${options.operator}" style="--shore-sea:${world.ocean};--shore-coast:${world.accent};--shore-glow:${world.accent};--operation-world:url('${baseUrl}${world.image}')">
+  return `<section class="expedition-view" style="--shore-sea:${world.ocean};--shore-coast:${world.accent};--shore-glow:${world.accent}">
+      <header class="trail-heading">${backButton({ action: "back", label: text("back") })}<h1>${escape(world.name)}${world.name === options.packLabel ? "" : `<small>${escape(options.packLabel)}</small>`}</h1></header>
     <div class="expedition-map-viewport" data-map-viewport data-focus-x="${focus.x}" data-focus-y="${focus.y}" tabindex="0" role="group" aria-label="${escape(text("worldLevelMap", { world: world.name }))}" aria-describedby="expedition-map-help">
       <div class="expedition-map" data-map-world style="width:${TRAIL_WORLD_WIDTH}px;height:${height + 140}px" aria-label="${text("endlessTrail")}">
-        ${window.first > 1 ? `<button class="expedition-more earlier" style="top:-80px" data-action="trail-earlier">↑ ${text("earlierShores")}<small>${text("islandsBefore", { count: format(window.first) })}</small></button>` : ""}
+        ${window.first > 1 ? `<button class="expedition-more earlier" style="top:4px" data-action="trail-earlier">↑ ${text("earlierShores")}<small>${text("islandsBefore", { count: format(window.first) })}</small></button>` : ""}
         ${regions.join("")}
         <button class="expedition-more further" style="top:${height + 20}px" data-action="trail-further">${text("exploreFurther")} ${icon("compass")}<small>${text("islandsAhead")}</small></button>
       </div>
-      <div class="expedition-intro" data-map-control><span class="eyebrow">${escape(options.operatorName)} · ${escape(options.packLabel)}</span><h1>${escape(world.name)}</h1><p>${escape(options.practiceRule)}</p></div>
+
       <div class="expedition-map-tools" data-map-control><button data-map-center aria-label="${text("findIsland")}" title="${text("findIsland")}">${icon("compass")}</button><button data-map-zoom="in" aria-label="${text("zoomIn")}">+</button><button data-map-zoom="out" aria-label="${text("zoomOut")}">−</button></div>
       <p class="expedition-drag-hint" data-map-control>${text("dragExplore")}</p>
-      <span class="map-keyboard-help" id="expedition-map-help">${text("mapKeyboard")}</span>
-      <div class="expedition-dock" data-map-control><div><small>${escape(options.packLabel)} · ${escape(options.goldRule ?? text("firstTryGold"))}</small><button class="wood-button primary" data-level="${current}">${text("playLevel", { action: track.runs[current]?.solved ? text("continue") : text("play"), count: format(current) })} ${icon("ship")}</button></div></div>
+      <span class="map-keyboard-help" id="expedition-map-help">${text("mapKeyboard")} ${escape(options.practiceRule)}</span>
+
     </div>
   </section>`;
 }

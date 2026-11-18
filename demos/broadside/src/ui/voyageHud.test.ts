@@ -160,7 +160,8 @@ describe("regional island journeys", () => {
     button('[data-pack="0"]').click();
     const chart = button(".level-board"), marker = button("#level-ship-marker");
     expect(button("#level-ship").closest(".level-board")).toBeNull();
-    expect(chart.querySelectorAll("button")).toHaveLength(10);
+    expect(chart.querySelectorAll("button[data-level]")).toHaveLength(10);
+    expect(chart.querySelector("[data-map-center]")?.hasAttribute("hidden")).toBe(true);
     expect(marker.tagName).toBe("SPAN");
     expect(marker.getAttribute("aria-hidden")).toBe("true");
     expect(marker.hasAttribute("inert")).toBe(true);
@@ -193,7 +194,7 @@ describe("regional island journeys", () => {
     button('[data-pack="0"]').click();
     const stops = [...hud.root.querySelectorAll<HTMLButtonElement>("[data-level]")];
     expect(stops).toHaveLength(10);
-    expect(stops.every(b => b.querySelector(".route-island img"))).toBe(true);
+    expect(new Set(stops.map(b => b.querySelector("img")?.getAttribute("src"))).size).toBe(10);
     expect(stops[0]!.querySelectorAll(".earned")).toHaveLength(3);
     expect(stops[1]!.disabled).toBe(false);
     expect(stops[2]!.disabled).toBe(true);

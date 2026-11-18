@@ -532,7 +532,7 @@ async function main() {
     travelAction = action; mode = "travel";
     hud.beginTravel(journey.trip!.from, destination,
       typeof action === "number" ? `Setting sail for island ${action % 10 + 1}…` : "Sailing home to your cave…");
-    hud.root.inert = true;
+
   };
   const hud = new VoyageHud(progress, controls, {
     start: (i) => void start(i),

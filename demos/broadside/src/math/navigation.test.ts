@@ -37,7 +37,7 @@ describe("Captain Calculus navigation destinations",()=>{
   it("remembers both origins in Home → Ship → Cave → Back → Back",async()=>{
     await import("./main");click("ship");await vi.waitFor(()=>expect(runtime.created).toBe(1));
     click("cave");expect(root().dataset.screen).toBe("cave");
-    click("cave");expect(root().dataset.screen).toBe("cave");
+    expect(root().querySelector('[data-action="cave"]')).toBeNull();
     click("back");expect(root().dataset.screen).toBe("ship");
     click("back");expect(root().dataset.screen).toBe("home");
   });
@@ -71,10 +71,14 @@ describe("Captain Calculus language preferences", () => {
     vi.spyOn(navigator, "languages", "get").mockReturnValue(["nb-NO", "en"]);
     await import("./main");
     expect(document.documentElement.lang).toBe("nb");
-    expect(root().textContent).toContain("Velg hva du vil øve på");
-    click("settings");
+    expect(root().querySelector("button[data-action=play]")?.textContent).toContain("Spill");
+    expect(root().querySelector("[data-action=settings]")?.textContent).toContain("🇳🇴 Auto");
+    click("guide");
     expect(root().textContent).toContain("100 gull per riktig svar på første forsøk");
-    expect(root().querySelector<HTMLSelectElement>("#game-language")!.value).toBe("auto");
+    expect(root().querySelector("#game-language")).toBeNull();
+    click("back");
+    click("settings");
+    expect(document.querySelector("[data-language=auto]")?.getAttribute("aria-pressed")).toBe("true");
   });
 
   it("changes language without losing the active question, answer, or saved rewards", async () => {
@@ -84,12 +88,11 @@ describe("Captain Calculus language preferences", () => {
     const equation = root().querySelector(".left-term")!.textContent;
     const before = sessionStorage.getItem("broadside.math.v1");
     click("settings");
-    const select = root().querySelector<HTMLSelectElement>("#game-language")!;
-    select.value = "de"; select.dispatchEvent(new Event("change", { bubbles: true }));
+    document.querySelector<HTMLButtonElement>("[data-language=de]")!.click();
     expect(document.documentElement.lang).toBe("de");
-    expect(document.activeElement?.id).toBe("game-language");
+    expect(document.activeElement?.getAttribute("data-action")).toBe("settings");
     expect(sessionStorage.getItem("broadside.math.v1")).toBe(before);
-    click("back");
+    expect(document.querySelector<HTMLDialogElement>(".language-picker")?.open).toBe(false);
     expect(root().dataset.screen).toBe("question");
     expect(root().querySelector(".left-term")!.textContent).toBe(equation);
     expect(root().querySelector("#answer")!.textContent).toBe("7");
@@ -102,10 +105,9 @@ describe("Captain Calculus language preferences", () => {
     expect(document.documentElement.lang).toBe("fi");
     click("settings");
     vi.mocked(localStorage.setItem).mockImplementation(() => { throw Error("full"); });
-    const select = root().querySelector<HTMLSelectElement>("#game-language")!;
-    select.value = "fr"; select.dispatchEvent(new Event("change", { bubbles: true }));
+    document.querySelector<HTMLButtonElement>("[data-language=fr]")!.click();
     expect(document.documentElement.lang).toBe("fr");
-    expect(root().querySelector<HTMLElement>("#language-save-error")!.hidden).toBe(false);
-    expect(root().textContent).toContain("n’a pas pu être sauvegardée");
+    expect(document.querySelector<HTMLElement>("#language-save-error")!.hidden).toBe(false);
+    expect(document.querySelector<HTMLDialogElement>(".language-picker")?.textContent).toContain("n’a pas pu être sauvegardée");
   });
 });

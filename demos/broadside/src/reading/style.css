@@ -149,8 +149,8 @@
 .pack-picker button span {font-size:12px;display:none;}
 .pack-picker button[aria-current] {background:#edcd8b;color:#253a36;border-color:#edcd8b;}
 .pack-picker button[aria-current] span {display:inline;}
-#reader[data-screen="packs"] .world-map-tools {display:none;}
-#reader[data-screen="packs"] .operation-world {height:calc(100% - 112px);padding-bottom:0;}
+#reader[data-screen="packs"] .world-map-tools {justify-content:flex-end;}
+#reader[data-screen="packs"] .operation-world {height:100%;}
 #reader[data-screen="packs"] .world-map-tools>span {display:none;}
 #reader .world-pack-stop:focus-visible {outline-offset:8px;}
 #reader[data-screen="reading"] #reader-content {top:calc(88px + var(--pirate-safe-top));}
@@ -179,7 +179,7 @@
  .language-picker button {min-height:48px;padding:8px 12px;}
  .pack-picker {padding:8px 12px 4px;}
  .pack-picker p {display:none;}
- #reader[data-screen="packs"] .operation-world {height:calc(100% - 68px);}
+
  #reader[data-screen="packs"] .world-map-heading {padding-block:2px 6px;}
  #reader[data-screen="packs"] .world-map-heading p {display:none;}
  #reader[data-screen="packs"] .world-pack-label {padding:16px 8px 8px;}

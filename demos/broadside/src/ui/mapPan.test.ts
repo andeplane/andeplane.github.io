@@ -65,6 +65,19 @@ describe("shared touch map camera", () => {
     controller.destroy();
   });
 
+  it("keeps finite artwork covering the viewport at both pan extremes and minimum zoom", () => {
+    for (const viewport of [{width: 402, height: 700}, {width: 1400, height: 600}]) {
+      for (const offset of [-99999, 99999]) {
+        const world = {width: 1200, height: 1800};
+        const camera = clampMapCamera({x: offset, y: offset, scale: .1}, viewport, world, true);
+        expect(camera.x).toBeLessThanOrEqual(0);
+        expect(camera.y).toBeLessThanOrEqual(0);
+        expect(camera.x + world.width * camera.scale).toBeGreaterThanOrEqual(viewport.width);
+        expect(camera.y + world.height * camera.scale).toBeGreaterThanOrEqual(viewport.height);
+      }
+    }
+  });
+
   it("centers a map narrower than its viewport even after extreme horizontal panning", () => {
     for (const x of [-99999, 0, 99999]) {
       expect(clampMapCamera({ x, y: 190, scale: .65 }, { width: 932, height: 700 }, { width: 1200, height: 1800 })).toEqual({ x: 76, y: 190, scale: .65 });
