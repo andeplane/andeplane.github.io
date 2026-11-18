@@ -273,7 +273,7 @@ describe("regional island journeys", () => {
 });
 
 describe('sailing deck controls',()=>{
-  it('keeps labelled camera controls usable through view changes and reopens the next voyage tip',()=>{
+  it('keeps camera controls labelled and puts the next voyage briefing in Pause',()=>{
     const {hud,handlers,button}=setup(false);
     hud.play(1);hud.camera(false);
     expect(button('#v-camera').textContent).toBe('Captain');
@@ -282,10 +282,11 @@ describe('sailing deck controls',()=>{
     expect(button('#v-camera').textContent).toBe('Overhead');
     expect(button('#v-camera').getAttribute('aria-label')).toBe('Switch to overhead view');
     expect(button('#v-captain-help').hidden).toBe(false);
-    button('#v-tip').classList.add('fade');
     hud.play(2);
-    expect(button('#v-tip').classList.contains('fade')).toBe(false);
-    expect(button('#v-tip').textContent).toContain('headland');
+    expect(button('#v-tip').textContent).toBe('');
+    expect(button('#v-paused').hidden).toBe(true);
+    hud.paused(true);
+    expect(button('#v-briefing').textContent).toContain('headland');
     expect(button('#v-home').textContent).toBe('Levels');
   });
   it('steers gently from the thumb-down location and releases only the steering finger',()=>{
