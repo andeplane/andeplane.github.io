@@ -7,7 +7,7 @@
 
 ## Implementation
 
-The shared UI lives in `src/ui/islandChart.ts`, `difficultyMap.ts`, `expeditionTrail.ts` and `mapPan.ts`. World choices take a game-owned action, ID, illustration, accessible name, optional subtitle, progress and disabled state. Level markers use a separate illustration and number so viewport aspect ratio cannot deform the label. Twelve transparent WebP shore illustrations live in `public/assets/map/islands/`. The water texture comes from the existing nautical chart.
+The shared UI lives in `src/ui/islandChart.ts`, `difficultyMap.ts`, `expeditionTrail.ts` and `mapPan.ts`. World choices take a game-owned action, ID, illustration, accessible name, optional subtitle, progress and disabled state. Level markers use a separate illustration and number so viewport aspect ratio cannot deform the label. Twelve transparent WebP shore illustrations live in `public/assets/map/islands/`. The shared watercolor sea tile sits beneath the islands and their dotted sailing route.
 
 Broadside supplies world and voyage data through `voyageHud.ts` and keeps its ship travel anchors. Calculus supplies operations, number ranges and rewards from `math/main.ts`. Reader supplies languages, reading packs and read-aloud progress from `reading/main.ts`. Both learning games use bounded pack charts and windowed trails. Pack and level cameras are retained while navigating during a session. Choosing the compass returns to the current island.
 

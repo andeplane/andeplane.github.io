@@ -1,7 +1,6 @@
-/* The interactive worlds are painted onto an actual engraved sea chart. */
+/* The sea continues beneath each interactive island. */
 [data-screen="worlds"] .captain-menu {
-  background: #8ca49a url("/assets/map/nautical-chart.webp") center / 100% 100%
-    no-repeat;
+  background: #8ca49a url("/assets/map/chart-water.webp") center / 1120px repeat;
 }
 [data-screen="worlds"] .menu-atmosphere {
   display: none;
