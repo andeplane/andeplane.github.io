@@ -29,6 +29,15 @@ describe('purchased ship walking', () => {
     for (let i=0;i<30;i++) walker.step(intent,.1);
     expect(walker.z).toBeGreaterThan(-10); expect(walker.feet).toBe(4.5);
   });
+  it('keeps the lower walker inside fitted sidewalls, bowed windows and the clear doorway', () => {
+    expect(deck.walkable(3.9,-16,4.5)).toBe(true);
+    expect(deck.walkable(4,-16,4.5)).toBe(false);
+    expect(deck.walkable(0,-21.3,4.5)).toBe(true);
+    expect(deck.walkable(0,-21.5,4.5)).toBe(false);
+    expect(deck.walkable(3,-21.15,4.5)).toBe(false);
+    expect(deck.walkable(.9,-11.5,4.5)).toBe(true);
+    expect(deck.walkable(1,-11.5,4.5)).toBe(false);
+  });
   it('climbs and descends a staircase across tread seams', () => {
     const deck=new PearlDeck({...manifest, ramps:[{x:[2,4],stations:[[-20,10],[-5,4.5]]}]});
     let w:CaveWalker;

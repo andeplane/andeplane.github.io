@@ -5,7 +5,7 @@ import { Mesh } from "@babylonjs/core/Meshes/mesh.js";
 import { Color3 } from "@babylonjs/core/Maths/math.color.js";
 import type { Scene } from "@babylonjs/core/scene.js";
 import type { VoyageWeather } from "../game/weather";
-import { worldStyle } from "./worldStyle";
+import { worldStyle, skyZenith } from "./worldStyle";
 
 Effect.ShadersStore.voyageSkyVertexShader = `
 precision highp float;
@@ -67,7 +67,7 @@ export class VoyageSky {
       });
     const cover = weather.kind === "storm" ? 1 : weather.rain ? .8 : pack ? .6 : .12;
     this.material.setColor3("horizon", Color3.FromHexString(style.fog).scale(weather.kind === "storm" ? .78 : 1));
-    this.material.setColor3("zenith", Color3.FromHexString(pack === 0 ? "#507ea3" : style.fog).scale(pack ? .65 : 1));
+    this.material.setColor3("zenith", Color3.FromHexString(skyZenith(pack)));
     this.material.setFloat("cloudCover", cover);
     this.material.setFloat("night", pack === 3 ? 1 : 0);
     this.material.disableDepthWrite = true;

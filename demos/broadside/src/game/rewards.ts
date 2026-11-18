@@ -1,4 +1,4 @@
-import { worldOf, worldLevels } from "./campaign";
+import { completedWorld, worldOf, worldLevels } from "./campaign";
 import type { Progress } from "./progress";
 
 export const GOLD_PER_LEVEL = 1000;
@@ -18,7 +18,7 @@ export function worldGold(progress: Progress, world: number): number {
   return (worldLevels(world).filter((level) => !!progress.voyages[level]).length + progress.fishing.chests.filter(c => c.world === world).length) * GOLD_PER_LEVEL;
 }
 export function worldComplete(progress: Progress, world: number): boolean {
-  return worldLevels(world).every((i) => !!progress.voyages[i]);
+  return completedWorld(progress.voyages, world);
 }
 /** Older saves retain every completed level and convert them to gold and world prizes. */
 export function syncRewards(progress: Progress): void {

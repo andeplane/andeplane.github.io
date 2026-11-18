@@ -53,8 +53,14 @@ export class PearlDeck {
   }
   walkable(x: number, z: number, feet: number): boolean {
     if (Math.abs(x) > 5.6 || z < -21.6 || z > 22) return false;
+    if (feet < 6.2 && z < -11.5) {
+      // The fitted hull narrows at deck level; the bowed stern gallery is
+      // farther forward at its sides. Keep the walker's body off its glazing.
+      const stern = -16.75 - .7 * (7.28 - x*x*.035);
+      if (Math.abs(x) > 3.9 || z < stern + .5) return false;
+    }
     // The lower room connects to the main deck through its central doorway.
-    if (feet < 6.2 && z < -10.7 && z > -12.2 && Math.abs(x) > 1.15) return false;
+    if (feet < 6.2 && z < -10.7 && z > -12.2 && Math.abs(x) > .94) return false;
     const floor=this.floor(x,z,feet);
     // Rails bound the authored deck. A missing upper face must not lead straight
     // through the roof to the cabin floor six metres below; jumping still works.

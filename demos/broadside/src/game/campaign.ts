@@ -16,6 +16,12 @@ export const worldStars = (
   world: number,
 ): number =>
   worldLevels(world).reduce((sum, i) => sum + (voyages[i]?.stars ?? 0), 0);
+export function completedWorld(voyages: Record<string, unknown>, world: number): boolean {
+  return worldLevels(world).every((i) => !!voyages[i]);
+}
+export function worldUnlocked(voyages: Record<string, unknown>, world: number): boolean {
+  return world === 0 || (world > 0 && world < WORLD_COUNT && completedWorld(voyages, 0));
+}
 export function levelUnlocked(
   voyages: Record<string, unknown>,
   index: number,
@@ -23,6 +29,7 @@ export function levelUnlocked(
   return (
     index >= 0 &&
     index < TOTAL_LEVELS &&
+    worldUnlocked(voyages, worldOf(index)) &&
     (index === 0 || !!voyages[index] || !!voyages[index - 1])
   );
 }

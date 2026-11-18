@@ -29,8 +29,8 @@ const STYLES: readonly WorldStyle[] = [
     sand: "#e4c994", wetSand: "#a3936d", grass: "#688b4c", grassDark: "#365c42",
     leaf: "#286c47", leafLight: "#76a75d", trunk: "#9b7851",
     rock: "#9b9781", rockDark: "#676d60",
-    deepWater: "#145569", shallowWater: "#60b5a7", foam: "#d8eee2",
-    horizon: "#709eaf", fog: "#6c94a2", sun: "#ffe3b0", sky: "#b6d2df",
+    deepWater: "#0b3e4b", shallowWater: "#3cbb9f", foam: "#deece1",
+    horizon: "#709eaf", fog: "#6c94a2", sun: "#ffd6a0", sky: "#b6d2df",
     ground: "#4e6872", ambient: "#293b40", sunStrength: 1.5, skyStrength: .9,
   },
   {
@@ -64,4 +64,9 @@ const STYLES: readonly WorldStyle[] = [
 
 export function worldStyle(pack: number): WorldStyle {
   return STYLES[Math.max(0, Math.min(STYLES.length - 1, pack))]!;
+}
+
+/** Shared sky/reflection zenith keeps the water in the same weather as the visible dome. */
+export function skyZenith(pack: number): string {
+  return ["#285b77", "#253b50", "#1c3044", "#171c36"][Math.max(0, Math.min(3, pack))]!;
 }

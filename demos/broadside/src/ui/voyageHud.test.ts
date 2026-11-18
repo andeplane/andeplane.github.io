@@ -26,6 +26,36 @@ function setup(privateShip: boolean, cargo = false) {
 
 afterEach(() => { document.body.replaceChildren(); ship.private = false; });
 
+it("uses the singular keepsake count in the real private ship room", () => {
+  const { hud, progress } = setup(true);
+  progress.relics=[2];hud.harbour();
+  expect(hud.root.querySelector('#cave-count')?.textContent).toContain('1 keepsake ·');
+  expect(hud.root.querySelector('#cave-count')?.textContent).not.toContain('1 keepsakes');
+  progress.relics.push(5);hud.harbour();
+  expect(hud.root.querySelector('#cave-count')?.textContent).toContain('2 keepsakes ·');
+});
+
+it("keeps later world charts closed until the tenth World 1 voyage is completed", () => {
+  const { hud, progress, button } = setup(false);
+  for (let i = 0; i < 9; i++) awardVoyage(progress, i, 1, 0);
+  hud.showMenu("worlds");
+  for (const i of [1, 2, 3]) {
+    const island = button(`[data-pack="${i}"]`);
+    expect(island.disabled).toBe(true);
+    island.click();
+    expect(hud.root.dataset.screen).toBe("worlds");
+  }
+  awardVoyage(progress, 9, 1, 0);
+  for (const i of [1, 2, 3]) {
+    hud.showMenu("worlds");
+    const island = button(`[data-pack="${i}"]`);
+    expect(island.disabled).toBe(false);
+    island.click();
+    expect(hud.root.dataset.screen).toBe("levels");
+    expect(hud.pack).toBe(i);
+  }
+});
+
 it("shows a recoverable ship-load failure in the redesigned home", () => {
   const { hud } = setup(true);
   hud.showMenu("main");
