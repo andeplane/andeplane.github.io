@@ -445,8 +445,9 @@ export class VoyageHud {
     this.q("#harbour-unload").hidden = !cargoChests(this.progress).length;
     this.q("#cave-pad").setAttribute("aria-label", PRIVATE_PEARL ? "Walk on the Black Pearl" : "Walk on the ship and quay");
     this.q(".cave-title .eyebrow").textContent = `YOUR SHIP · ${this.shipLocation.kind === "port" || this.shipLocation.kind === "cave" ? "BLACKWATER BAY" : PACKS[locationWorld(this.shipLocation)]!.name.toUpperCase()}`;
+    const keepsakes = this.progress.relics.filter(id => WORLD_RELICS.includes(id as 2|5|8|11)).length;
     this.q("#cave-count").textContent = PRIVATE_PEARL
-      ? `${goldTotal(this.progress).toLocaleString()} gold · ${this.progress.relics.filter(id => WORLD_RELICS.includes(id as 2|5|8|11)).length} keepsakes · Treasure room under the quarterdeck`
+      ? `${goldTotal(this.progress).toLocaleString()} gold · ${keepsakes} keepsake${keepsakes === 1 ? "" : "s"} · Treasure room under the quarterdeck`
       : "Explore the decks. Cross the gangplank to town.";
     this.harbourWalk(false, "Aboard the Black Pearl", false);
   }

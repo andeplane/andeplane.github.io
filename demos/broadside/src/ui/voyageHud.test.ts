@@ -26,6 +26,15 @@ function setup(privateShip: boolean, cargo = false) {
 
 afterEach(() => { document.body.replaceChildren(); ship.private = false; });
 
+it("uses the singular keepsake count in the real private ship room", () => {
+  const { hud, progress } = setup(true);
+  progress.relics=[2];hud.harbour();
+  expect(hud.root.querySelector('#cave-count')?.textContent).toContain('1 keepsake ·');
+  expect(hud.root.querySelector('#cave-count')?.textContent).not.toContain('1 keepsakes');
+  progress.relics.push(5);hud.harbour();
+  expect(hud.root.querySelector('#cave-count')?.textContent).toContain('2 keepsakes ·');
+});
+
 it("keeps later world charts closed until the tenth World 1 voyage is completed", () => {
   const { hud, progress, button } = setup(false);
   for (let i = 0; i < 9; i++) awardVoyage(progress, i, 1, 0);

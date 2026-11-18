@@ -8,10 +8,11 @@ import { Mesh } from "@babylonjs/core/Meshes/mesh.js";
 import { MeshBuilder } from "@babylonjs/core/Meshes/meshBuilder.js";
 import { TransformNode } from "@babylonjs/core/Meshes/transformNode.js";
 import { VertexData } from "@babylonjs/core/Meshes/mesh.vertexData.js";
+import { VertexBuffer } from "@babylonjs/core/Buffers/buffer.js";
 import type { Scene } from "@babylonjs/core/scene.js";
 import type { ShadowGenerator } from "@babylonjs/core/Lights/Shadows/shadowGenerator.js";
 
-export interface TreasureCabin { meshes: Mesh[]; lamps: PointLight[]; timber: StandardMaterial; floorY: number; }
+export interface TreasureCabin { meshes: Mesh[]; lamps: PointLight[]; timber: StandardMaterial; frame: StandardMaterial; floorY: number; }
 
 /** Original aged oak, with fine grain relief and worn fibres, rather than orange painted walls. */
 function oakTextures(scene: Scene) {
@@ -99,7 +100,7 @@ function curvedBeam(scene: Scene, name: string, path: Vector3[], width: number, 
 }
 
 /** The treasure room is built as fitted ship joinery, batched by finish for phone rendering. */
-export function buildTreasureCabin(scene: Scene, shadows: ShadowGenerator): TreasureCabin {
+export function buildTreasureCabin(scene: Scene, shadows: ShadowGenerator, options: { walkable?: boolean } = {}): TreasureCabin {
   const textures = oakTextures(scene), parts = new Map<StandardMaterial, Mesh[]>(), lamps: PointLight[] = [];
   const material = (name: string, hex: string, timber = false) => {
     const m = new StandardMaterial(name, scene); m.diffuseColor = Color3.FromHexString(hex);
@@ -109,6 +110,7 @@ export function buildTreasureCabin(scene: Scene, shadows: ShadowGenerator): Trea
   };
   const deck = [material("cabin deck oak", "#a79b83", true), material("cabin deck worn oak", "#b7aa91", true), material("cabin deck aged oak", "#958b76", true)];
   const wall = material("cabin weathered hull planking", "#9c907a", true), frame = material("cabin dark carved oak", "#8b785a", true);
+  if (options.walkable) { wall.diffuseColor=Color3.FromHexString("#8c826d"); wall.specularColor.set(.065,.055,.038); }
   const iron = material("cabin forged black iron", "#302e28"), brass = material("cabin rubbed antique brass", "#ae8b4d"), rope = material("cabin tarred hemp", "#6d6250");
   brass.specularColor.set(.5, .38, .19); brass.specularPower = 64; iron.specularColor.set(.15, .15, .12);
   const add = (mesh: Mesh, mat: StandardMaterial, parent?: TransformNode) => { mesh.material = mat; if (parent) mesh.parent = parent; parts.get(mat)!.push(mesh); return mesh; };
@@ -132,15 +134,31 @@ export function buildTreasureCabin(scene: Scene, shadows: ShadowGenerator): Trea
     }
   }
   const hullX = (y: number) => 4.25 + Math.sin((y - .7) / 5.55 * Math.PI) * .6;
+  const sidePorts = (side: number): [number, number][] => !options.walkable ? [] : side < 0 ? [[-2.55, -.45], [.9, 3]] : [[.9, 3]];
+  const hullStrip = (side: number, bottom: number, top: number, backing: number) => {
+    const ys = [bottom, ...[2.2, 3.9].filter(y => y > bottom && y < top), top];
+    for (let j = 1; j < ys.length; j++) {
+      const y0 = ys[j - 1]!, y1 = ys[j]!, inPort = (y0 + y1) / 2 > 2.2 && (y0 + y1) / 2 < 3.9;
+      const spans: [number, number][] = []; let start = -7.55;
+      for (const [a, b] of inPort ? sidePorts(side) : []) { spans.push([start, a]); start = b; }
+      spans.push([start, 7.5]);
+      for (const [a, b] of spans) {
+        const mesh = MeshBuilder.CreateRibbon(backing ? "caulked hull lining" : "fitted hull strake", { pathArray: [[new Vector3(side * (hullX(y0) + backing), y0, a), new Vector3(side * (hullX(y0) + backing), y0, b)], [new Vector3(side * (hullX(y1) + backing), y1, a), new Vector3(side * (hullX(y1) + backing), y1, b)]], sideOrientation: Mesh.DOUBLESIDE }, scene);
+        const p=mesh.getVerticesData(VertexBuffer.PositionKind)!,uv:number[]=[];
+        for(let n=0;n<p.length;n+=3)uv.push((p[n+1]!-y0)/(y1-y0)+Math.floor(y0*10)*.173,p[n+2]!/3+y0*.219);
+        mesh.setVerticesData(VertexBuffer.UVKind,uv);
+        add(mesh, wall);
+      }
+    }
+  };
   for (const side of [-1, 1]) {
-    const lining = MeshBuilder.CreateRibbon("continuous caulked hull lining", { pathArray: Array.from({ length: 25 }, (_, i) => {
-      const y = .65 + i / 24 * 5.6; return [new Vector3(side * (hullX(y) + .06), y, -7.55), new Vector3(side * (hullX(y) + .06), y, 7.5)];
-    }), sideOrientation: Mesh.DOUBLESIDE }, scene); add(lining, wall);
+    if(options.walkable)for (let i = 0; i < 24; i++) hullStrip(side, .65 + i / 24 * 5.6, .65 + (i + 1) / 24 * 5.6, .06);
+    else { const lining=MeshBuilder.CreateRibbon("continuous caulked hull lining",{pathArray:Array.from({length:25},(_,i)=>{const y=.65+i/24*5.6;return[new Vector3(side*(hullX(y)+.06),y,-7.55),new Vector3(side*(hullX(y)+.06),y,7.5)];}),sideOrientation:Mesh.DOUBLESIDE},scene);add(lining,wall); }
   }
   for (const side of [-1, 1]) for (let course = 0; course < 12; course++) {
     const y0 = .7 + course * .45, y1 = y0 + .442;
-    const mesh = MeshBuilder.CreateRibbon("curved hull strake", { pathArray: [[new Vector3(side * hullX(y0), y0, -7.5), new Vector3(side * hullX(y0), y0, 7.4)], [new Vector3(side * hullX(y1), y1, -7.5), new Vector3(side * hullX(y1), y1, 7.4)]], sideOrientation: Mesh.DOUBLESIDE }, scene);
-    add(mesh, wall);
+    if(options.walkable)hullStrip(side, y0, y1, 0);
+    else add(MeshBuilder.CreateRibbon("curved hull strake",{pathArray:[[new Vector3(side*hullX(y0),y0,-7.5),new Vector3(side*hullX(y0),y0,7.4)],[new Vector3(side*hullX(y1),y1,-7.5),new Vector3(side*hullX(y1),y1,7.4)]],sideOrientation:Mesh.DOUBLESIDE},scene),wall);
   }
   // Broad curved ribs continue into the overhead beams, with genuine scarf joinery.
   const ribPath = (z: number) => {
@@ -156,7 +174,29 @@ export function buildTreasureCabin(scene: Scene, shadows: ShadowGenerator): Trea
     box("cabin overhead plank", .5, .12, 15, x, y, 0, wall);
   }
   box("continuous ceiling backing", 9.5, .16, 15.2, 0, 6.18, 0, wall);
-  for (let i = 0; i < 12; i++) box("rear cabin bulkhead board", 9.1, .445, .16, 0, .92 + i * .45, -7.5, wall);
+  for (let i = 0; i < 12; i++) {
+    const y = .92 + i * .45;
+    if (!options.walkable) box("rear cabin bulkhead board", 9.1, .445, .16, 0, y, -7.5, wall);
+    else {
+      box("port entrance bulkhead board", 3.35, .445, .16, -2.875, y, -7.5, wall);
+      if (y < 3.3) box("starboard entrance bulkhead board", 3.35, .445, .16, 2.875, y, -7.5, wall);
+      else {
+        box("stairwell inner bulkhead board", 1.25, .445, .16, 1.825, y, -7.5, wall);
+        box("stairwell outer bulkhead board", .5, .445, .16, 4.3, y, -7.5, wall);
+      }
+      if (y + .2225 > 4.5) {
+        const bottom = Math.max(4.5, y - .2225), top = y + .2225;
+        box("door lintel panelling", 2.4, top - bottom, .16, 0, (top + bottom) / 2, -7.5, wall);
+      }
+    }
+  }
+  if (options.walkable) {
+    for (const [x, w] of [[-2.875, 3.35], [1.825, 1.25], [4.3, .5]]) box("closed entrance bulkhead backing", w!, 5.55, .08, x!, 3.475, -7.61, wall);
+    box("closed lower stair bulkhead backing", 3.35, 2.6, .08, 2.875, 2, -7.61, wall);
+    box("closed entrance lintel backing", 2.4, 1.75, .08, 0, 5.375, -7.61, wall);
+    for (const x of [-1.25, 1.25]) box("treasure doorway oak jamb", .2, 3.8, .3, x, 2.6, -7.42, frame);
+    box("treasure doorway oak lintel", 2.7, .22, .3, 0, 4.5, -7.42, frame);
+  }
 
   // Bowed transom with five glazed arched lights, recessed panels and moulded reveals.
   const windowRoots: TransformNode[] = [];
@@ -181,14 +221,19 @@ export function buildTreasureCabin(scene: Scene, shadows: ShadowGenerator): Trea
     beam("arched oak window reveal", reveal, .17, .3, frame, root);
     beam("worn inner window moulding", reveal.map(v => v.add(new Vector3(0, 0, -.175))), .045, .055, brass, root);
     box("deep stern window sill", 1.55, .14, .48, 0, 1.79, -.12, frame, root);
-    for (const x of [-.22, .22]) box("leaded window vertical bar", .026, 2.62, .04, x, 3.13, .085, iron, root, .004);
+    for (const x of [-.22, .22]) {
+      const top=options.walkable?4.14+.56*Math.sqrt(1-(x/.65)**2):4.44,bottom=options.walkable?1.84:1.82;
+      box("leaded window vertical bar",.026,top-bottom,.04,x,(top+bottom)/2,.085,iron,root,.004);
+    }
     for (const y of [2.57, 3.36, 4.14]) box("leaded window crossbar", 1.25, .027, .04, 0, y, .085, iron, root, .004);
     const boundary = [new Vector3(-.59, 1.88, .1), ...arch.map(v => new Vector3(v.x * .91, v.y - .015, .1)), new Vector3(.59, 1.88, .1)];
     const positions = boundary.flatMap(v => [v.x, v.y, v.z]), indices: number[] = [];
     for (let i = 1; i < boundary.length - 1; i++) indices.push(0, i + 1, i);
     const pane = new Mesh("old glazed stern window", scene), data = new VertexData(); data.positions = positions; data.indices = indices;
+    data.uvs=boundary.flatMap(v=>[(v.x+.65)/1.3,(v.y-1.88)/2.82]);
     VertexData.ComputeNormals(positions, indices, data.normals = []); data.applyToMesh(pane); add(pane, glass, root);
     const spandrel = MeshBuilder.CreateRibbon("fitted arch spandrel timber", { pathArray: [arch.map(v => new Vector3(v.x, v.y + .12, .04)), arch.map(v => new Vector3(v.x, 5.36, .04))], sideOrientation: Mesh.DOUBLESIDE }, scene); add(spandrel, wall, root);
+    if(options.walkable)for(const x of[-.7,.7])box("fitted window spandrel shoulder",.18,1.25,.18,x,4.74,.09,wall,root);
     box("stern upper cornice", 1.6, .2, .39, 0, 5.34, -.04, frame, root);
     box("stern cornice rubbed edge", 1.6, .035, .04, 0, 5.24, -.255, brass, root, .008);
     for (const x of [-.78, .78]) {
@@ -196,6 +241,25 @@ export function buildTreasureCabin(scene: Scene, shadows: ShadowGenerator): Trea
       column.position.set(x, 1.93, -.22); add(column, frame, root);
       for (const y of [2.04, 3.55]) {
         const collar = MeshBuilder.CreateTorus("pilaster brass collar", { diameter: .2, thickness: .025, tessellation: 12 }, scene); collar.position.set(x, y, -.22); add(collar, brass, root);
+      }
+    }
+  }
+
+  if(options.walkable)for(const side of[-1,1]) {
+    box("curved hull chair rail",.16,.14,14.9,side*(hullX(1.96)-.08),1.96,0,frame);
+    for(const z of[-5,-1.5,2,5.5])beam("fitted wainscot stile",Array.from({length:9},(_,i)=>{const y=.8+i/8*1.08;return new Vector3(side*(hullX(y)-.06),y,z);}),.07,.09,frame);
+    for(const[a,b]of sidePorts(side)) {
+      const root=new TransformNode("framed outward cabin port",scene);root.position.set(side*(hullX(3.05)-.02),0,(a+b)/2);root.rotation.y=side*Math.PI/2;windowRoots.push(root);
+      const half=(b-a)/2;
+      for(const x of[-half,half])box("side port oak jamb",.18,1.9,.34,x,3.05,0,frame,root);
+      box("side port moulded head",b-a+.3,.17,.38,0,3.9,-.025,frame,root);
+      box("side port deep sill",b-a+.34,.18,.5,0,2.2,-.1,frame,root);
+      const pane=MeshBuilder.CreatePlane("clear outward side glazing",{width:b-a-.16,height:1.55,sideOrientation:Mesh.DOUBLESIDE},scene);pane.position.set(0,3.05,.12);add(pane,glass,root);
+      box("side port lead upright",.028,1.65,.04,0,3.05,.08,iron,root,.004);
+      box("side port lead crossbar",b-a-.13,.028,.04,0,3.05,.08,iron,root,.004);
+      for(const sign of[-1,1]) {
+        const shutter=box("folded oak port shutter",.38,1.75,.08,sign*(half+.21),3.05,-.11,wall,root);shutter.rotation.y=sign*.65;
+        for(const y of[2.55,3.55])box("forged shutter hinge",.25,.055,.045,sign*(half+.16),y,-.2,iron,root,.006);
       }
     }
   }
@@ -244,5 +308,5 @@ export function buildTreasureCabin(scene: Scene, shadows: ShadowGenerator): Trea
     if (mat === frame) shadows.addShadowCaster(merged, false);
   }
   for (const root of windowRoots) root.dispose();
-  return { meshes, lamps, timber: wall, floorY: .7 };
+  return { meshes, lamps, timber: wall, frame, floorY: .7 };
 }

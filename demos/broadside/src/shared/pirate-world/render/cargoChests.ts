@@ -23,7 +23,7 @@ export class CargoChests {
     this.brass = new StandardMaterial(name + ' gold', scene); this.brass.diffuseColor = Color3.FromHexString('#e0b55c');
     this.brass.specularColor = Color3.FromHexString('#ffe1a1');
   }
-  show(positions: CargoPosition[]): void {
+  show(positions: CargoPosition[], open = true): void {
     this.meshes.forEach(mesh => mesh.dispose()); this.meshes = [];
     const timber: Mesh[] = [], gold: Mesh[] = [];
     for (const [index, position] of positions.entries()) {
@@ -38,12 +38,12 @@ export class CargoChests {
       for (const z of [-.88, .88]) box('cargo chest wall', 3.5, 1.25, .17, 0, .82, z);
       for (const x of [-1.7, 1.7]) box('cargo chest end', .18, 1.25, 1.8, x, .82, 0);
       // A visibly lifted lid, rather than a solid crate hiding the treasure.
-      const lid = box('open cargo lid', 3.5, .18, 1.9, 0, 2.3, 1.45);
-      lid.rotation.x = 1.96;
+      const lid = box(open ? 'open cargo lid' : 'stowed cargo lid', 3.5, .18, 1.9, 0, open ? 2.3 : 1.52, open ? 1.45 : 0);
+      lid.rotation.x = open ? 1.96 : 0;
       for (const x of [-1.3, 1.3]) {
         for (const z of [-.99, .99]) box('cargo brass binding', .16, 1.28, .07, x, .82, z, true);
       }
-      for (let i = 0; i < 18; i++) {
+      for (let i = 0; i < (open ? 18 : 0); i++) {
         const coin = MeshBuilder.CreateCylinder('visible cargo doubloon', { diameter: .44, height: .07, tessellation: 10 }, this.scene);
         coin.parent = root; coin.position.set((i % 6 - 2.5) * .45, 1.04 + (i % 3) * .025, (Math.floor(i / 6) - 1) * .43);
         coin.material = this.brass; gold.push(coin);
