@@ -21,7 +21,7 @@ import { PALETTE } from "./palette";
 import type { DeckGeometry } from "../game/deckWalk";
 import type { Livery, ShipModels } from "./shipModels";
 import { timberTexture } from "../shared/pirate-world/render/timber";
-import { shipDeckGeometry } from "./shipDeck";
+import { importedPearlWheel, importedPearlWheelPivot, shipDeckGeometry } from "./shipDeck";
 import { furledCanvasPositions } from "./shipCanvas";
 import { batchShipDetails } from "./shipDetailBatch";
 
@@ -66,14 +66,23 @@ export class ShipView {
     const model = models.create(ship.spec.class, livery, name);
     model.parent = this.root;
     const seatZ = -ship.spec.length * .34;
+    const importedWheel = importedPearlWheel(model, this.root);
+    const importedScale = ship.spec.length / 22;
     // Stand beside the centre mast: the wheel and forward walkway stay legible.
-    const helmX = -ship.spec.beam * .16;
+    const helmX = importedWheel ? importedWheel.x - .2 * importedScale : -ship.spec.beam * .16;
+    const wheelZ = importedWheel?.z ?? seatZ + .3;
+    const helmZ = importedWheel ? wheelZ - .5 * importedScale : seatZ - 1.35;
     this.deckGeometry = shipDeckGeometry(scene, model, this.root,
-      ship.spec.length, ship.spec.beam, helmX, seatZ - 1.35, seatZ);
-    const deckY = this.deckGeometry.floor(helmX, seatZ + .3);
-    this.captainSeat = new Vector3(helmX + .26,
-      this.deckGeometry.floor(helmX + .26, seatZ - 1.35) + 1.65, seatZ - 1.35);
-    if (ship.team === "player") this.helm = this.buildHelm(scene, deckY, helmX, seatZ + .3);
+      ship.spec.length, ship.spec.beam, helmX, helmZ, importedWheel?.z ?? seatZ);
+    const deckY = this.deckGeometry.floor(helmX, wheelZ);
+    const eyeX = helmX + (importedWheel ? 0 : .26);
+    const eyeFloor = this.deckGeometry.floor(eyeX, helmZ);
+    const eyeY = importedWheel ? importedWheel.y + .31 * importedScale : eyeFloor + 1.65;
+    if (importedWheel) this.deckGeometry.eyeScale = (eyeY - eyeFloor) / 1.665;
+    this.captainSeat = new Vector3(eyeX,
+      eyeY, helmZ);
+    if (ship.team === "player" && !importedWheel) this.helm = this.buildHelm(scene, deckY, helmX, wheelZ);
+    if (ship.team === "player" && importedWheel) this.helm = importedPearlWheelPivot(model, this.root, importedWheel);
     for (const m of model.getChildMeshes(false)) {
       shadows.addShadowCaster(m, false);
       m.receiveShadows = true;
@@ -410,7 +419,7 @@ export class ShipView {
       const flutter = 1 + Math.sin(time * 7 + s.uniqueId) * 0.02;
       // The Pearl's STL has all its sails in one mesh with a waterline pivot.
       // Shrinking it vertically pulls every sail through the deck and the helm.
-      const pearlCanvas = s.material?.name.includes("black_canvas") ?? false;
+      const pearlCanvas = (s.material?.name.includes("black_canvas") ?? false) || s.name.includes("pearl_sail_canvas");
       s.scaling.set(
         base.x,
         base.y * (pearlCanvas ? 1 : this.sailAmount),

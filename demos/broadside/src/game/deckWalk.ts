@@ -5,6 +5,7 @@ export interface DeckGeometry {
   length: number; beam: number;
   helm: { x: number; y: number; z: number };
   floor: (x: number, z: number) => number;
+  eyeScale?: number;
 }
 /** Coordinates stay on the ship, so waves and sailing never slide the player off it. */
 export class DeckWalk {
@@ -51,6 +52,7 @@ export class DeckWalk {
   look(dx:number,dy:number): void { if(this.active) this.walker.look(dx,dy); }
   get eye() {
     const w=this.walker;
-    return { x:w.x, y:w.feet+(w.eyeY-w.feet)*.74+w.bob, z:w.z };
+    const scale=this.geometry.eyeScale ?? 1;
+    return { x:w.x, y:w.feet+((w.eyeY-w.feet)*.74+w.bob)*scale, z:w.z };
   }
 }

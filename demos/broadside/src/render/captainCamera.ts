@@ -31,7 +31,9 @@ export class CaptainCamera {
     camera.position.copyFrom(Vector3.Lerp(camera.position, seat, this.blend));
     camera.setTarget(Vector3.Lerp(previousTarget, target, this.blend));
     camera.rotation.z = view.root.rotation.z * .18 * this.blend;
-    camera.minZ = .07;
+    // The scaled authored Pearl has rigging immediately behind its wheel.
+    // Keep that near-eye geometry outside the lens without hiding ship parts.
+    camera.minZ = view.deckGeometry?.eyeScale !== undefined ? view.deckGeometry.length / 22 * .28 : .07;
     const desiredFov = innerWidth < 600 ? 1.06 : 1.12;
     camera.fovMode = innerWidth < 600 ? Camera.FOVMODE_HORIZONTAL_FIXED : Camera.FOVMODE_VERTICAL_FIXED;
     camera.fov = .78 + (desiredFov - .78) * this.blend;

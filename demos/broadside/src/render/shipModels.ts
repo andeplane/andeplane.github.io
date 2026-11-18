@@ -19,7 +19,6 @@ import { SHIP_SPECS, type ShipClass } from "../sim/ships";
 import { PALETTE } from "./palette";
 import { isPhoneRendering } from "../shared/pirate-world/render/quality";
 import { PRIVATE_PEARL, privatePearlModelUrl } from "../privatePearl";
-import { timberTexture } from "../shared/pirate-world/render/timber";
 import { canvasWeave, splitPublicCanvas } from "./shipCanvas";
 
 export const SHIP_CLASSES: readonly ShipClass[] = [
@@ -110,7 +109,8 @@ export class ShipModels {
 
 /** Keep the existing Pearl geometry and attribution; give its timber and cloth distinct finishes. */
 function finishPlayerShip(root: TransformNode, length: number, beam: number, scene: Scene): void {
-  let deckTexture: ReturnType<typeof timberTexture> | undefined;
+  // The purchased model has its own authored textures, UVs and material response.
+  if (!root.getChildMeshes().some(mesh => mesh.name.includes("Black_Pearl_"))) return;
   let clothWeave: ReturnType<typeof canvasWeave> | undefined;
   root.computeWorldMatrix(true);
   const inverse = root.getWorldMatrix().clone().invert();
@@ -121,22 +121,11 @@ function finishPlayerShip(root: TransformNode, length: number, beam: number, sce
     material.directIntensity = 1.12;
     if (/aged_teak_deck|weathered_ebony_hull/.test(material.name)) {
       const isDeck = material.name.includes("aged_teak_deck");
-      deckTexture ??= timberTexture(scene, "hand-laid teak deck", 10);
-      material.albedoTexture = deckTexture;
-      material.albedoColor.set(...(isDeck ? [.92, .86, .74] : [.55, .42, .28]) as [number, number, number]);
-      material.metallic = 0; material.roughness = isDeck ? .64 : .72;
+      // This STL's material groups include mixed surfaces. A planar wood map
+      // over the whole group made its thin sheets look like broken timber.
+      material.albedoColor.set(...(isDeck ? [.145, .098, .058] : [.055, .047, .039]) as [number, number, number]);
+      material.metallic = 0; material.roughness = .8;
       material.emissiveColor.set(isDeck ? .025 : .009, isDeck ? .014 : .005, isDeck ? .006 : .002);
-      if (mesh instanceof Mesh) {
-        mesh.makeGeometryUnique(); mesh.computeWorldMatrix(true);
-        const matrix = mesh.getWorldMatrix().multiply(inverse);
-        const positions = mesh.getVerticesData(VertexBuffer.PositionKind)!;
-        const uvs: number[] = [];
-        for (let i = 0; i < positions.length; i += 3) {
-          const p = Vector3.TransformCoordinates(Vector3.FromArray(positions, i), matrix);
-          uvs.push(p.x / beam + .5, p.z / length + .5);
-        }
-        mesh.setVerticesData(VertexBuffer.UVKind, uvs);
-      }
     } else if (material.name.includes("black_canvas")) {
       material.albedoColor.set(.09, .105, .10);
       material.roughness = .9; material.metallic = 0;
