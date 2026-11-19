@@ -20,6 +20,29 @@ beforeEach(()=>{
 });
 afterEach(()=>{vi.restoreAllMocks();vi.unstubAllGlobals();});
 describe("Captain Calculus navigation destinations",()=>{
+  it("keeps Play pointed at the choices even when there is a saved voyage", async () => {
+    const { freshProgress, saveMathProgress, startVoyage } = await import("./academy");
+    const progress = freshProgress();
+    startVoyage(progress, "add-10", 1, 100);
+    saveMathProgress(progress, localStorage);
+    await import("./main");
+
+    expect(root().querySelector('[data-action="resume"]')?.textContent).toContain("Level 1");
+    click("play");
+    expect(root().dataset.screen).toBe("operators");
+    click("back");
+    click("resume");
+    expect(root().dataset.screen).toBe("question");
+    click("back");
+    expect(root().dataset.screen).toBe("home");
+    click("play");
+    root().querySelector<HTMLButtonElement>('[data-operator="add"]')!.click();
+    root().querySelector<HTMLButtonElement>('[data-pack="add-10"]')!.click();
+    root().querySelector<HTMLButtonElement>('[data-level="1"]')!.click();
+    expect(root().dataset.screen).toBe("question");
+    click("back");
+    expect(root().dataset.screen).toBe("levels");
+  });
   it("keeps cargo aboard and never claims unloading completed when the cave fails",async()=>{
     vi.spyOn(console,"error").mockImplementation(()=>{});
     history.replaceState(null,"","/?qa=true&fresh=1&cargo=1&view=unload&fail=scene");
