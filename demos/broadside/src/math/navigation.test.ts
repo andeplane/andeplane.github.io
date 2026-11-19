@@ -19,6 +19,21 @@ beforeEach(()=>{
 });
 afterEach(()=>{vi.restoreAllMocks();vi.unstubAllGlobals();});
 describe("Captain Calculus navigation destinations",()=>{
+  it("shows the adventure total and the separate count for each difficulty", async () => {
+    const { freshProgress, saveMathProgress, trackFor } = await import("./academy");
+    const progress = freshProgress();
+    trackFor(progress, "add-10").cleared = 1;
+    trackFor(progress, "add-20").cleared = 3;
+    saveMathProgress(progress, localStorage);
+    await import("./main");
+    click("play");
+    const addition = root().querySelector<HTMLButtonElement>('button[data-operator="add"]')!;
+    expect(addition.querySelector(".chart-tally")?.textContent).toBe("4 levels completed");
+    addition.click();
+    expect(Array.from(root().querySelectorAll(".chart-tally"), e => e.textContent)).toEqual([
+      "1 level completed", "3 levels completed", "0 levels completed", "0 levels completed", "0 levels completed",
+    ]);
+  });
   it("keeps Play pointed at the choices even when there is a saved voyage", async () => {
     const { freshProgress, saveMathProgress, startVoyage } = await import("./academy");
     const progress = freshProgress();

@@ -5,14 +5,24 @@
 @media (min-aspect-ratio: 168/100) { .overworld-geography::before { mask-image:linear-gradient(90deg,transparent,#000 5%,#000 95%,transparent); } }
 @media (max-aspect-ratio: 100/175) { .overworld-geography::before { mask-image:linear-gradient(transparent,#000 5%,#000 95%,transparent); } }
 .calculus-overworld header { position:absolute; top:calc(6px + var(--pirate-safe-top)); left:calc(8px + var(--pirate-safe-left)); z-index:2; }
-#academy .overworld-place { position:absolute; left:var(--x); top:var(--y); transform:translate(-50%,-50%); display:grid; justify-items:center; width:max-content; max-width:45%; min-height:44px; padding:0; background:none; border:0; box-shadow:none; color:#fff3ce; cursor:pointer; }
+#academy .overworld-place { position:absolute; left:var(--x); top:var(--y); transform:translate(-50%,-50%); display:grid; justify-items:center; width:clamp(118px,35vmin,185px); max-width:40%; min-height:44px; padding:0; background:none; border:0; box-shadow:none; color:#fff3ce; cursor:pointer; }
 .overworld-place[data-operator="add"] { --x:23%; --y:24%; }
 .overworld-place[data-operator="subtract"] { --x:75%; --y:21%; }
 .overworld-place[data-operator="multiply"] { --x:21%; --y:60%; }
 .overworld-place[data-operator="divide"] { --x:77%; --y:61%; }
 .overworld-place[data-operator="clock"] { --x:51%; --y:85%; }
-.overworld-place .chart-island-art { width:clamp(42px,11vmin,86px); height:clamp(37px,9vmin,70px); object-fit:contain; filter:drop-shadow(0 2px 2px #261a12aa); }
-.overworld-caption { display:grid; justify-items:center; line-height:1.1; color:#fff6da; text-shadow:0 1px 3px #24180d, 0 2px 7px #24180d; -webkit-text-stroke:3px #332917; paint-order:stroke fill; }
-.overworld-caption b { font:700 clamp(17px,4.5vmin,30px)/1 Georgia,serif; }
-.overworld-caption small { font:italic 700 clamp(13px,3.1vmin,18px)/1.2 Georgia,serif; }
 #academy .overworld-place:focus-visible { outline:3px solid white; outline-offset:3px; }
+
+/* The illustrated island and its parchment plaque form one destination button. */
+.overworld-place .chart-island-art { width:100%; height:clamp(64px,12vmin,110px); filter:drop-shadow(0 0 2px #fff2c9) drop-shadow(0 3px 3px #35291c); }
+.overworld-caption { display:grid; justify-items:center; box-sizing:border-box; width:100%; gap:1px; padding:4px 3px; border:1px solid #827047; border-radius:3px 9px; background:#fff0ce; color:#332916; text-shadow:none; -webkit-text-stroke:0; box-shadow:0 2px 4px #30251666; }
+.overworld-caption b { font:700 clamp(16px,4.2vmin,22px)/1.05 Georgia,serif; }
+.overworld-caption small { font:500 12px/1.12 system-ui,sans-serif; }
+#academy .chart-tally { display:block; margin:0; font:600 12px/1.15 system-ui,sans-serif; color:#51422e; }
+#academy .world-pack-stop:has(.chart-tally) .world-art { height:84px; }
+@media (orientation:landscape) and (max-height:480px) {
+  #academy .overworld-place { width:170px; grid-template-columns:42px minmax(0,1fr); align-items:center; }
+  .overworld-place[data-operator="multiply"], .overworld-place[data-operator="divide"] { --y:55%; }
+  .overworld-place[data-operator="clock"] { --y:84%; }
+  .overworld-place .chart-island-art { width:48px; height:48px; z-index:1; }
+}

@@ -154,20 +154,21 @@ function home(): string {
   </section>`;
 }
 const overviewIslands = { add: 0, subtract: 4, multiply: 6, divide: 8, clock: 2 } as const;
+const completedLabel = (count: number) => t(count === 1 ? "levelCompleted" : "levelsCompleted", { count: format(count) });
 function operatorView(): string {
   const places = OPERATORS.map(op => {
     const cleared = packsFor(op.id).reduce((sum, pack) => sum + (progress.tracks[pack.id]?.cleared ?? 0), 0);
     return { id: op.id as OperatorId | "clock", region: worldFor(op.id).name, lesson: operatorName(op.id), cleared };
   });
-  places.push({ id: "clock", region: t("clockIsland"), lesson: t("clockAdventure"), cleared: 0 });
+  places.push({ id: "clock", region: t("clockIsland"), lesson: t("clockAdventure"), cleared: progress.completedClockSteps.length });
   const title = t("chooseAdventure");
   return `<section class="calculus-overworld">
     <header>${gameBack("home")}<h1 class="visually-hidden">${title}</h1></header>
     <nav aria-label="${title}" class="overworld-chart"><div class="overworld-geography">
       ${places.map(({ id, region, lesson, cleared }) => `<button class="overworld-place" data-operator="${id}"
-        aria-label="${[region, lesson, cleared && t("sailed", { count: format(cleared) })].filter(Boolean).join(", ")}">
+        aria-label="${[lesson, region, completedLabel(cleared)].join(", ")}">
         ${islandArt(overviewIslands[id])}
-        <span class="overworld-caption"><b>${lesson}</b><small>${region}${cleared ? " · " + navNumber(cleared) : ""}</small></span>
+        <span class="overworld-caption"><b>${lesson}</b><small>${region}</small><span class="chart-tally">${completedLabel(cleared)}</span></span>
       </button>`).join("")}
     </div></nav>
   </section>`;
@@ -177,7 +178,7 @@ function clockMapView(): string {
     instructions: t("dragDifficulty"), back: gameBack("operators"), selected: clockStep,
     centerLabel: t("currentIsland"), firstArt: 2, island: () => islandArt(2),
     stops: clockSteps.map((step, index) => ({ id: step, label: t(clockLevelKey(step)),
-      description: t("level", { count: index + 1 }), ariaLabel: t(clockLevelKey(step)) })) });
+      description: t("level", { count: index + 1 }), progress: completedLabel(Number(progress.completedClockSteps.includes(step))), ariaLabel: t(clockLevelKey(step)) })) });
 }
 function mapView(): string {
   const world = worldFor(operator);
@@ -186,7 +187,7 @@ function mapView(): string {
     firstArt: 0, island: i => worldIsland(operator, i), backdrop: worldAsset(operator),
     stops: packsFor(operator).map((pack,i) => {
       const p = localizedPack(pack.id);
-      return { id: p.id, label: p.label, description: world.chapterNames[i], ariaLabel: `${p.label}: ${p.description}` };
+      return { id: p.id, label: p.label, description: world.chapterNames[i], progress: completedLabel(progress.tracks[p.id]?.cleared ?? 0), ariaLabel: `${p.label}: ${p.description}` };
     }) });
 }
 function levelsView(): string {
@@ -486,6 +487,10 @@ root.addEventListener("click", (event) => {
     if (!question || round.correct || round.rejected.has(time) || !question.choices.includes(time)) return;
     round.correct = time === question.time;
     answerHaptic(round.correct);
+    if (round.correct && round.index === round.questions.length - 1 && !progress.completedClockSteps.includes(round.step)) {
+      progress.completedClockSteps.push(round.step);
+      persist();
+    }
     if (!round.correct) round.rejected.add(time);
     else if (round.rejected.size === 0) round.firstTry++;
     render();
