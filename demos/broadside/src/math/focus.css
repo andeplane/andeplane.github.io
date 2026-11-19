@@ -77,33 +77,6 @@ html, body, body * {
   user-select: none;
   -webkit-touch-callout: none;
 }
-.language-picker {
-  box-sizing: border-box;
-  width: min(380px, calc(100vw - 32px));
-  max-height: calc(100dvh - env(safe-area-inset-top) - env(safe-area-inset-bottom) - 24px);
-  margin: auto;
-  border: 1px solid #a9864d;
-  border-radius: 18px;
-  padding: 16px;
-  color: #102e40;
-  background: #fff6e3;
-  overflow: auto;
-  overscroll-behavior: contain;
-}
-.language-picker::backdrop { background: rgb(7 29 40 / 65%); }
-.language-picker header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; }
-.language-picker h2 { font: 700 26px Fraunces, Georgia, serif; margin: 0; }
-.language-picker button { min-height: 44px; color: inherit; font: inherit; }
-.language-picker [data-dismiss] { min-width: 44px; border: 0; background: transparent; font-size: 28px; }
-.language-options { display: grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap: 6px; }
-.language-options button {
-  display: flex; align-items: center; gap: 6px; padding: 6px 8px;
-  border: 1px solid #b2a481; border-radius: 9px; background: #fffdf6;
-  text-align: start; font-size: 15px; line-height: 1.2;
-}
-.language-options button:first-child { grid-column: 1 / -1; }
-.language-options [aria-pressed="true"] { background: #ffdc8a; border-color: #83620d; }
-.language-options b { margin-left: auto; }
 
 .operation-world .world-map-tools { justify-content: flex-end; }
 

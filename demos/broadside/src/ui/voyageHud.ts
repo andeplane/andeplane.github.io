@@ -24,6 +24,8 @@ import { icon } from "./icons";
 import { backButton, menuBrand, menuHeader } from "./menuChrome";
 import { PRIVATE_PEARL } from "../privatePearl";
 import { lanternHome } from "./lanternHome";
+import { createI18n, isLanguagePreference, readLanguagePreference, saveLanguagePreference } from "../math/i18n";
+import { languagePickerMarkup, dismissLanguagePicker } from "./languagePicker";
 import "./explorationHud.css";
 import { touchSteeringTurn } from "../input/touchSteering";
 import { pirateShipArt } from "./worldArt";
@@ -34,6 +36,11 @@ import { drawLandmarkSymbol } from "./seaChartSymbols";
 import { mountMapPan, type MapCamera, type MapPanController } from "./mapPan";
 import { worldChoices, shoreMarker } from "./islandChart";
 import { LEVEL_ROUTE, locationWorld, type ShipLocation } from "../game/journey";
+const homeLanguageKey = "broadside.home.language.v1";
+const deviceLanguages = () => navigator.languages?.length ? navigator.languages : [navigator.language];
+function homeStorage(): Storage | undefined {
+  try { return window.localStorage; } catch { return undefined; }
+}
 interface Handlers {
   start: (index: number) => void;
   travel: (destination: "cave" | "ship" | "hold" | number) => void;
@@ -65,6 +72,7 @@ export class VoyageHud {
   private goldWorld = 0;
   pack = 0;
   private progress: Progress;
+  private homeLanguage = readLanguagePreference(homeStorage(), homeLanguageKey);
   private messageUntil = 0;
   private activeLevel = 0;
   private freeSeed: number | null = null;
@@ -91,6 +99,7 @@ export class VoyageHud {
     <section id="captain-menu" class="captain-menu">
       <div class="menu-atmosphere" aria-hidden="true"><div class="moon"></div><div class="distant-rocks"></div><div class="hero-ship">${pirateShipArt()}</div><div class="ocean-mist"></div><div class="menu-embers"></div></div>
       <div id="main-menu" class="menu-page">${lanternHome()}</div>
+      <dialog class="language-picker" aria-labelledby="language-picker-title"></dialog>
       <div id="world-menu" class="menu-page" hidden><div class="menu-heading"><span class="eyebrow">CHART YOUR COURSE</span><h1>The pirate seas</h1><p>Choose an island. Chart your adventure.</p></div><div class="world-map" role="group" aria-label="Pirate sea chart"><svg class="map-route" viewBox="0 0 1000 1000" preserveAspectRatio="none" aria-hidden="true"><path class="route-wide" d="M370 930 C280 885 90 720 170 520 S250 90 410 190 S440 650 650 480 S735 90 865 135"/><path class="route-tall" d="M170 930 C110 810 110 710 245 635 S815 810 755 545 S80 525 245 185 S570 290 755 150"/></svg><button id="map-cave" class="map-cave" aria-label="Visit treasure cave"><img class="cave-art" src="${import.meta.env.BASE_URL}assets/map/treasure-cave.webp" width="640" height="640" alt="" draggable="false" decoding="async" /><span>Your cave</span></button><div id="world-packs"></div></div><p class="map-footnote">Gold in every level. A special treasure in every world.</p></div>
       <div id="level-menu" class="menu-page" hidden><div class="menu-heading"><span class="eyebrow" id="world-number"></span><h1 id="world-name"></h1><p id="pack-caption"></p></div><div class="level-board"><div class="regional-viewport" tabindex="0" aria-label="Island route" data-map-viewport><div id="voyage-levels" data-map-world></div><button class="regional-center" data-map-control data-map-center aria-label="Recenter map" hidden>${icon("compass")}</button></div><p class="level-note">1,000 gold per level · Complete the world for its special treasure.</p></div></div>
       <div id="settings-menu" class="menu-page" hidden><div class="menu-heading"><span class="eyebrow">THE CAPTAIN’S ORDERS</span><h1>Settings</h1></div><div class="settings-board"><label class="coin-sounds-choice"><input id="coin-sounds" type="checkbox"> Coin sound effects</label><p id="coin-sounds-note">Clinks when coins tumble and land.</p><p>Steer with the wheel. Tap BOOM to fire.<br>Your treasures and stars are saved automatically.</p><button type="button" class="privacy-action" data-open-privacy>Privacy & support</button><p class="art-credit">Black Pearl model by <a href="https://www.thingiverse.com/thing:4951578" target="_blank" rel="noopener">DeltaX_F</a> · <a href="https://creativecommons.org/licenses/by/4.0/" target="_blank" rel="noopener">CC BY 4.0</a><br>Adapted for Broadside.</p></div></div>
@@ -201,6 +210,33 @@ export class VoyageHud {
     q("#v-anchor").onclick = h.anchor;
     q("#menu-play").onclick = () => this.showMenu("worlds");
     q("#home-ship").onclick = () => h.travel("hold");
+    const languagePicker = r.querySelector<HTMLDialogElement>(".language-picker")!;
+    const drawLanguage = (failed = false) => {
+      const languages = deviceLanguages();
+      const i18n = createI18n(this.homeLanguage, languages);
+      languagePicker.lang = i18n.language;
+      languagePicker.innerHTML = languagePickerMarkup(i18n, this.homeLanguage, languages, failed);
+    };
+    const focusLanguage = () => languagePicker.querySelector<HTMLElement>('[aria-pressed="true"]')?.focus();
+    q("#menu-language").onclick = () => {
+      drawLanguage();
+      languagePicker.showModal();
+      focusLanguage();
+    };
+    languagePicker.onclick = event => {
+      if (dismissLanguagePicker(languagePicker, event)) { languagePicker.close(); return; }
+      const choice = (event.target as HTMLElement).closest<HTMLElement>("[data-language]")?.dataset.language;
+      if (!isLanguagePreference(choice)) return;
+      this.homeLanguage = choice;
+      this.renderHomeLanguage();
+      if (saveLanguagePreference(choice, homeStorage(), homeLanguageKey)) {
+        languagePicker.close();
+        q("#menu-language").focus();
+      } else { drawLanguage(true); focusLanguage(); }
+    };
+    window.addEventListener("languagechange", () => {
+      if (r.isConnected && this.homeLanguage === "auto") this.renderHomeLanguage();
+    });
     q("#menu-settings").onclick = () => this.showMenu("settings");
     q("#menu-cave").onclick = q("#map-cave").onclick = () => h.travel("cave");
     q("#visit-ship").onclick = () => { this.closeShipPanel(); h.travel("ship"); };
@@ -352,6 +388,22 @@ export class VoyageHud {
     this.renderRelic();
     this.renderLevels();
   }
+  private renderHomeLanguage(): void {
+    const { language, t, format, plural } = createI18n(this.homeLanguage, deviceLanguages());
+    const count = cargoChests(this.progress).length;
+    const gold = goldTotal(caveProgress(this.progress));
+    this.q("#main-menu").lang = language;
+    this.q(".lantern-actions").setAttribute("aria-label", t("home"));
+    this.q("#menu-play span:last-child").textContent = t("play");
+    this.q("#home-ship .lantern-action-title").textContent = t("yourShip");
+    this.q("#home-ship strong").textContent = count ? plural("aboard", count) : t("noCargo");
+    this.q("#home-ship small").textContent = count ? t("comingHome", { gold: format(count * 1000) }) : "";
+    this.q("#menu-cave .lantern-action-title").textContent = t("yourCave");
+    this.q("#menu-cave strong").textContent = language === "en" ? `${format(gold)} gold saved` : t("savedGold", { gold: format(gold) });
+    this.q("#menu-cave small").textContent = "";
+    this.q("#menu-settings").textContent = t("settings");
+    this.q("#menu-language").textContent = t("language");
+  }
   private menuPage: "main" | "worlds" | "levels" | "settings" = "main";
   showMenu(page: "main" | "worlds" | "levels" | "settings" = "main"): void {
     if (page === "levels" && !worldUnlocked(this.progress.voyages, this.pack)) page = "worlds";
@@ -363,12 +415,7 @@ export class VoyageHud {
     this.regionalPan?.destroy();
     this.regionalPan = undefined;
     this.menuPage = page;
-    if (page === "main") {
-      const count = cargoChests(this.progress).length;
-      this.q('[data-home-destination="ship"] strong').textContent = count ? `${count.toLocaleString()} ${count === 1 ? "chest" : "chests"} aboard` : "No chests aboard";
-      this.q('[data-home-destination="ship"] small').textContent = count ? `${(count * 1000).toLocaleString()} gold to bring home` : "Your next reward goes here";
-      this.q('[data-home-destination="chest"] strong').textContent = `${goldTotal(caveProgress(this.progress)).toLocaleString()} gold saved`;
-    }
+    if (page === "main") this.renderHomeLanguage();
     this.q("#captain-menu").hidden = false;
     this.q("#cave-ui").hidden =
       this.q("#voyage-play").hidden =

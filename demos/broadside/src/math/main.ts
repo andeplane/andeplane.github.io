@@ -22,6 +22,7 @@ import { worldChoices, worldChart } from "../ui/islandChart";
 import "./adventure.css";
 import "./focus.css";
 import "./home.css";
+import { languagePickerMarkup, dismissLanguagePicker } from "../ui/languagePicker";
 
 type Screen = "home" | "operators" | "map" | "levels" | "question" | "reward" | "ship" | "unloading" | "complete" | "cave" | "settings";
 installButtonHaptics();
@@ -142,7 +143,7 @@ function home(): string {
       </button>` : ""}
       <button class="calculus-destination" data-action="ship"><strong>${t("yourShip")}</strong><small>${pending}</small></button>
       <button class="calculus-destination" data-action="cave" aria-label="${t("yourCave")}: ${t("savedGold", { gold: format(gold) })}"><strong>${t("yourCave")}</strong><small>${t("savedGold", { gold: navNumber(gold) })}</small></button>
-      <button class="calculus-destination" data-action="settings"><strong>${t("settings")}</strong></button>
+      <div class="home-utilities"><button class="calculus-destination" data-action="settings"><strong>${t("settings")}</strong></button><button class="calculus-destination" data-action="language" aria-haspopup="dialog"><strong>${t("language")}</strong></button></div>
     </nav>
   </section>`;
 }
@@ -410,8 +411,7 @@ function languageLabel() {
   return `<span aria-hidden="true">${flag}</span> ${name}`;
 }
 function drawPicker() {
-  const options = [{ id: "auto", name: t("automatic"), flag: LANGUAGES.find(lang => lang.id === detectLanguage(deviceLanguages()))!.flag }, ...LANGUAGES];
-  picker.innerHTML = `<header><h2 id="language-picker-title">${t("language")}</h2><button data-dismiss aria-label="${t("close")}">×</button></header><div class="language-options">${options.map(({id, name, flag}) => `<button data-language="${id}" lang="${id === "auto" ? i18n.language : id}" aria-pressed="${languagePreference === id}"><span aria-hidden="true">${flag}</span>${name}${languagePreference === id ? ' <b aria-hidden="true">✓</b>' : ""}</button>`).join("")}</div>${languageSaveFailed ? `<p role="status" id="language-save-error">${t("languageSaveError")}</p>` : ""}`;
+  picker.innerHTML = languagePickerMarkup(i18n, languagePreference, deviceLanguages(), languageSaveFailed);
 }
 function openPicker() {
   drawPicker();
@@ -420,11 +420,7 @@ function openPicker() {
 }
 picker.addEventListener("click", event => {
   const target = event.target as HTMLElement;
-  const rect = picker.getBoundingClientRect();
-  if (target.closest("[data-dismiss]") || (target === picker && (event.clientX < rect.left || event.clientX > rect.right || event.clientY < rect.top || event.clientY > rect.bottom))) {
-    picker.close();
-    return;
-  }
+  if (dismissLanguagePicker(picker, event)) { picker.close(); return; }
   const choice = target.closest<HTMLElement>("[data-language]")?.dataset.language;
   if (!isLanguagePreference(choice)) return;
   languagePreference = choice;
@@ -465,7 +461,7 @@ root.addEventListener("click", (event) => {
     case "home": show("home"); break;
     case "play": show("operators"); break;
     case "back": goBack(); break;
-    case "language": if (screen === "settings") openPicker(); break;
+    case "language": if (screen === "settings" || screen === "home") openPicker(); break;
     case "settings":
       if (screen !== "settings") returnScreen = screen;
       show("settings"); break;

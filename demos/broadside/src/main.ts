@@ -630,6 +630,7 @@ async function main() {
   window.addEventListener("pagehide",event=>{if(!event.persisted){unbindPirate();pirate.dispose();}},{once:true});
 
   window.addEventListener("keydown", (e) => {
+    if (hud.root.querySelector("dialog[open]")) return;
     if (mode === "travel") {
       if (e.code === "Escape") { menu(); hud.showMenu("worlds"); e.preventDefault(); }
       return;
