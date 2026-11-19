@@ -1,5 +1,12 @@
 # Captain Calculus world artwork
 
+
+## Continuous atlas artwork
+
+Generated with built-in ImageGen on 2026-11-19. The playable charts use WebP files in `public/assets/map/worlds/`. The four difficulty backgrounds were commissioned as full-bleed overhead gouache charts with a central shipping channel. Emerald uses palm islands, coral and lagoons. Frostwater uses glacier-blue fjords, snowy mountains and spruce. Ember uses basalt cliffs, lava and amber seas. Moonstone uses moonlit marble, violet water and amethyst.
+
+A transparent four-by-four sheet supplied four miniature level islands in each of those environments. A separate two-by-two sheet supplied larger irregular coasts with interior bays and peninsulas. The repeatable water tiles come from a mirrored open-water sample of each chart. Runtime coordinates determine which shores appear and keep mainland clear of the route.
+
 Generated with the built-in image generation tool on 2026-10-23. Final game assets are `addition.webp`, `subtraction.webp`, `multiplication.webp`, and `division.webp`, each 1024 × 1536, encoded as WebP at quality 88. The original PNGs remain in the Codex generated-image folder. All labels, difficulty pins, level nodes, routes, and controls are live UI.
 
 ## Shared prompt

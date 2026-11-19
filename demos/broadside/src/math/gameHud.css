@@ -74,24 +74,18 @@
   pointer-events: none;
 }
 
-/* Continue the same atlas across two chapters, then traverse it in reverse to keep the edges joined. */
-#academy .expedition-view .expedition-region::before {
-  display: block;
-  z-index: auto;
-  background: url("/assets/map/calculus-expedition-atlas.webp") center top / 100% 200% no-repeat;
-}
-#academy .expedition-region:is([data-atlas-band="1"], [data-atlas-band="2"])::before {
-  background-position: center bottom;
-}
-#academy .expedition-region:is([data-atlas-band="2"], [data-atlas-band="3"])::before {
-  transform: scaleY(-1);
-}
-#academy .expedition-view :is(.trail-chapter, .expedition-solved) {
-  padding: 3px 6px;
-  border-radius: 6px;
-  background: #fff0ce;
-  color: #332714;
-}
+/* Each tile has its own water. Land and route markers can cross tile boundaries. */
+.atlas-tile { position: absolute; width: 513px; height: 513px; background: var(--water) left top / 256px 256px repeat; }
+.atlas-land { position: absolute; z-index: 1; transform: translate(-50%, -50%); pointer-events: none; }
+#academy .voyage-atlas .trail-heading { background: var(--atlas-paper); }
+#academy .operation-world .world-map-heading { background: var(--world-paper, #f6ebd6); }
+.atlas-land img { display: block; width: 100%; }
+.atlas-leg { position: absolute; z-index: 2; overflow: visible; pointer-events: none; }
+.atlas-leg path { fill: none; stroke: #fff0bc; stroke-width: 3; stroke-dasharray: 4 8; stroke-linecap: round; filter: drop-shadow(0 1px 1px #392f21); }
+.atlas-caption { position: absolute; top: 100%; left: 50%; transform: translateX(-50%); white-space: nowrap; padding: 2px 6px; border-radius: 5px; background: #fff0ce; color: #332714; font: 600 12px Georgia, serif; }
+#academy .world-pack-route polyline { stroke: #fff0bc; stroke-linecap: round; }
+#academy .home-utilities [data-action="language"] { min-width: 48px; }
+#academy .home-utilities [data-action="language"] strong { font-size: 24px; line-height: 1; }
 
 #academy button.pirate-menu-back,
 #academy .trail-heading button.pirate-menu-back {
