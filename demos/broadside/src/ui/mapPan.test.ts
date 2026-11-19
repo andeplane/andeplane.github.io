@@ -2,7 +2,7 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { clampMapCamera, mountMapPan, zoomMapAt } from "./mapPan";
 
-afterEach(() => { document.body.innerHTML = ""; vi.restoreAllMocks(); });
+afterEach(() => { document.body.innerHTML = ""; vi.restoreAllMocks(); vi.unstubAllGlobals(); });
 
 function fixture(width = 400, worldWidth = 960, focusX = 480, coverViewport = false) {
   document.body.innerHTML = '<div id="viewport" tabindex="0"><div id="world"><button id="level">1</button></div><button data-map-control data-map-center>Center</button></div>';
@@ -68,6 +68,25 @@ describe("shared touch map camera", () => {
   it("centers the focused island at the scale needed to cover a wide viewport", () => {
     const { controller } = fixture(800, 400, 200, true);
     expect(controller.getState()).toEqual({ scale: 2, x: 0, y: 700 * .46 - 300 * 2 });
+    controller.destroy();
+  });
+
+  it("keeps the first stop visible when the top of the chart is already pinned", () => {
+    let resize = () => {};
+    vi.stubGlobal("ResizeObserver", class {
+      constructor(callback: () => void) { resize = callback; }
+      observe() {}
+      disconnect() {}
+    });
+    const { viewport, controller } = fixture(390, 1000, 500, true);
+    controller.center({ x: 500, y: 88 });
+    expect(controller.getState().y).toBe(0);
+    Object.defineProperties(viewport, {
+      clientWidth: { value: 740, configurable: true },
+      clientHeight: { value: 260, configurable: true },
+    });
+    resize();
+    expect(controller.getState().y).toBe(0);
     controller.destroy();
   });
 
