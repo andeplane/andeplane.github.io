@@ -304,3 +304,14 @@
  .reader-complete .reading-actions {margin:12px auto;gap:8px;}
  .reader-complete .wood-button {min-height:48px;padding:10px;}
 }
+#reader[data-screen="home"] #reader-content {inset:0;padding:0;}
+.reader-cabin {position:relative;min-height:100%;display:grid;align-content:space-between;gap:16px;padding:calc(20px + var(--pirate-safe-top)) 12% calc(14px + var(--pirate-safe-bottom));color:#fff0cb;background:linear-gradient(0deg,#142822ed 0%,#142822bb 24%,transparent 61%,#13271f66),url("/reading/northern-europe.png") center/cover;}
+.reader-cabin h1 {text-align:center;color:#ffebbb;font:400 clamp(42px,12vw,72px)/1 "Pirata One",Georgia,serif;text-shadow:0 3px 6px #22140f;}
+.reader-actions {display:grid;justify-items:start;background:radial-gradient(ellipse at left,#20120ae8,transparent 80%);}
+#reader .reader-actions button {min-height:44px;border:0;background:transparent;color:#fff0c7;text-shadow:0 2px 4px #1d130c;padding:4px 12px;text-align:left;}
+.reader-actions strong {display:block;font:500 13px system-ui;}
+.reader-actions .lantern-play-arrow {display:none;}
+.reader-actions .home-settings {margin-left:20px;}
+@media (orientation:landscape) {.reader-cabin {grid-template-columns:1fr 1fr;align-items:center;align-content:center;}}
+
+.reader-book {display:block;width:clamp(48px,11vmin,84px);margin:0 auto 5px;border-radius:50%;}

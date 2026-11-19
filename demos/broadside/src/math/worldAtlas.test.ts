@@ -1,6 +1,6 @@
 // @vitest-environment happy-dom
 import { describe, expect, it } from "vitest";
-import { atlasRenderer, levelPoint } from "./worldAtlas";
+import { atlasRenderer, levelPoint } from "../ui/worldAtlas";
 import { createI18n } from "./i18n";
 
 describe("the continuous world atlas", () => {

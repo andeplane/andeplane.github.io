@@ -28,3 +28,6 @@
 
 .home-utilities { display: flex; flex-wrap: wrap; gap: 0 14px; }
 .home-utilities button { max-width: 100%; }
+
+dialog.language-picker:not([open]) {display:none;}
+dialog.language-picker[open] {display:block;position:fixed;inset:0;margin:auto;}

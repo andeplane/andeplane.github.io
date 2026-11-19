@@ -1,12 +1,14 @@
 import { App } from "@capacitor/app";
-import { worldChoices, worldChart } from "../ui/islandChart";
+import { islandArt } from "../ui/islandChart";
+import { languagePickerMarkup, bindLanguagePicker } from "../ui/languagePicker";
 import { createI18n } from "../math/i18n";
 import { difficultyMap } from "../ui/difficultyMap";
-import { homeMenu } from "../ui/homeMenu";
-import { pirateShipArt } from "../ui/worldArt";
+import { pirateMenu, settingsDesk } from "../ui/homeMenu";
+import { installButtonHaptics } from "../ui/buttonHaptics";
+import { adventureChart, sailToShore } from "../ui/adventureChart";
 import { backButton, menuHeader } from "../ui/menuChrome";
 import { icon } from "../ui/icons";
-import { LEVELS_PER_REGION, REGION_HEIGHT, expeditionTrail, initialTrailWindow, extendTrailWindow, type TrailWindow } from "../ui/expeditionTrail";
+import { atlasRenderer, atlasView, worldAsset, worldIsland } from "../ui/worldAtlas";
 import { mountMapPan, type MapCamera, type MapPanController } from "../ui/mapPan";
 import { PACKS, packFor, preferredLanguage, type Language, type ReadingItem } from "./content";
 import { freshProgress, readProgress, saveProgress, startRun, currentItem, currentText, completeChunk, banked, aboard, trackKey, type Run, type ReadingProgress, type Evidence } from "./progress";
@@ -16,16 +18,18 @@ import type { ReadingPirateHost } from "./pirateHost";
 import "./style.css";
 
 type Screen="home"|"languages"|"packs"|"levels"|"reading"|"complete"|"comprehension"|"settings"|"ship"|"cave"|"unload";
+installButtonHaptics();
 const root=document.querySelector<HTMLDivElement>("#reader")!;
 const canvas=document.querySelector<HTMLCanvasElement>("#reader-world")!;
 const params=new URLSearchParams(location.search),qa=import.meta.env.DEV&&params.get("qa")==="true";
 let storage:Storage|undefined;try{storage=qa?sessionStorage:localStorage;}catch{}
 const initial=readProgress(storage,preferredLanguage(navigator.languages));
 let progress=initial.progress,saveFailed=false,saveWarning=initial.warning;
+if(readerPreference()==="auto")progress.ui=preferredLanguage(navigator.languages);
 let screen:Screen="home",packId=1,run:Run|null=null,worldReturn:Screen="home",epoch=0;
-let page:TrailWindow=initialTrailWindow(1),pan:MapPanController|null=null,host:ReadingPirateHost|null=null;
+let pan:MapPanController|null=null,host:ReadingPirateHost|null=null;
 let cap:speech.SpeechCapabilities={preferredLanguages:[],locales:[]},capLoaded=false;
-const trailPages = new Map<string,TrailWindow>();
+const readerTheme=()=>progress.language==="nb"?"subtract":"add";
 const cameras = new Map<string,MapCamera>();
 const cameraKey = () => [screen,progress.language,screen==="levels"?packId:0].join("/");
 const attempt=new ReadingAttempt();
@@ -36,8 +40,8 @@ let advanceTimer:ReturnType<typeof setTimeout>|undefined;
 let heardWords=0;
 let errorMessage="",worldLoading=false,worldError=false,comprehensionCorrect=false;
 const copy={
- en:{yourTurn:"Your turn — read aloud",examplePlaying:"Listen to the example…",progress:"readings complete",pause:"Pause",resume:"Keep reading",tryListening:"Try listening again",speechGuide:"The app checks which words it hears. It does not grade pronunciation or accent.",handsFree:"Just read aloud. Pip takes care of the rest.",autoNext:"Next reading coming up…",sayAnswer:"Say the correct answer aloud.",shipShort:"Ship",caveShort:"Cave",brand:"Captain Reader",tag:"A PIRATE READING ADVENTURE",intro:"Read a little. Bring home a fortune.",play:"Play",continue:"Continue",choose:"Choose another adventure",practice:"Choose your language and reading pack",ship:"Your ship",cave:"Your cave",settings:"Settings & guide",rule:"Harder reading earns more gold. Take your time.",gold:"gold",home:"Home",languages:"Choose your language",languageHelp:"Tap a flag to begin your reading adventure.",packs:"Choose your reading island",packHelp:"Ten packs. All open. Read at your own pace.",level:"Level",reading:"Read aloud",next:"Next",retry:"Try again",cancel:"Pause listening",resumeListening:"Resume listening",paused:"Take a breather. Continue when you’re ready.",selfAccepted:"Onward, captain!",help:"Hear an example",adult:"Read with an adult",adultTitle:"A little help from your crew",adultText:"An adult can listen and confirm this reading. It earns the same gold and is saved as assisted practice.",confirm:"I heard this reading",close:"Close",ready:"Ready when you are",listening:"Pip is listening…",checking:"Checking your reading…",preparing:"Getting ready to listen…",accepted:"Well read, captain!",uncertain:"Pip didn’t catch that. Read it aloud again — no tapping needed.",browser:"Browser practice: read aloud, then press Next. In the iPhone app, correct speech earns gold and moves on automatically.",unavailable:"Listening isn’t ready for this language. Try again, or go Back to choose another.",permissions:"Enable both permissions — microphone and speech — in iPhone Settings, then try again.",sound:"Listening indicator — sound level, not a reading score",complete:"Treasure earned!",completeText:"Your chest is safely aboard. Bring it home to your cave.",nextLevel:"Next level",unload:"Unload your chests",explore:"Explore the cave",loading:"Your crew is getting ready…",worldFail:"Your treasure scene couldn’t open. Your saved gold is safe. Try again.",back:"Back",save:"Progress couldn’t be saved. Keep this game open to continue.",resetWarning:"The saved progress couldn’t be read. A fresh adventure is ready.",privacy:"Your voice stays on this device",privacyText:"Listening starts automatically on each reading prompt. Correct reading earns gold and moves to the next prompt. Use Back to stop listening. It stops when you leave or the app goes into the background. Recordings and transcripts are not saved or sent to us. There are no accounts, ads, or analytics.",ui:"Menu language",world:"Reading language",practiceCount:"readings practised",assisted:"with help",guide:"Choose a flag, an island pack, and a level. Read each prompt aloud. In the iPhone app, Pip listens, awards gold for correct reading, and moves on automatically. No answer buttons are needed. In a browser, use Next for practice. Sentences in a story are read one at a time. Hints and retries are free. Every gold coin you earn is one coin in your chest.",reset:"Reset reading progress",resetTitle:"Start a new adventure?",resetText:"This removes Captain Reader’s progress and treasure on this device. The other pirate games keep their saves.",resetConfirm:"Reset this game",voiceFail:"An example voice isn’t available for this language. Ask an adult to read it with you.",chunk:"Sentence",of:"of",comp:"A little story question",compRetry:"Have another look at the story and try again.",compGood:"That’s right!",qa:"Design preview · separate practice save",banked:"saved in your cave",aboard:"aboard your ship",empty:"Your next chest goes here",room:"Treasure cave",inspect:"Inspect / explore",jump:"Jump",move:"Move",readingCount:"read",more:"More challenging reading earns more gold"},
- nb:{yourTurn:"Din tur — les høyt",examplePlaying:"Hør på eksempelet…",progress:"lesinger fullført",pause:"Pause",resume:"Les videre",tryListening:"Prøv å lytte igjen",speechGuide:"Appen sjekker hvilke ord den hører. Den vurderer ikke uttale eller dialekt.",handsFree:"Bare les høyt. Pip ordner resten.",autoNext:"Neste leseoppgave kommer…",sayAnswer:"Si det riktige svaret høyt.",shipShort:"Skip",caveShort:"Hule",brand:"Kaptein Leselyst",tag:"ET LESEEVENTYR MED PIRATER",intro:"Les litt. Ta med skatten hjem.",play:"Spill",continue:"Fortsett",choose:"Velg et annet eventyr",practice:"Velg språk og lesepakke",ship:"Skipet ditt",cave:"Hulen din",settings:"Innstillinger og hjelp",rule:"Vanskeligere lesing gir mer gull. Ta deg god tid.",gold:"gull",home:"Hjem",languages:"Velg lesespråk",languageHelp:"Trykk på et flagg og begynn leseeventyret.",packs:"Velg leseøy",packHelp:"Ti pakker. Alle er åpne. Les i ditt eget tempo.",level:"Nivå",reading:"Les høyt",next:"Neste",retry:"Prøv igjen",cancel:"Sett lytting på pause",resumeListening:"Fortsett lytting",paused:"Ta en liten pause. Fortsett når du er klar.",selfAccepted:"Videre, kaptein!",help:"Hør et eksempel",adult:"Les med en voksen",adultTitle:"Litt hjelp fra mannskapet",adultText:"En voksen kan lytte og bekrefte lesingen. Det gir like mye gull og lagres som øving med hjelp.",confirm:"Jeg hørte denne lesingen",close:"Lukk",ready:"Klar når du er",listening:"Pip lytter…",checking:"Sjekker lesingen din…",preparing:"Gjør klar til å lytte…",accepted:"Godt lest, kaptein!",uncertain:"Pip fikk ikke med seg det. Les høyt igjen — du trenger ikke trykke.",browser:"Øving i nettleseren: Les høyt og trykk Neste. I iPhone-appen gir riktig lesing gull og går videre automatisk.",unavailable:"Lytting er ikke klar for dette språket. Prøv igjen, eller gå tilbake og velg et annet.",permissions:"Gi tilgang til mikrofon og talegjenkjenning i iPhone-innstillingene. Prøv så igjen.",sound:"Lytteindikator — lydnivå, ikke en lesepoengsum",complete:"Du har tjent en skatt!",completeText:"Kisten er trygt om bord. Ta den med hjem til hulen.",nextLevel:"Neste nivå",unload:"Loss kistene dine",explore:"Utforsk hulen",loading:"Mannskapet gjør klart…",worldFail:"Skatten kunne ikke vises. Det lagrede gullet er trygt. Prøv igjen.",back:"Tilbake",save:"Fremgangen kunne ikke lagres. Hold spillet åpent for å fortsette.",resetWarning:"Den lagrede fremgangen kunne ikke leses. Et nytt eventyr er klart.",privacy:"Stemmen din blir på enheten",privacyText:"Lytting starter automatisk ved hver leseoppgave. Riktig lesing gir gull og går videre automatisk. Bruk Tilbake for å stoppe lyttingen. Den stopper når du går ut eller appen går i bakgrunnen. Opptak og utskrifter lagres ikke og sendes ikke til oss. Ingen kontoer, reklame eller analyseverktøy.",ui:"Menyspråk",world:"Lesespråk",practiceCount:"lesinger øvd",assisted:"med hjelp",guide:"Velg et flagg, en leseøy og et nivå. Les høyt. I iPhone-appen lytter Pip, gir gull for riktig lesing og går videre automatisk. Du trenger ingen svarknapper. I nettleseren bruker du Neste for å øve. I fortellinger leser du én setning om gangen. Hjelp og nye forsøk er gratis. Hver gullmynt du tjener, er én mynt i kisten.",reset:"Nullstill lesefremgangen",resetTitle:"Begynne et nytt eventyr?",resetText:"Dette fjerner fremgangen og skatten i Kaptein Leselyst på denne enheten. De andre sjørøverspillene beholder sine lagringer.",resetConfirm:"Nullstill dette spillet",voiceFail:"En eksempelstemme finnes ikke for dette språket. Be en voksen lese sammen med deg.",chunk:"Setning",of:"av",comp:"Et lite spørsmål om fortellingen",compRetry:"Se på fortellingen en gang til og prøv igjen.",compGood:"Helt riktig!",qa:"Designvisning · egen øvingslagring",banked:"lagret i hulen",aboard:"om bord på skipet",empty:"Den neste kisten din kommer hit",room:"Skattehulen",inspect:"Se nærmere / utforsk",jump:"Hopp",move:"Beveg deg",readingCount:"lest",more:"Vanskeligere lesing gir mer gull"}
+ en:{yourTurn:"Your turn — read aloud",examplePlaying:"Listen to the example…",progress:"readings complete",pause:"Pause",resume:"Keep reading",tryListening:"Try listening again",speechGuide:"The app checks which words it hears. It does not grade pronunciation or accent.",handsFree:"Just read aloud. Pip takes care of the rest.",autoNext:"Next reading coming up…",sayAnswer:"Say the correct answer aloud.",shipShort:"Ship",caveShort:"Cave",brand:"Captain Reader",tag:"A PIRATE READING ADVENTURE",intro:"Read a little. Bring home a fortune.",play:"Play",continue:"Continue",choose:"Choose another adventure",practice:"Choose your language and reading pack",ship:"Your ship",cave:"Your cave",settings:"Settings",rule:"Harder reading earns more gold. Take your time.",gold:"gold",home:"Home",languages:"Choose your language",languageHelp:"Tap a flag to begin your reading adventure.",packs:"Choose your reading island",packHelp:"Ten packs. All open. Read at your own pace.",level:"Level",reading:"Read aloud",next:"Next",retry:"Try again",cancel:"Pause listening",resumeListening:"Resume listening",paused:"Take a breather. Continue when you’re ready.",selfAccepted:"Onward, captain!",help:"Hear an example",adult:"Read with an adult",adultTitle:"A little help from your crew",adultText:"An adult can listen and confirm this reading. It earns the same gold and is saved as assisted practice.",confirm:"I heard this reading",close:"Close",ready:"Ready when you are",listening:"Pip is listening…",checking:"Checking your reading…",preparing:"Getting ready to listen…",accepted:"Well read, captain!",uncertain:"Pip didn’t catch that. Read it aloud again — no tapping needed.",browser:"Browser practice: read aloud, then press Next. In the iPhone app, correct speech earns gold and moves on automatically.",unavailable:"Listening isn’t ready for this language. Try again, or go Back to choose another.",permissions:"Enable both permissions — microphone and speech — in iPhone Settings, then try again.",sound:"Listening indicator — sound level, not a reading score",complete:"Treasure earned!",completeText:"Your chest is safely aboard. Bring it home to your cave.",nextLevel:"Next level",unload:"Unload your chests",explore:"Explore the cave",loading:"Your crew is getting ready…",worldFail:"Your treasure scene couldn’t open. Your saved gold is safe. Try again.",back:"Back",save:"Progress couldn’t be saved. Keep this game open to continue.",resetWarning:"The saved progress couldn’t be read. A fresh adventure is ready.",privacy:"Your voice stays on this device",privacyText:"Listening starts automatically on each reading prompt. Correct reading earns gold and moves to the next prompt. Use Back to stop listening. It stops when you leave or the app goes into the background. Recordings and transcripts are not saved or sent to us. There are no accounts, ads, or analytics.",ui:"Menu language",world:"Reading language",practiceCount:"readings practised",assisted:"with help",guide:"Choose a flag, an island pack, and a level. Read each prompt aloud. In the iPhone app, Pip listens, awards gold for correct reading, and moves on automatically. No answer buttons are needed. In a browser, use Next for practice. Sentences in a story are read one at a time. Hints and retries are free. Every gold coin you earn is one coin in your chest.",reset:"Reset reading progress",resetTitle:"Start a new adventure?",resetText:"This removes Captain Reader’s progress and treasure on this device. The other pirate games keep their saves.",resetConfirm:"Reset this game",voiceFail:"An example voice isn’t available for this language. Ask an adult to read it with you.",chunk:"Sentence",of:"of",comp:"A little story question",compRetry:"Have another look at the story and try again.",compGood:"That’s right!",qa:"Design preview · separate practice save",banked:"saved in your cave",aboard:"aboard your ship",empty:"Your next chest goes here",room:"Treasure cave",inspect:"Inspect / explore",jump:"Jump",move:"Move",readingCount:"read",more:"More challenging reading earns more gold"},
+ nb:{yourTurn:"Din tur — les høyt",examplePlaying:"Hør på eksempelet…",progress:"lesinger fullført",pause:"Pause",resume:"Les videre",tryListening:"Prøv å lytte igjen",speechGuide:"Appen sjekker hvilke ord den hører. Den vurderer ikke uttale eller dialekt.",handsFree:"Bare les høyt. Pip ordner resten.",autoNext:"Neste leseoppgave kommer…",sayAnswer:"Si det riktige svaret høyt.",shipShort:"Skip",caveShort:"Hule",brand:"Kaptein Leselyst",tag:"ET LESEEVENTYR MED PIRATER",intro:"Les litt. Ta med skatten hjem.",play:"Spill",continue:"Fortsett",choose:"Velg et annet eventyr",practice:"Velg språk og lesepakke",ship:"Skipet ditt",cave:"Hulen din",settings:"Innstillinger",rule:"Vanskeligere lesing gir mer gull. Ta deg god tid.",gold:"gull",home:"Hjem",languages:"Velg lesespråk",languageHelp:"Trykk på et flagg og begynn leseeventyret.",packs:"Velg leseøy",packHelp:"Ti pakker. Alle er åpne. Les i ditt eget tempo.",level:"Nivå",reading:"Les høyt",next:"Neste",retry:"Prøv igjen",cancel:"Sett lytting på pause",resumeListening:"Fortsett lytting",paused:"Ta en liten pause. Fortsett når du er klar.",selfAccepted:"Videre, kaptein!",help:"Hør et eksempel",adult:"Les med en voksen",adultTitle:"Litt hjelp fra mannskapet",adultText:"En voksen kan lytte og bekrefte lesingen. Det gir like mye gull og lagres som øving med hjelp.",confirm:"Jeg hørte denne lesingen",close:"Lukk",ready:"Klar når du er",listening:"Pip lytter…",checking:"Sjekker lesingen din…",preparing:"Gjør klar til å lytte…",accepted:"Godt lest, kaptein!",uncertain:"Pip fikk ikke med seg det. Les høyt igjen — du trenger ikke trykke.",browser:"Øving i nettleseren: Les høyt og trykk Neste. I iPhone-appen gir riktig lesing gull og går videre automatisk.",unavailable:"Lytting er ikke klar for dette språket. Prøv igjen, eller gå tilbake og velg et annet.",permissions:"Gi tilgang til mikrofon og talegjenkjenning i iPhone-innstillingene. Prøv så igjen.",sound:"Lytteindikator — lydnivå, ikke en lesepoengsum",complete:"Du har tjent en skatt!",completeText:"Kisten er trygt om bord. Ta den med hjem til hulen.",nextLevel:"Neste nivå",unload:"Loss kistene dine",explore:"Utforsk hulen",loading:"Mannskapet gjør klart…",worldFail:"Skatten kunne ikke vises. Det lagrede gullet er trygt. Prøv igjen.",back:"Tilbake",save:"Fremgangen kunne ikke lagres. Hold spillet åpent for å fortsette.",resetWarning:"Den lagrede fremgangen kunne ikke leses. Et nytt eventyr er klart.",privacy:"Stemmen din blir på enheten",privacyText:"Lytting starter automatisk ved hver leseoppgave. Riktig lesing gir gull og går videre automatisk. Bruk Tilbake for å stoppe lyttingen. Den stopper når du går ut eller appen går i bakgrunnen. Opptak og utskrifter lagres ikke og sendes ikke til oss. Ingen kontoer, reklame eller analyseverktøy.",ui:"Menyspråk",world:"Lesespråk",practiceCount:"lesinger øvd",assisted:"med hjelp",guide:"Velg et flagg, en leseøy og et nivå. Les høyt. I iPhone-appen lytter Pip, gir gull for riktig lesing og går videre automatisk. Du trenger ingen svarknapper. I nettleseren bruker du Neste for å øve. I fortellinger leser du én setning om gangen. Hjelp og nye forsøk er gratis. Hver gullmynt du tjener, er én mynt i kisten.",reset:"Nullstill lesefremgangen",resetTitle:"Begynne et nytt eventyr?",resetText:"Dette fjerner fremgangen og skatten i Kaptein Leselyst på denne enheten. De andre sjørøverspillene beholder sine lagringer.",resetConfirm:"Nullstill dette spillet",voiceFail:"En eksempelstemme finnes ikke for dette språket. Be en voksen lese sammen med deg.",chunk:"Setning",of:"av",comp:"Et lite spørsmål om fortellingen",compRetry:"Se på fortellingen en gang til og prøv igjen.",compGood:"Helt riktig!",qa:"Designvisning · egen øvingslagring",banked:"lagret i hulen",aboard:"om bord på skipet",empty:"Den neste kisten din kommer hit",room:"Skattehulen",inspect:"Se nærmere / utforsk",jump:"Hopp",move:"Beveg deg",readingCount:"lest",more:"Vanskeligere lesing gir mer gull"}
 };
 type CopyKey=keyof typeof copy.en;
 const t=(key:CopyKey)=>copy[progress.ui][key];
@@ -57,25 +61,29 @@ function header():string{
 }
 function home():string{
  const active=Object.values(progress.tracks).map(t=>t.run).filter((r):r is Run=>!!r).sort((a,b)=>b.id-a.id)[0];
- return `<section class="pirate-home-shell">${homeMenu({title:progress.ui==="nb"?["Kaptein","Leselyst"]:["Captain","Reader"],eyebrow:"",description:t("intro"),illustration:pirateShipArt("reader"),primary:{action:active?"resume":"play",label:active?t("continue"):t("play"),detail:active?`${packFor(active.pack).name[progress.ui]} · ${t("level")} ${f(active.level)} · ${active.index}/${active.items.length}`:t("practice")},chooseLevels:active?{action:"play",label:t("choose")}:undefined,ship:{action:"ship",icon:"ship",title:t("ship"),value:`${f(aboard(progress))} ${t("gold")}`,detail:progress.cargo.length?t("aboard"):t("empty")},cave:{action:"cave",icon:"chest",title:t("cave"),value:`${f(banked(progress))} ${t("gold")}`,detail:t("banked")},settings:{action:"settings",label:t("settings")},rule:t("rule")})}</section>`;
+ return `<section class="reader-cabin"><h1><img width="64" height="64" class="reader-book" src="${import.meta.env.BASE_URL}reading/icon.png" alt="">${esc(t("brand"))}</h1>
+  ${pirateMenu({title:t("home"),theme:"reader-actions",play:{action:"play",label:t("play")},
+    resume:active?{action:"resume",label:t("continue"),detail:`${packFor(active.pack).name[progress.ui]} · ${t("level")} ${f(active.level)}`}:undefined,
+    ship:{action:"ship",label:t("ship"),detail:`${f(aboard(progress))} ${t("gold")}`},cave:{action:"cave",label:t("cave"),detail:`${f(banked(progress))} ${t("gold")}`},
+    settings:{action:"settings",label:t("settings")},language:{action:"ui-language",label:progress.ui==="nb"?"🇳🇴":"🇬🇧",accessible:t("ui")}})}
+ </section>`;
 }
 function languages():string{
- return worldChart(t("languages"), worldChoices("language", [
-   {id:"nb", art:4, title:"Norsk bokmål", ariaLabel:"Norsk bokmål"},
-   {id:"en", art:9, title:"English", ariaLabel:"English"},
- ]));
+ return `<nav class="reading-overview" aria-label="${esc(t("languages"))}">${adventureChart("language",[
+   {id:"nb",label:"Norsk bokmål",art:islandArt(4),accessible:"Norsk bokmål",moored:progress.language==="nb"},
+   {id:"en",label:"English",art:islandArt(9),accessible:"English",moored:progress.language==="en"}
+ ])}</nav>`;
 }
 function packs():string{
  const nb=progress.language==="nb",ui=progress.ui;
  const name=nb?(ui==="nb"?"Lesefjordene":"Reading Fjords"):(ui==="nb"?"Bokøyene":"Storybook Isles");
  return difficultyMap({name,accessibleName:name,instructions:ui==="nb"?"Velg en lesepakke.":"Choose a reading pack.",
-   selected:packId,centerLabel:ui==="nb"?"Nåværende øy":"Current island",firstArt:nb?4:9,
+   selected:packId,backdrop:worldAsset(readerTheme()),island:i=>worldIsland(readerTheme(),i),centerLabel:ui==="nb"?"Nåværende øy":"Current island",firstArt:nb?4:9,
    stops:PACKS.map(p=>({id:p.id,label:p.name[ui],ariaLabel:`${p.name[ui]}: ${p.description[ui]}`}))});
 }
 function levels():string{
  const p=packFor(packId),tr=track(),current=(tr?.cleared??0)+1;
- const progressLabel = (n:number) => `${f(n)}/${f(p.count)} ${progress.ui==="nb"?"lest":"read"}`;
- return expeditionTrail({world:{name:p.name[progress.ui],image:progress.language==="nb"?"reading/norwegian-world.png":"reading/english-world.png",accent:"#edcd8b",ocean:"#16474c",chapterNames:progress.ui==="nb"?["Ordvika","Bokstranden","Lesefjorden","Historiehavn","Skatteøya"]:["Word Bay","Book Beach","Reading Reach","Story Harbour","Treasure Island"]},text:createI18n(progress.ui,[]).t,format:f,showStars:false,progressLabel,resumeLabel:n=>t("resume")+", "+progressLabel(n),goldRule:`${f(p.gold)} ${t("gold")} / ${t("level").toLowerCase()}`,operatorName:progress.language==="nb"?"Norsk":"English",packLabel:p.name[progress.ui],practiceRule:p.description[progress.ui],window:page,track:{cleared:tr?.cleared??0,stars:{},runs:tr?.run?{[tr.run.level]:{solved:tr.run.index}}:{}}});
+ return atlasView(readerTheme(),progress.language==="nb"?"Norsk":"English",backButton({action:"back",label:t("back")}),current,createI18n(progress.ui,[]),p.name[progress.ui]);
 }
 function statusText():string{
  if(errorMessage)return errorMessage;
@@ -104,7 +112,34 @@ function comprehension():string{
  const q=shown!.item.question!,handsFree=speech.isNative();
  return `<section class="reading-view comprehension-view ${handsFree?"hands-free":""} ${listeningProblem()?"has-listening-problem":""}">${heading(q.text,handsFree?t("sayAnswer"):"")}<div class="reading-paper"><div class="reading-passage">${esc(shown!.item.text)}</div></div><div class="reading-actions story-answers">${q.answers.map((a,i)=>handsFree?`<p class="spoken-answer">${esc(a)}</p>`:`<button class="wood-button" data-answer="${i}" ${comprehensionCorrect?"disabled":""}>${esc(a)}</button>`).join("")}</div><p role="status" class="story-status">${esc(comprehensionCorrect?t("compGood"):handsFree?statusText():errorMessage)}</p>${handsFree?readingSupport(comprehensionCorrect):comprehensionCorrect?button("after-question",t("next"),true):""}</section>`;
 }
-function settings():string{return `<section class="reader-settings">${heading(t("settings"),"")}<div class="settings-paper"><p>${esc(t("guide"))}</p><label>${esc(t("ui"))}<select data-setting="ui"><option value="nb" ${progress.ui==="nb"?"selected":""}>Norsk (bokmål)</option><option value="en" ${progress.ui==="en"?"selected":""}>English</option></select></label><label>${esc(t("world"))}<select data-setting="language"><option value="nb" ${progress.language==="nb"?"selected":""}>Norsk (bokmål)</option><option value="en" ${progress.language==="en"?"selected":""}>English</option></select></label><h2>${esc(t("privacy"))}</h2><p>${esc(t("privacyText"))}</p><p>${esc(t("speechGuide"))}</p><p>${f(progress.practised)} ${t("practiceCount")} · ${f(progress.assisted)} ${t("assisted")}</p>${button("reset",t("reset"))}</div></section>`;}
+function settings():string {
+ return settingsDesk(t("settings"),`
+   <button class="desk-action" data-action="ui-language">${esc(t("ui"))} · ${progress.ui==="nb"?"🇳🇴":"🇬🇧"}</button>
+   <button class="desk-action" data-action="practice-language">${esc(t("world"))} · ${progress.language==="nb"?"🇳🇴":"🇬🇧"}</button>
+   <p>${esc(t("privacyText"))}</p><p>${f(progress.practised)} ${t("practiceCount")} · ${f(progress.assisted)} ${t("assisted")}</p>
+   ${button("reset",t("reset"))}`);
+}
+let practicePicker=false;
+const readerDialog=document.createElement("dialog");
+document.body.append(readerDialog);
+const readerPicker=bindLanguagePicker(readerDialog,{
+ markup:failed=>languagePickerMarkup(createI18n(progress.ui,navigator.languages),practicePicker?progress.language:readerPreference(),navigator.languages,failed,["en","nb"],!practicePicker),
+ trigger:()=>root.querySelector(practicePicker?'[data-action="practice-language"]':'[data-action="ui-language"]'),
+ select:id=>{
+   if(id!=="auto"&&id!=="en"&&id!=="nb")return false;
+   const language=id==="auto"?preferredLanguage(navigator.languages):id;
+   let stored=true;
+   if(practicePicker)progress.language=language;
+   else {progress.ui=language;try{storage?.setItem("reader.menu.language",id);}catch{stored=false;}}
+   progress.chosen=true;persist();render();
+   return stored&&!saveFailed;
+ }
+});
+function chooseReaderLanguage(practice:boolean):void {practicePicker=practice;readerPicker.open();}
+function readerPreference():Language|"auto" {
+ try {const stored=storage?.getItem("reader.menu.language");if(stored==="auto"||stored==="en"||stored==="nb")return stored;}catch{}
+ return progress.chosen?progress.ui:"auto";
+}
 function worldView():string{
  if(worldError)return `<div class="world-message" role="alert"><p>${esc(t("worldFail"))}</p>${button("retry-world",t("retry"),true)}</div>`;
  if(worldLoading)return `<div class="world-message" role="status"><p>${esc(t("loading"))}</p></div>`;
@@ -121,7 +156,13 @@ function render():void{
  if(screen==="reading"&&shown&&shown.chunk>0)root.querySelector<HTMLElement>(".reading-passage .current")?.scrollIntoView({block:"center",behavior:"auto"});
  if(screen==="packs"||screen==="levels"){
   const viewport=root.querySelector<HTMLElement>("[data-map-viewport]"),world=viewport?.querySelector<HTMLElement>("[data-map-world]");
-  if(viewport&&world)pan=mountMapPan(viewport,world,{focus:{x:Number(viewport.dataset.focusX),y:Number(viewport.dataset.focusY)},scale:screen==="packs"?1:1.12,coverViewport:true,state:cameras.get(cameraKey()),onChange:state=>{cameras.set(cameraKey(),state);if(screen==="levels")trailPages.set(cameraKey(),page);},onCenter:screen==="levels"?()=>{page=initialTrailWindow((track()?.cleared??0)+1);cameras.delete(cameraKey());render();}:undefined});
+  if(viewport&&world){
+   const levels=screen==="levels", tr=track(), r=tr?.run;
+   const draw=levels?atlasRenderer(world,readerTheme(),{cleared:tr?.cleared??0,stars:{},runs:r?{[r.level]:{solved:r.index}}:{}},createI18n(progress.ui,[]),{
+    caption:(n,solved)=>n<=(tr?.cleared??0)?t("complete"):`${f(solved)}/${f(packFor(packId).count)} ${progress.ui==="nb"?"lest":"read"}`
+   }):null;
+   pan=mountMapPan(viewport,world,{focus:{x:Number(viewport.dataset.focusX),y:Number(viewport.dataset.focusY)},scale:levels?.94:1,unbounded:levels,coverViewport:!levels,state:cameras.get(cameraKey()),onChange:(state,origin)=>{cameras.set(cameraKey(),state);draw?.(state,origin,viewport.clientWidth,viewport.clientHeight);}});
+  }
  }
 }
 function updateHeardWords():void{
@@ -189,11 +230,14 @@ function back():void{
 }
 root.addEventListener("click",e=>{
  const el=(e.target as Element).closest<HTMLButtonElement>("button");if(!el||el.disabled)return;
+ if(sailToShore(e,root))return;
  if(el.dataset.language){progress.language=el.dataset.language as Language;packId=1;progress.chosen=true;persist();navigate("packs");return;}
- if(el.dataset.pack){packId=Number(el.dataset.pack);page=trailPages.get(["levels",progress.language,packId].join("/"))??initialTrailWindow((track()?.cleared??0)+1);navigate("levels");return;}
+ if(el.dataset.pack){packId=Number(el.dataset.pack);navigate("levels");return;}
  if(el.dataset.level){openLevel(Number(el.dataset.level),Number(el.dataset.level)<=(track()?.cleared??0));return;}
  if(el.dataset.answer!==undefined){const q=shown!.item.question!;comprehensionCorrect=Number(el.dataset.answer)===q.correct;errorMessage=comprehensionCorrect?"":t("compRetry");render();return;}
  switch(el.dataset.action){
+  case "ui-language":chooseReaderLanguage(false);break;
+  case "practice-language":chooseReaderLanguage(true);break;
   case "center-pack":{const v=root.querySelector<HTMLElement>("[data-map-viewport]");if(v)pan?.center({x:Number(v.dataset.focusX),y:Number(v.dataset.focusY)});break;}
   case "back":back();break;case "play":navigate("languages");break;case "packs":navigate("packs");break;case "settings":navigate("settings");break;
   case "resume":{run=Object.values(progress.tracks).map(t=>t.run).filter((r):r is Run=>!!r).sort((a,b)=>b.id-a.id)[0]??null;if(run){progress.language=run.language;packId=run.pack;viewCurrent();navigate("reading");void beginListening();}break;}
@@ -204,16 +248,10 @@ root.addEventListener("click",e=>{
   case "after-question":nextReading();break;case "next-level":openLevel((run?.level??0)+1);break;
   case "ship":void openWorld("ship");break;case "cave":void openWorld("cave");break;case "unload":void openWorld("unload");break;case "inspect":host?.inspect();break;
   case "retry-world":void openWorld(screen as "ship"|"cave"|"unload");break;
-  case "trail-earlier":case "trail-further":{
-   const old=page;
-   page=extendTrailWindow(old,el.dataset.action==="trail-earlier"?"earlier":"further");
-   const camera=cameras.get(cameraKey());
-   if(camera)camera.y+=(page.first-old.first)/LEVELS_PER_REGION*REGION_HEIGHT*camera.scale;
-   render();break;
-  }
+
  }
 });
-root.addEventListener("change",e=>{const select=e.target as HTMLSelectElement;if(select.dataset.setting==="ui"||select.dataset.setting==="language"){progress[select.dataset.setting]=select.value as Language;progress.chosen=true;persist();render();}});
+window.addEventListener("languagechange",()=>{if(readerPreference()==="auto"){progress.ui=preferredLanguage(navigator.languages);render();}});
 document.addEventListener("keydown",e=>{if(e.key==="Escape"&&!document.querySelector("dialog[open]")&&!["cave","unload"].includes(screen)){e.preventDefault();back();}});
 const interrupted=()=>{
  clearTimeout(advanceTimer);advanceTimer=undefined;
@@ -248,5 +286,5 @@ if(qa){
  if(params.get("banked")){progress.bank[0]=Math.min(1_000_000,Math.max(0,Number(params.get("banked"))||0));}
  if(params.get("cleared")){const cleared=Math.min(1_000_000,Math.max(0,Number(params.get("cleared"))||0));progress.tracks[trackKey(progress.language,packId)]={cleared,seed:91};}
  if(params.get("cargo")){const r=startRun(progress,progress.language,packId,(track()?.cleared??0)+1,91)!;while(track()?.run===r)completeChunk(progress,r,{id:r.id,index:r.index,chunk:r.chunk},"adult");}
- const view=params.get("view");if(view==="reading"){openLevel((track()?.cleared??0)+1);const state=params.get("state");if(state==="preparing"||state==="listening"||state==="checking"||state==="retry"||state==="unavailable"){attempt.state=state;render();}}else if(view==="packs"||view==="languages"||view==="settings")navigate(view);else if(view==="levels"){page=initialTrailWindow((track()?.cleared??0)+1);navigate("levels");}else if(view==="ship"||view==="cave"||view==="unload")void openWorld(view);else render();
+ const view=params.get("view");if(view==="reading"){openLevel((track()?.cleared??0)+1);const state=params.get("state");if(state==="preparing"||state==="listening"||state==="checking"||state==="retry"||state==="unavailable"){attempt.state=state;render();}}else if(view==="packs"||view==="languages"||view==="settings")navigate(view);else if(view==="levels"){navigate("levels");}else if(view==="ship"||view==="cave"||view==="unload")void openWorld(view);else render();
 }

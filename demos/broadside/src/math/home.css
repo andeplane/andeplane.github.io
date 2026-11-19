@@ -111,3 +111,5 @@
 #academy[data-screen="home"][data-save-failed="true"] #main-content { inset-block-end: var(--math-notice-space) !important; }
 .settings-language { width: 100%; gap: 12px; margin-bottom: 8px; }
 .captains-guide h2 { margin-block: 18px 8px; }
+
+#academy .home-utilities .home-settings { margin-left:44px; }

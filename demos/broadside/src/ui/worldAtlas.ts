@@ -1,6 +1,7 @@
-import type { OperatorId, Track } from "./academy";
-import type { createI18n } from "./i18n";
-import { worldFor } from "./worlds";
+import { chartShip } from "../ui/adventureChart";
+import type { OperatorId } from "../math/academy";
+import type { createI18n } from "../math/i18n";
+import { worldFor } from "../math/worlds";
 import { icon } from "../ui/icons";
 import { regionForLevel } from "../ui/expeditionTrail";
 import type { MapCamera, MapPoint } from "../ui/mapPan";
@@ -17,11 +18,11 @@ export function levelPoint(id: OperatorId, level: number): MapPoint {
 }
 
 type Locale = ReturnType<typeof createI18n>;
-export function atlasView(id: OperatorId, pack: string, back: string, current: number, locale: Locale) {
-  const { t } = locale, world = worldFor(id), focus = levelPoint(id, current);
+export function atlasView(id: OperatorId, pack: string, back: string, current: number, locale: Locale, title = worldFor(id).name) {
+  const { t } = locale, focus = levelPoint(id, current);
   return `<section class="expedition-view voyage-atlas">
-    <header class="trail-heading">${back}<h1>${world.name}<small>${pack}</small></h1></header>
-    <div class="expedition-map-viewport" data-map-viewport tabindex="0" role="group" aria-label="${t("worldLevelMap", {world:world.name})}" aria-describedby="expedition-map-help" data-focus-x="${focus.x}" data-focus-y="${focus.y}">
+    <header class="trail-heading">${back}<h1>${title}<small>${pack}</small></h1></header>
+    <div class="expedition-map-viewport" data-map-viewport tabindex="0" role="group" aria-label="${t("worldLevelMap", {world:title})}" aria-describedby="expedition-map-help" data-focus-x="${focus.x}" data-focus-y="${focus.y}">
       <div class="atlas-plane" data-map-world style="--water:url(${worldAsset(id, "-water")})"></div>
       <div class="expedition-map-tools" data-map-control><button data-map-center aria-label="${t("findIsland")}">${icon("compass")}</button><button data-map-zoom="in" aria-label="${t("zoomIn")}">+</button><button data-map-zoom="out" aria-label="${t("zoomOut")}">−</button></div>
       <span class="map-keyboard-help" id="expedition-map-help">${t("mapKeyboard")}</span>
@@ -47,7 +48,12 @@ function clearOfCourse(id: OperatorId, x: number, y: number, radius: number) {
   return true;
 }
 
-function tileContents(id: OperatorId, col: number, row: number, track: Track, locale: Locale) {
+interface AtlasOptions {
+  terrainOnly?:boolean;
+  caption?:(level:number, solved:number)=>string;
+}
+interface AtlasTrack { cleared:number; stars:Record<number,number>; runs:Record<number,{solved:number}>; }
+function tileContents(id: OperatorId, col: number, row: number, track: AtlasTrack, locale: Locale, options:AtlasOptions) {
   const ox = col * TILE, oy = row * TILE, { t, format } = locale;
   const parts: string[] = [];
   const start = levelPoint(id, 1);
@@ -66,6 +72,7 @@ function tileContents(id: OperatorId, col: number, row: number, track: Track, lo
       parts.push(`<span class="atlas-land" aria-hidden="true" style="left:${x-ox}px;top:${y-oy}px;width:${size}px"><img src="${worldAsset(id, "-coast")}" alt="" draggable="false" style="transform:scaleX(${noise(gx,gy,seed+4) < .5 ? -1 : 1})"></span>`);
     }
   }
+  if(options.terrainOnly)return parts.join("");
   const first = Math.max(1, Math.floor(-(oy+TILE)/STEP)+1);
   for (let index = 0; index <= Math.ceil(TILE / STEP); index++) {
     const n = first + index;
@@ -76,21 +83,21 @@ function tileContents(id: OperatorId, col: number, row: number, track: Track, lo
     parts.push(`<svg class="atlas-leg" style="left:${left}px;top:${top}px" width="1" height="1" aria-hidden="true"><path d="M0 0 L${dx} ${-STEP}"/></svg>`);
     const current = n === track.cleared+1, locked = n > track.cleared+1;
     const score = track.stars[n] ?? 0, solved = track.runs[n]?.solved ?? 0;
-    const state = locked ? t("locked") : solved ? t("resumeCount",{count:solved}) : current ? t("start") : `${t("stars", {count:score})}, ${t("replay")}`;
-    const chapter = (n-1)%12 === 0 ? regionForLevel(n,worldFor(id)).name : "";
+    const state = options.caption && !locked ? options.caption(n,solved) : locked ? t("locked") : solved ? t("resumeCount",{count:solved}) : current ? t("start") : `${t("stars", {count:score})}, ${t("replay")}`;
+    const chapter = options.caption ? options.caption(n,solved) : (n-1)%12 === 0 ? regionForLevel(n,worldFor(id)).name : "";
     parts.push(`<div class="expedition-stop ${current ? "is-current" : locked ? "is-locked" : "is-cleared"}" style="left:${left}px;top:${top}px">
-      ${current ? `<span class="expedition-here">${t("nextIslandMarker")}</span>` : ""}
+      ${current ? `${chartShip("moored-level")}<span class="expedition-here">${t("nextIslandMarker")}</span>` : ""}
       <button class="expedition-node" data-level="${n}" ${locked ? "disabled" : ""} ${current ? 'id="expedition-current" aria-current="step"' : ""} aria-label="${t("level",{count:format(n)})}, ${state}">
         <span class="route-island" aria-hidden="true">${worldIsland(id,n-1)}</span><span class="shore-number">${format(n)}</span>
         ${locked ? `<small class="expedition-node-lock">${icon("lock")}</small>` : ""}
       </button>
-      ${chapter || solved || !locked ? `<span class="atlas-caption">${chapter}${chapter && (solved || !locked) ? " · " : ""}${solved ? t("solvedCount",{count:solved}) : !locked ? "★".repeat(score) + "☆".repeat(3-score) : ""}</span>` : ""}
+      ${chapter || solved || !locked ? `<span class="atlas-caption">${chapter}${!options.caption && chapter && (solved || !locked) ? " · " : ""}${options.caption ? "" : solved ? t("solvedCount",{count:solved}) : !locked ? "★".repeat(score) + "☆".repeat(3-score) : ""}</span>` : ""}
     </div>`);
   }
   return parts.join("");
 }
 
-export function atlasRenderer(plane: HTMLElement, id: OperatorId, track: Track, locale: Locale) {
+export function atlasRenderer(plane: HTMLElement, id: OperatorId, track: AtlasTrack, locale: Locale, options:AtlasOptions = {}) {
   const tiles = new Map<string, HTMLElement>();
   let previousBounds = "";
   return (camera: MapCamera, origin: MapPoint, width: number, height: number) => {
@@ -110,7 +117,7 @@ export function atlasRenderer(plane: HTMLElement, id: OperatorId, track: Track, 
         tile = document.createElement("div");
         tile.className = "atlas-tile";
         tile.dataset.tile = key;
-        tile.innerHTML = tileContents(id,col,row,track,locale);
+        tile.innerHTML = tileContents(id,col,row,track,locale,options);
         plane.append(tile);
         tiles.set(key,tile);
       }

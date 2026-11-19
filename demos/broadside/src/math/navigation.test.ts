@@ -149,14 +149,14 @@ describe("Captain Calculus navigation destinations",()=>{
 });
 
 describe("Captain Calculus language preferences", () => {
-  it("detects Norwegian and keeps its first-try reward instructions", async () => {
+  it("detects Norwegian and displays the language and privacy controls", async () => {
     vi.spyOn(navigator, "languages", "get").mockReturnValue(["nb-NO", "en"]);
     await import("./main");
     expect(document.documentElement.lang).toBe("nb");
     expect(root().querySelector("button[data-action=play]")?.textContent).toContain("Spill");
     expect(root().querySelector("[data-action=settings]")?.textContent).toContain("Innstillinger");
     click("settings");
-    expect(root().textContent).toContain("100 gull per riktig svar på første forsøk");
+    expect(root().querySelector("[data-open-privacy]")).not.toBeNull();
     expect(root().querySelector("#game-language")).toBeNull();
     click("back");
     click("settings");

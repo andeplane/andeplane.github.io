@@ -1,3 +1,5 @@
+import { adventureChart, sailToShore } from "../ui/adventureChart";
+import { pirateMenu, settingsDesk } from "../ui/homeMenu";
 import { answerHaptic, installButtonHaptics } from "../ui/buttonHaptics";
 import { installPrivacy } from "../ui/privacy";
 import { installMenuPreview } from "../ui/menuPreview";
@@ -5,7 +7,7 @@ import { icon } from "../ui/icons";
 import { backButton } from "../ui/menuChrome";
 import { pirateShipArt } from "../ui/worldArt";
 import { worldFor } from "./worlds";
-import { atlasRenderer, atlasView, worldAsset, worldIsland } from "./worldAtlas";
+import { atlasRenderer, atlasView, worldAsset, worldIsland } from "../ui/worldAtlas";
 import { mountMapPan, type MapCamera, type MapPanController } from "../ui/mapPan";
 import {
   OPERATORS, getOperator, getPack, packsFor,
@@ -13,7 +15,7 @@ import {
   answerQuestion, goldTotal, pendingMathChests, bankedGold, cargoGold,
   type OperatorId, type Voyage, type Question, type AnswerResult,
 } from "./academy";
-import { detectLanguage, LANGUAGES, readLanguagePreference, saveLanguagePreference, isLanguagePreference } from "./i18n";
+import { detectLanguage, LANGUAGES, readLanguagePreference, saveLanguagePreference } from "./i18n";
 import { selectLanguage } from "./language";
 import type { GoldCave } from "./goldCave";
 import "./style.css";
@@ -24,7 +26,7 @@ import "./adventure.css";
 import "./focus.css";
 import "./home.css";
 import "./gameHud.css";
-import { languagePickerMarkup, dismissLanguagePicker } from "../ui/languagePicker";
+import { languagePickerMarkup, bindLanguagePicker } from "../ui/languagePicker";
 import { clockSteps, type ClockStep } from "./clock";
 import { clockBoard, clockLevelKey, newClockRound } from "./clockBoard";
 import "./clock.css";
@@ -140,20 +142,15 @@ function home(): string {
       <source media="(min-width: 701px), (orientation: landscape)" srcset="${import.meta.env.BASE_URL}assets/menu/calculus-worktable-wide.webp" />
       <img src="${import.meta.env.BASE_URL}assets/menu/calculus-worktable.webp" width="852" height="1846" alt="" fetchpriority="high" />
     </picture>
-    <h1><span>Captain</span>Calculus</h1>
-    <nav class="calculus-home-actions" aria-label="${t("home")}">
-      <button class="calculus-play" data-action="play">${icon("play")} ${t("play")}</button>
-      ${saved ? `<button class="calculus-continue" data-action="resume">
-        <strong>${t("continue")}</strong>
-        <small>${operatorName(getPack(saved.pack).operator)} · ${localizedPack(saved.pack).label} · ${t("level", { count: format(saved.run.level) })} · ${t("solvedCount", { count: format(saved.run.solved) })}</small>
-      </button>` : ""}
-      <button class="calculus-destination" data-action="ship"><strong>${t("yourShip")}</strong><small>${pending}</small></button>
-      <button class="calculus-destination" data-action="cave" aria-label="${t("yourCave")}: ${t("savedGold", { gold: format(gold) })}"><strong>${t("yourCave")}</strong><small>${t("savedGold", { gold: navNumber(gold) })}</small></button>
-      <div class="home-utilities"><button class="calculus-destination" data-action="settings"><strong>${t("settings")}</strong></button><button class="calculus-destination" data-action="language" aria-haspopup="dialog" aria-label="${t("language")} · ${LANGUAGES.find(item => item.id === i18n.language)!.name}"><strong aria-hidden="true">${languageChoice().flag}</strong></button></div>
-    </nav>
+    <h1><span>Captain</span> Calculus</h1>
+    ${pirateMenu({title:t("home"),theme:"calculus-home-actions",play:{action:"play",label:t("play")},
+      resume:saved?{action:"resume",label:t("continue"),detail:`${operatorName(getPack(saved.pack).operator)} · ${localizedPack(saved.pack).label} · ${t("level",{count:format(saved.run.level)})} · ${t("solvedCount",{count:format(saved.run.solved)})}`}:undefined,
+      ship:{action:"ship",label:t("yourShip"),detail:pending},cave:{action:"cave",label:t("yourCave"),detail:t("savedGold",{gold:navNumber(gold)}),accessible:t("savedGold",{gold:format(gold)})},
+      settings:{action:"settings",label:t("settings")},language:{action:"language",label:languageChoice().flag,accessible:t("language")}})}
   </section>`;
 }
 const completedLabel = (count: number) => t(count === 1 ? "levelCompleted" : "levelsCompleted", { count: format(count) });
+let lastShore:OperatorId|"clock"=progress.operator;
 function operatorView(): string {
   const places = OPERATORS.map(op => {
     const cleared = packsFor(op.id).reduce((sum, pack) => sum + (progress.tracks[pack.id]?.cleared ?? 0), 0);
@@ -163,13 +160,10 @@ function operatorView(): string {
   const title = t("chooseAdventure");
   return `<section class="calculus-overworld">
     <header>${gameBack("home")}<h1 class="visually-hidden">${title}</h1></header>
-    <nav aria-label="${title}" class="overworld-chart"><div class="overworld-geography">
-      ${places.map(({ id, region, lesson, cleared }) => `<button class="overworld-place" data-operator="${id}"
-        aria-label="${[lesson, region, completedLabel(cleared)].join(", ")}">
-        <span class="map-symbol" aria-hidden="true"></span>
-        <span class="overworld-caption"><b>${lesson}</b><small>${region}</small><span class="chart-tally">${completedLabel(cleared)}</span></span>
-      </button>`).join("")}
-    </div></nav>
+    <nav aria-label="${title}" class="overworld-chart">${adventureChart("operator", places.map(({id,region,lesson,cleared})=>({
+      id,label:lesson,detail:region,tally:completedLabel(cleared),accessible:[lesson,region,completedLabel(cleared)].join(", "),
+      art:'<span class="map-symbol" aria-hidden="true"></span>',moored:id===lastShore
+    })))}</nav>
   </section>`;
 }
 function clockMapView(): string {
@@ -258,7 +252,10 @@ function completeView(): string {
   return `<section class="complete-view"><div class="complete-back">${gameBack(voyageReturn)}</div><span class="eyebrow">${selectedPack().name}</span><h1>${t("wellSailed")}</h1>${stars(outcome?.stars ?? 1)}<p>${t("completeNoGold", { count: format(level) })}<br />${t("nextGold")}</p><div class="completion-ship" aria-hidden="true">${pirateShipArt("complete")}</div><button class="wood-button primary" data-action="reward-next">${t("nextIsland")} ${icon("ship")}</button></section>`;
 }
 function settingsView(): string {
-  return `<section class="settings-view"><div class="settings-heading">${gameBack("home")}<h1>${t("settings")}</h1></div><div class="settings-card"><div class="language-setting"><button class="wood-button settings-language" data-action="language" aria-haspopup="dialog" aria-describedby="language-detail"><strong>${t("language")}</strong><span>${languageLabel()}</span></button><p id="language-detail">${t("languageDetail", { language: LANGUAGES.find(item => item.id === i18n.language)!.name })}</p></div><div class="captains-guide"><h2>${icon("skull")} ${t("howPlay")}</h2><p>${t("guidePlay")}</p><p>${t("rewardRule")} ${t("firstTryGuide")} ${t("cargoGuide")}</p><p>${t("unopenedSafe")}</p><button type="button" class="privacy-action" data-open-privacy>${t("privacyEnglish")}</button><div class="guide-footer">${icon("anchor")} ${saveFailed ? t("saveError") : t("saveOk")}</div></div></div></section>`;
+  return settingsDesk(t("settings"),`<button class="desk-action" data-action="language" aria-haspopup="dialog"><strong>${t("language")}</strong><span>${languageLabel()}</span></button>
+      <button class="desk-action" data-open-privacy>${t("privacyEnglish")}</button>
+      <p class="desk-save">${icon("anchor")} ${saveFailed ? t("saveError") : t("saveOk")}</p>
+  `,gameBack("home"));
 }
 function render(): void {
   const focused = document.activeElement;
@@ -417,8 +414,6 @@ function goBack(): void {
 }
 
 const picker = document.createElement("dialog");
-picker.className = "language-picker";
-picker.setAttribute("aria-labelledby", "language-picker-title");
 document.body.append(picker);
 
 function languageChoice() {
@@ -429,31 +424,16 @@ function languageLabel() {
   const { name, flag } = languageChoice();
   return `<span aria-hidden="true">${flag}</span> ${name}`;
 }
-function drawPicker() {
-  picker.innerHTML = languagePickerMarkup(i18n, languagePreference, deviceLanguages(), languageSaveFailed);
-}
-function openPicker() {
-  drawPicker();
-  picker.showModal();
-  picker.querySelector<HTMLElement>('[aria-pressed="true"]')?.focus();
-}
-picker.addEventListener("click", event => {
-  const target = event.target as HTMLElement;
-  if (dismissLanguagePicker(picker, event)) { picker.close(); return; }
-  const choice = target.closest<HTMLElement>("[data-language]")?.dataset.language;
-  if (!isLanguagePreference(choice)) return;
-  languagePreference = choice;
-  languageSaveFailed = !saveLanguagePreference(choice, storage);
-  i18n = selectLanguage(choice, deviceLanguages());
-  const scroll = root.querySelector("#main-content")!.scrollTop;
-  render();
-  root.querySelector("#main-content")!.scrollTop = scroll;
-  if (languageSaveFailed) {
-    drawPicker();
-    picker.querySelector<HTMLElement>('[aria-pressed="true"]')?.focus();
-  } else {
-    picker.close();
-    root.querySelector<HTMLElement>('[data-action="language"]')?.focus({ preventScroll: true });
+const languageMenu = bindLanguagePicker(picker,{
+  markup:failed=>languagePickerMarkup(i18n,languagePreference,deviceLanguages(),failed||languageSaveFailed),
+  trigger:()=>root.querySelector('[data-action="language"]'),
+  select:choice=>{
+    languagePreference=choice;
+    languageSaveFailed=!saveLanguagePreference(choice,storage);
+    i18n=selectLanguage(choice,deviceLanguages());
+    const scroll=root.querySelector("#main-content")!.scrollTop;
+    render();root.querySelector("#main-content")!.scrollTop=scroll;
+    return !languageSaveFailed;
   }
 });
 for (const type of ["contextmenu", "selectstart"]) {
@@ -462,11 +442,13 @@ for (const type of ["contextmenu", "selectstart"]) {
 window.addEventListener("languagechange", () => {
   if (languagePreference !== "auto") return;
   i18n = selectLanguage(languagePreference, deviceLanguages()); render();
-  if (picker.open) drawPicker();
+  if (picker.open) languageMenu.draw();
 });
 root.addEventListener("click", (event) => {
   const button = (event.target as HTMLElement).closest<HTMLButtonElement>("button");
   if (!button || button.disabled) return;
+  if (sailToShore(event,root)) return;
+  if (button.dataset.operator) lastShore=button.dataset.operator as typeof lastShore;
   if (button.dataset.operator === "clock") {
     show("clockMap");
     return;
@@ -509,7 +491,7 @@ root.addEventListener("click", (event) => {
     case "home": show("home"); break;
     case "play": show("operators"); break;
     case "back": goBack(); break;
-    case "language": if (screen === "settings" || screen === "home") openPicker(); break;
+    case "language": if (screen === "settings" || screen === "home") languageMenu.open(); break;
     case "settings":
       if (screen === "home") show("settings");
       break;

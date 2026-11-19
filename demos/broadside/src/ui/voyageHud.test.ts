@@ -39,7 +39,7 @@ it("changes Broadside's home language directly and restores it next launch", () 
   expect(button("#menu-play").textContent).toContain("Spill");
   expect(hud.root.querySelector("dialog")?.open).toBe(false);
   expect(document.activeElement).toBe(button("#menu-language"));
-  expect(setup(false).button("#menu-language").textContent).toBe("Språk");
+  expect(setup(false).button("#menu-language").textContent).toBe("🇳🇴");
 });
 
 it("uses the singular keepsake count in the real private ship room", () => {
