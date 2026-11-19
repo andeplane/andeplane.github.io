@@ -24,7 +24,23 @@ function setup(privateShip: boolean, cargo = false) {
   return { hud, handlers, button, progress };
 }
 
-afterEach(() => { document.body.replaceChildren(); ship.private = false; });
+afterEach(() => {
+  document.body.replaceChildren();
+  localStorage.removeItem("broadside.home.language.v1");
+  ship.private = false;
+});
+
+it("changes Broadside's home language directly and restores it next launch", () => {
+  const { hud, button } = setup(false);
+  document.body.append(hud.root);
+  button("#menu-language").click();
+  expect(hud.root.querySelector("dialog")?.open).toBe(true);
+  button('[data-language="nb"]').click();
+  expect(button("#menu-play").textContent).toContain("Spill");
+  expect(hud.root.querySelector("dialog")?.open).toBe(false);
+  expect(document.activeElement).toBe(button("#menu-language"));
+  expect(setup(false).button("#menu-language").textContent).toBe("Språk");
+});
 
 it("uses the singular keepsake count in the real private ship room", () => {
   const { hud, progress } = setup(true);

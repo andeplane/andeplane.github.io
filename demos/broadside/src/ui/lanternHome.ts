@@ -15,7 +15,7 @@ export function lanternHome(): string {
       <button id="menu-play" class="lantern-play"><span class="lantern-play-arrow" aria-hidden="true">${icon("play")}</span><span>Play</span></button>
       <button id="home-ship" data-home-destination="ship"><span class="lantern-action-title">Your ship</span><strong>No chests aboard</strong><small>Your next reward goes here</small></button>
       <button id="menu-cave" data-home-destination="chest"><span class="lantern-action-title">Your cave</span><strong>0 gold saved</strong><small>Explore your treasure</small></button>
-      <button id="menu-settings" class="lantern-settings">Settings</button>
+      <div class="home-utilities"><button id="menu-settings" class="lantern-settings">Settings</button><button id="menu-language" aria-haspopup="dialog">Language</button></div>
     </nav>
     <p class="pirate-home-description lantern-message">Brave the seas. Bring home the treasure.</p>
   </div>`;

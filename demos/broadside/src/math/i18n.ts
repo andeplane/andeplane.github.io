@@ -27,16 +27,16 @@ export function detectLanguage(languages: readonly string[]): Language {
   }
   return "en";
 }
-export function readLanguagePreference(storage?: Pick<Storage, "getItem">): LanguagePreference {
+export function readLanguagePreference(storage?: Pick<Storage, "getItem">, key = LANGUAGE_KEY): LanguagePreference {
   try {
-    const value = storage?.getItem(LANGUAGE_KEY);
+    const value = storage?.getItem(key);
     return isLanguagePreference(value) ? value : "auto";
   } catch { return "auto"; }
 }
-export function saveLanguagePreference(preference: LanguagePreference, storage?: Pick<Storage, "setItem">): boolean {
+export function saveLanguagePreference(preference: LanguagePreference, storage?: Pick<Storage, "setItem">, key = LANGUAGE_KEY): boolean {
   try {
     if (!storage) return false;
-    storage.setItem(LANGUAGE_KEY, preference);
+    storage.setItem(key, preference);
     return true;
   } catch { return false; }
 }
