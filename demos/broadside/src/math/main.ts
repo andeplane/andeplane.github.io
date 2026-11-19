@@ -5,7 +5,7 @@ import { icon } from "../ui/icons";
 import { backButton } from "../ui/menuChrome";
 import { pirateShipArt } from "../ui/worldArt";
 import { worldFor } from "./worlds";
-import { expeditionTrail, extendTrailWindow, initialTrailWindow, REGION_HEIGHT, LEVELS_PER_REGION, type TrailWindow } from "../ui/expeditionTrail";
+import { atlasRenderer, atlasView, worldAsset, worldIsland } from "./worldAtlas";
 import { mountMapPan, type MapCamera, type MapPanController } from "../ui/mapPan";
 import {
   OPERATORS, getOperator, getPack, packsFor,
@@ -18,6 +18,7 @@ import { selectLanguage } from "./language";
 import type { GoldCave } from "./goldCave";
 import "./style.css";
 import { difficultyMap } from "../ui/difficultyMap";
+import { islandArt } from "../ui/islandChart";
 import "./overworld.css";
 import "./adventure.css";
 import "./focus.css";
@@ -73,8 +74,7 @@ const treasureTrail: Screen[] = [];
 const treasureParent = () => treasureTrail.at(-1) ?? "home";
 let voyageReturn: "home" | "levels" = "levels";
 let operator = progress.operator, packId = progress.pack, level = 1;
-let trailWindow: TrailWindow = initialTrailWindow(1);
-const previousTrails = new Map<string, { window: TrailWindow; camera: MapCamera }>();
+const previousTrails = new Map<string, MapCamera>();
 let trailCamera: MapCamera | undefined;
 let mapPan: MapPanController | null = null;
 const packCameras = new Map<OperatorId | "clock", MapCamera>();
@@ -147,7 +147,7 @@ function home(): string {
       </button>` : ""}
       <button class="calculus-destination" data-action="ship"><strong>${t("yourShip")}</strong><small>${pending}</small></button>
       <button class="calculus-destination" data-action="cave" aria-label="${t("yourCave")}: ${t("savedGold", { gold: format(gold) })}"><strong>${t("yourCave")}</strong><small>${t("savedGold", { gold: navNumber(gold) })}</small></button>
-      <div class="home-utilities"><button class="calculus-destination" data-action="settings"><strong>${t("settings")}</strong></button><button class="calculus-destination" data-action="language" aria-haspopup="dialog"><strong>${t("language")}</strong></button></div>
+      <div class="home-utilities"><button class="calculus-destination" data-action="settings"><strong>${t("settings")}</strong></button><button class="calculus-destination" data-action="language" aria-haspopup="dialog" aria-label="${t("language")} · ${LANGUAGES.find(item => item.id === i18n.language)!.name}"><strong aria-hidden="true">${languageChoice().flag}</strong></button></div>
     </nav>
   </section>`;
 }
@@ -172,7 +172,7 @@ function operatorView(): string {
 function clockMapView(): string {
   return difficultyMap({ name: t("clockIsland"), accessibleName: t("clockAdventure"),
     instructions: t("dragDifficulty"), back: gameBack("operators"), selected: clockStep,
-    centerLabel: t("currentIsland"), firstArt: 2,
+    centerLabel: t("currentIsland"), firstArt: 2, island: () => islandArt(2),
     stops: clockSteps.map((step, index) => ({ id: step, label: t(clockLevelKey(step)),
       description: t("level", { count: index + 1 }), ariaLabel: t(clockLevelKey(step)) })) });
 }
@@ -180,23 +180,15 @@ function mapView(): string {
   const world = worldFor(operator);
   return difficultyMap({ name: world.name, accessibleName: t("mapAccessible", { world: world.name }),
     instructions: t("dragDifficulty"), back: gameBack("operators"), selected: packId, centerLabel: t("currentIsland"),
-    firstArt: [0, 4, 6, 8][OPERATORS.findIndex(op => op.id === operator)]!,
+    firstArt: 0, island: i => worldIsland(operator, i), backdrop: worldAsset(operator),
     stops: packsFor(operator).map((pack,i) => {
       const p = localizedPack(pack.id);
       return { id: p.id, label: p.label, description: world.chapterNames[i], ariaLabel: `${p.label}: ${p.description}` };
     }) });
 }
-// Keep the playable islands within the atlas's open sea lane.
-const atlasCourses = [
-  [50, 47, 47, 47, 50, 54, 52, 47, 48, 48, 52, 50],
-  [50, 46, 45, 48, 52, 47, 47, 52, 53, 48, 50, 52],
-  [50, 53, 51, 48, 47, 47, 52, 50, 46, 47, 51, 50],
-  [50, 47, 47, 47, 48, 54, 52, 47, 47, 48, 52, 50],
-];
 function levelsView(): string {
-  const p = selectedPack(), op = getOperator(p.operator);
-  const practiceRule = p.operator === "add" ? t("sumsStay", { count: p.limit! }) : t("sameDifficulty");
-  return expeditionTrail({ world: worldFor(p.operator), showStars: true, resumeLabel: count => t("resumeCount", { count }), progressLabel: count => t("solvedCount", { count }), packLabel: p.label, backLabel: backLabel("map"), courses: atlasCourses, operatorName: operatorName(op.id), practiceRule, window: trailWindow, track: packTrail(), text: t, format });
+  const p = selectedPack();
+  return atlasView(p.operator, p.label, gameBack("map"), packTrail().cleared + 1, i18n);
 }
 function mountMathMap(scroller: HTMLElement): void {
   scroller.scrollTop = scroller.scrollLeft = 0;
@@ -204,23 +196,21 @@ function mountMathMap(scroller: HTMLElement): void {
   const world = viewport?.querySelector<HTMLElement>("[data-map-world]");
   if (!viewport || !world) return;
   const isTrail = screen === "levels", mapOperator = screen === "clockMap" ? "clock" : operator;
+  const draw = isTrail ? atlasRenderer(world, operator, packTrail(), i18n) : undefined;
   mapPan = mountMapPan(viewport, world, {
-    focus: { x: Number(viewport.dataset.focusX) || world.offsetWidth / 2, y: Number(viewport.dataset.focusY) || world.offsetHeight / 2 },
-    scale: Number(viewport.dataset.mapScale) || (isTrail ? 1.12 : 1),
-    coverViewport: true,
+    focus: { x: Number(viewport.dataset.focusX ?? world.offsetWidth / 2), y: Number(viewport.dataset.focusY ?? world.offsetHeight / 2) },
+    scale: Number(viewport.dataset.mapScale) || (isTrail ? .94 : 1),
+    coverViewport: !isTrail, unbounded: isTrail,
     state: isTrail ? trailCamera : packCameras.get(mapOperator),
-    onChange: state => { if (isTrail) { trailCamera = state; previousTrails.set(packId, { window: trailWindow, camera: state }); } else packCameras.set(mapOperator, state); },
-    onCenter: isTrail ? () => openLevels(true) : undefined,
+    onChange: (state, origin) => {
+      if (draw) {
+        trailCamera = state;
+        draw(state, origin, viewport.clientWidth, viewport.clientHeight);
+        previousTrails.set(packId, state);
+      } else packCameras.set(mapOperator, state);
+    },
   });
 }
-function exploreTrail(direction: "earlier" | "further"): void {
-  const previous = trailWindow;
-  const camera = mapPan?.getState();
-  trailWindow = extendTrailWindow(trailWindow, direction);
-  if (camera) trailCamera = { ...camera, y: camera.y + (trailWindow.first - previous.first) / LEVELS_PER_REGION * REGION_HEIGHT * camera.scale };
-  render();
-}
-
 function hintView(q: Question): string {
   if (q.operator === "add") return `<p>${t("hintAdd")}</p><div class="hint-piles"><div><b>${q.left}</b>${coins(q.left)}</div><span>+</span><div><b>${q.right}</b>${coins(q.right)}</div></div>`;
   if (q.operator === "subtract" && q.left <= 20) return `<p>${t("hintSubtract", { left: q.left, right: q.right })}</p>${coins(q.left, q.right)}`;
@@ -348,9 +338,7 @@ async function showTreasure(request: "reward" | "ship" | "cave", unload = true):
 const showGold = (reward: boolean) => showTreasure(reward ? "reward" : "cave");
 function openLevels(recenter = false): void {
   operator = selectedPack().operator;
-  const saved = recenter ? undefined : previousTrails.get(packId);
-  trailWindow = saved?.window ?? initialTrailWindow(packTrail().cleared + 1);
-  trailCamera = saved?.camera;
+  trailCamera = recenter ? undefined : previousTrails.get(packId);
   show("levels");
 }
 function beginLevel(n: number, from = voyageReturn): void {
@@ -554,8 +542,6 @@ root.addEventListener("click", (event) => {
       if (saved) { packId = saved.pack; beginLevel(saved.run.level, "home"); }
       break;
     }
-    case "trail-earlier": exploreTrail("earlier"); break;
-    case "trail-further": exploreTrail("further"); break;
     case "levels": openLevels(); break;
     case "hint": hinted = !hinted; render(); break;
     case "clock-next":
