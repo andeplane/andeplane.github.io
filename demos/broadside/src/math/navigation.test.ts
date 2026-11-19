@@ -4,9 +4,8 @@ const runtime=vi.hoisted(()=>({ created:0, ready:null as null|(()=>void) }));
 vi.mock("./goldCave",()=>({ GoldCave: class {
   unloading={total:0,delivered:0,done:true,active:null};
   constructor(_canvas:HTMLCanvasElement,ready:()=>void){runtime.created++;runtime.ready=ready;}
-  showShip(){}show(){}pause(){}resetCamera(){}inspect(){}
+  showShip(){}show(){}pause(){}dispose(){}resetCamera(){}inspect(){}
 } }));
-vi.mock("../ui/mapPan",()=>({ mountMapPan:()=>({destroy(){},getState(){return {x:0,y:0,scale:1};}}) }));
 const memoryStorage=()=>{ const data=new Map<string,string>();return {getItem:(key:string)=>data.get(key)??null,setItem:vi.fn((key:string,value:string)=>{data.set(key,value);}),clear:()=>data.clear()}; };
 const root=()=>document.querySelector<HTMLElement>("#academy")!;
 const click=(action:string)=>{
@@ -20,6 +19,89 @@ beforeEach(()=>{
 });
 afterEach(()=>{vi.restoreAllMocks();vi.unstubAllGlobals();});
 describe("Captain Calculus navigation destinations",()=>{
+  it("shows the adventure total and the separate count for each difficulty", async () => {
+    const { freshProgress, saveMathProgress, trackFor } = await import("./academy");
+    const progress = freshProgress();
+    trackFor(progress, "add-10").cleared = 1;
+    trackFor(progress, "add-20").cleared = 3;
+    saveMathProgress(progress, localStorage);
+    await import("./main");
+    click("play");
+    const addition = root().querySelector<HTMLButtonElement>('button[data-operator="add"]')!;
+    expect(Array.from(root().querySelectorAll(".overworld-place > .map-symbol"), e => e.parentElement?.dataset.operator)).toEqual(["add", "subtract", "multiply", "divide", "clock"]);
+    expect(addition.querySelector(".chart-tally")?.textContent).toBe("4 levels completed");
+    addition.click();
+    expect(Array.from(root().querySelectorAll(".chart-tally"), e => e.textContent)).toEqual([
+      "1 level completed", "3 levels completed", "0 levels completed", "0 levels completed", "0 levels completed",
+    ]);
+  });
+  it("keeps Play pointed at the choices even when there is a saved voyage", async () => {
+    const { freshProgress, saveMathProgress, startVoyage } = await import("./academy");
+    const progress = freshProgress();
+    startVoyage(progress, "add-10", 1, 100);
+    saveMathProgress(progress, localStorage);
+    await import("./main");
+
+    expect(root().querySelector('[data-action="resume"]')?.textContent).toContain("Level 1");
+    click("play");
+    expect(root().dataset.screen).toBe("operators");
+    expect(root().querySelector('[data-action="ship"], [data-action="cave"], [data-action="settings"]')).toBeNull();
+    click("back");
+    click("resume");
+    expect(root().dataset.screen).toBe("question");
+    expect(root().querySelector('[data-action="hint"], .hint-panel')).toBeNull();
+    click("back");
+    expect(root().dataset.screen).toBe("home");
+    click("play");
+    root().querySelector<HTMLButtonElement>('[data-operator="add"]')!.click();
+    root().querySelector<HTMLButtonElement>('[data-pack="add-10"]')!.click();
+    root().querySelector<HTMLButtonElement>('[data-level="1"]')!.click();
+    expect(root().dataset.screen).toBe("question");
+    click("back");
+    expect(root().dataset.screen).toBe("levels");
+  });
+  it("continues the most recently attempted voyage after browsing another pack and reloading", async () => {
+    const { freshProgress, saveMathProgress, startVoyage, answerQuestion, questionsFor } = await import("./academy");
+    const progress = freshProgress();
+    startVoyage(progress, "add-10", 1, 100);
+    const run = startVoyage(progress, "add-20", 1, 200)!;
+    answerQuestion(progress, "add-20", 1, questionsFor("add-20", run.seed, run.questionSet)[0]!.answer + 1);
+    saveMathProgress(progress, localStorage);
+    await import("./main");
+    click("play");
+    root().querySelector<HTMLButtonElement>('[data-operator="add"]')!.click();
+    root().querySelector<HTMLButtonElement>('[data-pack="add-10"]')!.click();
+    click("back"); click("back"); click("back");
+    expect(root().querySelector('[data-action="resume"]')?.textContent).toContain("Up to 20");
+    vi.resetModules();
+    await import("./main");
+    click("resume");
+    expect(root().querySelector(".voyage-status")?.textContent).toContain("Up to 20");
+    click("back");
+    expect(document.activeElement?.getAttribute("data-action")).toBe("resume");
+  });
+  it("unwinds each actual visit when alternating between the ship and cave", async () => {
+    await import("./main");
+    click("cave"); await vi.waitFor(() => expect(runtime.created).toBe(1));
+    click("ship"); click("cave");
+    for (const screen of ["ship", "cave", "home"]) {
+      click("back");
+      expect(root().dataset.screen).toBe(screen);
+    }
+    expect(document.activeElement?.getAttribute("data-action")).toBe("cave");
+  });
+  it("retries a failed cave in place and preserves its Back destination", async () => {
+    vi.spyOn(console, "error").mockImplementation(() => {});
+    history.replaceState(null, "", "/?qa=true&view=cave&fail=scene");
+    await import("./main");
+    expect(root().querySelector('[data-action="retry-scene"]')).not.toBeNull();
+    expect(root().querySelector("#math-cave-pad")).toBeNull();
+    history.replaceState(null, "", "/?qa=true");
+    click("retry-scene");
+    await vi.waitFor(() => expect(root().querySelector("#math-cave-pad")).not.toBeNull());
+    click("back");
+    expect(root().dataset.screen).toBe("home");
+  });
   it("keeps cargo aboard and never claims unloading completed when the cave fails",async()=>{
     vi.spyOn(console,"error").mockImplementation(()=>{});
     history.replaceState(null,"","/?qa=true&fresh=1&cargo=1&view=unload&fail=scene");
@@ -27,8 +109,8 @@ describe("Captain Calculus navigation destinations",()=>{
     expect(root().textContent).toContain("The cave couldn't load");
     expect(root().textContent).not.toContain("Welcome home, Captain");
     expect(root().querySelector('[data-action="stay-cave"]')).toBeNull();
-    expect(root().querySelector('[data-action="ship"]')?.getAttribute('aria-label')).toContain('1 chest aboard');
     click("back");expect(root().dataset.screen).toBe("home");
+    expect(root().querySelector('[data-action="ship"]')?.textContent).toContain("1 chest aboard");
   });
   it("returns Home → Ship → Back to Home",async()=>{
     await import("./main");click("ship");await vi.waitFor(()=>expect(runtime.created).toBe(1));
@@ -55,10 +137,10 @@ describe("Captain Calculus navigation destinations",()=>{
     expect(root().dataset.saveFailed).toBe("true");
     expect(root().querySelector('[role="status"]')?.textContent).toContain("Progress can't be saved");
   });
-  it("keeps large bank balances compact in the header while retaining the full accessible amount",async()=>{
+  it("keeps large bank balances compact on the home menu while retaining the full accessible amount",async()=>{
     const {freshProgress,saveMathProgress}=await import("./academy");
     const progress=freshProgress();progress.banks.add=15_000_000;saveMathProgress(progress,localStorage);
-    await import("./main");click("play");
+    await import("./main");
     const cave=root().querySelector<HTMLButtonElement>('[data-action="cave"]')!;
     expect(cave.textContent).toMatch(/15m gold/i);
     expect(cave.getAttribute("aria-label")).toContain("15,000,000 gold banked");
@@ -67,35 +149,39 @@ describe("Captain Calculus navigation destinations",()=>{
 });
 
 describe("Captain Calculus language preferences", () => {
-  it("detects Norwegian and keeps its first-try reward instructions", async () => {
+  it("detects Norwegian and displays the language and privacy controls", async () => {
     vi.spyOn(navigator, "languages", "get").mockReturnValue(["nb-NO", "en"]);
     await import("./main");
     expect(document.documentElement.lang).toBe("nb");
     expect(root().querySelector("button[data-action=play]")?.textContent).toContain("Spill");
-    expect(root().querySelector("[data-action=settings]")?.textContent).toContain("🇳🇴 Auto");
-    click("guide");
-    expect(root().textContent).toContain("100 gull per riktig svar på første forsøk");
+    expect(root().querySelector("[data-action=settings]")?.textContent).toContain("Innstillinger");
+    click("settings");
+    expect(root().querySelector("[data-open-privacy]")).not.toBeNull();
     expect(root().querySelector("#game-language")).toBeNull();
     click("back");
     click("settings");
+    expect(root().querySelector("[data-action=language]")?.textContent).toContain("🇳🇴 Auto");
+    click("language");
     expect(document.querySelector("[data-language=auto]")?.getAttribute("aria-pressed")).toBe("true");
   });
 
-  it("changes language without losing the active question, answer, or saved rewards", async () => {
+  it("changes language from Home without changing the saved voyage", async () => {
     history.replaceState(null, "", "/?qa=true&view=question");
     await import("./main");
-    root().querySelector<HTMLButtonElement>('[data-key="7"]')!.click();
     const equation = root().querySelector(".left-term")!.textContent;
     const before = sessionStorage.getItem("broadside.math.v1");
-    click("settings");
+    expect(root().querySelector('[data-action="settings"]')).toBeNull();
+    click("back"); click("back"); click("back"); click("back");
+    expect(root().dataset.screen).toBe("home");
+    click("language");
     document.querySelector<HTMLButtonElement>("[data-language=de]")!.click();
     expect(document.documentElement.lang).toBe("de");
-    expect(document.activeElement?.getAttribute("data-action")).toBe("settings");
+    expect(document.activeElement?.getAttribute("data-action")).toBe("language");
     expect(sessionStorage.getItem("broadside.math.v1")).toBe(before);
     expect(document.querySelector<HTMLDialogElement>(".language-picker")?.open).toBe(false);
+    click("resume");
     expect(root().dataset.screen).toBe("question");
     expect(root().querySelector(".left-term")!.textContent).toBe(equation);
-    expect(root().querySelector("#answer")!.textContent).toBe("7");
     expect(root().textContent).toContain("Antwort prüfen");
   });
 
@@ -104,6 +190,7 @@ describe("Captain Calculus language preferences", () => {
     await import("./main");
     expect(document.documentElement.lang).toBe("fi");
     click("settings");
+    click("language");
     vi.mocked(localStorage.setItem).mockImplementation(() => { throw Error("full"); });
     document.querySelector<HTMLButtonElement>("[data-language=fr]")!.click();
     expect(document.documentElement.lang).toBe("fr");

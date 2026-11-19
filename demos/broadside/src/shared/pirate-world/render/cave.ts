@@ -485,12 +485,16 @@ export class TreasureCave {
       if (this.depositWorld !== null) this.chest.setCoinCount(this.coins.pouring(this.depositWorld).depositCoins);
       this.chest.root.position.z = -5;
     } else this.chest.hide();
-    const portrait = innerWidth < 600;
+    const engine = this.scene.getEngine();
+    const canvas = engine.getRenderingCanvas();
+    const width = canvas?.clientWidth || innerWidth;
+    const height = canvas?.clientHeight || innerHeight;
+    const portrait = width < 600;
     const showDeposit = unboxing && this.depositWorld !== null && this.revealTime >= (this.reducedMotion ? 1.4 : 5.3);
     if (reveal) {
       // The walking cave has a front wall and ceiling; keep the reward camera
       // inside the chamber so neither can obscure the chest.
-      this.camera.fov = portrait ? (innerHeight < 650 ? 1.55 : 1.4) : 0.8;
+      this.camera.fov = portrait ? (height < 650 ? 1.55 : 1.4) : 0.8;
       this.camera.position.set(0.4, 4.8, -11.8);
       this.camera.setTarget(new Vector3(0, 3.3, -5));
       if (this.debugWorld !== null && !unboxing) {
@@ -580,7 +584,7 @@ export class TreasureCave {
         if (this.selected === 0) this.camera.position.copyFrom(this.bankView(this.selectedGoldWorld));
         const span = Math.max(
           relief.height,
-          relief.width / (innerWidth / innerHeight),
+          relief.width / engine.getAspectRatio(this.camera),
         );
         const distance = Vector3.Distance(this.camera.position, this.focus);
         this.camera.fov = Math.max(

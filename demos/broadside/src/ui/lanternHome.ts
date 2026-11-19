@@ -1,4 +1,4 @@
-import { icon } from "./icons";
+import { pirateMenu } from "./homeMenu";
 import "./lanternHome.css";
 
 /** Broadside’s selected Lantern Grotto home. Shared Calculus menus are independent. */
@@ -11,12 +11,9 @@ export function lanternHome(): string {
       ${glints.map(([x,y,wideX,wideY,delay])=>`<span class="lantern-glint" style="--x:${x! * 100}%;--y:${y! * 100}%;--wide-x:${wideX! * 100}%;--wide-y:${wideY! * 100}%;--delay:-${delay}s"><svg viewBox="0 0 20 20"><path d="M10 0 11.4 8.6 20 10 11.4 11.4 10 20 8.6 11.4 0 10 8.6 8.6Z"/></svg></span>`).join("")}
     </div>
     <h1 class="lantern-title">Broadside</h1>
-    <nav class="lantern-actions" aria-label="Main menu">
-      <button id="menu-play" class="lantern-play"><span class="lantern-play-arrow" aria-hidden="true">${icon("play")}</span><span>Play</span></button>
-      <button id="home-ship" data-home-destination="ship"><span class="lantern-action-title">Your ship</span><strong>No chests aboard</strong><small>Your next reward goes here</small></button>
-      <button id="menu-cave" data-home-destination="chest"><span class="lantern-action-title">Your cave</span><strong>0 gold saved</strong><small>Explore your treasure</small></button>
-      <button id="menu-settings" class="lantern-settings">Settings</button>
-    </nav>
+    ${pirateMenu({title:"Main menu",theme:"lantern-actions",play:{action:"play",id:"menu-play",label:"Play"},
+      ship:{action:"ship",id:"home-ship",label:"Your ship",detail:"",note:""},cave:{action:"cave",id:"menu-cave",label:"Your cave",detail:"",note:""},
+      settings:{action:"settings",id:"menu-settings",label:"Settings"},language:{action:"language",id:"menu-language",label:"🇬🇧",accessible:"Language"}})}
     <p class="pirate-home-description lantern-message">Brave the seas. Bring home the treasure.</p>
   </div>`;
 }

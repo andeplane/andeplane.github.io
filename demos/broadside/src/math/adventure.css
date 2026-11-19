@@ -2,12 +2,11 @@
 /* Captain Calculus only. Cave and reward scenes retain their existing presentation. */
 #academy:not([data-screen="cave"]):not([data-screen="reward"]):not([data-screen="ship"]):not([data-screen="unloading"]) {
   --ink: #0b2840; --gold: #f5ba32; --muted: #415d6a;
-  color: var(--ink); background: #e7f5f3;
+  color: var(--ink); background: var(--academy-background, #e7f5f3);
   ::selection { color: #fff; background: #075d75; }
-  button:focus-visible, select:focus-visible { outline: 3px solid #075d75; outline-offset: 3px; }
-  h1, h2 { font-family: Fraunces, Georgia, serif; font-weight: 700; letter-spacing: -.025em; }
-  .topbar { height: calc(64px + var(--safe-top)); padding-block: calc(10px + var(--safe-top)) 10px; background: #fff6e3; }
-  #main-content { inset-block-start: calc(64px + var(--safe-top)); scrollbar-color: #477483 #e7f5f3; }
+  button:focus-visible, select:focus-visible { outline: 3px solid var(--math-focus-color, #075d75); outline-offset: 3px; }
+  h1, h2 { font-family: var(--academy-heading, Fraunces), Georgia, serif; font-weight: var(--academy-heading-weight, 700); letter-spacing: -.025em; }
+  #main-content { scrollbar-color: #477483 #e7f5f3; }
   .brand { color: var(--ink); }
   .brand small, .brand > span { display: none; }
   .brand > .icon { color: #075d75; }
@@ -24,16 +23,7 @@
   .page-heading { padding: 20px 12px; }
   .page-heading h1 { font-size: clamp(26px, 4vw, 40px); margin: 0; overflow-wrap: normal; }
   .page-heading p { margin-top: 10px; }
-  .home-view { min-height: 100%; padding: 28px 24px calc(28px + var(--safe-bottom)); align-items: center; background: url('/assets/map/calculus-harbour.webp') center/cover; }
   .night-sky, .hero-ship, .home-note { display: none; }
-  .home-copy { width: min(440px, 100%); margin: auto; text-align: center; min-height: min(730px, calc(100dvh - 120px)); display: flex; flex-direction: column; align-items: center; }
-  .home-copy h1 { font-size: clamp(42px, 7vw, 72px); line-height: 1.02; margin: 0; text-shadow: none; }
-  .home-copy h1 span { color: var(--ink); }
-  .tagline { color: #0b2840; font-size: 15px; line-height: 1.5; margin-top: 12px; padding: 8px 12px; background: #fff6e3eb; border-radius: 12px; }
-  .main-actions { margin-top: auto; padding-top: 180px; width: 100%; display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-  .main-actions .primary { grid-column: 1 / -1; min-height: 60px; font-size: 24px; }
-  .main-actions .wood-button { min-height: 52px; font-size: 16px; }
-  .resume-button { color: #0b2840; background: #fff6e3; border-radius: 12px; padding: 12px; margin-top: 12px; font-size: 15px; width: 100%; }
   .operator-view { max-width: 940px; }
   .operator-grid { grid-template-columns: 1fr 1fr; gap: 16px; margin: 0 0 20px; }
   .operator-card { min-height: 210px; padding: 24px 24px 20px 45%; background: #fff6e3; border: 0; box-shadow: 0 6px 18px #0b284012; }
@@ -133,10 +123,6 @@
 }
 @media (max-height: 480px) and (min-width: 601px) {
   #academy:not([data-screen="cave"]):not([data-screen="reward"]):not([data-screen="ship"]):not([data-screen="unloading"]) {
-    .home-copy { margin-left: 3%; width: 340px; min-height: 0; }
-    .home-copy h1 { font-size: 38px; }
-    .main-actions { padding-top: 24px; }
-    .tagline { display: none; }
     .question-view { width: 100%; max-width: 900px; display: grid; grid-template-columns: 1fr 1.2fr; gap: 0 20px; }
     .voyage-status { grid-column: 1; }
     .question-progress { grid-column: 1; align-self: start; }
@@ -202,17 +188,10 @@
   --safe-bottom: var(--pirate-safe-bottom, env(safe-area-inset-bottom, 0px));
   --safe-left: var(--pirate-safe-left, env(safe-area-inset-left, 0px));
   --safe-right: var(--pirate-safe-right, env(safe-area-inset-right, 0px));
-  .pirate-menu-back, .pirate-nav-link { background: #fff6e3; color: #0b2840; border: 1px solid #78959c; min-height: 44px; border-radius: 12px; padding: 8px 12px; }
-  .pirate-nav-link { font-size: 14px; }
-  .pirate-nav-link small { display: none; }
-  .pirate-menu-header-actions { gap: 8px; }
   .operator-world-art { position: absolute; inset: 0 auto 0 0; width: 40%; height: 100%; object-fit: cover; }
   .operator-world-shade { display: none; }
   .operator-copy { position: relative; inset: auto; padding: 0; display: block; }
   .operator-world-name { display: none; }
-  .world-map-heading { padding: 12px; color: #0b2840; background: #fff6e3; text-align: center; }
-  .world-map-heading h1 { font-size: 28px; }
-  .world-map-heading p { color: #415d6a; font-size: 14px; }
   .world-pack-label { background: #fff6e3; color: #0b2840; box-shadow: 0 4px 12px #0b284022; }
   .world-pack-label b, .world-pack-label small, .world-pack-label span, .world-pack-label em { color: #0b2840; }
   .world-pack-label b { font-family: 'DM Sans', sans-serif; }
@@ -230,7 +209,6 @@
   .expedition-intro h1, .expedition-intro p { color: #0b2840; }
   .expedition-region-title { background: #fff6e3; color: #0b2840; }
   .expedition-region-title h2, .expedition-region-title small, .expedition-region-title > span { color: #0b2840; }
-  .pirate-nav-link > .icon { color: #174d60; }
   .equation { display: flex; }
 }
 @media (max-width: 600px) {
@@ -242,23 +220,6 @@
   }
 }
 /* Home has no navigation row. Artwork bleeds behind the island; only content is inset. */
-#academy[data-screen="home"] #main-content { inset: 0; }
-#academy[data-screen="home"] .home-view {
-  min-height: 100dvh;
-  padding-top: calc(20px + var(--safe-top));
-  padding-left: calc(24px + var(--safe-left));
-  padding-right: calc(24px + var(--safe-right));
-  padding-bottom: calc(16px + var(--safe-bottom));
-}
-#academy[data-screen="home"] .home-copy {
-  min-height: calc(100dvh - 36px - var(--safe-top) - var(--safe-bottom));
-}
-#academy[data-screen="home"] .main-actions { padding-top: 130px; }
-@media (max-height: 480px) and (min-width: 601px) {
-  #academy[data-screen="home"] .home-copy { min-height: 0; }
-  #academy[data-screen="home"] .home-view { padding-top: 16px; }
-  #academy[data-screen="home"] .main-actions { padding-top: 18px; }
-}
 #academy[data-screen="home"] #main-content { inset: 0 !important; }
 #academy:not([data-screen="cave"]):not([data-screen="reward"]):not([data-screen="ship"]):not([data-screen="unloading"]) {
   .operator-footer > .icon { color: #174d60; }

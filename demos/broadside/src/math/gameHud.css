@@ -1,0 +1,144 @@
+/* The charts fill the screen. Their headings and controls share the same chart surface. */
+#academy:is([data-screen="operators"], :is([data-screen="map"], [data-screen="clockMap"]), [data-screen="levels"]) #main-content {
+  inset-inline: 0;
+}
+#academy :is(.family-world-chart, .map-view.operation-world, .expedition-view) {
+  background: #9ab6a8 url("/assets/map/chart-water.webp") center / 1120px repeat;
+}
+#academy .family-world-chart {
+  padding: 0 calc(12px + var(--pirate-safe-right)) calc(12px + var(--pirate-safe-bottom)) calc(12px + var(--pirate-safe-left));
+}
+#academy .map-view.operation-world { max-width: none; padding: 0; }
+#academy .world-map-viewport { border: 0; border-radius: 0; box-shadow: none; }
+#academy .world-map-tools {
+  right: calc(10px + var(--pirate-safe-right));
+  bottom: calc(10px + var(--pirate-safe-bottom));
+  left: auto;
+}
+#academy[data-screen="levels"] .expedition-map-tools {
+  right: calc(10px + var(--pirate-safe-right));
+  bottom: calc(10px + var(--pirate-safe-bottom));
+}
+#academy :is(.chart-heading, .world-map-heading, .trail-heading, .settings-heading) {
+  display: flex;
+  flex: none;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 12px;
+  margin: 0;
+  text-align: left;
+  padding: calc(4px + var(--pirate-safe-top)) calc(12px + var(--pirate-safe-right)) 4px calc(12px + var(--pirate-safe-left));
+}
+#academy :is(.chart-heading, .settings-heading) { padding-inline: 0; }
+#academy :is(.chart-heading, .world-map-heading, .trail-heading, .settings-heading) h1 {
+  margin: 0;
+  font: 400 clamp(24px, 6vw, 32px)/1.08 "Pirata One", Georgia, serif;
+  color: #211c13;
+  overflow-wrap: anywhere;
+}
+#academy h1[tabindex="-1"]:focus { outline: none; }
+#academy .world-map-heading p {
+  display: block;
+  margin-top: 3px;
+  color: #253a2e;
+  font-size: 13px;
+}
+#academy .trail-heading small { color: #253a2e; }
+#academy .family-world-chart nav { margin-block: 12px; }
+#academy .family-world-chart .world-island {
+  position: relative;
+  min-inline-size: 0;
+}
+#academy .family-world-chart .world-label {
+  block-size: 4.5rem;
+  align-content: center;
+  overflow-wrap: anywhere;
+  background: #fff0ce;
+  border: 1px solid #827047;
+}
+#academy .family-world-chart .world-progress {
+  position: absolute;
+  inset-block-start: 6px;
+  inset-inline-end: 13%;
+  display: grid;
+  place-items: center;
+  min-inline-size: 28px;
+  min-block-size: 28px;
+  padding-inline: 6px;
+  border: 1px solid #e5be78;
+  border-radius: 99px;
+  background: #352718;
+  color: #fff0ce;
+  font: 700 13px/1 "DM Sans", sans-serif;
+  font-variant-numeric: tabular-nums;
+  pointer-events: none;
+}
+
+#academy .world-pack-route polyline { stroke: #fff0bc; stroke-linecap: round; }
+#academy .home-utilities [data-action="language"] { min-width: 48px; }
+#academy .home-utilities [data-action="language"] strong { font-size: 24px; line-height: 1; }
+
+#academy button.pirate-menu-back,
+#academy .trail-heading button.pirate-menu-back {
+  position: static;
+  flex: none;
+  width: auto;
+  height: auto;
+  min-width: 44px;
+  min-height: 44px;
+  padding: 3px 10px;
+  gap: 5px;
+  border-radius: 9px;
+  border: 1px solid #82683d;
+  background: #221b13;
+  color: #fff0ce;
+}
+#academy button.pirate-menu-back:hover,
+#academy .trail-heading button.pirate-menu-back:hover { background: #3c2b18; }
+#academy .question-view { padding-top: calc(4px + var(--pirate-safe-top)); }
+#academy .voyage-status { gap: 8px; min-height: 44px; font-size: 13px; }
+#academy .voyage-status > span { flex: 1; line-height: 1.2; }
+#academy .settings-heading { margin-bottom: 12px; }
+#academy .scene-back, #academy .complete-back {
+  padding: calc(4px + var(--pirate-safe-top)) 12px 4px;
+}
+#academy .complete-back { text-align: left; grid-column: 1 / -1; }
+#academy .scene-back { position: relative; z-index: 2; }
+
+@media (orientation: landscape) and (max-height: 520px) {
+  #academy .family-world-chart nav { grid-template-columns: repeat(auto-fit, minmax(112px, 1fr)); }
+  #academy .family-world-chart .world-label b { font-size: 17px; }
+}
+
+@media (orientation: landscape) and (max-height: 480px) {
+  #academy .world-map-heading p { display: none; }
+  #academy .question-view { display: grid; }
+  #academy .voyage-status { font-size: 12px; }
+  #academy .complete-view .completion-ship { grid-row: 2 / 7; }
+  #academy .unloading-view .cave-heading { padding-block: 5px; }
+}
+
+/* Logbook pages share the paper and brass of the captain's navigation desk. */
+#main-content .settings-view .settings-card,
+#main-content .question-view .math-card,
+#academy .cave-details-panel {
+  background-image: linear-gradient(#fff1d2f2, #f8e4bdf2), url("/assets/map/nautical-chart.webp");
+  background-size: cover;
+  color: #302b22;
+}
+#academy .cave-details-panel p { color: #334441; }
+#academy .cave-details-panel button { border: 1px solid #87683e; }
+#academy :is(.settings-card, .cave-details-panel) h2,
+#academy .complete-view h1 { font-family: "Pirata One", Georgia, serif; font-weight: 400; }
+#academy .captains-guide h2 .icon { width: 1em; height: 1em; vertical-align: -.08em; color: #805627; }
+#academy .question-progress > .solved {
+  color: #432b10;
+  background: #edbc60;
+  border: 3px double #73511e;
+}
+
+#academy:is([data-screen="settings"], [data-screen="complete"]) {
+  --academy-background: linear-gradient(#fff3d4d9, #e8d4aadb), url("/assets/map/nautical-chart.webp") center / cover;
+  --academy-heading: "Pirata One";
+  --academy-heading-weight: 400;
+}

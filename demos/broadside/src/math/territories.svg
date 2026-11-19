@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 540 540" preserveAspectRatio="none">
+  <defs>
+    <pattern id="hatch" width="5" height="5" patternUnits="userSpaceOnUse" patternTransform="rotate(33)"><path d="M0 0V5" stroke="#352c20" stroke-width="2"/></pattern>
+    <g id="frontiers" stroke-linejoin="round">
+      <path id="emerald" d="M8 185 Q1 149 14 116 T42 59 Q71 37 115 39 L164 46 184 62 206 57 220 70 197 91 193 109 174 124 161 148 140 161 128 183 108 188 82 211 44 205Z"/>
+      <path id="frost" d="M186 125 L203 103 211 79 243 57 268 39 303 38 327 20 350 24 385 11 422 2 467 23 499 12 531 4 538 102 512 123 491 155 456 174 424 194 406 178 378 173 348 148 323 154 299 135 273 143 253 130 227 141 209 130Z"/>
+      <path id="ember" d="M5 277 L28 251 54 239 70 229 98 237 122 223 151 205 172 208 184 233 167 251 183 263 168 280 190 298 210 319 205 352 182 365 175 389 142 407 99 414 74 400 38 408 7 379Z"/>
+      <path id="moon" d="M316 322 L336 301 362 296 375 273 396 265 416 246 439 238 468 250 494 246 528 265 538 289 532 359 518 383 488 390 469 408 442 410 427 428 396 427 374 410 360 395 339 392 330 372 309 359Z"/>
+      <path id="beacon" d="M137 439 L165 420 188 405 213 399 236 408 264 397 286 405 311 392 337 398 357 416 351 438 321 451 306 480 279 492 246 494 220 511 191 509 169 488 155 468Z"/>
+    </g>
+  </defs>
+  <g stroke="none"><use href="#emerald" fill="#9ed970" opacity=".24"/><use href="#frost" fill="#92cdff" opacity=".32"/><use href="#ember" fill="#e67545" opacity=".25"/><use href="#moon" fill="#b498ed" opacity=".33"/><use href="#beacon" fill="#f4cc76" opacity=".29"/></g>
+  <use href="#frontiers" fill="none" stroke="url(#hatch)" stroke-width="8" opacity=".67"/>
+  <use href="#frontiers" fill="none" stroke="#fff0be" stroke-width="2.7"/>
+  <use href="#frontiers" fill="none" stroke="#493b25" stroke-width="1.2" stroke-dasharray="5 2"/>
+</svg>

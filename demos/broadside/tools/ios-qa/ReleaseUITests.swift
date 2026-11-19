@@ -104,6 +104,29 @@ final class ReleaseUITests: XCTestCase {
         capture("broadside-10-cave-landscape",app:app)
         tap(app,"Back to menu")
     }
+    func testCalculusHomeBackAndCaveRoundTrip() throws {
+        let app = try game("com.andeplane.captaincalculus", fixture: Fixtures.calculus)
+        tap(app, "Play")
+        XCTAssertTrue(button(app, "Addition:").waitForExistence(timeout: 15))
+        tap(app, "Back to Home")
+        tap(app, "Continue")
+        XCTAssertTrue(button(app, "Check answer").waitForExistence(timeout: 15))
+        tap(app, "Back to Home")
+
+        tap(app, "Your cave")
+        tap(app, "Explore your cave")
+        XCTAssertTrue(button(app, "Jump").waitForExistence(timeout: 45))
+        capture("calculus-cave-before-rotation", app: app)
+        XCUIDevice.shared.orientation = .landscapeLeft
+        capture("calculus-cave-landscape", app: app)
+        XCTAssertTrue(button(app, "Move around the cave").isHittable)
+        XCUIDevice.shared.orientation = .portrait
+        capture("calculus-cave-after-rotation", app: app)
+        XCTAssertTrue(button(app, "Move around the cave").isHittable)
+        tap(app, "Back")
+        XCTAssertTrue(button(app, "Play").exists)
+    }
+
     func testC_CalculusMathAndUnloading() throws {
         let app = try game("com.andeplane.captaincalculus",fixture:Fixtures.calculus)
         capture("calculus-01-home-portrait",app:app)
@@ -111,10 +134,10 @@ final class ReleaseUITests: XCTestCase {
         XCTAssertTrue(button(app,"Check answer").waitForExistence(timeout:20))
         XCTAssertFalse(button(app,"Check answer").isEnabled)
         capture("calculus-04-question-portrait",app:app)
-        tap(app,"A little help");capture("calculus-hint-portrait",app:app)
+        XCTAssertFalse(button(app,"A little help").exists)
         XCUIDevice.shared.orientation = .landscapeLeft
         capture("calculus-05-question-landscape",app:app)
-        tap(app,"Hide hint");XCUIDevice.shared.orientation = .portrait
+        XCUIDevice.shared.orientation = .portrait
         app.buttons["0"].tap();tap(app,"Check answer")
         XCTAssertTrue(app.staticTexts.matching(NSPredicate(format:"label BEGINSWITH %@","Not quite.")).firstMatch.waitForExistence(timeout:10))
         capture("calculus-wrong-answer",app:app)
@@ -182,7 +205,7 @@ final class ReleaseUITests: XCTestCase {
         capture("broadside-store-05-cave", app: broadside)
         broadside.terminate()
         let calculus = try game("com.andeplane.captaincalculus",fixture:Fixtures.calculus)
-        tap(calculus,"Choose another level"); capture("calculus-store-01-worlds",app:calculus)
+        tap(calculus,"Play"); capture("calculus-store-01-worlds",app:calculus)
         tap(calculus,"Addition: Emerald Archipelago")
         capture("calculus-store-02-difficulty",app:calculus)
         calculus.coordinate(withNormalizedOffset:CGVector(dx:0.5,dy:0.57)).tap()
@@ -202,7 +225,7 @@ final class ReleaseUITests: XCTestCase {
         tap(app,"How to play");tap(app,"Privacy & support")
         capture("calculus-privacy-portrait",app:app)
         tap(app,"Close privacy and support");tap(app,"Back to menu")
-        tap(app,"Choose another level")
+        tap(app,"Play")
         capture("calculus-02-operators-portrait",app:app)
         tap(app,"Addition: Emerald Archipelago")
         capture("calculus-difficulty-map",app:app)

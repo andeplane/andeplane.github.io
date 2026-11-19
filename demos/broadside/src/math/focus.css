@@ -15,7 +15,7 @@
 .explore-balance .icon { color: #f5c66e; width: 20px; }
 .explore-balance small { font-size: 13px; }
 .cave-details { position: relative; pointer-events: auto; }
-.cave-details > summary { cursor: pointer; list-style: none; width: 44px; }
+.cave-details > summary { cursor: pointer; list-style: none; min-width: 44px; font-size: 13px; font-weight: 700; }
 .cave-details > summary::-webkit-details-marker { display: none; }
 .cave-details-panel { position: absolute; right: 0; top: 52px; width: min(280px, calc(100vw - 32px)); padding: 18px; background: #0b2635; border-radius: 14px; box-shadow: 0 8px 24px #0005; }
 .cave-details-panel h2 { font-family: Fraunces, Georgia, serif; font-size: 23px; }
@@ -31,16 +31,13 @@
 .quiet-cave #math-cave-inspect { bottom: calc(124px + var(--safe-bottom)); min-height: 44px; font-size: 15px; }
 .quiet-cave #math-cave-inspect:disabled { display: none; }
 .quiet-cave .cave-crosshair { font-size: 16px; opacity: .7; }
-.quiet-loading, .quiet-recovery { position: absolute; top: 40%; left: 50%; transform: translate(-50%, -50%); width: min(340px, calc(100% - 32px)); text-align: center; background: #0b2635; padding: 20px; border-radius: 14px; color: #fff1d2; }
+.quiet-loading, .quiet-recovery { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: min(340px, calc(100% - 32px)); text-align: center; background: #0b2635; padding: 20px; border-radius: 14px; color: #fff1d2; }
 .quiet-recovery h1 { font: 700 25px Fraunces, Georgia, serif; margin-bottom: 12px; }
 .quiet-recovery p { font-size: 15px; line-height: 1.6; }
 .visually-hidden { position: absolute; width: 1px; height: 1px; padding: 0; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
 /* Keep the ship's sea and warm brass around the focused arithmetic task. */
 #academy[data-screen="question"]:not([data-screen="cave"]):not([data-screen="reward"]):not([data-screen="ship"]):not([data-screen="unloading"]) {
   background: linear-gradient(#073b50b3, #062c3be8), url('/assets/map/calculus-harbour.webp') center/cover;
-  .topbar { background: transparent; }
-  .pirate-nav-link { display: none; }
-  .pirate-menu-back, .language-shortcut { background: #fff1d2; border-color: #cda557; color: #0b2840; }
   .voyage-status, .voyage-status b { color: #fff1d2; }
   .math-card { background: #fff1d2; border: 1px solid #d5b76d; border-radius: 16px; box-shadow: 0 8px 28px #001c3540; }
   .number-pad button { background: #fffbef; border-color: #b4955f; border-radius: 10px; }
@@ -56,7 +53,13 @@
 @media (max-height: 480px) and (min-width: 601px) {
   .quiet-cave #math-cave-pad { bottom: calc(12px + var(--safe-bottom)); }
   .quiet-cave #math-cave-jump, .quiet-cave .quiet-ship { bottom: calc(12px + var(--safe-bottom)); }
-  .cave-details-panel { max-height: calc(100dvh - 90px); overflow-y: auto; }
+  .cave-details-panel {
+    max-height: calc(100dvh - 64px - var(--pirate-safe-top) - var(--safe-bottom));
+    overflow-y: auto;
+    padding: 12px;
+    scrollbar-color: #ae9060 #0b2635;
+  }
+  .cave-details-panel p, .cave-details-panel button { margin-top: 8px; }
 }
 @media (max-width: 370px) {
   .explore-balance { font-size: 13px; padding-inline: 8px; }
@@ -65,48 +68,25 @@
 .quiet-cave #math-cave-thumb { inset: 30px; }
 .cave-details-panel button { min-height: 44px; padding: 10px; }
 
-.home-links {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 8px;
-  width: 100%;
-}
-.home-links .resume-button {
-  min-height: 44px;
-  text-align: center;
-}
 
 html, body, body * {
   -webkit-user-select: none;
   user-select: none;
   -webkit-touch-callout: none;
 }
-.language-picker {
-  box-sizing: border-box;
-  width: min(380px, calc(100vw - 32px));
-  max-height: calc(100dvh - env(safe-area-inset-top) - env(safe-area-inset-bottom) - 24px);
-  margin: auto;
-  border: 1px solid #a9864d;
-  border-radius: 18px;
-  padding: 16px;
-  color: #102e40;
-  background: #fff6e3;
-  overflow: auto;
-  overscroll-behavior: contain;
-}
-.language-picker::backdrop { background: rgb(7 29 40 / 65%); }
-.language-picker header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; }
-.language-picker h2 { font: 700 26px Fraunces, Georgia, serif; margin: 0; }
-.language-picker button { min-height: 44px; color: inherit; font: inherit; }
-.language-picker [data-dismiss] { min-width: 44px; border: 0; background: transparent; font-size: 28px; }
-.language-options { display: grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap: 6px; }
-.language-options button {
-  display: flex; align-items: center; gap: 6px; padding: 6px 8px;
-  border: 1px solid #b2a481; border-radius: 9px; background: #fffdf6;
-  text-align: start; font-size: 15px; line-height: 1.2;
-}
-.language-options button:first-child { grid-column: 1 / -1; }
-.language-options [aria-pressed="true"] { background: #ffdc8a; border-color: #83620d; }
-.language-options b { margin-left: auto; }
 
 .operation-world .world-map-tools { justify-content: flex-end; }
+
+.retry-scene {
+  min-height: 44px;
+  padding-inline: 12px;
+  margin-top: 8px;
+  border: 1px solid #be9959;
+  border-radius: 10px;
+  background: #fff1d2;
+  color: #0b2840;
+  font-weight: 700;
+}
+.cave-view .retry-scene { position: relative; z-index: 1; }
+.cave-details-panel p.cave-keyboard-instructions,
+.cave-details-panel p.cave-touch-instructions { line-height: 1.45; }

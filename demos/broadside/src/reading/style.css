@@ -304,3 +304,28 @@
  .reader-complete .reading-actions {margin:12px auto;gap:8px;}
  .reader-complete .wood-button {min-height:48px;padding:10px;}
 }
+#reader[data-screen="home"] #reader-content {inset:0;padding:0;}
+/* The book and parrot sit between the title and the actions on the reading desk. */
+.reader-cabin {
+  position:relative; min-height:100%; display:grid; align-content:space-between; gap:14px;
+  padding:calc(20px + var(--pirate-safe-top)) calc(20px + var(--pirate-safe-right)) calc(10px + var(--pirate-safe-bottom)) calc(36px + var(--pirate-safe-left));
+  background:#24180f url("/assets/menu/reader-library.webp") center / cover;
+}
+#reader .reader-cabin h1 {
+  margin:0; text-align:center; color:#ffebbb; font:400 clamp(48px,14vw,72px)/.98 "Pirata One",Georgia,serif;
+  text-shadow:0 3px 6px #22140f;
+}
+.reader-cabin h1 span {display:block;font-size:.55em;}
+.reader-actions {position:relative;display:grid;justify-items:start;max-width:calc(100% - 42px);}
+#reader .reader-actions button {min-height:44px;border:0;background:transparent;color:#ffefc7;text-shadow:0 2px 4px #160c05;padding:4px 8px;text-align:left;}
+#reader .reader-actions .menu-play {display:flex;align-items:center;position:relative;color:#ffcd70;}
+#reader .reader-actions .menu-play .lantern-action-title {font-size:clamp(31px,8vw,43px);}
+.reader-actions .lantern-play-arrow {position:absolute;right:100%;top:50%;transform:translateY(-50%);width:14px;height:18px;}
+.reader-actions .lantern-play-arrow svg {width:100%;height:100%;fill:currentColor;}
+.reader-actions strong {display:block;font:500 13px system-ui;}
+.reading-flag {display:block;font:clamp(40px,12vmin,66px)/1.1 system-ui;filter:drop-shadow(0 2px 2px #292016);margin-bottom:4px;}
+@media (orientation:landscape) {
+  .reader-cabin {background-image:url("/assets/menu/reader-library-wide.webp");align-content:center;gap:8px;}
+  #reader .reader-cabin h1 {text-align:left;font-size:clamp(35px,7vw,62px);}
+  .reader-cabin h1 span {display:inline;font-size:.75em;}
+}

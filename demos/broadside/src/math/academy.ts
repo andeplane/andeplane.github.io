@@ -1,6 +1,8 @@
 import { Rng } from "../sim/rng";
 
 export type OperatorId = "add" | "subtract" | "multiply" | "divide";
+export const clockSteps = [60, 30, 15, 5, 1] as const;
+export type ClockStep = typeof clockSteps[number];
 export type Stars = 1 | 2 | 3;
 export const QUESTIONS_PER_LEVEL = 10;
 export const GOLD_PER_QUESTION = 100;
@@ -223,10 +225,12 @@ export interface MathProgress {
   cargo: MathChest[];
   operator: OperatorId;
   pack: string;
+  lastPlayed?: { pack: string; level: number };
   banks: Record<OperatorId, number>;
   tracks: Record<string, Track>;
+  completedClockSteps: ClockStep[];
 }
-export const freshProgress = (): MathProgress => ({ version: 4, solved: 0, chests: 0, cargo: [], operator: "add", pack: "add-10", banks: { add: 0, subtract: 0, multiply: 0, divide: 0 }, tracks: {} });
+export const freshProgress = (): MathProgress => ({ version: 4, solved: 0, chests: 0, cargo: [], operator: "add", pack: "add-10", banks: { add: 0, subtract: 0, multiply: 0, divide: 0 }, tracks: {}, completedClockSteps: [] });
 export const pendingMathChests = (p: MathProgress) => p.cargo.filter((chest) => !chest.delivered);
 export const cargoGold = (p: MathProgress) => pendingMathChests(p).reduce((sum, chest) => sum + chest.gold, 0);
 export const bankedGold = (p: MathProgress) => bankGold(p).reduce((sum, gold) => sum + gold, 0);
@@ -270,6 +274,7 @@ export interface AnswerResult {
 export function answerQuestion(p: MathProgress, packId: string, level: number, answer: number): AnswerResult | null {
   const track = p.tracks[packId], run = track?.runs[level];
   if (!run || !Number.isSafeInteger(answer) || answer < 0) return null;
+  p.lastPlayed = { pack: packId, level };
   run.problemMistakes ??= run.mistakes > 0 ? 1 : 0;
   run.earnedGold ??= 0;
   const question = questionsFor(packId, run.seed, run.questionSet)[run.solved]!;
@@ -295,6 +300,7 @@ export function answerQuestion(p: MathProgress, packId: string, level: number, a
     track.cleared = Math.max(track.cleared, level);
     track.stars[level] = Math.max(track.stars[level] ?? 1, stars) as Stars;
     delete track.runs[level];
+    delete p.lastPlayed;
   }
   return { correct: true, chestEarned, levelComplete, stars, goldEarned, questionGoldLost: 0, levelGold: run.earnedGold };
 }
@@ -312,6 +318,8 @@ export function readMathProgress(storage?: Pick<Storage, "getItem">): MathProgre
     const selected = PACKS.find((pack) => pack.id === raw.pack);
     if (selected) { p.pack = selected.id; p.operator = selected.operator; }
     if (OPERATORS.some((o) => o.id === raw.operator)) p.operator = raw.operator as OperatorId;
+    const completed = raw.completedClockSteps;
+    if (Array.isArray(completed)) p.completedClockSteps = clockSteps.filter(step => completed.includes(step));
     const banks = raw.banks;
     if (raw.version === 1) {
       // Old banks counted 1,000-gold chests; earlier saves had only solved totals.
@@ -365,6 +373,11 @@ export function readMathProgress(storage?: Pick<Storage, "getItem">): MathProgre
         };
       }
       p.tracks[pack.id] = track;
+    }
+    const lastPlayed = raw.lastPlayed;
+    if (record(lastPlayed) && typeof lastPlayed.pack === "string" && integer(lastPlayed.level, 1) &&
+        p.tracks[lastPlayed.pack]?.runs?.[lastPlayed.level]) {
+      p.lastPlayed = { pack: lastPlayed.pack, level: lastPlayed.level };
     }
   } catch { /* A missing or corrupt save starts a new adventure. */ }
   return p;
