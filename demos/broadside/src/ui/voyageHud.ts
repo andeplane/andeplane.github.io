@@ -83,6 +83,7 @@ export class VoyageHud {
   private regionalPan?: MapPanController;
   private regionalCameras = new Map<number, MapCamera>();
   private chartTime = 0;
+  private chartTrigger: HTMLElement | null = null;
   private resultLost = false;
   private revealName = "";
   private revealStars = 0;
@@ -110,18 +111,30 @@ export class VoyageHud {
     </section>
     <section id="cave-ui" hidden><div class="cave-title"><span class="eyebrow">YOUR SECRET HIDEOUT</span><h1>The treasure cave</h1><p id="cave-count"></p></div><div id="relic-info"><span class="eyebrow" id="relic-number"></span><h2 id="relic-title"></h2><p id="relic-story"></p><div id="relic-stars"></div><button id="cave-sail" class="text-button">Find this treasure ${icon("arrow")}</button></div><div class="gallery-hint">WASD walk · Arrows look · Space jump</div><button id="cave-overview" class="cave-overview">‹ Keep exploring</button><div id="cave-crosshair" aria-hidden="true">+</div><div id="cave-pad" role="group" aria-label="Move around the cave"><span id="cave-thumb"></span><small>MOVE</small></div><button id="cave-jump" aria-label="Jump">↑<small>JUMP</small></button><button id="cave-inspect" hidden>Inspect treasure</button><button id="harbour-chart" class="harbour-chart" hidden>Set sail ${icon("map")}</button>${backButton({ id: "cave-back", destination: "menu" })}</section>
     <section id="voyage-play" hidden>
-      <div class="live-voyage-hud">
-        <div class="voyage-summary">
-          <div class="voyage-status"><span aria-label="Ship health">${icon("heart")}<div class="health-track"><i id="v-hull"></i></div><b id="v-health">100%</b></span><span class="gem-count" aria-label="Gems collected">◆ <b id="v-gems">0 / 3</b></span></div>
-          <div class="voyage-mission"><small id="v-level"></small><strong id="v-objective"></strong><div class="voyage-track"><i id="v-travel"></i><span>✦</span></div></div>
-          <div id="v-weather" aria-label="Weather and wind"><span id="v-wind-arrow" aria-hidden="true">↑</span><span id="v-weather-name"></span><small id="v-gust"></small></div>
-        </div>
-        <div id="v-tip" role="status"></div>
+      <div class="voyage-status">
+        <span class="voyage-health" role="group" aria-label="Ship health">${icon("heart")}<span class="health-track" aria-hidden="true"><i id="v-hull"></i></span><b id="v-health">100%</b></span>
+        <span class="gem-count" role="group" aria-label="Gems collected">${icon("gem")}<b id="v-gems">0 / 3</b></span>
       </div>
-      <div id="v-targets"></div><div id="v-wheel" aria-label="Drag the wheel to steer" role="group"><div class="wheel-ring"></div><span id="v-stick">${icon("wheel")}</span><small>STEER</small></div><button id="v-anchor" class="round" aria-label="Stop or start sailing">${icon("anchor")}</button><button id="v-fire" aria-label="Fire cannons"><span>${icon("cannon")}</span><b>BOOM!</b><small id="v-fire-label">TAP TO FIRE</small></button><div id="v-compass"><span id="v-arrow">↑</span><b>TREASURE</b><small id="v-distance"></small></div>
+      <div id="v-tip" role="status"></div>
+      <div id="v-targets" aria-hidden="true"></div>
+      <div id="v-wheel" aria-label="Drag the wheel to steer" role="group"><div class="wheel-ring"></div><span id="v-stick">${icon("wheel")}</span></div>
+      <button id="v-anchor" class="round" aria-label="Drop anchor">${icon("anchor")}</button>
+      <button id="v-fire" aria-label="Fire cannons">${icon("cannon")}<span id="v-fire-label" aria-hidden="true">Fire</span></button>
+      <div id="v-compass" role="group" aria-label="Bearing to treasure"><span id="v-arrow">${icon("arrow")}</span><small id="v-distance"></small></div>
     </section>
     <section id="v-result" class="voyage-overlay" hidden role="dialog" aria-modal="true" aria-labelledby="result-title">${backButton({ id: "result-menu", destination: "menu" })}<div class="result-top"><span class="eyebrow" id="result-eyebrow">A NEW TREASURE FOR YOUR CAVE</span><h1 id="result-title"></h1><div id="result-stars"></div><p id="result-detail"></p></div><div class="result-bottom"><p class="collection-confirmation">${icon("chest")} Added to your cave</p><div class="result-actions"><button id="result-retry" class="secondary">Retry</button><button id="result-next" class="primary">Next level ${icon("arrow")}</button></div></div></section>
-    <section id="v-paused" class="voyage-overlay pause-screen" hidden role="dialog" aria-modal="true" aria-labelledby="pause-title"><div><span class="eyebrow">A LITTLE SHORE LEAVE</span><h1 id="pause-title">Ready when you are.</h1><button id="v-resume" class="primary">Keep sailing ${icon("play")}</button><button id="v-return" class="secondary">Choose levels</button></div></section>`;
+    <section id="v-paused" class="voyage-overlay pause-screen" hidden role="dialog" aria-modal="true" aria-labelledby="pause-title">
+      <div class="voyage-pause-content">
+        <h1 id="pause-title">Voyage paused</h1>
+        <div class="voyage-briefing">
+          <p id="v-level"></p><h2 id="v-objective"></h2>
+          <p id="v-briefing"></p>
+          <div id="v-weather" aria-label="Weather and wind"><span id="v-wind-arrow" aria-hidden="true">${icon("arrow")}</span><span id="v-weather-name"></span><span id="v-gust"></span></div>
+        </div>
+        <button id="v-resume" class="primary">Keep sailing ${icon("play")}</button>
+        <button id="v-return" class="secondary">Choose levels</button>
+      </div>
+    </section>`;
     document.body.append(r);
     const q = (id: string) => r.querySelector<HTMLElement>(id)!;
     q(".pirate-menu-header-actions").insertAdjacentHTML("afterbegin", `<button id="v-camera" class="round" aria-label="Switch to captain view" title="Captain view · C" hidden>${icon("eye")}<span>View</span></button>`);
@@ -129,12 +142,12 @@ export class VoyageHud {
     q("#v-pause").insertAdjacentHTML("beforeend", '<span>Pause</span>');
     q(".pirate-menu-header-actions").setAttribute("aria-label", "Voyage controls");
     q("#world-menu").insertAdjacentHTML("beforeend", `<button id="menu-free" class="free-chart-button">${icon("compass")} <span>Open world<small>Resume your voyage</small></span></button>`);
-    q("#voyage-play").insertAdjacentHTML("beforeend", `<div id="v-captain-help" hidden><span id="v-look-hint"></span><button id="v-look-centre" aria-label="Look ahead">${icon("compass")} Ahead</button></div><div id="v-sea-chart" hidden><canvas width="240" height="240" aria-label="Nearby islands navigation chart"></canvas><button id="v-chart-open">Sea chart</button></div>`);
+    q("#voyage-play").insertAdjacentHTML("beforeend", `<div id="v-captain-help" hidden><span id="v-look-hint"></span><button id="v-look-centre" aria-label="Look ahead">${icon("compass")} Ahead</button></div><div id="v-sea-chart" hidden><button id="v-chart-open" aria-label="Open sea chart" title="Open sea chart"><canvas width="240" height="240" aria-hidden="true"></canvas></button></div>`);
     r.insertAdjacentHTML("beforeend", `<section id="sea-chart-menu" hidden role="dialog" aria-modal="true" aria-labelledby="sea-chart-title">${backButton({ id: "sea-chart-back", destination: "menu" })}<div class="sea-chart-heading"><span class="eyebrow">THE CAPTAIN’S CHART</span><h1 id="sea-chart-title">The open sea</h1><p>One world. Your own adventure.</p></div><canvas width="1024" height="1024" aria-label="Full open world sea chart"></canvas><p class="sea-chart-note">East meets west. North meets south. Keep sailing to circle the world.</p><div class="sea-chart-actions"><button id="sea-chart-close" class="primary">Keep sailing ${icon("ship")}</button></div></section>`);
     q("#menu-free").onclick = () => h.freeSail();
-    q(".pirate-menu-header-actions").insertAdjacentHTML("afterbegin", `<button id="v-deck" hidden>${icon("ship")}<span>Walk deck</span></button>`);
+    q(".pirate-menu-header-actions").insertAdjacentHTML("afterbegin", `<button id="v-deck" aria-label="Walk deck" title="Walk deck" hidden>${icon("ship")}<span>Walk deck</span></button>`);
     q("#v-deck").onclick = h.deck;
-    q("#voyage-play").insertAdjacentHTML("beforeend", `<div id="deck-ui" hidden><span id="deck-crosshair" aria-hidden="true">+</span><div id="deck-pad" role="group" aria-label="Walk around the sailing ship"><span id="deck-thumb"></span><small>MOVE</small></div><button id="deck-jump" aria-label="Jump on deck">↑<small>JUMP</small></button><button id="deck-helm" hidden>Take the helm</button><div id="fishing-ui"><button id="deck-fish">Cast line</button><button id="fish-cancel" hidden>Put rod away</button><p id="fish-status" role="status"></p></div><p class="deck-hint">WASD walk · Arrows / drag look · E helm · F fish</p></div>`);
+    q("#voyage-play").insertAdjacentHTML("beforeend", `<div id="deck-ui" hidden><span id="deck-crosshair" aria-hidden="true">+</span><div id="deck-pad" role="group" aria-label="Walk around the sailing ship"><span id="deck-thumb"></span></div><button id="deck-jump" aria-label="Jump on deck">↑<small>JUMP</small></button><button id="deck-helm" hidden>Take the helm</button><div id="fishing-ui"><button id="deck-fish">Cast line</button><button id="fish-cancel" hidden>Put rod away</button><p id="fish-status" role="status"></p></div><p class="deck-hint">WASD walk · Arrows / drag look · E helm · F fish</p></div>`);
     q("#deck-helm").onclick = h.deck; q("#deck-fish").onclick = h.fish; q("#fish-cancel").onclick = h.cancelFish;
     q("#deck-jump").onpointerdown = e => {e.preventDefault();h.caveJump();};
     q("#deck-jump").onclick = e => {if(e.detail===0)h.caveJump();};
@@ -734,14 +747,20 @@ export class VoyageHud {
     this.q("#v-home").hidden = false;
     this.q("#v-home").setAttribute("aria-label", voyage.freeSailing ? "Open sea chart" : "Choose levels");
     this.q("#v-home span").textContent = voyage.freeSailing ? "Sea chart" : "Levels";
+    this.q("#v-home").title = voyage.freeSailing ? "Sea chart" : "Choose levels";
+    this.q("#v-pause").title = "Pause voyage";
+    this.q("#v-return").textContent = voyage.freeSailing ? "Choose worlds" : "Choose levels";
     this.q("#v-camera").hidden = false;
     this.q("#v-fire").hidden = !voyage.freeSailing && voyage.level.waves[0]!.enemies.length === 0 && !voyage.forts.length;
-    this.setTip(voyage.freeSailing ? "Explore the islands. Your voyage saves automatically." : voyage.level.intro);
-    this.q("#v-tip").classList.remove("fade");
+    this.setTip("");
+    this.q("#v-level").textContent = voyage.freeSailing
+      ? "Open world" : `${PACKS[voyage.pack]!.name} · Level ${stageOf(voyage.index) + 1}`;
+    this.q("#v-objective").textContent = voyage.level.name;
+    this.q("#v-briefing").textContent = voyage.freeSailing
+      ? "Your voyage saves automatically." : voyage.level.intro;
     this.q("#v-weather").hidden = voyage.pack === 0 && !voyage.freeSailing;
     this.q("#v-compass").hidden = !!voyage.freeSailing;
     this.q("#v-sea-chart").hidden = !voyage.freeSailing;
-    this.q(".voyage-track").hidden = !!voyage.freeSailing;
     this.q("#v-weather-name").textContent = voyage.weather.name;
     this.root.dataset.weather = voyage.weather.kind;
   }
@@ -753,7 +772,13 @@ export class VoyageHud {
     this.q("#deck-ui").hidden=!active;
     this.q("#v-deck").hidden=this.root.dataset.screen!=="play";
     const helm=this.q("#v-deck") as HTMLButtonElement;
-    this.q("#v-deck span").textContent=active?'Take helm':'Walk deck';helm.disabled=active&&(!nearHelm||phase!=='idle');
+    const deckAction = active ? "Take the helm" : "Walk deck";
+    if (helm.getAttribute("aria-label") !== deckAction) {
+      helm.setAttribute("aria-label", deckAction);
+      helm.title = deckAction;
+      helm.innerHTML = icon(active ? "wheel" : "ship");
+    }
+    helm.disabled = active && (!nearHelm || phase !== "idle");
     (this.q('#v-camera') as HTMLButtonElement).disabled=active;
     this.q("#deck-helm").hidden=!active||!nearHelm||phase!=='idle';
     const cast=this.q("#deck-fish") as HTMLButtonElement;
@@ -787,12 +812,20 @@ export class VoyageHud {
   }
   seaChart(open: boolean, session?: VoyageSession): void {
     const wasOpen = !this.q("#sea-chart-menu").hidden;
+    if (open && !wasOpen && document.activeElement instanceof HTMLElement)
+      this.chartTrigger = document.activeElement;
     this.q("#sea-chart-menu").hidden = !open;
     this.q("#voyage-play").inert = open;
     this.q(".voyage-header").inert = open;
     if (open && session) this.drawWorldChart(session);
     if (open) this.q("#sea-chart-close").focus();
-    else if (wasOpen && this.root.dataset.screen === "play") this.q("#v-home").focus();
+    else if (wasOpen) {
+      if (this.root.dataset.screen === "play") {
+        const trigger = this.chartTrigger;
+        (trigger && trigger.getClientRects().length ? trigger : this.q("#v-home")).focus();
+      }
+      this.chartTrigger = null;
+    }
   }
   result(s: VoyageSession, reward?: VoyageReward): void {
     this.q("#v-camera").hidden = true;
@@ -904,7 +937,6 @@ export class VoyageHud {
   help(message: string, until: number): void {
     this.setTip(message);
     this.messageUntil = until;
-    this.q("#v-tip").classList.remove("fade");
   }
   update(
     s: VoyageSession,
@@ -925,56 +957,43 @@ export class VoyageHud {
       anchor.innerHTML = icon(s.player.sail ? "anchor" : "ship");
     }
     this.q("#v-gems").textContent = `${s.gemsFound} / ${s.voyage.gems.length}`;
-    this.q("#v-level").textContent =
-      s.voyage.freeSailing ? "OPEN WORLD · FREE SAILING"
-        : `${PACKS[s.voyage.pack]!.name.toUpperCase()} · LEVEL ${stageOf(s.voyage.index) + 1}`;
-    this.q("#v-objective").textContent = s.voyage.freeSailing
-      ? SEA_LANDMARKS.find(p => seaDistance(p, s.player.pos, s.level.bounds) < 220)?.name ?? s.level.name : s.level.name;
-    this.q("#v-travel").style.width =
-      `${Math.max(0, Math.min(100, ((s.player.pos.z - s.level.player.pos.z) / (s.voyage.finish.z - s.level.player.pos.z)) * 100))}%`;
+    if (s.voyage.freeSailing) {
+      this.q("#v-objective").textContent = SEA_LANDMARKS.find(
+        p => seaDistance(p, s.player.pos, s.level.bounds) < 220,
+      )?.name ?? s.level.name;
+    }
     const angle = angleDiff(viewHeading, headingTo(s.player.pos, s.voyage.finish));
-    this.q("#v-arrow").style.transform = `rotate(${angle}rad)`;
+    this.q("#v-arrow").style.transform = `rotate(calc(${angle}rad - 90deg))`;
     this.q("#v-distance").textContent =
       `${Math.round(distance(s.player.pos, s.voyage.finish))} m`;
-    this.q("#v-wind-arrow").style.transform = `rotate(${s.world.wind.direction - viewHeading}rad)`;
-    this.q("#v-gust").textContent = s.voyage.weather.drift ? `WIND ${(s.world.wind.drift ?? 0).toFixed(1)} m/s` : "";
+    this.q("#v-wind-arrow").style.transform = `rotate(calc(${s.world.wind.direction - viewHeading}rad - 90deg))`;
+    this.q("#v-gust").textContent = s.voyage.weather.drift ? `Wind ${(s.world.wind.drift ?? 0).toFixed(1)} m/s` : "";
     const cooldown = s.player.reload[s.firingSide];
-    this.q("#v-fire-label").textContent =
-      cooldown > 0
-        ? `LOADING ${cooldown.toFixed(1)}s`
-        : s.targetInArc
-          ? `${s.firingSide === "port" ? "LEFT" : "RIGHT"} SIDE READY`
-          : s.enemies.some(
-                (e) =>
-                  e.alive &&
-                  distance(e.pos, s.player.pos) <
-                    s.player.spec.cannonRange * 1.1,
-              )
-            ? "TURN SIDE TO PIRATE"
-            : "TAP TO FIRE";
-    this.q("#v-fire").classList.toggle(
-      "ready-target",
-      s.targetInArc && cooldown <= 0,
+    const fire = this.q("#v-fire");
+    const ready = s.targetInArc && cooldown <= 0;
+    const turn = !s.targetInArc && s.enemies.some(e =>
+      e.alive && distance(e.pos, s.player.pos) < s.player.spec.cannonRange * 1.1,
     );
+    const fireLabel = cooldown > 0 ? `${cooldown.toFixed(1)}s` : turn ? "Turn side" : "Fire";
+    this.q("#v-fire-label").textContent = fireLabel;
+    fire.dataset.reloading = String(cooldown > 0);
+    fire.classList.toggle("ready-target", ready);
+    const fireAction = cooldown > 0 ? "Cannons reloading"
+      : turn ? "Turn your broadside toward the pirate"
+      : ready ? `Fire ${s.firingSide === "port" ? "left" : "right"} cannons` : "Fire cannons";
+    if (fire.getAttribute("aria-label") !== fireAction) fire.setAttribute("aria-label", fireAction);
     const obstacle = s.level.islands.find(
       (island, i) =>
         (s.voyage.freeSailing || (i > 0 && i < s.level.islands.length - 1)) &&
         seaDistance(island.pos, s.player.pos, s.world.periodic ? s.level.bounds : undefined) < island.radius + 32,
     );
-    if (s.elapsed < this.messageUntil)
-      this.q("#v-tip").classList.remove("fade");
-    else if (
-      s.voyage.whirlpools.some((w) => distance(w, s.player.pos) < w.radius + 13)
-    ) {
-      this.setTip("Whirlpool! Steer away from the dark centre.");
-      this.q("#v-tip").classList.remove("fade");
-    } else if (obstacle && (s.voyage.pack === 0 || s.voyage.freeSailing)) {
-      this.setTip(
-        obstacle.kind === "sea-rock"
-          ? "Rocks ahead! Steer clear."
-          : "Island ahead! Steer clear.");
-      this.q("#v-tip").classList.remove("fade");
-    } else this.q("#v-tip").classList.toggle("fade", s.elapsed > 10);
+    if (s.elapsed >= this.messageUntil) {
+      if (s.voyage.whirlpools.some(w => distance(w, s.player.pos) < w.radius + 13))
+        this.setTip("Whirlpool ahead. Steer clear!");
+      else if (obstacle && (s.voyage.pack === 0 || s.voyage.freeSailing))
+        this.setTip(obstacle.kind === "sea-rock" ? "Rocks ahead" : "Island ahead");
+      else this.setTip("");
+    }
     const targets = s.enemies
       .filter((e) => e.alive)
       .flatMap((e) => {
@@ -982,7 +1001,6 @@ export class VoyageHud {
         return p.visible &&
           p.x > 10 &&
           p.x < innerWidth - 10 &&
-          p.y > (innerWidth < 600 ? 225 : 90) &&
           p.y < innerHeight - 100
           ? [
               `<span class="pirate-tag" style="left:${p.x}px;top:${p.y}px">${icon("skull")}<i style="--hp:${(e.hull / e.spec.maxHull) * 100}%"></i></span>`,
@@ -998,7 +1016,6 @@ export class VoyageHud {
           p.visible &&
           p.x > 20 &&
           p.x < innerWidth - 20 &&
-          p.y > (innerWidth < 600 ? 225 : 110) &&
           p.y < innerHeight - 160
         )
           targets.push(
@@ -1011,11 +1028,10 @@ export class VoyageHud {
       end.visible &&
       end.x > 10 &&
       end.x < innerWidth - 10 &&
-      end.y > 100 &&
       end.y < innerHeight - 120
     )
       targets.push(
-        `<span class="treasure-tag" style="left:${end.x}px;top:${end.y}px">${icon("chest")} TREASURE</span>`,
+        `<span class="treasure-tag" style="left:${end.x}px;top:${end.y}px">${icon("chest")}</span>`,
       );
     this.q("#v-targets").innerHTML = targets.join("");
     if (s.voyage.freeSailing && s.elapsed - this.chartTime > .1) {
