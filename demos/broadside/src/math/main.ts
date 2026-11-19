@@ -24,8 +24,10 @@ import "./focus.css";
 import "./home.css";
 import "./gameHud.css";
 import { languagePickerMarkup, dismissLanguagePicker } from "../ui/languagePicker";
+import { clockBoard, newClockRound } from "./clockBoard";
+import "./clock.css";
 
-type Screen = "home" | "operators" | "map" | "levels" | "question" | "reward" | "ship" | "unloading" | "complete" | "cave" | "settings";
+type Screen = "home" | "operators" | "map" | "levels" | "question" | "reward" | "ship" | "unloading" | "complete" | "cave" | "settings" | "clock";
 installButtonHaptics();
 installMenuPreview();
 installPrivacy();
@@ -77,6 +79,7 @@ let mapPan: MapPanController | null = null;
 const packCameras = new Map<OperatorId, MapCamera>();
 let voyage: Voyage | null = null, question: Question | null = null, outcome: AnswerResult | null = null;
 let answer = "", feedback: "" | "firstWrong" | "retryWrong" = "", hinted = false, accepted = false, saveFailed = false;
+let clockRound: ReturnType<typeof newClockRound> | undefined;
 let cave: GoldCave | null = null, sceneError = false, sceneLoading = false, revealReady = false, viewId = 0;
 const art = (file: string, cls = "", alt = "") => `<img class="${cls}" src="${import.meta.env.BASE_URL}assets/map/${file}.webp" alt="${alt}" draggable="false" />`;
 const format = (value: number) => i18n.format(value);
@@ -115,7 +118,7 @@ const coins = (count: number, spent = 0) => `<span class="hint-coins">${Array.fr
 
 const screenLabel = {
   home: "home", operators: "operators", map: "islands", levels: "levelMap",
-  question: "problemDestination", cave: "cave", unloading: "cave",
+  question: "problemDestination", clock: "clockAdventure", cave: "cave", unloading: "cave",
   ship: "ship", reward: "ship", complete: "levelMap", settings: "settings",
 } as const;
 const backLabel = (destination: Screen) => t("backTo", { destination: t(screenLabel[destination]) });
@@ -156,7 +159,10 @@ function operatorView(): string {
       progress: cleared ? navNumber(cleared) : undefined,
       ariaLabel: [name, world.name, sailed].filter(Boolean).join(", ") };
   });
-  return worldChart(t("chooseAdventure"), worldChoices("operator", worlds), gameBack("home"));
+  return worldChart(t("chooseAdventure"), worldChoices("operator", [
+    ...worlds,
+    { id: "clock", art: 2, title: t("clockAdventure"), subtitle: t("clockIsland"), ariaLabel: t("clockAdventure") },
+  ]), gameBack("home"));
 }
 function mapView(): string {
   const world = worldFor(operator);
@@ -262,6 +268,7 @@ function render(): void {
   root.dataset.saveFailed = String(saveFailed);
   root.innerHTML = `${screen === "cave" ? caveHud() : ""}<main id="main-content">${{
     home, operators: operatorView, map: mapView, levels: levelsView, question: questionView,
+    clock: () => clockBoard(clockRound!, i18n, gameBack("operators")),
     reward: () => shipView(true), ship: () => shipView(false), unloading: () => caveView(true), cave: () => caveView(false), complete: completeView, settings: settingsView,
   }[screen]()}</main>${saveFailed && screen !== "settings" ? `<div class="save-notice" role="status">${t("saveNotice")}</div>` : ""}`;
   const scroller = document.querySelector<HTMLElement>("#main-content")!;
@@ -389,6 +396,10 @@ function goBack(): void {
   if (screen === "home") return;
   if (screen === "operators") show("home", '[data-action="play"]');
   else if (screen === "map") show("operators");
+  else if (screen === "clock") {
+    show("operators", '[data-operator="clock"]');
+    document.activeElement?.scrollIntoView({ block: "nearest" });
+  }
   else if (screen === "levels") show("map");
   else if (screen === "settings") show("home", '[data-action="settings"]');
   else if (screen === "ship" || screen === "cave" || screen === "unloading") {
@@ -450,6 +461,23 @@ window.addEventListener("languagechange", () => {
 root.addEventListener("click", (event) => {
   const button = (event.target as HTMLElement).closest<HTMLButtonElement>("button");
   if (!button || button.disabled) return;
+  if (button.dataset.operator === "clock") {
+    clockRound ??= newClockRound(seed());
+    show("clock");
+    return;
+  }
+  if (button.dataset.clockTime !== undefined && screen === "clock") {
+    const round = clockRound!;
+    const question = round.questions[round.index];
+    const time = Number(button.dataset.clockTime);
+    if (!question || round.correct || round.rejected.has(time) || !question.choices.includes(time)) return;
+    round.correct = time === question.time;
+    if (!round.correct) round.rejected.add(time);
+    else if (round.rejected.size === 0) round.firstTry++;
+    render();
+    root.querySelector<HTMLElement>(round.correct ? '[data-action="clock-next"]' : "#clock-feedback")?.focus();
+    return;
+  }
   if (button.dataset.operator) {
     operator = button.dataset.operator as OperatorId;
     progress.operator = operator;
@@ -503,6 +531,18 @@ root.addEventListener("click", (event) => {
     case "trail-further": exploreTrail("further"); break;
     case "levels": openLevels(); break;
     case "hint": hinted = !hinted; render(); break;
+    case "clock-next":
+      if (clockRound?.correct) {
+        clockRound.index++;
+        clockRound.correct = false;
+        clockRound.rejected.clear();
+        show("clock");
+      }
+      break;
+    case "clock-restart":
+      clockRound = newClockRound(seed());
+      show("clock");
+      break;
     case "check": checkAnswer(); break;
     case "continue": continueAfterAnswer(); break;
     case "reward-next": nextVoyage(); break;
