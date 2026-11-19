@@ -30,6 +30,7 @@ describe("Captain Calculus navigation destinations",()=>{
     expect(root().querySelector('[data-action="resume"]')?.textContent).toContain("Level 1");
     click("play");
     expect(root().dataset.screen).toBe("operators");
+    expect(root().querySelector('[data-action="ship"], [data-action="cave"], [data-action="settings"]')).toBeNull();
     click("back");
     click("resume");
     expect(root().dataset.screen).toBe("question");
@@ -92,8 +93,8 @@ describe("Captain Calculus navigation destinations",()=>{
     expect(root().textContent).toContain("The cave couldn't load");
     expect(root().textContent).not.toContain("Welcome home, Captain");
     expect(root().querySelector('[data-action="stay-cave"]')).toBeNull();
-    expect(root().querySelector('[data-action="ship"]')?.getAttribute('aria-label')).toContain('1 chest aboard');
     click("back");expect(root().dataset.screen).toBe("home");
+    expect(root().querySelector('[data-action="ship"]')?.textContent).toContain("1 chest aboard");
   });
   it("returns Home → Ship → Back to Home",async()=>{
     await import("./main");click("ship");await vi.waitFor(()=>expect(runtime.created).toBe(1));
@@ -120,10 +121,10 @@ describe("Captain Calculus navigation destinations",()=>{
     expect(root().dataset.saveFailed).toBe("true");
     expect(root().querySelector('[role="status"]')?.textContent).toContain("Progress can't be saved");
   });
-  it("keeps large bank balances compact in the header while retaining the full accessible amount",async()=>{
+  it("keeps large bank balances compact on the home menu while retaining the full accessible amount",async()=>{
     const {freshProgress,saveMathProgress}=await import("./academy");
     const progress=freshProgress();progress.banks.add=15_000_000;saveMathProgress(progress,localStorage);
-    await import("./main");click("play");
+    await import("./main");
     const cave=root().querySelector<HTMLButtonElement>('[data-action="cave"]')!;
     expect(cave.textContent).toMatch(/15m gold/i);
     expect(cave.getAttribute("aria-label")).toContain("15,000,000 gold banked");
@@ -148,23 +149,23 @@ describe("Captain Calculus language preferences", () => {
     expect(document.querySelector("[data-language=auto]")?.getAttribute("aria-pressed")).toBe("true");
   });
 
-  it("changes language without losing the active question, answer, or saved rewards", async () => {
+  it("changes language from Home without changing the saved voyage", async () => {
     history.replaceState(null, "", "/?qa=true&view=question");
     await import("./main");
-    root().querySelector<HTMLButtonElement>('[data-key="7"]')!.click();
     const equation = root().querySelector(".left-term")!.textContent;
     const before = sessionStorage.getItem("broadside.math.v1");
-    click("settings");
+    expect(root().querySelector('[data-action="settings"]')).toBeNull();
+    click("back"); click("back"); click("back"); click("back");
+    expect(root().dataset.screen).toBe("home");
     click("language");
     document.querySelector<HTMLButtonElement>("[data-language=de]")!.click();
     expect(document.documentElement.lang).toBe("de");
     expect(document.activeElement?.getAttribute("data-action")).toBe("language");
     expect(sessionStorage.getItem("broadside.math.v1")).toBe(before);
     expect(document.querySelector<HTMLDialogElement>(".language-picker")?.open).toBe(false);
-    click("back");
+    click("resume");
     expect(root().dataset.screen).toBe("question");
     expect(root().querySelector(".left-term")!.textContent).toBe(equation);
-    expect(root().querySelector("#answer")!.textContent).toBe("7");
     expect(root().textContent).toContain("Antwort prüfen");
   });
 

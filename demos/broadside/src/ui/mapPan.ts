@@ -65,6 +65,7 @@ export function mountMapPan(viewport: HTMLElement, world: HTMLElement, options: 
   };
   const center = (point: MapPoint) => {
     const bounds = size();
+    camera.scale = clampMapCamera(camera, bounds, worldSize(), options.coverViewport).scale;
     camera.x = bounds.width / 2 - point.x * camera.scale;
     camera.y = bounds.height * .46 - point.y * camera.scale;
     publish();
@@ -162,6 +163,13 @@ export function mountMapPan(viewport: HTMLElement, world: HTMLElement, options: 
     const next = size();
     if (next.width === previous.width && next.height === previous.height) return;
     const point = { x: (previous.width / 2 - camera.x) / camera.scale, y: (previous.height * .46 - camera.y) / camera.scale };
+    if (options.coverViewport) {
+      // Keep a chart edge pinned when the old viewport could not center its first or last stop.
+      const height = worldSize().height;
+      const bottom = previous.height - height * camera.scale;
+      if (bottom < 0 && camera.y === 0) point.y = 0;
+      else if (bottom < 0 && camera.y === bottom) point.y = height;
+    }
     previous = next; center(point);
   }) : null;
   observer?.observe(viewport);

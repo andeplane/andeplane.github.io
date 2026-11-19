@@ -3,10 +3,7 @@
 #academy[data-screen="cave"], #academy[data-screen="reward"], #academy[data-screen="ship"], #academy[data-screen="unloading"] { background: transparent; pointer-events: none; }
 #academy[data-screen="cave"] button, #academy[data-screen="reward"] button, #academy[data-screen="ship"] button, #academy[data-screen="unloading"] button { pointer-events: auto; }
 #treasure-scene { position: fixed; inset: 0; width: 100%; height: 100%; outline: none; touch-action: none; }
-#main-content { position: absolute; inset: calc(88px + var(--pirate-safe-top)) 0 0; overflow-y: auto; overflow-x: hidden; scrollbar-color: #79958a transparent; scrollbar-width: thin; }
-.topbar { height: calc(88px + var(--pirate-safe-top)); padding: calc(18px + var(--pirate-safe-top)) var(--pirate-menu-inset) 18px; display: flex; justify-content: space-between; align-items: center; gap: 12px; position: relative; z-index: 5; }
-.pirate-menu-header-left, .pirate-menu-header-actions { display: flex; gap: 20px; align-items: center; }
-.pirate-menu-header-actions { gap: 12px; }
+#main-content { position: absolute; inset: 0; overflow-y: auto; overflow-x: hidden; scrollbar-color: #79958a transparent; scrollbar-width: thin; }
 .brand { display: flex; align-items: center; gap: 10px; text-align: left; background: none; border: 0; padding: 0; }
 .brand > .icon { width: 37px; height: 37px; color: var(--gold); }
 .brand > b { font-weight: 700; font-size: 12px; letter-spacing: .15em; }
@@ -193,9 +190,7 @@
   .number-pad button { height: 43px; }
 }
 @media (max-width: 760px) {
-  .topbar { padding-inline: 18px; }
   .brand > b { font-size: 10px; }
-  .pirate-menu-header-left { gap: 13px; }
   .operator-grid { grid-template-columns: repeat(2, 1fr); gap: 14px; margin-top: 16px; }
   .operator-card { min-height: 240px; padding: 18px; }
   .operator-symbol { width: 52px; height: 52px; font-size: 34px; }
@@ -209,8 +204,6 @@
   .trail-heading > span:last-child { font-size: 9px; }
 }
 @media (max-width: 600px) {
-  #main-content { inset-block-start: calc(76px + var(--pirate-safe-top)); }
-  .topbar { height: calc(76px + var(--pirate-safe-top)); padding: calc(14px + var(--pirate-safe-top)) 16px 14px; gap: 8px; }
   .brand > .icon { width: 29px; height: 29px; }
   .brand > b { font-size: 8px; letter-spacing: .11em; }
   .brand small { font-size: 5.5px; letter-spacing: .1em; }
@@ -299,7 +292,6 @@
   .complete-view h1 { font-size: 37px; }
 }
 @media (max-width: 370px) {
-  .topbar { padding-inline: 12px; }
   .brand > .icon { width: 25px; height: 25px; }
   .brand > b { font-size: 7px; }
   .operator-card h2 { font-size: 22px; }
@@ -325,8 +317,6 @@
   .cave-bottom { bottom: calc(15px + var(--safe-bottom)); }
 }
 @media (max-height: 480px) and (min-width: 601px) {
-  #main-content { inset-block-start: 65px; }
-  .topbar { height: 65px; padding-block: 10px; }
   .page-heading { padding-block: 10px; }
   .page-heading h1 { font-size: 31px; }
   .sea-chart { height: 390px; }
@@ -409,11 +399,7 @@
 .unload-status { width: auto; max-width: calc(100% - 36px); padding: 10px 16px; font-size: 11px; }
 .ship-view .cave-bottom > .text-button { width: 100%; }
 
-/* Home owns its one full-screen composition; inner pages keep the navigation row. */
 #academy[data-screen="home"] #main-content { inset: 0; }
-#academy .topbar .pirate-menu-header-actions { gap: 8px; }
-#academy .topbar .pirate-menu-header-left { gap: 0; }
-#academy .topbar { padding-left: calc(var(--pirate-menu-inset) + var(--pirate-safe-left)); padding-right: calc(var(--pirate-menu-inset) + var(--pirate-safe-right)); }
 #academy:not([data-screen="home"]) #main-content { inset-inline: var(--pirate-safe-left) var(--pirate-safe-right); }
 
 /* Each operation is an actual place, with its own landscape and chart palette. */
@@ -454,18 +440,6 @@
 @media (max-height: 480px) and (min-width: 651px) {
   .operator-card.world-card { min-height: 240px; }
 }
-
-/* Every inner screen reserves the same measured navigation row, including safe areas. */
-#academy { --math-nav-height: calc(var(--pirate-safe-top) + 2 * var(--pirate-menu-inset) + var(--pirate-touch-target)); }
-#academy .topbar {
-  height: var(--math-nav-height);
-  padding-top: calc(var(--pirate-safe-top) + var(--pirate-menu-inset));
-  padding-bottom: var(--pirate-menu-inset);
-  align-items: flex-start;
-}
-#academy:not([data-screen="home"]) #main-content { inset-block-start: var(--math-nav-height); }
-#academy .topbar .pirate-menu-header-actions { align-items: flex-start; }
-#academy .pirate-nav-link { min-height: var(--pirate-touch-target); }
 
 /* Small supporting text on the question parchment uses the same dark ink as the task. */
 .hint-button { min-height: var(--pirate-touch-target); }
@@ -607,12 +581,5 @@
 .operator-card h2 { overflow-wrap: anywhere; hyphens: auto; }
 .pirate-nav-link small { overflow-wrap: anywhere; }
 .number-pad .key-clear { font-size: 18px; }
-@media (max-width: 480px) {
-  #academy .topbar .pirate-menu-header-actions { gap: 6px; }
-  #academy .topbar .pirate-nav-link { width: 48px; min-width: 48px; padding: 5px 2px; gap: 2px; flex-direction: column; align-items: center; }
-  #academy .topbar .pirate-nav-link > span { font-size: 10px; }
-  #academy .topbar .pirate-nav-link small { display: none; }
-  #academy .language-shortcut { width: 44px; min-width: 44px; height: 44px; }
-}
 
 #academy .expedition-intro { background: #102a37; }
