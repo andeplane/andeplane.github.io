@@ -16,6 +16,7 @@ interface DifficultyMapOptions {
   selected: string | number;
   centerLabel: string;
   firstArt: number;
+  back?: string;
 }
 const escape = (s: string) => s.replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]!));
 
@@ -26,8 +27,9 @@ export function difficultyMap(options: DifficultyMapOptions): string {
   }));
   const focus = stops.find(p => p.id === options.selected) ?? stops[0]!;
   const points = stops.map(p => `${p.x},${p.y}`).join(" ");
+  const title = `<h1>${escape(options.name)}</h1><p>${escape(options.instructions)}</p>`;
   return `<section class="map-view operation-world">
-    <div class="world-map-heading"><h1>${escape(options.name)}</h1><p>${escape(options.instructions)}</p></div>
+    <div class="world-map-heading">${options.back ? `${options.back}<div>${title}</div>` : title}</div>
     <div class="world-map-viewport" data-map-viewport data-focus-x="${focus.x}" data-focus-y="${focus.y}" tabindex="0" aria-label="${escape(options.accessibleName)}">
       <div class="world-map-plane chart-water" data-map-world style="width:960px;height:${height}px">
         <svg class="world-pack-route" viewBox="0 0 960 ${height}" aria-hidden="true"><polyline points="${points}" fill="none" stroke="#685438" stroke-width="3" stroke-dasharray="5 8"/></svg>
