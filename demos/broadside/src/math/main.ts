@@ -114,14 +114,14 @@ const coins = (count: number, spent = 0) => `<span class="hint-coins">${Array.fr
 function header(): string {
   if (screen === "home" || screen === "levels") return "";
   const target = screen === "settings" ? returnScreen : (screen === "ship" || screen === "cave" || screen === "unloading") ? treasureParent() : null;
-  const labels = { home: t("home"), operators: t("operators"), map: t("islands"), levels: t("levelMap"), question: t("problemDestination"), cave: t("cave"), unloading: t("cave"), ship: t("ship"), reward: t("ship"), complete: t("levelMap"), settings: t("howPlay") };
-  if (screen === "cave") return `<header class="explore-bar"><button class="explore-back" data-action="back" aria-label="${t("backTo", { destination: labels[treasureParent()] })}">‹ ${t("back")}</button><span class="explore-balance">${icon("chest")} ${navNumber(bankedGold(progress))} <small>${t("gold")}</small></span>${!sceneError && !sceneLoading ? `<details class="cave-details"><summary role="button">${t("caveControlsLabel")}</summary><div class="cave-details-panel"><h2>${t("goldenCave")}</h2><p class="cave-keyboard-instructions">${t("walkKeyboard")}</p><p class="cave-touch-instructions">${t("walkTouch")}</p><button data-action="cave-reset">${icon("compass")} ${t("returnEntrance")}</button><button data-action="settings" aria-haspopup="dialog">${t("language")} · ${languageLabel()}</button><p>${t("caveSummary", {gold:format(cargoGold(progress)),count:format(progress.solved)})}</p><p id="math-cave-reserve" hidden></p></div></details>` : ""}</header>`;
+  const labels = { home: t("home"), operators: t("operators"), map: t("islands"), levels: t("levelMap"), question: t("problemDestination"), cave: t("cave"), unloading: t("cave"), ship: t("ship"), reward: t("ship"), complete: t("levelMap"), settings: t("settings") };
+  if (screen === "cave") return `<header class="explore-bar"><button class="explore-back" data-action="back" aria-label="${t("backTo", { destination: labels[treasureParent()] })}">‹ ${t("back")}</button><span class="explore-balance">${icon("chest")} ${navNumber(bankedGold(progress))} <small>${t("gold")}</small></span>${!sceneError && !sceneLoading ? `<details class="cave-details"><summary role="button">${t("caveControlsLabel")}</summary><div class="cave-details-panel"><h2>${t("goldenCave")}</h2><p class="cave-keyboard-instructions">${t("walkKeyboard")}</p><p class="cave-touch-instructions">${t("walkTouch")}</p><button data-action="cave-reset">${icon("compass")} ${t("returnEntrance")}</button><p>${t("caveSummary", {gold:format(cargoGold(progress)),count:format(progress.solved)})}</p><p id="math-cave-reserve" hidden></p></div></details>` : ""}</header>`;
   const destinations: Partial<Record<Screen, string>> = { operators: t("home"), map: t("operators"), levels: t("islands"), question: t(voyageReturn === "home" ? "home" : "levelMap"), complete: t(voyageReturn === "home" ? "home" : "levelMap"), reward: t(voyageReturn === "home" ? "home" : "levelMap") };
   const destination = target ? labels[target] : destinations[screen] ?? t("home");
   const pending = pendingMathChests(progress).length;
   return menuHeader({ className: "topbar", brand: "",
     back: backButton({ action: "back", label: t("back"), accessibleLabel: t("backTo", { destination }) }),
-    actions: `<button class="pirate-nav-link" data-action="ship" aria-label="${t("ship")}: ${i18n.plural("aboard", pending)}">${icon("ship")}<span>${t("ship")}<small>${i18n.plural("aboard", pending)}</small></span></button><button class="pirate-nav-link" data-action="cave" aria-label="${t("cave")}: ${t("savedGold", { gold: format(bankedGold(progress)) })}">${icon("chest")}<span>${t("cave")}<small>${navNumber(bankedGold(progress))} ${t("gold")}</small></span></button><button class="round-button language-shortcut" data-action="settings" aria-haspopup="dialog" aria-label="${t("language")}: ${languageChoice().name}"><span aria-hidden="true">${languageChoice().flag}</span></button>`,
+    actions: `<button class="pirate-nav-link" data-action="ship" aria-label="${t("ship")}: ${i18n.plural("aboard", pending)}">${icon("ship")}<span>${t("ship")}<small>${i18n.plural("aboard", pending)}</small></span></button><button class="pirate-nav-link" data-action="cave" aria-label="${t("cave")}: ${t("savedGold", { gold: format(bankedGold(progress)) })}">${icon("chest")}<span>${t("cave")}<small>${navNumber(bankedGold(progress))} ${t("gold")}</small></span></button><button class="round-button" data-action="settings" aria-label="${t("settings")}">${icon("wheel")}</button>`,
   });
 }
 function home(): string {
@@ -129,7 +129,11 @@ function home(): string {
   const gold = bankedGold(progress);
   const pending = i18n.plural("aboard", pendingMathChests(progress).length);
   return `<section class="calculus-home">
-    <h1>Captain <span>Calculus</span></h1>
+    <picture class="calculus-home-art" aria-hidden="true">
+      <source media="(min-width: 701px), (orientation: landscape)" srcset="${import.meta.env.BASE_URL}assets/menu/calculus-worktable-wide.webp" />
+      <img src="${import.meta.env.BASE_URL}assets/menu/calculus-worktable.webp" width="852" height="1846" alt="" fetchpriority="high" />
+    </picture>
+    <h1><span>Captain</span>Calculus</h1>
     <nav class="calculus-home-actions" aria-label="${t("home")}">
       <button class="calculus-play" data-action="play">${icon("play")} ${t("play")}</button>
       ${saved ? `<button class="calculus-continue" data-action="resume">
@@ -138,10 +142,7 @@ function home(): string {
       </button>` : ""}
       <button class="calculus-destination" data-action="ship"><strong>${t("yourShip")}</strong><small>${pending}</small></button>
       <button class="calculus-destination" data-action="cave" aria-label="${t("yourCave")}: ${t("savedGold", { gold: format(gold) })}"><strong>${t("yourCave")}</strong><small>${t("savedGold", { gold: navNumber(gold) })}</small></button>
-      <div class="calculus-home-utilities">
-        <button data-action="guide">${t("howPlay")}</button>
-        <button data-action="settings" aria-haspopup="dialog">${t("language")} · ${languageLabel()}</button>
-      </div>
+      <button class="calculus-destination" data-action="settings"><strong>${t("settings")}</strong></button>
     </nav>
   </section>`;
 }
@@ -241,7 +242,7 @@ function completeView(): string {
   return `<section class="complete-view"><span class="eyebrow">${selectedPack().name}</span><h1>${t("wellSailed")}</h1>${stars(outcome?.stars ?? 1)}<p>${t("completeNoGold", { count: format(level) })}<br />${t("nextGold")}</p><div class="completion-ship" aria-hidden="true">${pirateShipArt("complete")}</div><button class="wood-button primary" data-action="reward-next">${t("nextIsland")} ${icon("ship")}</button></section>`;
 }
 function settingsView(): string {
-  return `<section class="settings-view"><div class="page-heading"><h1>${t("howPlay")}</h1></div><div class="settings-card"><div class="captains-guide"><p>${t("guidePlay")}</p><p>${t("rewardRule")} ${t("firstTryGuide")} ${t("cargoGuide")}</p><p>${t("guideHints")} ${t("unopenedSafe")}</p><button type="button" class="privacy-action" data-open-privacy>${t("privacyEnglish")}</button><div class="guide-footer">${icon("anchor")} ${saveFailed ? t("saveError") : t("saveOk")}</div></div></div></section>`;
+  return `<section class="settings-view"><div class="page-heading"><h1>${t("settings")}</h1></div><div class="settings-card"><div class="language-setting"><button class="wood-button settings-language" data-action="language" aria-haspopup="dialog" aria-describedby="language-detail"><strong>${t("language")}</strong><span>${languageLabel()}</span></button><p id="language-detail">${t("languageDetail", { language: LANGUAGES.find(item => item.id === i18n.language)!.name })}</p></div><div class="captains-guide"><h2>${t("howPlay")}</h2><p>${t("guidePlay")}</p><p>${t("rewardRule")} ${t("firstTryGuide")} ${t("cargoGuide")}</p><p>${t("guideHints")} ${t("unopenedSafe")}</p><button type="button" class="privacy-action" data-open-privacy>${t("privacyEnglish")}</button><div class="guide-footer">${icon("anchor")} ${saveFailed ? t("saveError") : t("saveOk")}</div></div></div></section>`;
 }
 function render(): void {
   const focused = document.activeElement;
@@ -385,7 +386,7 @@ function goBack(): void {
   if (screen === "operators") show("home", '[data-action="play"]');
   else if (screen === "map") show("operators");
   else if (screen === "levels") show("map");
-  else if (screen === "settings" && returnScreen === "home") show("home", '[data-action="guide"]');
+  else if (screen === "settings" && returnScreen === "home") show("home", '[data-action="settings"]');
   else if (screen === "settings") returnTo(returnScreen);
   else if (screen === "ship" || screen === "cave" || screen === "unloading") {
     const target = treasureTrail.pop() ?? "home";
@@ -430,16 +431,14 @@ picker.addEventListener("click", event => {
   languageSaveFailed = !saveLanguagePreference(choice, storage);
   i18n = selectLanguage(choice, deviceLanguages());
   const scroll = root.querySelector("#main-content")!.scrollTop;
-  const detailsOpen = !!root.querySelector(".cave-details[open]");
   render();
   root.querySelector("#main-content")!.scrollTop = scroll;
-  if (detailsOpen) root.querySelector(".cave-details")?.setAttribute("open", "");
   if (languageSaveFailed) {
     drawPicker();
     picker.querySelector<HTMLElement>('[aria-pressed="true"]')?.focus();
   } else {
     picker.close();
-    root.querySelector<HTMLElement>('[data-action="settings"]')?.focus({ preventScroll: true });
+    root.querySelector<HTMLElement>('[data-action="language"]')?.focus({ preventScroll: true });
   }
 });
 for (const type of ["contextmenu", "selectstart"]) {
@@ -466,8 +465,8 @@ root.addEventListener("click", (event) => {
     case "home": show("home"); break;
     case "play": show("operators"); break;
     case "back": goBack(); break;
-    case "settings": openPicker(); break;
-    case "guide":
+    case "language": if (screen === "settings") openPicker(); break;
+    case "settings":
       if (screen !== "settings") returnScreen = screen;
       show("settings"); break;
     case "cave":
@@ -535,7 +534,7 @@ if (qa) {
   else if (view === "map") show("map");
   else if (view === "levels") openLevels();
   else if (view === "question") beginLevel(packTrail().cleared + 1);
-  else if (view === "settings") openPicker();
+  else if (view === "settings") show("settings");
   else if (view === "complete") { outcome = { correct: true, chestEarned: false, levelComplete: true, stars: 1, goldEarned: 0, questionGoldLost: 0, levelGold: 0 }; show("complete"); }
   else if (view === "reward") { outcome = { correct: true, chestEarned: true, levelComplete: true, stars: 3, goldEarned: 100, questionGoldLost: 0, levelGold: pendingMathChests(progress).at(-1)?.gold ?? 0 }; void showTreasure("reward"); }
   else if (view === "cave") void showTreasure("cave", false);

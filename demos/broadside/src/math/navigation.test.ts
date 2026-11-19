@@ -137,12 +137,14 @@ describe("Captain Calculus language preferences", () => {
     await import("./main");
     expect(document.documentElement.lang).toBe("nb");
     expect(root().querySelector("button[data-action=play]")?.textContent).toContain("Spill");
-    expect(root().querySelector("[data-action=settings]")?.textContent).toContain("🇳🇴 Auto");
-    click("guide");
+    expect(root().querySelector("[data-action=settings]")?.textContent).toContain("Innstillinger");
+    click("settings");
     expect(root().textContent).toContain("100 gull per riktig svar på første forsøk");
     expect(root().querySelector("#game-language")).toBeNull();
     click("back");
     click("settings");
+    expect(root().querySelector("[data-action=language]")?.textContent).toContain("🇳🇴 Auto");
+    click("language");
     expect(document.querySelector("[data-language=auto]")?.getAttribute("aria-pressed")).toBe("true");
   });
 
@@ -153,11 +155,13 @@ describe("Captain Calculus language preferences", () => {
     const equation = root().querySelector(".left-term")!.textContent;
     const before = sessionStorage.getItem("broadside.math.v1");
     click("settings");
+    click("language");
     document.querySelector<HTMLButtonElement>("[data-language=de]")!.click();
     expect(document.documentElement.lang).toBe("de");
-    expect(document.activeElement?.getAttribute("data-action")).toBe("settings");
+    expect(document.activeElement?.getAttribute("data-action")).toBe("language");
     expect(sessionStorage.getItem("broadside.math.v1")).toBe(before);
     expect(document.querySelector<HTMLDialogElement>(".language-picker")?.open).toBe(false);
+    click("back");
     expect(root().dataset.screen).toBe("question");
     expect(root().querySelector(".left-term")!.textContent).toBe(equation);
     expect(root().querySelector("#answer")!.textContent).toBe("7");
@@ -169,6 +173,7 @@ describe("Captain Calculus language preferences", () => {
     await import("./main");
     expect(document.documentElement.lang).toBe("fi");
     click("settings");
+    click("language");
     vi.mocked(localStorage.setItem).mockImplementation(() => { throw Error("full"); });
     document.querySelector<HTMLButtonElement>("[data-language=fr]")!.click();
     expect(document.documentElement.lang).toBe("fr");
