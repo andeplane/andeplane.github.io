@@ -195,7 +195,7 @@ function mountMathMap(scroller: HTMLElement): void {
   const draw = isTrail ? atlasRenderer(world, operator, packTrail(), i18n) : undefined;
   mapPan = mountMapPan(viewport, world, {
     focus: { x: Number(viewport.dataset.focusX ?? world.offsetWidth / 2), y: Number(viewport.dataset.focusY ?? world.offsetHeight / 2) },
-    scale: Number(viewport.dataset.mapScale) || (isTrail ? 1.12 : 1),
+    scale: Number(viewport.dataset.mapScale) || (isTrail ? .94 : 1),
     coverViewport: !isTrail, unbounded: isTrail,
     state: isTrail ? trailCamera : packCameras.get(mapOperator),
     onChange: (state, origin) => {

@@ -50,12 +50,19 @@ function clearOfCourse(id: OperatorId, x: number, y: number, radius: number) {
 function tileContents(id: OperatorId, col: number, row: number, track: Track, locale: Locale) {
   const ox = col * TILE, oy = row * TILE, { t, format } = locale;
   const parts: string[] = [];
+  const start = levelPoint(id, 1);
+  const harbour = { x: start.x - 42, y: start.y + 210 };
+  if (Math.floor(harbour.x / TILE) === col && Math.floor(harbour.y / TILE) === row) {
+    parts.push(`<span class="atlas-land" aria-hidden="true" style="left:${harbour.x-ox}px;top:${harbour.y-oy}px;width:235px"><img src="${worldAsset(id, "-coast")}" alt="" draggable="false"></span>`);
+  }
   for (let i = 0; i < 4; i++) {
     const gx = 2*col + i%2, gy = 2*row + Math.floor(i/2), seed = phases[id] * 7;
     const x = (gx + .24 + noise(gx, gy, seed+1)*.52)*256;
     const y = (gy + .24 + noise(gx, gy, seed+2)*.52)*256;
-    const size = 145 + Math.round(noise(gx, gy, seed+3)*125);
-    if (clearOfCourse(id, x, y, size*.71)) {
+    const maximum = 145 + Math.round(noise(gx, gy, seed+3)*125);
+    if (Math.hypot(x-harbour.x, y-harbour.y) < maximum*.5 + 120) continue;
+    const size = [maximum, maximum*.7, maximum*.46].find(width => clearOfCourse(id, x, y, width*.71));
+    if (size) {
       parts.push(`<span class="atlas-land" aria-hidden="true" style="left:${x-ox}px;top:${y-oy}px;width:${size}px"><img src="${worldAsset(id, "-coast")}" alt="" draggable="false" style="transform:scaleX(${noise(gx,gy,seed+4) < .5 ? -1 : 1})"></span>`);
     }
   }
