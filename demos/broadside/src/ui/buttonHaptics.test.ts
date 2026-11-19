@@ -5,7 +5,7 @@ import { Haptics } from "@capacitor/haptics";
 import { answerHaptic, installButtonHaptics } from "./buttonHaptics";
 
 vi.mock("@capacitor/core", () => ({ Capacitor: { isNativePlatform: vi.fn(() => true) } }));
-vi.mock("@capacitor/haptics", () => ({ Haptics: { impact: vi.fn(async () => {}), notification: vi.fn(async () => {}) }, NotificationType: { Success: "SUCCESS", Error: "ERROR" }, ImpactStyle: { Light: "LIGHT" } }));
+vi.mock("@capacitor/haptics", () => ({ Haptics: { impact: vi.fn(async () => {}), notification: vi.fn(async () => {}) }, NotificationType: { Success: "SUCCESS", Error: "ERROR" }, ImpactStyle: { Medium: "MEDIUM" } }));
 let remove: (() => void) | undefined;
 afterEach(() => { remove?.(); document.body.innerHTML = ""; vi.clearAllMocks(); vi.mocked(Capacitor.isNativePlatform).mockReturnValue(true); });
 function tap(target: Element, trusted = true) {
@@ -21,7 +21,7 @@ describe("shared button haptics", () => {
     document.querySelector('button')!.onclick = () => { document.body.innerHTML = '<button>Back</button>'; };
     tap(document.querySelector('span')!); tap(document.querySelector('button')!);
     expect(Haptics.impact).toHaveBeenCalledTimes(2);
-    expect(Haptics.impact).toHaveBeenCalledWith({ style: "LIGHT" });
+    expect(Haptics.impact).toHaveBeenCalledWith({ style: "MEDIUM" });
   });
   it("stays quiet for disabled controls, programmatic clicks, backgrounds and suppressed map drags", () => {
     remove = installButtonHaptics();

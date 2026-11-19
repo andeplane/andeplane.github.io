@@ -28,6 +28,7 @@ describe("Captain Calculus navigation destinations",()=>{
     await import("./main");
     click("play");
     const addition = root().querySelector<HTMLButtonElement>('button[data-operator="add"]')!;
+    expect(Array.from(root().querySelectorAll(".overworld-place > .map-symbol"), e => e.parentElement?.dataset.operator)).toEqual(["add", "subtract", "multiply", "divide", "clock"]);
     expect(addition.querySelector(".chart-tally")?.textContent).toBe("4 levels completed");
     addition.click();
     expect(Array.from(root().querySelectorAll(".chart-tally"), e => e.textContent)).toEqual([

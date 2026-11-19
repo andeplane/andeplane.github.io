@@ -13,16 +13,26 @@
 .overworld-place[data-operator="clock"] { --x:51%; --y:85%; }
 #academy .overworld-place:focus-visible { outline:3px solid white; outline-offset:3px; }
 
-/* The illustrated island and its parchment plaque form one destination button. */
-.overworld-place .chart-island-art { width:100%; height:clamp(64px,12vmin,110px); filter:drop-shadow(0 0 2px #fff2c9) drop-shadow(0 3px 3px #35291c); }
+/* The same destination opens from the symbol on the chart and its caption. */
+#academy .overworld-place .map-symbol {
+  display:block; width:clamp(52px,15vmin,76px); aspect-ratio:1;
+  margin-bottom:4px;
+  background:url("./adventure-coins.svg") var(--symbol-position, 0%) center / 500% 100% no-repeat;
+  filter:drop-shadow(0 2px 3px #35241aaa);
+}
+.overworld-place[data-operator="subtract"] { --symbol-position:25%; }
+.overworld-place[data-operator="multiply"] { --symbol-position:50%; }
+.overworld-place[data-operator="divide"] { --symbol-position:75%; }
+.overworld-place[data-operator="clock"] { --symbol-position:100%; }
 .overworld-caption { display:grid; justify-items:center; box-sizing:border-box; width:100%; gap:1px; padding:4px 3px; border:1px solid #827047; border-radius:3px 9px; background:#fff0ce; color:#332916; text-shadow:none; -webkit-text-stroke:0; box-shadow:0 2px 4px #30251666; }
 .overworld-caption b { font:700 clamp(16px,4.2vmin,22px)/1.05 Georgia,serif; }
 .overworld-caption small { font:500 12px/1.12 system-ui,sans-serif; }
 #academy .chart-tally { display:block; margin:0; font:600 12px/1.15 system-ui,sans-serif; color:#51422e; }
 #academy .world-pack-stop:has(.chart-tally) .world-art { height:84px; }
 @media (orientation:landscape) and (max-height:480px) {
-  #academy .overworld-place { width:170px; grid-template-columns:42px minmax(0,1fr); align-items:center; }
-  .overworld-place[data-operator="multiply"], .overworld-place[data-operator="divide"] { --y:55%; }
+  #academy .overworld-place { width:clamp(110px,27vw,155px); grid-template-columns:1fr; }
+  .overworld-place[data-operator="multiply"] { --x:17%; --y:63%; }
+  .overworld-place[data-operator="divide"] { --x:83%; --y:63%; }
   .overworld-place[data-operator="clock"] { --y:84%; }
-  .overworld-place .chart-island-art { width:48px; height:48px; z-index:1; }
+  #academy .overworld-place .map-symbol { width:44px; margin-bottom:1px; }
 }

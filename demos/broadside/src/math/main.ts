@@ -153,7 +153,6 @@ function home(): string {
     </nav>
   </section>`;
 }
-const overviewIslands = { add: 0, subtract: 4, multiply: 6, divide: 8, clock: 2 } as const;
 const completedLabel = (count: number) => t(count === 1 ? "levelCompleted" : "levelsCompleted", { count: format(count) });
 function operatorView(): string {
   const places = OPERATORS.map(op => {
@@ -167,7 +166,7 @@ function operatorView(): string {
     <nav aria-label="${title}" class="overworld-chart"><div class="overworld-geography">
       ${places.map(({ id, region, lesson, cleared }) => `<button class="overworld-place" data-operator="${id}"
         aria-label="${[lesson, region, completedLabel(cleared)].join(", ")}">
-        ${islandArt(overviewIslands[id])}
+        <span class="map-symbol" aria-hidden="true"></span>
         <span class="overworld-caption"><b>${lesson}</b><small>${region}</small><span class="chart-tally">${completedLabel(cleared)}</span></span>
       </button>`).join("")}
     </div></nav>

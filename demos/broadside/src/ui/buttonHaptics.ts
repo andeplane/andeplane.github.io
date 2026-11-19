@@ -3,7 +3,7 @@ import { Haptics, ImpactStyle, NotificationType } from "@capacitor/haptics";
 
 const installations = new WeakMap<Document, () => void>();
 
-/** One light tap for an activated button, including dynamically rendered menus. */
+/** One short tap for an activated button, including dynamically rendered menus. */
 export function installButtonHaptics(): () => void {
   const existing = installations.get(document);
   if (existing) return existing;
@@ -21,7 +21,7 @@ export function installButtonHaptics(): () => void {
     if (!activations.has(event)) return;
     try {
       if (Capacitor.isNativePlatform()) {
-        void Haptics.impact({ style: ImpactStyle.Light }).catch(() => {});
+        void Haptics.impact({ style: ImpactStyle.Medium }).catch(() => {});
       } else {
         // Safari has no web vibration API; installed iPhone apps use native haptics.
         navigator.vibrate?.(10);
