@@ -2,10 +2,10 @@
 /* Captain Calculus only. Cave and reward scenes retain their existing presentation. */
 #academy:not([data-screen="cave"]):not([data-screen="reward"]):not([data-screen="ship"]):not([data-screen="unloading"]) {
   --ink: #0b2840; --gold: #f5ba32; --muted: #415d6a;
-  color: var(--ink); background: #e7f5f3;
+  color: var(--ink); background: var(--academy-background, #e7f5f3);
   ::selection { color: #fff; background: #075d75; }
   button:focus-visible, select:focus-visible { outline: 3px solid var(--math-focus-color, #075d75); outline-offset: 3px; }
-  h1, h2 { font-family: Fraunces, Georgia, serif; font-weight: 700; letter-spacing: -.025em; }
+  h1, h2 { font-family: var(--academy-heading, Fraunces), Georgia, serif; font-weight: var(--academy-heading-weight, 700); letter-spacing: -.025em; }
   #main-content { scrollbar-color: #477483 #e7f5f3; }
   .brand { color: var(--ink); }
   .brand small, .brand > span { display: none; }

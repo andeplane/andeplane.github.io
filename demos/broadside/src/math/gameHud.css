@@ -1,5 +1,5 @@
 /* The charts fill the screen. Their headings and controls share the same chart surface. */
-#academy:is([data-screen="operators"], [data-screen="map"], [data-screen="levels"]) #main-content {
+#academy:is([data-screen="operators"], :is([data-screen="map"], [data-screen="clockMap"]), [data-screen="levels"]) #main-content {
   inset-inline: 0;
 }
 #academy :is(.family-world-chart, .map-view.operation-world, .expedition-view) {
@@ -131,4 +131,29 @@
   #academy .voyage-status { font-size: 12px; }
   #academy .complete-view .completion-ship { grid-row: 2 / 7; }
   #academy .unloading-view .cave-heading { padding-block: 5px; }
+}
+
+/* Logbook pages share the paper and brass of the captain's navigation desk. */
+#main-content .settings-view .settings-card,
+#main-content .question-view .math-card,
+#academy .cave-details-panel {
+  background-image: linear-gradient(#fff1d2f2, #f8e4bdf2), url("/assets/map/nautical-chart.webp");
+  background-size: cover;
+  color: #302b22;
+}
+#academy .cave-details-panel p { color: #334441; }
+#academy .cave-details-panel button { border: 1px solid #87683e; }
+#academy :is(.settings-card, .cave-details-panel) h2,
+#academy .complete-view h1 { font-family: "Pirata One", Georgia, serif; font-weight: 400; }
+#academy .captains-guide h2 .icon { width: 1em; height: 1em; vertical-align: -.08em; color: #805627; }
+#academy .question-progress > .solved {
+  color: #432b10;
+  background: #edbc60;
+  border: 3px double #73511e;
+}
+
+#academy:is([data-screen="settings"], [data-screen="complete"]) {
+  --academy-background: linear-gradient(#fff3d4d9, #e8d4aadb), url("/assets/map/nautical-chart.webp") center / cover;
+  --academy-heading: "Pirata One";
+  --academy-heading-weight: 400;
 }
