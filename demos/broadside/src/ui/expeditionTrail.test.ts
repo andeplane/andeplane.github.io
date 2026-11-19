@@ -31,6 +31,21 @@ describe("endless island expedition", () => {
     expect(extendTrailWindow(initialTrailWindow(1), "earlier").first).toBe(1);
   });
 
+  it("uses an absolute atlas band for the current stop and its map focus", () => {
+    const courses = [[50, 48], [50, 53]].map(([first, other]) =>
+      Array.from({ length: LEVELS_PER_REGION }, (_, i) => i === 0 ? first! : other!));
+    const html = expeditionTrail({
+      world: worldFor("add"), text: createI18n("en", []).t, showStars: true,
+      resumeLabel: n => String(n), progressLabel: n => String(n),
+      packLabel: "Up to 10", operatorName: "Addition", practiceRule: "", courses,
+      window: { first: 13, last: 36 }, track: { cleared: 13, stars: {}, runs: {} },
+    });
+    expect(html).toContain('data-region="1" data-atlas-band="1"');
+    expect(html).toContain('data-region="2" data-atlas-band="0"');
+    expect(html).toContain('data-focus-x="530"');
+    expect(html).toContain('style="left:53%;top:196px"');
+  });
+
   it("exposes completed, current and locked islands through the existing level actions", () => {
     const html = expeditionTrail({ world: worldFor("add"), text:createI18n("en",[]).t, showStars:true, resumeLabel:n=>`resume, ${n} of 10 solved`, progressLabel:n=>String(n), packLabel: "Up to 10", operatorName: "Addition", practiceRule: "Sums stay at 10 or below.", window: initialTrailWindow(13), track: { cleared: 12, stars: { "12": 3 }, runs: { "13": { solved: 2 } } } });
     expect(html).toContain('data-level="13"  aria-current="step"');

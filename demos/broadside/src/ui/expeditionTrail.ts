@@ -37,7 +37,7 @@ export function extendTrailWindow(window: TrailWindow, direction: "earlier" | "f
 
 const lockIcon = `<svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><rect x="5" y="10" width="14" height="11" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></svg>`;
 const escape = (s: string) => s.replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]!));
-const NODE_X = [50, 43, 39, 46, 55, 61, 57, 48, 40, 44, 56, 50];
+const DEFAULT_COURSES = [[50, 43, 39, 46, 55, 61, 57, 48, 40, 44, 56, 50]];
 const FIRST_NODE_Y = 88;
 const NODE_STEP = 108;
 export const TRAIL_WORLD_WIDTH = 1000;
@@ -45,9 +45,12 @@ export const REGION_HEIGHT = NODE_STEP * LEVELS_PER_REGION;
 const nodeY = (i: number) => FIRST_NODE_Y + i * NODE_STEP;
 const segment = (x1: number, y1: number, x2: number, y2: number) => `M${x1 * 4} ${y1} C${x1 * 4} ${(y1 + y2) / 2},${x2 * 4} ${(y1 + y2) / 2},${x2 * 4} ${y2}`;
 
-export function trailLevelPoint(level: number, window: TrailWindow) {
+function trailLevelPoint(level: number, window: TrailWindow, courses: readonly (readonly number[])[]) {
   const relative = level - window.first;
-  return { x: NODE_X[relative % LEVELS_PER_REGION]! / 100 * TRAIL_WORLD_WIDTH, y: Math.floor(relative / LEVELS_PER_REGION) * REGION_HEIGHT + nodeY(relative % LEVELS_PER_REGION) };
+  const region = Math.floor((level - 1) / LEVELS_PER_REGION);
+  const stop = relative % LEVELS_PER_REGION;
+  const course = courses[region % courses.length]!;
+  return { x: course[stop]! / 100 * TRAIL_WORLD_WIDTH, y: Math.floor(relative / LEVELS_PER_REGION) * REGION_HEIGHT + nodeY(stop) };
 }
 
 type TrailKey = "back" | "chapter" | "continue" | "dragExplore" | "earlierShores" | "endlessTrail" | "exploreFurther" | "findIsland" | "firstTryGold" | "islandRange" | "islandsAhead" | "islandsBefore" | "level" | "locked" | "mapKeyboard" | "nextIslandMarker" | "play" | "playLevel" | "reachLevel" | "replay" | "resumeCount" | "solvedCount" | "stars" | "start" | "uncharted" | "worldLevelMap" | "zoomIn" | "zoomOut";
@@ -62,6 +65,7 @@ interface ExpeditionOptions {
   operatorName: string;
   packLabel: string;
   backLabel?: string;
+  courses?: readonly (readonly number[])[];
   practiceRule: string;
   window: TrailWindow;
   track: { cleared: number; stars: Record<string, number>; runs: Record<string, { solved: number }> };
@@ -71,22 +75,25 @@ interface ExpeditionOptions {
 export function expeditionTrail(options: ExpeditionOptions): string {
   const format = options.format ?? ((value: number) => value.toLocaleString("en-GB"));
   const { text, world, track, window } = options, current = track.cleared + 1;
-  const focus = trailLevelPoint(current, window);
+  const courses = options.courses ?? DEFAULT_COURSES;
+  const focus = trailLevelPoint(current, window, courses);
   const regions: string[] = [];
   for (let first = window.first; first <= window.last; first += LEVELS_PER_REGION) {
     const region = regionForLevel(first, world), uncharted = region.first > current;
-    const paths = [segment(50, 0, NODE_X[0]!, nodeY(0))];
-    for (let i = 1; i < LEVELS_PER_REGION; i++) paths.push(segment(NODE_X[i - 1]!, nodeY(i - 1), NODE_X[i]!, nodeY(i)));
-    paths.push(segment(NODE_X.at(-1)!, nodeY(LEVELS_PER_REGION - 1), 50, REGION_HEIGHT));
+    const band = region.index % courses.length;
+    const stopX = courses[band]!;
+    const paths = [segment(50, 0, stopX[0]!, nodeY(0))];
+    for (let i = 1; i < LEVELS_PER_REGION; i++) paths.push(segment(stopX[i - 1]!, nodeY(i - 1), stopX[i]!, nodeY(i)));
+    paths.push(segment(stopX.at(-1)!, nodeY(LEVELS_PER_REGION - 1), 50, REGION_HEIGHT));
     const nodes = Array.from({ length: LEVELS_PER_REGION }, (_, i) => {
       const level = first + i, locked = level > current, score = track.stars[level] ?? 0, solved = track.runs[level]?.solved ?? 0;
-      return `<div class="expedition-stop${level === current ? " is-current" : locked ? " is-locked" : " is-cleared"}" style="left:${NODE_X[i]}%;top:${nodeY(i)}px">
+      return `<div class="expedition-stop${level === current ? " is-current" : locked ? " is-locked" : " is-cleared"}" style="left:${stopX[i]}%;top:${nodeY(i)}px">
         ${level === current ? `<span class="expedition-here">${text("nextIslandMarker")}</span>` : ""}
         <button class="expedition-node" data-level="${level}" ${locked ? "disabled" : ""}${level === current ? ` aria-current="step" id="expedition-current"` : ""} aria-label="${text("level", { count: format(level) })}, ${locked ? text("locked") : solved ? options.resumeLabel(solved) : score ? `${text("stars", { count: score })}, ${text("replay")}` : text("start")}">${shoreMarker(level - 1, format(level), "shore-number")}${locked ? `<small class="expedition-node-lock">${lockIcon}</small>` : ""}</button>
         ${solved ? `<span class="expedition-solved">${options.progressLabel(solved)}</span>` : !locked && options.showStars ? `<span class="expedition-node-stars" aria-label="${text("stars", { count: score })}">${[1, 2, 3].map(n => `<i class="${n <= score ? "earned" : ""}">★</i>`).join("")}</span>` : ""}
       </div>`;
     }).join("");
-    regions.push(`<section class="expedition-region${uncharted ? " is-uncharted" : ""}" data-region="${region.index}" aria-label="${text("chapter", { count: format(region.index + 1) })}: ${escape(region.name)}" style="--region-reflection:${region.index % 2 ? -1 : 1};height:${REGION_HEIGHT}px">
+    regions.push(`<section class="expedition-region${uncharted ? " is-uncharted" : ""}" data-region="${region.index}" data-atlas-band="${band}" aria-label="${text("chapter", { count: format(region.index + 1) })}: ${escape(region.name)}" style="--region-reflection:${region.index % 2 ? -1 : 1};height:${REGION_HEIGHT}px">
 
       ${first > 1 ? `<span class="trail-chapter" style="top:${nodeY(0)}px">${escape(region.name)}</span>` : ""}
       <span class="expedition-sea-mark sea-mark-one" aria-hidden="true">✦</span><span class="expedition-sea-mark sea-mark-two" aria-hidden="true">≈</span>

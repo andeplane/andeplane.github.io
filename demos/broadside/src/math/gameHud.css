@@ -74,16 +74,17 @@
   pointer-events: none;
 }
 
-/* Terrain travels with each chapter, behind its interactive islands and route. */
+/* Continue the same atlas across two chapters, then traverse it in reverse to keep the edges joined. */
 #academy .expedition-view .expedition-region::before {
   display: block;
   z-index: auto;
-  background: url("/assets/map/calculus-chart-coasts.webp") center / 100% 100% no-repeat;
-  transform: scaleX(var(--region-reflection, 1));
-  mask-image: linear-gradient(transparent, #000 48px, #000 calc(100% - 48px), transparent);
+  background: url("/assets/map/calculus-expedition-atlas.webp") center top / 100% 200% no-repeat;
 }
-#academy .expedition-region:first-of-type::before {
-  mask-image: linear-gradient(#000 calc(100% - 48px), transparent);
+#academy .expedition-region:is([data-atlas-band="1"], [data-atlas-band="2"])::before {
+  background-position: center bottom;
+}
+#academy .expedition-region:is([data-atlas-band="2"], [data-atlas-band="3"])::before {
+  transform: scaleY(-1);
 }
 #academy .expedition-view :is(.trail-chapter, .expedition-solved) {
   padding: 3px 6px;

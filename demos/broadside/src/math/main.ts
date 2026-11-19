@@ -174,10 +174,17 @@ function mapView(): string {
       return { id: p.id, label: p.label, description: world.chapterNames[i], ariaLabel: `${p.label}: ${p.description}` };
     }) });
 }
+// Keep the playable islands within the atlas's open sea lane.
+const atlasCourses = [
+  [50, 47, 47, 47, 50, 54, 52, 47, 48, 48, 52, 50],
+  [50, 46, 45, 48, 52, 47, 47, 52, 53, 48, 50, 52],
+  [50, 53, 51, 48, 47, 47, 52, 50, 46, 47, 51, 50],
+  [50, 47, 47, 47, 48, 54, 52, 47, 47, 48, 52, 50],
+];
 function levelsView(): string {
   const p = selectedPack(), op = getOperator(p.operator);
   const practiceRule = p.operator === "add" ? t("sumsStay", { count: p.limit! }) : t("sameDifficulty");
-  return expeditionTrail({ world: worldFor(p.operator), showStars: true, resumeLabel: count => t("resumeCount", { count }), progressLabel: count => t("solvedCount", { count }), packLabel: p.label, backLabel: backLabel("map"), operatorName: operatorName(op.id), practiceRule, window: trailWindow, track: packTrail(), text: t, format });
+  return expeditionTrail({ world: worldFor(p.operator), showStars: true, resumeLabel: count => t("resumeCount", { count }), progressLabel: count => t("solvedCount", { count }), packLabel: p.label, backLabel: backLabel("map"), courses: atlasCourses, operatorName: operatorName(op.id), practiceRule, window: trailWindow, track: packTrail(), text: t, format });
 }
 function mountMathMap(scroller: HTMLElement): void {
   scroller.scrollTop = scroller.scrollLeft = 0;
