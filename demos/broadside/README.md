@@ -231,8 +231,10 @@ the difficulty chart and endless level map use two-axis drag-to-pan cameras,
 pinch zoom, fixed navigation, and a current-island control. Artwork prompts
 and provenance are in [public/math/worlds/ART.md](public/math/worlds/ART.md).
 
-Every island has an endless expedition map, with new named shores
-and scenery every twelve levels. New scenery never raises the selected pack's
+The level route winds through an open chart in both axes. Drag beyond the route to
+explore more coastline, or use the compass to return to the current level.
+The chart generates terrain from world coordinates and retains only the tiles
+around the camera. Every twelve levels begins a named chapter. New scenery never raises the selected pack's
 arithmetic limits. Completing a level returns to the newly unlocked island. A level contains ten
 fresh problems; unfinished levels resume with the same questions. Every
 problem answered correctly on the first try earns 100 gold, up to 1,000 per

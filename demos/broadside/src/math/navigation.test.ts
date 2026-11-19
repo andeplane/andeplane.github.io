@@ -6,7 +6,6 @@ vi.mock("./goldCave",()=>({ GoldCave: class {
   constructor(_canvas:HTMLCanvasElement,ready:()=>void){runtime.created++;runtime.ready=ready;}
   showShip(){}show(){}pause(){}dispose(){}resetCamera(){}inspect(){}
 } }));
-vi.mock("../ui/mapPan",()=>({ mountMapPan:()=>({destroy(){},getState(){return {x:0,y:0,scale:1};}}) }));
 const memoryStorage=()=>{ const data=new Map<string,string>();return {getItem:(key:string)=>data.get(key)??null,setItem:vi.fn((key:string,value:string)=>{data.set(key,value);}),clear:()=>data.clear()}; };
 const root=()=>document.querySelector<HTMLElement>("#academy")!;
 const click=(action:string)=>{

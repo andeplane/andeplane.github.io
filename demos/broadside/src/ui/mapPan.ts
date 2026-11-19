@@ -5,10 +5,11 @@ export interface MapCamera extends MapPoint { scale: number; }
 interface Size { width: number; height: number; }
 export interface MapPanOptions {
   coverViewport?: boolean;
+  unbounded?: boolean;
   focus?: MapPoint;
   state?: MapCamera;
   scale?: number;
-  onChange?: (state: MapCamera) => void;
+  onChange?: (state: MapCamera, origin: MapPoint) => void;
   onGesture?: () => void;
   onCenter?: () => void;
 }
@@ -58,14 +59,16 @@ export function mountMapPan(viewport: HTMLElement, world: HTMLElement, options: 
     return { distance: Math.max(1, Math.hypot(b.x - a.x, b.y - a.y)), midpoint: local({ x: (a.x + b.x) / 2, y: (a.y + b.y) / 2 }) };
   };
   const publish = () => {
-    camera = clampMapCamera(camera, size(), worldSize(), options.coverViewport);
-    world.style.transform = `translate3d(${camera.x}px,${camera.y}px,0) scale(${camera.scale})`;
+    if (!options.unbounded) camera = clampMapCamera(camera, size(), worldSize(), options.coverViewport);
+    // Keep CSS coordinates small even when returning to a very distant level.
+    const origin = options.unbounded ? { x: Math.floor(-camera.x / camera.scale / 512) * 512, y: Math.floor(-camera.y / camera.scale / 512) * 512 } : { x: 0, y: 0 };
+    world.style.transform = `translate3d(${camera.x + origin.x * camera.scale}px,${camera.y + origin.y * camera.scale}px,0) scale(${camera.scale})`;
     viewport.dataset.mapX = camera.x.toFixed(1); viewport.dataset.mapY = camera.y.toFixed(1); viewport.dataset.mapZoom = camera.scale.toFixed(2);
-    options.onChange?.({ ...camera });
+    options.onChange?.({ ...camera }, origin);
   };
   const center = (point: MapPoint) => {
     const bounds = size();
-    camera.scale = clampMapCamera(camera, bounds, worldSize(), options.coverViewport).scale;
+    if (!options.unbounded) camera.scale = clampMapCamera(camera, bounds, worldSize(), options.coverViewport).scale;
     camera.x = bounds.width / 2 - point.x * camera.scale;
     camera.y = bounds.height * .46 - point.y * camera.scale;
     publish();
@@ -154,7 +157,7 @@ export function mountMapPan(viewport: HTMLElement, world: HTMLElement, options: 
     viewport.scrollTop = viewport.scrollLeft = 0;
     const box = button.getBoundingClientRect(), bounds = viewport.getBoundingClientRect();
     if (box.left < bounds.left + 20 || box.right > bounds.right - 20 || box.top < bounds.top + 100 || box.bottom > bounds.bottom - 130) {
-      const map = world.getBoundingClientRect();
+      const map = { left: bounds.left + camera.x, top: bounds.top + camera.y };
       center({ x: (box.left + box.width / 2 - map.left) / camera.scale, y: (box.top + box.height / 2 - map.top) / camera.scale });
     }
   }, { signal });
