@@ -1,3 +1,6 @@
+import { atlasRenderer, levelPoint, worldAsset } from "./worldAtlas";
+import { settingsDesk } from "./homeMenu";
+import { adventureChart, chartShip } from "./adventureChart";
 import { PACKS, RELICS, type VoyageSession, type VoyageDef } from "../game/voyage";
 import {
   goldTotal,
@@ -24,18 +27,18 @@ import { icon } from "./icons";
 import { backButton, menuBrand, menuHeader } from "./menuChrome";
 import { PRIVATE_PEARL } from "../privatePearl";
 import { lanternHome } from "./lanternHome";
-import { createI18n, isLanguagePreference, readLanguagePreference, saveLanguagePreference } from "../math/i18n";
-import { languagePickerMarkup, dismissLanguagePicker } from "./languagePicker";
+import { LANGUAGES, createI18n, readLanguagePreference, saveLanguagePreference } from "../math/i18n";
+import { languagePickerMarkup, bindLanguagePicker } from "./languagePicker";
 import "./explorationHud.css";
 import { touchSteeringTurn } from "../input/touchSteering";
-import { pirateShipArt } from "./worldArt";
+import { worldArt, pirateShipArt } from "./worldArt";
 import { Controls } from "../input/controls";
 import { angleDiff, headingTo, distance, seaDistance, wrapCoordinate } from "../sim/math";
 import { SEA_LANDMARKS } from "../game/freeSailing";
 import { drawLandmarkSymbol } from "./seaChartSymbols";
 import { mountMapPan, type MapCamera, type MapPanController } from "./mapPan";
-import { worldChoices, shoreMarker } from "./islandChart";
-import { LEVEL_ROUTE, locationWorld, type ShipLocation } from "../game/journey";
+import { shoreMarker } from "./islandChart";
+import { locationWorld, type ShipLocation } from "../game/journey";
 const homeLanguageKey = "broadside.home.language.v1";
 const deviceLanguages = () => navigator.languages?.length ? navigator.languages : [navigator.language];
 function homeStorage(): Storage | undefined {
@@ -99,10 +102,10 @@ export class VoyageHud {
     <section id="captain-menu" class="captain-menu">
       <div class="menu-atmosphere" aria-hidden="true"><div class="moon"></div><div class="distant-rocks"></div><div class="hero-ship">${pirateShipArt()}</div><div class="ocean-mist"></div><div class="menu-embers"></div></div>
       <div id="main-menu" class="menu-page">${lanternHome()}</div>
-      <dialog class="language-picker" aria-labelledby="language-picker-title"></dialog>
+      <dialog class="language-picker captain-language" aria-labelledby="language-picker-title"></dialog>
       <div id="world-menu" class="menu-page" hidden><div class="menu-heading"><span class="eyebrow">CHART YOUR COURSE</span><h1>The pirate seas</h1><p>Choose an island. Chart your adventure.</p></div><div class="world-map" role="group" aria-label="Pirate sea chart"><svg class="map-route" viewBox="0 0 1000 1000" preserveAspectRatio="none" aria-hidden="true"><path class="route-wide" d="M370 930 C280 885 90 720 170 520 S250 90 410 190 S440 650 650 480 S735 90 865 135"/><path class="route-tall" d="M170 930 C110 810 110 710 245 635 S815 810 755 545 S80 525 245 185 S570 290 755 150"/></svg><button id="map-cave" class="map-cave" aria-label="Visit treasure cave"><img class="cave-art" src="${import.meta.env.BASE_URL}assets/map/treasure-cave.webp" width="640" height="640" alt="" draggable="false" decoding="async" /><span>Your cave</span></button><div id="world-packs"></div></div><p class="map-footnote">Gold in every level. A special treasure in every world.</p></div>
       <div id="level-menu" class="menu-page" hidden><div class="menu-heading"><span class="eyebrow" id="world-number"></span><h1 id="world-name"></h1><p id="pack-caption"></p></div><div class="level-board"><div class="regional-viewport" tabindex="0" aria-label="Island route" data-map-viewport><div id="voyage-levels" data-map-world></div><button class="regional-center" data-map-control data-map-center aria-label="Recenter map" hidden>${icon("compass")}</button></div><p class="level-note">1,000 gold per level · Complete the world for its special treasure.</p></div></div>
-      <div id="settings-menu" class="menu-page" hidden><div class="menu-heading"><span class="eyebrow">THE CAPTAIN’S ORDERS</span><h1>Settings</h1></div><div class="settings-board"><label class="coin-sounds-choice"><input id="coin-sounds" type="checkbox"> Coin sound effects</label><p id="coin-sounds-note">Clinks when coins tumble and land.</p><p>Steer with the wheel. Tap BOOM to fire.<br>Your treasures and stars are saved automatically.</p><button type="button" class="privacy-action" data-open-privacy>Privacy & support</button><p class="art-credit">Black Pearl model by <a href="https://www.thingiverse.com/thing:4951578" target="_blank" rel="noopener">DeltaX_F</a> · <a href="https://creativecommons.org/licenses/by/4.0/" target="_blank" rel="noopener">CC BY 4.0</a><br>Adapted for Broadside.</p></div></div>
+      <div id="settings-menu" class="menu-page" hidden>${settingsDesk("Settings",`<label class="coin-sounds-choice"><input id="coin-sounds" type="checkbox"> Coin sound effects</label><p id="coin-sounds-note">Clinks when coins tumble and land.</p><button type="button" class="privacy-action" data-open-privacy>Privacy & support</button><p class="art-credit">Black Pearl model by <a href="https://www.thingiverse.com/thing:4951578" target="_blank" rel="noopener">DeltaX_F</a> · <a href="https://creativecommons.org/licenses/by/4.0/" target="_blank" rel="noopener">CC BY 4.0</a><br>Adapted for Broadside.</p>`)}</div>
       ${backButton({ id: "menu-back", destination: "previous menu", hidden: true })}
     </section>
     <section id="cave-ui" hidden><div class="cave-title"><span class="eyebrow">YOUR SECRET HIDEOUT</span><h1>The treasure cave</h1><p id="cave-count"></p></div><div id="relic-info"><span class="eyebrow" id="relic-number"></span><h2 id="relic-title"></h2><p id="relic-story"></p><div id="relic-stars"></div><button id="cave-sail" class="text-button">Find this treasure ${icon("arrow")}</button></div><div class="gallery-hint">WASD walk · Arrows look · Space jump</div><button id="cave-overview" class="cave-overview">‹ Keep exploring</button><div id="cave-crosshair" aria-hidden="true">+</div><div id="cave-pad" role="group" aria-label="Move around the cave"><span id="cave-thumb"></span><small>MOVE</small></div><button id="cave-jump" aria-label="Jump">↑<small>JUMP</small></button><button id="cave-inspect" hidden>Inspect treasure</button><button id="harbour-chart" class="harbour-chart" hidden>Set sail ${icon("map")}</button>${backButton({ id: "cave-back", destination: "menu" })}</section>
@@ -141,10 +144,9 @@ export class VoyageHud {
     q("#sea-chart-close").onclick = () => h.seaChart(false);
     q("#sea-chart-back").onclick = () => h.menu();
     q("#captain-menu").insertAdjacentHTML("beforeend", `<div id="ship-panel-backdrop" hidden><aside id="ship-panel" hidden role="dialog" aria-modal="true" aria-labelledby="ship-panel-title" aria-describedby="ship-place" tabindex="-1"><button id="ship-close" class="ship-panel-close" aria-label="Close ship details"><span aria-hidden="true">×</span> Close</button><span class="eyebrow">THE BLACK PEARL</span><h2 id="ship-panel-title">Your ship</h2><p id="ship-place"></p><div class="ship-panel-actions"><button id="visit-ship">Board the ship ${icon("arrow")}</button><button id="menu-hold">Treasure hold</button><button id="ship-cave">Sail to your cave</button></div></aside></div><div id="chart-travel" hidden role="status"></div>`);
-    const shipMarker = (id: string) => `<span id="${id}" class="chart-ship chart-ship-marker" aria-hidden="true" inert>${pirateShipArt(id)}</span>`;
     const shipAction = (id: string) => `<button id="${id}" class="chart-ship-action" aria-label="Your ship details" aria-expanded="false" aria-controls="ship-panel">${icon("ship")}<span>Your ship</span></button>`;
-    q(".world-map").insertAdjacentHTML("beforeend", shipMarker("map-ship-marker"));
-    q(".level-board").insertAdjacentHTML("beforeend", shipMarker("level-ship-marker"));
+    q(".world-map").insertAdjacentHTML("beforeend", chartShip("map-ship-marker"));
+    q(".level-board").insertAdjacentHTML("beforeend", chartShip("level-ship-marker"));
     q("#world-menu").insertAdjacentHTML("beforeend", shipAction("map-ship"));
     q("#level-menu").insertAdjacentHTML("beforeend", shipAction("level-ship"));
     q("#level-menu").onscroll = () => {
@@ -211,29 +213,19 @@ export class VoyageHud {
     q("#menu-play").onclick = () => this.showMenu("worlds");
     q("#home-ship").onclick = () => h.travel("hold");
     const languagePicker = r.querySelector<HTMLDialogElement>(".language-picker")!;
-    const drawLanguage = (failed = false) => {
-      const languages = deviceLanguages();
-      const i18n = createI18n(this.homeLanguage, languages);
-      languagePicker.lang = i18n.language;
-      languagePicker.innerHTML = languagePickerMarkup(i18n, this.homeLanguage, languages, failed);
-    };
-    const focusLanguage = () => languagePicker.querySelector<HTMLElement>('[aria-pressed="true"]')?.focus();
-    q("#menu-language").onclick = () => {
-      drawLanguage();
-      languagePicker.showModal();
-      focusLanguage();
-    };
-    languagePicker.onclick = event => {
-      if (dismissLanguagePicker(languagePicker, event)) { languagePicker.close(); return; }
-      const choice = (event.target as HTMLElement).closest<HTMLElement>("[data-language]")?.dataset.language;
-      if (!isLanguagePreference(choice)) return;
-      this.homeLanguage = choice;
-      this.renderHomeLanguage();
-      if (saveLanguagePreference(choice, homeStorage(), homeLanguageKey)) {
-        languagePicker.close();
-        q("#menu-language").focus();
-      } else { drawLanguage(true); focusLanguage(); }
-    };
+    const languageMenu=bindLanguagePicker(languagePicker,{
+      markup:failed=>{
+        const languages=deviceLanguages(), locale=createI18n(this.homeLanguage,languages);
+        languagePicker.lang=locale.language;
+        return languagePickerMarkup(locale,this.homeLanguage,languages,failed);
+      },
+      trigger:()=>q("#menu-language"),
+      select:choice=>{
+        this.homeLanguage=choice;this.renderHomeLanguage();
+        return saveLanguagePreference(choice,homeStorage(),homeLanguageKey);
+      },
+    });
+    q("#menu-language").onclick=languageMenu.open;
     window.addEventListener("languagechange", () => {
       if (r.isConnected && this.homeLanguage === "auto") this.renderHomeLanguage();
     });
@@ -402,7 +394,8 @@ export class VoyageHud {
     this.q("#menu-cave strong").textContent = language === "en" ? `${format(gold)} gold saved` : t("savedGold", { gold: format(gold) });
     this.q("#menu-cave small").textContent = "";
     this.q("#menu-settings").textContent = t("settings");
-    this.q("#menu-language").textContent = t("language");
+    this.q("#menu-language").textContent = LANGUAGES.find(item => item.id === language)!.flag;
+    this.q("#menu-language").setAttribute("aria-label", t("language"));
   }
   private menuPage: "main" | "worlds" | "levels" | "settings" = "main";
   showMenu(page: "main" | "worlds" | "levels" | "settings" = "main"): void {
@@ -436,7 +429,7 @@ export class VoyageHud {
     if (page === "levels") {
       const viewport = this.q(".regional-viewport");
       this.regionalPan = mountMapPan(viewport, this.q("#voyage-levels"), {
-        coverViewport: true, state: this.regionalCameras.get(this.pack),
+        coverViewport: true, focus:{x:this.q(".next-level").offsetLeft,y:this.q(".next-level").offsetTop}, state: this.regionalCameras.get(this.pack),
         onChange: camera => {
           this.regionalCameras.set(this.pack, camera);
           this.q(".regional-center").hidden = camera.scale <= 1;
@@ -446,17 +439,7 @@ export class VoyageHud {
       const menu = this.q("#level-menu");
       menu.scrollTop = 0;
       this.root.dataset.levelScrolled = "false";
-      // A short portrait chart scrolls to the next voyage while its navigation stays fixed.
-      if (innerWidth <= 650 && innerHeight <= 650 && innerWidth <= innerHeight) {
-        requestAnimationFrame(() => {
-          if (!this.root.isConnected || this.menuPage !== "levels" || menu.hidden) return;
-          const current = menu.querySelector<HTMLElement>(".next-level");
-          if (!current) return;
-          const board = this.q(".level-board");
-          menu.scrollTop = Math.max(0, board.offsetTop + current.offsetTop + current.offsetHeight / 2 - menu.clientHeight / 2);
-          this.root.dataset.levelScrolled = String(menu.scrollTop > 20);
-        });
-      }
+
     }
   }
   home(): void {
@@ -575,11 +558,10 @@ export class VoyageHud {
       worldLevels(this.pack).find((i) => !this.progress.voyages[i]) ??
       (this.pack + 1) * LEVELS_PER_WORLD - 1;
     const stars = (pack: number) => worldStars(this.progress.voyages, pack);
-    this.q("#world-packs").innerHTML = worldChoices("pack", PACKS.map((pack,i) => ({
-      id: i, art: ["first-sails","pirate-waters","whirlpool-straits","glowing-deep"][i]!,
-      title: pack.name, disabled: !worldUnlocked(this.progress.voyages,i),
-      ariaLabel: `${pack.name}, world ${i+1}${worldUnlocked(this.progress.voyages,i) ? "" : ", finish World 1 to unlock"}`,
-      detail: worldUnlocked(this.progress.voyages, i) ? `★ ${stars(i)} / 30` : "🔒 Finish World 1",
+    this.q("#world-packs").innerHTML = adventureChart("pack",PACKS.map((p,i)=>({
+      id:i,art:worldArt(i),label:p.name,locked:!worldUnlocked(this.progress.voyages,i),
+      accessible:`${p.name}, world ${i+1}${worldUnlocked(this.progress.voyages,i)?"":", finish World 1 to unlock"}`,
+      tally:worldUnlocked(this.progress.voyages,i)?`★ ${stars(i)} / 30`:"🔒 Finish World 1"
     })));
     const pack = PACKS[this.pack]!;
     this.q("#world-number").textContent = `WORLD ${this.pack + 1}`;
@@ -588,18 +570,23 @@ export class VoyageHud {
     this.q(".level-note").textContent =
       `1,000 gold per level · World treasure: ${RELICS[WORLD_RELICS[this.pack]!]!.name}`;
 
+    const theme=(["add","subtract","multiply","divide"] as const)[this.pack]!;
+    const routePoints=worldLevels(this.pack).map((_,n)=>{const p=levelPoint(theme,n+1);return {x:p.x+840,y:p.y+1320};});
     this.q("#voyage-levels").innerHTML = Array.from(
       { length: LEVELS_PER_WORLD },
       (_, n) => {
         const i = this.pack * LEVELS_PER_WORLD + n,
           v = this.progress.voyages[i],
           locked = !levelUnlocked(this.progress.voyages, i);
-        const [x, y] = LEVEL_ROUTE[n]!;
-        return `<button data-level="${i}" style="--stop-x:${x}%;--stop-y:${y}%" ${locked ? "disabled" : ""} aria-label="Level ${n + 1}${locked ? ", locked" : v ? ", " + v.stars + " stars" : ", set sail"}" class="level-tile ${locked ? "locked" : ""} ${i === next ? "next-level" : ""}">${shoreMarker(i, String(n+1), "tile-number")}${locked ? icon("lock", "tile-lock") : ""}<span class="tile-stars">${[0, 1, 2].map((s) => `<i class="${s < (v?.stars ?? 0) ? "earned" : ""}">★</i>`).join("")}</span><span class="tile-treasure" title="${n === LEVELS_PER_WORLD - 1 ? RELICS[WORLD_RELICS[this.pack]!]!.name : "1,000 gold"}">${icon(n === LEVELS_PER_WORLD - 1 ? "gem" : "chest")}</span></button>`;
+        const {x,y}=routePoints[n]!;
+        return `<button data-level="${i}" style="left:${x}px;top:${y}px" ${locked ? "disabled" : ""} aria-label="Level ${n + 1}${locked ? ", locked" : v ? ", " + v.stars + " stars" : ", set sail"}" class="level-tile ${locked ? "locked" : ""} ${i === next ? "next-level" : ""}">${shoreMarker(i, String(n+1), "tile-number")}${locked ? icon("lock", "tile-lock") : ""}<span class="tile-stars">${[0, 1, 2].map((s) => `<i class="${s < (v?.stars ?? 0) ? "earned" : ""}">★</i>`).join("")}</span><span class="tile-treasure" title="${n === LEVELS_PER_WORLD - 1 ? RELICS[WORLD_RELICS[this.pack]!]!.name : "1,000 gold"}">${icon(n === LEVELS_PER_WORLD - 1 ? "gem" : "chest")}</span></button>`;
       },
     ).join("");
     const route = this.q("#voyage-levels");
-    route.insertAdjacentHTML("afterbegin", `<svg class="level-route" viewBox="0 0 1000 1000" preserveAspectRatio="none" aria-hidden="true"><polyline class="route-portrait" points="${LEVEL_ROUTE.map(([x,y]) => `${x*10},${y*10}`).join(' ')}"/><polyline class="route-landscape" points="80,780 290,780 500,780 710,780 920,780 920,240 710,240 500,240 290,240 80,240"/></svg>`);
+    route.style.setProperty("--water",`url(${worldAsset(theme,"-water")})`);
+    route.insertAdjacentHTML("afterbegin",`<div class="regional-terrain" aria-hidden="true"></div><svg class="level-route" viewBox="0 0 1900 1700" aria-hidden="true"><polyline points="${routePoints.map(p=>p.x+","+p.y).join(" ")}"/></svg>`);
+    const terrain=route.querySelector<HTMLElement>(".regional-terrain")!;
+    atlasRenderer(terrain,theme,{cleared:0,stars:{},runs:{}},createI18n("en",[]),{terrainOnly:true})({x:840,y:1320,scale:1},{x:-840,y:-1320},1900,1700);
     this.location(this.shipLocation);
   }
 
@@ -630,10 +617,10 @@ export class VoyageHud {
   private chartPoint(location: ShipLocation, regional: boolean): { x: number; y: number } {
     const chart = this.q(regional ? ".level-board" : ".world-map");
     const parent = chart.getBoundingClientRect();
-    if (regional && location.kind !== "course") return { x: chart.clientWidth * .07, y: chart.clientHeight * .94 };
+
     const selector = regional
       ? `[data-level="${location.kind === "course" && locationWorld(location) === this.pack ? location.index : this.pack * LEVELS_PER_WORLD}"]`
-      : location.kind === "cave" ? ".cave-art" : `.world-${locationWorld(location)} .world-art`;
+      : location.kind === "cave" ? ".cave-art" : `[data-shore="${locationWorld(location)}"] .world-art`;
     const element = this.root.querySelector<HTMLElement>(selector)?.getBoundingClientRect();
     if (!element || !parent.width) return { x: 0, y: 0 };
     // Regional entry scales the chart. Convert viewport bounds back to its local pixels.

@@ -1,6 +1,8 @@
 import { Rng } from "../sim/rng";
 
 export type OperatorId = "add" | "subtract" | "multiply" | "divide";
+export const clockSteps = [60, 30, 15, 5, 1] as const;
+export type ClockStep = typeof clockSteps[number];
 export type Stars = 1 | 2 | 3;
 export const QUESTIONS_PER_LEVEL = 10;
 export const GOLD_PER_QUESTION = 100;
@@ -226,8 +228,9 @@ export interface MathProgress {
   lastPlayed?: { pack: string; level: number };
   banks: Record<OperatorId, number>;
   tracks: Record<string, Track>;
+  completedClockSteps: ClockStep[];
 }
-export const freshProgress = (): MathProgress => ({ version: 4, solved: 0, chests: 0, cargo: [], operator: "add", pack: "add-10", banks: { add: 0, subtract: 0, multiply: 0, divide: 0 }, tracks: {} });
+export const freshProgress = (): MathProgress => ({ version: 4, solved: 0, chests: 0, cargo: [], operator: "add", pack: "add-10", banks: { add: 0, subtract: 0, multiply: 0, divide: 0 }, tracks: {}, completedClockSteps: [] });
 export const pendingMathChests = (p: MathProgress) => p.cargo.filter((chest) => !chest.delivered);
 export const cargoGold = (p: MathProgress) => pendingMathChests(p).reduce((sum, chest) => sum + chest.gold, 0);
 export const bankedGold = (p: MathProgress) => bankGold(p).reduce((sum, gold) => sum + gold, 0);
@@ -315,6 +318,8 @@ export function readMathProgress(storage?: Pick<Storage, "getItem">): MathProgre
     const selected = PACKS.find((pack) => pack.id === raw.pack);
     if (selected) { p.pack = selected.id; p.operator = selected.operator; }
     if (OPERATORS.some((o) => o.id === raw.operator)) p.operator = raw.operator as OperatorId;
+    const completed = raw.completedClockSteps;
+    if (Array.isArray(completed)) p.completedClockSteps = clockSteps.filter(step => completed.includes(step));
     const banks = raw.banks;
     if (raw.version === 1) {
       // Old banks counted 1,000-gold chests; earlier saves had only solved totals.

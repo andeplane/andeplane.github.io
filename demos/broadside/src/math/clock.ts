@@ -1,5 +1,5 @@
 import { Rng } from "../sim/rng";
-import { QUESTIONS_PER_LEVEL } from "./academy";
+import { QUESTIONS_PER_LEVEL, type ClockStep } from "./academy";
 
 export interface ClockQuestion {
   /** Minutes after twelve, in the range 0–719. */
@@ -15,8 +15,7 @@ function sample<T>(items: T[], count: number, rng: Rng): T[] {
   return Array.from({ length: count }, () => items.splice(rng.int(0, items.length - 1), 1)[0]!);
 }
 
-export const clockSteps = [60, 30, 15, 5, 1] as const;
-export type ClockStep = typeof clockSteps[number];
+export { clockSteps, type ClockStep } from "./academy";
 
 export function clockQuestions(seed: number, step: ClockStep): ClockQuestion[] {
   const rng = new Rng(seed);

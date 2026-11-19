@@ -38,7 +38,7 @@ export function clockBoard(round: ReturnType<typeof newClockRound>, { t, format,
       <div class="clock-choices">${question.choices.map(time => {
         const rejected = round.rejected.has(time);
         const result = rejected ? "wrong" : round.correct && time === question.time ? "correct" : "";
-        return `<button class="clock-choice" data-clock-time="${time}" data-result="${result}" ${round.correct || rejected ? "disabled" : ""}>${answerText(time)}</button>`;
+        return `<button class="clock-choice" data-answer-haptic data-clock-time="${time}" data-result="${result}" ${round.correct || rejected ? "disabled" : ""}>${answerText(time)}</button>`;
       }).join("")}</div>
       ${round.correct ? `<button class="wood-button primary" data-action="clock-next" aria-describedby="clock-feedback">${t(round.index + 1 === QUESTIONS_PER_LEVEL ? "clockResult" : "nextProblem")}</button>` : ""}
     </div>

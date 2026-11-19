@@ -19,6 +19,22 @@ beforeEach(()=>{
 });
 afterEach(()=>{vi.restoreAllMocks();vi.unstubAllGlobals();});
 describe("Captain Calculus navigation destinations",()=>{
+  it("shows the adventure total and the separate count for each difficulty", async () => {
+    const { freshProgress, saveMathProgress, trackFor } = await import("./academy");
+    const progress = freshProgress();
+    trackFor(progress, "add-10").cleared = 1;
+    trackFor(progress, "add-20").cleared = 3;
+    saveMathProgress(progress, localStorage);
+    await import("./main");
+    click("play");
+    const addition = root().querySelector<HTMLButtonElement>('button[data-operator="add"]')!;
+    expect(Array.from(root().querySelectorAll(".overworld-place > .map-symbol"), e => e.parentElement?.dataset.operator)).toEqual(["add", "subtract", "multiply", "divide", "clock"]);
+    expect(addition.querySelector(".chart-tally")?.textContent).toBe("4 levels completed");
+    addition.click();
+    expect(Array.from(root().querySelectorAll(".chart-tally"), e => e.textContent)).toEqual([
+      "1 level completed", "3 levels completed", "0 levels completed", "0 levels completed", "0 levels completed",
+    ]);
+  });
   it("keeps Play pointed at the choices even when there is a saved voyage", async () => {
     const { freshProgress, saveMathProgress, startVoyage } = await import("./academy");
     const progress = freshProgress();
@@ -33,6 +49,7 @@ describe("Captain Calculus navigation destinations",()=>{
     click("back");
     click("resume");
     expect(root().dataset.screen).toBe("question");
+    expect(root().querySelector('[data-action="hint"], .hint-panel')).toBeNull();
     click("back");
     expect(root().dataset.screen).toBe("home");
     click("play");
@@ -132,14 +149,14 @@ describe("Captain Calculus navigation destinations",()=>{
 });
 
 describe("Captain Calculus language preferences", () => {
-  it("detects Norwegian and keeps its first-try reward instructions", async () => {
+  it("detects Norwegian and displays the language and privacy controls", async () => {
     vi.spyOn(navigator, "languages", "get").mockReturnValue(["nb-NO", "en"]);
     await import("./main");
     expect(document.documentElement.lang).toBe("nb");
     expect(root().querySelector("button[data-action=play]")?.textContent).toContain("Spill");
     expect(root().querySelector("[data-action=settings]")?.textContent).toContain("Innstillinger");
     click("settings");
-    expect(root().textContent).toContain("100 gull per riktig svar på første forsøk");
+    expect(root().querySelector("[data-open-privacy]")).not.toBeNull();
     expect(root().querySelector("#game-language")).toBeNull();
     click("back");
     click("settings");

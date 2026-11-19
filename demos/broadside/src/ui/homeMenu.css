@@ -1,143 +1,48 @@
-/* The home page is a single screen, not a content page below an app toolbar. */
-#academy[data-screen="home"] .pirate-home-shell { height: 100%; }
-#captain-menu #main-menu {
-  inset: 0;
-  display: block;
-  padding: 0;
-  overflow: auto;
-  text-align: left;
-  scrollbar-width: thin;
+:is(#academy,#reader,#voyage-ui) button.menu-language {
+  position:fixed; z-index:4; right:calc(6px + var(--pirate-safe-right,0px)); bottom:calc(6px + var(--pirate-safe-bottom,0px));
+  display:grid;place-items:center;width:48px;height:48px;padding:0;border:0;background:transparent;color:#fff;font:26px/1 system-ui;
+  text-shadow:0 1px 3px #23150b;cursor:pointer;
 }
-#voyage-ui[data-screen="main"] .menu-atmosphere { display: none; }
-.pirate-home {
-  min-height: 100%;
-  --home-gutter: 28px;
-  width: 100%;
-  padding: calc(30px + var(--pirate-safe-top, env(safe-area-inset-top, 0px))) 28px calc(24px + var(--pirate-safe-bottom, env(safe-area-inset-bottom, 0px)));
-  padding-left: calc(var(--home-gutter) + var(--pirate-safe-left, env(safe-area-inset-left, 0px)));
-  padding-right: calc(var(--home-gutter) + var(--pirate-safe-right, env(safe-area-inset-right, 0px)));
-  overflow: hidden;
-  color: #fff0d2;
-  background: radial-gradient(ellipse at 74% 28%, #2a5155 0, #14343e 42%, #0a1e2c 85%);
-  font-family: "DM Sans", sans-serif;
+.pirate-actions .lantern-action-title {display:block;}
+.calculus-home-actions .lantern-action-title,.reader-actions .lantern-action-title {font:700 22px/1.14 Fraunces,Georgia,serif;}
+.calculus-home-actions .menu-play .lantern-action-title {font:inherit;}
+.calculus-home-actions button:not(.menu-play) strong {font:500 13px/1.3 system-ui;color:#f4e3c3;}
+.captain-desk {
+  min-height:100%; display:grid; grid-template-rows:auto 1fr;
+  padding:calc(8px + var(--pirate-safe-top)) calc(8px + var(--pirate-safe-right))
+    calc(8px + var(--pirate-safe-bottom)) calc(8px + var(--pirate-safe-left));
 }
-.pirate-home-layout {
-  width: min(1040px, 100%);
-  min-height: calc(100dvh - 54px - var(--pirate-safe-top, env(safe-area-inset-top, 0px)) - var(--pirate-safe-bottom, env(safe-area-inset-bottom, 0px)));
-  margin: auto;
-  display: grid;
-  grid-template-columns: minmax(320px, 440px) minmax(260px, 1fr);
-  grid-template-rows: auto auto;
-  column-gap: 50px;
-  align-content: center;
+.captain-desk > button { justify-self:start; }
+.captain-paper, dialog.captain-language {
+  background:transparent url("/assets/map/problem-parchment.webp") center / 100% 100% no-repeat;
+  color:#30200e; border:0; border-radius:0; filter:drop-shadow(0 5px 4px #21100480);
 }
-.pirate-home-intro { grid-column: 1; align-self: end; }
-#main-menu .pirate-home-title,
-#academy .pirate-home-title {
-  color: #fff0d2;
-  margin: 0;
-  font: 400 clamp(58px, 6.6vw, 84px)/.95 "Pirata One", Georgia, serif;
-  text-shadow: 0 4px 18px #05121a66;
-  letter-spacing: 0;
+.captain-paper {
+  width:min(100%,510px); margin:auto; text-align:center;
+  padding:clamp(28px,7vh,64px) clamp(25px,8vw,60px);
 }
-.pirate-home-title span { display: block; }
-.pirate-home-title span:last-child { color: #f0ca87; }
-.pirate-home-description { max-width: 340px; margin: 18px 0 0; color: #b9cdca; font: 400 14px/1.55 "DM Sans", sans-serif; }
-.pirate-home-art { grid-column: 2; grid-row: 1 / 3; align-self: center; position: relative; height: 470px; isolation: isolate; pointer-events: none; }
-.pirate-home-moon { position: absolute; top: 24px; right: 18%; width: 95px; height: 95px; border-radius: 50%; background: #e1d9ae; opacity: .67; box-shadow: 0 0 70px #c8d5c21c; }
-.pirate-home-horizon { position: absolute; inset: 45% -70px -60px; border-radius: 50% 50% 0 0; background: radial-gradient(ellipse at 50% 0, #40717a3b, transparent 62%), repeating-radial-gradient(ellipse at 50% 0, transparent 0 28px, #7daca615 29px 30px, transparent 32px 48px); }
-.pirate-home-ship { position: absolute; inset: 40px -30px 20px; display: grid; place-items: center; filter: drop-shadow(0 20px 14px #04101955); }
-.pirate-home-ship svg { width: 100%; max-height: 100%; }
-.pirate-home-controls { grid-column: 1; margin-top: 30px; min-width: 0; }
-.pirate-home-play { display: grid; gap: 8px; }
-.pirate-home-primary {
-  width: 100%;
-  min-height: 72px;
-  padding: 15px 22px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 16px;
-  border: 1px solid #f7d99e;
-  border-radius: 12px;
-  background: linear-gradient(135deg, #f0d395, #d8ac62);
-  box-shadow: inset 0 1px #fff5, 0 4px 0 #8a693e, 0 12px 25px #06131c33;
-  color: #312a1c;
-  text-align: left;
+:is(#academy,#reader,#voyage-ui) .captain-paper h1 { margin:0 0 14px; font:400 clamp(34px,8vw,50px)/1 "Pirata One",Georgia,serif; color:#34200f; }
+:is(#academy,#reader,#voyage-ui) .desk-action, .captain-language .language-options button {
+  min-height:44px; background:transparent; color:#30200e; border:0; border-radius:0;
+  border-bottom:1px solid #876132; box-shadow:none; font:700 17px/1.15 Georgia,serif;
 }
-.pirate-home-primary strong { display: block; font: 700 21px/1.2 "DM Sans", sans-serif; }
-.pirate-home-primary small { display: block; margin-top: 5px; color: #4c3d24; font: 400 14px/1.4 "DM Sans", sans-serif; }
-.pirate-home-primary > span { min-width: 0; overflow-wrap: anywhere; }
-.pirate-home-primary > .icon { flex: none; width: 25px; height: 25px; }
-.pirate-home-primary:hover { filter: brightness(1.05); }
-.pirate-home-choose { min-width: 44px; min-height: 44px; padding: 8px; display: flex; gap: 8px; align-items: center; justify-content: center; border: 0; background: transparent; color: #c1d7d2; font: 700 14px/1.3 "DM Sans", sans-serif; }
-.pirate-home-choose .icon { width: 19px; height: 19px; }
-.pirate-home-treasure { margin-top: 23px; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
-.pirate-home-destination { min-width: 0; min-height: 122px; padding: 15px; position: relative; border: 1px solid #d4c19138; border-radius: 12px; background: #102a34b8; color: #eaf0df; text-align: left; box-shadow: inset 0 1px #ffffff05; }
-.pirate-home-destination:hover { border-color: #d6bf8166; background: #17333e; }
-.pirate-home-destination-icon { display: block; margin-bottom: 9px; color: #d9bd83; }
-.pirate-home-destination-icon .icon { width: 23px; height: 23px; }
-.pirate-home-destination-copy { display: block; min-width: 0; overflow-wrap: anywhere; }
-.pirate-home-destination-title { display: block; color: #f9ebd0; font: 700 14px/1.3 "DM Sans", sans-serif; }
-.pirate-home-destination-copy strong { display: block; margin-top: 4px; color: #bdd0c8; font: 400 14px/1.35 "DM Sans", sans-serif; }
-.pirate-home-destination-copy small { display: block; margin-top: 2px; color: #8fa9a6; font: 400 12px/1.45 "DM Sans", sans-serif; }
-.pirate-home-card-arrow { position: absolute; right: 14px; top: 17px; width: 17px; height: 17px; color: #9cb6ac; }
-.pirate-home-footer { margin-top: 18px; display: flex; align-items: center; justify-content: space-between; gap: 14px; }
-.pirate-home-footer p { max-width: 270px; color: #b9cdca; font: 400 12px/1.5 "DM Sans", sans-serif; }
-.pirate-home-settings { flex: 0 0 auto; min-height: 44px; padding: 10px 0 10px 10px; border: 0; background: transparent; color: #c4d2c8; font: 700 14px/1.3 "DM Sans", sans-serif; }
-.pirate-home button { cursor: pointer; touch-action: manipulation; }
-.pirate-home button:focus-visible { outline: 3px solid #89e5ce; outline-offset: 4px; }
-@media (max-width: 700px) {
-  .pirate-home { --home-gutter: 24px; padding-top: calc(26px + var(--pirate-safe-top, env(safe-area-inset-top, 0px))); padding-bottom: calc(22px + var(--pirate-safe-bottom, env(safe-area-inset-bottom, 0px))); }
-  .pirate-home-layout { grid-template-columns: minmax(0, 1fr); grid-template-rows: auto 128px auto; min-height: calc(100dvh - 48px - var(--pirate-safe-top, env(safe-area-inset-top, 0px)) - var(--pirate-safe-bottom, env(safe-area-inset-bottom, 0px))); width: min(420px, 100%); row-gap: 10px; align-content: center; }
-  .pirate-home-intro { grid-row: 1; text-align: center; }
-  #main-menu .pirate-home-title, #academy .pirate-home-title { font-size: 59px; line-height: .94; }
-  .pirate-home-description { max-width: 300px; margin: 13px auto 0; font-size: 14px; line-height: 1.5; }
-  .pirate-home-art { grid-column: 1; grid-row: 2; height: 128px; width: 280px; max-width: 100%; justify-self: center; }
-  .pirate-home-moon { width: 43px; height: 43px; top: 0; right: 15%; }
-  .pirate-home-ship { inset: -5px 42px -8px; }
-  .pirate-home-horizon { inset: 65% -25px -5px; }
-  .pirate-home-controls { grid-row: 3; margin-top: 2px; }
-  .pirate-home-primary { min-height: 69px; padding: 14px 20px; }
-  .pirate-home-treasure { margin-top: 19px; gap: 10px; }
-  .pirate-home-destination { min-height: 111px; padding: 13px; }
-  .pirate-home-destination-icon { margin-bottom: 7px; }
-  .pirate-home-footer { margin-top: 12px; }
-}
-@media (max-height: 730px) and (max-width: 700px) {
-  .pirate-home { padding-top: calc(17px + var(--pirate-safe-top, env(safe-area-inset-top, 0px))); padding-bottom: calc(16px + var(--pirate-safe-bottom, env(safe-area-inset-bottom, 0px))); }
-  .pirate-home-layout { grid-template-rows: auto 76px auto; row-gap: 7px; min-height: calc(100dvh - 33px - var(--pirate-safe-top, env(safe-area-inset-top, 0px)) - var(--pirate-safe-bottom, env(safe-area-inset-bottom, 0px))); }
-  #main-menu .pirate-home-title, #academy .pirate-home-title { font-size: 46px; }
-  .pirate-home-description { margin-top: 9px; font-size: 14px; }
-  .pirate-home-art { height: 76px; }
-  .pirate-home-ship { inset: -8px 76px -5px; }
-  .pirate-home-moon { width: 30px; height: 30px; right: 25%; }
-  .pirate-home-primary { min-height: 61px; padding: 12px 17px; }
-  .pirate-home-primary strong { font-size: 19px; }
-  .pirate-home-treasure { margin-top: 14px; }
-  .pirate-home-destination { min-height: 101px; padding: 11px; }
-  .pirate-home-destination-icon { margin-bottom: 5px; }
-  .pirate-home-footer { margin-top: 7px; }
-}
-@media (max-height: 650px) and (max-width: 599px) {
-  .pirate-home-layout { grid-template-rows: auto auto; }
-  .pirate-home-art { display: none; }
-  .pirate-home-controls { grid-row: 2; }
-}
-@media (max-height: 480px) and (min-width: 600px) {
-  #voyage-ui[data-screen="main"] .pirate-home { padding-top: calc(64px + var(--pirate-safe-top, env(safe-area-inset-top, 0px))); }
-  .pirate-home { --home-gutter: 24px; padding: calc(18px + var(--pirate-safe-top, env(safe-area-inset-top, 0px))) calc(var(--home-gutter) + var(--pirate-safe-right, env(safe-area-inset-right, 0px))) calc(16px + var(--pirate-safe-bottom, env(safe-area-inset-bottom, 0px))) calc(var(--home-gutter) + var(--pirate-safe-left, env(safe-area-inset-left, 0px))); }
-  .pirate-home-layout { min-height: 0; width: min(900px, 100%); grid-template-columns: minmax(0, .85fr) minmax(0, 1fr); grid-template-rows: auto; gap: 28px; align-items: center; }
-  .pirate-home-intro { grid-column: 1; grid-row: 1; align-self: start; padding-top: 12px; text-align: left; }
-  #main-menu .pirate-home-title, #academy .pirate-home-title { font-size: 52px; }
-  .pirate-home-description { margin: 12px 0 0; font-size: 14px; }
-  .pirate-home-art { grid-column: 1; grid-row: 1; align-self: end; height: 145px; width: 220px; margin-top: 145px; opacity: .7; }
-  .pirate-home-ship { inset: 0 35px; }
-  .pirate-home-moon { width: 40px; height: 40px; right: 15%; }
-  .pirate-home-controls { grid-column: 2; grid-row: 1; margin: 0; }
-  .pirate-home-primary { min-height: 57px; padding: 11px 16px; }
-  .pirate-home-primary strong { font-size: 19px; }
-  .pirate-home-treasure { margin-top: 14px; }
-  .pirate-home-destination { min-height: 100px; padding: 10px; }
-  .pirate-home-footer { margin-top: 6px; }
-}
+:is(#academy,#reader,#voyage-ui) .desk-action { display:block; margin:auto; width:100%; padding:10px 4px; }
+.desk-action strong { margin-right:12px; }
+.desk-save { margin:18px 0 0; font:italic 15px/1.3 Georgia,serif; }
+.desk-save .icon { width:18px; height:18px; vertical-align:middle; }
+dialog.captain-language { padding:24px clamp(22px,7vw,36px) 28px; }
+.captain-language .language-options { gap:2px 8px; }
+.captain-language .language-options button { padding:4px; }
+.captain-language .language-options [aria-pressed="true"] { background:#ae75282a; }
+.captain-language h2 { font:400 34px "Pirata One",Georgia,serif; }
+
+#voyage-ui #settings-menu,#reader[data-screen="settings"] #reader-content {background:#372219 url("/assets/map/problem-table.webp") center/cover;overflow:auto;}
+#voyage-ui #settings-menu .captain-desk {display:grid;grid-template-rows:1fr;padding-top:calc(55px + var(--pirate-safe-top));}
+#voyage-ui #settings-menu .captain-paper {padding:40px 35px;}
+#voyage-ui #settings-menu .captain-paper :is(p,label,a),#reader .captain-paper {color:#322414;}
+#voyage-ui #settings-menu .captain-paper label {display:flex;align-items:center;justify-content:center;gap:8px;min-height:44px;}
+#voyage-ui #settings-menu .captain-paper a {text-decoration:underline;}
+#reader .captain-paper {margin:auto;padding:40px 30px;}
+#reader .captain-paper .desk-action {color:#372414;}
+#reader .captain-paper button[data-action="reset"] {background:#422a14;color:#ffedc9;}
+#reader .voyage-atlas .trail-heading h1 {color:#fff4d5;text-shadow:0 1px 3px #201b13;-webkit-text-stroke:3px #332516;paint-order:stroke fill;}

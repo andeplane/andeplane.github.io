@@ -132,10 +132,10 @@ final class ReleaseUITests: XCTestCase {
         XCTAssertTrue(button(app,"Check answer").waitForExistence(timeout:20))
         XCTAssertFalse(button(app,"Check answer").isEnabled)
         capture("calculus-04-question-portrait",app:app)
-        tap(app,"A little help");capture("calculus-hint-portrait",app:app)
+        XCTAssertFalse(button(app,"A little help").exists)
         XCUIDevice.shared.orientation = .landscapeLeft
         capture("calculus-05-question-landscape",app:app)
-        tap(app,"Hide hint");XCUIDevice.shared.orientation = .portrait
+        XCUIDevice.shared.orientation = .portrait
         app.buttons["0"].tap();tap(app,"Check answer")
         XCTAssertTrue(app.staticTexts.matching(NSPredicate(format:"label BEGINSWITH %@","Not quite.")).firstMatch.waitForExistence(timeout:10))
         capture("calculus-wrong-answer",app:app)
