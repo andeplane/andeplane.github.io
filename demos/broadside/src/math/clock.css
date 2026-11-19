@@ -1,0 +1,155 @@
+#academy[data-screen="operators"] .family-world-chart {
+  padding-bottom: calc(20px + var(--safe-bottom));
+}
+
+@media (orientation: portrait) {
+  #academy[data-screen="operators"] .family-world-chart .world-art {
+    height: clamp(64px, calc((100dvh - 340px) / 3), 144px);
+  }
+
+  #academy[data-screen="operators"] [data-operator="clock"] {
+    grid-column: 1 / -1;
+    width: calc((100% - clamp(8px, 2vh, 22px)) / 2);
+    justify-self: center;
+  }
+}
+
+@media (orientation: landscape) and (max-height: 520px) and (min-width: 660px) {
+  #academy[data-screen="operators"] .family-world-chart nav {
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+  }
+
+  #academy[data-screen="operators"] .family-world-chart .world-label {
+    overflow-wrap: anywhere;
+  }
+
+  #academy[data-screen="operators"] .family-world-chart .world-label b {
+    font-size: clamp(14px, 2.3vw, 18px);
+  }
+}
+
+.clock-board {
+  width: min(100%, 580px);
+  margin-inline: auto;
+  padding: calc(4px + var(--safe-top)) 12px calc(12px + var(--safe-bottom));
+  color: #0b2840;
+}
+
+.clock-status { margin-bottom: 8px; }
+
+.clock-sheet {
+  display: grid;
+  justify-items: stretch;
+  gap: 10px;
+  padding: clamp(12px, 3vw, 24px);
+  border-radius: 16px;
+  background: #fff6e3;
+  text-align: center;
+}
+
+.clock-sheet h1 {
+  margin: 0;
+  color: #0b2840;
+  font: 700 clamp(24px, 6vw, 36px)/1.1 Fraunces, Georgia, serif;
+  text-shadow: none;
+}
+
+.clock-count, .clock-instruction, .clock-feedback, .clock-score {
+  margin: 0;
+  color: #385362;
+  font-size: 15px;
+  line-height: 1.35;
+}
+
+.clock-count { font-weight: 700; }
+
+.clock-face {
+  display: block;
+  width: clamp(154px, 37dvh, 248px);
+  max-width: 100%;
+  margin: auto;
+}
+
+.clock-rim { fill: #8e5e24; }
+.clock-dial { fill: #fffdf6; stroke: #d1a759; stroke-width: 2; }
+.clock-hour-tick { stroke: #0b2840; stroke-width: 2; }
+.clock-minute-tick { stroke: #697e87; stroke-width: 1.25; }
+.clock-face text {
+  fill: #0b2840;
+  font: 700 18px/1 system-ui, sans-serif;
+  text-anchor: middle;
+  dominant-baseline: central;
+}
+.clock-hour-hand, .clock-minute-hand { stroke-linecap: round; }
+.clock-hour-hand { stroke: #0b2840; stroke-width: 8; }
+.clock-minute-hand { stroke: #006875; stroke-width: 4.5; }
+.clock-pin { fill: #0b2840; }
+
+.clock-actions {
+  display: grid;
+  align-content: center;
+  gap: 8px;
+  min-width: 0;
+}
+
+.clock-choices {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+}
+.clock-choice {
+  min-height: 48px;
+  padding: 5px 8px;
+  border: 1px solid #678592;
+  border-radius: 12px;
+  background: #fffdf6;
+  color: #0b2840;
+  font: 700 24px/1.2 system-ui, sans-serif;
+  font-variant-numeric: tabular-nums;
+}
+.clock-choice:disabled { opacity: 1; }
+.clock-choice[data-result="wrong"] { background: #f7e2da; color: #773127; text-decoration: line-through; }
+.clock-choice[data-result="correct"] { background: #d5eddd; border-color: #28634a; color: #164a35; }
+@media (hover: hover) {
+  .clock-choice:enabled:hover { background: #e0f3ee; }
+}
+.clock-choice:focus-visible, .clock-sheet .wood-button:focus-visible {
+  outline: 3px solid #075d75;
+  outline-offset: 2px;
+}
+.clock-feedback { min-height: 1.35em; font-weight: 700; }
+.clock-feedback.retry { color: #773127; }
+.clock-feedback.success { color: #164a35; }
+.clock-sheet .wood-button.primary {
+  justify-content: center;
+  min-height: 44px;
+  margin: 0;
+  padding: 7px 14px;
+  border: 1px solid #805300;
+  border-radius: 12px;
+  background: #f5ba32;
+  color: #0b2840;
+  font-size: 16px;
+}
+.clock-complete { padding-block: 28px; }
+
+@media (orientation: portrait) and (max-height: 650px) {
+  .clock-face { width: clamp(140px, 30dvh, 190px); }
+}
+
+@media (orientation: landscape) and (max-height: 520px) {
+  .clock-board { width: min(100%, 684px); padding-top: calc(4px + var(--safe-top)); }
+  .clock-sheet { gap: 6px 18px; padding: 10px 14px; }
+  .clock-sheet:not(.clock-complete) {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1.25fr);
+    align-items: center;
+  }
+  .clock-sheet header { grid-area: 1 / 1; }
+  .clock-sheet h1 { font-size: 24px; }
+  .clock-face {
+    grid-area: 2 / 1;
+    width: clamp(132px, 44dvh, 204px);
+  }
+  .clock-actions { grid-area: 1 / 2 / span 2; }
+  .clock-choice { min-height: 44px; }
+}

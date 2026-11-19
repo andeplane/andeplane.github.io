@@ -1,5 +1,16 @@
 // Complete Captain Calculus catalogs. Preserve interpolation fields across languages.
 export const en = {
+  "clockResult": "See results",
+  "clockAdventure": "Tell the time",
+  "clockIsland": "Lighthouse Island",
+  "clockPrompt": "What time is it?",
+  "clockChoose": "The short hand shows the hour. The long hand shows the minutes.",
+  "clockTryAgain": "Try again. Look at where both hands point.",
+  "clockCorrect": "Correct! It’s {time}.",
+  "clockScore": "You read all ten clocks. {count} of 10 right on the first try!",
+  "clockAgain": "Play again",
+  "clockFaceLabel": "Clock. Short hand at {hour}. Long hand at {minute}.",
+  "clockFaceBetween": "Clock. Short hand between {hour} and {next}. Long hand at {minute}.",
   "subtitle": "A pirate math adventure",
   "home": "Home",
   "operators": "Operators",
@@ -270,6 +281,17 @@ export const en = {
 } as const;
 
 export const nb = {
+  "clockResult": "Se resultatet",
+  "clockAdventure": "Lær klokka",
+  "clockIsland": "Fyrøya",
+  "clockPrompt": "Hva er klokka?",
+  "clockChoose": "Den korte viseren viser timen. Den lange viser minuttene.",
+  "clockTryAgain": "Prøv igjen. Se hvor begge viserne peker.",
+  "clockCorrect": "Riktig! Klokka er {time}.",
+  "clockScore": "Du leste alle ti klokkene. {count} av 10 riktige på første forsøk!",
+  "clockAgain": "Spill igjen",
+  "clockFaceLabel": "Klokke. Kort viser på {hour}. Lang viser på {minute}.",
+  "clockFaceBetween": "Klokke. Kort viser mellom {hour} og {next}. Lang viser på {minute}.",
   "subtitle": "Et sjørøvereventyr med matte",
   "home": "Hjem",
   "operators": "Regnearter",
@@ -540,6 +562,17 @@ export const nb = {
 } as const;
 
 export const sv = {
+  "clockResult": "Se resultatet",
+  "clockAdventure": "Lär dig klockan",
+  "clockIsland": "Fyrön",
+  "clockPrompt": "Vad är klockan?",
+  "clockChoose": "Den korta visaren visar timmarna. Den långa visar minuterna.",
+  "clockTryAgain": "Försök igen. Titta vart båda visarna pekar.",
+  "clockCorrect": "Rätt! Klockan är {time}.",
+  "clockScore": "Du läste av alla tio klockor. {count} av 10 rätt på första försöket!",
+  "clockAgain": "Spela igen",
+  "clockFaceLabel": "Klocka. Korta visaren på {hour}. Långa visaren på {minute}.",
+  "clockFaceBetween": "Klocka. Korta visaren mellan {hour} och {next}. Långa visaren på {minute}.",
   "subtitle": "Ett piratäventyr med matte",
   "home": "Hem",
   "operators": "Räknesätt",
@@ -810,6 +843,17 @@ export const sv = {
 } as const;
 
 export const da = {
+  "clockResult": "Se resultatet",
+  "clockAdventure": "Lær klokken",
+  "clockIsland": "Fyrøen",
+  "clockPrompt": "Hvad er klokken?",
+  "clockChoose": "Den korte viser viser timen. Den lange viser minutterne.",
+  "clockTryAgain": "Prøv igen. Se, hvor begge visere peger hen.",
+  "clockCorrect": "Rigtigt! Klokken er {time}.",
+  "clockScore": "Du læste alle ti ure. {count} ud af 10 rigtige i første forsøg!",
+  "clockAgain": "Spil igen",
+  "clockFaceLabel": "Ur. Den korte viser peger på {hour}. Den lange peger på {minute}.",
+  "clockFaceBetween": "Ur. Den korte viser er mellem {hour} og {next}. Den lange peger på {minute}.",
   "subtitle": "Et sørøvereventyr med matematik",
   "home": "Hjem",
   "operators": "Regnearter",
@@ -1080,6 +1124,17 @@ export const da = {
 } as const;
 
 export const fi = {
+  "clockResult": "Katso tulos",
+  "clockAdventure": "Opi kello",
+  "clockIsland": "Majakkasaari",
+  "clockPrompt": "Paljonko kello on?",
+  "clockChoose": "Lyhyt viisari näyttää tunnit. Pitkä viisari näyttää minuutit.",
+  "clockTryAgain": "Yritä uudelleen. Katso, mihin molemmat viisarit osoittavat.",
+  "clockCorrect": "Oikein! Kello on {time}.",
+  "clockScore": "Luit kaikki kymmenen kelloa. {count}/10 oikein ensimmäisellä yrittämällä!",
+  "clockAgain": "Pelaa uudelleen",
+  "clockFaceLabel": "Kello. Lyhyt viisari on luvussa {hour}. Pitkä viisari on luvussa {minute}.",
+  "clockFaceBetween": "Kello. Lyhyt viisari on lukujen {hour} ja {next} välissä. Pitkä viisari on luvussa {minute}.",
   "subtitle": "Merirosvojen matikkaseikkailu",
   "home": "Koti",
   "operators": "Laskutavat",
@@ -1350,6 +1405,17 @@ export const fi = {
 } as const;
 
 export const de = {
+  "clockResult": "Ergebnis ansehen",
+  "clockAdventure": "Die Uhr lesen",
+  "clockIsland": "Leuchtturminsel",
+  "clockPrompt": "Wie spät ist es?",
+  "clockChoose": "Der kurze Zeiger zeigt die Stunde. Der lange zeigt die Minuten.",
+  "clockTryAgain": "Versuch es noch einmal. Schau, wohin beide Zeiger zeigen.",
+  "clockCorrect": "Richtig! Es ist {time} Uhr.",
+  "clockScore": "Du hast alle zehn Uhren gelesen. {count} von 10 beim ersten Versuch richtig!",
+  "clockAgain": "Noch mal spielen",
+  "clockFaceLabel": "Uhr. Kurzer Zeiger auf {hour}. Langer Zeiger auf {minute}.",
+  "clockFaceBetween": "Uhr. Kurzer Zeiger zwischen {hour} und {next}. Langer Zeiger auf {minute}.",
   "subtitle": "Ein Piraten-Matheabenteuer",
   "home": "Start",
   "operators": "Rechenarten",
@@ -1620,6 +1686,17 @@ export const de = {
 } as const;
 
 export const es = {
+  "clockResult": "Ver el resultado",
+  "clockAdventure": "Aprende la hora",
+  "clockIsland": "Isla del Faro",
+  "clockPrompt": "¿Qué hora es?",
+  "clockChoose": "La aguja corta marca la hora. La larga marca los minutos.",
+  "clockTryAgain": "Inténtalo de nuevo. Mira adónde apuntan las dos agujas.",
+  "clockCorrect": "¡Correcto! El reloj marca las {time}.",
+  "clockScore": "Leíste los diez relojes. ¡{count} de 10 al primer intento!",
+  "clockAgain": "Jugar de nuevo",
+  "clockFaceLabel": "Reloj. Aguja corta en el {hour}. Aguja larga en el {minute}.",
+  "clockFaceBetween": "Reloj. Aguja corta entre el {hour} y el {next}. Aguja larga en el {minute}.",
   "subtitle": "Una aventura pirata de matemáticas",
   "home": "Inicio",
   "operators": "Operaciones",
@@ -1890,6 +1967,17 @@ export const es = {
 } as const;
 
 export const fr = {
+  "clockResult": "Voir le résultat",
+  "clockAdventure": "Apprendre l’heure",
+  "clockIsland": "Île du Phare",
+  "clockPrompt": "Quelle heure est-il ?",
+  "clockChoose": "La petite aiguille indique l’heure. La grande indique les minutes.",
+  "clockTryAgain": "Réessaie. Regarde où pointent les deux aiguilles.",
+  "clockCorrect": "Bravo ! Il est {time}.",
+  "clockScore": "Tu as lu les dix horloges. {count} bonnes réponses sur 10 du premier coup !",
+  "clockAgain": "Rejouer",
+  "clockFaceLabel": "Horloge. Petite aiguille sur le {hour}. Grande aiguille sur le {minute}.",
+  "clockFaceBetween": "Horloge. Petite aiguille entre le {hour} et le {next}. Grande aiguille sur le {minute}.",
   "subtitle": "Une aventure pirate et mathématique",
   "home": "Accueil",
   "operators": "Opérations",
