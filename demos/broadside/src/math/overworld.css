@@ -1,0 +1,82 @@
+.calculus-overworld {
+  box-sizing: border-box;
+  height: 100%;
+  min-height: 360px;
+  padding: var(--pirate-safe-top) var(--pirate-safe-right) var(--pirate-safe-bottom) var(--pirate-safe-left);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background: #493423 url("/assets/menu/calculus-worktable-wide.webp") center / cover;
+}
+.calculus-overworld header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: min(100%, 1100px);
+  padding: 4px 10px;
+  box-sizing: border-box;
+  background: #342a1dec;
+}
+#academy .calculus-overworld header h1 {
+  margin: 0;
+  font: 400 clamp(23px, 5vmin, 32px)/1 "Pirata One", Georgia, serif;
+  color: #fff1d0;
+}
+.overworld-chart {
+  position: relative;
+  flex: 1;
+  width: min(100%, 1100px);
+  background: #547d73 url("/assets/map/calculus-overworld.webp") center / 100% 100% no-repeat;
+}
+#academy .overworld-place {
+  position: absolute;
+  left: var(--x);
+  top: var(--y);
+  transform: translate(-50%, -50%);
+  display: grid;
+  justify-items: center;
+  align-content: center;
+  width: max-content;
+  max-width: 45%;
+  min-width: 74px;
+  min-height: 44px;
+  border: 0;
+  border-radius: 8px;
+  padding: 2px;
+  background: none;
+  color: #322718;
+  cursor: pointer;
+}
+.overworld-place[data-operator="add"]      { --x: 23%; --y: 28%; }
+.overworld-place[data-operator="subtract"] { --x: 75%; --y: 22%; }
+.overworld-place[data-operator="multiply"] { --x: 23%; --y: 67%; }
+.overworld-place[data-operator="divide"]   { --x: 77%; --y: 61%; }
+.overworld-place[data-operator="clock"]    { --x: 54%; --y: 87%; }
+.overworld-coin {
+  display: block;
+  width: clamp(35px, 8vmin, 50px);
+  height: auto;
+  filter: drop-shadow(1px 2px 1px #442b1766);
+}
+.overworld-caption {
+  display: grid;
+  justify-items: center;
+  padding: 2px 8px 3px;
+  border-radius: 2px 5px;
+  background: #ffedcdef;
+  box-shadow: 0 1px 2px #35291c70;
+}
+.overworld-caption b { font: 700 clamp(13px, 3.3vmin, 18px)/1.12 Fraunces, Georgia, serif; }
+.overworld-caption small { font: 600 clamp(12px, 2.8vmin, 14px)/1.18 "DM Sans", sans-serif; }
+#academy .overworld-place:focus-visible { outline: 3px solid #172f31; outline-offset: 2px; }
+@media (orientation: landscape) {
+  .calculus-overworld { min-height: 280px; }
+  .overworld-chart, .calculus-overworld header { width: min(100%, 195dvh, 1100px); }
+}
+
+/* Bound the paper's proportions on a tall phone or a shallow chart table. */
+.calculus-overworld { justify-content: center; }
+.overworld-chart { max-height: 150vw; }
+@media (orientation: landscape) {
+  .overworld-chart, .calculus-overworld header { width: min(100%, 160dvh, 1100px); }
+}

@@ -18,7 +18,7 @@ import { selectLanguage } from "./language";
 import type { GoldCave } from "./goldCave";
 import "./style.css";
 import { difficultyMap } from "../ui/difficultyMap";
-import { worldChoices, worldChart } from "../ui/islandChart";
+import "./overworld.css";
 import "./adventure.css";
 import "./focus.css";
 import "./home.css";
@@ -152,19 +152,22 @@ function home(): string {
   </section>`;
 }
 function operatorView(): string {
-  const worlds = OPERATORS.map((op, i) => {
-    const world = worldFor(op.id);
+  const places = OPERATORS.map(op => {
     const cleared = packsFor(op.id).reduce((sum, pack) => sum + (progress.tracks[pack.id]?.cleared ?? 0), 0);
-    const name = operatorName(op.id);
-    const sailed = cleared ? t("sailed", { count: format(cleared) }) : "";
-    return { id: op.id, art: [0, 4, 6, 8][i]!, title: name, subtitle: world.name,
-      progress: cleared ? navNumber(cleared) : undefined,
-      ariaLabel: [name, world.name, sailed].filter(Boolean).join(", ") };
+    return { id: op.id as OperatorId | "clock", region: worldFor(op.id).name, lesson: operatorName(op.id), cleared };
   });
-  return worldChart(t("chooseAdventure"), worldChoices("operator", [
-    ...worlds,
-    { id: "clock", art: 2, title: t("clockAdventure"), subtitle: t("clockIsland"), ariaLabel: t("clockAdventure") },
-  ]), gameBack("home"));
+  places.push({ id: "clock", region: t("clockIsland"), lesson: t("clockAdventure"), cleared: 0 });
+  const title = t("chooseAdventure");
+  return `<section class="calculus-overworld">
+    <header>${gameBack("home")}<h1>${title}</h1></header>
+    <nav aria-label="${title}" class="overworld-chart">
+      ${places.map(({ id, region, lesson, cleared }) => `<button class="overworld-place" data-operator="${id}"
+        aria-label="${[region, lesson, cleared && t("sailed", { count: format(cleared) })].filter(Boolean).join(", ")}">
+        ${art("doubloons/" + id, "overworld-coin")}
+        <span class="overworld-caption"><b>${region}</b><small>${lesson}${cleared ? " · " + navNumber(cleared) : ""}</small></span>
+      </button>`).join("")}
+    </nav>
+  </section>`;
 }
 function clockMapView(): string {
   return difficultyMap({ name: t("clockIsland"), accessibleName: t("clockAdventure"),
@@ -411,7 +414,7 @@ function returnTo(target: Screen): void {
 function goBack(): void {
   if (screen === "home") return;
   if (screen === "operators") show("home", '[data-action="play"]');
-  else if (screen === "map") show("operators");
+  else if (screen === "map") show("operators", `button[data-operator="${operator}"]`);
   else if (screen === "clock") show("clockMap", `[data-pack="${clockStep}"]`);
   else if (screen === "clockMap") {
     show("operators", '[data-operator="clock"]');
