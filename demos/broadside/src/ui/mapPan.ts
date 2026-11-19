@@ -65,6 +65,7 @@ export function mountMapPan(viewport: HTMLElement, world: HTMLElement, options: 
   };
   const center = (point: MapPoint) => {
     const bounds = size();
+    camera.scale = clampMapCamera(camera, bounds, worldSize(), options.coverViewport).scale;
     camera.x = bounds.width / 2 - point.x * camera.scale;
     camera.y = bounds.height * .46 - point.y * camera.scale;
     publish();

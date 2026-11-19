@@ -4,14 +4,14 @@ import { clampMapCamera, mountMapPan, zoomMapAt } from "./mapPan";
 
 afterEach(() => { document.body.innerHTML = ""; vi.restoreAllMocks(); });
 
-function fixture(width = 400, worldWidth = 960, focusX = 480) {
+function fixture(width = 400, worldWidth = 960, focusX = 480, coverViewport = false) {
   document.body.innerHTML = '<div id="viewport" tabindex="0"><div id="world"><button id="level">1</button></div><button data-map-control data-map-center>Center</button></div>';
   const viewport = document.querySelector<HTMLElement>("#viewport")!, world = document.querySelector<HTMLElement>("#world")!;
   for (const [element, dimensions] of [[viewport, { clientWidth: width, clientHeight: 700 }], [world, { offsetWidth: worldWidth, offsetHeight: 4000 }]] as const) {
     for (const [key, value] of Object.entries(dimensions)) Object.defineProperty(element, key, { value, configurable: true });
   }
   vi.spyOn(viewport, "getBoundingClientRect").mockReturnValue({ x: 0, y: 0, left: 0, top: 0, width, height: 700, bottom: 700, right: width } as DOMRect);
-  const controller = mountMapPan(viewport, world, { focus: { x: focusX, y: 300 } });
+  const controller = mountMapPan(viewport, world, { focus: { x: focusX, y: 300 }, coverViewport });
   const pointer = (type: string, x: number, y: number) => (type === "pointerdown" ? viewport : window).dispatchEvent(new PointerEvent(type, { bubbles: true, cancelable: true, pointerId: 1, pointerType: "touch", button: 0, clientX: x, clientY: y }));
   return { viewport, world, controller, pointer };
 }
@@ -62,6 +62,12 @@ describe("shared touch map camera", () => {
     expect(controller.getState().x).toBe(0);
     pointer("pointerdown", 200, 300); pointer("pointermove", -2000, 350); pointer("pointerup", -2000, 350);
     expect(controller.getState().x).toBe(932 - 1200);
+    controller.destroy();
+  });
+
+  it("centers the focused island at the scale needed to cover a wide viewport", () => {
+    const { controller } = fixture(800, 400, 200, true);
+    expect(controller.getState()).toEqual({ scale: 2, x: 0, y: 700 * .46 - 300 * 2 });
     controller.destroy();
   });
 
