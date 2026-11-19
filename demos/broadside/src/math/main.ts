@@ -150,9 +150,11 @@ function operatorView(): string {
   const worlds = OPERATORS.map((op, i) => {
     const world = worldFor(op.id);
     const cleared = packsFor(op.id).reduce((sum, pack) => sum + (progress.tracks[pack.id]?.cleared ?? 0), 0);
-    return { id: op.id, art: [0, 4, 6, 8][i]!, title: operatorName(op.id), subtitle: world.name,
-      detail: cleared ? t("sailed", { count: format(cleared) }) : undefined,
-      ariaLabel: `${operatorName(op.id)}: ${world.name}` };
+    const name = operatorName(op.id);
+    const sailed = cleared ? t("sailed", { count: format(cleared) }) : "";
+    return { id: op.id, art: [0, 4, 6, 8][i]!, title: name, subtitle: world.name,
+      progress: cleared ? navNumber(cleared) : undefined,
+      ariaLabel: [name, world.name, sailed].filter(Boolean).join(", ") };
   });
   return worldChart(t("chooseAdventure"), worldChoices("operator", worlds), gameBack("home"));
 }

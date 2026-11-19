@@ -45,10 +45,53 @@
 }
 #academy .trail-heading small { color: #253a2e; }
 #academy .family-world-chart nav { margin-block: 12px; }
+#academy .family-world-chart .world-island {
+  position: relative;
+  min-inline-size: 0;
+}
 #academy .family-world-chart .world-label {
+  block-size: 4.5rem;
+  align-content: center;
+  overflow-wrap: anywhere;
   background: #fff0ce;
   border: 1px solid #827047;
 }
+#academy .family-world-chart .world-progress {
+  position: absolute;
+  inset-block-start: 6px;
+  inset-inline-end: 13%;
+  display: grid;
+  place-items: center;
+  min-inline-size: 28px;
+  min-block-size: 28px;
+  padding-inline: 6px;
+  border: 1px solid #e5be78;
+  border-radius: 99px;
+  background: #352718;
+  color: #fff0ce;
+  font: 700 13px/1 "DM Sans", sans-serif;
+  font-variant-numeric: tabular-nums;
+  pointer-events: none;
+}
+
+/* Terrain travels with each chapter, behind its interactive islands and route. */
+#academy .expedition-view .expedition-region::before {
+  display: block;
+  z-index: auto;
+  background: url("/assets/map/calculus-chart-coasts.webp") center / 100% 100% no-repeat;
+  transform: scaleX(var(--region-reflection, 1));
+  mask-image: linear-gradient(transparent, #000 48px, #000 calc(100% - 48px), transparent);
+}
+#academy .expedition-region:first-of-type::before {
+  mask-image: linear-gradient(#000 calc(100% - 48px), transparent);
+}
+#academy .expedition-view :is(.trail-chapter, .expedition-solved) {
+  padding: 3px 6px;
+  border-radius: 6px;
+  background: #fff0ce;
+  color: #332714;
+}
+
 #academy button.pirate-menu-back,
 #academy .trail-heading button.pirate-menu-back {
   position: static;
@@ -75,6 +118,11 @@
 }
 #academy .complete-back { text-align: left; grid-column: 1 / -1; }
 #academy .scene-back { position: relative; z-index: 2; }
+
+@media (orientation: landscape) and (max-height: 520px) {
+  #academy .family-world-chart nav { grid-template-columns: repeat(auto-fit, minmax(112px, 1fr)); }
+  #academy .family-world-chart .world-label b { font-size: 17px; }
+}
 
 @media (orientation: landscape) and (max-height: 480px) {
   #academy .world-map-heading p { display: none; }

@@ -19,11 +19,12 @@ export interface ChartWorld {
   title: string;
   subtitle?: string;
   detail?: string;
+  progress?: string;
   ariaLabel: string;
   disabled?: boolean;
 }
 export function worldChoices(action: "pack" | "operator" | "language", worlds: readonly ChartWorld[]): string {
-  return worlds.map((w,i) => `<button data-${action}="${esc(String(w.id))}" class="world-island world-${i}" ${w.disabled ? "disabled" : ""} aria-label="${esc(w.ariaLabel)}">${typeof w.art === "number" ? islandArt(w.art) : chartArt(w.art)}<span class="world-label"><b>${esc(w.title)}</b>${w.subtitle ? `<small>${esc(w.subtitle)}</small>` : ""}${w.detail ? `<span>${esc(w.detail)}</span>` : ""}</span></button>`).join("");
+  return worlds.map((w,i) => `<button data-${action}="${esc(String(w.id))}" class="world-island world-${i}" ${w.disabled ? "disabled" : ""} aria-label="${esc(w.ariaLabel)}">${typeof w.art === "number" ? islandArt(w.art) : chartArt(w.art)}${w.progress ? `<span class="world-progress" aria-hidden="true">${esc(w.progress)}</span>` : ""}<span class="world-label"><b>${esc(w.title)}</b>${w.subtitle ? `<small>${esc(w.subtitle)}</small>` : ""}${w.detail ? `<span>${esc(w.detail)}</span>` : ""}</span></button>`).join("");
 }
 export function worldChart(title: string, choices: string, back?: string): string {
   const heading = `<h1>${esc(title)}</h1>`;
