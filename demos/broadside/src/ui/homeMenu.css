@@ -1,5 +1,5 @@
 :is(#academy,#reader,#voyage-ui) button.menu-language {
-  position:fixed; z-index:4; left:calc(6px + var(--pirate-safe-left,0px)); bottom:calc(6px + var(--pirate-safe-bottom,0px));
+  position:fixed; z-index:4; right:calc(6px + var(--pirate-safe-right,0px)); bottom:calc(6px + var(--pirate-safe-bottom,0px));
   display:grid;place-items:center;width:48px;height:48px;padding:0;border:0;background:transparent;color:#fff;font:26px/1 system-ui;
   text-shadow:0 1px 3px #23150b;cursor:pointer;
 }

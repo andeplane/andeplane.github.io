@@ -1,7 +1,6 @@
 import { App } from "@capacitor/app";
-import { islandArt } from "../ui/islandChart";
 import { languagePickerMarkup, bindLanguagePicker } from "../ui/languagePicker";
-import { createI18n } from "../math/i18n";
+import { LANGUAGES, createI18n } from "../math/i18n";
 import { difficultyMap } from "../ui/difficultyMap";
 import { pirateMenu, settingsDesk } from "../ui/homeMenu";
 import { installButtonHaptics } from "../ui/buttonHaptics";
@@ -61,7 +60,7 @@ function header():string{
 }
 function home():string{
  const active=Object.values(progress.tracks).map(t=>t.run).filter((r):r is Run=>!!r).sort((a,b)=>b.id-a.id)[0];
- return `<section class="reader-cabin"><h1><img width="64" height="64" class="reader-book" src="${import.meta.env.BASE_URL}reading/icon.png" alt="">${esc(t("brand"))}</h1>
+ return `<section class="reader-cabin"><h1><span>${esc(title().split(" ")[0]!)}</span> ${esc(title().split(" ").slice(1).join(" "))}</h1>
   ${pirateMenu({title:t("home"),theme:"reader-actions",play:{action:"play",label:t("play")},
     resume:active?{action:"resume",label:t("continue"),detail:`${packFor(active.pack).name[progress.ui]} · ${t("level")} ${f(active.level)}`}:undefined,
     ship:{action:"ship",label:t("ship"),detail:`${f(aboard(progress))} ${t("gold")}`},cave:{action:"cave",label:t("cave"),detail:`${f(banked(progress))} ${t("gold")}`},
@@ -69,10 +68,12 @@ function home():string{
  </section>`;
 }
 function languages():string{
- return `<nav class="reading-overview" aria-label="${esc(t("languages"))}">${adventureChart("language",[
-   {id:"nb",label:"Norsk bokmål",art:islandArt(4),accessible:"Norsk bokmål",moored:progress.language==="nb"},
-   {id:"en",label:"English",art:islandArt(9),accessible:"English",moored:progress.language==="en"}
- ])}</nav>`;
+ const shores=(["nb","en"] as const).map(id=>{
+   const language=LANGUAGES.find(item=>item.id===id)!;
+   return {id,label:language.name,art:`<span class="reading-flag" aria-hidden="true">${language.flag}</span>`,
+     accessible:language.name,moored:progress.language===id};
+ });
+ return `<nav class="reading-overview" aria-label="${esc(t("languages"))}">${adventureChart("language",shores)}</nav>`;
 }
 function packs():string{
  const nb=progress.language==="nb",ui=progress.ui;
