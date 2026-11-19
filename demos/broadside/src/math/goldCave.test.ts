@@ -1,14 +1,17 @@
 // @vitest-environment happy-dom
 import { beforeEach, describe, expect, it, vi } from "vitest";
-const runtime = vi.hoisted(() => ({ engines: [] as any[], caves: [] as any[], holds: [] as any[] }));
+const runtime = vi.hoisted(() => ({ engines: [] as any[], caves: [] as any[], holds: [] as any[], resized: () => {} }));
 const scene = (engine: any) => {
   const value = { dispose: vi.fn(() => engine.scenes.splice(engine.scenes.indexOf(value), 1)) };
   engine.scenes.push(value); return value;
 };
 vi.mock("@babylonjs/core/Engines/engine.js", () => ({ Engine: class {
-  scenes: any[] = []; loop = () => {}; constructor() { runtime.engines.push(this); }
-  scale = 1; setHardwareScalingLevel(scale: number) { this.scale = scale; }
-  resize() {} getCaps() { return { maxRenderTextureSize: 4096 }; }
+  scenes: any[] = []; loop = () => {}; constructor(private canvas: HTMLCanvasElement) { runtime.engines.push(this); }
+  scale = 1;
+  getHardwareScalingLevel() { return this.scale; }
+  setHardwareScalingLevel(scale: number) { this.scale = scale; this.resize(); }
+  resize() { this.canvas.width = Math.floor(this.canvas.clientWidth / this.scale); this.canvas.height = Math.floor(this.canvas.clientHeight / this.scale); }
+  getCaps() { return { maxRenderTextureSize: 4096 }; }
   getDeltaTime() { return 100; } runRenderLoop(fn: () => void) { this.loop = fn; }
 } }));
 vi.mock("@capacitor/core", () => ({ Capacitor: { isNativePlatform: () => false } }));
@@ -42,8 +45,43 @@ beforeEach(() => {
   runtime.engines.length=runtime.caves.length=runtime.holds.length=0;
   document.body.innerHTML='<main id="academy"></main><canvas id="test"></canvas>';
   vi.stubGlobal("matchMedia", () => ({ matches: false }));
+  vi.stubGlobal("ResizeObserver", class {
+    constructor(callback: () => void) { runtime.resized = callback; }
+    observe() {}
+  });
+  Object.defineProperties(document.querySelector("canvas")!, {
+    clientWidth: { configurable: true, value: 402 },
+    clientHeight: { configurable: true, value: 874 },
+  });
 });
 describe("math cargo uses the shared ship and cave", () => {
+  it("resizes from the settled canvas before drawing after rotation", () => {
+    const canvas = document.querySelector("canvas")!;
+    let width = 402, height = 874;
+    Object.defineProperties(canvas, {
+      clientWidth: { get: () => width },
+      clientHeight: { get: () => height },
+    });
+    vi.stubGlobal("devicePixelRatio", 1);
+    const view = new GoldCave(canvas, vi.fn(), false);
+    view.show(freshProgress(), false);
+    const engine = runtime.engines[0];
+    engine.loop();
+    expect([canvas.width, canvas.height]).toEqual([402, 874]);
+
+    window.dispatchEvent(new Event("resize")); // the viewport event can arrive before layout
+    engine.loop();
+    [width, height] = [874, 402];
+    runtime.resized();
+    engine.loop();
+    expect([canvas.width, canvas.height]).toEqual([874, 402]);
+
+    [width, height] = [402, 874];
+    runtime.resized();
+    engine.loop();
+    expect([canvas.width, canvas.height]).toEqual([402, 874]);
+    expect(runtime.caves).toHaveLength(1);
+  });
   it("keeps a 3x native iPhone within the mobile rendering budget", () => {
     vi.stubGlobal("navigator",{userAgent:"iPhone"});
     vi.stubGlobal("innerWidth", 402); vi.stubGlobal("innerHeight", 874); vi.stubGlobal("devicePixelRatio", 3);
