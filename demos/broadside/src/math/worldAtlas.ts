@@ -19,7 +19,7 @@ export function levelPoint(id: OperatorId, level: number): MapPoint {
 type Locale = ReturnType<typeof createI18n>;
 export function atlasView(id: OperatorId, pack: string, back: string, current: number, locale: Locale) {
   const { t } = locale, world = worldFor(id), focus = levelPoint(id, current);
-  return `<section class="expedition-view voyage-atlas" style="--atlas-paper:${world.paper}">
+  return `<section class="expedition-view voyage-atlas">
     <header class="trail-heading">${back}<h1>${world.name}<small>${pack}</small></h1></header>
     <div class="expedition-map-viewport" data-map-viewport tabindex="0" role="group" aria-label="${t("worldLevelMap", {world:world.name})}" aria-describedby="expedition-map-help" data-focus-x="${focus.x}" data-focus-y="${focus.y}">
       <div class="atlas-plane" data-map-world style="--water:url(${worldAsset(id, "-water")})"></div>

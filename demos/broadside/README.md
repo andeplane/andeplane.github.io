@@ -240,8 +240,7 @@ fresh problems; unfinished levels resume with the same questions. Every
 problem answered correctly on the first try earns 100 gold, up to 1,000 per
 level. A wrong answer forfeits only that problem's 100 gold; repeated mistakes
 on the same problem cost nothing more. Other problems keep their own rewards.
-Finishing still unlocks the next level. Hints
-are free and there is no time limit. Mistakes persist across reloads and
+Finishing still unlocks the next level. There is no time limit. Mistakes persist across reloads and
 switching islands. Replaying a level offers another reward for first-try answers
 and preserves its best stars.
 

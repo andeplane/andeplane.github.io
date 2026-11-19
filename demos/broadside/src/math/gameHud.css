@@ -77,8 +77,6 @@
 /* Each tile has its own water. Land and route markers can cross tile boundaries. */
 .atlas-tile { position: absolute; width: 513px; height: 513px; background: var(--water) left top / 256px 256px repeat; }
 .atlas-land { position: absolute; z-index: 1; transform: translate(-50%, -50%); pointer-events: none; }
-#academy .voyage-atlas .trail-heading { background: var(--atlas-paper); }
-#academy .operation-world .world-map-heading { background: var(--world-paper, #f6ebd6); }
 .atlas-land img { display: block; width: 100%; }
 .atlas-leg { position: absolute; z-index: 2; overflow: visible; pointer-events: none; }
 .atlas-leg path { fill: none; stroke: #fff0bc; stroke-width: 3; stroke-dasharray: 4 8; stroke-linecap: round; filter: drop-shadow(0 1px 1px #392f21); }

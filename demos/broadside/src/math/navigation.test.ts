@@ -33,6 +33,7 @@ describe("Captain Calculus navigation destinations",()=>{
     click("back");
     click("resume");
     expect(root().dataset.screen).toBe("question");
+    expect(root().querySelector('[data-action="hint"], .hint-panel')).toBeNull();
     click("back");
     expect(root().dataset.screen).toBe("home");
     click("play");
