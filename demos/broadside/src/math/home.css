@@ -14,6 +14,8 @@
     url('/assets/map/calculus-harbour.webp') center / cover;
 }
 .calculus-home h1 {
+  position: relative;
+  z-index: 1;
   max-width: 100%;
   margin: 0;
   color: #fff3d4;
@@ -47,20 +49,20 @@
   display: flex;
   align-items: center;
   gap: 10px;
-  width: fit-content;
+  width: 100%;
   color: #ffcd70;
   font: 700 clamp(34px, 9.5vw, 44px)/1.02 Fraunces, Georgia, serif;
 }
 .calculus-play .icon { width: 18px; height: 20px; fill: currentColor; stroke-width: 0; }
 .calculus-continue { margin-bottom: 4px; }
 .calculus-home-utilities {
-  display: flex;
-  flex-wrap: wrap;
-  column-gap: 10px;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(44px, 1fr));
+  gap: 4px;
   margin-top: 4px;
   border-top: 1px solid #f3d7a059;
 }
-.calculus-home-utilities button { font: 700 14px/1.3 'DM Sans', sans-serif; }
+.calculus-home-utilities button { font: 700 13px/1.3 'DM Sans', sans-serif; }
 
 @media (orientation: landscape) {
   .calculus-home {
@@ -71,7 +73,7 @@
     padding: calc(10px + var(--safe-top)) calc(20px + var(--safe-right))
       calc(8px + var(--safe-bottom)) calc(max(24px, 6vw) + var(--safe-left));
     background:
-      linear-gradient(to right, #061e2c 5%, #072633f5 37%, #07263330 70%, transparent),
+      linear-gradient(to right, #061e2c 5%, #072633f5 44%, #072633d9 60%, #07263330 76%, transparent),
       url('/assets/map/calculus-harbour.webp') right 55% / cover;
   }
   .calculus-home h1 { font-size: clamp(36px, 6vw, 64px); text-align: start; }
@@ -87,4 +89,22 @@
 }
 @media (orientation: portrait) and (max-height: 680px) {
   .calculus-home { gap: clamp(64px, 15dvh, 110px); }
+}
+
+.calculus-home-actions {
+  position: relative;
+  isolation: isolate;
+}
+.calculus-home-actions::before {
+  position: absolute;
+  z-index: -1;
+  inset: -26px auto -12px 50%;
+  width: 100vw;
+  transform: translateX(-50%);
+  content: "";
+  pointer-events: none;
+  background: linear-gradient(180deg, transparent, #061e2ce8 22px, #061e2c);
+}
+@media (orientation: landscape) {
+  .calculus-home-actions::before { display: none; }
 }

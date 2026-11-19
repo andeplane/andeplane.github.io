@@ -223,6 +223,7 @@ export interface MathProgress {
   cargo: MathChest[];
   operator: OperatorId;
   pack: string;
+  lastPlayed?: { pack: string; level: number };
   banks: Record<OperatorId, number>;
   tracks: Record<string, Track>;
 }
@@ -270,6 +271,7 @@ export interface AnswerResult {
 export function answerQuestion(p: MathProgress, packId: string, level: number, answer: number): AnswerResult | null {
   const track = p.tracks[packId], run = track?.runs[level];
   if (!run || !Number.isSafeInteger(answer) || answer < 0) return null;
+  p.lastPlayed = { pack: packId, level };
   run.problemMistakes ??= run.mistakes > 0 ? 1 : 0;
   run.earnedGold ??= 0;
   const question = questionsFor(packId, run.seed, run.questionSet)[run.solved]!;
@@ -295,6 +297,7 @@ export function answerQuestion(p: MathProgress, packId: string, level: number, a
     track.cleared = Math.max(track.cleared, level);
     track.stars[level] = Math.max(track.stars[level] ?? 1, stars) as Stars;
     delete track.runs[level];
+    delete p.lastPlayed;
   }
   return { correct: true, chestEarned, levelComplete, stars, goldEarned, questionGoldLost: 0, levelGold: run.earnedGold };
 }
@@ -365,6 +368,11 @@ export function readMathProgress(storage?: Pick<Storage, "getItem">): MathProgre
         };
       }
       p.tracks[pack.id] = track;
+    }
+    const lastPlayed = raw.lastPlayed;
+    if (record(lastPlayed) && typeof lastPlayed.pack === "string" && integer(lastPlayed.level, 1) &&
+        p.tracks[lastPlayed.pack]?.runs?.[lastPlayed.level]) {
+      p.lastPlayed = { pack: lastPlayed.pack, level: lastPlayed.level };
     }
   } catch { /* A missing or corrupt save starts a new adventure. */ }
   return p;

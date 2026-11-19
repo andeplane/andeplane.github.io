@@ -4,7 +4,7 @@ const runtime=vi.hoisted(()=>({ created:0, ready:null as null|(()=>void) }));
 vi.mock("./goldCave",()=>({ GoldCave: class {
   unloading={total:0,delivered:0,done:true,active:null};
   constructor(_canvas:HTMLCanvasElement,ready:()=>void){runtime.created++;runtime.ready=ready;}
-  showShip(){}show(){}pause(){}resetCamera(){}inspect(){}
+  showShip(){}show(){}pause(){}dispose(){}resetCamera(){}inspect(){}
 } }));
 vi.mock("../ui/mapPan",()=>({ mountMapPan:()=>({destroy(){},getState(){return {x:0,y:0,scale:1};}}) }));
 const memoryStorage=()=>{ const data=new Map<string,string>();return {getItem:(key:string)=>data.get(key)??null,setItem:vi.fn((key:string,value:string)=>{data.set(key,value);}),clear:()=>data.clear()}; };
@@ -42,6 +42,48 @@ describe("Captain Calculus navigation destinations",()=>{
     expect(root().dataset.screen).toBe("question");
     click("back");
     expect(root().dataset.screen).toBe("levels");
+  });
+  it("continues the most recently attempted voyage after browsing another pack and reloading", async () => {
+    const { freshProgress, saveMathProgress, startVoyage, answerQuestion, questionsFor } = await import("./academy");
+    const progress = freshProgress();
+    startVoyage(progress, "add-10", 1, 100);
+    const run = startVoyage(progress, "add-20", 1, 200)!;
+    answerQuestion(progress, "add-20", 1, questionsFor("add-20", run.seed, run.questionSet)[0]!.answer + 1);
+    saveMathProgress(progress, localStorage);
+    await import("./main");
+    click("play");
+    root().querySelector<HTMLButtonElement>('[data-operator="add"]')!.click();
+    root().querySelector<HTMLButtonElement>('[data-pack="add-10"]')!.click();
+    click("back"); click("back"); click("back");
+    expect(root().querySelector('[data-action="resume"]')?.textContent).toContain("Up to 20");
+    vi.resetModules();
+    await import("./main");
+    click("resume");
+    expect(root().querySelector(".voyage-status")?.textContent).toContain("Up to 20");
+    click("back");
+    expect(document.activeElement?.getAttribute("data-action")).toBe("resume");
+  });
+  it("unwinds each actual visit when alternating between the ship and cave", async () => {
+    await import("./main");
+    click("cave"); await vi.waitFor(() => expect(runtime.created).toBe(1));
+    click("ship"); click("cave");
+    for (const screen of ["ship", "cave", "home"]) {
+      click("back");
+      expect(root().dataset.screen).toBe(screen);
+    }
+    expect(document.activeElement?.getAttribute("data-action")).toBe("cave");
+  });
+  it("retries a failed cave in place and preserves its Back destination", async () => {
+    vi.spyOn(console, "error").mockImplementation(() => {});
+    history.replaceState(null, "", "/?qa=true&view=cave&fail=scene");
+    await import("./main");
+    expect(root().querySelector('[data-action="retry-scene"]')).not.toBeNull();
+    expect(root().querySelector("#math-cave-pad")).toBeNull();
+    history.replaceState(null, "", "/?qa=true");
+    click("retry-scene");
+    await vi.waitFor(() => expect(root().querySelector("#math-cave-pad")).not.toBeNull());
+    click("back");
+    expect(root().dataset.screen).toBe("home");
   });
   it("keeps cargo aboard and never claims unloading completed when the cave fails",async()=>{
     vi.spyOn(console,"error").mockImplementation(()=>{});
