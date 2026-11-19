@@ -153,3 +153,48 @@
   .clock-actions { grid-area: 1 / 2 / span 2; }
   .clock-choice { min-height: 44px; }
 }
+
+/* A brass ship's clock on the captain's chart table. */
+#academy[data-screen="clock"] {
+  --academy-heading: "Pirata One";
+  --academy-heading-weight: 400;
+  --academy-background: #29423e url("/assets/menu/calculus-worktable-wide.webp") center / cover;
+}
+.clock-sheet {
+  border: 2px solid #906634;
+  background: linear-gradient(#fff4dcec, #f7e2bdea), url("/assets/map/nautical-chart.webp") center / cover;
+}
+.clock-sheet h1 { font-family: "Pirata One", Georgia, serif; font-weight: 400; }
+.clock-choice { font: 700 clamp(16px, 3.6vw, 20px)/1.18 "DM Sans", sans-serif; }
+.clock-rim { fill: #815021; stroke: #54371c; stroke-width: 2; }
+.clock-engraving { fill: #ba8a4a; stroke: #fbe19e; stroke-width: 2; stroke-dasharray: 3 3; }
+.clock-dial { fill: #fff2d3; }
+.clock-rose { fill: #e3cd9e; }
+.clock-hour-hand, .clock-minute-hand { stroke-linejoin: round; }
+.clock-hour-hand { fill: #f5dba5; stroke: #372a21; stroke-width: 2.8; }
+.clock-minute-hand { fill: #fffaf0; stroke: #144f56; stroke-width: 2.2; }
+.clock-pin { fill: #c79643; stroke: #493921; stroke-width: 2; }
+.clock-treasure { width: 42px; height: 42px; margin: auto; color: #8c5614; }
+@media (prefers-reduced-motion: no-preference) {
+  .clock-choice[data-result="correct"], .clock-treasure { animation: minted .45s ease-out; }
+  @keyframes minted { from { transform: translateY(2px); filter: brightness(1.18); } }
+}
+#academy[data-screen="clock"] .clock-status {
+  padding-right: 10px;
+  border-radius: 10px;
+  background: #292119;
+}
+
+.clock-status > span { color: #fff3d6; }
+
+@media (orientation: landscape) and (max-height: 520px) {
+  .clock-sheet:not(.clock-complete) {
+    grid-template-columns: minmax(124px, 0.75fr) minmax(0, 1.65fr);
+    gap: 4px 12px;
+  }
+  .clock-sheet h1 { font-size: 21px; }
+  .clock-face { width: clamp(112px, 39dvh, 175px); }
+  .clock-feedback { font-size: 14px; line-height: 1.2; }
+  .clock-choice { font-size: 16px; line-height: 1.12; padding: 4px 6px; }
+  .clock-choices, .clock-actions { gap: 5px; }
+}

@@ -15,26 +15,22 @@ function sample<T>(items: T[], count: number, rng: Rng): T[] {
   return Array.from({ length: count }, () => items.splice(rng.int(0, items.length - 1), 1)[0]!);
 }
 
-export function clockQuestions(seed: number): ClockQuestion[] {
+export const clockSteps = [60, 30, 15, 5, 1] as const;
+export type ClockStep = typeof clockSteps[number];
+
+export function clockQuestions(seed: number, step: ClockStep): ClockQuestion[] {
   const rng = new Rng(seed);
-  const stages = [
-    { minutes: [0, 0, 0], count: 3 },
-    { minutes: [15, 30, 45], count: 3 },
-    { minutes: [5, 10, 20, 25, 35, 40, 50, 55], count: QUESTIONS_PER_LEVEL - 6 },
-  ];
-  return stages.flatMap(({ minutes, count }) => {
-    const hours = Array.from({ length: 12 }, (_, i) => i);
-    // Give each early minute position a turn before repeating it.
-    return sample(minutes, count, rng).map(minute => {
-      const hour = sample(hours, 1, rng)[0]!;
-      const time = hour * 60 + minute;
-      const earlier = (time + minutesPerDial - 60) % minutesPerDial;
-      const later = (time + 60) % minutesPerDial;
-      const other = minute === 0
-        ? (time + 180) % minutesPerDial
-        : hour * 60 + (minute + (minute % 15 === 0 ? 15 : 5)) % 60;
-      return { time, choices: sample([time, earlier, later, other], 4, rng) };
-    });
+  const hours = sample(Array.from({ length: 12 }, (_, i) => i), QUESTIONS_PER_LEVEL, rng);
+  // Give each new dial position a turn before repeating it.
+  const positions = Array.from({ length: 60 / step }, (_, i) => i * step);
+  let remaining: number[] = [];
+  return hours.map(hour => {
+    if (!remaining.length) remaining = positions.slice();
+    const minute = sample(remaining, 1, rng)[0]!;
+    const time = hour * 60 + minute;
+    const offsets = step === 60 ? [-60, 60, 180] : [-step, step, 60];
+    const alternatives = offsets.map(offset => (time + offset + minutesPerDial) % minutesPerDial);
+    return { time, choices: sample([time, ...alternatives], 4, rng) };
   });
 }
 
@@ -48,10 +44,11 @@ export function clockFace(time: number, label: string): string {
   }).join("");
   return `<svg class="clock-face" viewBox="-116 -116 232 232" role="img" aria-labelledby="clock-face-label">
     <title id="clock-face-label">${label}</title>
-    <circle r="111" class="clock-rim"/><circle r="107" class="clock-dial"/>
+    <circle r="115" class="clock-rim"/><circle r="111" class="clock-engraving"/><circle r="107" class="clock-dial"/>
+    <path class="clock-rose" d="M0 -58 7 -9 51 0 7 8 0 57 -7 8 -51 0 -7 -9Z"/>
     ${ticks}${numbers}
-    <line class="clock-hour-hand" y2="-46" transform="rotate(${time / 2})"/>
-    <line class="clock-minute-hand" y2="-66" transform="rotate(${time % 60 * 6})"/>
+    <path class="clock-hour-hand" transform="rotate(${time / 2})" d="M-4 4 Q-2 -22 -4 -37 C-12 -41 -7 -50 -2 -46 Q0 -43 2 -46 C8 -51 12 -41 4 -37 Q2 -22 4 4Z"/>
+    <path class="clock-minute-hand" transform="rotate(${time % 60 * 6})" d="M-2 4 Q-1 -29 -3 -58 C-8 -62 -5 -69 -1 -66 Q0 -63 1 -66 C6 -69 9 -61 3 -58 Q1 -29 2 4Z"/>
     <circle r="5" class="clock-pin"/>
   </svg>`;
 }
