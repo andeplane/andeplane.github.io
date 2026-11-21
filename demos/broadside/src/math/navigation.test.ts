@@ -62,6 +62,21 @@ describe("Captain Calculus navigation destinations",()=>{
     click("back");
     expect(root().dataset.screen).toBe("levels");
   });
+  it("returns from Your ship to the map and restores focus to the ship button", async () => {
+    await import("./main");
+    click("play");
+    root().querySelector<HTMLButtonElement>('[data-operator="add"]')!.click();
+    for (const screen of ["map", "levels"]) {
+      expect(root().dataset.screen).toBe(screen);
+      click("ship");
+      await vi.waitFor(() => expect(runtime.created).toBe(1));
+      expect(root().dataset.screen).toBe("ship");
+      click("back");
+      expect(root().dataset.screen).toBe(screen);
+      expect(document.activeElement).toBe(root().querySelector('.pirate-chart-header [data-action="ship"]'));
+      if (screen === "map") root().querySelector<HTMLButtonElement>('[data-pack="add-10"]')!.click();
+    }
+  });
   it("continues the most recently attempted voyage after browsing another pack and reloading", async () => {
     const { freshProgress, saveMathProgress, startVoyage, answerQuestion, questionsFor } = await import("./academy");
     const progress = freshProgress();

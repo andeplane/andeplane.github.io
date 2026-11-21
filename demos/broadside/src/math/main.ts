@@ -360,10 +360,10 @@ async function showTreasure(request: "reward" | "ship" | "cave", unload = true):
   }
 }
 const showGold = (reward: boolean) => showTreasure(reward ? "reward" : "cave");
-function openLevels(recenter = false): void {
+function openLevels(recenter = false, focusSelector?: string): void {
   operator = selectedPack().operator;
   trailCamera = recenter ? undefined : previousTrails.get(packId);
-  show("levels");
+  show("levels", focusSelector);
 }
 function beginLevel(n: number, from = voyageReturn): void {
   const run = startVoyage(progress, packId, n, seed());
@@ -413,15 +413,15 @@ function nextVoyage(): void {
   else openLevels();
 }
 /** Return to the page that opened a treasure scene, preserving the in-progress problem. */
-function returnTo(target: Screen): void {
+function returnTo(target: Screen, focusSelector?: string): void {
   if (target === "ship" || target === "reward") void showTreasure(target);
   else if (target === "unloading") void showTreasure("cave");
   else if (target === "cave") void showTreasure("cave", false);
-  else if (target === "levels") openLevels();
+  else if (target === "levels") openLevels(false, focusSelector);
   else if (target === "question") {
     if (voyage && (accepted || packTrail().runs[level])) show("question");
     else openLevels();
-  } else show(target);
+  } else show(target, focusSelector);
 }
 function goBack(): void {
   if (screen === "home") return;
@@ -437,7 +437,10 @@ function goBack(): void {
   else if (screen === "ship" || screen === "cave" || screen === "unloading") {
     const target = treasureTrail.pop() ?? "home";
     if (target === "home") show("home", screen === "ship" ? '[data-action="ship"]' : '[data-action="cave"]');
-    else returnTo(target);
+    else {
+      const shipTrigger = screen === "ship" ? '.pirate-chart-header [data-action="ship"]' : undefined;
+      returnTo(target, shipTrigger);
+    }
   } else if (voyageReturn === "home") show("home", '[data-action="resume"]');
   else returnTo(voyageReturn);
 }
