@@ -36,7 +36,7 @@ class Buffer {
         }
       }
   }
-  mesh(scene: Scene, name: string, material: StandardMaterial, shadows: ShadowGenerator) {
+  mesh(scene: Scene, name: string, material: StandardMaterial, shadows: ShadowGenerator, skyLight = false) {
     if (!this.positions.length) return;
     const mesh = new Mesh(name, scene),
       data = new VertexData();
@@ -44,7 +44,24 @@ class Buffer {
     data.colors = this.colors;
     data.indices = this.indices;
     data.uvs = this.uvs;
-    VertexData.ComputeNormals(data.positions, data.indices, (data.normals = []));
+    const normals: number[] = [];
+    VertexData.ComputeNormals(data.positions, data.indices, normals);
+    if (skyLight) {
+      // Vegetation transmits skylight from either side. An upturned normal
+      // keeps thin blades readable even on the reverse of a grazing sunlit card.
+      for (let i = 0; i < normals.length; i += 3) {
+        const sign = normals[i + 1]! < 0 ? -1 : 1;
+        const n = v(
+          normals[i]! * sign * 0.72,
+          Math.abs(normals[i + 1]!) * 0.72 + 0.36,
+          normals[i + 2]! * sign * 0.72,
+        ).normalize();
+        normals[i] = n.x;
+        normals[i + 1] = n.y;
+        normals[i + 2] = n.z;
+      }
+    }
+    data.normals = normals;
     data.applyToMesh(mesh);
     mesh.material = material;
     mesh.isPickable = false;
@@ -62,7 +79,7 @@ class Buffer {
 export class IslandFoliage {
   private readonly foliage = new Buffer();
   private readonly wood = new Buffer();
-  private readonly snow = new Buffer();
+  private readonly solid = new Buffer();
   constructor(
     private readonly scene: Scene,
     private readonly rng: Rng,
@@ -177,7 +194,7 @@ export class IslandFoliage {
             .add(dir.scale(t * radius))
             .add(side.scale(radius * drift * t * t))
             .add(v(0, -droop * Math.sin(t * Math.PI * 0.72) + 0.12 * radius * t * t * t, 0));
-        const width = radius * rng.range(0.24, 0.34);
+        const width = radius * rng.range(0.33, 0.44);
         this.spray(
           foliageTiles.spruce,
           axis,
@@ -189,10 +206,23 @@ export class IslandFoliage {
           5,
           3,
         );
+        // A hanging skirt of needles gives each whorl volume between snow-covered tiers.
+        const curtain = (t: number) => axis(0.23 + 0.72 * t).add(v(0, -radius * (0.04 + 0.28 * t), 0));
+        this.spray(
+          foliageTiles.spruce,
+          curtain,
+          side,
+          width * 0.87,
+          width * 0.52,
+          radius * 0.1 * (arm % 2 ? -1 : 1),
+          new Color3(0.87, 1.03, 1.02),
+          4,
+          2,
+        );
         if (winter && (level > 0 || arm % 3 !== 0)) {
           const cover = rng.range(0.66, 0.92),
             ripple = rng.range(0, tau);
-          this.snow.grid(6, 6, (t, u) => {
+          this.solid.grid(6, 6, (t, u) => {
             const w = u * 2 - 1,
               arc = Math.pow(Math.max(0, 1 - w * w), 0.62);
             const body = Math.pow(Math.sin(Math.PI * (0.035 + t * 0.94)), 0.7);
@@ -263,25 +293,40 @@ export class IslandFoliage {
   }
 
   grass(x: number, y: number, z: number, height: number, head: number) {
-    const rng = this.rng,
-      base = v(x, y, z);
-    for (let i = 0; i < 3; i++) {
-      const a = head + (i * Math.PI) / 3 + rng.range(-0.21, 0.21),
-        side = v(Math.cos(a), 0, Math.sin(a)),
-        dir = v(-side.z, 0, side.x);
-      const h = height * rng.range(0.7, 1.05),
-        width = h * rng.range(0.36, 0.51);
-      const origin = base.add(side.scale(rng.range(-0.16, 0.16))).add(dir.scale(rng.range(-0.11, 0.11)));
-      const bend = rng.range(0.13, 0.31);
-      const axis = (t: number) => origin.add(v(0, h * (t - 0.13 * t * t), 0)).add(dir.scale(h * bend * t * t));
+    const rng = this.rng;
+    const rootColor = color("#6d7947"),
+      green = color("#b4bf77"),
+      straw = color("#d2c28e");
+    // Broad silhouettes nearby come from bowed grass geometry. These blades
+    // persist at a distance even when the fine sea-oat texture mips out.
+    for (let j = 0; j < 8; j++) {
+      const a = head + j * 2.39996 + rng.range(-0.24, 0.24),
+        dir = v(Math.sin(a), 0, Math.cos(a)),
+        side = v(dir.z, 0, -dir.x);
+      const h = height * rng.range(0.6, 1.22),
+        w = h * rng.range(0.032, 0.058),
+        reach = h * rng.range(0.24, 0.71);
+      const origin = v(x + dir.x * h * 0.17, y, z + dir.z * h * 0.17),
+        tip = j % 3 === 0 ? straw : green;
+      this.solid.grid(4, 1, (t, u) => {
+        const centre = origin.add(dir.scale(reach * t * t)).add(v(0, h * (t - 0.25 * t * t * t), 0));
+        const bladeWidth = w * (0.56 + 0.51 * Math.sin(t * Math.PI)) * (1 - t * t);
+        const p = centre.add(side.scale((u * 2 - 1) * bladeWidth));
+        return { p, u, v: t, c: Color3.Lerp(rootColor, tip, 0.17 + t * 0.83) };
+      });
+    }
+    if (Math.cos(head) < -0.35) {
+      const dir = v(Math.sin(head), 0, Math.cos(head)),
+        side = v(dir.z, 0, -dir.x),
+        base = v(x, y, z);
       this.spray(
         foliageTiles.sedge,
-        axis,
+        (t) => base.add(v(0, height * t * 1.2, 0)).add(dir.scale(height * 0.18 * t * t)),
         side,
-        width,
+        height * 0.34,
         0,
-        0.04,
-        new Color3(rng.range(0.79, 1.1), rng.range(0.9, 1.1), rng.range(0.73, 1)),
+        0.03,
+        new Color3(1.04, 1.05, 0.91),
         3,
         2,
       );
@@ -296,10 +341,10 @@ export class IslandFoliage {
       m.alphaCutOff = 0.33;
       m.useAlphaFromDiffuseTexture = true;
       m.backFaceCulling = false;
-      m.twoSidedLighting = true;
+      m.twoSidedLighting = false;
       m.specularColor.set(0.042, 0.055, 0.03);
       m.ambientColor.set(0.16, 0.19, 0.12);
-      this.foliage.mesh(this.scene, "painted island foliage", m, shadows);
+      this.foliage.mesh(this.scene, "painted island foliage", m, shadows, true);
     }
     if (this.wood.positions.length) {
       const m = new StandardMaterial("soft ringed bark", this.scene);
@@ -309,12 +354,12 @@ export class IslandFoliage {
       m.twoSidedLighting = true;
       this.wood.mesh(this.scene, "sculpted tree trunks", m, shadows);
     }
-    if (this.snow.positions.length) {
-      const m = new StandardMaterial("snow on spruce boughs", this.scene);
+    if (this.solid.positions.length) {
+      const m = new StandardMaterial("grass blades and settled snow", this.scene);
       m.specularColor.setAll(0.085);
       m.backFaceCulling = false;
-      m.twoSidedLighting = true;
-      this.snow.mesh(this.scene, "snow drifts on branches", m, shadows);
+      m.twoSidedLighting = false;
+      this.solid.mesh(this.scene, "salt-meadow blades and snow on branches", m, shadows, true);
     }
   }
 }
