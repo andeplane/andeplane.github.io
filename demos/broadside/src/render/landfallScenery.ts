@@ -85,7 +85,7 @@ export class IslandScenery {
     readonly site: LandfallSite,
     readonly seed: number,
     private shadows: ShadowGenerator,
-    readonly floor: (x:number,z:number)=>number,
+    readonly floor: (x: number, z: number) => number,
   ) {
     this.style = terrainStyle(world, site.settings.biome);
     this.rng = new Rng(seed ^ (8139 + world * 10979));
@@ -196,10 +196,13 @@ export class IslandScenery {
     const rock = Color3.FromHexString(style.rock),
       snow = Color3.FromHexString("#e4edf2");
     const clamp = (v: number) => Math.max(0, Math.min(1, v));
+    for (let i = 0; i < pos.length; i += 3) pos[i + 1] = this.floor(pos[i]!, pos[i + 2]!);
+    VertexData.ComputeNormals(pos, ground.getIndices()!, normals);
+    const darkStone = Color3.FromHexString(style.rockDark);
     for (let i = 0; i < pos.length; i += 3) {
       const x = pos[i]!,
         z = pos[i + 2]!,
-        y = this.floor(x, z),
+        y = pos[i + 1]!,
         d = trailDistance(x, z, this.site);
       const grain = this.fertility(x, z) - 0.5;
       const canopy = Color3.Lerp(grass, dark, clamp(0.42 + grain * 1.16));
@@ -214,13 +217,21 @@ export class IslandScenery {
           this.site.settings.biome === "winter"
             ? clamp((y - 0.37 + grain * 0.5) * 1.7)
             : clamp((y - 7.6 + grain) * 0.39);
-        Color3.LerpToRef(c, snow, frost * (0.8 + grain * 0.2), c);
+        // Snow gathers on shoulders and ledges. Exposed pitched faces show
+        // the stratified bedrock underneath, even well above the snow line.
+        const up = Math.abs(normals[i + 1]!);
+        const exposure = clamp((0.86 - up + grain * 0.09) * 2.9);
+        const bed =
+          0.4 +
+          0.29 * landfallNoise(this.seed ^ 295, x * 0.18, z * 0.18) +
+          0.18 * Math.sin(y * 1.59 + x * 0.29 + grain * 5.7);
+        const stoneFace = Color3.Lerp(darkStone, rock, clamp(bed));
+        Color3.LerpToRef(c, stoneFace, exposure * clamp((y - 1.65) * 0.52), c);
+        Color3.LerpToRef(c, snow, frost * (1 - exposure) * (0.89 + grain * 0.14), c);
       }
-      pos[i + 1] = y;
       colors.push(c.r, c.g, c.b, 1);
       uvs.push(x * 0.26, z * 0.26);
     }
-    VertexData.ComputeNormals(pos, ground.getIndices()!, normals);
     ground.setVerticesData("position", pos);
     ground.setVerticesData("normal", normals);
     ground.setVerticesData("color", colors);
@@ -412,23 +423,59 @@ export class IslandScenery {
         this.triangle(base, tip, fold.subtract(across.scale(w)), style.leaf);
       }
     }
-    // Offshore stacks give the horizon a second, softer plane beyond the beach.
-    for (let i = 0; i < 19; i++) {
-      const a = i * 0.96 + 0.7,
-        r = rng.range(75, 165),
-        width = rng.range(7, 20),
-        h = rng.range(5, 17);
-      for (let j = 0; j < 3; j++)
-        this.boulder(
-          Math.sin(a) * r + j * width * 0.42,
-          -1,
-          Math.cos(a) * r + j * 2,
-          width * (1 - j * 0.18),
-          h * (1 - j * 0.2),
-          width * 0.74,
-          style.rockDark,
-        );
-    }
+    // Broken headlands on one part of the horizon leave open water elsewhere.
+    const horizonAngle = rng.range(0, TAU);
+    for (let i = 0; i < 3; i++)
+      this.headland(
+        horizonAngle + [0, 0.72, 3.18][i]! + rng.range(-0.23, 0.23),
+        rng.range(172, 254),
+        rng.range(22, 58),
+        rng.range(6, 14),
+        rng.range(8, 17),
+        i,
+      );
+  }
+  private headland(angle: number, distance: number, length: number, width: number, height: number, index: number) {
+    const scene = this.scene,
+      key = this.seed ^ (619 + index * 203);
+    const dir = vec(Math.cos(angle), 0, -Math.sin(angle));
+    const across = vec(Math.sin(angle), 0, Math.cos(angle));
+    const origin = across.scale(distance);
+    const positions: number[] = [],
+      colors: number[] = [],
+      indices: number[] = [];
+    const nx = 34,
+      nz = 12;
+    const rock = Color3.FromHexString(this.style.rockDark),
+      ridge = Color3.FromHexString(this.style.grassDark);
+    for (let j = 0; j <= nz; j++)
+      for (let i = 0; i <= nx; i++) {
+        const u = (i / nx) * 2 - 1,
+          v = (j / nz) * 2 - 1;
+        const base = Math.max(0, 1 - u * u) * Math.max(0, 1 - v * v);
+        const hill = 0.58 + 0.28 * landfallNoise(key, u * 4, v * 0.8) + 0.14 * landfallNoise(key, u * 8, v * 2.6);
+        const h = -1.3 + height * Math.pow(base, 0.8) * hill;
+        const p = origin
+          .add(dir.scale(u * length))
+          .add(across.scale(v * width + width * 0.36 * Math.sin(u * 3.1)));
+        positions.push(p.x, h, p.z);
+        const color = Color3.Lerp(rock, ridge, Math.max(0, Math.min(1, (h / height) * 2.6)));
+        colors.push(color.r, color.g, color.b, 1);
+        if (i < nx && j < nz) {
+          const n = i + j * (nx + 1);
+          indices.push(n, n + 1, n + nx + 1, n + 1, n + nx + 2, n + nx + 1);
+        }
+      }
+    const mesh = new Mesh("distant island ridge", scene),
+      data = new VertexData();
+    data.positions = positions;
+    data.indices = indices;
+    data.colors = colors;
+    VertexData.ComputeNormals(positions, indices, (data.normals = []));
+    data.applyToMesh(mesh);
+    mesh.material = this.matte;
+    mesh.isPickable = false;
+    mesh.freezeWorldMatrix();
   }
   finish() {
     if (this.leaves.length) {

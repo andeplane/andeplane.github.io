@@ -14,11 +14,9 @@ import { StandardMaterial } from "@babylonjs/core/Materials/standardMaterial.js"
 import { buildRelic } from "../shared/pirate-world/render/relics";
 import type { CaveObstacle } from "../shared/pirate-world/input/caveWalk";
 import { WORLD_RELICS } from "../game/rewards";
-import { voyageWeather } from "../game/weather";
 import type { GeneratedIsland } from "../game/landfall";
-import { VoyageSky } from "./voyageSky";
 import { IslandScenery, vec } from "./landfallScenery";
-import { buildLandfallWater } from "./landfallWater";
+import { buildCoastalSky, buildLandfallWater } from "./landfallWater";
 import { buildLandmark } from "./landfallLandmarks";
 
 type WalkingPose = { x: number; z: number; eyeY: number; bob: number; yaw: number; pitch: number };
@@ -178,7 +176,7 @@ export class LandfallView {
   readonly camera: FreeCamera;
   readonly obstacles: CaveObstacle[];
   readonly shadows: ShadowGenerator;
-  private sky: VoyageSky;
+  private sky: (time: number) => void;
   private water: (time: number) => void;
   private landmark: (time: number) => void;
   private birds: (time: number) => void;
@@ -214,7 +212,7 @@ export class LandfallView {
     skyLight.intensity = 0.84;
     sun.diffuse = Color3.FromHexString(style.sun);
     sun.intensity = world === 0 ? 0.98 : 0.84;
-    this.sky = new VoyageSky(scene, world, voyageWeather(world * 10 + 9));
+    this.sky = buildCoastalSky(scene, world, style);
     scenery.terrain();
     this.water = buildLandfallWater(scene, (x, z) => scenery.floor(x, z), style);
     this.landmark = buildLandmark(scenery);
@@ -232,7 +230,7 @@ export class LandfallView {
     this.direction.set(Math.sin(walker.yaw) * cp, -Math.sin(walker.pitch), Math.cos(walker.yaw) * cp);
     this.camera.setTarget(this.direction.addInPlace(this.camera.position));
     const t = reducedMotion ? 0 : this.time;
-    this.sky.update(t, 0);
+    this.sky(t);
     this.water(t);
     this.landmark(t);
     this.birds(t);
