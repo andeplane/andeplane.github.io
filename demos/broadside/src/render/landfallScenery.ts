@@ -3,6 +3,7 @@ import { Color3 } from "@babylonjs/core/Maths/math.color.js";
 import { Mesh } from "@babylonjs/core/Meshes/mesh.js";
 import { MeshBuilder } from "@babylonjs/core/Meshes/meshBuilder.js";
 import { VertexData } from "@babylonjs/core/Meshes/mesh.vertexData.js";
+import { Texture } from "@babylonjs/core/Materials/Textures/texture.js";
 import { StandardMaterial } from "@babylonjs/core/Materials/standardMaterial.js";
 import type { Scene } from "@babylonjs/core/scene.js";
 import type { ShadowGenerator } from "@babylonjs/core/Lights/Shadows/shadowGenerator.js";
@@ -224,7 +225,12 @@ export class IslandScenery {
     ground.setVerticesData("normal", normals);
     ground.setVerticesData("color", colors);
     ground.setVerticesData("uv", uvs);
-    ground.material = islandSurface(this.scene);
+    const groundMaterial = islandSurface(this.scene);
+    // DynamicTexture clamps by default; the close-up beach uses metre-based UVs.
+    for (const grain of [groundMaterial.diffuseTexture, groundMaterial.bumpTexture]) {
+      if (grain) grain.wrapU = grain.wrapV = Texture.WRAP_ADDRESSMODE;
+    }
+    ground.material = groundMaterial;
     ground.receiveShadows = true;
     ground.isPickable = false;
   }
