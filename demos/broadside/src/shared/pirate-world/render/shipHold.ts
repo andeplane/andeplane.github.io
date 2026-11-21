@@ -42,7 +42,7 @@ export class ShipHold {
   private debugFinished: number | null = null;
   private debugExitAt:number|null=null;
   private debugPour = false;
-  constructor(engine: Engine, ship: ShipPresentation) {
+  constructor(engine: Engine, ship: ShipPresentation, showWeapons = true) {
     const s = this.scene = new Scene(engine);
     s.clearColor = Color4.FromHexString('#839aabff');
     s.fogMode = Scene.FOGMODE_EXP2; s.fogDensity = .0015; s.fogColor = Color3.FromHexString('#839aab');
@@ -60,7 +60,7 @@ export class ShipHold {
     // The cabin is above the waterline, even at the crest of a swell.
     this.ocean.mesh.position.y=-3;
     const island = ship.island;
-    this.islands=buildIslands(s,island?[{...island,pos:{x:0,z:island.radius+55}}]:[],shadows,ship.seed,ship.chapter);
+    this.islands=buildIslands(s,island?[{...island,pos:{x:0,z:island.radius+55}}]:[],shadows,ship.seed,ship.chapter,{showWeapons});
     this.chest=new RewardChest(s);
     for(const mesh of this.chest.root.getChildMeshes()) {
       mesh.receiveShadows=true;

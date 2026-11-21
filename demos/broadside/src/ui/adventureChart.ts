@@ -1,17 +1,17 @@
 import { menuText } from "./homeMenu";
-import { pirateShipArt } from "./worldArt";
+import { pirateShipArt, type ShipArtStyle } from "./worldArt";
 import "./adventureChart.css";
 
 interface Shore {
   id:string|number; label:string; detail?:string; tally?:string; accessible:string;
   art:string; locked?:boolean; moored?:boolean;
 }
-export function chartShip(id:string):string {
-  return `<span id="${id}" class="chart-ship chart-ship-marker" aria-hidden="true" inert>${pirateShipArt(id)}</span>`;
+export function chartShip(id:string, style?: ShipArtStyle):string {
+  return `<span id="${id}" class="chart-ship chart-ship-marker" aria-hidden="true" inert>${pirateShipArt(id, style)}</span>`;
 }
 export function adventureChart(action:"operator"|"language"|"pack",places:readonly Shore[]):string {
   return `<div class="overworld-geography">${places.map((p,index)=>`<button class="overworld-place" data-shore="${index}" data-${action}="${menuText(String(p.id))}" ${p.locked?"disabled":""} aria-label="${menuText(p.accessible)}">
-    ${p.art}${p.moored?chartShip("moored-overview"):""}<span class="overworld-caption"><b>${menuText(p.label)}</b>${p.detail?`<small>${menuText(p.detail)}</small>`:""}${p.tally?`<span class="chart-tally">${menuText(p.tally)}</span>`:""}</span></button>`).join("")}</div>`;
+    ${p.art}${p.moored?chartShip("moored-overview", action === "operator" ? "explorer" : undefined):""}<span class="overworld-caption"><b>${menuText(p.label)}</b>${p.detail?`<small>${menuText(p.detail)}</small>`:""}${p.tally?`<span class="chart-tally">${menuText(p.tally)}</span>`:""}</span></button>`).join("")}</div>`;
 }
 
 /** Sail alongside the selected shore before entering it. The active map can be left at any time. */

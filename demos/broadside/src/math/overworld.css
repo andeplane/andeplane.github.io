@@ -13,6 +13,10 @@
 .overworld-place[data-operator="divide"] { --symbol-position:75%; }
 .overworld-place[data-operator="clock"] { --symbol-position:100%; }
 #academy .world-pack-stop:has(.chart-tally) .world-art { height:84px; }
+@media (orientation:portrait) and (max-height:650px) {
+  .overworld-place[data-operator="add"] { --y:31%; }
+  .overworld-place[data-operator="subtract"] { --y:28%; }
+}
 @media (orientation:landscape) and (max-height:480px) {
   #academy .overworld-place { width:clamp(110px,27vw,155px); grid-template-columns:1fr; }
   .overworld-place[data-operator="multiply"] { --x:17%; --y:63%; }

@@ -54,7 +54,7 @@ export class PirateWorld {
   }
   showShip(ship: ShipPresentation, reveal = true, special: number | null = null): ShipHold {
     this.start("ship"); this.releaseCave(); this.closeHold();
-    this.hold = this.buildScene(()=>new ShipHold(this.engine, ship));
+    this.hold = this.buildScene(()=>new ShipHold(this.engine, ship, this.adapter.config.showWeapons));
     const pending = this.adapter.snapshot().pending;
     this.hold.openCargo(pending.length, pending.at(-1)?.gold ?? 0, reveal, special);
     return this.hold;

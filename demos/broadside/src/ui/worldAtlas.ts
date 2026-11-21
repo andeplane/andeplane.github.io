@@ -2,6 +2,7 @@ import { chartShip } from "../ui/adventureChart";
 import type { OperatorId } from "../math/academy";
 import type { createI18n } from "../math/i18n";
 import { worldFor } from "../math/worlds";
+import type { ShipArtStyle } from "./worldArt";
 import { icon } from "../ui/icons";
 import { regionForLevel } from "../ui/expeditionTrail";
 import type { MapCamera, MapPoint } from "../ui/mapPan";
@@ -50,6 +51,7 @@ function clearOfCourse(id: OperatorId, x: number, y: number, radius: number) {
 
 interface AtlasOptions {
   terrainOnly?:boolean;
+  shipStyle?: ShipArtStyle;
   caption?:(level:number, solved:number)=>string;
 }
 interface AtlasTrack { cleared:number; stars:Record<number,number>; runs:Record<number,{solved:number}>; }
@@ -86,7 +88,7 @@ function tileContents(id: OperatorId, col: number, row: number, track: AtlasTrac
     const state = options.caption && !locked ? options.caption(n,solved) : locked ? t("locked") : solved ? t("resumeCount",{count:solved}) : current ? t("start") : `${t("stars", {count:score})}, ${t("replay")}`;
     const chapter = options.caption ? options.caption(n,solved) : (n-1)%12 === 0 ? regionForLevel(n,worldFor(id)).name : "";
     parts.push(`<div class="expedition-stop ${current ? "is-current" : locked ? "is-locked" : "is-cleared"}" style="left:${left}px;top:${top}px">
-      ${current ? `${chartShip("moored-level")}<span class="expedition-here">${t("nextIslandMarker")}</span>` : ""}
+      ${current ? `${chartShip("moored-level", options.shipStyle)}<span class="expedition-here">${t("nextIslandMarker")}</span>` : ""}
       <button class="expedition-node" data-level="${n}" ${locked ? "disabled" : ""} ${current ? 'id="expedition-current" aria-current="step"' : ""} aria-label="${t("level",{count:format(n)})}, ${state}">
         <span class="route-island" aria-hidden="true">${worldIsland(id,n-1)}</span><span class="shore-number">${format(n)}</span>
         ${locked ? `<small class="expedition-node-lock">${icon("lock")}</small>` : ""}

@@ -169,7 +169,7 @@ function operatorView(): string {
 function clockMapView(): string {
   return difficultyMap({ name: t("clockIsland"), accessibleName: t("clockAdventure"),
     instructions: t("dragDifficulty"), back: gameBack("operators"), selected: clockStep,
-    centerLabel: t("currentIsland"), firstArt: 2, island: () => islandArt(2),
+    centerLabel: t("currentIsland"), firstArt: 2, shipStyle: "explorer", island: () => islandArt(2),
     stops: clockSteps.map((step, index) => ({ id: step, label: t(clockLevelKey(step)),
       description: t("level", { count: index + 1 }), progress: completedLabel(Number(progress.completedClockSteps.includes(step))), ariaLabel: t(clockLevelKey(step)) })) });
 }
@@ -177,7 +177,7 @@ function mapView(): string {
   const world = worldFor(operator);
   return difficultyMap({ name: world.name, accessibleName: t("mapAccessible", { world: world.name }),
     instructions: t("dragDifficulty"), back: gameBack("operators"), selected: packId, centerLabel: t("currentIsland"),
-    firstArt: 0, island: i => worldIsland(operator, i), backdrop: worldAsset(operator),
+    firstArt: 0, shipStyle: "explorer", island: i => worldIsland(operator, i), backdrop: worldAsset(operator),
     stops: packsFor(operator).map((pack,i) => {
       const p = localizedPack(pack.id);
       return { id: p.id, label: p.label, description: world.chapterNames[i], progress: completedLabel(progress.tracks[p.id]?.cleared ?? 0), ariaLabel: `${p.label}: ${p.description}` };
@@ -193,7 +193,7 @@ function mountMathMap(scroller: HTMLElement): void {
   const world = viewport?.querySelector<HTMLElement>("[data-map-world]");
   if (!viewport || !world) return;
   const isTrail = screen === "levels", mapOperator = screen === "clockMap" ? "clock" : operator;
-  const draw = isTrail ? atlasRenderer(world, operator, packTrail(), i18n) : undefined;
+  const draw = isTrail ? atlasRenderer(world, operator, packTrail(), i18n, { shipStyle: "explorer" }) : undefined;
   const saved = isTrail ? trailCamera : packCameras.get(mapOperator);
   mapPan = mountMapPan(viewport, world, {
     focus: { x: Number(viewport.dataset.focusX ?? world.offsetWidth / 2), y: Number(viewport.dataset.focusY ?? world.offsetHeight / 2) },
@@ -249,7 +249,7 @@ function caveView(unloading: boolean): string {
   </section>`;
 }
 function completeView(): string {
-  return `<section class="complete-view"><div class="complete-back">${gameBack(voyageReturn)}</div><span class="eyebrow">${selectedPack().name}</span><h1>${t("wellSailed")}</h1>${stars(outcome?.stars ?? 1)}<p>${t("completeNoGold", { count: format(level) })}<br />${t("nextGold")}</p><div class="completion-ship" aria-hidden="true">${pirateShipArt("complete")}</div><button class="wood-button primary" data-action="reward-next">${t("nextIsland")} ${icon("ship")}</button></section>`;
+  return `<section class="complete-view"><div class="complete-back">${gameBack(voyageReturn)}</div><span class="eyebrow">${selectedPack().name}</span><h1>${t("wellSailed")}</h1>${stars(outcome?.stars ?? 1)}<p>${t("completeNoGold", { count: format(level) })}<br />${t("nextGold")}</p><div class="completion-ship" aria-hidden="true">${pirateShipArt("complete", "explorer")}</div><button class="wood-button primary" data-action="reward-next">${t("nextIsland")} ${icon("ship")}</button></section>`;
 }
 function settingsView(): string {
   return settingsDesk(t("settings"),`<button class="desk-action" data-action="language" aria-haspopup="dialog"><strong>${t("language")}</strong><span>${languageLabel()}</span></button>

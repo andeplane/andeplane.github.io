@@ -313,8 +313,11 @@ export const buildIslands = (
   shadows: ShadowGenerator,
   seed: number,
   pack = 0,
-  streamFrom?: { x: number; z: number },
-  periodicBounds?: number,
+  { streamFrom, periodicBounds, showWeapons = true }: {
+    streamFrom?: { x: number; z: number };
+    periodicBounds?: number;
+    showWeapons?: boolean;
+  } = {},
 ): IslandsView => {
   let rng = new Rng(seed);
   const style = worldStyle(pack);
@@ -329,7 +332,7 @@ export const buildIslands = (
     buildRockTemplate(scene, rockMat, seed + 2, style),
   ];
   const details = buildIslandDetails(scene, vertexMat, rocks, shadows, style, pack);
-  const landmark = defs.some(def => def.landmark) ? buildSeaLandmarks(scene, shadows, rockMat) : undefined;
+  const landmark = defs.some(def => def.landmark) ? buildSeaLandmarks(scene, shadows, rockMat, showWeapons) : undefined;
   let animators: ((time: number) => void)[] = [];
   let palms: { mesh: ReturnType<Mesh["createInstance"]>; phase: number }[] = [];
   type Group = {
@@ -450,7 +453,7 @@ export const buildIslands = (
         animators.push(
           buildLighthouse(scene, root, groundHeight(def, 0, 0), shadows, pack),
         );
-      if (def.props.includes("fort")) buildFort(scene, root, def, shadows);
+      if (def.props.includes("fort")) buildFort(scene, root, def, shadows, showWeapons);
       if (def.props.includes("wreck")) buildWreck(scene, root, shadows);
     };
     build();
@@ -640,6 +643,7 @@ const buildFort = (
   parent: TransformNode,
   def: IslandDef,
   shadows: ShadowGenerator,
+  showWeapons: boolean,
 ) => {
   const stone = flatMaterial(
     scene,
@@ -684,7 +688,7 @@ const buildFort = (
     tower.material = stone;
     tower.parent = parent;
     shadows.addShadowCaster(tower);
-    if (i % 2 === 0) {
+    if (showWeapons && i % 2 === 0) {
       const gun = MeshBuilder.CreateCylinder(
         `fort-gun-${i}`,
         { height: 3, diameterTop: 0.5, diameterBottom: 0.75, tessellation: 16 },

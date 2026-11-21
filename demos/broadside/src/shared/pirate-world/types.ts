@@ -15,6 +15,7 @@ export interface PosePersistence {
   saveReserve(area: number, balance: number, reserve: number): void;
 }
 export interface PirateConfig {
+  showWeapons?: boolean;
   readonly gameId: string;
   readonly sound?: boolean;
   readonly roomLabels?: Readonly<Record<string,string>>;
