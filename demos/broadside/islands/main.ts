@@ -75,7 +75,7 @@ function run() {
     !!walker &&
     Math.hypot(walker.x - island.site.dig.x, walker.z - island.site.dig.z) <=
       2.8;
-  const refreshClue = () => hud.update(island.site.clue, nearby(), digs);
+  const refreshClue = () => hud.update(island.site.clue, nearby(), digs, island.site.treasure);
   const dig = () => {
     if (
       mode !== "walk" ||
@@ -137,7 +137,7 @@ function run() {
       view = new LandfallView(engine, current.world, island, current.seed);
       const obstacles = [
         ...view.obstacles,
-        ...buildSettlement(view.scene, island.site, island.heightAt),
+        ...buildSettlement(view.scene, island.site, island.heightAt, view.shadows),
       ];
       walker = new CaveWalker(
         obstacles,

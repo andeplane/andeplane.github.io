@@ -98,9 +98,9 @@ export class LandfallHud {
     this.root.hidden = false;
   }
 
-  update(clue: string, canDig: boolean, strokes: number): void {
+  update(clue: string, canDig: boolean, strokes: number, treasure: string): void {
     let hint = clue;
-    if (strokes >= 3) hint = "Treasure found!";
+    if (strokes >= 3) hint = `You found ${treasure.replace(/^The /, "the ")}!`;
     else if (canDig) hint = [
       "X marks the spot. Dig here!",
       "The sand is loose. Dig again!",

@@ -2,6 +2,7 @@ import { Mesh } from "@babylonjs/core/Meshes/mesh.js";
 import { VertexData } from "@babylonjs/core/Meshes/mesh.vertexData.js";
 import { StandardMaterial } from "@babylonjs/core/Materials/standardMaterial.js";
 import { Color3 } from "@babylonjs/core/Maths/math.color.js";
+import type { ShadowGenerator } from "@babylonjs/core/Lights/Shadows/shadowGenerator.js";
 import type { Scene } from "@babylonjs/core/scene.js";
 import type { TownHouse, TownPath, TownPlan } from "../game/landfallTown";
 import type { CaveObstacle } from "../shared/pirate-world/input/caveWalk";
@@ -53,7 +54,7 @@ class TownGeometry {
     this.face(hex,[left,bottom,front],[right,bottom,front],[right,bottom,back],[left,bottom,back]);
   }
 
-  finish(scene: Scene): void {
+  finish(scene: Scene, shadows: ShadowGenerator): void {
     if (!this.positions.length) return;
     const mesh = new Mesh("village houses and lanes", scene);
     const geometry = new VertexData();
@@ -64,6 +65,7 @@ class TownGeometry {
     material.diffuseColor = Color3.White(); material.specularColor.setAll(.025);
     mesh.material = material; mesh.isPickable = false;
     mesh.receiveShadows = true; mesh.freezeWorldMatrix();
+    shadows.addShadowCaster(mesh);
   }
 }
 
@@ -153,7 +155,7 @@ function drawLane(batch: TownGeometry, path: TownPath, height: Height, winter: b
 }
 
 export function buildSettlement(
-  scene: Scene, site: { town: TownPlan; settings: { biome: string } }, height: Height,
+  scene: Scene, site: { town: TownPlan; settings: { biome: string } }, height: Height, shadows: ShadowGenerator,
 ): CaveObstacle[] {
   const batch = new TownGeometry(), obstacles: CaveObstacle[] = [];
   for (const path of site.town.paths) drawLane(batch,path,height,site.settings.biome === "winter");
@@ -165,6 +167,6 @@ export function buildSettlement(
       x:h.x,z:h.z+k*h.frontage*.30,rx:h.depth*.52,rz:h.frontage*.24,top:floor+h.eaves,
     });
   }
-  batch.finish(scene);
+  batch.finish(scene, shadows);
   return obstacles;
 }
