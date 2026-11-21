@@ -3,7 +3,7 @@ import { Color3 } from "@babylonjs/core/Maths/math.color.js";
 import { Mesh } from "@babylonjs/core/Meshes/mesh.js";
 import { MeshBuilder } from "@babylonjs/core/Meshes/meshBuilder.js";
 import { VertexData } from "@babylonjs/core/Meshes/mesh.vertexData.js";
-import { Texture } from "@babylonjs/core/Materials/Textures/texture.js";
+import { coastalGroundMaterial } from "./landfallMaterials/terrain";
 import { StandardMaterial } from "@babylonjs/core/Materials/standardMaterial.js";
 import type { Scene } from "@babylonjs/core/scene.js";
 import type { ShadowGenerator } from "@babylonjs/core/Lights/Shadows/shadowGenerator.js";
@@ -227,7 +227,7 @@ export class IslandScenery {
     const pos = ground.getVerticesData("position")!,
       colors: number[] = [],
       normals: number[] = [],
-      uvs: number[] = [];
+      coverWeights: number[] = [];
     const style = this.style,
       sand = Color3.FromHexString(style.sand),
       grass = Color3.FromHexString(style.grass);
@@ -250,38 +250,35 @@ export class IslandScenery {
       const crest = Math.max(0, y - 3.5);
       const beachLimit = 0.44 + this.site.settings.beach * 2.65;
       const vegetation = clamp((y - beachLimit + grain * 0.55) * 1.4) * clamp((d - 1.05 + grain) * 0.83);
-      const cover = Color3.Lerp(canopy, rock, clamp((crest - 2.3 - grain * 2) * 0.23));
-      const c = Color3.Lerp(beach, cover, vegetation).scale(0.96 + grain * 0.1);
-      if (this.site.settings.biome === "winter" || this.site.settings.biome === "alpine") {
-        const frost =
-          this.site.settings.biome === "winter"
-            ? clamp((y - 0.37 + grain * 0.5) * 1.7)
-            : clamp((y - 7.6 + grain) * 0.39);
-        // Snow gathers on shoulders and ledges. Exposed pitched faces show
-        // the stratified bedrock underneath, even well above the snow line.
-        const up = Math.abs(normals[i + 1]!);
-        const exposure = clamp((0.86 - up + grain * 0.09) * 2.9);
-        const bed =
-          0.4 +
-          0.29 * landfallNoise(this.seed ^ 295, x * 0.18, z * 0.18) +
-          0.18 * Math.sin(y * 1.59 + x * 0.29 + grain * 5.7);
-        const stoneFace = Color3.Lerp(darkStone, rock, clamp(bed));
-        Color3.LerpToRef(c, stoneFace, exposure * clamp((y - 1.65) * 0.52), c);
-        Color3.LerpToRef(c, snow, frost * (1 - exposure) * (0.89 + grain * 0.14), c);
-      }
-      colors.push(c.r, c.g, c.b, 1);
-      uvs.push(x * 0.26, z * 0.26);
+      const up = Math.abs(normals[i + 1]!);
+      // Colluvium gathers at the foot of escarpments, then the bedrock breaks
+      // through on exposed inclines. Keep the soft sand path clear on the flats.
+      const pitch = clamp((0.92 - up + grain * 0.10) * 4.1);
+      const bedrock = Math.max(
+        vegetation * clamp((crest - 2.3 - grain * 2) * 0.23),
+        pitch * clamp((y - 0.6) * 0.75),
+      );
+      const bed = 0.64 + 0.2 * landfallNoise(this.seed ^ 295, x * 0.18, z * 0.18)
+        + 0.13 * Math.sin(y * 1.59 + x * 0.29 + grain * 5.7);
+      const stoneFace = Color3.Lerp(darkStone, rock, clamp(bed));
+      const { biome } = this.site.settings;
+      const frost = biome === "winter" ? clamp((y - 0.33 + grain * 0.5) * 1.7)
+        : biome === "alpine" ? clamp((y - 7.6 + grain) * 0.39) : 0;
+      const drift = frost * (1 - pitch) * clamp(0.96 + grain * 0.12);
+      const bare = 1 - drift;
+      const sandWeight = bare * (1 - bedrock) * (1 - vegetation);
+      const turfWeight = bare * (1 - bedrock) * vegetation;
+      const rockWeight = bare * bedrock;
+      coverWeights.push(sandWeight, turfWeight, rockWeight, drift);
+      const palette = beach.scale(sandWeight).addInPlace(canopy.scale(turfWeight))
+        .addInPlace(stoneFace.scale(rockWeight)).addInPlace(snow.scale(drift));
+      colors.push(palette.r, palette.g, palette.b, 1);
     }
     ground.setVerticesData("position", pos);
     ground.setVerticesData("normal", normals);
     ground.setVerticesData("color", colors);
-    ground.setVerticesData("uv", uvs);
-    const groundMaterial = islandSurface(this.scene);
-    // DynamicTexture clamps by default; the close-up beach uses metre-based UVs.
-    for (const grain of [groundMaterial.diffuseTexture, groundMaterial.bumpTexture]) {
-      if (grain) grain.wrapU = grain.wrapV = Texture.WRAP_ADDRESSMODE;
-    }
-    ground.material = groundMaterial;
+    ground.setVerticesData("groundCover", coverWeights, false, 4);
+    ground.material = coastalGroundMaterial(this.scene);
     ground.receiveShadows = true;
     ground.isPickable = false;
   }
