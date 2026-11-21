@@ -155,10 +155,11 @@ final class ReleaseUITests: XCTestCase {
         XCTAssertTrue(button(app,"Your cave 10,000 gold saved").exists)
         capture("calculus-interrupted-unload-safe",app:app)
         tap(app,"Your ship 2 chests aboard");tap(app,"Return to cave")
-        XCTAssertTrue(button(app,"Explore your cave").waitForExistence(timeout:90),app.debugDescription)
-        XCTAssertTrue(button(app,"Cave, 11,900 gold banked").exists,app.debugDescription)
+        let walk = app.buttons.matching(NSPredicate(format:"label BEGINSWITH %@","Move")).firstMatch
+        XCTAssertTrue(walk.waitForExistence(timeout:90),app.debugDescription)
+        XCTAssertTrue(app.staticTexts["11,900 gold safely in your cave"].exists,app.debugDescription)
+        XCTAssertFalse(button(app,"Explore your cave").exists,app.debugDescription)
         capture("calculus-07-unloaded-gold",app:app)
-        tap(app,"Explore your cave")
         capture("calculus-08-cave-reserve-portrait",app:app)
         XCUIDevice.shared.orientation = .landscapeLeft
         capture("calculus-cave-reserve-landscape",app:app)

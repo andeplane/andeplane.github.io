@@ -131,7 +131,12 @@ const backLabel = (destination: Screen) => t("backTo", { destination: t(screenLa
 const gameBack = (destination: Screen) => backButton({ action: "back", label: t("back"), accessibleLabel: backLabel(destination) });
 
 function caveHud(): string {
-  return `<header class="explore-bar"><button class="explore-back" data-action="back" aria-label="${backLabel(treasureParent())}">‹ ${t("back")}</button><span class="explore-balance">${icon("chest")} ${navNumber(bankedGold(progress))} <small>${t("gold")}</small></span>${!sceneError && !sceneLoading ? `<details class="cave-details"><summary role="button">${t("caveControlsLabel")}</summary><div class="cave-details-panel"><h2>${t("goldenCave")}</h2><p class="cave-keyboard-instructions">${t("walkKeyboard")}</p><p class="cave-touch-instructions">${t("walkTouch")}</p><button data-action="cave-reset">${icon("compass")} ${t("returnEntrance")}</button><p>${t("caveSummary", {gold:format(cargoGold(progress)),count:format(progress.solved)})}</p><p id="math-cave-reserve" hidden></p></div></details>` : ""}</header>`;
+  const gold = bankedGold(progress);
+  return `<header class="explore-bar">
+    ${gameBack(treasureParent())}
+    <h1>${t("cave")}</h1>
+    <span class="explore-balance"><span class="visually-hidden">${t("safeCave", { gold: format(gold) })}</span><span class="explore-balance-display" aria-hidden="true">${icon("chest")} ${navNumber(gold)} <small>${t("gold")}</small></span></span>
+  </header>`;
 }
 function home(): string {
   const saved = resumeRun();
@@ -234,20 +239,18 @@ function shipView(reward: boolean): string {
   </section>`;
 }
 function caveView(unloading: boolean): string {
-  const gold = bankedGold(progress);
-  const status = cave?.unloading;
-  const finished = unloading && revealReady && !sceneError;
+  if (sceneError) return `<section class="cave-view quiet-cave"><div class="quiet-recovery"><p role="status">${t("caveLoadError")}</p>${retryScene()}</div></section>`;
+  if (sceneLoading) return `<section class="cave-view quiet-cave"><p class="quiet-loading" role="status">${t("loadingCave")}</p></section>`;
   const pending = pendingMathChests(progress);
-  const heading = unloading ? finished ? t("welcomeHome") : t("unloading") : t("goldenCave");
-  const detail = unloading ? finished ? t("safeCave", { gold: format(gold) }) : t("unloadProgress", { count: Math.min((status?.delivered ?? 0) + 1, status?.total ?? pending.length), total: status?.total ?? pending.length, gold: format(cargoGold(progress)) }) : t("exploreCaveDetail");
-  const walkControls = `<div class="cave-walk-controls"><span class="cave-crosshair" aria-hidden="true">+</span><button id="math-cave-pad" aria-label="${t("moveCave")}"><span id="math-cave-thumb"></span><small>${t("move")}</small></button><button id="math-cave-jump" aria-label="${t("jump")}">↑<small>${t("jump")}</small></button><button id="math-cave-inspect" class="text-button" data-action="cave-inspect" disabled>${t("inspectTreasure")}</button></div>`;
-  if (!unloading) return `<section class="cave-view walking-view quiet-cave">${sceneLoading ? `<p class="quiet-loading" role="status">${t("loadingCave")}</p>` : ""}${sceneError ? `<div class="quiet-recovery"><h1>${t("goldenCave")}</h1><p role="status">${t("caveLoadError")}</p>${retryScene()}</div>` : !sceneLoading ? walkControls : ""}${!sceneLoading ? `<button class="quiet-ship" data-action="ship" aria-label="${t("ship")}: ${i18n.plural("aboard", pending.length)}">${icon("ship")} ${t("ship")}</button>` : ""}<span id="math-cave-room" class="visually-hidden">${t("entrance")}</span></section>`;
-  return `<section class="cave-view unloading-view">
-    <div class="scene-back">${gameBack(treasureParent())}</div>
-    <div class="cave-heading"><h1>${heading}</h1><p ${sceneError ? 'role="status"' : ""}>${sceneError ? t("caveLoadError") : detail}</p>${sceneError ? retryScene() : ""}</div>
-    <div class="cave-loading" role="status" ${!sceneLoading ? "hidden" : ""}>${icon("chest")} ${t("loadingCave")}</div>
-    ${sceneError ? `<div class="cave-fallback">${art("treasure-cave")}</div>` : ""}
-    <div class="cave-bottom unload-status">${finished ? `<button class="wood-button primary" data-action="stay-cave">${t("exploreCave")} ${icon("chest")}</button>` : `<p>${t("unopenedSafe")}</p>`}</div>
+  if (unloading) {
+    const total = cave?.unloading.total || pending.length;
+    const count = Math.min((cave?.unloading.delivered ?? 0) + 1, total);
+    return `<section class="cave-view quiet-cave"><p class="unload-tally" role="status">${t("unloadProgress", { count, total, gold: format(cargoGold(progress)) })}</p></section>`;
+  }
+  return `<section class="cave-view walking-view quiet-cave">
+    <div class="cave-walk-controls"><span class="cave-crosshair" aria-hidden="true">+</span><button id="math-cave-pad" aria-label="${t("moveCave")}"><span id="math-cave-thumb"></span><small>${t("move")}</small></button><button id="math-cave-jump" aria-label="${t("jump")}">↑<small>${t("jump")}</small></button><button id="math-cave-inspect" class="text-button" data-action="cave-inspect" disabled>${t("inspectTreasure")}</button></div>
+    <button class="quiet-ship" data-action="ship" aria-label="${t("ship")}: ${i18n.plural("aboard", pending.length)}">${icon("ship")} ${t("ship")}</button>
+    <span id="math-cave-room" class="visually-hidden">${t("entrance")}</span>
   </section>`;
 }
 function completeView(): string {
@@ -272,7 +275,7 @@ function render(preserveScroll = false): void {
   root.dataset.screen = screen;
   root.dataset.operator = operator;
   root.dataset.saveFailed = String(saveFailed);
-  root.innerHTML = `${screen === "cave" ? caveHud() : ""}${screen === "question" ? `<div class="question-back">${gameBack(voyageReturn)}</div>` : ""}<main id="main-content">${{
+  root.innerHTML = `${screen === "cave" || screen === "unloading" ? caveHud() : ""}${screen === "question" ? `<div class="question-back">${gameBack(voyageReturn)}</div>` : ""}<main id="main-content">${{
     home, operators: operatorView, map: mapView, levels: levelsView, question: questionView,
     clockMap: clockMapView, clock: () => clockBoard(clockRound!, i18n, gameBack("clockMap")),
     reward: () => shipView(true), ship: () => shipView(false), unloading: () => caveView(true), cave: () => caveView(false), complete: completeView, settings: settingsView,
@@ -311,8 +314,12 @@ async function showTreasure(request: "reward" | "ship" | "cave", unload = true):
       const { GoldCave: Scene } = await import("./goldCave");
       if (id !== viewId) return;
       cave = new Scene(canvas, () => {
-        if (!["reward", "ship", "unloading"].includes(screen)) return;
-        revealReady = true; render();
+        if (screen === "unloading" && !sceneError && cave?.unloading.done) {
+          cave.finishUnloadForWalk();
+          show("cave");
+        } else if (screen === "reward" || screen === "ship") {
+          revealReady = true; render();
+        }
       }, !qa, () => { if (screen === "unloading") render(); }, next => {
         const saved=saveMathProgress(next,storage); saveFailed=!qa&&!saved; return qa||saved;
       }, error => {
@@ -502,7 +509,6 @@ root.addEventListener("click", (event) => {
       treasureTrail.push(screen);
       void showGold(false);
       break;
-    case "stay-cave": void showTreasure("cave", false); break;
     case "ship":
       if (screen === "ship" || screen === "reward") break;
       treasureTrail.push(screen);
@@ -517,12 +523,6 @@ root.addEventListener("click", (event) => {
       break;
     }
     case "cave-map": operator = selectedPack().operator; show("map"); break;
-    case "cave-reset": {
-      cave?.resetCamera();
-      const details = root.querySelector<HTMLDetailsElement>(".cave-details");
-      if (details) { details.open = false; details.querySelector("summary")?.focus(); }
-      break;
-    }
     case "cave-inspect": cave?.inspect(); break;
     case "resume": {
       const saved = resumeRun();
@@ -553,8 +553,6 @@ document.addEventListener("keydown", (event) => {
   if (event.altKey || event.ctrlKey || event.metaKey || event.repeat) return;
   if (event.key === "Escape") {
     event.preventDefault();
-    const details = root.querySelector<HTMLDetailsElement>(".cave-details[open]");
-    if (details) { details.open = false; details.querySelector("summary")?.focus(); return; }
     if (document.pointerLockElement === canvas) document.exitPointerLock();
     else goBack();
     return;
@@ -578,8 +576,3 @@ if (qa) {
   else if (view === "ship") void showTreasure("ship");
   else if (view === "unload") void showTreasure("cave");
 }
-
-document.addEventListener("pointerdown", event => {
-  const details = root.querySelector<HTMLDetailsElement>(".cave-details[open]");
-  if (!picker.open && details && !details.contains(event.target as Node)) details.open = false;
-});

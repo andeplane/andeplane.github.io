@@ -68,7 +68,6 @@ export class GoldCave {
   get unloading(){return this.world?.unloading??{total:0,delivered:0,done:true,active:null};}
   pause():void {this.active=false;this.world?.cancel();}
   dispose():void {this.pause();this.unbind?.();this.abort.abort();this.canvasSize.disconnect();this.world?.dispose();this.engine.stopRenderLoop();this.engine.dispose();}
-  resetCamera():void {this.world?.cave.enter();}
   inspect():void {
     const cave=this.world?.cave;if(!cave)return;
     if(cave.inspecting)cave.overview();else if(cave.nearby!==null)cave.select(cave.nearby);
@@ -87,8 +86,6 @@ export class GoldCave {
   private updateHud():void {
     const cave=this.world!.cave,root=document.querySelector<HTMLElement>('#academy');
     if(root)root.dataset.caveView=cave.inspecting?'inspect':'walk';
-    const reserve=document.querySelector<HTMLElement>('#math-cave-reserve');
-    if(reserve){const amount=cave.reserveCounts.reduce((sum,n)=>sum+n,0);reserve.hidden=amount===0;reserve.textContent=currentI18n().t("reserveGold", { gold: currentI18n().format(amount) });}
     const footer=document.querySelector<HTMLElement>('.walking-view .cave-bottom');
     if(footer){const bounds=footer.getBoundingClientRect();for(const id of ['math-cave-pad','math-cave-jump']){
       const control=document.getElementById(id);if(!control)continue;const r=control.getBoundingClientRect();

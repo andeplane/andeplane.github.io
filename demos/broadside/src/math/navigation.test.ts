@@ -1,10 +1,11 @@
 // @vitest-environment happy-dom
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-const runtime=vi.hoisted(()=>({ created:0, ready:null as null|(()=>void) }));
+const runtime=vi.hoisted(()=>({ created:0, ready:null as null|(()=>void), unloadingDone:false, finishUnloadForWalk:vi.fn() }));
 vi.mock("./goldCave",()=>({ GoldCave: class {
-  unloading={total:0,delivered:0,done:true,active:null};
+  get unloading(){return {total:1,delivered:runtime.unloadingDone?1:0,done:runtime.unloadingDone};}
   constructor(_canvas:HTMLCanvasElement,ready:()=>void){runtime.created++;runtime.ready=ready;}
-  showShip(){}show(){}pause(){}dispose(){}resetCamera(){}inspect(){}
+  showShip(){}show(){}pause(){}dispose(){}inspect(){}
+  finishUnloadForWalk=runtime.finishUnloadForWalk;
 } }));
 const memoryStorage=()=>{ const data=new Map<string,string>();return {getItem:(key:string)=>data.get(key)??null,setItem:vi.fn((key:string,value:string)=>{data.set(key,value);}),clear:()=>data.clear()}; };
 const root=()=>document.querySelector<HTMLElement>("#academy")!;
@@ -13,7 +14,7 @@ const click=(action:string)=>{
   expect(button,action).not.toBeNull();button!.click();
 };
 beforeEach(()=>{
-  vi.resetModules();runtime.created=0;runtime.ready=null;
+  vi.resetModules();runtime.created=0;runtime.ready=null;runtime.unloadingDone=false;runtime.finishUnloadForWalk.mockClear();
   history.replaceState(null,"","/");vi.stubGlobal("localStorage",memoryStorage());vi.stubGlobal("sessionStorage",memoryStorage());
   document.body.innerHTML='<canvas id="treasure-scene" hidden></canvas><main id="academy"></main>';
 });
@@ -109,10 +110,29 @@ describe("Captain Calculus navigation destinations",()=>{
     history.replaceState(null,"","/?qa=true&fresh=1&cargo=1&view=unload&fail=scene");
     await import("./main");
     expect(root().textContent).toContain("The cave couldn't load");
-    expect(root().textContent).not.toContain("Welcome home, Captain");
-    expect(root().querySelector('[data-action="stay-cave"]')).toBeNull();
+    expect(root().querySelector("h1")?.textContent).toBe("Cave");
+    expect(root().querySelector("#math-cave-pad")).toBeNull();
     click("back");expect(root().dataset.screen).toBe("home");
     expect(root().querySelector('[data-action="ship"]')?.textContent).toContain("1 chest aboard");
+  });
+  it("automatically starts exploring when the last cave delivery finishes", async () => {
+    history.replaceState(null, "", "/?qa=true&fresh=1&cargo=1&view=unload");
+    await import("./main");
+    await vi.waitFor(() => expect(runtime.ready).not.toBeNull());
+    expect(root().dataset.screen).toBe("unloading");
+    expect(root().querySelector("h1")?.textContent).toBe("Cave");
+    expect(root().querySelector("#math-cave-pad")).toBeNull();
+    runtime.ready!();
+    expect(runtime.finishUnloadForWalk).not.toHaveBeenCalled();
+
+    runtime.unloadingDone = true;
+    runtime.ready!();
+    expect(runtime.finishUnloadForWalk).toHaveBeenCalledOnce();
+    expect(root().dataset.screen).toBe("cave");
+    expect(root().querySelector("#math-cave-pad")).not.toBeNull();
+    expect(root().querySelector(".cave-details, [data-action=stay-cave]")).toBeNull();
+    click("back");
+    expect(root().dataset.screen).toBe("home");
   });
   it("returns Home → Ship → Back to Home",async()=>{
     await import("./main");click("ship");await vi.waitFor(()=>expect(runtime.created).toBe(1));

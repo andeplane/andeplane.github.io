@@ -389,7 +389,6 @@
 .reward-view .cave-heading { animation: reward-caption 4s ease forwards; }
 @keyframes reward-caption { 0%, 40% { opacity: 1; } 100% { opacity: 0; } }
 
-.unload-status { width: auto; max-width: calc(100% - 36px); padding: 10px 16px; font-size: 11px; }
 .ship-view .cave-bottom > .text-button { width: 100%; }
 
 #academy[data-screen="home"] #main-content { inset: 0; }
@@ -532,7 +531,6 @@
   .complete-view .wood-button { margin-top: 14px; min-height: 44px; }
 }
 
-#math-cave-reserve:not([hidden]) { display: block; color: #ffe5b7; font-size: 12px; line-height: 1.4; }
 
 @media (max-width: 600px) and (max-height: 700px) { .walking-view .cave-heading p:not([role="status"]) { display: none; } }
 
