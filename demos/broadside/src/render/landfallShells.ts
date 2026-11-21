@@ -12,6 +12,9 @@ export function scallopShell(s: IslandScenery, x: number, z: number, angle: numb
   const ribs = 11,
     slices = ribs * 4,
     rings = 6;
+  const center = s.floor(x, z);
+  const slopeX = (s.floor(x + 0.2, z) - s.floor(x - 0.2, z)) / 0.4;
+  const slopeZ = (s.floor(x, z + 0.2) - s.floor(x, z - 0.2)) / 0.4;
   const point = (k: number, j: number, inside: boolean) => {
     const u = j / rings,
       t = k / slices,
@@ -25,8 +28,8 @@ export function scallopShell(s: IslandScenery, x: number, z: number, angle: numb
     const back =
       radius * (0.2 * Math.sin(u * Math.PI * 0.87) * (1 - 0.35 * Math.abs(2 * t - 1)) + 0.048 * crest * u);
     // Keep the body above the sand on a slope and taper the lip to a fine edge.
-    const floor = s.floor(px, pz);
-    return vec(px, floor + radius * 0.07 + u * radius * 0.09 + (inside ? back * 0.59 - 0.018 : back), pz);
+    const floor = center + slopeX * (px - x) + slopeZ * (pz - z);
+    return vec(px, floor + radius * 0.018 + u * radius * 0.065 + (inside ? back * 0.59 - 0.018 : back), pz);
   };
   const outer = Array.from({ length: rings + 1 }, (_, j) =>
     Array.from({ length: slices + 1 }, (_, k) => point(k, j, false)),

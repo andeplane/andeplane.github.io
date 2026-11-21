@@ -6,6 +6,7 @@ import { StandardMaterial } from "@babylonjs/core/Materials/standardMaterial.js"
 import { ShaderMaterial } from "@babylonjs/core/Materials/shaderMaterial.js";
 import { DynamicTexture } from "@babylonjs/core/Materials/Textures/dynamicTexture.js";
 import { Color3 } from "@babylonjs/core/Maths/math.color.js";
+import { PointLight } from "@babylonjs/core/Lights/pointLight.js";
 import { SpotLight } from "@babylonjs/core/Lights/spotLight.js";
 import { ShadowGenerator } from "@babylonjs/core/Lights/Shadows/shadowGenerator.js";
 import { Constants } from "@babylonjs/core/Engines/constants.js";
@@ -264,8 +265,10 @@ function lantern(s: IslandScenery, x: number, y: number, z: number, night: boole
   const rotor = new TransformNode("clockwork optic carriage", s.scene);
   rotor.position.copyFrom(position);
   const lightGlass = new StandardMaterial("lit ridges of the bullseye optic", s.scene);
-  lightGlass.diffuseColor.set(0.96, 0.72, 0.27);
-  lightGlass.emissiveColor.set(1, 0.63, 0.19);
+  lightGlass.diffuseColor.set(0.86, 0.69, 0.4);
+  lightGlass.emissiveColor.set(0.52, 0.3, 0.1);
+  lightGlass.linkEmissiveWithDiffuse = true;
+  lightGlass.alpha = 0.84;
   lightGlass.specularColor.set(1, 0.94, 0.74);
   lightGlass.specularPower = 92;
   const form = [vec(0.001, 0.16, 0)];
@@ -284,11 +287,51 @@ function lantern(s: IslandScenery, x: number, y: number, z: number, night: boole
   lens.rotation.x = Math.PI / 2;
   lens.material = lightGlass;
   lens.isPickable = false;
-  const core = MeshBuilder.CreateSphere("incandescent lamp", { diameter: 0.53, segments: 12 }, s.scene);
+  const glassTint = new StandardMaterial("ridged amber optical glass", s.scene);
+  glassTint.diffuseColor.set(0.81, 0.76, 0.51);
+  glassTint.emissiveColor.set(0.26, 0.18, 0.075);
+  glassTint.specularColor.set(0.94, 0.86, 0.63);
+  glassTint.specularPower = 76;
+  glassTint.alpha = 0.49;
+  const drumProfile = [vec(0.35, -0.56, 0)];
+  for (let i = 0; i < 12; i++) {
+    const height = -0.55 + i * 0.091;
+    const r = 0.48 - 0.11 * (height * height);
+    drumProfile.push(vec(r - 0.055, height, 0), vec(r, height + 0.036, 0), vec(r - 0.05, height + 0.082, 0));
+  }
+  const drum = MeshBuilder.CreateLathe(
+    "circumferential Fresnel prism drum",
+    { shape: drumProfile, tessellation: 32 },
+    s.scene,
+  );
+  drum.position.copyFrom(position);
+  drum.material = glassTint;
+  drum.isPickable = false;
+  for (const dy of [-0.55, 0.54])
+    s.pole(
+      "optical drum rim",
+      position.add(vec(0, dy - 0.023, 0)),
+      position.add(vec(0, dy + 0.023, 0)),
+      0.94,
+      0.94,
+      brass,
+      32,
+    );
+  for (const a of [-0.72, 1.3, 3.12]) {
+    const p = position.add(vec(Math.sin(a) * 0.46, -0.55, Math.cos(a) * 0.46));
+    s.pole("brass prism retaining strips", p, p.add(vec(0, 1.09, 0)), 0.035, 0.041, brass, 6);
+  }
+  const casing = new PointLight("amber pool within the lantern", position.clone(), s.scene);
+  casing.diffuse = Color3.FromHexString("#ffc677");
+  casing.specular.set(0.82, 0.58, 0.26);
+  casing.range = 4.8;
+  casing.intensity = night ? 1.12 : 0.23;
+  const core = MeshBuilder.CreateSphere("incandescent lamp", { diameter: 0.39, segments: 12 }, s.scene);
   const wick = new StandardMaterial("incandescent amber core", s.scene);
   wick.diffuseColor.set(0, 0, 0);
   wick.emissiveColor.set(1, 0.84, 0.49);
   core.position.copyFrom(position);
+  core.scaling.y = 1.38;
   core.material = wick;
   core.isPickable = false;
   const pedestal = (lo: number, hi: number, b: number, t: number, c: string) =>
@@ -296,6 +339,7 @@ function lantern(s: IslandScenery, x: number, y: number, z: number, night: boole
   pedestal(9.12, 9.28, 0.84, 0.64, "#665948");
   pedestal(9.25, 9.51, 0.42, 0.25, brass);
   pedestal(9.44, 9.52, 0.6, 0.66, brass);
+  pedestal(9.48, 9.73, 0.25, 0.2, brass);
   return { rotor, position };
 }
 
@@ -345,12 +389,12 @@ function shaft(s: IslandScenery, origin: Vector3, night: boolean) {
       void main(){
         vec3 sight=normalize(eye-point);
         float facing=abs(dot(sight,normalize(radial)));
-        float soft=pow(clamp(facing,0.,1.),0.77);
+        float soft=smoothstep(.08,.96,facing);
         float along=local.z;
         float fade=exp(-along*.021)*(1.-smoothstep(reach*.68,reach,along));
         float haze=.87+.13*sin(along*.48+local.x*.87)*sin(local.y*1.35-along*.27);
         float a=strength*soft*fade*haze;
-        gl_FragColor=vec4(mix(vec3(1.,.69,.34),vec3(1.,.84,.56),soft),a);
+        gl_FragColor=vec4(mix(vec3(1.,.48,.21),vec3(1.,.75,.42),soft),a);
       }`,
     },
     {
