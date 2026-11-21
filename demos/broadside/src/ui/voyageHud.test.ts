@@ -265,7 +265,9 @@ describe("regional island journeys", () => {
     const stops = [...hud.root.querySelectorAll<HTMLButtonElement>("[data-level]")];
     expect(stops).toHaveLength(10);
     expect(new Set(stops.map(b => b.querySelector("img")?.getAttribute("src"))).size).toBe(10);
-    expect(stops[0]!.querySelectorAll(".earned")).toHaveLength(3);
+    expect(stops[0]!.textContent).toContain("3 / 3 stars");
+    expect(stops[1]!.getAttribute("aria-current")).toBe("step");
+    expect(stops[2]!.textContent).toContain("Locked");
     expect(stops[1]!.disabled).toBe(false);
     expect(stops[2]!.disabled).toBe(true);
     stops[1]!.click(); expect(handlers.travel).toHaveBeenLastCalledWith(1);

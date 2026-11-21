@@ -12,6 +12,6 @@ describe("shared pack islands", () => {
     expect(html).toContain("islands/fjord.webp");
     expect(html).toContain("islands/keep.webp");
     expect(html).toContain("&lt;Next&gt;");
-    expect(html.match(/class="world-pack-stop"/g)).toHaveLength(2);
+    expect(html.match(/class="world-route-stop"/g)).toHaveLength(2);
   });
 });

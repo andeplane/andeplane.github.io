@@ -1,4 +1,5 @@
-import { atlasRenderer, levelPoint, worldAsset } from "./worldAtlas";
+import { worldAsset } from "./worldAtlas";
+import { worldRouteLine, worldRoutePoints, worldRouteStop } from "./worldRoute";
 import { settingsDesk } from "./homeMenu";
 import { adventureChart, chartCenterButton, chartShip, faceChartShip } from "./adventureChart";
 import { PACKS, RELICS, type VoyageSession, type VoyageDef } from "../game/voyage";
@@ -40,7 +41,7 @@ import { angleDiff, headingTo, distance, seaDistance, wrapCoordinate } from "../
 import { SEA_LANDMARKS } from "../game/freeSailing";
 import { drawLandmarkSymbol } from "./seaChartSymbols";
 import { mountMapPan, type MapCamera, type MapPanController } from "./mapPan";
-import { shoreMarker } from "./islandChart";
+import { islandArt } from "./islandChart";
 import { locationWorld, type ShipLocation } from "../game/journey";
 const homeLanguageKey = "broadside.home.language.v1";
 const caveBalance = (amount: number) => ({
@@ -458,7 +459,7 @@ export class VoyageHud {
     if (page === "levels") {
       const viewport = this.q(".regional-viewport");
       this.regionalPan = mountMapPan(viewport, this.q("#voyage-levels"), {
-        coverViewport: true, focus:{x:this.q(".next-level").offsetLeft,y:this.q(".next-level").offsetTop}, state: this.regionalCameras.get(this.pack),
+        coverViewport: true, focus:{x:this.q("#voyage-levels [aria-current=step]").offsetLeft,y:this.q("#voyage-levels [aria-current=step]").offsetTop}, state: this.regionalCameras.get(this.pack),
         onChange: camera => {
           this.regionalCameras.set(this.pack, camera);
           this.resizeChart();
@@ -598,23 +599,28 @@ export class VoyageHud {
     this.q(".level-note").textContent =
       `1,000 gold per level · World treasure: ${RELICS[WORLD_RELICS[this.pack]!]!.name}`;
 
-    const theme=(["add","subtract","multiply","divide"] as const)[this.pack]!;
-    const routePoints=worldLevels(this.pack).map((_,n)=>{const p=levelPoint(theme,n+1);return {x:p.x+840,y:p.y+1320};});
-    this.q("#voyage-levels").innerHTML = Array.from(
-      { length: LEVELS_PER_WORLD },
-      (_, n) => {
-        const i = this.pack * LEVELS_PER_WORLD + n,
-          v = this.progress.voyages[i],
-          locked = !levelUnlocked(this.progress.voyages, i);
-        const {x,y}=routePoints[n]!;
-        return `<button data-level="${i}" style="left:${x}px;top:${y}px" ${locked ? "disabled" : ""} aria-label="Level ${n + 1}${locked ? ", locked" : v ? ", " + v.stars + " stars" : ", set sail"}" class="level-tile ${locked ? "locked" : ""} ${i === next ? "next-level" : ""}">${shoreMarker(i, String(n+1), "tile-number")}${locked ? icon("lock", "tile-lock") : ""}<span class="tile-stars">${[0, 1, 2].map((s) => `<i class="${s < (v?.stars ?? 0) ? "earned" : ""}">★</i>`).join("")}</span><span class="tile-treasure" title="${n === LEVELS_PER_WORLD - 1 ? RELICS[WORLD_RELICS[this.pack]!]!.name : "1,000 gold"}">${icon(n === LEVELS_PER_WORLD - 1 ? "gem" : "chest")}</span></button>`;
-      },
-    ).join("");
+    const theme = (["add", "subtract", "multiply", "divide"] as const)[this.pack]!;
+    const width = 1900, height = 360 + LEVELS_PER_WORLD * 155;
+    const points = worldRoutePoints(LEVELS_PER_WORLD, width, height);
     const route = this.q("#voyage-levels");
-    route.style.setProperty("--water",`url(${worldAsset(theme,"-water")})`);
-    route.insertAdjacentHTML("afterbegin",`<div class="regional-terrain" aria-hidden="true"></div><svg class="level-route" viewBox="0 0 1900 1700" aria-hidden="true"><polyline points="${routePoints.map(p=>p.x+","+p.y).join(" ")}"/></svg>`);
-    const terrain=route.querySelector<HTMLElement>(".regional-terrain")!;
-    atlasRenderer(terrain,theme,{cleared:0,stars:{},runs:{}},createI18n("en",[]),{terrainOnly:true})({x:840,y:1320,scale:1},{x:-840,y:-1320},1900,1700);
+    route.style.width = `${width}px`;
+    route.style.height = `${height}px`;
+    route.style.setProperty("--water", `url(${worldAsset(theme, "-water")})`);
+    route.innerHTML = worldRouteLine(points, width, height, "level-route") +
+      worldLevels(this.pack).map((level, stage) => {
+        const result = this.progress.voyages[level];
+        const locked = !levelUnlocked(this.progress.voyages, level);
+        const title = `Level ${stage + 1}`;
+        const current = level === next;
+        const detail = stage === LEVELS_PER_WORLD - 1 ? RELICS[WORLD_RELICS[this.pack]!]!.name : undefined;
+        const progress = locked ? "Locked" : result ? `${result.stars} / 3 stars` : "Set sail";
+        return worldRouteStop({
+          ...points[stage]!, key: "level", id: level, art: islandArt(level),
+          title, detail, progress,
+          accessible: [title, detail, progress].filter(Boolean).join(", "),
+          disabled: locked, current,
+        });
+      }).join("");
     this.location(this.shipLocation);
   }
 

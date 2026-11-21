@@ -22,13 +22,13 @@
 
 .overworld-geography .world-art {width:80px;height:56px;object-fit:contain;}
 .overworld-geography button:disabled {filter:saturate(.65);}
-:is(.overworld-geography,.world-pack-stop,.expedition-stop) .chart-ship-marker {display:block;position:absolute;z-index:3;width:52px;left:-6px;top:0;pointer-events:none;filter:drop-shadow(0 2px 2px #2a2119);}
+:is(.overworld-geography,.world-route-stop,.expedition-stop) .chart-ship-marker {display:block;position:absolute;z-index:3;width:52px;left:-6px;top:0;pointer-events:none;filter:drop-shadow(0 2px 2px #2a2119);}
 .chart-ship-marker > img {display:block;width:100%;height:auto;filter:drop-shadow(0 0 1px #fff1bc);}
 .chart-ship-marker[data-facing="left"] > img {scale:-1 1;}
-:is(.overworld-geography,.world-pack-stop,.expedition-stop) .chart-ship-marker > img {animation:moored-bob 2.4s ease-in-out infinite alternate;}
+:is(.overworld-geography,.world-route-stop,.expedition-stop) .chart-ship-marker > img {animation:moored-bob 2.4s ease-in-out infinite alternate;}
 .expedition-stop .chart-ship-marker {left:32px;top:18px;}
 @keyframes moored-bob {to {transform:translateY(-3px) rotate(3deg);}}
-@media(prefers-reduced-motion:reduce){:is(.overworld-geography,.world-pack-stop,.expedition-stop) .chart-ship-marker > img {animation:none;}}
+@media(prefers-reduced-motion:reduce){:is(.overworld-geography,.world-route-stop,.expedition-stop) .chart-ship-marker > img {animation:none;}}
 .reading-overview,#voyage-ui #world-menu #world-packs {position:absolute;inset:0;display:grid;place-items:center;background:#176867 url("/assets/map/worlds/add-water.webp") center/360px;}
 #voyage-ui[data-screen="worlds"] #captain-menu #world-menu .world-map {position:absolute;inset:0;width:100%;height:100%;min-height:0;max-width:none;margin:0;background:none;border:0;}
 #voyage-ui[data-screen="worlds"] #captain-menu #world-menu :is(.map-footnote,.map-route) {display:none;}

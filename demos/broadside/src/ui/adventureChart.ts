@@ -25,7 +25,7 @@ export function adventureChart(action:"operator"|"language"|"pack",places:readon
 
 /** Sail alongside the selected shore before entering it. The active map can be left at any time. */
 export function sailToShore(event:MouseEvent, root:HTMLElement):boolean {
-  const target=(event.target as Element).closest<HTMLButtonElement>(".overworld-place,.world-pack-stop,.expedition-node");
+  const target=(event.target as Element).closest<HTMLButtonElement>(".overworld-place,[data-pack].world-route-stop,.expedition-node");
   if (!target || target.disabled || !event.isTrusted || typeof target.animate!=="function" || matchMedia("(prefers-reduced-motion: reduce)").matches) return false;
   const chart=target.closest<HTMLElement>(".overworld-geography,[data-map-viewport]");
   const ship=chart?.querySelector<HTMLElement>(".chart-ship");

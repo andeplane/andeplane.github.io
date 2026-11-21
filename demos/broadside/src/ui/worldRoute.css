@@ -1,0 +1,62 @@
+.world-route-line {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+.world-route-line polyline {
+  fill: none;
+  stroke: #fff1c7;
+  stroke-width: 3;
+  stroke-dasharray: 5 9;
+  stroke-linecap: round;
+}
+:is(#academy, #reader, #voyage-ui) .world-route-stop {
+  position: absolute;
+  z-index: 2;
+  display: grid;
+  justify-items: center;
+  align-content: start;
+  gap: 4px;
+  width: 142px;
+  min-height: 44px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  box-shadow: none;
+  color: #0b2840;
+  text-align: center;
+  touch-action: none;
+  transform: translate(-50%, -42px);
+}
+.world-route-stop .chart-island-art {
+  width: 112px;
+  height: 88px;
+  object-fit: contain;
+  pointer-events: none;
+}
+.world-route-stop .chart-ship-marker { left: -9px; top: 15px; }
+.world-route-caption {
+  display: grid;
+  gap: 3px;
+  width: max-content;
+  min-width: 86px;
+  max-width: 100%;
+  padding: 5px 8px;
+  box-sizing: border-box;
+  border: 1px solid #8c754b;
+  border-radius: 8px;
+  background: #fff6e3;
+  color: #0b2840;
+}
+.world-route-caption b { font: 700 17px/1.15 system-ui, sans-serif; }
+.world-route-caption small { font: 500 12px/1.2 system-ui, sans-serif; }
+.world-route-stop.is-current .world-route-caption { border-color: #785419; background: #ffe6a5; }
+.world-route-stop:disabled .chart-island-art { filter: saturate(.62); }
+.world-route-stop:disabled .world-route-caption { background: #e8dec9; color: #514937; }
+:is(#academy, #reader, #voyage-ui) .world-route-stop:focus-visible {
+  outline: 3px solid #fff6e3;
+  outline-offset: 2px;
+  border-radius: 8px;
+}
