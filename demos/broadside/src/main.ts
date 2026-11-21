@@ -964,9 +964,16 @@ async function main() {
 installMenuPreview();
 void main().catch((err) => {
   console.error(err);
-  const el = document.querySelector("#loading");
-  if (el)
-    el.textContent = "The sea could not load. Please reload to try again.";
+  const message = document.querySelector("#loading-message");
+  const retry = document.querySelector<HTMLButtonElement>("#loading-retry");
+  if (message) {
+    message.setAttribute("role", "alert");
+    message.textContent = "The sea could not load.";
+  }
+  if (retry) {
+    retry.hidden = false;
+    retry.onclick = () => location.reload();
+  }
 });
 
 installPrivacy();
