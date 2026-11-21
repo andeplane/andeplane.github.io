@@ -2,10 +2,10 @@ import { menuText } from "./homeMenu";
 import type { MapPoint } from "./mapPan";
 import "./worldRoute.css";
 
-export function worldRoutePoints(count: number, width: number, height: number): MapPoint[] {
+export function worldRoutePoints(count: number, width: number, height: number, bottomInset = 215): MapPoint[] {
   return Array.from({ length: count }, (_, index) => ({
     x: width / 2 + (index % 2 ? 52 : -52),
-    y: height - 215 - index * 155,
+    y: height - bottomInset - index * 155,
   }));
 }
 

@@ -43,6 +43,7 @@ import { drawLandmarkSymbol } from "./seaChartSymbols";
 import { mountMapPan, type MapCamera, type MapPanController } from "./mapPan";
 import { islandArt } from "./islandChart";
 import { locationWorld, type ShipLocation } from "../game/journey";
+const REGIONAL_CHART_WIDTH = 1900;
 const HULL_HEARTS = 3;
 const COMPASS_DIRECTIONS = ["north", "northeast", "east", "southeast", "south", "southwest", "west", "northwest"];
 const homeLanguageKey = "broadside.home.language.v1";
@@ -482,7 +483,9 @@ export class VoyageHud {
     if (page === "levels") {
       const viewport = this.q(".regional-viewport");
       this.regionalPan = mountMapPan(viewport, this.q("#voyage-levels"), {
-        coverViewport: true, focus:{x:this.q("#voyage-levels [aria-current=step]").offsetLeft,y:this.q("#voyage-levels [aria-current=step]").offsetTop}, state: this.regionalCameras.get(this.pack),
+        coverViewport: true,
+        focus: { x: REGIONAL_CHART_WIDTH / 2, y: this.q("#voyage-levels [aria-current=step]").offsetTop },
+        state: this.regionalCameras.get(this.pack),
         onChange: camera => {
           this.regionalCameras.set(this.pack, camera);
           this.resizeChart();
@@ -623,8 +626,8 @@ export class VoyageHud {
       `1,000 gold per level · World treasure: ${RELICS[WORLD_RELICS[this.pack]!]!.name}`;
 
     const theme = (["add", "subtract", "multiply", "divide"] as const)[this.pack]!;
-    const width = 1900, height = 360 + LEVELS_PER_WORLD * 155;
-    const points = worldRoutePoints(LEVELS_PER_WORLD, width, height);
+    const width = REGIONAL_CHART_WIDTH, height = 860 + LEVELS_PER_WORLD * 155;
+    const points = worldRoutePoints(LEVELS_PER_WORLD, width, height, 500);
     const route = this.q("#voyage-levels");
     route.style.width = `${width}px`;
     route.style.height = `${height}px`;

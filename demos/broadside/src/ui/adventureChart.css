@@ -47,7 +47,7 @@
 #voyage-ui[data-screen="levels"] #captain-menu #level-menu {position:absolute;inset:0;padding:0;overflow:hidden;}
 #voyage-ui[data-screen="levels"] #captain-menu #level-menu .level-board {position:absolute;inset:0;width:100%;height:100%;max-width:none;min-height:0;margin:0;}
 #voyage-ui #captain-menu #level-menu .regional-viewport {inset:0;}
-#voyage-ui #level-menu #voyage-levels {width:1900px;height:1700px;transform-origin:0 0;background:var(--water) repeat;}
+#voyage-ui #level-menu #voyage-levels {transform-origin:0 0;background:var(--water) repeat;}
 .regional-terrain {position:absolute;inset:0;overflow:hidden;pointer-events:none;}
 #voyage-ui #level-menu .level-route polyline {display:block;stroke:#fff1c7;opacity:1;}
 #voyage-ui[data-screen="levels"] #level-menu :is(.level-note,.menu-heading p,.menu-heading .eyebrow) {display:none;}
