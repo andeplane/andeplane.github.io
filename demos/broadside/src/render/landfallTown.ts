@@ -54,6 +54,19 @@ class TownGeometry {
     this.face(hex,[left,bottom,front],[right,bottom,front],[right,bottom,back],[left,bottom,back]);
   }
 
+  /** Tapered turned pieces share the same batch as the walls and roofs. */
+  turned(hex: string, x: number, y: number, z: number, base: number, top: number, height: number, sides = 8) {
+    const ring = (i: number, r: number, dy: number): Point => [
+      x + r * Math.cos(i * 2 * Math.PI / sides), y + dy, z + r * Math.sin(i * 2 * Math.PI / sides),
+    ];
+    const cap: Point[] = [];
+    for (let i = 0; i < sides; i++) {
+      this.face(hex, ring(i, base, 0), ring(i, top, height), ring(i + 1, top, height), ring(i + 1, base, 0));
+      cap.unshift(ring(i, top, height));
+    }
+    this.face(hex, ...cap);
+  }
+
   finish(scene: Scene, shadows: ShadowGenerator): void {
     if (!this.positions.length) return;
     const mesh = new Mesh("village houses and lanes", scene);
@@ -67,6 +80,106 @@ class TownGeometry {
     mesh.receiveShadows = true; mesh.freezeWorldMatrix();
     shadows.addShadowCaster(mesh);
   }
+}
+
+function shingles(
+  batch: TownGeometry, halfW: number, halfD: number, ridge: number, lip: number,
+  hip: number, colors: readonly string[], color: number, snow: boolean,
+) {
+  const courseCount = Math.ceil(halfD / .39);
+  const tileCount = Math.ceil(halfW * 2 / .57);
+  for (const side of [-1,1]) {
+    for (let row = 0; row < courseCount; row++) {
+      const stagger = row % 2 ? .5 : 0;
+      const point = (u: number, t: number, lift: number): Point => [
+        (2 * u - 1) * (halfW - hip * (1 - t)),
+        ridge + (lip-ridge)*t + lift, side*halfD*t,
+      ];
+      for (let col = 0; col < tileCount + (row % 2); col++) {
+        const u0 = Math.max(0, (col-stagger)/tileCount), u1 = Math.min(1, (col+1-stagger)/tileCount);
+        const t0 = row/courseCount, t1 = (row+1)/courseCount;
+        const lift = snow ? .028 : .055;
+        const sheet = [point(u0,t0,0), point(u0,t1,lift), point(u1,t1,lift), point(u1,t0,0)];
+        if (side < 0) sheet.reverse();
+        const sample = (col * 7 + row * 11 + color * 5) % 17;
+        const tint = colors[(color + (sample < 4 ? 1 : sample === 6 ? 2 : 0)) % colors.length]!;
+        batch.face(tint, ...sheet);
+        // Exposed edge casts a real shadow at the foot of every staggered course.
+        const edge = [point(u0,t1,0),point(u1,t1,0),point(u1,t1,lift),point(u0,t1,lift)];
+        batch.face(tint, ...(side > 0 ? edge : edge.reverse()));
+      }
+    }
+    batch.box(snow ? "#d2e1e0" : wood,0,lip-.065,side*halfD,halfW*2,.14,.14);
+    for (let r = -2; r <= 2; r++)
+      batch.box(cut,r*halfW*.42,lip-.12,side*(halfD-.20),.11,.14,.43);
+    if (hip > 0) {
+      const r: Point = [side*(halfW-hip),ridge,0], a: Point = [side*halfW,lip,-halfD], b: Point = [side*halfW,lip,halfD];
+      batch.face(colors[color]!, ...(side > 0 ? [r,b,a] : [r,a,b]));
+    }
+  }
+  const ridgeLen = (halfW-hip)*2;
+  const caps = Math.ceil(ridgeLen/.58);
+  for (let c=0; c<caps; c++) {
+    const x = -ridgeLen/2 + (c+.5)*ridgeLen/caps;
+    batch.box(snow ? "#f5f5f0" : colors[(color+(c%3 === 0 ? 1 : 0))%colors.length]!, x,ridge+.055,0,ridgeLen/caps-.012,.135,.21);
+  }
+}
+
+function dormer(batch: TownGeometry, x: number, z: number, y: number, width: number, wall: string, tile: string, snow: boolean) {
+  const hw=width/2, eave=y+.65, peak=eave+.48;
+  batch.box(wall,x,y+.18,z+.34,width,.94,.68);
+  batch.face(wall,[x-hw,eave,z],[x,eave+.48,z],[x+hw,eave,z]);
+  batch.box(wood,x,y+.30,z-.025,width*.66,.59,.07);
+  batch.box("#efbf78",x,y+.3,z-.08,width*.51,.46,.05);
+  batch.box(cut,x,y+.3,z-.12,.055,.48,.035);
+  for (const side of [-1,1]) {
+    const edge=x+side*(hw+.14);
+    const panel: Point[]=[[x,peak,z-.17],[x,peak,z+.94],[edge,eave-.08,z+.94],[edge,eave-.08,z-.17]];
+    batch.face(snow ? "#e9eff0" : tile,...(side > 0 ? panel : panel.reverse()));
+    batch.box(wood,edge,eave-.11,z+.38,.11,.1,1.15);
+  }
+  batch.box(snow ? "#f4f5ee" : tile,x,peak+.01,z+.38,.11,.1,1.12);
+}
+
+function barrel(batch: TownGeometry, x: number, z: number, scale: number) {
+  batch.turned("#8c5b35",x,.02,z,.25*scale,.31*scale,.40*scale,10);
+  batch.turned("#a37645",x,.02+.40*scale,z,.31*scale,.25*scale,.39*scale,10);
+  for (const y of [.13,.62]) batch.turned("#545958",x,.02+y*scale,z,.285*scale,.29*scale,.065*scale,10);
+  batch.turned("#c09860",x,.02+.79*scale,z,.24*scale,.24*scale,.025,10);
+}
+
+function windowBox(batch: TownGeometry, x: number, z: number, winter: boolean, color: number) {
+  batch.box("#92583f",x,.87,z,1.02,.20,.29);
+  batch.box("#ba7951",x,.95,z,1.08,.075,.34);
+  batch.box("#537450",x,1.01,z,.9,.12,.21);
+  const petals = ["#d54f60","#ecaa4c","#f2dad3","#db7d9a","#d5b3e5"];
+  for (let i=0; i<5; i++) {
+    const dx = x+(i-2)*.18, top = 1.10 + (i%2)*.075;
+    batch.turned("#498452",dx,1.02,z,.07,.035,top-1.02,5);
+    batch.turned(winter ? "#d6e6df" : petals[(color+i%2)%petals.length]!,dx,top,z,.09,.055,.075,6);
+  }
+}
+
+function shopfront(batch: TownGeometry, h: TownHouse, front: number, accent: string, winter: boolean) {
+  const halfW = h.frontage/2, depth = 1.02;
+  for (let i=0; i<9; i++) {
+    const x0 = (i/9-.5)*h.frontage, x1 = ((i+1)/9-.5)*h.frontage;
+    const stripe = i%2 ? accent : "#f0d9af", tip=front-depth;
+    batch.face(stripe,[x0,2.37,front-.04],[x1,2.37,front-.04],[x1,2.07,tip],[x0,2.07,tip]);
+    batch.face(stripe,[x0,2.07,tip],[x1,2.07,tip],[(x0+x1)/2,1.91,tip-.025]);
+  }
+  for (const x of [-halfW+.12,halfW-.12]) batch.box(cut,x,1.04,front-depth,.09,2.08,.09);
+  // Fishmonger’s tray and coopered cask stay on the porch, outside the lane.
+  const x=halfW*.65;
+  for (const dx of [-.35,.35]) batch.box(wood,x+dx,.34,front-.58,.11,.68,.45);
+  batch.box("#a67541",x,.73,front-.58,1.03,.14,.59);
+  for (let i=0; i<3; i++) {
+    const z=front-.76+i*.17;
+    batch.face("#a0c7c1",[x-.30,.814,z],[x-.06,.826,z+.07],[x+.20,.816,z],[x-.06,.826,z-.07]);
+    batch.face("#618f97",[x+.15,.819,z],[x+.32,.819,z+.067],[x+.32,.819,z-.067]);
+  }
+  barrel(batch,-halfW*.66,front-.52,.89);
+  if (winter) batch.box("#dce7e4",0,2.36,front-.075,h.frontage,.06,.12);
 }
 
 function drawHouse(batch: TownGeometry, h: TownHouse, floor: number, biome: string) {
@@ -83,38 +196,47 @@ function drawHouse(batch: TownGeometry, h: TownHouse, floor: number, biome: stri
     batch.box(wood,x,eaves/2,z,.14,eaves,.14);
   for (const y of [.30, eaves-.14])
     batch.box(wood,0,y,0,h.frontage+.18,.16,h.depth+.16);
-  // Gables close the ends. Ridge runs parallel with the street.
+  const hipped = h.variant === "store" || (h.variant === "cottage" && h.color % 3 === 0);
+  const hip = hipped ? halfW * .45 : 0;
+  // The back wall often faces the beach, so give it glazing and a hearth too.
+  for (const x of [-halfW*.50, halfW*.50]) {
+    batch.box(wood,x,1.42,halfD+.03,.88,1,.12);
+    batch.box("#e3ba81",x,1.44,halfD+.115,.70,.79,.075);
+    batch.box(cut,x,1.44,halfD+.162,.07,.84,.055);
+    batch.box(wood,x,.91,halfD+.10,1,.10,.27);
+  }
   for (const side of [-1,1]) {
     const x = halfW * side;
-    const gable: Point[] = [[x,eaves,front],[x,eaves,h.depth/2],[x,eaves+rise,0]];
-    if (side > 0) gable.reverse();
-    batch.face(walls,...gable);
-    batch.box(cut,x,eaves+rise*.43,0,.11,rise*.86,.12);
-    batch.box(accent,x+side*.045,1.4,0,.15,.84,.77);
-    batch.box("#efc785",x+side*.12,1.4,0,.055,.64,.47);
-    batch.box(wood,x+side*.155,1.4,0,.035,.68,.055);
-  }
-  const roofHalfD = halfD + .38, roofHalfW = halfW + .32;
-  const ridge = eaves + rise, lip = eaves - .2;
-  for (const side of [-1,1]) {
-    const z = side * roofHalfD;
-    const sideRoof = (color: string, strip: number, strips: number, y: number) => {
-      const x0 = -roofHalfW + 2 * roofHalfW * strip / strips;
-      const x1 = -roofHalfW + 2 * roofHalfW * (strip + 1) / strips;
-      const surface: Point[] = [[x0,ridge+y,0],[x0,lip+y,z],[x1,lip+y,z],[x1,ridge+y,0]];
-      if (side < 0) surface.reverse();
-      batch.face(color, ...surface);
-    };
-    const strips = Math.ceil(h.frontage * 1.25);
-    for (let strip=0; strip<strips; strip++) {
-      sideRoof(winter ? (strip%3 ? "#eef2eb" : "#dfebea") : strip%3 ? roof : (highland ? slate : tiles)[(h.color+1)%5]!, strip, strips, 0);
+    if (!hipped) {
+      const gable: Point[] = [[x,eaves,front],[x,eaves,halfD],[x,eaves+rise,0]];
+      if (side > 0) gable.reverse();
+      batch.face(walls,...gable);
+      for (const r of [-1,0,1]) {
+        const timberH = rise * (r === 0 ? .9 : .5);
+        batch.box(cut,x,eaves+timberH/2,r*halfD*.43,.13,timberH,.12);
+      }
     }
-    batch.box(winter ? "#cbdad9" : wood,0,lip-.07,z,2*roofHalfW,.14,.11);
+    batch.box(accent,x+side*.045,1.4,0,.15,.90,.84);
+    batch.box("#efc785",x+side*.12,1.4,0,.055,.69,.52);
+    batch.box(wood,x+side*.155,1.4,0,.035,.72,.055);
+    batch.box(cut,x+side*.155,1.4,0,.045,.06,.56);
   }
-  batch.box(winter ? "#f4f5ee" : roof,0,ridge+.005,0,h.frontage+.70,.12,.16);
-  const chimneyX = halfW * .58;
-  batch.box("#7e7569",chimneyX,ridge+.02,.31,.42,1.05,.52);
-  batch.box(winter ? "#e0e7df" : "#a7967a",chimneyX,ridge+.56,.31,.55,.15,.65);
+  const ridge = eaves + rise;
+  const snow = ["#eef1e9","#e5ede9","#e4e9e8","#f0f2ed","#dce7e8"];
+  shingles(batch,halfW+.36,halfD+.40,ridge,eaves-.18,hip,
+    winter ? snow : highland ? slate : tiles,h.color,winter);
+  if (h.variant === "loft" || (!hipped && h.color % 2 === 0)) {
+    const z = -halfD*.84, y = eaves + rise*.27;
+    dormer(batch,-halfW*.27,z,y, h.variant === "loft" ? 1.38 : .94,walls,roof,winter);
+  }
+  const chimneyX = halfW*.58;
+  batch.box("#786c63",chimneyX,ridge-.02,.31,.44,1.26,.52);
+  for (let row=0; row<4; row++) {
+    batch.box(row%2 ? "#927c68" : "#ad8870",chimneyX,ridge-.27+row*.22,.31,.465,.08,.545);
+  }
+  batch.box(winter ? "#e0e7df" : "#a7967a",chimneyX,ridge+.62,.31,.57,.15,.65);
+  batch.turned("#8e513b",chimneyX,ridge+.70,.31,.14,.12,.23,8);
+  batch.turned("#593e33",chimneyX,ridge+.92,.31,.15,.15,.05,8);
   // Street-facing façade, with windows on either side of the door.
   batch.box(dark,0,.96,front-.04,1.02,1.72,.13);
   batch.box(accent,0,.92,front-.115,.79,1.54,.095);
@@ -128,17 +250,34 @@ function drawHouse(batch: TownGeometry, h: TownHouse, floor: number, biome: stri
     batch.box(cut,x,.91,front-.12,.96,.085,.27);
     for (const side of [-1,1]) batch.box(accent,x+side*.52,1.44,front-.075,.21,.95,.105);
   }
+  // Door panels, latch and a lamp under the rain hood.
+  for (const y of [.53,1.16]) batch.box(wood,0,y,front-.174,.60,.035,.035);
+  batch.box("#d1ab71",0,1.64,front-.165,.58,.17,.045);
+  batch.box(dark,.61,1.88,front-.15,.30,.08,.34);
+  batch.turned("#e7ae62",.61,1.55,front-.24,.11,.13,.27,6);
+  batch.turned("#414d47",.61,1.82,front-.24,.18,.075,.13,6);
+  batch.box("#67625a",0,.06,front-.55,1.4,.12,.47);
   if (h.variant === "store") {
-    for (let i=0; i<9; i++) {
-      const x0 = (i/9-.5)*h.frontage, x1 = ((i+1)/9-.5)*h.frontage;
-      const stripe = i%2 ? accent : "#e7c494";
-      batch.face(stripe,[x0,2.14,front-.04],[x1,2.14,front-.04],[x1,1.91,front-1.04],[x0,1.91,front-1.04]);
-      batch.box(stripe,(x0+x1)/2,1.83,front-1.04,x1-x0,.16,.035);
+    shopfront(batch,h,front,accent,winter);
+  } else {
+    windowBox(batch,-halfW*.65,front-.26,winter,h.color);
+    if (h.variant === "loft") {
+      // The balcony has a generous overhang with projecting joists below its floor.
+      const level = eaves-.99;
+      batch.box(wood,0,level,front-.43,1.75,.13,.85);
+      for (const x of [-.76, .76]) batch.box(cut,x,level-.10,front-.43,.12,.16,.98);
+      for (const x of [-.8,-.4,0,.4,.8]) batch.box(accent,x,level+.28,front-.8,.07,.54,.07);
+      batch.box(cut,0,level+.58,front-.8,1.77,.10,.12);
+      batch.box(wood,0,level+.43,front-.06,.78,.91,.15);
+      batch.box("#e9c683",0,level+.50,front-.15,.59,.66,.065);
+    } else {
+      const canopyWidth=1.36;
+      batch.face(roof,[-canopyWidth/2,2.10,front],[canopyWidth/2,2.10,front],
+        [canopyWidth/2,1.94,front-.65],[-canopyWidth/2,1.94,front-.65]);
+      batch.box(wood,0,1.91,front-.65,canopyWidth+.07,.10,.11);
+      for (const x of [-.58,.58]) batch.box(cut,x,1.82,front-.32,.09,.12,.63);
     }
-    for (const x of [-halfW+.12, halfW-.12]) batch.box(cut,x,.95,front-1.04,.085,1.9,.085);
-  } else if (h.variant === "loft") {
-    batch.box(wood,0,eaves-.55,front-.08,.88,.7,.15);
-    batch.box(accent,0,eaves-.55,front-.16,.66,.5,.075);
+    if (h.color % 2) barrel(batch,halfW*.79,front-.42,.78);
   }
 }
 
