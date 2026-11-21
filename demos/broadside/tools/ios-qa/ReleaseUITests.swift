@@ -146,7 +146,7 @@ final class ReleaseUITests: XCTestCase {
         capture("calculus-900-gold-earned",app:app)
         tap(app,"Open your chest")
         XCTAssertTrue(button(app,"Return to cave").waitForExistence(timeout:45))
-        waitEnabled(button(app,"Explore next island"),seconds:30)
+        waitEnabled(button(app,"Next Island"),seconds:30)
         capture("calculus-06-earned-chests",app:app)
         tap(app,"Return to cave")
         app.terminate();app.launch()

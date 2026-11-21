@@ -8,6 +8,7 @@ import { adventureChart, sailToShore } from "../ui/adventureChart";
 import { backButton, menuHeader } from "../ui/menuChrome";
 import { caveHeader, caveNotice, caveTally } from "../ui/caveHud";
 import { icon } from "../ui/icons";
+import { rewardLedger } from "../ui/rewardLedger";
 import { atlasRenderer, atlasView, worldAsset, worldIsland } from "../ui/worldAtlas";
 import { mountMapPan, type MapCamera, type MapPanController } from "../ui/mapPan";
 import { PACKS, packFor, preferredLanguage, type Language, type ReadingItem } from "./content";
@@ -62,6 +63,7 @@ function header():string{
    amount, accessible:`${f(amount)} ${t("gold")} ${t("banked")}`, currency:t("gold"), locale:progress.ui,
   });
  }
+ if(screen==="complete")return backButton({action:"back",label:t("back")});
  if((screen==="reading"||screen==="comprehension")&&run&&shown)return menuHeader({className:"reader-topbar",brand:"",back:backButton({action:"back",label:t("back")}),actions:`<span class="reading-location">${esc(packFor(run.pack).name[progress.ui])}<small>${t("level")} ${f(run.level)}</small></span>`});
  return menuHeader({className:"reader-topbar",brand:"",back:backButton({action:"back",label:t("back"),destination:screen==="languages"?t("home"):undefined}),actions:`<button class="pirate-nav-link" data-action="ship">${icon("ship")}<span>${esc(t("shipShort"))}<small>${f(aboard(progress))} ${t("gold")}</small></span></button><button class="pirate-nav-link" data-action="cave">${icon("chest")}<span>${esc(t("caveShort"))}<small>${f(banked(progress))} ${t("gold")}</small></span></button>`});
 }
@@ -115,7 +117,19 @@ function reading():string{
  const prompt=p.kind==="word"?`<div class="reading-word" style="--word-size:${Math.max(1.2,Math.min(4.5,22/v.item.text.length))}rem">${marked(v.item.text)}</div>`:`<div class="reading-passage" lang="${r.language}">${v.item.chunks.map((chunk,i)=>`<span class="${i<v.chunk?"read":i===v.chunk?"current":""}">${i===v.chunk?marked(chunk):esc(chunk)}</span>`).join(" ")}</div>`;
  return `<section class="reading-view reading-prompt-view ${handsFree?"hands-free":""} ${listeningProblem()?"has-listening-problem":""}">${heading(t("yourTurn"),`${v.index+1} ${t("of")} ${r.items.length}`)}<div class="reading-progress" role="progressbar" aria-label="${esc(t("progress"))}" aria-valuemin="0" aria-valuemax="${r.items.length}" aria-valuenow="${r.index}">${r.items.map((_,i)=>`<i class="${i<r.index?"done":i===r.index?"current":""}"></i>`).join("")}</div><div lang="${r.language}" class="reading-paper ${accepted?"accepted":""}">${prompt}${v.item.chunks.length>1?`<p class="chunk-count">${t("chunk")} ${v.chunk+1} ${t("of")} ${v.item.chunks.length}</p>`:""}</div><div class="reading-feedback ${accepted?"is-accepted":""}"><div class="listening-indicator ${attempt.state}" aria-label="${esc(t("sound"))}" aria-hidden="true">${icon(accepted?"star":"sound")}<span class="sound-bars" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></span></div><p role="status" aria-live="polite">${esc(statusText())}${accepted&&result?.gold?`<strong class="earned-gold">+${f(result.gold)} ${t("gold")}</strong>`:""}</p></div>${handsFree?readingSupport(accepted):`<div class="reading-actions">${button("next",t("next"),true)}${!accepted?button("example",t("help")):""}</div>`}<p class="small-note">${esc(t("rule"))}</p></section>`;
 }
-function completion():string{return `<section class="reader-complete">${heading(t("complete"),t("completeText"))}<div class="reward-emblem">${icon("chest")}</div><strong class="reward-total">${f(packFor(packId).gold)} ${t("gold")}</strong><div class="reading-actions">${button("ship",t("ship"),true)}${button("next-level",t("nextLevel"))}${button("packs",t("packs"))}</div></section>`;}
+function completion(): string {
+ const i18n = createI18n(progress.ui, []);
+ const hasCargo = aboard(progress) > 0;
+ return `<section class="reader-complete">${rewardLedger({
+   title: `<strong>${f(packFor(packId).gold)}</strong> ${esc(t("gold"))}`,
+   details: `<p class="ledger-details">${esc(hasCargo ? t("completeText") : i18n.t("alreadyCave", { gold: f(banked(progress)) }))}</p>`,
+   actions: [
+     { action: "next-level", label: i18n.t("nextIsland"), icon: "ship", primary: true },
+     { action: "replay-level", label: i18n.t("replayLevel") },
+     { action: hasCargo ? "unload" : "cave", label: i18n.t("returnCave") },
+   ],
+ })}</section>`;
+}
 function comprehension():string{
  const q=shown!.item.question!,handsFree=speech.isNative();
  return `<section class="reading-view comprehension-view ${handsFree?"hands-free":""} ${listeningProblem()?"has-listening-problem":""}">${heading(q.text,handsFree?t("sayAnswer"):"")}<div class="reading-paper"><div class="reading-passage">${esc(shown!.item.text)}</div></div><div class="reading-actions story-answers">${q.answers.map((a,i)=>handsFree?`<p class="spoken-answer">${esc(a)}</p>`:`<button class="wood-button" data-answer="${i}" ${comprehensionCorrect?"disabled":""}>${esc(a)}</button>`).join("")}</div><p role="status" class="story-status">${esc(comprehensionCorrect?t("compGood"):handsFree?statusText():errorMessage)}</p>${handsFree?readingSupport(comprehensionCorrect):comprehensionCorrect?button("after-question",t("next"),true):""}</section>`;
@@ -277,6 +291,7 @@ root.addEventListener("click",e=>{
   case "adult":dialog("adult");break;case "reset":dialog("reset");break;
   case "next":if(speech.isNative())break;if(!result)accepted("self");advanceReading();break;
   case "after-question":nextReading();break;case "next-level":openLevel((run?.level??0)+1);break;
+  case "replay-level":if(screen==="complete"&&run)openLevel(run.level,true);break;
   case "ship":void openWorld("ship");break;case "cave":void openWorld("cave");break;case "unload":void openWorld("unload");break;case "inspect":host?.inspect();break;
   case "retry-world":void openWorld(screen as "ship"|"cave"|"unload");break;
 

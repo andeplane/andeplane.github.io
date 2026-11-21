@@ -36,9 +36,6 @@
 .reading-actions {display:flex;flex-wrap:wrap;justify-content:center;gap:10px;margin:18px auto;max-width:570px;}
 .reading-actions .wood-button {flex:1 1 130px;justify-content:center;}
 .reading-actions .wood-button.primary {flex-basis:100%;}
-.reader-complete {text-align:center;width:min(100% - 28px,680px);margin:auto;}
-.reward-emblem {width:110px;height:110px;display:grid;place-items:center;margin:20px auto;border:1px solid #bd9d56;border-radius:50%;background:radial-gradient(#98713166,#162d31);}
-.reward-emblem .icon {width:62px;height:62px;color:#f0cd86;}.reward-total {font:400 44px "Pirata One",serif;color:#f6d48f;}
 .story-question {margin-top:24px;font:700 21px/1.4 "DM Sans",sans-serif;}
 .reader-settings {max-width:720px;margin:auto;padding:0 16px 30px;}.settings-paper {padding:24px;background:#18363b;border:1px solid #b6996655;border-radius:10px;}
 .settings-paper p {line-height:1.8;color:#d2dfd3;margin-bottom:18px;}.settings-paper h2 {font-size:28px;margin-top:25px;margin-bottom:14px;}
@@ -212,13 +209,6 @@
  #reader .pirate-home-destination-copy small {display:none;}
  #reader .pirate-home-footer p {display:none;}
  #reader .pirate-home-footer {justify-content:flex-end;margin-top:0;}
- #reader .reader-complete {display:grid;grid-template-columns:1fr 1fr;gap:8px 16px;padding-bottom:12px;}
- #reader .reader-complete .page-heading {grid-column:1/-1;padding:4px;}
- #reader .reader-complete .reward-emblem {width:56px;height:56px;margin:0 auto;}
- #reader .reader-complete .reward-emblem .icon {width:36px;height:36px;}
- #reader .reader-complete .reward-total {grid-column:1;font-size:30px;}
- #reader .reader-complete .reading-actions {grid-column:2;grid-row:2/4;margin:0;gap:6px;}
- #reader .reader-complete .wood-button {min-height:44px;padding:9px 12px;font-size:12px;}
  #reader .comprehension-view.hands-free {grid-template-columns:minmax(0,1.3fr) minmax(150px,.9fr);grid-template-rows:auto minmax(80px,1fr) auto;gap:8px 16px;}
  #reader .comprehension-view>.reading-paper {grid-column:1;grid-row:2/4;max-height:none;}
  #reader .comprehension-view .reading-passage {font-size:18px;line-height:1.5;}
@@ -295,15 +285,6 @@
  #reader .comprehension-view>.reading-support {grid-column:2;grid-row:4;}
 }
 #reader h1[tabindex="-1"]:focus {outline:none;}
-.reader-complete {width:min(calc(100% - 28px - var(--pirate-safe-left) - var(--pirate-safe-right)),680px);}
-@media(max-height:700px) and (min-height:521px){
- #reader .reader-complete .page-heading {padding:8px 0 12px;}
- .reader-complete .reward-emblem {width:76px;height:76px;margin:12px auto;}
- .reader-complete .reward-emblem .icon {width:44px;height:44px;}
- .reader-complete .reward-total {font-size:36px;}
- .reader-complete .reading-actions {margin:12px auto;gap:8px;}
- .reader-complete .wood-button {min-height:48px;padding:10px;}
-}
 #reader[data-screen="home"] #reader-content {inset:0;padding:0;}
 /* The book and parrot sit between the title and the actions on the reading desk. */
 .reader-cabin {
@@ -348,4 +329,15 @@
 }
 @media (max-height: 520px) and (orientation: landscape) {
   #reader[data-screen="cave"] .reader-jump { right: calc(20px + var(--pirate-safe-right)); }
+}
+
+#reader[data-screen="complete"] #reader-content {
+  top: calc(var(--pirate-back-top, var(--pirate-menu-inset) + var(--pirate-safe-top)) + var(--pirate-touch-target));
+  padding: 12px calc(8px + var(--pirate-safe-right)) calc(12px + var(--pirate-safe-bottom)) calc(8px + var(--pirate-safe-left));
+}
+#reader[data-screen="complete"] { background: #3c210f url("/assets/map/problem-table.webp") center / cover; }
+#reader .reader-complete {
+  display: grid;
+  place-items: center;
+  min-height: 100%;
 }

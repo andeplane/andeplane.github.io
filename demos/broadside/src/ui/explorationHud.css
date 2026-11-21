@@ -199,17 +199,9 @@
 }
 #voyage-ui[data-screen="cave"][data-cave-view="inspect"] #cave-ui #relic-info h2 { margin: 6px 0; font-size: 28px; }
 #voyage-ui[data-screen="cave"][data-cave-view="inspect"] #cave-ui #relic-info p { color: #f2e4c7; font-size: 13px; }
-#voyage-ui #hold-ui .hold-heading,
-#voyage-ui #v-result .result-top {
+#voyage-ui #hold-ui .hold-heading {
   top: calc(var(--pirate-safe-top) + var(--pirate-menu-inset) + var(--pirate-touch-target) + 18px);
 }
-#voyage-ui #v-result .result-top {
-  padding: 14px;
-  border: 1px solid #c4d2c83b;
-  border-radius: 12px;
-  background: #102933ed;
-}
-#voyage-ui #v-result .result-top p { color: #f2e4c7; font-size: 12px; line-height: 1.45; }
 /* Your ship is a modal: outside taps dismiss it without triggering the chart below. */
 #voyage-ui #ship-panel-backdrop {
   position: fixed;
@@ -283,9 +275,7 @@
   #voyage-ui[data-screen="cave"] #cave-ui #cave-jump { right: calc(var(--pirate-safe-right) + 16px); }
 }
 @media (max-height: 500px) and (min-aspect-ratio: 4/3) {
-  #voyage-ui #v-result .result-bottom,
   #voyage-ui #hold-ui .hold-actions { right: calc(var(--pirate-safe-right) + 16px); }
-  #voyage-ui #v-result .result-top,
   #voyage-ui #hold-ui .hold-heading { left: calc(var(--pirate-safe-left) + 16px); }
   #voyage-ui[data-screen="levels"] #level-menu .menu-heading p { display: none; }
   #voyage-ui[data-screen="levels"] #level-menu { overflow-y: hidden; }

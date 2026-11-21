@@ -25,6 +25,7 @@ import {
 import { generateVoyage } from "../game/voyage";
 import type { Progress } from "../game/progress";
 import { icon } from "./icons";
+import { ledgerStarMarks, ledgerStars, rewardLedger } from "./rewardLedger";
 import { backButton, menuBrand, menuHeader } from "./menuChrome";
 import { caveHeader, caveNotice, caveTally, updateCaveBalance } from "./caveHud";
 import { PRIVATE_PEARL } from "../privatePearl";
@@ -94,7 +95,6 @@ export class VoyageHud {
   private resultLost = false;
   private revealName = "";
   private revealStars = 0;
-  private revealCaption = "";
   private deckKey = "";
   private shipLocation: ShipLocation = { kind: "port" };
   private shipPanelTrigger: HTMLElement | null = null;
@@ -128,7 +128,18 @@ export class VoyageHud {
       </div>
       <div id="v-targets"></div><div id="v-wheel" aria-label="Drag the wheel to steer" role="group"><div class="wheel-ring"></div><span id="v-stick">${icon("wheel")}</span><small>STEER</small></div><button id="v-anchor" class="round" aria-label="Stop or start sailing">${icon("anchor")}</button><button id="v-fire" aria-label="Fire cannons"><span>${icon("cannon")}</span><b>BOOM!</b><small id="v-fire-label">TAP TO FIRE</small></button><div id="v-compass"><span id="v-arrow">↑</span><b>TREASURE</b><small id="v-distance"></small></div>
     </section>
-    <section id="v-result" class="voyage-overlay" hidden role="dialog" aria-modal="true" aria-labelledby="result-title">${backButton({ id: "result-menu", destination: "menu" })}<div class="result-top"><span class="eyebrow" id="result-eyebrow">A NEW TREASURE FOR YOUR CAVE</span><h1 id="result-title"></h1><div id="result-stars"></div><p id="result-detail"></p></div><div class="result-bottom"><p class="collection-confirmation">${icon("chest")} Added to your cave</p><div class="result-actions"><button id="result-retry" class="secondary">Retry</button><button id="result-next" class="primary">Next level ${icon("arrow")}</button></div></div></section>
+    <section id="v-result" class="voyage-overlay reward-dock" hidden role="dialog" aria-modal="true" aria-labelledby="result-title">
+      ${backButton({ id: "result-menu", destination: "menu" })}
+      ${rewardLedger({
+        title: "", titleId: "result-title", marks: ledgerStars(0, "", "result-stars"),
+        details: '<div class="ledger-details"><p id="result-detail"></p><p id="result-cargo"></p></div>',
+        actions: [
+          { id: "result-next", label: "Next Island", icon: "ship", primary: true },
+          { id: "result-retry", label: "Replay" },
+          { id: "result-unload", label: "Return to cave", hidden: true },
+        ],
+      })}
+    </section>
     <section id="v-paused" class="voyage-overlay pause-screen" hidden role="dialog" aria-modal="true" aria-labelledby="pause-title"><div><span class="eyebrow">A LITTLE SHORE LEAVE</span><h1 id="pause-title">Ready when you are.</h1><button id="v-resume" class="primary">Keep sailing ${icon("play")}</button><button id="v-return" class="secondary">Choose levels</button></div></section>`;
     document.body.append(r);
     const q = (id: string) => r.querySelector<HTMLElement>(id)!;
@@ -181,7 +192,6 @@ export class VoyageHud {
       }
     }, true);
     q("#ship-cave").onclick = () => { this.closeShipPanel(); h.travel("cave"); };
-    q(".result-actions").insertAdjacentHTML("beforeend", '<button id="result-unload" class="hold-unload primary" hidden>Return to cave</button>');
     r.insertAdjacentHTML("beforeend", `<section id="hold-ui" hidden>${backButton({ id: "hold-back", destination: "menu" })}<div class="hold-heading"><span class="eyebrow">ABOARD THE BLACK PEARL</span><h1>The treasure hold</h1><p id="hold-count"></p></div><div class="hold-actions"><button id="hold-unload" class="primary">Return to cave ${icon("chest")}</button><button id="hold-sail" class="secondary">Keep sailing ${icon("map")}</button></div></section><section id="unload-ui" hidden>${caveHeader(backButton({ id: "unload-menu", destination: "menu" }), "Cave", caveBalance(0))}${caveTally("", "unload-count")}<div id="unload-failure" hidden>${caveNotice("The cave couldn't load. Your gold is safe.", '<button id="unload-retry" class="wood-button primary">Try again</button>')}</div></section>`);
     q("#cave-ui").insertAdjacentHTML("beforeend", `<button id="harbour-unload" class="harbour-chart" hidden>Return to cave ${icon("chest")}</button>`);
     if (PRIVATE_PEARL) {
@@ -468,7 +478,7 @@ export class VoyageHud {
     this.q("#cave-ui").hidden = false;
     this.q("#voyage-play").hidden = true;
     this.q("#v-result").hidden = true;
-    this.q("#v-result").classList.remove("unboxing", "revealed");
+    this.q("#v-result").classList.remove("unboxing");
     this.q("#v-paused").hidden = true;
     this.q("#v-pause").hidden = true;
     this.q("#v-home").hidden = true;
@@ -742,7 +752,7 @@ export class VoyageHud {
     this.messageUntil = 0;
     this.q("#cave-ui").hidden = true;
     this.q("#v-result").hidden = true;
-    this.q("#v-result").classList.remove("unboxing", "revealed");
+    this.q("#v-result").classList.remove("unboxing");
     this.q("#v-paused").hidden = true;
     this.q("#voyage-play").hidden = false;
     this.q("#v-pause").hidden = false;
@@ -818,10 +828,9 @@ export class VoyageHud {
     this.resultLost = s.state === "lost";
     this.q("#result-next").hidden =
       !!s.voyage.freeSailing || this.resultLost || this.activeLevel === TOTAL_LEVELS - 1;
-    this.q(".result-actions").classList.toggle(
-      "last-result",
-      this.q("#result-next").hidden,
-    );
+    const replay = this.q("#result-retry");
+    replay.textContent = this.resultLost ? "Retry" : "Replay";
+    replay.classList.toggle("ledger-primary", this.resultLost);
     this.q("#captain-menu").hidden = true;
     this.root.dataset.screen = "result";
     this.q("#cave-ui").hidden = true;
@@ -829,40 +838,27 @@ export class VoyageHud {
     this.q("#v-result").hidden = false;
     this.q("#v-pause").hidden = true;
     this.q("#v-home").hidden = false;
-    this.revealName =
-      reward?.special !== null && reward?.special !== undefined
-        ? RELICS[reward.special]!.name
-        : reward?.gold
-          ? `+${reward.gold} gold`
-          : "The captain’s gold";
-    this.revealCaption =
-      reward?.special !== null && reward?.special !== undefined
-        ? "WORLD COMPLETE · A SPECIAL TREASURE"
-        : reward?.gold
-          ? "YOUR HOARD IS GROWING"
-          : "VOYAGE COMPLETE";
-    this.q(".collection-confirmation").innerHTML =
-      `${icon("chest")} ${reward?.gold ? `${reward.gold.toLocaleString()} gold safely aboard${reward.special !== null ? " · Special treasure collected" : ""}` : "Gold already collected · Best stars saved"}${cargoChests(this.progress).length > 1 ? ` · ${(cargoChests(this.progress).length * 1000).toLocaleString()} aboard in total` : ""}`;
+    const special = reward?.special;
+    const cargo = cargoChests(this.progress);
+    this.revealName = special !== null && special !== undefined ? RELICS[special]!.name
+      : reward?.gold ? `${reward.gold.toLocaleString()} gold aboard` : "Voyage complete";
+    const cargoNote = this.q("#result-cargo");
+    cargoNote.textContent = s.state !== "won" ? ""
+      : cargo.length > 1 ? `${(cargo.length * 1000).toLocaleString()} gold aboard in total`
+      : !reward?.gold ? "Gold already collected · Best stars saved"
+        : special != null ? `${reward.gold.toLocaleString()} gold aboard` : "";
+    cargoNote.hidden = !cargoNote.textContent;
     this.revealStars = s.stars;
-    this.q("#result-stars").removeAttribute("aria-label");
-    this.q("#result-title").textContent =
-      s.state === "won" ? "A chest full of wonder" : "Your ship sank";
+    const rank = this.q("#result-stars");
+    rank.hidden = this.resultLost;
+    rank.setAttribute("aria-hidden", "true");
+    rank.innerHTML = s.state === "won" ? ledgerStarMarks(s.stars) : "";
+    this.q("#result-title").textContent = s.state === "won" ? "Opening the chest…" : "Your ship sank";
     this.q("#v-result").classList.toggle("unboxing", s.state === "won");
-    this.q("#v-result").classList.remove("revealed", "pouring");
-    for (const button of this.q(
-      "#v-result",
-    ).querySelectorAll<HTMLButtonElement>("button"))
+    this.q("#result-title").tabIndex = -1;
+    this.q("#result-title").focus({ preventScroll: true });
+    for (const button of this.q(".ledger-actions").querySelectorAll<HTMLButtonElement>("button"))
       button.disabled = s.state === "won";
-    this.q("#result-eyebrow").textContent =
-      s.state === "won" ? "YOU REACHED THE TREASURE!" : "SHIPWRECK";
-    this.q("#result-stars").innerHTML =
-      s.state === "won"
-        ? Array.from(
-            { length: 3 },
-            (_, i) =>
-              `<span class="reward-star ${i < s.stars ? "earned" : "empty"}" style="--order:${i}">${i < s.stars ? "★" : "☆"}</span>`,
-          ).join("")
-        : icon("anchor");
     this.q("#result-detail").textContent =
       s.state === "won"
         ? `${s.gemsFound} / 3 hidden gems · ${Math.round((100 * s.damageTaken) / s.player.spec.maxHull)}% hull damage${s.rescues ? " · Crew repairs" : ""}`
@@ -871,9 +867,7 @@ export class VoyageHud {
           : s.failureReason === "island"
             ? "You crashed into an island. Find a safe passage!"
             : "Your ship took too much damage. Try again!";
-    this.q(".collection-confirmation").hidden = s.state !== "won";
   }
-  depositing(active: boolean): void { this.q("#v-result").classList.toggle("pouring", active); }
   hold(): void {
     this.showMenu(); this.q("#captain-menu").hidden=true;this.q("#hold-ui").hidden=false;
     this.q("#hold-count").textContent=cargoChests(this.progress).length ? `${(cargoChests(this.progress).length*1000).toLocaleString()} gold · ${cargoChests(this.progress).length} chest${cargoChests(this.progress).length===1?"":"s"} safely aboard` : "Your hold is ready. Find gold on your next voyage.";
@@ -902,21 +896,17 @@ export class VoyageHud {
   }
   reveal(time: number, discovered: boolean, ready: boolean): void {
     if (!this.q("#v-result").classList.contains("unboxing")) return;
-    if (discovered) {
+    if (discovered && this.q("#result-title").textContent !== this.revealName)
       this.q("#result-title").textContent = this.revealName;
-      this.q("#result-eyebrow").textContent = this.revealCaption;
-      this.q("#v-result").classList.add("revealed");
-    }
     for (const [i, star] of Array.from(
       this.q("#result-stars").children,
     ).entries())
       star.classList.toggle("arrived", time >= 3.4 + i * 0.35);
     if (ready) {
       this.q("#v-result").classList.remove("unboxing");
-      for (const button of this.q(
-        "#v-result",
-      ).querySelectorAll<HTMLButtonElement>("button"))
+      for (const button of this.q(".ledger-actions").querySelectorAll<HTMLButtonElement>("button"))
         button.disabled = false;
+      this.q("#result-stars").removeAttribute("aria-hidden");
       this.q("#result-stars").setAttribute(
         "aria-label",
         `${this.revealStars} of 3 stars`,

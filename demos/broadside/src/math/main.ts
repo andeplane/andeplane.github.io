@@ -33,6 +33,8 @@ import { clockBoard, clockLevelKey, newClockRound } from "./clockBoard";
 import "./clock.css";
 import "./overworld.css";
 import "./treasureChart.css";
+import { ledgerStars, rewardLedger } from "../ui/rewardLedger";
+import "./rewardScene.css";
 
 type Screen = "home" | "operators" | "map" | "levels" | "question" | "reward" | "ship" | "unloading" | "complete" | "cave" | "settings" | "clockMap" | "clock";
 installButtonHaptics();
@@ -92,7 +94,6 @@ let cave: GoldCave | null = null, sceneError = false, sceneLoading = false, reve
 const art = (file: string, cls = "", alt = "") => `<img class="${cls}" src="${import.meta.env.BASE_URL}assets/map/${file}.webp" alt="${alt}" draggable="false" />`;
 const format = (value: number) => i18n.format(value);
 const navNumber = (value: number) => value < 1000 ? format(value) : new Intl.NumberFormat(i18n.language, { notation: "compact", maximumFractionDigits: 1 }).format(value);
-const stars = (count: number) => `<span class="stars" aria-label="${t("stars", { count: format(count) })}">${[1, 2, 3].map((i) => `<span class="${i <= count ? "earned" : ""}">★</span>`).join("")}</span>`;
 const lock = `<svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><rect x="5" y="10" width="14" height="11" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/><path d="M12 14v3"/></svg>`;
 const persist = () => {
   const saved = saveMathProgress(progress, storage);
@@ -230,14 +231,33 @@ function questionView(): string {
   return `<section class="question-view"><div class="math-card ${accepted ? "correct" : feedback ? "try-again" : ""}"><div class="question-heading"><h1 class="eyebrow">${problemTitle}</h1><div class="problem-marks" aria-hidden="true">${marks}</div></div><div class="equation" aria-label="${t("equation", { left: q.left, operator: i18n.spokenOperator(q.operator), right: q.right })}"><span class="term left-term">${q.left}</span><span class="equation-operator">${op.symbol}</span><span class="term right-term">${q.right}</span><span class="equals">=</span><output id="answer" class="answer-box ${answer ? "filled" : ""}" aria-label="${t("yourAnswer")}" aria-live="polite">${answer || "?"}</output></div><p id="answer-feedback" class="answer-feedback ${accepted ? "success" : feedback ? "retry" : ""}" role="status">${message}</p><div class="number-pad" aria-label="${t("numberPad")}">${[1, 2, 3, 4, 5, 6, 7, 8, 9].map((n) => `<button data-key="${n}" ${accepted ? "disabled" : ""}>${n}</button>`).join("")}<button data-key="0" ${accepted ? "disabled" : ""}>0</button><button class="key-delete" data-key="delete" aria-label="${t("deleteDigit")}" ${accepted ? "disabled" : ""}>⌫</button></div><button id="check-answer" ${accepted ? "" : "data-answer-haptic"} class="wood-button primary check-answer" data-action="${accepted ? "continue" : "check"}" ${!accepted && !answer ? "disabled" : ""}>${accepted ? outcome?.chestEarned ? `${t("openChest")} ${icon("chest")}` : outcome?.levelComplete ? `${t("seeStars")} ${icon("star")}` : `${t("nextProblem")} ${icon("arrow")}` : `${t("checkAnswer")} ${icon("arrow")}`}</button></div><div class="chest-distance">${icon("chest")}<span><b>${t("earnedLevel", { gold: format(earned), maximum: format(1000) })}</b><br />${stake}</span></div></section>`;
 }
 const retryScene = () => `<button class="text-button retry-scene" data-action="retry-scene">${t("retryScene")}</button>`;
-function shipView(reward: boolean): string {
+function shipView(): string {
   const pending = pendingMathChests(progress);
   return `<section class="cave-view ship-view">
-    <div class="scene-back">${gameBack(reward ? voyageReturn : treasureParent())}</div>
-    <div class="cave-heading"><span class="eyebrow">${t("aboardPearl")}</span><h1>${reward ? t("treasure") : t("hold")}</h1><p ${sceneError ? 'role="status"' : ''}>${sceneError ? t("shipError") : t("cargoSummary", { count: pending.length, gold: format(cargoGold(progress)) })}</p>${reward && outcome ? stars(outcome.stars) : ""}${sceneError ? retryScene() : ""}</div>
+    <div class="scene-back">${gameBack(treasureParent())}</div>
+    <div class="cave-heading"><span class="eyebrow">${t("aboardPearl")}</span><h1>${t("hold")}</h1><p ${sceneError ? 'role="status"' : ''}>${sceneError ? t("shipError") : t("cargoSummary", { count: pending.length, gold: format(cargoGold(progress)) })}</p>${sceneError ? retryScene() : ""}</div>
     <div class="cave-loading" role="status" ${!sceneLoading ? "hidden" : ""}>${icon("chest")} ${t("boarding")}</div>
     ${sceneError ? `<div class="cave-fallback">${art("first-sails")}</div>` : ""}
-    <div class="cave-bottom"><div class="hoard-total"><span class="eyebrow">${reward ? t("stowed", { gold: format(outcome?.levelGold ?? pending[pending.length - 1]?.gold ?? 0) }) : t("savedCargo")}</span><strong>${format(cargoGold(progress))} <span>${t("goldAboard")}</span></strong><p>${t("alreadyCave", { gold: format(bankedGold(progress)) })}</p></div>${!pending.length ? `<p class="empty-cargo" role="status">${t("noCargo")}</p>` : ""}<button class="wood-button primary" data-action="${pending.length ? "unload" : "cave"}" ${sceneLoading ? "disabled" : ""}>${t(pending.length ? "returnCave" : "exploreCave")} ${icon("chest")}</button><button class="text-button" data-action="${reward ? "reward-next" : "levels"}" ${reward && !revealReady && !sceneError ? "disabled" : ""}>${reward ? t("nextIsland") : t("keepPractising")} ${icon("ship")}</button></div>
+    <div class="cave-bottom"><div class="hoard-total"><span class="eyebrow">${t("savedCargo")}</span><strong>${format(cargoGold(progress))} <span>${t("goldAboard")}</span></strong><p>${t("alreadyCave", { gold: format(bankedGold(progress)) })}</p></div>${!pending.length ? `<p class="empty-cargo" role="status">${t("noCargo")}</p>` : ""}<button class="wood-button primary" data-action="${pending.length ? "unload" : "cave"}" ${sceneLoading ? "disabled" : ""}>${t(pending.length ? "returnCave" : "exploreCave")} ${icon("chest")}</button><button class="text-button" data-action="levels">${t("keepPractising")} ${icon("ship")}</button></div>
+  </section>`;
+}
+function rewardView(withChest: boolean): string {
+  const disabled = withChest && !revealReady && !sceneError;
+  const status = sceneError ? t("shipError") : disabled ? t("boarding") : "";
+  const starCount = outcome?.stars ?? 1;
+  return `<section class="reward-view reward-dock">
+    <div class="reward-back">${gameBack(voyageReturn)}</div>
+    ${(!withChest || sceneError) ? `<div class="reward-ship" aria-hidden="true">${pirateShipArt("reward-ship")}</div>` : ""}
+    ${rewardLedger({
+      title: withChest ? `<strong>${format(cargoGold(progress))}</strong> ${t("goldAboard")}` : t("completeNoGold", { count: format(level) }),
+      marks: ledgerStars(starCount, t("stars", { count: format(starCount) })),
+      details: withChest && status ? `<div class="ledger-details"><p role="status">${status}</p>${sceneError ? retryScene() : ""}</div>` : "",
+      actions: [
+        { action: "reward-next", label: t("nextIsland"), icon: "ship", primary: true, disabled },
+        { action: "reward-replay", label: t("replayLevel"), disabled },
+        { action: "unload", label: t("returnCave"), disabled },
+      ],
+    })}
   </section>`;
 }
 function caveView(unloading: boolean): string {
@@ -254,9 +274,6 @@ function caveView(unloading: boolean): string {
     <button class="quiet-ship" data-action="ship" aria-label="${t("ship")}: ${i18n.plural("aboard", pending.length)}">${icon("ship")} ${t("ship")}</button>
     <span id="math-cave-room" class="visually-hidden">${t("entrance")}</span>
   </section>`;
-}
-function completeView(): string {
-  return `<section class="complete-view"><div class="complete-back">${gameBack(voyageReturn)}</div><span class="eyebrow">${selectedPack().name}</span><h1>${t("wellSailed")}</h1>${stars(outcome?.stars ?? 1)}<p>${t("completeNoGold", { count: format(level) })}<br />${t("nextGold")}</p><div class="completion-ship" aria-hidden="true">${pirateShipArt("complete")}</div><button class="wood-button primary" data-action="reward-next">${t("nextIsland")} ${icon("ship")}</button></section>`;
 }
 function settingsView(): string {
   return settingsDesk(t("settings"),`<button class="desk-action" data-action="language" aria-haspopup="dialog"><strong>${t("language")}</strong><span>${languageLabel()}</span></button>
@@ -280,7 +297,7 @@ function render(preserveScroll = false): void {
   root.innerHTML = `${screen === "cave" || screen === "unloading" ? caveHud() : ""}${screen === "question" ? `<div class="question-back">${gameBack(voyageReturn)}</div>` : ""}<main id="main-content">${{
     home, operators: operatorView, map: mapView, levels: levelsView, question: questionView,
     clockMap: clockMapView, clock: () => clockBoard(clockRound!, i18n, gameBack("clockMap")),
-    reward: () => shipView(true), ship: () => shipView(false), unloading: () => caveView(true), cave: () => caveView(false), complete: completeView, settings: settingsView,
+    reward: () => rewardView(true), ship: shipView, unloading: () => caveView(true), cave: () => caveView(false), complete: () => rewardView(false), settings: settingsView,
   }[screen]()}</main>${saveFailed && screen !== "settings" ? `<div class="save-notice" role="status">${t("saveNotice")}</div>` : ""}`;
   const scroller = document.querySelector<HTMLElement>("#main-content")!;
   if (screen === "levels" || screen === "map" || screen === "clockMap") mountMathMap(scroller);
@@ -547,6 +564,9 @@ root.addEventListener("click", (event) => {
     case "check": checkAnswer(); break;
     case "continue": continueAfterAnswer(); break;
     case "reward-next": nextVoyage(); break;
+    case "reward-replay":
+      if ((screen === "reward" || screen === "complete") && outcome?.levelComplete) beginLevel(level);
+      break;
   }
 });
 document.addEventListener("keydown", (event) => {

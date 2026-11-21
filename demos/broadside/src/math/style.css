@@ -150,13 +150,6 @@
 .cave-fallback img { width: 100%; }
 .cave-fallback p { font-size: 11px; line-height: 1.6; }
 #academy .cave-heading p[role="status"] { display: block; max-width: 500px; margin: 7px auto 0; color: #fff0d2; line-height: 1.5; }
-.complete-view { text-align: center; max-width: 460px; margin: auto; padding: 35px 20px; }
-.complete-view h1 { font-size: 46px; margin: 12px 0; }
-.complete-view .stars { font-size: 42px; margin: 8px 0 20px; }
-.complete-view p { color: #b8c7bb; font-size: 13px; line-height: 1.7; }
-.completion-ship { width: 210px; margin: 10px auto 0; }
-.completion-ship svg { width: 100%; }
-.complete-view .wood-button { width: 100%; justify-content: center; }
 .settings-view { max-width: 580px; margin: auto; padding: 12px 24px 35px; }
 .settings-card { padding: 8px 24px 24px; border-radius: 12px; border: 1px solid #9fa58757; background: linear-gradient(145deg, #25423e9c, #112830); }
 .sound-setting { width: 100%; display: flex; justify-content: space-between; gap: 16px; padding: 22px 0; align-items: center; background: none; border: 0; border-bottom: 1px solid #a8b79b2e; text-align: left; }
@@ -277,13 +270,10 @@
   .hoard-total strong { font-size: 31px; }
   .hoard-total p { font-size: 9px; }
   .hoard-total .eyebrow { font-size: 7px; }
-  .reward-view .cave-bottom { bottom: calc(15px + var(--safe-bottom)); }
   .cave-bottom .wood-button { font-size: 12px; }
   .cave-heading .stars { font-size: 26px; margin-top: 11px; }
   .settings-view { padding-inline: 17px; }
   .settings-card { padding-inline: 18px; }
-  .complete-view { padding-top: 22px; }
-  .complete-view h1 { font-size: 37px; }
 }
 @media (max-width: 370px) {
   .brand > .icon { width: 25px; height: 25px; }
@@ -385,10 +375,6 @@
   .walking-view .cave-controls { font-size: 8px; max-width: 280px; margin-inline: auto; }
 }
 
-/* Clear the centre of the scene before the chest travels to the gold bank. */
-.reward-view .cave-heading { animation: reward-caption 4s ease forwards; }
-@keyframes reward-caption { 0%, 40% { opacity: 1; } 100% { opacity: 0; } }
-
 .ship-view .cave-bottom > .text-button { width: 100%; }
 
 #academy[data-screen="home"] #main-content { inset: 0; }
@@ -458,12 +444,6 @@
 @media (max-height: 480px) and (min-width: 601px) {
   .walking-view .cave-bottom { width: min(330px, calc(100% - 32px)); }
   .cave-heading { padding-inline: 16px; }
-  .complete-view { display: grid; grid-template-columns: 140px minmax(0, 1fr); column-gap: 18px; max-width: 660px; padding-top: 14px; align-items: center; }
-  .complete-view > .eyebrow, .complete-view > h1, .complete-view > .stars, .complete-view > p, .complete-view > button { grid-column: 2; }
-  .complete-view > .completion-ship { grid-column: 1; grid-row: 1 / 6; width: 140px; margin: 0; }
-  .complete-view h1 { font-size: 31px; margin-block: 5px; }
-  .complete-view .stars { font-size: 25px; margin-block: 2px 7px; }
-  .complete-view p { font-size: 11px; line-height: 1.5; margin-bottom: 10px; }
 }
 
 /* A storage error has its own reserved space and never sits behind the home indicator. */
@@ -522,15 +502,6 @@
   .number-pad button { min-width: 44px; min-height: 44px; height: 44px; }
   .check-answer { grid-column: 2; grid-row: 4; min-height: 44px; margin: 0; }
 }
-@media (max-width: 600px) and (max-height: 650px) {
-  .complete-view { padding: 14px 16px calc(16px + var(--pirate-safe-bottom)); }
-  .completion-ship { display: none; }
-  .complete-view h1 { font-size: 30px; margin: 8px 0; }
-  .complete-view .stars { font-size: 30px; margin: 4px 0 12px; }
-  .complete-view p { font-size: 12px; line-height: 1.45; }
-  .complete-view .wood-button { margin-top: 14px; min-height: 44px; }
-}
-
 
 @media (max-width: 600px) and (max-height: 700px) { .walking-view .cave-heading p:not([role="status"]) { display: none; } }
 

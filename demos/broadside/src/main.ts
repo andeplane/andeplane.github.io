@@ -927,7 +927,6 @@ async function main() {
       if (mode === "result" && session.state === "won") {
         const p = getCave().revealPose;
         hud.reveal(p.time, p.discovered, p.ready);
-        hud.depositing(!!reward?.gold && p.time > 5.3);
       }
     }
     if (import.meta.env.DEV) canvas.dataset.gemStatus = cave?.gemStatus ?? "";

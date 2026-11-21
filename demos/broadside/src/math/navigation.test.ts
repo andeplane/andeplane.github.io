@@ -152,6 +152,35 @@ describe("Captain Calculus navigation destinations",()=>{
     expect(next().disabled).toBe(true);next().click();expect(root().dataset.screen).toBe("reward");
     runtime.ready!();expect(next().disabled).toBe(false);
   });
+  it("starts a fresh replay without changing the awarded stars or pending chest", async () => {
+    const { freshProgress, pendingMathChests, questionsFor, readMathProgress, saveMathProgress, startVoyage } = await import("./academy");
+    const initial = freshProgress();
+    const run = startVoyage(initial, "add-10", 1, 100)!;
+    saveMathProgress(initial, localStorage);
+    await import("./main");
+    click("resume");
+
+    for (const { answer } of questionsFor("add-10", run.seed, run.questionSet)) {
+      for (const digit of String(answer)) root().querySelector<HTMLButtonElement>(`[data-key="${digit}"]`)!.click();
+      click("check");
+      click("continue");
+    }
+
+    await vi.waitFor(() => expect(runtime.created).toBe(1));
+    runtime.ready!();
+    expect(root().querySelector('.ledger-primary')?.textContent).toContain("Next Island");
+    expect(root().querySelectorAll('.ledger-star.earned')).toHaveLength(3);
+    const completed = readMathProgress(localStorage);
+    click("reward-replay");
+
+    const replay = readMathProgress(localStorage);
+    expect(root().dataset.screen).toBe("question");
+    expect(replay.tracks["add-10"]?.runs[1]).toMatchObject({ solved: 0, earnedGold: 0 });
+    expect(replay.tracks["add-10"]?.stars[1]).toBe(3);
+    expect(pendingMathChests(replay)).toEqual(pendingMathChests(completed));
+    expect(pendingMathChests(replay)).toEqual([{ id: 1, operator: "add", gold: 1000, delivered: false }]);
+  });
+
   it("reserves error-notice space when the browser cannot save progress",async()=>{
     await import("./main");
     vi.mocked(localStorage.setItem).mockImplementation(()=>{throw new Error("Storage unavailable");});

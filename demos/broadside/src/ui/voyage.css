@@ -446,34 +446,6 @@ p {
   );
   pointer-events: auto;
 }
-.result-top {
-  position: absolute;
-  top: 110px;
-  left: 15px;
-  right: 15px;
-}
-.result-top h1 {
-  font-size: 44px;
-}
-.result-top p {
-  color: #c2dedb;
-}
-#result-stars {
-  font-size: 34px;
-  letter-spacing: 10px;
-  color: var(--gold);
-  text-shadow: 0 0 20px #ffc1644d;
-}
-.result-bottom {
-  position: absolute;
-  bottom: calc(30px + var(--safe));
-  left: 50%;
-  transform: translateX(-50%);
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-  width: 290px;
-}
 .primary,
 .secondary {
   display: flex;
@@ -669,22 +641,6 @@ p {
   #v-compass b {
     font-size: 7px;
   }
-  .result-top {
-    top: 100px;
-  }
-  .result-top h1 {
-    font-size: 34px;
-  }
-  .result-top p {
-    font-size: 10px;
-  }
-  .result-top .eyebrow {
-    font-size: 8px;
-  }
-  .result-bottom {
-    bottom: calc(25px + var(--safe));
-    width: 270px;
-  }
 }
 @media (max-height: 650px) and (max-width: 650px) {
   .cave-title {
@@ -710,12 +666,6 @@ p {
   }
   #relic-stars {
     font-size: 16px;
-  }
-  .result-top {
-    top: 78px;
-  }
-  .result-top h1 {
-    font-size: 28px;
   }
 }
 @media (max-height: 480px) and (min-width: 651px) {
@@ -828,31 +778,6 @@ p {
   #v-arrow {
     font-size: 22px;
   }
-  .result-top {
-    top: 55px;
-    left: 30px;
-    right: auto;
-    width: 280px;
-  }
-  .result-top h1 {
-    font-size: 30px;
-  }
-  .result-top p {
-    font-size: 10px;
-  }
-  .result-top .eyebrow {
-    font-size: 8px;
-  }
-  #result-stars {
-    font-size: 24px;
-  }
-  .result-bottom {
-    left: auto;
-    right: 25px;
-    transform: none;
-    bottom: 35px;
-    width: 240px;
-  }
   .primary,
   .secondary {
     font-size: 12px;
@@ -894,53 +819,6 @@ p {
   pointer-events: none;
 }
 
-/* The stars wait for the treasure to emerge from its chest. */
-.reward-star {
-  display: inline-block;
-  opacity: 0;
-  transform: translateY(15px) scale(0.35);
-  transition:
-    opacity 0.3s,
-    transform 0.55s cubic-bezier(0.2, 1.6, 0.4, 1);
-}
-.reward-star.arrived {
-  opacity: 1;
-  transform: translateY(0) scale(1);
-}
-.reward-star.empty {
-  color: #83949f;
-  text-shadow: none;
-}
-#v-result.unboxing .result-bottom {
-  opacity: 0.35;
-}
-#v-result .result-bottom {
-  transition: opacity 0.5s;
-}
-#v-result.unboxing #result-detail {
-  opacity: 0;
-}
-#result-detail {
-  transition: opacity 0.6s;
-}
-#result-title {
-  text-shadow: 0 3px 20px #071421;
-}
-@media (max-height: 650px) and (max-width: 650px) {
-  #result-stars {
-    font-size: 26px;
-  }
-  .result-bottom {
-    width: calc(100% - 36px);
-    gap: 7px;
-    bottom: 16px;
-  }
-  .result-bottom .primary,
-  .result-bottom .secondary {
-    padding: 12px 16px;
-  }
-}
-
 /* Keep the storm readable without covering the steering or cannon controls. */
 #v-weather {
   position: absolute;
@@ -972,19 +850,4 @@ p {
   #voyage-ui[data-weather="overcast"] #v-tip,
   #voyage-ui[data-weather="rain"] #v-tip,
   #voyage-ui[data-weather="storm"] #v-tip { top: 217px; }
-}
-
-/* Let the chest and physically falling coins occupy the middle of the view. */
-#v-result.pouring .result-top { top: 75px; left: 25px; right: auto; width: 235px; transition: top .7s, left .7s; }
-#v-result.pouring .result-top h1 { font-size: 32px; }
-#v-result.pouring #result-stars { font-size: 26px; }
-#v-result.pouring #result-detail { font-size: 11px; }
-#v-result.pouring .result-bottom { left: auto; right: 24px; bottom: 24px; transform: none; width: 240px; }
-@media (max-width: 600px) {
-  #v-result.pouring .result-top { top: 75px; left: 12px; right: 12px; width: auto; }
-  #v-result.pouring .result-top .eyebrow { font-size: 9px; }
-  #v-result.pouring .result-top h1 { font-size: 28px; margin: 4px 0; }
-  #v-result.pouring #result-stars { font-size: 23px; }
-  #v-result.pouring #result-detail { display: none; }
-  #v-result.pouring .result-bottom { left: 18px; right: 18px; bottom: calc(14px + var(--safe)); width: auto; }
 }

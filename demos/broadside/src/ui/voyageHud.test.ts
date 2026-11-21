@@ -4,6 +4,7 @@ import { Controls } from "../input/controls";
 import { readProgress } from "../game/progress";
 import { awardVoyage, deliverChest } from "../game/rewards";
 import { VoyageHud } from "./voyageHud";
+import { generateVoyage, VoyageSession } from "../game/voyage";
 
 const ship = vi.hoisted(() => ({ private: false }));
 vi.mock("../privatePearl", () => ({ get PRIVATE_PEARL() { return ship.private; } }));
@@ -391,4 +392,30 @@ it.each(['#hold-back','#unload-menu','#sea-chart-back'])('passes no click-event 
   const {handlers,button}=setup(false);
   button(id).click();
   expect(handlers.menu.mock.calls).toEqual([[]]);
+});
+
+
+it("uses the ledger's Next Island action for a win and Retry for a loss", () => {
+  const { hud, progress, handlers, button } = setup(false);
+  const session = new VoyageSession(generateVoyage(0));
+  session.state = "won";
+  session.stars = 2;
+  hud.result(session, awardVoyage(progress, 0, session.stars, 0));
+  expect(button("#result-next").disabled).toBe(true);
+  expect(button("#result-menu").disabled).toBe(false);
+  hud.reveal(5, true, true);
+
+  expect(hud.root.querySelectorAll("#result-stars .earned")).toHaveLength(2);
+  expect(hud.root.querySelector("#result-stars")?.getAttribute("aria-label")).toBe("2 of 3 stars");
+  expect(button("#result-next").classList.contains("ledger-primary")).toBe(true);
+  button("#result-next").click();
+  expect(handlers.start).toHaveBeenLastCalledWith(1);
+
+  session.state = "lost";
+  hud.result(session);
+  expect(button("#result-next").hidden).toBe(true);
+  expect(button("#result-unload").hidden).toBe(true);
+  expect(button("#result-retry").classList.contains("ledger-primary")).toBe(true);
+  button("#result-retry").click();
+  expect(handlers.start).toHaveBeenLastCalledWith(0);
 });

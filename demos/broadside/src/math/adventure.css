@@ -74,10 +74,9 @@
   .chest-distance, .chest-distance small { color: #174d60; font-size: 14px; }
   .hint-panel p, .hint-groups small { font-size: 14px; color: #174d60; }
   .settings-card { background: #fff6e3; border: 0; }
-  .settings-card p, .settings-card small, .settings-card label span, .guide-footer, .complete-view p { color: #415d6a; font-size: 15px; }
+  .settings-card p, .settings-card small, .settings-card label span, .guide-footer { color: #415d6a; font-size: 15px; }
   .captains-guide h2 { color: #0b2840; }
   .language-setting select { background: #fff; color: #0b2840; }
-  .complete-view h1 { font-size: 36px; }
 }
 @media (max-width: 600px) {
   #academy:not([data-screen="cave"]):not([data-screen="reward"]):not([data-screen="ship"]):not([data-screen="unloading"]) {
