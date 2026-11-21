@@ -1,5 +1,4 @@
-import { chartShip } from "./adventureChart";
-import { icon } from "./icons";
+import { chartCenterButton, chartShip } from "./adventureChart";
 import { islandArt } from "./islandChart";
 import "./difficultyMap.css";
 
@@ -39,6 +38,6 @@ export function difficultyMap(options: DifficultyMapOptions): string {
         <svg class="world-pack-route" viewBox="0 0 960 ${height}" aria-hidden="true"><polyline points="${points}" fill="none" stroke="#685438" stroke-width="3" stroke-dasharray="5 8"/></svg>
         ${stops.map((p,i) => `<button class="world-pack-stop" data-pack="${escape(String(p.id))}" style="left:${p.x}px;top:${p.y}px" aria-label="${escape([p.ariaLabel, p.progress].filter(Boolean).join(", "))}">${options.island?.(i) ?? islandArt(i + options.firstArt)}${p.id===focus.id?chartShip("moored-pack"):""}<span class="world-pack-label"><b>${escape(p.label)}</b>${p.description ? `<small>${escape(p.description)}</small>` : ""}${p.progress ? `<small class="chart-tally">${escape(p.progress)}</small>` : ""}</span></button>`).join("")}
       </div>
-      <div class="world-map-tools" data-map-control><button type="button" data-map-center>${icon("compass")} ${escape(options.centerLabel)}</button></div>
+      <div class="world-map-tools" data-map-control>${chartCenterButton(options.centerLabel)}</div>
     </div></section>`;
 }

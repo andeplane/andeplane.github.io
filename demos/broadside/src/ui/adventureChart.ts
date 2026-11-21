@@ -1,3 +1,4 @@
+import { icon } from "./icons";
 import { menuText } from "./homeMenu";
 import "./adventureChart.css";
 
@@ -5,6 +6,10 @@ interface Shore {
   id:string|number; label:string; detail?:string; tally?:string; accessible:string;
   art:string; locked?:boolean; moored?:boolean;
 }
+export function chartCenterButton(label: string, className = ""): string {
+  return `<button type="button" class="chart-center-button ${className}" data-map-control data-map-center aria-label="${menuText(label)}">${icon("compass")}</button>`;
+}
+
 export function chartShip(id:string):string {
   return `<span id="${id}" class="chart-ship chart-ship-marker" aria-hidden="true" inert><img src="${import.meta.env.BASE_URL}assets/map/chart-pearl.webp" width="256" height="212" alt="" draggable="false"></span>`;
 }

@@ -1,3 +1,4 @@
+import { chartCenterButton } from "./adventureChart";
 import { shoreMarker } from "./islandChart";
 import { backButton } from "./menuChrome";
 import { icon } from "./icons";
@@ -110,7 +111,7 @@ export function expeditionTrail(options: ExpeditionOptions): string {
         <button class="expedition-more further" style="top:${height + 20}px" data-action="trail-further">${text("exploreFurther")} ${icon("compass")}<small>${text("islandsAhead")}</small></button>
       </div>
 
-      <div class="expedition-map-tools" data-map-control><button data-map-center aria-label="${text("findIsland")}" title="${text("findIsland")}">${icon("compass")}</button><button data-map-zoom="in" aria-label="${text("zoomIn")}">+</button><button data-map-zoom="out" aria-label="${text("zoomOut")}">−</button></div>
+      <div class="expedition-map-tools" data-map-control>${chartCenterButton(text("findIsland"))}<button data-map-zoom="in" aria-label="${text("zoomIn")}">+</button><button data-map-zoom="out" aria-label="${text("zoomOut")}">−</button></div>
       <p class="expedition-drag-hint" data-map-control>${text("dragExplore")}</p>
       <span class="map-keyboard-help" id="expedition-map-help">${text("mapKeyboard")} ${escape(options.practiceRule)}</span>
 

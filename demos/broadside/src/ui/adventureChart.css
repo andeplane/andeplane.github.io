@@ -63,3 +63,18 @@
 #voyage-ui[data-screen="worlds"] #captain-menu #world-menu {position:absolute;inset:0;width:100%;height:100%;margin:0;padding:0;}
 #voyage-ui #captain-menu #world-menu #world-packs {inset:0;width:100%;height:100%;margin:0;padding:0;}
 #voyage-ui[data-screen="worlds"] #captain-menu #world-menu #map-cave span {display:grid;place-items:center;position:static;transform:none;padding:6px 10px;min-height:44px;background:#f4e3b8;color:#362819;border-radius:4px;}
+
+.chart-center-button {
+  display: grid;
+  place-items: center;
+  min-inline-size: var(--pirate-touch-target, 44px);
+  min-block-size: var(--pirate-touch-target, 44px);
+  padding: 0;
+  border: 1px solid #806942;
+  border-radius: 50%;
+  background: #fff0cd;
+  color: #382b16;
+  pointer-events: auto;
+}
+.chart-center-button .icon { width: 20px; height: 20px; }
+.chart-center-button:active { background: #e6c78a; }

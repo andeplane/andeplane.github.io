@@ -207,7 +207,9 @@ describe("regional island journeys", () => {
     const chart = button(".level-board"), marker = button("#level-ship-marker");
     expect(button("#level-ship").closest(".level-board")).toBeNull();
     expect(chart.querySelectorAll("button[data-level]")).toHaveLength(10);
-    expect(chart.querySelector("[data-map-center]")?.hasAttribute("hidden")).toBe(true);
+    const center = chart.querySelector("[data-map-center]");
+    expect(center?.getAttribute("aria-label")).toBe("Current island");
+    expect(center?.textContent?.trim()).toBe("");
     expect(marker.tagName).toBe("SPAN");
     expect(marker.querySelector("img")?.getAttribute("src")).toMatch(/assets\/map\/chart-pearl\.webp$/);
     expect(marker.getAttribute("aria-hidden")).toBe("true");
