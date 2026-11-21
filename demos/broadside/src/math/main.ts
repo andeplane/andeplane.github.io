@@ -16,7 +16,7 @@ import {
   answerQuestion, goldTotal, pendingMathChests, bankedGold, cargoGold,
   type OperatorId, type Voyage, type Question, type AnswerResult,
 } from "./academy";
-import { detectLanguage, LANGUAGES, readLanguagePreference, saveLanguagePreference } from "./i18n";
+import { deviceLanguages, languageOption, readLanguagePreference, saveLanguagePreference, watchMenuLanguage } from "../i18n/languages";
 import { selectLanguage } from "./language";
 import type { GoldCave } from "./goldCave";
 import "./style.css";
@@ -27,7 +27,7 @@ import "./adventure.css";
 import "./focus.css";
 import "./home.css";
 import "./gameHud.css";
-import { languagePickerMarkup, bindLanguagePicker } from "../ui/languagePicker";
+import { languagePickerMarkup, bindLanguagePicker, languageSettingLabel } from "../ui/languagePicker";
 import { clockSteps, type ClockStep } from "./clock";
 import { clockBoard, clockLevelKey, newClockRound } from "./clockBoard";
 import "./clock.css";
@@ -46,8 +46,8 @@ const qa = import.meta.env.DEV && new URLSearchParams(location.search).get("qa")
 let storage: Storage | undefined;
 try { storage = qa ? new URLSearchParams(location.search).get("fresh") === "1" ? undefined : sessionStorage : localStorage; } catch { /* Playing still works when storage is unavailable. */ }
 
-let languagePreference = readLanguagePreference(storage), languageSaveFailed = false;
-const deviceLanguages = () => navigator.languages?.length ? navigator.languages : [navigator.language];
+const legacyMenuKey = "broadside.math.language.v1";
+let languagePreference = readLanguagePreference(storage, legacyMenuKey), languageSaveFailed = false;
 let i18n = selectLanguage(languagePreference, deviceLanguages());
 const t: typeof i18n.t = (key, values) => i18n.t(key, values);
 const operatorName = (id: OperatorId) => i18n.operatorName(id);
@@ -154,7 +154,7 @@ function home(): string {
     ${pirateMenu({title:t("home"),theme:"calculus-home-actions",play:{action:"play",label:t("play")},
       resume:saved?{action:"resume",label:t("continue"),detail:`${operatorName(getPack(saved.pack).operator)} · ${localizedPack(saved.pack).label} · ${t("level",{count:format(saved.run.level)})} · ${t("solvedCount",{count:format(saved.run.solved)})}`}:undefined,
       ship:{action:"ship",label:t("yourShip"),detail:pending},cave:{action:"cave",label:t("yourCave"),detail:t("savedGold",{gold:navNumber(gold)}),accessible:t("savedGold",{gold:format(gold)})},
-      settings:{action:"settings",label:t("settings")},language:{action:"language",label:languageChoice().flag,accessible:t("language")}})}
+      settings:{action:"settings",label:t("settings")},language:{action:"language",label:languageOption(i18n.language).flag,accessible:t("language")}})}
   </section>`;
 }
 const completedLabel = (count: number) => t(count === 1 ? "levelCompleted" : "levelsCompleted", { count: format(count) });
@@ -284,7 +284,7 @@ function caveView(unloading: boolean): string {
   </section>`;
 }
 function settingsView(): string {
-  return settingsDesk(t("settings"),`<button class="desk-action" data-action="language" aria-haspopup="dialog"><strong>${t("language")}</strong><span>${languageLabel()}</span></button>
+  return settingsDesk(t("settings"),`<button class="desk-action" data-action="language" aria-haspopup="dialog"><strong>${t("language")}</strong>${languageSettingLabel(i18n,languagePreference)}</button>
       <button class="desk-action" data-open-privacy>${t("privacyEnglish")}</button>
       <p class="desk-save">${icon("anchor")} ${saveFailed ? t("saveError") : t("saveOk")}</p>
   `,gameBack("home"));
@@ -455,14 +455,6 @@ function goBack(): void {
 const picker = document.createElement("dialog");
 document.body.append(picker);
 
-function languageChoice() {
-  const language = LANGUAGES.find(lang => lang.id === i18n.language)!;
-  return { flag: language.flag, name: languagePreference === "auto" ? "Auto" : language.name };
-}
-function languageLabel() {
-  const { name, flag } = languageChoice();
-  return `<span aria-hidden="true">${flag}</span> ${name}`;
-}
 const languageMenu = bindLanguagePicker(picker,{
   markup:failed=>languagePickerMarkup(i18n,languagePreference,deviceLanguages(),failed||languageSaveFailed),
   trigger:()=>root.querySelector('[data-action="language"]'),
@@ -478,8 +470,9 @@ const languageMenu = bindLanguagePicker(picker,{
 for (const type of ["contextmenu", "selectstart"]) {
   document.addEventListener(type, event => event.preventDefault());
 }
-window.addEventListener("languagechange", () => {
-  if (languagePreference !== "auto") return;
+watchMenuLanguage(storage, legacyMenuKey, preference => {
+  if (preference !== undefined) {languagePreference = preference; languageSaveFailed = false;}
+  else if (languagePreference !== "auto") return;
   i18n = selectLanguage(languagePreference, deviceLanguages()); render();
   if (picker.open) languageMenu.draw();
 });

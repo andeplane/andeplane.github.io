@@ -1,6 +1,10 @@
 import { describe,it,expect } from "vitest";
 import {itemsFor,PACKS,preferredLanguage,matches} from "./content";
 import {freshProgress,startRun,currentText,completeChunk,readProgress,saveProgress,deliverChest,trackKey,SAVE_KEY} from "./progress";
+import { LANGUAGES } from "../i18n/languages";
+import { createLocale } from "../i18n/locale";
+import { readerCatalogs } from "./messages";
+import {INTEREST_IDS} from "./interests";
 import {ReadingAttempt,hearsTarget,heardPrefix} from "./recognition";
 import {readingAdapter} from "./pirateAdapter";
 const finish=(p:ReturnType<typeof freshProgress>,r:NonNullable<ReturnType<typeof startRun>>)=>{while(p.tracks[trackKey(r.language,r.pack)]?.run){const out=completeChunk(p,r,{id:r.id,index:r.index,chunk:r.chunk},"independent");expect(out.accepted).toBe(true);}};
@@ -10,7 +14,64 @@ describe("reading content",()=>{
   for(const language of ["nb","en"] as const)for(const p of PACKS){const bank=itemsFor(language,p.id);expect(bank).toHaveLength(50);expect(new Set(bank.map(i=>i.text)).size).toBe(50);expect(bank.every(i=>i.chunks.join(" ")===i.text)).toBe(true);expect(p.gold).toBe(p.id*100);expect(p.gold/p.count).toBeGreaterThan(0);expect(p.gold).toBeLessThanOrEqual(1000);}
  });
  it("uses ordered language preferences and respects language variants",()=>{expect(preferredLanguage(["fr-FR","nb-NO","en"])).toBe("nb");expect(preferredLanguage(["en-US","nb"])).toBe("en");expect(preferredLanguage(["nn-NO"])).toBe("nb");expect(preferredLanguage(["de"])).toBe("en");});
+ it("localizes menus, pack labels and interests independently of the reading language", () => {
+  const keys = Object.keys(readerCatalogs.en).sort();
+  for (const {id} of LANGUAGES) {
+   const menu = createLocale(readerCatalogs, id, []);
+   expect(Object.keys(readerCatalogs[id]).sort()).toEqual(keys);
+   expect(Object.values(readerCatalogs[id]).every(text => text.trim())).toBe(true);
+   for (const pack of PACKS) expect(menu.t(`packName${pack.id}`)).toBeTruthy();
+   for (const interest of INTEREST_IDS) expect(menu.t(interest)).toBeTruthy();
+  }
+  const menu = createLocale(readerCatalogs, "auto", ["sv-SE", "nb-NO"]);
+  expect(menu.language).toBe("sv");
+  const progress = freshProgress(preferredLanguage(["sv-SE", "nb-NO"]));
+  expect(startRun(progress, progress.language, 1, 1, 42)!.language).toBe("nb");
+  const legacySave = {...progress, ui: "en"};
+  expect(readProgress({getItem: () => JSON.stringify(legacySave)}).progress).toMatchObject({language: "nb", tracks: progress.tracks});
+ });
  it("normalizes punctuation and case without erasing Norwegian sounds or accepting near matches",()=>{expect(matches(" BÅT! ","båt")).toBe(true);expect(matches("bat","båt")).toBe(false);expect(matches("not cat","cat")).toBe(false);expect(matches("hat","cat")).toBe(false);expect(matches("10","ten")).toBe(true);expect(matches("2","to","nb")).toBe(true);expect(matches("one","en","nb")).toBe(false);expect(matches("en","one","en")).toBe(false);expect(matches("ett","et","nb")).toBe(true);expect(matches("near the harbor","near the harbour")).toBe(true);expect(matches("1","et")).toBe(false);expect(matches("The cat is on the ship.","the cat is on the ship")).toBe(true);});
+});
+describe("reading interests", () => {
+ it("mixes one level-appropriate prompt from the selected topics in both languages", () => {
+  for (const language of ["nb", "en"] as const) for (const pack of PACKS) {
+   const standard = startRun(freshProgress(language), language, pack.id, 1, 42)!;
+   const progress = freshProgress(language);
+   progress.interests = ["football", "minecraft"];
+   const first = startRun(progress, language, pack.id, 1, 42)!;
+   expect(first.items.filter((item, index) => item.id !== standard.items[index]!.id)).toEqual([first.items[1]]);
+   const item = first.items[1]!;
+   expect(item.id).toBe(`${language}-interest-${pack.id}-football`);
+   expect(item.chunks.join(" ")).toBe(item.text);
+   if (pack.id === 1) expect(item.text).toMatch(/^\p{L}{2,4}$/u);
+   expect(Boolean(item.question)).toBe(pack.kind === "paragraph");
+   finish(progress, first);
+   const second = startRun(progress, language, pack.id, 2, 42)!;
+   if (pack.kind === "paragraph") {
+    expect(second.items.every(item => !item.id.includes("-interest-"))).toBe(true);
+    finish(progress, second);
+    expect(startRun(progress, language, pack.id, 3, 42)!.items[1]!.id).toContain("-minecraft");
+   } else {
+    expect(second.items[2]!.id).toContain("-minecraft");
+   }
+  }
+ });
+ it("accepts all ten interests, remembers a skip, and preserves in-progress readings", () => {
+  const progress = freshProgress("nb");
+  expect(readProgress({getItem: () => JSON.stringify(progress)}).progress.interests).toBeUndefined();
+  progress.interests = [...INTEREST_IDS];
+  const run = startRun(progress, "nb", 1, 1, 42)!;
+  const saved = readProgress({getItem: () => JSON.stringify(progress)}).progress;
+  expect(saved.interests).toEqual(INTEREST_IDS);
+  saved.interests = [];
+  const restored = readProgress({getItem: () => JSON.stringify(saved)});
+  expect(restored.warning).toBe(false);
+  expect(restored.progress.interests).toEqual([]);
+  expect(startRun(restored.progress, "nb", 1, 1, 20)).toEqual(run);
+  const corruptInterests = readProgress({getItem: () => JSON.stringify({...saved, interests: ["__proto__", "football", "football"]})});
+  expect(corruptInterests.warning).toBe(false);
+  expect(corruptInterests.progress.interests).toEqual(["football"]);
+ });
 });
 describe("voyages and rewards",()=>{
  it("exposes a whole word bank over five levels, resumes frozen prompts, and replays safely",()=>{

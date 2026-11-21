@@ -3,6 +3,7 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 import { Controls } from "../input/controls";
 import { readProgress } from "../game/progress";
 import { awardVoyage, deliverChest } from "../game/rewards";
+import { LANGUAGE_KEY } from "../i18n/languages";
 import { VoyageHud } from "./voyageHud";
 import { generateVoyage, VoyageSession } from "../game/voyage";
 
@@ -27,7 +28,7 @@ function setup(privateShip: boolean, cargo = false) {
 
 afterEach(() => {
   document.body.replaceChildren();
-  localStorage.removeItem("broadside.home.language.v1");
+  localStorage.removeItem(LANGUAGE_KEY);
   ship.private = false;
 });
 

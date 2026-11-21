@@ -1,6 +1,9 @@
 import { App } from "@capacitor/app";
-import { languagePickerMarkup, bindLanguagePicker } from "../ui/languagePicker";
-import { LANGUAGES, createI18n } from "../math/i18n";
+import { languagePickerMarkup, bindLanguagePicker, languageSettingLabel } from "../ui/languagePicker";
+import { deviceLanguages, languageOption, isLanguage, readLanguagePreference, saveLanguagePreference, watchMenuLanguage } from "../i18n/languages";
+import { createI18n } from "../math/i18n";
+import { createLocale } from "../i18n/locale";
+import { readerCatalogs } from "./messages";
 import { difficultyMap } from "../ui/difficultyMap";
 import { pirateMenu, settingsDesk } from "../ui/homeMenu";
 import { installMenuPreview } from "../ui/menuPreview";
@@ -12,8 +15,9 @@ import { icon } from "../ui/icons";
 import { rewardLedger, shipRecoveryLedger } from "../ui/rewardLedger";
 import { atlasRenderer, atlasView, worldAsset, worldIsland } from "../ui/worldAtlas";
 import { mountMapPan, type MapCamera, type MapPanController } from "../ui/mapPan";
-import { PACKS, packFor, preferredLanguage, type Language, type ReadingItem } from "./content";
+import { PACKS, READING_LANGUAGES, isReadingLanguage, packFor, preferredLanguage, type ReadingItem } from "./content";
 import { freshProgress, readProgress, saveProgress, startRun, currentItem, currentText, completeChunk, banked, aboard, trackKey, type Run, type ReadingProgress, type Evidence } from "./progress";
+import { INTEREST_IDS, readInterests } from "./interests";
 import { ReadingAttempt, heardPrefix } from "./recognition";
 import * as speech from "./nativeSpeech";
 import type { ReadingPirateHost } from "./pirateHost";
@@ -26,9 +30,11 @@ const root=document.querySelector<HTMLDivElement>("#reader")!;
 const canvas=document.querySelector<HTMLCanvasElement>("#reader-world")!;
 const params=new URLSearchParams(location.search),qa=import.meta.env.DEV&&params.get("qa")==="true";
 let storage:Storage|undefined;try{storage=qa?sessionStorage:localStorage;}catch{}
-const initial=readProgress(storage,preferredLanguage(navigator.languages));
+const initial=readProgress(storage,preferredLanguage(deviceLanguages()));
 let progress=initial.progress,saveFailed=false,saveWarning=initial.warning;
-if(readerPreference()==="auto")progress.ui=preferredLanguage(navigator.languages);
+const legacyMenuKey = "reader.menu.language";
+let menuPreference = readLanguagePreference(storage, legacyMenuKey);
+let locale = createLocale(readerCatalogs, menuPreference, deviceLanguages());
 let screen:Screen="home",packId=1,run:Run|null=null,worldReturn:Screen="home",epoch=0;
 let pan:MapPanController|null=null,host:ReadingPirateHost|null=null;
 let cap:speech.SpeechCapabilities={preferredLanguages:[],locales:[]},capLoaded=false;
@@ -43,16 +49,10 @@ let advanceTimer:ReturnType<typeof setTimeout>|undefined;
 let heardWords=0;
 let errorMessage="",worldLoading=false,worldError=false,comprehensionCorrect=false;
 let lastStoryAnswer: number | undefined;
-const copy={
- en:{yourTurn:"Your turn — read aloud",examplePlaying:"Listen to the example…",progress:"readings complete",pause:"Pause",resume:"Keep reading",tryListening:"Try listening again",speechGuide:"The app checks which words it hears. It does not grade pronunciation or accent.",handsFree:"Just read aloud. Pip takes care of the rest.",autoNext:"Next reading coming up…",sayAnswer:"Say the correct answer aloud.",shipShort:"Ship",caveShort:"Cave",brand:"Captain Reader",tag:"A PIRATE READING ADVENTURE",intro:"Read a little. Bring home a fortune.",play:"Play",continue:"Continue",choose:"Choose another adventure",practice:"Choose your language and reading pack",ship:"Your ship",cave:"Your cave",settings:"Settings",rule:"Harder reading earns more gold. Take your time.",gold:"gold",home:"Home",languages:"Choose your language",languageHelp:"Tap a flag to begin your reading adventure.",packs:"Choose your reading island",packHelp:"Ten packs. All open. Read at your own pace.",level:"Level",reading:"Read aloud",next:"Next",retry:"Try again",cancel:"Pause listening",resumeListening:"Resume listening",paused:"Take a breather. Continue when you’re ready.",selfAccepted:"Onward, captain!",help:"Hear an example",adult:"Read with an adult",adultTitle:"A little help from your crew",adultText:"An adult can listen and confirm this reading. It earns the same gold and is saved as assisted practice.",confirm:"I heard this reading",close:"Close",ready:"Ready when you are",listening:"Pip is listening…",checking:"Checking your reading…",preparing:"Getting ready to listen…",accepted:"Well read, captain!",uncertain:"Pip didn’t catch that. Read it aloud again — no tapping needed.",browser:"Browser practice: read aloud, then press Next. In the iPhone app, correct speech earns gold and moves on automatically.",unavailable:"Listening isn’t ready for this language. Try again, or go Back to choose another.",permissions:"Enable both permissions — microphone and speech — in iPhone Settings, then try again.",sound:"Listening indicator — sound level, not a reading score",complete:"Treasure earned!",completeText:"Your chest is safely aboard. Bring it home to your cave.",nextLevel:"Next level",unload:"Unload your chests",loading:"Your crew is getting ready…",worldFail:"Your treasure scene couldn’t open. Your saved gold is safe. Try again.",back:"Back",save:"Progress couldn’t be saved. Keep this game open to continue.",resetWarning:"The saved progress couldn’t be read. A fresh adventure is ready.",privacy:"Your voice stays on this device",privacyText:"Listening starts automatically on each reading prompt. Correct reading earns gold and moves to the next prompt. Use Back to stop listening. It stops when you leave or the app goes into the background. Recordings and transcripts are not saved or sent to us. There are no accounts, ads, or analytics.",ui:"Menu language",world:"Reading language",practiceCount:"readings practised",assisted:"with help",guide:"Choose a flag, an island pack, and a level. Read each prompt aloud. In the iPhone app, Pip listens, awards gold for correct reading, and moves on automatically. No answer buttons are needed. In a browser, use Next for practice. Sentences in a story are read one at a time. Hints and retries are free. Every gold coin you earn is one coin in your chest.",reset:"Reset reading progress",resetTitle:"Start a new adventure?",resetText:"This removes Captain Reader’s progress and treasure on this device. The other pirate games keep their saves.",resetConfirm:"Reset this game",voiceFail:"An example voice isn’t available for this language. Ask an adult to read it with you.",chunk:"Sentence",of:"of",comp:"A little story question",compRetry:"Have another look at the story and try again.",compGood:"That’s right!",qa:"Design preview · separate practice save",banked:"saved in your cave",aboard:"aboard your ship",empty:"Your next chest goes here",room:"Treasure cave",inspect:"Inspect / explore",jump:"Jump",move:"Move",readingCount:"read",more:"More challenging reading earns more gold"},
- nb:{yourTurn:"Din tur — les høyt",examplePlaying:"Hør på eksempelet…",progress:"lesinger fullført",pause:"Pause",resume:"Les videre",tryListening:"Prøv å lytte igjen",speechGuide:"Appen sjekker hvilke ord den hører. Den vurderer ikke uttale eller dialekt.",handsFree:"Bare les høyt. Pip ordner resten.",autoNext:"Neste leseoppgave kommer…",sayAnswer:"Si det riktige svaret høyt.",shipShort:"Skip",caveShort:"Hule",brand:"Kaptein Leselyst",tag:"ET LESEEVENTYR MED PIRATER",intro:"Les litt. Ta med skatten hjem.",play:"Spill",continue:"Fortsett",choose:"Velg et annet eventyr",practice:"Velg språk og lesepakke",ship:"Skipet ditt",cave:"Hulen din",settings:"Innstillinger",rule:"Vanskeligere lesing gir mer gull. Ta deg god tid.",gold:"gull",home:"Hjem",languages:"Velg lesespråk",languageHelp:"Trykk på et flagg og begynn leseeventyret.",packs:"Velg leseøy",packHelp:"Ti pakker. Alle er åpne. Les i ditt eget tempo.",level:"Nivå",reading:"Les høyt",next:"Neste",retry:"Prøv igjen",cancel:"Sett lytting på pause",resumeListening:"Fortsett lytting",paused:"Ta en liten pause. Fortsett når du er klar.",selfAccepted:"Videre, kaptein!",help:"Hør et eksempel",adult:"Les med en voksen",adultTitle:"Litt hjelp fra mannskapet",adultText:"En voksen kan lytte og bekrefte lesingen. Det gir like mye gull og lagres som øving med hjelp.",confirm:"Jeg hørte denne lesingen",close:"Lukk",ready:"Klar når du er",listening:"Pip lytter…",checking:"Sjekker lesingen din…",preparing:"Gjør klar til å lytte…",accepted:"Godt lest, kaptein!",uncertain:"Pip fikk ikke med seg det. Les høyt igjen — du trenger ikke trykke.",browser:"Øving i nettleseren: Les høyt og trykk Neste. I iPhone-appen gir riktig lesing gull og går videre automatisk.",unavailable:"Lytting er ikke klar for dette språket. Prøv igjen, eller gå tilbake og velg et annet.",permissions:"Gi tilgang til mikrofon og talegjenkjenning i iPhone-innstillingene. Prøv så igjen.",sound:"Lytteindikator — lydnivå, ikke en lesepoengsum",complete:"Du har tjent en skatt!",completeText:"Kisten er trygt om bord. Ta den med hjem til hulen.",nextLevel:"Neste nivå",unload:"Loss kistene dine",loading:"Mannskapet gjør klart…",worldFail:"Skatten kunne ikke vises. Det lagrede gullet er trygt. Prøv igjen.",back:"Tilbake",save:"Fremgangen kunne ikke lagres. Hold spillet åpent for å fortsette.",resetWarning:"Den lagrede fremgangen kunne ikke leses. Et nytt eventyr er klart.",privacy:"Stemmen din blir på enheten",privacyText:"Lytting starter automatisk ved hver leseoppgave. Riktig lesing gir gull og går videre automatisk. Bruk Tilbake for å stoppe lyttingen. Den stopper når du går ut eller appen går i bakgrunnen. Opptak og utskrifter lagres ikke og sendes ikke til oss. Ingen kontoer, reklame eller analyseverktøy.",ui:"Menyspråk",world:"Lesespråk",practiceCount:"lesinger øvd",assisted:"med hjelp",guide:"Velg et flagg, en leseøy og et nivå. Les høyt. I iPhone-appen lytter Pip, gir gull for riktig lesing og går videre automatisk. Du trenger ingen svarknapper. I nettleseren bruker du Neste for å øve. I fortellinger leser du én setning om gangen. Hjelp og nye forsøk er gratis. Hver gullmynt du tjener, er én mynt i kisten.",reset:"Nullstill lesefremgangen",resetTitle:"Begynne et nytt eventyr?",resetText:"Dette fjerner fremgangen og skatten i Kaptein Leselyst på denne enheten. De andre sjørøverspillene beholder sine lagringer.",resetConfirm:"Nullstill dette spillet",voiceFail:"En eksempelstemme finnes ikke for dette språket. Be en voksen lese sammen med deg.",chunk:"Setning",of:"av",comp:"Et lite spørsmål om fortellingen",compRetry:"Se på fortellingen en gang til og prøv igjen.",compGood:"Helt riktig!",qa:"Designvisning · egen øvingslagring",banked:"lagret i hulen",aboard:"om bord på skipet",empty:"Den neste kisten din kommer hit",room:"Skattehulen",inspect:"Se nærmere / utforsk",jump:"Hopp",move:"Beveg deg",readingCount:"lest",more:"Vanskeligere lesing gir mer gull"}
-};
-type CopyKey=keyof typeof copy.en;
-const t=(key:CopyKey)=>copy[progress.ui][key];
+const t: typeof locale.t = (key, values) => locale.t(key, values);
 const esc=(s:string)=>s.replace(/[&<>"']/gu,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]!));
-const displayLocale = () => progress.ui === "nb" ? "nb-NO" : "en-GB";
-const f = (n: number) => n.toLocaleString(displayLocale());
-const navGold = (amount: number) => new Intl.NumberFormat(displayLocale(), {
+const f=(n:number)=>locale.format(n);
+const navGold = (amount: number) => new Intl.NumberFormat(locale.language, {
  notation: "compact", maximumFractionDigits: 1,
 }).format(amount);
 const title=()=>t("brand");
@@ -68,40 +68,40 @@ function header():string{
  if(screen==="cave"||screen==="unload") {
   const amount=banked(progress);
   return caveHeader(backButton({action:"back",label:t("back")}),t("caveShort"),{
-   amount, accessible:`${f(amount)} ${t("gold")} ${t("banked")}`, currency:t("gold"), locale:progress.ui,
+   amount, accessible:`${f(amount)} ${t("gold")} ${t("banked")}`, currency:t("gold"), locale:locale.language,
   });
  }
  if(screen==="complete")return backButton({action:"back",label:t("back")});
- if((screen==="reading"||screen==="comprehension")&&run&&shown)return menuHeader({className:"reader-topbar",brand:"",back:backButton({action:"back",label:t("back")}),actions:`<span class="reading-location">${esc(packFor(run.pack).name[progress.ui])}<small>${t("level")} ${f(run.level)}</small></span>`});
- return menuHeader({className:"reader-topbar",brand:"",back:backButton({action:"back",label:t("back")}),actions:`<button class="pirate-nav-link" data-action="ship" aria-label="${esc(t("ship"))}, ${f(aboard(progress))} ${esc(t("gold"))}">${icon("ship")}<span>${esc(t("shipShort"))}<small>${navGold(aboard(progress))} ${t("gold")}</small></span></button><button class="pirate-nav-link" data-action="cave" aria-label="${esc(t("cave"))}, ${f(banked(progress))} ${esc(t("gold"))}">${icon("chest")}<span>${esc(t("caveShort"))}<small>${navGold(banked(progress))} ${t("gold")}</small></span></button>`});
+ if((screen==="reading"||screen==="comprehension")&&run&&shown)return menuHeader({className:"reader-topbar",brand:"",back:backButton({action:"back",label:t("back")}),actions:`<span class="reading-location">${esc(t(`packName${packFor(run.pack).id}`))}<small>${esc(t("level",{count:f(run.level)}))}</small></span>`});
+ return menuHeader({className:"reader-topbar",brand:"",back:backButton({action:"back",label:t("back")}),actions:`<button class="pirate-nav-link" data-action="ship" aria-label="${esc(t("yourShip"))}, ${f(aboard(progress))} ${esc(t("gold"))}">${icon("ship")}<span>${esc(t("shipShort"))}<small>${navGold(aboard(progress))} ${t("gold")}</small></span></button><button class="pirate-nav-link" data-action="cave" aria-label="${esc(t("yourCave"))}, ${f(banked(progress))} ${esc(t("gold"))}">${icon("chest")}<span>${esc(t("caveShort"))}<small>${navGold(banked(progress))} ${t("gold")}</small></span></button>`});
 }
 function home():string{
  const active=Object.values(progress.tracks).map(t=>t.run).filter((r):r is Run=>!!r).sort((a,b)=>b.id-a.id)[0];
  return `<section class="reader-cabin"><h1><span>${esc(title().split(" ")[0]!)}</span> ${esc(title().split(" ").slice(1).join(" "))}</h1>
   ${pirateMenu({title:t("home"),theme:"reader-actions",play:{action:"play",label:t("play")},
-    resume:active?{action:"resume",label:t("continue"),detail:`${packFor(active.pack).name[progress.ui]} · ${t("level")} ${f(active.level)}`}:undefined,
-    ship:{action:"ship",label:t("ship"),detail:`${f(aboard(progress))} ${t("gold")}`},cave:{action:"cave",label:t("cave"),detail:`${f(banked(progress))} ${t("gold")}`},
-    settings:{action:"settings",label:t("settings")},language:{action:"ui-language",label:progress.ui==="nb"?"🇳🇴":"🇬🇧",accessible:t("ui")}})}
+    resume:active?{action:"resume",label:t("continue"),detail:`${t(`packName${packFor(active.pack).id}`)} · ${t("level",{count:f(active.level)})}`}:undefined,
+    ship:{action:"ship",label:t("yourShip"),detail:`${f(aboard(progress))} ${t("gold")}`},cave:{action:"cave",label:t("yourCave"),detail:`${f(banked(progress))} ${t("gold")}`},
+    settings:{action:"settings",label:t("settings")},language:{action:"ui-language",label:languageOption(locale.language).flag,accessible:t("ui")}})}
  </section>`;
 }
 function languages():string{
- const shores=(["nb","en"] as const).map(id=>{
-   const language=LANGUAGES.find(item=>item.id===id)!;
+ const shores=READING_LANGUAGES.map(id=>{
+   const language=languageOption(id);
    return {id,label:language.name,art:`<span class="reading-flag" aria-hidden="true">${language.flag}</span>`,
      accessible:language.name,moored:progress.language===id};
  });
  return `${chartHeader({back:backButton({action:"back",label:t("back"),destination:t("home")}),actions:readerMapActions()})}<nav class="reading-overview" aria-label="${esc(t("languages"))}">${adventureChart("language",shores)}</nav>`;
 }
 function packs():string{
- const nb=progress.language==="nb",ui=progress.ui;
- const name=nb?(ui==="nb"?"Lesefjordene":"Reading Fjords"):(ui==="nb"?"Bokøyene":"Storybook Isles");
- return difficultyMap({name,accessibleName:name,instructions:ui==="nb"?"Velg en lesepakke.":"Choose a reading pack.",
-   back:backButton({action:"back",label:t("back")}),actions:readerMapActions(),selected:packId,backdrop:worldAsset(readerTheme()),island:i=>worldIsland(readerTheme(),i),centerLabel:ui==="nb"?"Finn øya":"Recenter map",firstArt:nb?4:9,
-   stops:PACKS.map(p=>({id:p.id,label:p.name[ui],ariaLabel:`${p.name[ui]}: ${p.description[ui]}`}))});
+ const nb=progress.language==="nb";
+ const name=t(nb?"readingFjords":"storyIsles");
+ return difficultyMap({name,accessibleName:name,instructions:t("choosePack"),
+   back:backButton({action:"back",label:t("back")}),actions:readerMapActions(),selected:packId,backdrop:worldAsset(readerTheme()),island:i=>worldIsland(readerTheme(),i),centerLabel:t("currentIsland"),firstArt:nb?4:9,
+   stops:PACKS.map(({id})=>({id,label:t(`packName${id}`),ariaLabel:`${t(`packName${id}`)}: ${t(`packDescription${id}`)}`}))});
 }
 function levels():string{
  const p=packFor(packId),tr=track(),current=(tr?.cleared??0)+1;
- return atlasView(readerTheme(),progress.language==="nb"?"Norsk":"English",backButton({action:"back",label:t("back")}),current,createI18n(progress.ui,[]),{title:p.name[progress.ui]});
+ return atlasView(readerTheme(),languageOption(progress.language).name,backButton({action:"back",label:t("back")}),current,locale,{title:t(`packName${p.id}`)});
 }
 function statusText():string{
  if(errorMessage)return errorMessage;
@@ -122,13 +122,11 @@ function readingSupport(accepted:boolean):string{
 function reading():string{
  const r=run!,v=shown!,p=packFor(r.pack),accepted=attempt.state==="accepted",handsFree=speech.isNative();
  const marked=(text:string)=>text.split(/(\s+)/u).map(part=>/\s/u.test(part)?part:`<span data-reading-word>${esc(part)}</span>`).join("");
- const prompt = p.kind === "word"
-  ? `<div class="reading-word" style="--word-size:${Math.max(1.2, Math.min(4.5, 22 / v.item.text.length))}rem">${marked(v.item.text)}</div>`
-  : `<p class="reading-passage" lang="${r.language}">${marked(v.item.chunks[v.chunk]!)}</p>`;
+ const prompt=p.kind==="word"?`<div class="reading-word" lang="${r.language}" style="--word-size:${Math.max(1.2,Math.min(4.5,22/v.item.text.length))}rem">${marked(v.item.text)}</div>`:`<div class="reading-passage" lang="${r.language}">${v.item.chunks.map((chunk,i)=>`<span class="${i<v.chunk?"read":i===v.chunk?"current":""}">${i===v.chunk?marked(chunk):esc(chunk)}</span>`).join(" ")}</div>`;
  return `<section class="reading-view reading-prompt-view ${handsFree?"hands-free":""} ${listeningProblem()?"has-listening-problem":""}">${heading(t("yourTurn"),`${v.index+1} ${t("of")} ${r.items.length}`)}<div class="reading-progress" role="progressbar" aria-label="${esc(t("progress"))}" aria-valuemin="0" aria-valuemax="${r.items.length}" aria-valuenow="${r.index}">${r.items.map((_,i)=>`<i class="${i<r.index?"done":i===r.index?"current":""}"></i>`).join("")}</div><div lang="${r.language}" class="reading-paper ${accepted?"accepted":""}">${prompt}${v.item.chunks.length>1?`<p class="chunk-count">${t("chunk")} ${v.chunk+1} ${t("of")} ${v.item.chunks.length}</p>`:""}</div><div class="reading-feedback ${accepted?"is-accepted":""}"><div class="listening-indicator ${attempt.state}" aria-label="${esc(t("sound"))}" aria-hidden="true">${icon(accepted?"star":"sound")}<span class="sound-bars" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></span></div><p role="status" aria-live="polite">${esc(statusText())}${accepted&&result?.gold?`<strong class="earned-gold">+${f(result.gold)} ${t("gold")}</strong>`:""}</p></div>${handsFree?readingSupport(accepted):`<div class="reading-actions">${button("next",t("next"),true)}${!accepted?button("example",t("help")):""}</div>`}<p class="small-note">${esc(t("rule"))}</p></section>`;
 }
 function completion(): string {
- const i18n = createI18n(progress.ui, []);
+ const i18n = createI18n(locale.language, []);
  const hasCargo = aboard(progress) > 0;
  return `<section class="reader-complete">${rewardLedger({
    title: `<strong>${f(packFor(packId).gold)}</strong> ${esc(t("gold"))}`,
@@ -144,10 +142,53 @@ function comprehension():string{
  const q=shown!.item.question!,handsFree=speech.isNative();
  return `<section class="reading-view comprehension-view ${handsFree?"hands-free":""} ${listeningProblem()?"has-listening-problem":""}">${heading(q.text,handsFree?t("sayAnswer"):"")}<div class="reading-paper" tabindex="0"><div class="reading-passage" lang="${run!.language}">${esc(shown!.item.text)}</div></div><div class="reading-actions story-answers">${q.answers.map((a,i)=>handsFree?`<p class="spoken-answer">${esc(a)}</p>`:`<button class="wood-button" data-answer="${i}" data-result="${comprehensionCorrect && i===q.correct ? "correct" : i===lastStoryAnswer ? "wrong" : ""}" ${comprehensionCorrect?"disabled":""}>${esc(a)}</button>`).join("")}</div><p role="status" class="story-status">${esc(comprehensionCorrect?t("compGood"):handsFree?statusText():errorMessage)}</p>${handsFree?readingSupport(comprehensionCorrect):comprehensionCorrect?button("after-question",t("next"),true):""}</section>`;
 }
+function openInterests(firstPlay: boolean): void {
+ const dialog = document.createElement("dialog");
+ dialog.className = "reader-dialog reader-interests";
+ dialog.setAttribute("aria-labelledby", "reader-interests-title");
+ dialog.setAttribute("aria-describedby", "reader-interests-help");
+ dialog.innerHTML = `<form method="dialog">
+   <h2 id="reader-interests-title" tabindex="-1" autofocus>${esc(t(firstPlay ? "interestsTitle" : "interests"))}</h2>
+   <p id="reader-interests-help">${esc(t("interestsHelp"))}</p>
+   <div class="reader-interest-options">${INTEREST_IDS.map(id => `<label>
+     <input type="checkbox" name="interest" value="${id}"${progress.interests?.includes(id) ? " checked" : ""}>
+     <span>${esc(t(id))}</span>
+   </label>`).join("")}</div>
+   <footer>
+     <button class="wood-button" value="${firstPlay ? "skip" : "cancel"}">${esc(t(firstPlay ? "skip" : "cancelChoice"))}</button>
+     <button class="wood-button primary" value="save">${esc(t(firstPlay ? "continue" : "saveChoice"))}</button>
+   </footer>
+ </form>`;
+ const form = dialog.querySelector("form")!;
+ dialog.addEventListener("close", () => {
+  const action = dialog.returnValue;
+  if (action === "save") progress.interests = readInterests(new FormData(form).getAll("interest"))!;
+  if (action === "skip") progress.interests = [];
+  dialog.remove();
+  if (action === "save" || action === "skip") {
+   persist();
+   if (firstPlay) { navigate("languages"); return; }
+   render();
+  }
+  root.querySelector<HTMLButtonElement>(firstPlay ? '[data-action="play"]' : '[data-action="interests"]')?.focus();
+ }, { once: true });
+ dialog.addEventListener("click", event => {
+  if (event.target === dialog) dialog.close();
+ });
+ document.body.append(dialog);
+ dialog.showModal();
+}
+
+function play(): void {
+ if (progress.interests === undefined && progress.nextRun === 1) openInterests(true);
+ else navigate("languages");
+}
+
 function settings():string {
  return settingsDesk(t("settings"),`
-   <button class="desk-action" data-action="ui-language">${esc(t("ui"))} · ${progress.ui==="nb"?"🇳🇴":"🇬🇧"}</button>
-   <button class="desk-action" data-action="practice-language">${esc(t("world"))} · ${progress.language==="nb"?"🇳🇴":"🇬🇧"}</button>
+   <button class="desk-action" data-action="ui-language" aria-haspopup="dialog"><strong>${esc(t("ui"))}</strong>${languageSettingLabel(locale, menuPreference)}</button>
+   <button class="desk-action" data-action="practice-language" aria-haspopup="dialog"><strong>${esc(t("world"))}</strong>${languageSettingLabel(locale, progress.language)}</button>
+   <button class="desk-action" data-action="interests">${esc(t("interests"))}</button>
    <p class="reader-settings-note">${esc(t("privacyText"))}</p><p class="reader-practice-tally">${f(progress.practised)} ${t("practiceCount")} · ${f(progress.assisted)} ${t("assisted")}</p>
    ${button("reset",t("reset"))}`);
 }
@@ -156,28 +197,31 @@ const readerDialog=document.createElement("dialog");
 readerDialog.classList.add("reader-language");
 document.body.append(readerDialog);
 const readerPicker=bindLanguagePicker(readerDialog,{
- markup:failed=>languagePickerMarkup(createI18n(progress.ui,navigator.languages),practicePicker?progress.language:readerPreference(),navigator.languages,failed,["en","nb"],!practicePicker),
+ markup:failed=>languagePickerMarkup(locale,practicePicker?progress.language:menuPreference,deviceLanguages(),failed,
+   practicePicker ? {supported:READING_LANGUAGES,title:t("world"),allowAuto:false} : {}),
  trigger:()=>root.querySelector(practicePicker?'[data-action="practice-language"]':'[data-action="ui-language"]'),
  select:id=>{
-   if(id!=="auto"&&id!=="en"&&id!=="nb")return false;
-   const language=id==="auto"?preferredLanguage(navigator.languages):id;
-   let stored=true;
-   if(practicePicker)progress.language=language;
-   else {progress.ui=language;try{storage?.setItem("reader.menu.language",id);}catch{stored=false;}}
-   progress.chosen=true;persist();render();
-   return stored&&!saveFailed;
+   if (practicePicker) {
+     if (!isReadingLanguage(id)) return false;
+     progress.language=id;
+     progress.chosen=true;
+     persist();
+     render();
+     return !saveFailed;
+   }
+   menuPreference=id;
+   locale=createLocale(readerCatalogs,id,deviceLanguages());
+   const saved=saveLanguagePreference(id,storage);
+   render();
+   return saved;
  }
 });
 function chooseReaderLanguage(practice:boolean):void {practicePicker=practice;readerPicker.open();}
-function readerPreference():Language|"auto" {
- try {const stored=storage?.getItem("reader.menu.language");if(stored==="auto"||stored==="en"||stored==="nb")return stored;}catch{}
- return progress.chosen?progress.ui:"auto";
-}
 function worldView():string{
  if(worldError||worldLoading){
   const message=worldError?t("worldFail"):t("loading");
   const retry=worldError?button("retry-world",t("retry"),true):undefined;
-  if(screen==="ship")return `<section class="ship-recovery">${shipRecoveryLedger(t("ship"),message,worldError,
+  if(screen==="ship")return `<section class="ship-recovery">${shipRecoveryLedger(t("yourShip"),message,worldError,
    worldError?[{action:"retry-world",label:t("retry"),primary:true}]:[]
   )}</section>`;
   return caveNotice(message,retry);
@@ -187,17 +231,17 @@ function worldView():string{
   const status=host?.unloading;
   const total=status?.total??progress.cargo.length;
   const count=Math.min((status?.delivered??0)+1,total);
-  return total?caveTally(createI18n(progress.ui,[]).t("unloadProgress",{count,total,gold:f(cargo)})):"";
+  return total?caveTally(createI18n(locale.language,[]).t("unloadProgress",{count,total,gold:f(cargo)})):"";
  }
- const action=progress.cargo.length?button("unload",t("unload"),true):screen==="cave"?`<button class="pirate-cave-inspect" data-action="inspect" hidden>${esc(t("inspect"))}</button>`:button("cave",t("cave"),true);
- if(screen==="ship")return `<div class="world-footer"><p>${esc(t("ship"))}</p><strong>${f(banked(progress))} ${t("gold")} · ${f(cargo)} ${t("aboard")}</strong><div class="world-buttons">${action}</div></div>`;
+ const action=progress.cargo.length?button("unload",t("unload"),true):screen==="cave"?`<button class="pirate-cave-inspect" data-action="inspect" hidden>${esc(t("inspect"))}</button>`:button("cave",t("yourCave"),true);
+ if(screen==="ship")return `<div class="world-footer"><p>${esc(t("yourShip"))}</p><strong>${f(banked(progress))} ${t("gold")} · ${f(cargo)} ${t("aboard")}</strong><div class="world-buttons">${action}</div></div>`;
  return `<span id="reader-room" class="pirate-cave-sr">${esc(t("room"))}</span><div class="reader-cave-actions">${action}<button class="pirate-nav-link" data-action="ship">${icon("ship")} ${esc(t("shipShort"))}</button></div><div id="reader-pad" class="reader-move" role="group" aria-label="${esc(t("move"))}"><span id="reader-thumb"></span></div><button id="reader-jump" class="reader-jump">${esc(t("jump"))}</button>`;
 }
 function render():void{
  const previousAction=(document.activeElement as HTMLElement|null)?.dataset.action;
  const focusedAction=previousAction==="cancel-reading"&&listenPaused?"listen":previousAction==="listen"&&!listenPaused?"cancel-reading":previousAction;
  pan?.destroy();pan=null;
- document.documentElement.lang=progress.ui;document.title=title();root.dataset.screen=screen;
+ document.documentElement.lang=locale.language;document.title=title();root.dataset.screen=screen;
  root.innerHTML=`${header()}${screen==="reading"?`<div class="recording-strip">${esc(t(attempt.state==="listening"?"listening":attempt.state==="checking"?"checking":attempt.state==="preparing"?"preparing":attempt.state==="accepted"?"accepted":"reading"))}</div>`:""}${qa?`<span class="qa-badge">${esc(t("qa"))}</span>`:""}${saveFailed||saveWarning?`<p class="save-warning" role="alert">${esc(t(saveFailed?"save":"resetWarning"))}</p>`:""}<main id="reader-content" ${["levels","packs","languages"].includes(screen)?'class="map-content"':""}>${screen==="home"?home():screen==="languages"?languages():screen==="packs"?packs():screen==="levels"?levels():screen==="reading"?reading():screen==="complete"?completion():screen==="comprehension"?comprehension():screen==="settings"?settings():worldView()}</main>`;
  if(focusedAction&&["reading","comprehension"].includes(screen))root.querySelector<HTMLButtonElement>(`[data-action="${focusedAction}"]`)?.focus({preventScroll:true});
  updateHeardWords();
@@ -205,8 +249,8 @@ function render():void{
   const viewport=root.querySelector<HTMLElement>("[data-map-viewport]"),world=viewport?.querySelector<HTMLElement>("[data-map-world]");
   if(viewport&&world){
    const levels=screen==="levels", tr=track(), r=tr?.run;
-   const draw=levels?atlasRenderer(world,readerTheme(),{cleared:tr?.cleared??0,stars:{},runs:r?{[r.level]:{solved:r.index}}:{}},createI18n(progress.ui,[]),{
-    caption:(n,solved)=>n<=(tr?.cleared??0)?t("complete"):`${f(solved)}/${f(packFor(packId).count)} ${progress.ui==="nb"?"lest":"read"}`
+   const draw=levels?atlasRenderer(world,readerTheme(),{cleared:tr?.cleared??0,stars:{},runs:r?{[r.level]:{solved:r.index}}:{}},locale,{
+    caption:(n,solved)=>n<=(tr?.cleared??0)?t("complete"):`${f(solved)}/${f(packFor(packId).count)} ${esc(t("read"))}`
    }):null;
    pan=mountMapPan(viewport,world,{focus:{x:Number(viewport.dataset.focusX),y:Number(viewport.dataset.focusY)},scale:levels?.94:1,unbounded:levels,coverViewport:!levels,state:cameras.get(cameraKey()),onChange:(state,origin)=>{cameras.set(cameraKey(),state);draw?.(state,origin,viewport.clientWidth,viewport.clientHeight);}});
   }
@@ -260,7 +304,7 @@ function dialog(kind:"adult"|"reset"):void{
  d.innerHTML=`<h2 id="reader-dialog-title">${esc(t(kind==="adult"?"adultTitle":"resetTitle"))}</h2><p>${esc(t(kind==="adult"?"adultText":"resetText"))}</p><div>${button("dialog-confirm",t(kind==="adult"?"confirm":"resetConfirm"),true)}${button("dialog-close",t("close"))}</div>`;
  const returnAction=kind==="adult"?"adult":"reset";
  document.body.append(d);d.addEventListener("close",()=>{d.remove();root.querySelector<HTMLButtonElement>(`button[data-action="${returnAction}"]`)?.focus();},{once:true});
- d.addEventListener("click",e=>{const action=(e.target as Element).closest<HTMLElement>("[data-action]")?.dataset.action;if(action==="dialog-close")d.close();if(action==="dialog-confirm"){d.close();if(kind==="adult")accepted("adult");else {host?.dispose();host=null;progress=freshProgress(progress.ui);persist();navigate("home");}}if(e.target===d){const r=d.getBoundingClientRect();if(e.clientX<r.left||e.clientX>r.right||e.clientY<r.top||e.clientY>r.bottom)d.close();}});d.addEventListener("click", event => {
+ d.addEventListener("click",e=>{const action=(e.target as Element).closest<HTMLElement>("[data-action]")?.dataset.action;if(action==="dialog-close")d.close();if(action==="dialog-confirm"){d.close();if(kind==="adult")accepted("adult");else {host?.dispose();host=null;progress=freshProgress(progress.language);persist();navigate("home");}}if(e.target===d){const r=d.getBoundingClientRect();if(e.clientX<r.left||e.clientX>r.right||e.clientY<r.top||e.clientY>r.bottom)d.close();}});d.addEventListener("click", event => {
   if (event.target !== d) return;
   const box = d.getBoundingClientRect();
   if (event.clientX < box.left || event.clientX > box.right || event.clientY < box.top || event.clientY > box.bottom) d.close();
@@ -282,11 +326,13 @@ async function openWorld(next:"ship"|"cave"|"unload"):Promise<void>{
    render();
   };
   const failed=()=>{if(epoch===current){worldLoading=false;worldError=true;render();}};
-  host=new ReadingPirateHost(canvas,progress,p=>saveProgress(p,storage),changed,ready,failed,!qa);
+  host=new ReadingPirateHost(canvas,progress,t,p=>saveProgress(p,storage),changed,ready,failed,!qa);
   host.show(next,area());worldLoading=next==="ship";render();
  }catch{if(epoch!==current)return;worldLoading=false;worldError=true;host?.dispose();host=null;render();}
 }
 function back():void{
+ const interests = document.querySelector<HTMLDialogElement>(".reader-interests[open]");
+ if(interests){interests.close();return;}
  if(document.querySelector("dialog[open]"))return;
  if(["ship","cave","unload"].includes(screen)){navigate(worldReturn);if(screen==="reading"){viewCurrent();render();void beginListening();}return;}
  navigate(screen==="reading"||screen==="complete"||screen==="comprehension"?"levels":screen==="levels"?"packs":screen==="packs"?"languages":"home");
@@ -294,7 +340,7 @@ function back():void{
 root.addEventListener("click",e=>{
  const el=(e.target as Element).closest<HTMLButtonElement>("button");if(!el||el.disabled)return;
  if(sailToShore(e,root))return;
- if(el.dataset.language){progress.language=el.dataset.language as Language;packId=1;progress.chosen=true;persist();navigate("packs");return;}
+ if(isReadingLanguage(el.dataset.language)){progress.language=el.dataset.language;packId=1;progress.chosen=true;persist();navigate("packs");return;}
  if(el.dataset.pack){packId=Number(el.dataset.pack);navigate("levels");return;}
  if(el.dataset.level){openLevel(Number(el.dataset.level),Number(el.dataset.level)<=(track()?.cleared??0));return;}
  if(el.dataset.answer!==undefined){const q=shown!.item.question!;lastStoryAnswer=Number(el.dataset.answer);comprehensionCorrect=lastStoryAnswer===q.correct;errorMessage=comprehensionCorrect?"":t("compRetry");render();return;}
@@ -302,7 +348,7 @@ root.addEventListener("click",e=>{
   case "ui-language":chooseReaderLanguage(false);break;
   case "practice-language":chooseReaderLanguage(true);break;
   case "center-pack":{const v=root.querySelector<HTMLElement>("[data-map-viewport]");if(v)pan?.center({x:Number(v.dataset.focusX),y:Number(v.dataset.focusY)});break;}
-  case "back":back();break;case "play":navigate("languages");break;case "packs":navigate("packs");break;case "settings":navigate("settings");break;
+  case "back":back();break;case "play":play();break;case "interests":openInterests(false);break;case "packs":navigate("packs");break;case "settings":navigate("settings");break;
   case "resume":{run=Object.values(progress.tracks).map(t=>t.run).filter((r):r is Run=>!!r).sort((a,b)=>b.id-a.id)[0]??null;if(run){progress.language=run.language;packId=run.pack;viewCurrent();navigate("reading");void beginListening();}break;}
   case "listen":listenPaused=false;stopListening();errorMessage="";render();void speech.capabilities().then(value=>{cap=value;capLoaded=true;if(canListen())void beginListening();}).catch(()=>{errorMessage=t("unavailable");render();});break;case "cancel-reading":listenPaused=true;stopListening();render();break;
   case "example":{if(run)run.helped=true;persist();stopListening();examplePlaying=true;const current=epoch,exampleId=exampleGeneration;render();void speech.speak(shown!.item.chunks[shown!.chunk]!,progress.language).catch(()=>{if(epoch===current&&exampleGeneration===exampleId){errorMessage=t("voiceFail");render();}}).finally(()=>{if(epoch===current&&exampleGeneration===exampleId){examplePlaying=false;render();scheduleListening();}});break;}
@@ -315,7 +361,13 @@ root.addEventListener("click",e=>{
 
  }
 });
-window.addEventListener("languagechange",()=>{if(readerPreference()==="auto"){progress.ui=preferredLanguage(navigator.languages);render();}});
+watchMenuLanguage(storage, legacyMenuKey, preference => {
+ if (preference !== undefined) menuPreference=preference;
+ else if (menuPreference !== "auto") return;
+ locale=createLocale(readerCatalogs,menuPreference,deviceLanguages());
+ render();
+ if (readerDialog.open) readerPicker.draw();
+});
 document.addEventListener("keydown",e=>{if(e.key==="Escape"&&!document.querySelector("dialog[open]")&&!["cave","unload"].includes(screen)){e.preventDefault();back();}});
 const interrupted=()=>{
  clearTimeout(advanceTimer);advanceTimer=undefined;
@@ -341,11 +393,12 @@ void speech.listen(r=>{
  else {attempt.fail(r.token);render();restartDelay=Math.min(4000,restartDelay*2);scheduleListening(restartDelay);}
 });
 render();
-void speech.capabilities().then(value=>{cap=value;capLoaded=true;if(!progress.chosen){const selected=preferredLanguage(value.preferredLanguages);progress.language=selected;progress.ui=selected;}if(screen!=="reading")render();else if(canListen())void beginListening();}).catch(()=>{capLoaded=true;errorMessage=t("unavailable");render();});
+void speech.capabilities().then(value=>{cap=value;capLoaded=true;if(!progress.chosen){const selected=preferredLanguage(value.preferredLanguages);progress.language=selected;}if(screen!=="reading")render();else if(canListen())void beginListening();}).catch(()=>{capLoaded=true;errorMessage=t("unavailable");render();});
 if(qa){
  if(params.get("safe")==="1")for(const [edge,value] of Object.entries({top:"24px",bottom:"20px",left:"12px",right:"12px"}))document.documentElement.style.setProperty(`--pirate-safe-${edge}`,value);
  const p=Number(params.get("pack"));if(p>=1&&p<=10)packId=p;
- const language=params.get("language");if(language==="nb"||language==="en"){progress.language=language;progress.ui=language;progress.chosen=true;}
+ const language=params.get("language");if(isReadingLanguage(language)){progress.language=language;progress.chosen=true;}
+ const menu=params.get("menu")??language;if(isLanguage(menu)){locale=createLocale(readerCatalogs,menu,[]);menuPreference=locale.language;}
  if(params.get("fresh")==="1"){progress=freshProgress(progress.language);progress.chosen=true;}
  if(params.get("banked")){progress.bank[0]=Math.min(1_000_000,Math.max(0,Number(params.get("banked"))||0));}
  if(params.get("cleared")){const cleared=Math.min(1_000_000,Math.max(0,Number(params.get("cleared"))||0));progress.tracks[trackKey(progress.language,packId)]={cleared,seed:91};}

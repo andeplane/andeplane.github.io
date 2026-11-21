@@ -1,3 +1,4 @@
+import { caveRoomLabel } from "../i18n/caveRooms";
 import { currentI18n } from "./language";
 import { Engine } from "@babylonjs/core/Engines/engine.js";
 import { Capacitor } from "@capacitor/core";
@@ -91,10 +92,8 @@ export class GoldCave {
       const control=document.getElementById(id);if(!control)continue;const r=control.getBoundingClientRect();
       control.style.bottom=r.width>0&&r.right>bounds.left&&r.left<bounds.right?`${Math.ceil(innerHeight-bounds.top+12)}px`:'calc(32px + var(--safe-bottom) + var(--math-notice-space))';
     }}
-    const room=document.querySelector<HTMLElement>('#math-cave-room');if(room){
-      const keys = { "The treasure cave": "roomTreasure", "The glowing grotto": "roomGrotto", "Smuggler’s passage": "roomSmuggler", "The king’s vault": "roomKing", "The lantern passage": "roomLantern" } as const;
-      const key = keys[cave.room as keyof typeof keys]; room.textContent = key ? currentI18n().t(key) : cave.room;
-    }
+    const room=document.querySelector<HTMLElement>('#math-cave-room');
+    if(room)room.textContent=caveRoomLabel(cave.room,currentI18n().t);
     const button=document.querySelector<HTMLButtonElement>('#math-cave-inspect');
     if(button){button.disabled=!cave.inspecting&&cave.nearby===null;button.textContent=currentI18n().t(cave.inspecting ? "backExploring" : "inspectTreasure");}
   }

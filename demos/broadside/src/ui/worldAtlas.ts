@@ -1,6 +1,6 @@
 import { chartCenterButton, chartShip } from "../ui/adventureChart";
 import type { OperatorId } from "../math/academy";
-import type { createI18n } from "../math/i18n";
+import type { CommonLocale } from "../i18n/locale";
 import { worldFor } from "../math/worlds";
 import { icon } from "../ui/icons";
 import { chartHeader } from "./menuChrome";
@@ -18,7 +18,7 @@ export function levelPoint(id: OperatorId, level: number): MapPoint {
   return { x: Math.round(n * 24 + 310 * Math.sin(n * .37 + phase) + 180 * Math.sin(n * .16 + phase)), y: -n * STEP };
 }
 
-type Locale = ReturnType<typeof createI18n>;
+type Locale = Pick<CommonLocale, "t" | "format">;
 export function atlasView(id: OperatorId, pack: string, back: string, current: number, locale: Locale, options: { title?: string; actions?: string } = {}) {
   const { t } = locale, focus = levelPoint(id, current);
   const { title = worldFor(id).name, actions } = options;
