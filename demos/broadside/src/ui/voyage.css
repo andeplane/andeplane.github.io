@@ -265,8 +265,7 @@ p {
     0 0 0 5px #fff7,
     0 0 30px #ffe3989a;
 }
-.pirate-tag,
-.treasure-tag {
+.pirate-tag {
   position: absolute;
   transform: translate(-50%, -100%);
   background: #233746d9;
@@ -289,10 +288,6 @@ p {
   height: 5px;
   border-radius: 5px;
   background: linear-gradient(to right, #ff9d78 var(--hp), #fff2 var(--hp));
-}
-.treasure-tag {
-  color: var(--gold);
-  border-color: #ffd89199;
 }
 .voyage-overlay {
   position: absolute;
@@ -424,9 +419,6 @@ p {
   .gallery-hint {
     bottom: 250px;
     font-size: 9px;
-  }
-  .health-track {
-    width: 105px;
   }
   #v-wheel {
     left: 14px;

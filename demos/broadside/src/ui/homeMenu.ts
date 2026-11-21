@@ -10,14 +10,15 @@ interface MainMenu {
   settings:MenuItem; language:MenuItem;
 }
 
-/** Each game supplies its scene, labels and destinations. Navigation and flag placement are shared. */
-export function pirateMenu(m:MainMenu):string {
-  function item(i:MenuItem,role:string) {
-    const language=role==="language", play=role==="play";
-    return `<button data-action="${menuText(i.action)}" ${i.id?`id="${menuText(i.id)}"`:""} class="menu-${role} ${play?"calculus-play lantern-play":role==="settings"?"lantern-settings home-settings":""}" ${language?'aria-haspopup="dialog"':""} ${i.accessible?`aria-label="${menuText(i.accessible)}"`:""} ${role==="ship"||role==="cave"?`data-home-destination="${role==="ship"?"ship":"chest"}"`:""}>
+export function pirateMenuItem(i:MenuItem,role:string): string {
+  const language=role==="language", play=role==="play";
+  return `<button data-action="${menuText(i.action)}" ${i.id?`id="${menuText(i.id)}"`:""} class="menu-${role} ${play?"calculus-play lantern-play":role==="settings"?"lantern-settings home-settings":""}" ${language?'aria-haspopup="dialog"':""} ${i.accessible?`aria-label="${menuText(i.accessible)}"`:""} ${role==="ship"||role==="cave"?`data-home-destination="${role==="ship"?"ship":"chest"}"`:""}>
       ${play?`<span class="lantern-play-arrow" aria-hidden="true">${icon("play")}</span>`:""}<span class="lantern-action-title">${menuText(i.label)}</span>${i.detail!==undefined?`<strong>${menuText(i.detail)}</strong>`:""}${i.note!==undefined?`<small>${menuText(i.note)}</small>`:""}</button>`;
-  }
-  return `<nav class="pirate-actions ${m.theme}" aria-label="${menuText(m.title)}">${item(m.play,"play")}${m.resume?item(m.resume,"resume"):""}${item(m.ship,"ship")}${item(m.cave,"cave")}<div class="home-utilities">${item(m.settings,"settings")}</div></nav>${item(m.language,"language")}`;
+}
+
+/** Each game supplies its labels and destinations. Navigation and flag placement are shared. */
+export function pirateMenu(m:MainMenu):string {
+  return `<nav class="pirate-actions ${m.theme}" aria-label="${menuText(m.title)}">${pirateMenuItem(m.play,"play")}${m.resume?pirateMenuItem(m.resume,"resume"):""}${pirateMenuItem(m.ship,"ship")}${pirateMenuItem(m.cave,"cave")}<div class="home-utilities">${pirateMenuItem(m.settings,"settings")}</div></nav>${pirateMenuItem(m.language,"language")}`;
 }
 
 export function settingsDesk(title:string, controls:string, back=""):string {

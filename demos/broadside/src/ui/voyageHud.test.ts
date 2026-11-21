@@ -117,6 +117,39 @@ it("keeps live actions out of the pause dialog's interaction layer", () => {
   expect(document.activeElement).toBe(button('#v-pause'));
 });
 
+it("releases an active steering drag when changing camera views", () => {
+  const { hud, button, handlers } = setup(false);
+  const wheel = button("#v-wheel"), stick = button("#v-stick");
+  let capture: number | null = null;
+  wheel.setPointerCapture = id => { capture = id; };
+  wheel.hasPointerCapture = id => capture === id;
+  wheel.releasePointerCapture = id => {
+    capture = null;
+    wheel.dispatchEvent(new PointerEvent("lostpointercapture", { pointerId: id }));
+  };
+  hud.play(0);
+  hud.camera(false);
+  const pointer = (type: string, pointerId: number, clientX: number) =>
+    wheel.dispatchEvent(new PointerEvent(type, { pointerId, clientX }));
+  pointer("pointerdown", 11, 30);
+  pointer("pointermove", 11, 70);
+  expect(stick.style.transform).not.toBe("");
+  expect(handlers.steer.mock.lastCall?.[0]).toBeGreaterThan(0);
+
+  hud.camera(true);
+  expect(capture).toBeNull();
+  expect(stick.style.transform).toBe("");
+  expect(handlers.steer).toHaveBeenLastCalledWith(null);
+
+  pointer("pointermove", 11, 80);
+  expect(handlers.steer).toHaveBeenLastCalledWith(null);
+  pointer("pointerdown", 12, 50);
+  pointer("pointermove", 12, 10);
+  expect(handlers.steer.mock.lastCall?.[0]).toBeLessThan(0);
+  pointer("pointerup", 12, 10);
+  expect(handlers.steer).toHaveBeenLastCalledWith(null);
+});
+
 describe("ship chart details dialog", () => {
   it("dismisses on an outside tap without activating the chart and restores focus to the ship", () => {
     const { hud, handlers, button } = setup(false);

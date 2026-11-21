@@ -1,6 +1,6 @@
 import { worldAsset } from "./worldAtlas";
 import { worldRouteLine, worldRoutePoints, worldRouteStop } from "./worldRoute";
-import { settingsDesk } from "./homeMenu";
+import { pirateMenuItem, settingsDesk } from "./homeMenu";
 import { adventureChart, chartCenterButton, chartShip, faceChartShip } from "./adventureChart";
 import { PACKS, RELICS, type VoyageSession, type VoyageDef } from "../game/voyage";
 import {
@@ -30,19 +30,21 @@ import { ledgerStarMarks, ledgerStars, rewardLedger } from "./rewardLedger";
 import { backButton, chartAction, chartHeader, menuBrand, menuHeader } from "./menuChrome";
 import { caveHeader, caveNotice, caveTally, updateCaveBalance } from "./caveHud";
 import { PRIVATE_PEARL } from "../privatePearl";
-import { lanternHome } from "./lanternHome";
+import { lanternBackdrop, lanternHome } from "./lanternHome";
 import { LANGUAGES, createI18n, readLanguagePreference, saveLanguagePreference } from "../math/i18n";
 import { languagePickerMarkup, bindLanguagePicker } from "./languagePicker";
 import "./explorationHud.css";
 import { touchSteeringTurn } from "../input/touchSteering";
 import { worldArt, pirateShipArt } from "./worldArt";
 import { Controls } from "../input/controls";
-import { angleDiff, headingTo, distance, seaDistance, wrapCoordinate } from "../sim/math";
+import { headingTo, distance, seaDistance, wrapCoordinate } from "../sim/math";
 import { SEA_LANDMARKS } from "../game/freeSailing";
 import { drawLandmarkSymbol } from "./seaChartSymbols";
 import { mountMapPan, type MapCamera, type MapPanController } from "./mapPan";
 import { islandArt } from "./islandChart";
 import { locationWorld, type ShipLocation } from "../game/journey";
+const HULL_HEARTS = 3;
+const COMPASS_DIRECTIONS = ["north", "northeast", "east", "southeast", "south", "southwest", "west", "northwest"];
 const homeLanguageKey = "broadside.home.language.v1";
 const caveBalance = (amount: number) => ({
   amount,
@@ -87,6 +89,8 @@ export class VoyageHud {
   private progress: Progress;
   private homeLanguage = readLanguagePreference(homeStorage(), homeLanguageKey);
   private messageUntil = 0;
+  private releaseSteering = () => {};
+  private hullPercent = -1;
   private activeLevel = 0;
   private freeSeed: number | null = null;
   private travelCamera?: { pan: MapPanController; plane: HTMLElement; chart: HTMLElement; viewport: HTMLElement; follow: boolean; ship: HTMLElement };
@@ -122,7 +126,9 @@ export class VoyageHud {
     <section id="cave-ui" hidden>${caveHeader(backButton({ id: "cave-back", destination: "menu" }), "Cave", caveBalance(0))}<div class="cave-title"><span class="eyebrow">YOUR SECRET HIDEOUT</span><h1>The treasure cave</h1><p id="cave-count"></p></div><div id="relic-info"><span class="eyebrow" id="relic-number"></span><h2 id="relic-title"></h2><p id="relic-story"></p><div id="relic-stars"></div><button id="cave-sail" class="text-button">Find this treasure ${icon("arrow")}</button></div><div class="gallery-hint">WASD walk · Arrows look · Space jump</div><button id="cave-overview" class="cave-overview">‹ Keep exploring</button><div id="cave-crosshair" aria-hidden="true">+</div><div id="cave-pad" role="group" aria-label="Move around the cave"><span id="cave-thumb"></span><small>MOVE</small></div><button id="cave-jump" aria-label="Jump">↑<small>JUMP</small></button><button id="cave-inspect" hidden>Inspect treasure</button><button id="harbour-chart" class="harbour-chart" hidden>Set sail ${icon("map")}</button></section>
     <section id="voyage-play" hidden>
       <div class="voyage-status">
-        <span class="voyage-health" role="group" aria-label="Ship health">${icon("heart")}<span class="health-track" aria-hidden="true"><i id="v-hull"></i></span><b id="v-health">100%</b></span>
+        <span id="v-health" class="voyage-health" role="img" aria-label="Ship health 100%">
+          ${Array.from({ length: HULL_HEARTS }, () => `<span class="hull-heart" aria-hidden="true">${icon("heart")}${icon("heart", "hull-heart-fill")}</span>`).join("")}
+        </span>
         <span class="gem-count" role="group" aria-label="Gems collected">${icon("gem")}<b id="v-gems">0 / 3</b></span>
       </div>
       <div id="v-tip" role="status"></div>
@@ -130,7 +136,14 @@ export class VoyageHud {
       <div id="v-wheel" aria-label="Drag the wheel to steer" role="group"><div class="wheel-ring"></div><span id="v-stick">${icon("wheel")}</span></div>
       <button id="v-anchor" class="round" aria-label="Drop anchor">${icon("anchor")}</button>
       <button id="v-fire" aria-label="Fire cannons">${icon("cannon")}<span id="v-fire-label" aria-hidden="true">Fire</span></button>
-      <div id="v-compass" role="group" aria-label="Bearing to treasure"><span id="v-arrow">${icon("arrow")}</span><small id="v-distance"></small></div>
+      <div id="v-compass" role="img" aria-label="Ship heading compass">
+        <svg viewBox="0 0 64 64" aria-hidden="true">
+          <circle cx="32" cy="32" r="23" class="compass-ring"/>
+          <g class="compass-cardinals" text-anchor="middle"><text x="32" y="12">N</text><text x="54" y="35">E</text><text x="32" y="57">S</text><text x="10" y="35">W</text></g>
+          <g id="v-compass-course"><circle cx="32" cy="16" r="2.7"/></g>
+          <g id="v-compass-heading"><path d="M32 19 38 36 32 33 26 36Z"/></g>
+        </svg>
+      </div>
     </section>
     <section id="v-result" class="voyage-overlay reward-dock" hidden role="dialog" aria-modal="true" aria-labelledby="result-title">
       ${backButton({ id: "result-menu", destination: "menu" })}
@@ -145,6 +158,7 @@ export class VoyageHud {
       })}
     </section>
     <section id="v-paused" class="voyage-overlay pause-screen" hidden role="dialog" aria-modal="true" aria-labelledby="pause-title">
+      <div class="pause-grotto" aria-hidden="true">${lanternBackdrop()}</div>
       <div class="voyage-pause-content">
         <h1 id="pause-title">Voyage paused</h1>
         <div class="voyage-briefing">
@@ -152,8 +166,10 @@ export class VoyageHud {
           <p id="v-briefing"></p>
           <div id="v-weather" aria-label="Weather and wind"><span id="v-wind-arrow" aria-hidden="true">${icon("arrow")}</span><span id="v-weather-name"></span><span id="v-gust"></span></div>
         </div>
-        <button id="v-resume" class="primary">Keep sailing ${icon("play")}</button>
-        <button id="v-return" class="secondary">Choose levels</button>
+        <div class="lantern-actions pause-actions">
+          ${pirateMenuItem({ id: "v-resume", action: "resume", label: "Keep sailing" }, "play")}
+          ${pirateMenuItem({ id: "v-return", action: "return", label: "Choose levels" }, "resume")}
+        </div>
       </div>
     </section>`;
     document.body.append(r);
@@ -163,7 +179,7 @@ export class VoyageHud {
     q("#v-pause").insertAdjacentHTML("beforeend", '<span>Pause</span>');
     q(".pirate-menu-header-actions").setAttribute("aria-label", "Voyage controls");
     q("#world-menu").insertAdjacentHTML("beforeend", `<button id="menu-free" class="free-chart-button">${icon("compass")} <span>Open world<small>Resume your voyage</small></span></button>`);
-    q("#voyage-play").insertAdjacentHTML("beforeend", `<div id="v-captain-help" hidden><span id="v-look-hint"></span><button id="v-look-centre" aria-label="Look ahead">${icon("compass")} Ahead</button></div><div id="v-sea-chart" hidden><button id="v-chart-open" aria-label="Open sea chart" title="Open sea chart"><canvas width="240" height="240" aria-hidden="true"></canvas></button></div>`);
+    q("#voyage-play").insertAdjacentHTML("beforeend", `<div id="v-captain-help" hidden><button id="v-look-centre" aria-label="Center camera toward the bow" title="Center camera toward the bow">${icon("focus")}</button></div><div id="v-sea-chart" hidden><button id="v-chart-open" aria-label="Open sea chart" title="Open sea chart"><canvas width="240" height="240" aria-hidden="true"></canvas></button></div>`);
     r.insertAdjacentHTML("beforeend", `<section id="sea-chart-menu" hidden role="dialog" aria-modal="true" aria-labelledby="sea-chart-title">${backButton({ id: "sea-chart-back", destination: "menu" })}<div class="sea-chart-heading"><span class="eyebrow">THE CAPTAIN’S CHART</span><h1 id="sea-chart-title">The open sea</h1><p>One world. Your own adventure.</p></div><canvas width="1024" height="1024" aria-label="Full open world sea chart"></canvas><p class="sea-chart-note">East meets west. North meets south. Keep sailing to circle the world.</p><div class="sea-chart-actions"><button id="sea-chart-close" class="primary">Keep sailing ${icon("ship")}</button></div></section>`);
     q("#menu-free").onclick = () => h.freeSail();
     q(".pirate-menu-header-actions").insertAdjacentHTML("afterbegin", `<button id="v-deck" aria-label="Walk deck" title="Walk deck" hidden>${icon("ship")}<span>Walk deck</span></button>`);
@@ -384,17 +400,23 @@ export class VoyageHud {
       move(e);
     };
     wheel.onpointermove = move;
-    const stop = (e: PointerEvent) => {
-      if (e.pointerId !== pointer) return;
+    this.releaseSteering = () => {
+      if (pointer === null) return;
+      const activePointer = pointer;
       pointer = null;
       stick.style.transform = "";
+      if (wheel.hasPointerCapture(activePointer)) wheel.releasePointerCapture(activePointer);
       h.steer(null);
+    };
+    const stop = (e: PointerEvent) => {
+      if (e.pointerId === pointer) this.releaseSteering();
     };
     wheel.onpointerup = stop;
     wheel.onpointercancel = stop;
     wheel.onlostpointercapture = stop;
     this.showMenu("main");
   }
+  cancelSteering(): void { this.releaseSteering(); }
   private q(id: string): HTMLElement {
     return this.root.querySelector<HTMLElement>(id)!;
   }
@@ -429,6 +451,7 @@ export class VoyageHud {
   }
   private menuPage: "main" | "worlds" | "levels" | "settings" = "main";
   showMenu(page: "main" | "worlds" | "levels" | "settings" = "main"): void {
+    this.cancelSteering();
     if (page === "levels" && !worldUnlocked(this.progress.voyages, this.pack)) page = "worlds";
     this.closeShipPanel();
     this.q("#v-camera").hidden = true;
@@ -776,7 +799,7 @@ export class VoyageHud {
     this.q("#v-home span").textContent = voyage.freeSailing ? "Sea chart" : "Levels";
     this.q("#v-home").title = voyage.freeSailing ? "Sea chart" : "Choose levels";
     this.q("#v-pause").title = "Pause voyage";
-    this.q("#v-return").textContent = voyage.freeSailing ? "Choose worlds" : "Choose levels";
+    this.q("#v-return .lantern-action-title").textContent = voyage.freeSailing ? "Choose worlds" : "Choose levels";
     this.q("#v-camera").hidden = false;
     this.q("#v-fire").hidden = !voyage.freeSailing && voyage.level.waves[0]!.enemies.length === 0 && !voyage.forts.length;
     this.setTip("");
@@ -786,7 +809,7 @@ export class VoyageHud {
     this.q("#v-briefing").textContent = voyage.freeSailing
       ? "Your voyage saves automatically." : voyage.level.intro;
     this.q("#v-weather").hidden = voyage.pack === 0 && !voyage.freeSailing;
-    this.q("#v-compass").hidden = !!voyage.freeSailing;
+    this.q("#v-compass-course").toggleAttribute("hidden", !!voyage.freeSailing);
     this.q("#v-sea-chart").hidden = !voyage.freeSailing;
     this.q("#v-weather-name").textContent = voyage.weather.name;
     this.root.dataset.weather = voyage.weather.kind;
@@ -818,18 +841,18 @@ export class VoyageHud {
     this.root.dataset.fishing=phase;
   }
   camera(captain: boolean): void {
-    this.root.dataset.camera = captain ? "captain" : "overview";
+    const view = captain ? "captain" : "overview";
+    if (this.root.dataset.camera !== view) this.cancelSteering();
+    this.root.dataset.camera = view;
     const b = this.q("#v-camera");
     b.setAttribute("aria-pressed", String(captain));
     b.setAttribute("aria-label", captain ? "Switch to overhead view" : "Switch to captain view");
     b.innerHTML = `${icon("eye")}<span>${captain ? "Overhead" : "Captain"}</span>`;
     b.title = `${captain ? "Overhead" : "Captain"} view · C`;
     this.q("#v-captain-help").hidden = !captain;
-    this.q("#v-look-hint").textContent = innerWidth < 700 || matchMedia("(pointer: coarse)").matches
-      ? "Swipe to look · wheel to steer"
-      : "Drag / arrows look · A D steer · W S sails · Space fire · C view";
   }
   paused(value: boolean): void {
+    if (value) this.cancelSteering();
     const wasPaused = !this.q("#v-paused").hidden;
     this.q("#v-paused").hidden = !value;
     this.q("#voyage-play").inert = value;
@@ -838,6 +861,7 @@ export class VoyageHud {
     else if (wasPaused && this.root.dataset.screen === "play") this.q("#v-pause").focus();
   }
   seaChart(open: boolean, session?: VoyageSession): void {
+    if (open) this.cancelSteering();
     const wasOpen = !this.q("#sea-chart-menu").hidden;
     if (open && !wasOpen && document.activeElement instanceof HTMLElement)
       this.chartTrigger = document.activeElement;
@@ -855,6 +879,7 @@ export class VoyageHud {
     }
   }
   result(s: VoyageSession, reward?: VoyageReward): void {
+    this.cancelSteering();
     this.q("#v-camera").hidden = true;
     this.q("#v-deck").hidden = true;
     this.q("#hold-ui").hidden = this.q("#unload-ui").hidden = true;
@@ -966,9 +991,16 @@ export class VoyageHud {
     ) => { x: number; y: number; visible: boolean },
     viewHeading = 0,
   ): void {
-    const health = Math.round((s.player.hull / s.player.spec.maxHull) * 100);
-    this.q("#v-hull").style.width = `${health}%`;
-    this.q("#v-health").textContent = `${health}%`;
+    const health = Math.round(Math.max(0, Math.min(1, s.player.hull / s.player.spec.maxHull)) * 100);
+    if (health !== this.hullPercent) {
+      this.hullPercent = health;
+      const meter = this.q("#v-health");
+      meter.setAttribute("aria-label", `Ship health ${health}%`);
+      meter.querySelectorAll<HTMLElement>(".hull-heart").forEach((heart, index) => {
+        const filled = Math.max(0, Math.min(1, health * HULL_HEARTS / 100 - index));
+        heart.style.setProperty("--heart-fill", `${filled * 100}%`);
+      });
+    }
     const anchor = this.q("#v-anchor"), sailing = String(s.player.sail > 0);
     if (anchor.dataset.sailing !== sailing) {
       anchor.dataset.sailing = sailing;
@@ -981,10 +1013,17 @@ export class VoyageHud {
         p => seaDistance(p, s.player.pos, s.level.bounds) < 220,
       )?.name ?? s.level.name;
     }
-    const angle = angleDiff(viewHeading, headingTo(s.player.pos, s.voyage.finish));
-    this.q("#v-arrow").style.transform = `rotate(calc(${angle}rad - 90deg))`;
-    this.q("#v-distance").textContent =
-      `${Math.round(distance(s.player.pos, s.voyage.finish))} m`;
+    const heading = s.player.heading;
+    const headingIndex = Math.round(heading / (Math.PI / 4));
+    const direction = COMPASS_DIRECTIONS[(headingIndex % 8 + 8) % 8]!;
+    const compass = this.q("#v-compass");
+    const headingLabel = `Heading ${direction}`;
+    if (compass.getAttribute("aria-label") !== headingLabel) compass.setAttribute("aria-label", headingLabel);
+    this.q("#v-compass-heading").setAttribute("transform", `rotate(${heading * 180 / Math.PI} 32 32)`);
+    if (!s.voyage.freeSailing) {
+      const course = headingTo(s.player.pos, s.voyage.finish);
+      this.q("#v-compass-course").setAttribute("transform", `rotate(${course * 180 / Math.PI} 32 32)`);
+    }
     this.q("#v-wind-arrow").style.transform = `rotate(calc(${s.world.wind.direction - viewHeading}rad - 90deg))`;
     this.q("#v-gust").textContent = s.voyage.weather.drift ? `Wind ${(s.world.wind.drift ?? 0).toFixed(1)} m/s` : "";
     const cooldown = s.player.reload[s.firingSide];
@@ -1041,17 +1080,6 @@ export class VoyageHud {
             `<span class="sea-gem-tag" style="left:${p.x}px;top:${p.y}px">◆</span>`,
           );
       }
-    const end = project(s.voyage.finish.x, 7, s.voyage.finish.z);
-    if (
-      !s.voyage.freeSailing &&
-      end.visible &&
-      end.x > 10 &&
-      end.x < innerWidth - 10 &&
-      end.y < innerHeight - 120
-    )
-      targets.push(
-        `<span class="treasure-tag" style="left:${end.x}px;top:${end.y}px">${icon("chest")}</span>`,
-      );
     this.q("#v-targets").innerHTML = targets.join("");
     if (s.voyage.freeSailing && s.elapsed - this.chartTime > .1) {
       this.chartTime = s.elapsed;

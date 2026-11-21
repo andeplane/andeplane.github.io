@@ -499,6 +499,7 @@ async function main() {
       renderer.captainCamera.enabled=true;
       hud.help("Return to the helm to steer.",session.elapsed+6);
     }
+    hud.cancelSteering();
     controls.clear();clearWalking();gesture.clear();helmTurn=0;pendingFire=false;
     hud.camera(renderer.captainCamera.enabled);
   };
@@ -681,6 +682,7 @@ async function main() {
     walking.keyUp(e.code);
   });
   window.addEventListener("blur", () => {
+    hud.cancelSteering();
     stashSea();
     gesture.clear();
     clearWalking();
