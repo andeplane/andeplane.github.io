@@ -9,7 +9,7 @@ import { adventureChart, sailToShore } from "../ui/adventureChart";
 import { backButton, chartAction, chartHeader, menuHeader } from "../ui/menuChrome";
 import { caveHeader, caveNotice, caveTally } from "../ui/caveHud";
 import { icon } from "../ui/icons";
-import { rewardLedger } from "../ui/rewardLedger";
+import { rewardLedger, shipRecoveryLedger } from "../ui/rewardLedger";
 import { atlasRenderer, atlasView, worldAsset, worldIsland } from "../ui/worldAtlas";
 import { mountMapPan, type MapCamera, type MapPanController } from "../ui/mapPan";
 import { PACKS, packFor, preferredLanguage, type Language, type ReadingItem } from "./content";
@@ -177,7 +177,10 @@ function worldView():string{
  if(worldError||worldLoading){
   const message=worldError?t("worldFail"):t("loading");
   const retry=worldError?button("retry-world",t("retry"),true):undefined;
-  return screen==="ship"?`<div class="world-message" role="${retry?"alert":"status"}"><p>${esc(message)}</p>${retry??""}</div>`:caveNotice(message,retry);
+  if(screen==="ship")return `<section class="ship-recovery">${shipRecoveryLedger(t("ship"),message,worldError,
+   worldError?[{action:"retry-world",label:t("retry"),primary:true}]:[]
+  )}</section>`;
+  return caveNotice(message,retry);
  }
  const cargo=aboard(progress);
  if(screen==="unload"){

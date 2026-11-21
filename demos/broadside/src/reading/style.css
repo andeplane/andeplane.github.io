@@ -45,8 +45,6 @@
 #reader-world {position:fixed;inset:0;width:100%;height:100%;touch-action:none;outline:none;}
 #reader[data-screen="ship"],#reader[data-screen="cave"],#reader[data-screen="unload"] {background:transparent;pointer-events:none;}
 #reader[data-screen="ship"] button,#reader[data-screen="cave"] button,#reader[data-screen="unload"] button {pointer-events:auto;}
-.world-message {pointer-events:auto;max-width:440px;margin:12px auto;padding:22px;border:1px solid #baa16c;background:#102e37ed;border-radius:10px;line-height:1.7;}
-.world-message button {margin-top:16px;width:100%;}
 .world-footer {position:fixed;z-index:10;left:calc(14px + var(--pirate-safe-left));right:calc(14px + var(--pirate-safe-right));bottom:calc(14px + var(--pirate-safe-bottom));width:min(540px,calc(100% - 28px - var(--pirate-safe-left) - var(--pirate-safe-right)));margin:auto;padding:12px 16px;background:#102a35ed;border:1px solid #baa16c;border-radius:10px;text-align:center;}
 .world-footer p {font-family:"Pirata One",serif;font-size:25px;}.world-footer strong {display:block;font-size:12px;color:#f0d399;margin-top:5px;}
 .world-buttons {margin-top:10px;display:flex;gap:8px;justify-content:center;}.world-buttons .wood-button {min-height:44px;justify-content:center;padding:10px 14px;}
@@ -483,13 +481,12 @@
   border: 3px double #c49855;
   background: radial-gradient(#765125, #302014);
 }
-#reader .world-footer,
-#reader .world-message {
+#reader .world-footer {
   background: #2a1c14eb;
   border-color: #c29963;
   color: #fff0ce;
 }
-#reader .world-message { width: min(440px, calc(100% - 32px - var(--pirate-safe-left) - var(--pirate-safe-right))); }
+#reader[data-screen="ship"] #reader-content:has(.ship-recovery) { padding-bottom: 0; }
 #reader .world-footer p { line-height: 1.12; }
 #reader .world-footer strong { color: #ffdfa0; }
 #reader .world-buttons .wood-button:disabled { opacity: 1; background: #49382a; color: #f2dfb9; }

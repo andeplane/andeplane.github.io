@@ -1,4 +1,15 @@
 /* The leather-bound ledger is shared by every pirate game. */
+.ship-recovery {
+  display: grid;
+  place-items: center;
+  height: auto;
+  min-height: 100%;
+  padding: 12px calc(12px + var(--pirate-safe-right)) calc(12px + var(--pirate-safe-bottom)) calc(12px + var(--pirate-safe-left));
+  background: linear-gradient(#2a1b10a0, #21150bd4), url("/assets/map/problem-table.webp") center / cover;
+}
+.ship-recovery .reward-ledger { pointer-events: auto; }
+.ship-recovery-status { margin-bottom: 12px; }
+
 .reward-dock {
   display: flex;
   flex-direction: column;

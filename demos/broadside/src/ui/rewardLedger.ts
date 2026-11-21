@@ -44,3 +44,11 @@ export function rewardLedger({ title, titleId, marks, details, actions }: Reward
     </div>
   </div>`;
 }
+
+export function shipRecoveryLedger(title: string, message: string, failed: boolean, actions: LedgerAction[]): string {
+  return rewardLedger({
+    title: escape(title),
+    details: `<p class="ledger-details ship-recovery-status" role="${failed ? "alert" : "status"}">${escape(message)}</p>`,
+    actions,
+  });
+}

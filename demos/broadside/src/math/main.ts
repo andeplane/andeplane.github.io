@@ -33,7 +33,7 @@ import { clockBoard, clockLevelKey, newClockRound } from "./clockBoard";
 import "./clock.css";
 import "./overworld.css";
 import "./treasureChart.css";
-import { ledgerStars, rewardLedger } from "../ui/rewardLedger";
+import { ledgerStars, rewardLedger, shipRecoveryLedger } from "../ui/rewardLedger";
 import "./rewardScene.css";
 
 type Screen = "home" | "operators" | "map" | "levels" | "question" | "reward" | "ship" | "unloading" | "complete" | "cave" | "settings" | "clockMap" | "clock";
@@ -238,15 +238,11 @@ function shipView(): string {
   const back = `<div class="scene-back">${gameBack(treasureParent())}</div>`;
   if (sceneLoading || sceneError) {
     const status = sceneError ? t("shipError") : t("boarding");
-    return `<section class="cave-view ship-view ship-recovery">${back}${rewardLedger({
-      title: t("hold"),
-      details: `<p class="ledger-details ship-recovery-status" role="${sceneError ? "alert" : "status"}">${status}</p>`,
-      actions: [
+    return `<section class="cave-view ship-view ship-recovery">${back}${shipRecoveryLedger(t("hold"), status, sceneError, [
         { action: sceneError ? "retry-scene" : caveAction, label: sceneError ? t("retryScene") : caveLabel, primary: true, disabled: sceneLoading },
         ...(sceneError ? [{ action: caveAction, label: caveLabel }] : []),
         { action: "levels", label: t("keepPractising") },
-      ],
-    })}</section>`;
+    ])}</section>`;
   }
   return `<section class="cave-view ship-view">${back}
     <div class="cave-heading"><span class="eyebrow">${t("aboardPearl")}</span><h1>${t("hold")}</h1><p>${t("cargoSummary", { count: pending.length, gold: format(cargoGold(progress)) })}</p></div>
