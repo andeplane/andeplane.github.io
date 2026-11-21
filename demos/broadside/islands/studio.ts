@@ -1,4 +1,4 @@
-import type { IslandSettings } from "../src/game/landfall";
+import { ISLAND_DESTINATIONS, ISLAND_PACKS, type IslandSettings } from "../src/game/landfall";
 import "./studio.css";
 
 interface StudioState {
@@ -12,8 +12,6 @@ interface StudioActions {
   walk(): void;
 }
 
-const packs = ["First sails", "Pirate waters", "Whirlpool straits", "The glowing deep"];
-const sites = ["Rose Beacon Cay", "Crown Corsair Cove", "Tideglass Atoll", "Starfall Sanctuary"];
 const ranges = [
   ["relief", "Mountain height"],
   ["beach", "Beach width"],
@@ -40,7 +38,7 @@ export function createStudio(initial: StudioState, actions: StudioActions) {
         <button type="button" class="atlas-fold" aria-expanded="false" aria-controls="atlas-options">Settings</button>
       </header>
       <div class="atlas-scroll" id="atlas-options">
-        <label class="atlas-field"><span>Level pack</span><select name="world">${packs.map((p, i) => `<option value="${i}">${p}</option>`).join("")}</select></label>
+        <label class="atlas-field"><span>Level pack</span><select name="world">${ISLAND_PACKS.map((p, i) => `<option value="${i}">${p}</option>`).join("")}</select></label>
         <div class="atlas-field"><label for="atlas-seed">Island seed</label>
           <div class="atlas-seed-row"><input id="atlas-seed" type="number" min="0" max="4294967295" step="1" inputmode="numeric" required>
             <button type="button" class="atlas-reroll" aria-label="Generate a new seed" title="Generate a new seed">${dice}</button></div></div>
@@ -53,7 +51,7 @@ export function createStudio(initial: StudioState, actions: StudioActions) {
       <footer class="atlas-foot"><button type="button" class="atlas-walk" disabled>${boat}<span>Go ashore</span></button></footer>
     </aside>
     <div class="atlas-caption"><h2></h2><p></p></div>
-    <div class="atlas-camera-help"><span class="atlas-mouse-help">Drag to orbit · Scroll to zoom</span><span class="atlas-touch-help">Drag to orbit</span></div>
+    <div class="atlas-camera-help"><span class="atlas-mouse-help">Drag to orbit · Scroll to zoom</span><span class="atlas-touch-help">Drag to orbit · Pinch to zoom</span></div>
   `;
   const el = <T extends Element>(selector: string) => root.querySelector<T>(selector)!;
   const foldButton = el<HTMLButtonElement>(".atlas-fold");
@@ -78,7 +76,7 @@ export function createStudio(initial: StudioState, actions: StudioActions) {
     }
   });
   const updateCaption = () => {
-    caption.textContent = sites[world] ?? "Treasure Island";
+    caption.textContent = ISLAND_DESTINATIONS[world]?.name ?? "Treasure Island";
     details.textContent = `${biomeSelect.selectedOptions[0]?.text ?? "Island"} · Seed ${seed}`;
   };
   const change = () => {
