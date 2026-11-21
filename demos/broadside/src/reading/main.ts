@@ -3,6 +3,7 @@ import { languagePickerMarkup, bindLanguagePicker } from "../ui/languagePicker";
 import { LANGUAGES, createI18n } from "../math/i18n";
 import { difficultyMap } from "../ui/difficultyMap";
 import { pirateMenu, settingsDesk } from "../ui/homeMenu";
+import { installMenuPreview } from "../ui/menuPreview";
 import { installButtonHaptics } from "../ui/buttonHaptics";
 import { adventureChart, sailToShore } from "../ui/adventureChart";
 import { backButton, chartAction, chartHeader, menuHeader } from "../ui/menuChrome";
@@ -20,6 +21,7 @@ import "./style.css";
 
 type Screen="home"|"languages"|"packs"|"levels"|"reading"|"complete"|"comprehension"|"settings"|"ship"|"cave"|"unload";
 installButtonHaptics();
+installMenuPreview();
 const root=document.querySelector<HTMLDivElement>("#reader")!;
 const canvas=document.querySelector<HTMLCanvasElement>("#reader-world")!;
 const params=new URLSearchParams(location.search),qa=import.meta.env.DEV&&params.get("qa")==="true";
@@ -40,6 +42,7 @@ let listenTimer:ReturnType<typeof setTimeout>|undefined,listenPaused=false,examp
 let advanceTimer:ReturnType<typeof setTimeout>|undefined;
 let heardWords=0;
 let errorMessage="",worldLoading=false,worldError=false,comprehensionCorrect=false;
+let lastStoryAnswer: number | undefined;
 const copy={
  en:{yourTurn:"Your turn — read aloud",examplePlaying:"Listen to the example…",progress:"readings complete",pause:"Pause",resume:"Keep reading",tryListening:"Try listening again",speechGuide:"The app checks which words it hears. It does not grade pronunciation or accent.",handsFree:"Just read aloud. Pip takes care of the rest.",autoNext:"Next reading coming up…",sayAnswer:"Say the correct answer aloud.",shipShort:"Ship",caveShort:"Cave",brand:"Captain Reader",tag:"A PIRATE READING ADVENTURE",intro:"Read a little. Bring home a fortune.",play:"Play",continue:"Continue",choose:"Choose another adventure",practice:"Choose your language and reading pack",ship:"Your ship",cave:"Your cave",settings:"Settings",rule:"Harder reading earns more gold. Take your time.",gold:"gold",home:"Home",languages:"Choose your language",languageHelp:"Tap a flag to begin your reading adventure.",packs:"Choose your reading island",packHelp:"Ten packs. All open. Read at your own pace.",level:"Level",reading:"Read aloud",next:"Next",retry:"Try again",cancel:"Pause listening",resumeListening:"Resume listening",paused:"Take a breather. Continue when you’re ready.",selfAccepted:"Onward, captain!",help:"Hear an example",adult:"Read with an adult",adultTitle:"A little help from your crew",adultText:"An adult can listen and confirm this reading. It earns the same gold and is saved as assisted practice.",confirm:"I heard this reading",close:"Close",ready:"Ready when you are",listening:"Pip is listening…",checking:"Checking your reading…",preparing:"Getting ready to listen…",accepted:"Well read, captain!",uncertain:"Pip didn’t catch that. Read it aloud again — no tapping needed.",browser:"Browser practice: read aloud, then press Next. In the iPhone app, correct speech earns gold and moves on automatically.",unavailable:"Listening isn’t ready for this language. Try again, or go Back to choose another.",permissions:"Enable both permissions — microphone and speech — in iPhone Settings, then try again.",sound:"Listening indicator — sound level, not a reading score",complete:"Treasure earned!",completeText:"Your chest is safely aboard. Bring it home to your cave.",nextLevel:"Next level",unload:"Unload your chests",loading:"Your crew is getting ready…",worldFail:"Your treasure scene couldn’t open. Your saved gold is safe. Try again.",back:"Back",save:"Progress couldn’t be saved. Keep this game open to continue.",resetWarning:"The saved progress couldn’t be read. A fresh adventure is ready.",privacy:"Your voice stays on this device",privacyText:"Listening starts automatically on each reading prompt. Correct reading earns gold and moves to the next prompt. Use Back to stop listening. It stops when you leave or the app goes into the background. Recordings and transcripts are not saved or sent to us. There are no accounts, ads, or analytics.",ui:"Menu language",world:"Reading language",practiceCount:"readings practised",assisted:"with help",guide:"Choose a flag, an island pack, and a level. Read each prompt aloud. In the iPhone app, Pip listens, awards gold for correct reading, and moves on automatically. No answer buttons are needed. In a browser, use Next for practice. Sentences in a story are read one at a time. Hints and retries are free. Every gold coin you earn is one coin in your chest.",reset:"Reset reading progress",resetTitle:"Start a new adventure?",resetText:"This removes Captain Reader’s progress and treasure on this device. The other pirate games keep their saves.",resetConfirm:"Reset this game",voiceFail:"An example voice isn’t available for this language. Ask an adult to read it with you.",chunk:"Sentence",of:"of",comp:"A little story question",compRetry:"Have another look at the story and try again.",compGood:"That’s right!",qa:"Design preview · separate practice save",banked:"saved in your cave",aboard:"aboard your ship",empty:"Your next chest goes here",room:"Treasure cave",inspect:"Inspect / explore",jump:"Jump",move:"Move",readingCount:"read",more:"More challenging reading earns more gold"},
  nb:{yourTurn:"Din tur — les høyt",examplePlaying:"Hør på eksempelet…",progress:"lesinger fullført",pause:"Pause",resume:"Les videre",tryListening:"Prøv å lytte igjen",speechGuide:"Appen sjekker hvilke ord den hører. Den vurderer ikke uttale eller dialekt.",handsFree:"Bare les høyt. Pip ordner resten.",autoNext:"Neste leseoppgave kommer…",sayAnswer:"Si det riktige svaret høyt.",shipShort:"Skip",caveShort:"Hule",brand:"Kaptein Leselyst",tag:"ET LESEEVENTYR MED PIRATER",intro:"Les litt. Ta med skatten hjem.",play:"Spill",continue:"Fortsett",choose:"Velg et annet eventyr",practice:"Velg språk og lesepakke",ship:"Skipet ditt",cave:"Hulen din",settings:"Innstillinger",rule:"Vanskeligere lesing gir mer gull. Ta deg god tid.",gold:"gull",home:"Hjem",languages:"Velg lesespråk",languageHelp:"Trykk på et flagg og begynn leseeventyret.",packs:"Velg leseøy",packHelp:"Ti pakker. Alle er åpne. Les i ditt eget tempo.",level:"Nivå",reading:"Les høyt",next:"Neste",retry:"Prøv igjen",cancel:"Sett lytting på pause",resumeListening:"Fortsett lytting",paused:"Ta en liten pause. Fortsett når du er klar.",selfAccepted:"Videre, kaptein!",help:"Hør et eksempel",adult:"Les med en voksen",adultTitle:"Litt hjelp fra mannskapet",adultText:"En voksen kan lytte og bekrefte lesingen. Det gir like mye gull og lagres som øving med hjelp.",confirm:"Jeg hørte denne lesingen",close:"Lukk",ready:"Klar når du er",listening:"Pip lytter…",checking:"Sjekker lesingen din…",preparing:"Gjør klar til å lytte…",accepted:"Godt lest, kaptein!",uncertain:"Pip fikk ikke med seg det. Les høyt igjen — du trenger ikke trykke.",browser:"Øving i nettleseren: Les høyt og trykk Neste. I iPhone-appen gir riktig lesing gull og går videre automatisk.",unavailable:"Lytting er ikke klar for dette språket. Prøv igjen, eller gå tilbake og velg et annet.",permissions:"Gi tilgang til mikrofon og talegjenkjenning i iPhone-innstillingene. Prøv så igjen.",sound:"Lytteindikator — lydnivå, ikke en lesepoengsum",complete:"Du har tjent en skatt!",completeText:"Kisten er trygt om bord. Ta den med hjem til hulen.",nextLevel:"Neste nivå",unload:"Loss kistene dine",loading:"Mannskapet gjør klart…",worldFail:"Skatten kunne ikke vises. Det lagrede gullet er trygt. Prøv igjen.",back:"Tilbake",save:"Fremgangen kunne ikke lagres. Hold spillet åpent for å fortsette.",resetWarning:"Den lagrede fremgangen kunne ikke leses. Et nytt eventyr er klart.",privacy:"Stemmen din blir på enheten",privacyText:"Lytting starter automatisk ved hver leseoppgave. Riktig lesing gir gull og går videre automatisk. Bruk Tilbake for å stoppe lyttingen. Den stopper når du går ut eller appen går i bakgrunnen. Opptak og utskrifter lagres ikke og sendes ikke til oss. Ingen kontoer, reklame eller analyseverktøy.",ui:"Menyspråk",world:"Lesespråk",practiceCount:"lesinger øvd",assisted:"med hjelp",guide:"Velg et flagg, en leseøy og et nivå. Les høyt. I iPhone-appen lytter Pip, gir gull for riktig lesing og går videre automatisk. Du trenger ingen svarknapper. I nettleseren bruker du Neste for å øve. I fortellinger leser du én setning om gangen. Hjelp og nye forsøk er gratis. Hver gullmynt du tjener, er én mynt i kisten.",reset:"Nullstill lesefremgangen",resetTitle:"Begynne et nytt eventyr?",resetText:"Dette fjerner fremgangen og skatten i Kaptein Leselyst på denne enheten. De andre sjørøverspillene beholder sine lagringer.",resetConfirm:"Nullstill dette spillet",voiceFail:"En eksempelstemme finnes ikke for dette språket. Be en voksen lese sammen med deg.",chunk:"Setning",of:"av",comp:"Et lite spørsmål om fortellingen",compRetry:"Se på fortellingen en gang til og prøv igjen.",compGood:"Helt riktig!",qa:"Designvisning · egen øvingslagring",banked:"lagret i hulen",aboard:"om bord på skipet",empty:"Den neste kisten din kommer hit",room:"Skattehulen",inspect:"Se nærmere / utforsk",jump:"Hopp",move:"Beveg deg",readingCount:"lest",more:"Vanskeligere lesing gir mer gull"}
@@ -47,7 +50,11 @@ const copy={
 type CopyKey=keyof typeof copy.en;
 const t=(key:CopyKey)=>copy[progress.ui][key];
 const esc=(s:string)=>s.replace(/[&<>"']/gu,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]!));
-const f=(n:number)=>n.toLocaleString(progress.ui==="nb"?"nb-NO":"en-GB");
+const displayLocale = () => progress.ui === "nb" ? "nb-NO" : "en-GB";
+const f = (n: number) => n.toLocaleString(displayLocale());
+const navGold = (amount: number) => new Intl.NumberFormat(displayLocale(), {
+ notation: "compact", maximumFractionDigits: 1,
+}).format(amount);
 const title=()=>t("brand");
 const area=()=>progress.language==="nb"?0:1;
 const track=()=>progress.tracks[trackKey(progress.language,packId)];
@@ -66,7 +73,7 @@ function header():string{
  }
  if(screen==="complete")return backButton({action:"back",label:t("back")});
  if((screen==="reading"||screen==="comprehension")&&run&&shown)return menuHeader({className:"reader-topbar",brand:"",back:backButton({action:"back",label:t("back")}),actions:`<span class="reading-location">${esc(packFor(run.pack).name[progress.ui])}<small>${t("level")} ${f(run.level)}</small></span>`});
- return menuHeader({className:"reader-topbar",brand:"",back:backButton({action:"back",label:t("back")}),actions:`<button class="pirate-nav-link" data-action="ship">${icon("ship")}<span>${esc(t("shipShort"))}<small>${f(aboard(progress))} ${t("gold")}</small></span></button><button class="pirate-nav-link" data-action="cave">${icon("chest")}<span>${esc(t("caveShort"))}<small>${f(banked(progress))} ${t("gold")}</small></span></button>`});
+ return menuHeader({className:"reader-topbar",brand:"",back:backButton({action:"back",label:t("back")}),actions:`<button class="pirate-nav-link" data-action="ship" aria-label="${esc(t("ship"))}, ${f(aboard(progress))} ${esc(t("gold"))}">${icon("ship")}<span>${esc(t("shipShort"))}<small>${navGold(aboard(progress))} ${t("gold")}</small></span></button><button class="pirate-nav-link" data-action="cave" aria-label="${esc(t("cave"))}, ${f(banked(progress))} ${esc(t("gold"))}">${icon("chest")}<span>${esc(t("caveShort"))}<small>${navGold(banked(progress))} ${t("gold")}</small></span></button>`});
 }
 function home():string{
  const active=Object.values(progress.tracks).map(t=>t.run).filter((r):r is Run=>!!r).sort((a,b)=>b.id-a.id)[0];
@@ -89,7 +96,7 @@ function packs():string{
  const nb=progress.language==="nb",ui=progress.ui;
  const name=nb?(ui==="nb"?"Lesefjordene":"Reading Fjords"):(ui==="nb"?"Bokøyene":"Storybook Isles");
  return difficultyMap({name,accessibleName:name,instructions:ui==="nb"?"Velg en lesepakke.":"Choose a reading pack.",
-   back:backButton({action:"back",label:t("back")}),actions:readerMapActions(),selected:packId,backdrop:worldAsset(readerTheme()),island:i=>worldIsland(readerTheme(),i),centerLabel:ui==="nb"?"Nåværende øy":"Current island",firstArt:nb?4:9,
+   back:backButton({action:"back",label:t("back")}),actions:readerMapActions(),selected:packId,backdrop:worldAsset(readerTheme()),island:i=>worldIsland(readerTheme(),i),centerLabel:ui==="nb"?"Finn øya":"Recenter map",firstArt:nb?4:9,
    stops:PACKS.map(p=>({id:p.id,label:p.name[ui],ariaLabel:`${p.name[ui]}: ${p.description[ui]}`}))});
 }
 function levels():string{
@@ -115,7 +122,9 @@ function readingSupport(accepted:boolean):string{
 function reading():string{
  const r=run!,v=shown!,p=packFor(r.pack),accepted=attempt.state==="accepted",handsFree=speech.isNative();
  const marked=(text:string)=>text.split(/(\s+)/u).map(part=>/\s/u.test(part)?part:`<span data-reading-word>${esc(part)}</span>`).join("");
- const prompt=p.kind==="word"?`<div class="reading-word" style="--word-size:${Math.max(1.2,Math.min(4.5,22/v.item.text.length))}rem">${marked(v.item.text)}</div>`:`<div class="reading-passage" lang="${r.language}">${v.item.chunks.map((chunk,i)=>`<span class="${i<v.chunk?"read":i===v.chunk?"current":""}">${i===v.chunk?marked(chunk):esc(chunk)}</span>`).join(" ")}</div>`;
+ const prompt = p.kind === "word"
+  ? `<div class="reading-word" style="--word-size:${Math.max(1.2, Math.min(4.5, 22 / v.item.text.length))}rem">${marked(v.item.text)}</div>`
+  : `<p class="reading-passage" lang="${r.language}">${marked(v.item.chunks[v.chunk]!)}</p>`;
  return `<section class="reading-view reading-prompt-view ${handsFree?"hands-free":""} ${listeningProblem()?"has-listening-problem":""}">${heading(t("yourTurn"),`${v.index+1} ${t("of")} ${r.items.length}`)}<div class="reading-progress" role="progressbar" aria-label="${esc(t("progress"))}" aria-valuemin="0" aria-valuemax="${r.items.length}" aria-valuenow="${r.index}">${r.items.map((_,i)=>`<i class="${i<r.index?"done":i===r.index?"current":""}"></i>`).join("")}</div><div lang="${r.language}" class="reading-paper ${accepted?"accepted":""}">${prompt}${v.item.chunks.length>1?`<p class="chunk-count">${t("chunk")} ${v.chunk+1} ${t("of")} ${v.item.chunks.length}</p>`:""}</div><div class="reading-feedback ${accepted?"is-accepted":""}"><div class="listening-indicator ${attempt.state}" aria-label="${esc(t("sound"))}" aria-hidden="true">${icon(accepted?"star":"sound")}<span class="sound-bars" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></span></div><p role="status" aria-live="polite">${esc(statusText())}${accepted&&result?.gold?`<strong class="earned-gold">+${f(result.gold)} ${t("gold")}</strong>`:""}</p></div>${handsFree?readingSupport(accepted):`<div class="reading-actions">${button("next",t("next"),true)}${!accepted?button("example",t("help")):""}</div>`}<p class="small-note">${esc(t("rule"))}</p></section>`;
 }
 function completion(): string {
@@ -133,17 +142,18 @@ function completion(): string {
 }
 function comprehension():string{
  const q=shown!.item.question!,handsFree=speech.isNative();
- return `<section class="reading-view comprehension-view ${handsFree?"hands-free":""} ${listeningProblem()?"has-listening-problem":""}">${heading(q.text,handsFree?t("sayAnswer"):"")}<div class="reading-paper"><div class="reading-passage">${esc(shown!.item.text)}</div></div><div class="reading-actions story-answers">${q.answers.map((a,i)=>handsFree?`<p class="spoken-answer">${esc(a)}</p>`:`<button class="wood-button" data-answer="${i}" ${comprehensionCorrect?"disabled":""}>${esc(a)}</button>`).join("")}</div><p role="status" class="story-status">${esc(comprehensionCorrect?t("compGood"):handsFree?statusText():errorMessage)}</p>${handsFree?readingSupport(comprehensionCorrect):comprehensionCorrect?button("after-question",t("next"),true):""}</section>`;
+ return `<section class="reading-view comprehension-view ${handsFree?"hands-free":""} ${listeningProblem()?"has-listening-problem":""}">${heading(q.text,handsFree?t("sayAnswer"):"")}<div class="reading-paper" tabindex="0"><div class="reading-passage" lang="${run!.language}">${esc(shown!.item.text)}</div></div><div class="reading-actions story-answers">${q.answers.map((a,i)=>handsFree?`<p class="spoken-answer">${esc(a)}</p>`:`<button class="wood-button" data-answer="${i}" data-result="${comprehensionCorrect && i===q.correct ? "correct" : i===lastStoryAnswer ? "wrong" : ""}" ${comprehensionCorrect?"disabled":""}>${esc(a)}</button>`).join("")}</div><p role="status" class="story-status">${esc(comprehensionCorrect?t("compGood"):handsFree?statusText():errorMessage)}</p>${handsFree?readingSupport(comprehensionCorrect):comprehensionCorrect?button("after-question",t("next"),true):""}</section>`;
 }
 function settings():string {
  return settingsDesk(t("settings"),`
    <button class="desk-action" data-action="ui-language">${esc(t("ui"))} · ${progress.ui==="nb"?"🇳🇴":"🇬🇧"}</button>
    <button class="desk-action" data-action="practice-language">${esc(t("world"))} · ${progress.language==="nb"?"🇳🇴":"🇬🇧"}</button>
-   <p>${esc(t("privacyText"))}</p><p>${f(progress.practised)} ${t("practiceCount")} · ${f(progress.assisted)} ${t("assisted")}</p>
+   <p class="reader-settings-note">${esc(t("privacyText"))}</p><p class="reader-practice-tally">${f(progress.practised)} ${t("practiceCount")} · ${f(progress.assisted)} ${t("assisted")}</p>
    ${button("reset",t("reset"))}`);
 }
 let practicePicker=false;
 const readerDialog=document.createElement("dialog");
+readerDialog.classList.add("reader-language");
 document.body.append(readerDialog);
 const readerPicker=bindLanguagePicker(readerDialog,{
  markup:failed=>languagePickerMarkup(createI18n(progress.ui,navigator.languages),practicePicker?progress.language:readerPreference(),navigator.languages,failed,["en","nb"],!practicePicker),
@@ -188,7 +198,6 @@ function render():void{
  root.innerHTML=`${header()}${screen==="reading"?`<div class="recording-strip">${esc(t(attempt.state==="listening"?"listening":attempt.state==="checking"?"checking":attempt.state==="preparing"?"preparing":attempt.state==="accepted"?"accepted":"reading"))}</div>`:""}${qa?`<span class="qa-badge">${esc(t("qa"))}</span>`:""}${saveFailed||saveWarning?`<p class="save-warning" role="alert">${esc(t(saveFailed?"save":"resetWarning"))}</p>`:""}<main id="reader-content" ${["levels","packs","languages"].includes(screen)?'class="map-content"':""}>${screen==="home"?home():screen==="languages"?languages():screen==="packs"?packs():screen==="levels"?levels():screen==="reading"?reading():screen==="complete"?completion():screen==="comprehension"?comprehension():screen==="settings"?settings():worldView()}</main>`;
  if(focusedAction&&["reading","comprehension"].includes(screen))root.querySelector<HTMLButtonElement>(`[data-action="${focusedAction}"]`)?.focus({preventScroll:true});
  updateHeardWords();
- if(screen==="reading"&&shown&&shown.chunk>0)root.querySelector<HTMLElement>(".reading-passage .current")?.scrollIntoView({block:"center",behavior:"auto"});
  if(screen==="packs"||screen==="levels"){
   const viewport=root.querySelector<HTMLElement>("[data-map-viewport]"),world=viewport?.querySelector<HTMLElement>("[data-map-world]");
   if(viewport&&world){
@@ -240,7 +249,7 @@ function scheduleAdvance():void{
 function advanceReading():void{
  if(screen==="comprehension"){nextReading();return;}
  if(!result)return;
- if(result.itemComplete&&shown?.item.question){comprehensionCorrect=false;navigate("comprehension");void beginListening();}else nextReading();
+ if(result.itemComplete&&shown?.item.question){comprehensionCorrect=false;lastStoryAnswer=undefined;navigate("comprehension");void beginListening();}else nextReading();
 }
 function nextReading():void{if(result?.levelComplete){navigate("complete");return;}viewCurrent();navigate("reading");void beginListening();}
 function dialog(kind:"adult"|"reset"):void{
@@ -248,7 +257,12 @@ function dialog(kind:"adult"|"reset"):void{
  d.innerHTML=`<h2 id="reader-dialog-title">${esc(t(kind==="adult"?"adultTitle":"resetTitle"))}</h2><p>${esc(t(kind==="adult"?"adultText":"resetText"))}</p><div>${button("dialog-confirm",t(kind==="adult"?"confirm":"resetConfirm"),true)}${button("dialog-close",t("close"))}</div>`;
  const returnAction=kind==="adult"?"adult":"reset";
  document.body.append(d);d.addEventListener("close",()=>{d.remove();root.querySelector<HTMLButtonElement>(`button[data-action="${returnAction}"]`)?.focus();},{once:true});
- d.addEventListener("click",e=>{const action=(e.target as Element).closest<HTMLElement>("[data-action]")?.dataset.action;if(action==="dialog-close")d.close();if(action==="dialog-confirm"){d.close();if(kind==="adult")accepted("adult");else {host?.dispose();host=null;progress=freshProgress(progress.ui);persist();navigate("home");}}if(e.target===d){const r=d.getBoundingClientRect();if(e.clientX<r.left||e.clientX>r.right||e.clientY<r.top||e.clientY>r.bottom)d.close();}});d.showModal();
+ d.addEventListener("click",e=>{const action=(e.target as Element).closest<HTMLElement>("[data-action]")?.dataset.action;if(action==="dialog-close")d.close();if(action==="dialog-confirm"){d.close();if(kind==="adult")accepted("adult");else {host?.dispose();host=null;progress=freshProgress(progress.ui);persist();navigate("home");}}if(e.target===d){const r=d.getBoundingClientRect();if(e.clientX<r.left||e.clientX>r.right||e.clientY<r.top||e.clientY>r.bottom)d.close();}});d.addEventListener("click", event => {
+  if (event.target !== d) return;
+  const box = d.getBoundingClientRect();
+  if (event.clientX < box.left || event.clientX > box.right || event.clientY < box.top || event.clientY > box.bottom) d.close();
+ });
+ d.showModal();
 }
 async function openWorld(next:"ship"|"cave"|"unload"):Promise<void>{
  if(!["ship","cave","unload"].includes(screen))worldReturn=screen==="reading"&&result?.levelComplete?"complete":screen;
@@ -280,7 +294,7 @@ root.addEventListener("click",e=>{
  if(el.dataset.language){progress.language=el.dataset.language as Language;packId=1;progress.chosen=true;persist();navigate("packs");return;}
  if(el.dataset.pack){packId=Number(el.dataset.pack);navigate("levels");return;}
  if(el.dataset.level){openLevel(Number(el.dataset.level),Number(el.dataset.level)<=(track()?.cleared??0));return;}
- if(el.dataset.answer!==undefined){const q=shown!.item.question!;comprehensionCorrect=Number(el.dataset.answer)===q.correct;errorMessage=comprehensionCorrect?"":t("compRetry");render();return;}
+ if(el.dataset.answer!==undefined){const q=shown!.item.question!;lastStoryAnswer=Number(el.dataset.answer);comprehensionCorrect=lastStoryAnswer===q.correct;errorMessage=comprehensionCorrect?"":t("compRetry");render();return;}
  switch(el.dataset.action){
   case "ui-language":chooseReaderLanguage(false);break;
   case "practice-language":chooseReaderLanguage(true);break;

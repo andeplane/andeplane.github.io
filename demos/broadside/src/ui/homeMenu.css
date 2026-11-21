@@ -46,3 +46,54 @@ dialog.captain-language { padding:24px clamp(22px,7vw,36px) 28px; }
 #reader .captain-paper .desk-action {color:#372414;}
 #reader .captain-paper button[data-action="reset"] {background:#422a14;color:#ffedc9;}
 #reader .voyage-atlas .trail-heading h1 {color:#fff4d5;text-shadow:0 1px 3px #201b13;-webkit-text-stroke:3px #332516;paint-order:stroke fill;}
+
+/* Settings sit at the same desk that opens each game. */
+#voyage-ui #settings-menu {
+  inset: 0;
+  background: linear-gradient(#20140d69, #24150fc9), url("/assets/menu/lantern-grotto.webp") center / cover, #292017;
+}
+@media (orientation: landscape) {
+  #voyage-ui #settings-menu {
+    background-image: linear-gradient(#20140d69, #24150fc9), url("/assets/menu/lantern-grotto-wide.webp");
+  }
+}
+#voyage-ui #settings-menu .captain-paper :is(#coin-sounds-note, .art-credit) {
+  margin-block: 8px;
+  line-height: 1.4;
+}
+#voyage-ui #settings-menu .privacy-action {
+  background: #422a14;
+  border-color: #6e4c30;
+  color: #fff0d0;
+}
+#voyage-ui #settings-menu #coin-sounds {
+  appearance: none;
+  width: 44px;
+  height: 44px;
+  flex: none;
+  margin: 0;
+  position: relative;
+  cursor: pointer;
+}
+#voyage-ui #settings-menu #coin-sounds::before {
+  content: "";
+  position: absolute;
+  inset: 11px;
+  border: 1px solid #754c24;
+  border-radius: 4px;
+  background: #fff0ca;
+}
+#voyage-ui #settings-menu #coin-sounds:checked::before {
+  background: #654120;
+}
+#voyage-ui #settings-menu #coin-sounds:checked::after {
+  content: "";
+  position: absolute;
+  top: 13px;
+  left: 18px;
+  width: 6px;
+  height: 13px;
+  transform: rotate(42deg);
+  border: solid #fff1d0;
+  border-width: 0 3px 3px 0;
+}

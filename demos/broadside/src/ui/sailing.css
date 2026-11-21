@@ -100,9 +100,7 @@
   box-shadow: inset 0 0 90px #65482788;
 }
 .sea-chart-heading { text-align: center; }
-.sea-chart-heading .eyebrow { color: #694b24; font-size: 10px; }
 .sea-chart-heading h1 { font: 44px/1.1 "Pirata One", Georgia, serif; margin: 5px 0; }
-.sea-chart-heading p { margin: 0; font-size: 12px; color: #594725; }
 #sea-chart-menu canvas {
   width: var(--chart-size);
   height: var(--chart-size);
@@ -143,5 +141,23 @@
 @media (max-width: 650px) and (max-height: 650px) and (orientation: portrait) {
   #sea-chart-menu { --chart-size: min(90vw, calc(100dvh - var(--pirate-safe-top) - var(--pirate-safe-bottom) - 222px)); }
   .sea-chart-heading h1 { font-size: 32px; }
-  .sea-chart-heading p, .sea-chart-note { display: none; }
+  .sea-chart-note { display: none; }
+}
+
+/* An unfolded chart aboard the ship. Keep the chart and its return action in view. */
+#sea-chart-menu {
+  background: radial-gradient(ellipse at center, #efdfb7b3, #c5a978e0),
+    #d7c496 url("/assets/map/nautical-chart.webp") center / cover;
+  box-shadow: inset 0 0 50px #664a3559;
+}
+#sea-chart-menu .sea-chart-heading h1 { margin: 0; }
+#sea-chart-menu canvas { max-height: 100%; }
+#sea-chart-menu .sea-chart-actions .primary {
+  background: linear-gradient(#ffe5aa, #dfb672);
+  color: #352513;
+}
+@media (orientation: landscape) and (max-height: 480px) {
+  #sea-chart-menu {
+    --chart-size: min(calc(100dvh - var(--pirate-safe-top) - var(--pirate-safe-bottom) - 28px), 42vw, 360px);
+  }
 }

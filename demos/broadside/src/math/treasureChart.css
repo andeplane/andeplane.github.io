@@ -50,3 +50,55 @@ body:has(#academy) .game-privacy {
 }
 body:has(#academy) .game-privacy .privacy-copy { font:16px/1.5 Georgia,serif; }
 body:has(#academy) .game-privacy :is(h2,p) { color:#34200e; }
+
+/* Keep the captain's desk visible at the edges of each exercise. */
+#academy {
+  --calculus-desk-art: url("/assets/menu/calculus-worktable.webp");
+}
+@media (orientation: landscape), (min-width: 701px) {
+  #academy { --calculus-desk-art: url("/assets/menu/calculus-worktable-wide.webp"); }
+}
+#academy:is([data-screen="question"], [data-screen="settings"]) #main-content {
+  background: linear-gradient(#24130852, #21130c8a), var(--calculus-desk-art) center / cover, #312017;
+}
+
+#academy[data-screen="question"] #main-content .number-pad button {
+  border: 1px solid #8c603e;
+  border-radius: 6px;
+  background: linear-gradient(#fff1d0, #f3d8a0);
+  box-shadow: inset 0 1px #fff7df;
+}
+#academy[data-screen="question"] #main-content .number-pad { gap: 5px 8px; }
+#academy[data-screen="question"] #main-content .number-pad button:active {
+  background: #d6ae6d;
+}
+#academy[data-screen="question"] #main-content .number-pad button:disabled {
+  opacity: 1;
+  color: #765841;
+  background: #e9c897;
+}
+#academy[data-screen="question"] #main-content .check-answer {
+  min-height: 44px;
+  border: 1px solid #75451c !important;
+  border-radius: 8px;
+  background: linear-gradient(#ffe3a3, #e6af58) !important;
+  color: #352313 !important;
+}
+#academy[data-screen="question"] #main-content .check-answer:disabled {
+  opacity: 1;
+  background: #ebd2a5 !important;
+  color: #614634 !important;
+}
+#academy[data-screen="question"] #main-content .answer-feedback.retry { color: #762c1d; }
+#academy[data-screen="question"] #main-content .answer-feedback.success { color: #254c2a; }
+
+#academy[data-screen="clock"] {
+  --academy-background: linear-gradient(#24130852, #21130c8a), var(--calculus-desk-art) center / cover;
+}
+#academy .clock-choice[data-result] { border-color: #99713f; }
+#academy .clock-choice[data-result=""]:enabled { background: linear-gradient(#fff4d8, #f2daa9); }
+#academy .clock-choice[data-result="wrong"],
+#academy .clock-choice[data-result="correct"] { opacity: 1; }
+@media (orientation: landscape) and (max-height: 520px) {
+  #academy[data-screen="question"] #main-content .number-pad { gap: 3px 6px; }
+}

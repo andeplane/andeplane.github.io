@@ -342,3 +342,226 @@
   place-items: center;
   min-height: 100%;
 }
+
+/* The reading book shares the cabin's light and materials. */
+#reader {
+  --reader-ink: #352414;
+  --reader-paper: #f6e7c6;
+  --reader-brass: #e4bf77;
+  --reader-cabin-art: url("/assets/menu/reader-library.webp");
+}
+@media (orientation: landscape) {
+  #reader { --reader-cabin-art: url("/assets/menu/reader-library-wide.webp"); }
+}
+
+#reader:is([data-screen="reading"], [data-screen="comprehension"], [data-screen="complete"], [data-screen="settings"]) {
+  background: linear-gradient(180deg, #1c100bb8, #1b100df5), var(--reader-cabin-art) center / cover, #211711;
+}
+
+#reader .reader-topbar {
+  height: calc(62px + var(--pirate-safe-top));
+  padding-block: calc(8px + var(--pirate-safe-top)) 8px;
+}
+#reader .reader-topbar .pirate-menu-back {
+  top: calc(8px + var(--pirate-safe-top));
+}
+#reader .reader-topbar .pirate-menu-header-actions {
+  min-width: 0;
+  justify-content: flex-end;
+}
+#reader :is(.reader-topbar .pirate-menu-back, .pirate-nav-link) {
+  border-color: #bd955c91;
+  background: #2b1d14ed;
+  color: #fff1d5;
+}
+#reader .pirate-nav-link small { color: #f5d6a0; }
+
+#reader:is([data-screen="reading"], [data-screen="comprehension"], [data-screen="settings"], [data-screen="ship"]) #reader-content {
+  top: calc(62px + var(--pirate-safe-top));
+}
+#reader:has(.save-warning):is([data-screen="reading"], [data-screen="comprehension"], [data-screen="settings"], [data-screen="ship"]) #reader-content {
+  top: calc(108px + var(--pirate-safe-top));
+}
+#reader .reading-location { padding-inline-start: 8px; color: #ffe9c2; }
+#reader .reading-location small { color: #f4d5a4; }
+
+#reader :is(.reading-view, .reader-complete) {
+  width: min(680px, calc(100% - 28px - var(--pirate-safe-left) - var(--pirate-safe-right)));
+}
+#reader .reading-prompt-view {
+  min-height: 100%;
+  height: auto;
+  grid-template-rows: auto auto minmax(110px, 1fr) auto auto;
+  padding-top: 10px;
+}
+#reader .reading-prompt-view > .page-heading h1,
+#reader .comprehension-view .page-heading h1 {
+  color: #fff1cf;
+  line-height: 1.12;
+  text-wrap: balance;
+}
+#reader .reading-view .page-heading p { color: #f5dbad; }
+#reader .reading-progress i { background: #876b50; }
+#reader .reading-progress .current { background: #ffe4ab; }
+#reader .reading-progress .done { background: #cda45c; }
+
+#reader .reading-paper {
+  color: var(--reader-ink);
+  border: 3px double #9c6b3f;
+  border-radius: 5px 12px 11px 5px;
+  background: linear-gradient(90deg, #d2aa70c4, #f9edcfd9 6%, #f5e4c3e8 97%, #d6ad76c4),
+    var(--reader-paper) url("/assets/map/nautical-chart.webp") center / cover;
+  box-shadow: 0 5px 9px #130b0870;
+  scrollbar-color: #9a7548 var(--reader-paper);
+}
+#reader .reading-paper.accepted { outline: 2px solid #a5cf9c; }
+#reader .reading-prompt-view > .reading-paper:has(.reading-passage) {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  max-height: unset;
+}
+#reader .reading-prompt-view .reading-passage {
+  font-size: clamp(24px, 6vw, 34px);
+  line-height: 1.5;
+  overflow-wrap: anywhere;
+}
+#reader .reading-prompt-view > .reading-feedback {
+  min-height: 52px;
+  padding: 4px 2px;
+  gap: 10px;
+}
+#reader .reading-feedback p,
+#reader .story-status {
+  color: #ffebc3;
+  text-shadow: 0 1px 3px #110905;
+}
+#reader .listening-indicator {
+  width: 44px;
+  min-height: 44px;
+  background: #352419;
+  color: var(--reader-brass);
+  border-color: #bd955c;
+}
+#reader .listening-indicator.listening,
+#reader .listening-indicator.accepted { background: #253e29; color: #c3ebae; }
+#reader :is(.reading-view, .reader-complete) .wood-button:not(.primary) {
+  background: linear-gradient(#543824, #302016);
+  border-color: #9c7445;
+  color: #fff0cf;
+}
+#reader .reading-prompt-view > .reading-actions { width: 100%; margin: 0 auto; }
+#reader .reading-prompt-view > .reading-actions .wood-button { min-height: 44px; }
+#reader .comprehension-view:not(.hands-free) > .reading-paper {
+  max-height: clamp(130px, calc(100dvh - 345px - var(--pirate-safe-top) - var(--pirate-safe-bottom)), 420px);
+  overflow: auto;
+  overscroll-behavior: contain;
+}
+#reader .comprehension-view .story-answers { margin-top: 12px; }
+#reader .comprehension-view .story-answers .wood-button { min-height: 44px; padding-block: 8px; }
+#reader .comprehension-view .story-status { margin: 8px 0; }
+#reader .comprehension-view:not(.hands-free) .wood-button.primary { margin-inline: auto; }
+#reader .comprehension-view .spoken-answer {
+  border: 1px solid #957344;
+  background: #39291d;
+  color: #ffedc9;
+}
+#reader .comprehension-view .story-answers button[data-result="correct"] {
+  opacity: 1;
+  background: #e6edc7;
+  border-color: #699357;
+  color: #263d21;
+}
+#reader .comprehension-view .story-answers button[data-result="wrong"] {
+  background: #f0d2b6;
+  border-color: #a65d42;
+  color: #692f22;
+}
+
+#reader .reader-complete > .page-heading p { color: #f5dbad; }
+#reader .reward-emblem {
+  border: 3px double #c49855;
+  background: radial-gradient(#765125, #302014);
+}
+#reader .world-footer,
+#reader .world-message {
+  background: #2a1c14eb;
+  border-color: #c29963;
+  color: #fff0ce;
+}
+#reader .world-message { width: min(440px, calc(100% - 32px - var(--pirate-safe-left) - var(--pirate-safe-right))); }
+#reader .world-footer p { line-height: 1.12; }
+#reader .world-footer strong { color: #ffdfa0; }
+#reader .world-buttons .wood-button:disabled { opacity: 1; background: #49382a; color: #f2dfb9; }
+#reader .reader-jump { background: #2e2116e8; }
+#reader .reader-move { background: #2e2116a6; }
+
+#reader .reading-overview { overflow: hidden; }
+#reader .reading-overview .overworld-geography {
+  width: min(100%, 650px);
+  height: min(100%, 650px);
+}
+#reader .reading-overview .overworld-place { --y: 39%; }
+#reader .reading-overview .overworld-place[data-shore="0"] { --x: 27%; }
+#reader .reading-overview .overworld-place[data-shore="1"] { --x: 73%; }
+#reader[data-screen="packs"] [data-map-center] { min-width: 44px; }
+#reader[data-screen="packs"] .world-map-tools {
+  bottom: calc(8px + var(--pirate-safe-bottom));
+  right: calc(8px + var(--pirate-safe-right));
+}
+#reader[data-screen="settings"] #reader-content { background: none; }
+#reader .captain-paper .reader-settings-note {
+  margin: 12px 0;
+  color: #3b2816;
+  font: 500 14px/1.55 "DM Sans", sans-serif;
+  text-align: start;
+}
+#reader .captain-paper .reader-practice-tally {
+  margin-block: 12px;
+  color: #523519;
+  font-size: 13px;
+}
+.reader-dialog {
+  width: min(470px, calc(100% - 30px - var(--pirate-safe-left) - var(--pirate-safe-right)));
+  max-height: calc(100dvh - 30px - var(--pirate-safe-top) - var(--pirate-safe-bottom));
+  background: #f6e7c6;
+  color: #352414;
+  border: 3px double #9c6b3f;
+}
+
+@media (orientation: landscape) and (max-height: 520px) {
+  #reader .reading-prompt-view, #reader .reading-prompt-view.hands-free {
+    min-height: 100%;
+    height: auto;
+    grid-template-rows: auto auto minmax(58px, 1fr) auto;
+    padding-top: 4px;
+  }
+  #reader .reading-prompt-view .reading-passage { font-size: clamp(19px, 4.5dvh, 23px); }
+  #reader .reading-prompt-view > .reading-feedback { min-height: 0; }
+  #reader .reading-prompt-view > .reading-actions { flex-wrap: nowrap; }
+  #reader .reading-prompt-view > .reading-actions .wood-button { flex: 1 1 0; }
+  #reader .comprehension-view:not(.hands-free) {
+    grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr);
+    padding-bottom: 10px;
+  }
+  #reader .comprehension-view:not(.hands-free) > .reading-paper {
+    max-height: calc(100dvh - 105px - var(--pirate-safe-top) - var(--pirate-safe-bottom));
+  }
+  #reader .comprehension-view .story-answers { margin-top: 0; }
+  #reader .comprehension-view:not(.hands-free) > .wood-button.primary { grid-column: 2; }
+  #reader .world-footer { width: min(285px, 46%); }
+  #reader .reader-jump { right: calc(12px + var(--pirate-safe-right)); bottom: calc(130px + var(--pirate-safe-bottom)); }
+}
+
+.reader-language.captain-language [data-dismiss] {
+  flex: none;
+  width: 44px;
+  min-width: 44px;
+  height: 44px;
+  border: 1px solid #7d5934;
+  border-radius: 7px;
+  padding: 0;
+  background: #f4db9f;
+  color: #352414;
+  box-shadow: none;
+}
