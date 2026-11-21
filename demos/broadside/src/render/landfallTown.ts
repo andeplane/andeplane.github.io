@@ -2,6 +2,7 @@ import { Mesh } from "@babylonjs/core/Meshes/mesh.js";
 import { VertexData } from "@babylonjs/core/Meshes/mesh.vertexData.js";
 import { MultiMaterial } from "@babylonjs/core/Materials/multiMaterial.js";
 import { SubMesh } from "@babylonjs/core/Meshes/subMesh.js";
+import { modelFish } from "./landfallTownFish";
 import { villageMaterial, surfaceMetres, type VillageSurface } from "./landfallTownMaterials";
 import { Color3 } from "@babylonjs/core/Maths/math.color.js";
 import type { ShadowGenerator } from "@babylonjs/core/Lights/Shadows/shadowGenerator.js";
@@ -116,6 +117,11 @@ function shingles(
   const courseCount = Math.ceil(halfD / .39);
   const tileCount = Math.ceil(halfW * 2 / .57);
   for (const side of [-1,1]) {
+    const ridgeEnd=halfW-hip;
+    const under: Point[]=[[-ridgeEnd,ridge-.04,0],[-halfW,lip-.04,side*halfD],[halfW,lip-.04,side*halfD],[ridgeEnd,ridge-.04,0]];
+    batch.surface("boards",wood,...(side<0 ? under.reverse() : under));
+    const gable: Point[]=[[side*halfW,lip-.085,-halfD],[side*halfW,lip-.085,halfD],[side*ridgeEnd,ridge-.045,0]];
+    batch.surface("boards",wood,...(side>0 ? gable.reverse() : gable));
     for (let row = 0; row < courseCount; row++) {
       const stagger = surface === "tiles" || snow ? 0 : (row%2)*.5;
       const point = (u: number, t: number, lift: number): Point => [
@@ -156,6 +162,7 @@ function shingles(
       batch.surface(surface,colors[color]!, ...(side > 0 ? [r,b,a] : [r,a,b]));
     }
   }
+  batch.surface("boards",wood,[-halfW,lip-.085,-halfD],[halfW,lip-.085,-halfD],[halfW,lip-.085,halfD],[-halfW,lip-.085,halfD]);
   const ridgeLen = (halfW-hip)*2;
   const caps = Math.ceil(ridgeLen/.58);
   for (let c=0; c<caps; c++) {
@@ -177,6 +184,8 @@ function dormer(batch: TownGeometry, x: number, z: number, y: number, width: num
     batch.surface(snow ? "snow" : "tiles",snow ? "#e9eff0" : tile,...(side > 0 ? panel : panel.reverse()));
     batch.box(wood,edge,eave-.11,z+.38,.11,.1,1.15);
   }
+  batch.face(wood,[x-hw-.14,eave-.08,z-.17],[x,peak,z-.17],[x+hw+.14,eave-.08,z-.17]);
+  batch.face(wood,[x+hw+.14,eave-.08,z+.94],[x,peak,z+.94],[x-hw-.14,eave-.08,z+.94]);
   batch.box(snow ? "#f4f5ee" : tile,x,peak+.01,z+.38,.11,.1,1.12);
 }
 
@@ -184,7 +193,14 @@ function barrel(batch: TownGeometry, x: number, z: number, scale: number) {
   batch.turned("#ac8152",x,.02,z,.25*scale,.31*scale,.40*scale,10,"boards");
   batch.turned("#a37645",x,.02+.40*scale,z,.31*scale,.25*scale,.39*scale,10,"boards");
   for (const y of [.13,.62]) batch.turned("#545958",x,.02+y*scale,z,.285*scale,.29*scale,.065*scale,10);
-  batch.turned("#c09860",x,.02+.79*scale,z,.24*scale,.24*scale,.025,10);
+  const top=.02+.79*scale;
+  batch.turned("#5c544b",x,top,z,.254*scale,.254*scale,.032,14);
+  batch.turned("#b28a5f",x,top+.03,z,.228*scale,.228*scale,.014,16,"boards");
+  for (const p of [-.12,-.04,.04,.12]) {
+    const chord=2*Math.sqrt(.218**2-p**2)*scale;
+    batch.box("#725736",x+p*scale,top+.047,z,.008,.004,chord,"plain");
+  }
+  batch.turned("#76512e",x+.096*scale,top+.047,z+.038*scale,.033*scale,.029*scale,.014,8);
 }
 
 function windowBox(batch: TownGeometry, x: number, z: number, winter: boolean, color: number) {
@@ -199,24 +215,57 @@ function windowBox(batch: TownGeometry, x: number, z: number, winter: boolean, c
   }
 }
 
+function doorstep(batch: TownGeometry, h: TownHouse, front: number, winter: boolean) {
+  const x=h.frontage*.40;
+  if (winter) {
+    // Split firewood stacks on the leeward side beneath the projecting eaves.
+    const parent=batch.transform;
+    for (let row=0;row<3;row++) for(let i=0;i<3-row;i++) {
+      const dx=(i-(2-row)/2)*.148;
+      batch.transform=([u,v,w])=>parent([x+dx+u,.10+row*.132-w,front-.06-v]);
+      batch.turned("#946c49",0,0,0,.077,.07,.38+.024*((i+row)%3),8,"boards");
+      batch.turned("#c5a275",0,.38+.024*((i+row)%3),0,.068,.061,.009,8);
+    }
+    batch.transform=parent;
+  } else if (h.color%3===0) {
+    // Two glazed water jars outside the potter's cottage.
+    for(const [offset,scale] of [[0,.85],[-.35,.56]] as const) {
+      const cx=x+offset,cz=front-.37,glaze=offset ? "#638b83" : "#b57450";
+      batch.turned(glaze,cx,.025,cz,.12*scale,.24*scale,.31*scale,12);
+      batch.turned(glaze,cx,.025+.31*scale,cz,.24*scale,.114*scale,.24*scale,12);
+      batch.turned(glaze,cx,.025+.55*scale,cz,.114*scale,.14*scale,.055*scale,12);
+      batch.turned("#483d33",cx,.026+.605*scale,cz,.10*scale,.10*scale,.005,12);
+    }
+  } else if(h.color%3===1) {
+    barrel(batch,x,front-.42,.78);
+  } else {
+    // A vine snakes up beside the jamb, its growth and blossom clustered by bay.
+    for(let j=0;j<10;j++) {
+      const cx=x+.10*Math.sin(j*.72),y=.28+j*.18,cz=front-.14;
+      batch.turned("#64734f",cx,y,cz,.019,.014,.20,5);
+      for(const side of [-1,1]) {
+        const reach=.12+.09*(1+Math.sin(j+side));
+        const leaf:Point[]=[[cx,y+.06,cz-.015],[cx+side*reach*.4,y+.15,cz-.05],[cx+side*reach,y+.18,cz-.03],[cx+side*reach*.58,y+.055,cz-.07]];
+        batch.face(j%2?"#708243":"#4f7651",...leaf);
+        batch.face(j%2?"#708243":"#4f7651",...leaf.reverse());
+      }
+      if(j%3!==0) batch.turned(j%2?"#c86576":"#b55775",cx-.07,y+.14,cz-.065,.061,.085,.065,6);
+    }
+  }
+}
+
 /** The painted fish projects beyond the awning, facing both approaches along the lane. */
 function fishSign(batch: TownGeometry, x: number, front: number) {
-  const center = front - 1.46;
-  batch.box(wood,x,2.81,front-.98,.11,.13,2.06);
-  for (const d of [-.30,.30]) batch.box(dark,x,2.63,center+d,.032,.30,.032);
-  batch.box("#6d513b",x,2.25,center,.12,.58,1.10);
-  for (const side of [-1,1]) {
-    const surface=x+side*.063;
-    const paintFace=(hex: string, offset: number, yz: [number,number][]) => {
-      const face: Point[] = yz.map(([z,y])=>[surface+side*offset,2.25+y,center+z]);
-      batch.face(hex,...(side>0 ? face.reverse() : face));
-    };
-    paintFace("#24545a",.002,[[-.50,-.24],[.50,-.24],[.50,.24],[-.50,.24]]);
-    paintFace("#efca82",.007,[[-.39,-.15],[-.14,-.025],[-.14,.025],[-.39,.16]]);
-    paintFace("#f0d798",.010,[[-.24,0],[-.04,-.13],[.18,-.12],[.39,0],[.23,.115],[.01,.17]]);
-    paintFace("#6f9b96",.013,[[-.14,.01],[.11,-.035],[.29,.04],[.12,-.09],[-.02,-.10]]);
-    paintFace("#2d4743",.016,[[.20,.038],[.236,.021],[.256,.054],[.222,.075]]);
+  const center=front-1.49;
+  batch.box(wood,x,2.82,front-.89,.085,.105,1.92);
+  batch.turned("#bf965e",x,2.77,front-1.84,.062,.07,.11,8);
+  // The sign is a fish-shaped carving, suspended from two small brass eyelets.
+  for (const offset of [-.22,.28]) {
+    const z=center+offset;
+    batch.turned("#514437",x,2.45,z,.018,.018,.32,6);
+    batch.turned("#d9af69",x,2.42,z,.035,.033,.08,8);
   }
+  modelFish(batch,[x,2.25,center],1.26,-Math.PI/2,true,0);
 }
 
 function shopfront(batch: TownGeometry, h: TownHouse, front: number, accent: string, winter: boolean) {
@@ -233,10 +282,11 @@ function shopfront(batch: TownGeometry, h: TownHouse, front: number, accent: str
   const x=halfW*.65;
   for (const dx of [-.35,.35]) batch.box(wood,x+dx,.34,front-.58,.11,.68,.45);
   batch.box("#a67541",x,.73,front-.58,1.03,.14,.59);
-  for (let i=0; i<3; i++) {
-    const z=front-.76+i*.17;
-    batch.face("#a0c7c1",[x-.30,.814,z],[x-.06,.826,z+.07],[x+.20,.816,z],[x-.06,.826,z-.07]);
-    batch.face("#618f97",[x+.15,.819,z],[x+.32,.819,z+.067],[x+.32,.819,z-.067]);
+  batch.box("#a0774b",x,.813,front-.85,1.04,.055,.045);
+  for(const edge of [-1,1]) batch.box("#97754c",x+edge*.505,.825,front-.58,.045,.07,.54);
+  const catches = [[-.08,.60,-.12],[.10,.57,Math.PI+.12],[-.05,.49,.19]] as const;
+  for (const [i,[offset,scale,heading]] of catches.entries()) {
+    modelFish(batch,[x+offset,.81+.080*scale,front-.76+i*.18],scale,heading,false,i);
   }
   barrel(batch,-halfW*.66,front-.52,.89);
   // A hemp fishing net hangs from the fish tray: paired diagonal strands droop toward its middle.
@@ -250,6 +300,10 @@ function shopfront(batch: TownGeometry, h: TownHouse, front: number, accent: str
       const a=netPoint(topU,v),b=netPoint(bottomU,v+.25);
       batch.face("#d5b880",a,[a[0]+.011,a[1],a[2]],[b[0]+.011,b[1],b[2]],b);
     }
+  }
+  for (let i=0;i<5;i++) {
+    const [cx,cy,cz]=netPoint(i/4,0);
+    batch.turned("#ae8450",cx,cy-.04,cz,.052,.042,.083,7,"boards");
   }
   fishSign(batch,halfW-.18,front);
   if (winter) batch.box("#dce7e4",0,2.36,front-.075,h.frontage,.06,.12);
@@ -374,7 +428,7 @@ function drawHouse(batch: TownGeometry, h: TownHouse, floor: number, biome: stri
       batch.box(wood,0,1.91,front-.65,canopyWidth+.07,.10,.11);
       for (const x of [-.58,.58]) batch.box(cut,x,1.82,front-.32,.09,.12,.63);
     }
-    if (h.color % 2) barrel(batch,halfW*.79,front-.42,.78);
+    doorstep(batch,h,front,winter);
   }
 }
 
