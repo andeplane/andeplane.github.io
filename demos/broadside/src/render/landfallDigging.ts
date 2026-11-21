@@ -6,87 +6,89 @@ import "@babylonjs/core/Meshes/thinInstanceMesh.js";
 import { StandardMaterial } from "@babylonjs/core/Materials/standardMaterial.js";
 import { Color3 } from "@babylonjs/core/Maths/math.color.js";
 import { Matrix, Quaternion, Vector3 } from "@babylonjs/core/Maths/math.vector.js";
+import { ExcavationSurface } from "./landfallExcavation";
+import { DiggingSpade, SPADE_CONTACT, SPADE_DURATION } from "./landfallSpade";
+import { SpadeSound } from "./landfallSpadeSound";
 import { Rng } from "../sim/rng";
 import type { IslandSettings } from "../game/landfall";
 
 type Height = (x: number, z: number) => number;
 type Mark = { x: number; z: number; count: number; seed: number; index: number; batch: PatchBatch };
 
-const SIDES = 12,
-  RINGS = 3,
-  VERTICES = 1 + SIDES * RINGS,
-  SLOTS = 48;
+const LUMPS = 13,
+  SIDES = 5,
+  VERTICES = LUMPS * (SIDES + 1),
+  SLOTS = 32;
 const TAU = Math.PI * 2;
 
-/** A batch keeps every scoop on the ground and costs one draw for 48 distinct spots. */
+/** Loose, irregular heaps beside the cut. The pit itself is the actual terrain. */
 class PatchBatch {
   count = 0;
   private readonly mesh: Mesh;
   private readonly positions = new Float32Array(SLOTS * VERTICES * 3);
   private readonly colors = new Float32Array(SLOTS * VERTICES * 4);
+  private readonly normals = new Float32Array(SLOTS * VERTICES * 3);
+  private readonly indices: number[] = [];
   constructor(scene: Scene, material: StandardMaterial) {
-    this.mesh = new Mesh("spade marks in the ground", scene);
-    const indices: number[] = [];
-    for (let slot = 0; slot < SLOTS; slot++) {
-      const start = slot * VERTICES;
-      for (let j = 0; j < SIDES; j++) {
-        const a = start + 1 + j,
-          b = start + 1 + ((j + 1) % SIDES);
-        indices.push(start, a, b);
-        for (let ring = 1; ring < RINGS; ring++) {
-          const c = a + ring * SIDES,
-            d = b + ring * SIDES;
-          indices.push(c - SIDES, c, d, c - SIDES, d, d - SIDES);
-        }
-      }
+    this.mesh = new Mesh("spoils heaped beside spade cuts", scene);
+    for (let n = 0; n < LUMPS * SLOTS; n++) {
+      const base = n * (SIDES + 1);
+      for (let j = 0; j < SIDES; j++) this.indices.push(base, base + 1 + j, base + 1 + ((j + 1) % SIDES));
     }
     const data = new VertexData();
     data.positions = this.positions;
     data.colors = this.colors;
-    data.indices = indices;
-    // Low relief is painted into the scoop; subtle directional colour stays visible in shade.
-    data.normals = Float32Array.from({ length: this.positions.length }, (_, i) => (i % 3 === 1 ? 1 : 0));
+    data.indices = this.indices;
+    data.normals = this.normals;
     data.applyToMesh(this.mesh, true);
     this.mesh.material = material;
     this.mesh.receiveShadows = true;
     this.mesh.isPickable = false;
   }
-  stamp(mark: Mark, height: Height, colors: Color3[], successful: boolean) {
-    const first = mark.index * VERTICES,
-      rng = new Rng(mark.seed),
-      angle = rng.range(0, TAU);
-    const cs = Math.cos(angle),
-      sn = Math.sin(angle);
-    const scale = (successful ? 0.72 : 0.51) + 0.043 * Math.min(mark.count, 4);
-    const write = (vertex: number, x: number, z: number, above: number, tint: Color3, shade: number) => {
-      this.positions.set([x, height(x, z) + above, z], vertex * 3);
-      this.colors.set([tint.r * shade, tint.g * shade, tint.b * shade, 1], vertex * 4);
-    };
-    write(first, mark.x, mark.z, 0.027, colors[0]!, 1);
-    for (let j = 0; j < SIDES; j++) {
-      const a = ((j + rng.range(-0.18, 0.18)) * TAU) / SIDES;
-      const edge = rng.range(0.8, 1.06);
-      const dx = Math.cos(a) * scale * edge,
-        dz = Math.sin(a) * scale * 0.74 * edge;
-      // Loose turf piles on the side where the spade leaves the cut.
-      const displaced = Math.max(0, Math.cos(a - 0.6)),
-        shade = rng.range(0.92, 1.04);
-      for (let k = 0; k < RINGS; k++) {
-        const r = [0.53, 0.83, 1.08][k]!;
-        const x = mark.x + (dx * cs - dz * sn) * r,
-          z = mark.z + (dx * sn + dz * cs) * r;
-        const above = k === 1 ? 0.065 + 0.086 * displaced : 0.033;
-        write(first + 1 + k * SIDES + j, x, z, above, colors[k + 1]!, shade);
+  stamp(mark: Mark, height: Height, palette: Color3[], successful: boolean) {
+    const rng = new Rng(mark.seed),
+      heading = rng.range(0, TAU);
+    const radius = (successful ? 1.31 : 1.05) + Math.min(mark.count - 1, 3) * 0.09;
+    for (let n = 0; n < LUMPS; n++) {
+      const a = heading + rng.range(-1.35, 1.35),
+        r = radius * rng.range(0.92, 1.35);
+      const x = mark.x + r * Math.cos(a),
+        z = mark.z + r * Math.sin(a);
+      const size = rng.range(0.054, 0.147) * (1 + Math.min(mark.count - 1, 3) * 0.18);
+      const tint = palette[rng.int(1, 3)]!,
+        base = mark.index * VERTICES + n * (SIDES + 1);
+      this.positions.set([x, height(x, z) + size * 1.17, z], base * 3);
+      this.colors.set([tint.r, tint.g, tint.b, 1], base * 4);
+      for (let j = 0; j < SIDES; j++) {
+        const az = a + (j * TAU) / SIDES,
+          xx = x + Math.cos(az) * size * rng.range(0.95, 1.46),
+          zz = z + Math.sin(az) * size;
+        this.positions.set([xx, height(xx, zz) - 0.035, zz], (base + j + 1) * 3);
+        this.colors.set([tint.r * 0.82, tint.g * 0.82, tint.b * 0.82, 1], (base + j + 1) * 4);
       }
     }
+    VertexData.ComputeNormals(this.positions, this.indices, this.normals);
     this.mesh.updateVerticesData("position", this.positions, true);
     this.mesh.updateVerticesData("color", this.colors);
+    this.mesh.updateVerticesData("normal", this.normals);
   }
 }
 
+type Stroke = {
+  x: number;
+  z: number;
+  successful: boolean;
+  onContact?: () => void;
+  age: number;
+  contacted: boolean;
+};
 export class IslandDigging {
   private readonly spots = new Map<string, Mark>();
   private batch?: PatchBatch;
+  private readonly surface: ExcavationSurface;
+  private readonly sound = new SpadeSound();
+  private readonly spade: DiggingSpade;
+  private stroke?: Stroke;
   private readonly material: StandardMaterial;
   private readonly palette: Color3[];
   private readonly clods: Mesh;
@@ -105,10 +107,17 @@ export class IslandDigging {
 
   constructor(
     private scene: Scene,
-    private height: Height,
+    height: Height,
     biome: IslandSettings["biome"],
     private seed: number,
+    ground = scene.getMeshByName("island-0-0") as Mesh,
   ) {
+    this.surface = new ExcavationSurface(ground, height);
+    this.spade = new DiggingSpade(scene);
+    scene.onDisposeObservable.addOnce(() => {
+      this.cancelSwing();
+      this.sound.dispose();
+    });
     this.material = new StandardMaterial("fresh earth and displaced turf", scene);
     this.material.specularColor.setAll(0.025);
     this.material.backFaceCulling = false;
@@ -135,10 +144,40 @@ export class IslandDigging {
     this.clods.setEnabled(false);
   }
 
-  strike(x: number, z: number, successful: boolean, reduced: boolean) {
+  heightAt(x: number, z: number): number {
+    return this.surface.heightAt(x, z);
+  }
+
+  setMuted(value: boolean): void {
+    this.sound.setMuted(value);
+  }
+
+  cancelSwing(): void {
+    this.stroke = undefined;
+    this.spade.hide();
+  }
+
+  strike(x: number, z: number, successful: boolean, reduced: boolean, onContact?: () => void): boolean {
+    if (this.stroke && !this.stroke.contacted) return false;
+    this.sound.unlock();
+    const stroke = (this.stroke = { x, z, successful, onContact, age: 0, contacted: false });
+    if (reduced) {
+      this.contact(stroke, true);
+      this.cancelSwing();
+    } else this.spade.show(0);
+    return true;
+  }
+
+  /** The chart keeps completed strokes when a lighting change rebuilds the scene. */
+  restoreTreasure(x: number, z: number, strokes: number): void {
+    const count = this.spots.get("treasure")?.count ?? 0;
+    for (let i = count; i < Math.min(3, strokes); i++) this.cut(x, z, true);
+  }
+
+  private cut(x: number, z: number, successful: boolean): Mark {
     const cellX = Math.round(x / 0.74),
-      cellZ = Math.round(z / 0.74),
-      key = cellX + "," + cellZ;
+      cellZ = Math.round(z / 0.74);
+    const key = successful ? "treasure" : cellX + "," + cellZ;
     let mark = this.spots.get(key);
     if (!mark) {
       if (!this.batch || this.batch.count === SLOTS) this.batch = new PatchBatch(this.scene, this.material);
@@ -153,13 +192,28 @@ export class IslandDigging {
       this.spots.set(key, mark);
     }
     mark.count++;
-    mark.batch.stamp(mark, this.height, this.palette, successful);
+    const heading = new Rng(mark.seed).range(0, TAU);
+    this.surface.scoop(mark.x, mark.z, mark.count, successful, heading, this.palette);
+    // A cut beside an earlier one also moves the ground underneath its spoil heap.
+    for (const [id, spot] of this.spots) {
+      if (Math.hypot(spot.x - mark.x, spot.z - mark.z) < 4)
+        spot.batch.stamp(spot, (xx, zz) => this.surface.heightAt(xx, zz), this.palette, id === "treasure");
+    }
+    return mark;
+  }
+
+  private contact(stroke: Stroke, reduced: boolean): void {
+    stroke.contacted = true;
+    const { x, z, successful } = stroke;
+    const mark = this.cut(x, z, successful);
+    const rng = new Rng(mark.seed ^ Math.imul(mark.count, 1777));
+    this.sound.impact(successful && mark.count >= 2, rng.next());
     this.age = reduced ? Infinity : 0;
     this.clods.setEnabled(!reduced);
+    stroke.onContact?.();
     if (reduced) return;
-    const rng = new Rng(mark.seed ^ Math.imul(mark.count, 1777)),
-      direction = rng.range(0, TAU);
-    const ground = this.height(x, z);
+    const direction = rng.range(0, TAU);
+    const ground = this.heightAt(x, z);
     for (const piece of this.pieces) {
       const a = direction + rng.range(-1.15, 1.15),
         speed = rng.range(0.65, 1.95);
@@ -168,10 +222,16 @@ export class IslandDigging {
       piece.size = rng.range(0.035, 0.087);
       piece.spin = rng.range(-7, 7);
     }
-    this.update(0, false);
   }
 
   update(dt: number, reduced: boolean) {
+    const stroke = this.stroke;
+    if (stroke) {
+      stroke.age += dt;
+      if (!stroke.contacted && (reduced || stroke.age >= SPADE_CONTACT)) this.contact(stroke, reduced);
+      if (reduced || stroke.age >= SPADE_DURATION) this.cancelSwing();
+      else this.spade.show(stroke.age);
+    }
     if (!Number.isFinite(this.age)) return;
     this.age += dt;
     if (reduced || this.age >= 0.68) {
