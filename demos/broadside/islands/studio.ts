@@ -125,7 +125,13 @@ export function createStudio(initial: StudioState, actions: StudioActions) {
     };
   });
   walkButton.onclick = () => {
-    if (seedInput.reportValidity()) actions.walk();
+    if (!seedInput.validity.valid) {
+      if (compact.matches) fold(true);
+      seedInput.focus();
+      seedInput.reportValidity();
+      return;
+    }
+    actions.walk();
   };
   updateCaption();
   return {
