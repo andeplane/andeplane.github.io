@@ -47,7 +47,7 @@
 #voyage-ui #level-menu .tile-stars {bottom:-15px;font-size:11px;}
 
 #voyage-ui .regional-viewport {position:absolute;inset:-12px 0 -14px;overflow:hidden;}
-#voyage-ui .regional-center {position:absolute;bottom:0;right:0;z-index:2;}
+#voyage-ui .regional-center {position:absolute;bottom:calc(10px + var(--pirate-safe-bottom));right:calc(10px + var(--pirate-safe-right));z-index:2;}
 #world-menu .world-label {display:grid;gap:2px;}
 #reader[data-screen="levels"] .expedition-view {display:flex;flex-direction:column;}
 #reader[data-screen="levels"] .expedition-intro,#reader[data-screen="levels"] .expedition-dock {position:static;flex:none;max-width:none;margin:0;width:auto;}

@@ -1,4 +1,4 @@
-/* Shared menu contract for both game entrypoints. Scene layouts supply their content. */
+/* Shared menu contract for the pirate games. Scene layouts supply their content. */
 :root {
   --pirate-safe-top: env(safe-area-inset-top, 0px);
   --pirate-safe-bottom: env(safe-area-inset-bottom, 0px);
