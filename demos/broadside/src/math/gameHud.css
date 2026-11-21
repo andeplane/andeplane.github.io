@@ -10,11 +10,6 @@
 }
 #academy .map-view.operation-world { max-width: none; padding: 0; }
 #academy .world-map-viewport { border: 0; border-radius: 0; box-shadow: none; }
-#academy .world-map-tools {
-  right: calc(10px + var(--pirate-safe-right));
-  bottom: calc(10px + var(--pirate-safe-bottom));
-  left: auto;
-}
 #academy[data-screen="levels"] .expedition-map-tools {
   right: calc(10px + var(--pirate-safe-right));
   bottom: calc(10px + var(--pirate-safe-bottom));
