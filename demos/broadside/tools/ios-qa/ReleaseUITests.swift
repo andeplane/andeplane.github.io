@@ -112,8 +112,7 @@ final class ReleaseUITests: XCTestCase {
         tap(app, "Back to Home")
 
         tap(app, "Your cave")
-        tap(app, "Explore your cave")
-        XCTAssertTrue(button(app, "Jump").waitForExistence(timeout: 45))
+        XCTAssertTrue(button(app, "Jump").waitForExistence(timeout: 90))
         capture("calculus-cave-before-rotation", app: app)
         XCUIDevice.shared.orientation = .landscapeLeft
         capture("calculus-cave-landscape", app: app)

@@ -5,6 +5,7 @@ import { installPrivacy } from "../ui/privacy";
 import { installMenuPreview } from "../ui/menuPreview";
 import { icon } from "../ui/icons";
 import { backButton } from "../ui/menuChrome";
+import { caveHeader, caveNotice, caveTally } from "../ui/caveHud";
 import { pirateShipArt } from "../ui/worldArt";
 import { worldFor } from "./worlds";
 import { atlasRenderer, atlasView, worldAsset, worldIsland } from "../ui/worldAtlas";
@@ -132,11 +133,12 @@ const gameBack = (destination: Screen) => backButton({ action: "back", label: t(
 
 function caveHud(): string {
   const gold = bankedGold(progress);
-  return `<header class="explore-bar">
-    ${gameBack(treasureParent())}
-    <h1>${t("cave")}</h1>
-    <span class="explore-balance"><span class="visually-hidden">${t("safeCave", { gold: format(gold) })}</span><span class="explore-balance-display" aria-hidden="true">${icon("chest")} ${navNumber(gold)} <small>${t("gold")}</small></span></span>
-  </header>`;
+  return caveHeader(gameBack(treasureParent()), t("cave"), {
+    amount: gold,
+    accessible: t("safeCave", { gold: format(gold) }),
+    currency: t("gold"),
+    locale: i18n.language,
+  });
 }
 function home(): string {
   const saved = resumeRun();
@@ -239,13 +241,13 @@ function shipView(reward: boolean): string {
   </section>`;
 }
 function caveView(unloading: boolean): string {
-  if (sceneError) return `<section class="cave-view quiet-cave"><div class="quiet-recovery"><p role="status">${t("caveLoadError")}</p>${retryScene()}</div></section>`;
-  if (sceneLoading) return `<section class="cave-view quiet-cave"><p class="quiet-loading" role="status">${t("loadingCave")}</p></section>`;
+  if (sceneError) return `<section class="cave-view quiet-cave">${caveNotice(t("caveLoadError"), retryScene())}</section>`;
+  if (sceneLoading) return `<section class="cave-view quiet-cave">${caveNotice(t("loadingCave"))}</section>`;
   const pending = pendingMathChests(progress);
   if (unloading) {
     const total = cave?.unloading.total || pending.length;
     const count = Math.min((cave?.unloading.delivered ?? 0) + 1, total);
-    return `<section class="cave-view quiet-cave"><p class="unload-tally" role="status">${t("unloadProgress", { count, total, gold: format(cargoGold(progress)) })}</p></section>`;
+    return `<section class="cave-view quiet-cave">${caveTally(t("unloadProgress", { count, total, gold: format(cargoGold(progress)) }))}</section>`;
   }
   return `<section class="cave-view walking-view quiet-cave">
     <div class="cave-walk-controls"><span class="cave-crosshair" aria-hidden="true">+</span><button id="math-cave-pad" aria-label="${t("moveCave")}"><span id="math-cave-thumb"></span><small>${t("move")}</small></button><button id="math-cave-jump" aria-label="${t("jump")}">↑<small>${t("jump")}</small></button><button id="math-cave-inspect" class="text-button" data-action="cave-inspect" disabled>${t("inspectTreasure")}</button></div>

@@ -199,7 +199,7 @@
 }
 #voyage-ui[data-screen="cave"][data-cave-view="inspect"] #cave-ui #relic-info h2 { margin: 6px 0; font-size: 28px; }
 #voyage-ui[data-screen="cave"][data-cave-view="inspect"] #cave-ui #relic-info p { color: #f2e4c7; font-size: 13px; }
-#voyage-ui :is(#hold-ui, #unload-ui) .hold-heading,
+#voyage-ui #hold-ui .hold-heading,
 #voyage-ui #v-result .result-top {
   top: calc(var(--pirate-safe-top) + var(--pirate-menu-inset) + var(--pirate-touch-target) + 18px);
 }
@@ -284,9 +284,9 @@
 }
 @media (max-height: 500px) and (min-aspect-ratio: 4/3) {
   #voyage-ui #v-result .result-bottom,
-  #voyage-ui :is(#hold-ui, #unload-ui) .hold-actions { right: calc(var(--pirate-safe-right) + 16px); }
+  #voyage-ui #hold-ui .hold-actions { right: calc(var(--pirate-safe-right) + 16px); }
   #voyage-ui #v-result .result-top,
-  #voyage-ui :is(#hold-ui, #unload-ui) .hold-heading { left: calc(var(--pirate-safe-left) + 16px); }
+  #voyage-ui #hold-ui .hold-heading { left: calc(var(--pirate-safe-left) + 16px); }
   #voyage-ui[data-screen="levels"] #level-menu .menu-heading p { display: none; }
   #voyage-ui[data-screen="levels"] #level-menu { overflow-y: hidden; }
   #voyage-ui[data-screen="levels"] #level-menu .level-board {
@@ -422,3 +422,16 @@
 @media (prefers-reduced-motion: reduce) {
   #voyage-ui[data-screen="cave"][data-walk-place="harbour"] #cave-ui .gallery-hint { animation: none; opacity: 0; visibility: hidden; }
 }
+
+/* The real cave keeps the shared HUD. The ship tour retains its room labels. */
+#voyage-ui[data-walk-place="cave"] #cave-ui .cave-title {
+  inset: 0 auto auto 0;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+}
+#voyage-ui[data-walk-place="cave"] #cave-ui::before { content: none; }
+#voyage-ui[data-walk-place="harbour"] #cave-ui :is(.pirate-cave-title, .pirate-cave-balance),
+#voyage-ui[data-cave-view="inspect"] #cave-ui .pirate-cave-balance { display: none; }
+#voyage-ui:has(#game-fullscreen:not([hidden])) { --pirate-cave-extra-right: 52px; }

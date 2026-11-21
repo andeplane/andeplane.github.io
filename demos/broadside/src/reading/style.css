@@ -329,3 +329,23 @@
   #reader .reader-cabin h1 {text-align:left;font-size:clamp(35px,7vw,62px);}
   .reader-cabin h1 span {display:inline;font-size:.75em;}
 }
+
+.reader-cave-actions {
+  position: fixed;
+  bottom: calc(14px + var(--pirate-safe-bottom));
+  left: 50%;
+  transform: translateX(-50%);
+  max-width: calc(100% - 28px - var(--pirate-safe-left) - var(--pirate-safe-right));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  text-align: center;
+}
+.reader-cave-actions .wood-button {
+  min-height: 44px;
+  padding: 8px 12px;
+}
+@media (max-height: 520px) and (orientation: landscape) {
+  #reader[data-screen="cave"] .reader-jump { right: calc(20px + var(--pirate-safe-right)); }
+}

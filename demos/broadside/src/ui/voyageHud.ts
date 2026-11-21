@@ -4,6 +4,7 @@ import { adventureChart, chartCenterButton, chartShip, faceChartShip } from "./a
 import { PACKS, RELICS, type VoyageSession, type VoyageDef } from "../game/voyage";
 import {
   goldTotal,
+  GOLD_PER_LEVEL,
   cargoChests,
   worldGold,
   caveProgress,
@@ -25,6 +26,7 @@ import { generateVoyage } from "../game/voyage";
 import type { Progress } from "../game/progress";
 import { icon } from "./icons";
 import { backButton, menuBrand, menuHeader } from "./menuChrome";
+import { caveHeader, caveNotice, caveTally, updateCaveBalance } from "./caveHud";
 import { PRIVATE_PEARL } from "../privatePearl";
 import { lanternHome } from "./lanternHome";
 import { LANGUAGES, createI18n, readLanguagePreference, saveLanguagePreference } from "../math/i18n";
@@ -40,6 +42,12 @@ import { mountMapPan, type MapCamera, type MapPanController } from "./mapPan";
 import { shoreMarker } from "./islandChart";
 import { locationWorld, type ShipLocation } from "../game/journey";
 const homeLanguageKey = "broadside.home.language.v1";
+const caveBalance = (amount: number) => ({
+  amount,
+  accessible: `${amount.toLocaleString()} gold safely in your cave`,
+  currency: "gold",
+  locale: "en",
+});
 const deviceLanguages = () => navigator.languages?.length ? navigator.languages : [navigator.language];
 function homeStorage(): Storage | undefined {
   try { return window.localStorage; } catch { return undefined; }
@@ -108,7 +116,7 @@ export class VoyageHud {
       <div id="settings-menu" class="menu-page" hidden>${settingsDesk("Settings",`<label class="coin-sounds-choice"><input id="coin-sounds" type="checkbox"> Coin sound effects</label><p id="coin-sounds-note">Clinks when coins tumble and land.</p><button type="button" class="privacy-action" data-open-privacy>Privacy & support</button><p class="art-credit">Black Pearl model by <a href="https://www.thingiverse.com/thing:4951578" target="_blank" rel="noopener">DeltaX_F</a> · <a href="https://creativecommons.org/licenses/by/4.0/" target="_blank" rel="noopener">CC BY 4.0</a><br>Adapted for Broadside.</p>`)}</div>
       ${backButton({ id: "menu-back", destination: "previous menu", hidden: true })}
     </section>
-    <section id="cave-ui" hidden><div class="cave-title"><span class="eyebrow">YOUR SECRET HIDEOUT</span><h1>The treasure cave</h1><p id="cave-count"></p></div><div id="relic-info"><span class="eyebrow" id="relic-number"></span><h2 id="relic-title"></h2><p id="relic-story"></p><div id="relic-stars"></div><button id="cave-sail" class="text-button">Find this treasure ${icon("arrow")}</button></div><div class="gallery-hint">WASD walk · Arrows look · Space jump</div><button id="cave-overview" class="cave-overview">‹ Keep exploring</button><div id="cave-crosshair" aria-hidden="true">+</div><div id="cave-pad" role="group" aria-label="Move around the cave"><span id="cave-thumb"></span><small>MOVE</small></div><button id="cave-jump" aria-label="Jump">↑<small>JUMP</small></button><button id="cave-inspect" hidden>Inspect treasure</button><button id="harbour-chart" class="harbour-chart" hidden>Set sail ${icon("map")}</button>${backButton({ id: "cave-back", destination: "menu" })}</section>
+    <section id="cave-ui" hidden>${caveHeader(backButton({ id: "cave-back", destination: "menu" }), "Cave", caveBalance(0))}<div class="cave-title"><span class="eyebrow">YOUR SECRET HIDEOUT</span><h1>The treasure cave</h1><p id="cave-count"></p></div><div id="relic-info"><span class="eyebrow" id="relic-number"></span><h2 id="relic-title"></h2><p id="relic-story"></p><div id="relic-stars"></div><button id="cave-sail" class="text-button">Find this treasure ${icon("arrow")}</button></div><div class="gallery-hint">WASD walk · Arrows look · Space jump</div><button id="cave-overview" class="cave-overview">‹ Keep exploring</button><div id="cave-crosshair" aria-hidden="true">+</div><div id="cave-pad" role="group" aria-label="Move around the cave"><span id="cave-thumb"></span><small>MOVE</small></div><button id="cave-jump" aria-label="Jump">↑<small>JUMP</small></button><button id="cave-inspect" hidden>Inspect treasure</button><button id="harbour-chart" class="harbour-chart" hidden>Set sail ${icon("map")}</button></section>
     <section id="voyage-play" hidden>
       <div class="live-voyage-hud">
         <div class="voyage-summary">
@@ -174,7 +182,7 @@ export class VoyageHud {
     }, true);
     q("#ship-cave").onclick = () => { this.closeShipPanel(); h.travel("cave"); };
     q(".result-actions").insertAdjacentHTML("beforeend", '<button id="result-unload" class="hold-unload primary" hidden>Return to cave</button>');
-    r.insertAdjacentHTML("beforeend", `<section id="hold-ui" hidden>${backButton({ id: "hold-back", destination: "menu" })}<div class="hold-heading"><span class="eyebrow">ABOARD THE BLACK PEARL</span><h1>The treasure hold</h1><p id="hold-count"></p></div><div class="hold-actions"><button id="hold-unload" class="primary">Return to cave ${icon("chest")}</button><button id="hold-sail" class="secondary">Keep sailing ${icon("map")}</button></div></section><section id="unload-ui" hidden>${backButton({ id: "unload-menu", destination: "menu" })}<div class="hold-heading"><span class="eyebrow">BRINGING YOUR FORTUNE HOME</span><h1 id="unload-title">Unloading the ship</h1><p id="unload-count"></p></div><div class="hold-actions"><button id="unload-explore" class="primary" hidden>Explore your cave</button><small id="unload-safe">Any unopened chests stay safely aboard.</small></div></section>`);
+    r.insertAdjacentHTML("beforeend", `<section id="hold-ui" hidden>${backButton({ id: "hold-back", destination: "menu" })}<div class="hold-heading"><span class="eyebrow">ABOARD THE BLACK PEARL</span><h1>The treasure hold</h1><p id="hold-count"></p></div><div class="hold-actions"><button id="hold-unload" class="primary">Return to cave ${icon("chest")}</button><button id="hold-sail" class="secondary">Keep sailing ${icon("map")}</button></div></section><section id="unload-ui" hidden>${caveHeader(backButton({ id: "unload-menu", destination: "menu" }), "Cave", caveBalance(0))}${caveTally("", "unload-count")}<div id="unload-failure" hidden>${caveNotice("The cave couldn't load. Your gold is safe.", '<button id="unload-retry" class="wood-button primary">Try again</button>')}</div></section>`);
     q("#cave-ui").insertAdjacentHTML("beforeend", `<button id="harbour-unload" class="harbour-chart" hidden>Return to cave ${icon("chest")}</button>`);
     if (PRIVATE_PEARL) {
       q(".art-credit").innerHTML = 'Black Pearl model by <a href="https://www.cgtrader.com/3d-models/watercraft/recreational-watercraft/black-pearl-pirate-ship" target="_blank" rel="noopener">CrispierCone</a> · licensed model.<br>Cabin and treasure display adapted for Broadside.';
@@ -184,7 +192,7 @@ export class VoyageHud {
     q("#hold-sail").onclick = () => { h.menu(); this.showMenu("worlds"); };
     q("#hold-back").onclick = q("#unload-menu").onclick = () => h.menu();
     q("#harbour-unload").onclick = h.unload;
-    q("#unload-explore").onclick = h.home;
+    q("#unload-retry").onclick = h.unload;
     q("#v-home").onclick = () => {
       if (this.freeSeed !== null) { h.seaChart(true); return; }
       h.menu();
@@ -446,7 +454,7 @@ export class VoyageHud {
     this.q("#v-deck").hidden = true;
     this.q("#hold-ui").hidden = this.q("#unload-ui").hidden = true;
     this.root.dataset.walkPlace = "cave";
-    this.q(".cave-title .eyebrow").textContent = "YOUR SECRET HIDEOUT";
+    this.q(".cave-title h1").setAttribute("aria-hidden", "true");
     this.q("#harbour-chart").hidden = true;
     this.q("#harbour-unload").hidden = true;
     this.q("#cave-pad").setAttribute("aria-label", "Move around the cave");
@@ -480,6 +488,7 @@ export class VoyageHud {
     this.q("#harbour-chart").hidden = false;
     this.q("#harbour-unload").hidden = !cargoChests(this.progress).length;
     this.q("#cave-pad").setAttribute("aria-label", PRIVATE_PEARL ? "Walk on the Black Pearl" : "Walk on the ship and quay");
+    this.q(".cave-title h1").removeAttribute("aria-hidden");
     this.q(".cave-title .eyebrow").textContent = `YOUR SHIP · ${this.shipLocation.kind === "port" || this.shipLocation.kind === "cave" ? "BLACKWATER BAY" : PACKS[locationWorld(this.shipLocation)]!.name.toUpperCase()}`;
     const keepsakes = this.progress.relics.filter(id => WORLD_RELICS.includes(id as 2|5|8|11)).length;
     this.q("#cave-count").textContent = PRIVATE_PEARL
@@ -521,6 +530,7 @@ export class VoyageHud {
   }
   private renderRelic(): void {
     const banked = caveProgress(this.progress);
+    updateCaveBalance(this.q("#cave-ui .pirate-cave-header"), caveBalance(goldTotal(banked)));
     this.q("#relic-info").hidden = false;
     const gold = this.selected === 0;
     const world = gold
@@ -869,14 +879,26 @@ export class VoyageHud {
     this.q("#hold-count").textContent=cargoChests(this.progress).length ? `${(cargoChests(this.progress).length*1000).toLocaleString()} gold · ${cargoChests(this.progress).length} chest${cargoChests(this.progress).length===1?"":"s"} safely aboard` : "Your hold is ready. Find gold on your next voyage.";
     this.q("#hold-unload").hidden=!cargoChests(this.progress).length;this.root.dataset.screen="hold";
   }
-  unloading(chest:number,total:number,done=false):void {
+  unloading(chest: number, total: number): void {
     this.q("#v-camera").hidden = true;
     this.q("#v-deck").hidden = true;
-    this.q("#captain-menu").hidden=this.q("#v-result").hidden=this.q("#hold-ui").hidden=this.q("#cave-ui").hidden=this.q("#voyage-play").hidden=true;
-    this.q("#unload-ui").hidden=false;this.q("#v-pause").hidden=this.q("#v-home").hidden=true;
-    this.q("#unload-title").textContent=done?"Welcome home, Captain":"Unloading the ship";
-    this.q("#unload-count").textContent=done?`${(total*1000).toLocaleString()} gold brought home`:`Chest ${chest} of ${total} · ${(total*1000).toLocaleString()} gold coming home`;
-    this.q("#unload-explore").hidden=!done;this.q("#unload-safe").hidden=done;this.root.dataset.screen="unloading";
+    this.q("#captain-menu").hidden = this.q("#v-result").hidden = this.q("#hold-ui").hidden = this.q("#cave-ui").hidden = this.q("#voyage-play").hidden = true;
+    this.q("#unload-ui").hidden = false;
+    this.q("#v-pause").hidden = this.q("#v-home").hidden = true;
+    this.q("#unload-failure").hidden = true;
+    const tally = this.q("#unload-count");
+    tally.hidden = false;
+    const cargo = cargoChests(this.progress).length * GOLD_PER_LEVEL;
+    const message = `Chest ${chest} of ${total} · ${cargo.toLocaleString()} gold coming home`;
+    if (tally.textContent !== message) {
+      tally.textContent = message;
+      updateCaveBalance(this.q("#unload-ui .pirate-cave-header"), caveBalance(goldTotal(this.progress) - cargo));
+    }
+    this.root.dataset.screen = "unloading";
+  }
+  unloadingFailed(): void {
+    this.q("#unload-count").hidden = true;
+    this.q("#unload-failure").hidden = false;
   }
   reveal(time: number, discovered: boolean, ready: boolean): void {
     if (!this.q("#v-result").classList.contains("unboxing")) return;

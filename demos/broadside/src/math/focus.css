@@ -1,56 +1,9 @@
 /* A shared adventure world, with a quiet HUD over the actual cave scene. */
 #academy:is([data-screen="cave"], [data-screen="unloading"]) #main-content { inset: 0 !important; overflow: hidden; }
-#academy .explore-bar {
-  position: absolute;
-  z-index: 8;
-  inset: calc(6px + var(--pirate-safe-top)) calc(8px + var(--pirate-safe-right)) auto calc(8px + var(--pirate-safe-left));
-  display: flex;
-  align-items: center;
-  gap: clamp(4px, 2vw, 12px);
-  pointer-events: none;
-  color: #fff0ce;
-}
-.explore-bar h1 {
-  flex: 1;
-  font-size: clamp(24px, 5vw, 32px);
-  line-height: 1.05;
-  paint-order: stroke fill;
-  -webkit-text-stroke: 3px #221b13;
-  text-shadow: 0 2px 4px #221b13;
-}
-.explore-bar button { pointer-events: auto; }
-.explore-balance {
-  min-height: 44px;
-  border: 1px solid #82683d;
-  border-radius: 9px;
-  background: #221b13;
-  color: #fff0ce;
-  padding: 6px 10px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 14px;
-  font-weight: 700;
-  white-space: nowrap;
-}
-.explore-balance-display { display: flex; align-items: center; gap: 5px; }
-.explore-balance .icon { color: #f5c66e; width: 20px; }
-.explore-balance small { font-size: 13px; }
-.unload-tally {
-  position: absolute;
-  bottom: calc(12px + var(--pirate-safe-bottom) + var(--math-notice-space));
-  inset-inline: calc(8px + var(--pirate-safe-left)) calc(8px + var(--pirate-safe-right));
-  width: fit-content;
-  max-width: calc(100% - 16px - var(--pirate-safe-left) - var(--pirate-safe-right));
-  margin-inline: auto;
-  padding: 8px 12px;
-  border: 1px solid #82683d;
-  border-radius: 9px;
-  background: #221b13;
-  color: #fff0ce;
-  font-size: 14px;
-  line-height: 1.4;
-  text-align: center;
+#academy {
+  --pirate-cave-top: var(--pirate-back-top, calc(6px + var(--pirate-safe-top)));
+  --pirate-cave-left: var(--pirate-back-left, calc(8px + var(--pirate-safe-left)));
+  --pirate-cave-notice-space: var(--math-notice-space);
 }
 .quiet-ship {
   min-height: 44px; border: 0; border-radius: 12px; background: #0b2635ed;
@@ -66,8 +19,6 @@
 .quiet-cave #math-cave-inspect { bottom: calc(124px + var(--safe-bottom)); min-height: 44px; font-size: 15px; }
 .quiet-cave #math-cave-inspect:disabled { display: none; }
 .quiet-cave .cave-crosshair { font-size: 16px; opacity: .7; }
-.quiet-loading, .quiet-recovery { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: min(340px, calc(100% - 32px - var(--pirate-safe-left) - var(--pirate-safe-right))); text-align: center; background: #221b13; padding: 16px; border: 1px solid #82683d; border-radius: 9px; color: #fff0ce; }
-.quiet-recovery p { font-size: 15px; line-height: 1.45; }
 .visually-hidden { position: absolute; width: 1px; height: 1px; padding: 0; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
 /* Keep the ship's sea and warm brass around the focused arithmetic task. */
 #academy[data-screen="question"]:not([data-screen="cave"]):not([data-screen="reward"]):not([data-screen="ship"]):not([data-screen="unloading"]) {
@@ -86,10 +37,7 @@
   .quiet-cave #math-cave-pad { bottom: calc(12px + var(--safe-bottom)); }
   .quiet-cave #math-cave-jump, .quiet-cave .quiet-ship { bottom: calc(12px + var(--safe-bottom)); }
 }
-@media (max-width: 370px) {
-  .explore-balance { font-size: 13px; padding-inline: 8px; }
-  .explore-balance small { display: none; }
-}
+
 .quiet-cave #math-cave-thumb { inset: 30px; }
 
 

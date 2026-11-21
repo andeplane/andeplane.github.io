@@ -42,6 +42,26 @@ it("changes Broadside's home language directly and restores it next launch", () 
   expect(setup(false).button("#menu-language").textContent).toBe("🇳🇴");
 });
 
+it("shares the cave balance between delivery and walking and keeps failed deliveries retryable", () => {
+  const { hud, handlers, button, progress } = setup(false, true);
+  hud.unloading(1, 1);
+  expect(button("#unload-ui .pirate-cave-title").textContent).toBe("Cave");
+  expect(button("#unload-count").textContent).toContain("1,000 gold coming home");
+  expect(button("#unload-ui .pirate-cave-balance-label").textContent).toBe("0 gold safely in your cave");
+
+  hud.unloadingFailed();
+  expect(button("#unload-count").hidden).toBe(true);
+  expect(button("#unload-failure").hidden).toBe(false);
+  button("#unload-retry").click();
+  expect(handlers.unload).toHaveBeenCalledOnce();
+
+  deliverChest(progress, 0);
+  hud.home();
+  expect(button("#unload-ui").hidden).toBe(true);
+  expect(button("#cave-ui .pirate-cave-title").textContent).toBe("Cave");
+  expect(button("#cave-ui .pirate-cave-balance-label").textContent).toBe("1,000 gold safely in your cave");
+});
+
 it("uses the singular keepsake count in the real private ship room", () => {
   const { hud, progress } = setup(true);
   progress.relics=[2];hud.harbour();
