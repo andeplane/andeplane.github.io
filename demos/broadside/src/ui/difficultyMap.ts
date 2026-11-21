@@ -34,7 +34,7 @@ export function difficultyMap(options: DifficultyMapOptions): string {
   const title = `<h1>${escape(options.name)}</h1><p>${escape(options.instructions)}</p>`;
   return `<section class="map-view operation-world">
     ${options.back ? chartHeader({ back: options.back, heading: title, actions: options.actions }) : `<div class="world-map-heading">${title}</div>`}
-    <div class="world-map-viewport" data-map-viewport data-focus-x="${focus.x}" data-focus-y="${focus.y}" tabindex="0" aria-label="${escape(options.accessibleName)}">
+    <div class="world-map-viewport" data-map-viewport data-focus-x="${width / 2}" data-focus-y="${focus.y}" tabindex="0" aria-label="${escape(options.accessibleName)}">
       <div class="world-map-plane chart-water" data-map-world style="width:${width}px;height:${height}px;${options.backdrop ? `background: url(${options.backdrop}) center / 100% 100%` : ""}">
         ${worldRouteLine(points, width, height, "world-pack-route")}
         ${stops.map((stop, index) => worldRouteStop({

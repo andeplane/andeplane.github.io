@@ -15,11 +15,9 @@
 #voyage-ui .chart-ship-marker * { pointer-events: none; }
 #voyage-ui .chart-ship-marker { z-index: 1; }
 #voyage-ui #level-menu .level-tile { z-index: 2; }
-#voyage-ui .pirate-chart-header {
-  --pirate-back-fill: #e4cda6;
-  --pirate-back-border: #725836;
-  --pirate-back-ink: #382717;
-  --pirate-back-tint: #a97c42;
+#voyage-ui:is([data-screen="worlds"], [data-screen="levels"]) #game-fullscreen {
+  top: calc(var(--pirate-safe-top) + 8px);
+  right: calc(var(--pirate-safe-right) + 8px);
 }
 #voyage-ui:has(#game-fullscreen:not([hidden])) .pirate-chart-header {
   --pirate-chart-header-reserve: calc(var(--pirate-touch-target) + 8px);

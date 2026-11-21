@@ -71,12 +71,16 @@ button.pirate-menu-brand { min-width: var(--pirate-touch-target); min-height: va
   box-shadow: 0 0 0 4px #392a19;
 }
 
-.pirate-chart-header {
+:is(#academy, #voyage-ui, #reader) .pirate-chart-header {
+  --pirate-back-fill: #221b13;
+  --pirate-back-border: #82683d;
+  --pirate-back-ink: #fff0ce;
+  --pirate-back-tint: #d4a965;
   position: absolute;
   z-index: 6;
-  top: var(--pirate-back-top);
-  left: var(--pirate-back-left);
-  right: calc(var(--pirate-back-right) + var(--pirate-chart-header-reserve, 0px));
+  top: calc(var(--pirate-safe-top) + 8px);
+  left: calc(var(--pirate-safe-left) + 8px);
+  right: calc(var(--pirate-safe-right) + 8px + var(--pirate-chart-header-reserve, 0px));
   display: grid;
   grid-template-columns: auto minmax(0, 1fr) auto;
   align-items: start;
@@ -86,6 +90,16 @@ button.pirate-menu-brand { min-width: var(--pirate-touch-target); min-height: va
 :is(#academy, #voyage-ui, #reader) .pirate-chart-header .pirate-menu-back {
   position: static;
   grid-column: 1;
+  width: auto;
+  min-width: var(--pirate-touch-target);
+  padding: 3px 10px;
+  gap: 5px;
+}
+:is(#academy, #voyage-ui, #reader) .pirate-chart-header .pirate-chart-action {
+  --pirate-back-fill: #e4cda6;
+  --pirate-back-border: #725836;
+  --pirate-back-ink: #382717;
+  --pirate-back-tint: #a97c42;
 }
 .pirate-chart-title {
   grid-column: 2;

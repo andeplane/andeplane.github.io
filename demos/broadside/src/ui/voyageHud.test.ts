@@ -322,13 +322,13 @@ describe("regional island journeys", () => {
     Object.defineProperty(chart, "clientWidth", { value: 400 });
     Object.defineProperty(chart, "clientHeight", { value: 500 });
     vi.spyOn(chart, "getBoundingClientRect").mockReturnValue({ left: 10, top: 20, width: 320, height: 400 } as DOMRect);
-    vi.spyOn(button('[data-level="0"]'), "getBoundingClientRect").mockReturnValue({ right: 106, top: 324, height: 35.2 } as DOMRect);
+    vi.spyOn(button('[data-level="0"] .chart-island-art'), "getBoundingClientRect").mockReturnValue({ left: 64, right: 106, top: 324, height: 35.2 } as DOMRect);
     hud.location({ kind: "course", index: 0 });
     expect(parseFloat(button("#level-ship-marker").style.left)).toBeCloseTo(140);
-    expect(parseFloat(button("#level-ship-marker").style.top)).toBeCloseTo(408.6);
+    expect(parseFloat(button("#level-ship-marker").style.top)).toBeCloseTo(404.2);
 
     const marker = button("#level-ship-marker");
-    vi.spyOn(button('[data-level="1"]'), "getBoundingClientRect").mockReturnValue({ right: 72, top: 285, height: 35.2 } as DOMRect);
+    vi.spyOn(button('[data-level="1"] .chart-island-art'), "getBoundingClientRect").mockReturnValue({ left: 40, right: 72, top: 285, height: 35.2 } as DOMRect);
     const first = { kind: "course", index: 0 } as const;
     const second = { kind: "course", index: 1 } as const;
     hud.travelPose(first, second, 0.5);

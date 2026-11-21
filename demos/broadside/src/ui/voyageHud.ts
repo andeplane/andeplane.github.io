@@ -163,7 +163,6 @@ export class VoyageHud {
       <div class="voyage-pause-content">
         <h1 id="pause-title">Voyage paused</h1>
         <div class="voyage-briefing">
-          <p id="v-level"></p><h2 id="v-objective"></h2>
           <p id="v-briefing"></p>
           <div id="v-weather" aria-label="Weather and wind"><span id="v-wind-arrow" aria-hidden="true">${icon("arrow")}</span><span id="v-weather-name"></span><span id="v-gust"></span></div>
         </div>
@@ -679,20 +678,27 @@ export class VoyageHud {
     const parent = chart.getBoundingClientRect();
 
     const selector = regional
-      ? `[data-level="${location.kind === "course" && locationWorld(location) === this.pack ? location.index : this.pack * LEVELS_PER_WORLD}"]`
+      ? `[data-level="${location.kind === "course" && locationWorld(location) === this.pack ? location.index : this.pack * LEVELS_PER_WORLD}"] .chart-island-art`
       : location.kind === "cave" ? ".cave-art" : `[data-shore="${locationWorld(location)}"] .world-art`;
     const element = this.root.querySelector<HTMLElement>(selector)?.getBoundingClientRect();
     if (!element || !parent.width) return { x: 0, y: 0 };
     // Regional entry scales the chart. Convert viewport bounds back to its local pixels.
     const sx = chart.clientWidth ? parent.width / chart.clientWidth : 1;
     const sy = chart.clientHeight ? parent.height / chart.clientHeight : 1;
+    const y = (element.top - parent.top + element.height * .55) / sy;
+    if (regional) {
+      const artCenter = (element.left + element.right) / 2;
+      const onRight = artCenter >= parent.left + parent.width / 2;
+      const x = onRight ? (element.left - parent.left) / sx - 20 : (element.right - parent.left) / sx + 20;
+      return { x, y };
+    }
     const width = parent.width / sx, height = parent.height / sy;
     const style = getComputedStyle(chart);
     const inset = (edge: string) => parseFloat(style.getPropertyValue(`--pirate-safe-${edge}`)) || 0;
     // Keep the moored ship out of the phone system areas when its island is offscreen.
     return {
-      x: Math.max(28 + inset("left") / sx, Math.min(width - 28 - inset("right") / sx, (element.right - parent.left) / sx + (regional ? 20 : -element.width / sx * .12))),
-      y: Math.max(28 + inset("top") / sy, Math.min(height - 28 - inset("bottom") / sy, (element.top - parent.top + element.height * .65) / sy)),
+      x: Math.max(28 + inset("left") / sx, Math.min(width - 28 - inset("right") / sx, (element.right - parent.left) / sx - element.width / sx * .12)),
+      y: Math.max(28 + inset("top") / sy, Math.min(height - 28 - inset("bottom") / sy, y)),
     };
   }
   private placeShip(from: ShipLocation, to: ShipLocation, fraction: number): void {
@@ -806,9 +812,6 @@ export class VoyageHud {
     this.q("#v-camera").hidden = false;
     this.q("#v-fire").hidden = !voyage.freeSailing && voyage.level.waves[0]!.enemies.length === 0 && !voyage.forts.length;
     this.setTip("");
-    this.q("#v-level").textContent = voyage.freeSailing
-      ? "Open world" : `${PACKS[voyage.pack]!.name} · Level ${stageOf(voyage.index) + 1}`;
-    this.q("#v-objective").textContent = voyage.level.name;
     this.q("#v-briefing").textContent = voyage.freeSailing
       ? "Your voyage saves automatically." : voyage.level.intro;
     this.q("#v-weather").hidden = voyage.pack === 0 && !voyage.freeSailing;
@@ -1011,11 +1014,6 @@ export class VoyageHud {
       anchor.innerHTML = icon(s.player.sail ? "anchor" : "ship");
     }
     this.q("#v-gems").textContent = `${s.gemsFound} / ${s.voyage.gems.length}`;
-    if (s.voyage.freeSailing) {
-      this.q("#v-objective").textContent = SEA_LANDMARKS.find(
-        p => seaDistance(p, s.player.pos, s.level.bounds) < 220,
-      )?.name ?? s.level.name;
-    }
     const heading = s.player.heading;
     const headingIndex = Math.round(heading / (Math.PI / 4));
     const direction = COMPASS_DIRECTIONS[(headingIndex % 8 + 8) % 8]!;

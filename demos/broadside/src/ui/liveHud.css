@@ -228,8 +228,7 @@
 }
 .voyage-briefing { font-size: 13px; line-height: 1.4; }
 .voyage-briefing p { margin: 5px 0; }
-.voyage-briefing h2 { margin: 0; font: 600 18px/1.2 "Grotto Fraunces", Georgia, serif; }
-#v-level, #v-weather { color: #f0d5a3; }
+#v-weather { color: #f0d5a3; }
 #v-weather { display: flex; justify-content: center; align-items: center; gap: 6px; }
 #v-wind-arrow { display: inline-grid; }
 #v-wind-arrow .icon { width: 14px; height: 14px; color: var(--gold); }
