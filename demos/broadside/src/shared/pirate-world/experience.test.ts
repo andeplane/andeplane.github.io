@@ -5,7 +5,7 @@ const fake=vi.hoisted(()=>({caves:[] as any[],holds:[] as any[],fail:false}));
 const scene=(engine:any)=>{const s={dispose:vi.fn(()=>engine.scenes.splice(engine.scenes.indexOf(s),1))};engine.scenes.push(s);return s;};
 vi.mock('./render/cave',()=>({TreasureCave:class{
   scene:any;depositComplete=false;presentationError:string|null=null;presentationReady=true;
-  refresh=vi.fn();showCargo=vi.fn();beginUnload=vi.fn(()=>this.depositComplete=false);endReveal=vi.fn();enter=vi.fn();render=vi.fn();look=vi.fn();walk=vi.fn();
+  refresh=vi.fn();showCargo=vi.fn();finishUnloadForWalk=vi.fn();beginUnload=vi.fn(()=>this.depositComplete=false);endReveal=vi.fn();enter=vi.fn();render=vi.fn();look=vi.fn();walk=vi.fn();
   constructor(engine:any){this.scene=scene(engine);fake.caves.push(this);if(fake.fail)throw new Error('setup failed');}
 }}));
 vi.mock('./render/shipHold',()=>({ShipHold:class{
@@ -39,6 +39,19 @@ describe('common presentation lifecycle',()=>{
     fake.caves[1].depositComplete=true;world.render(.1,true);world.render(.1,true);
     expect(progress.banks.multiply).toBe(900);expect(events.changed).toHaveBeenCalledTimes(2);
     expect(events.ready).toHaveBeenCalledOnce();world.dispose();expect(engine.scenes).toHaveLength(0);
+  });
+  it('keeps one cave scene while transitioning from a committed delivery into walking',()=>{
+    const {world,engine,events}=fixture();world.beginUnload();
+    const cave=fake.caves[0];
+    expect(cave.showCargo).toHaveBeenCalledWith([7,8],7,0);
+    world.finishUnloadForWalk();expect(world.mode).toBe('unload');
+    cave.depositComplete=true;world.render(.1,false);
+    expect(cave.showCargo).toHaveBeenCalledWith([8],8,2);
+    events.ready.mockImplementation(()=>world.finishUnloadForWalk());
+    cave.depositComplete=true;world.render(.1,false);
+    expect(world.mode).toBe('walk');expect(cave.finishUnloadForWalk).toHaveBeenCalledOnce();
+    expect(engine.scenes).toEqual([cave.scene]);expect(events.changed).toHaveBeenCalledTimes(2);
+    world.dispose();
   });
   it('freezes completion and controls while backgrounded, then resumes once',()=>{
     const {world,progress}=fixture();world.beginUnload();world.controls.move(1,1);world.suspend();

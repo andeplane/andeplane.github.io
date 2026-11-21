@@ -66,17 +66,24 @@ export class PirateWorld {
   beginUnload(): void {
     this.start("unload"); this.closeHold(); this.releaseCave();
     this.delivery.start();
-    if (this.delivery.current) this.prepareChest(true);
+    if (this.delivery.current) this.prepareChest();
     else { this.mode = "walk"; this.cave.enter(); this.readyLater(); }
+  }
+  /** Keep the loaded cave and put the player near the final bank. */
+  finishUnloadForWalk(): void {
+    if (this.mode !== "unload" || this.status !== "ready" || this.delivery.current || !this.caveScene) return;
+    this.caveScene.finishUnloadForWalk();
+    this.resetInput();
+    this.mode = "walk";
   }
   private readyLater(): void {
     const token = this.delivery.token;
     queueMicrotask(() => { if (!this.disposed && this.status !== "paused" && this.delivery.token === token) this.ready(); });
   }
   private ready(): void { this.status = "ready"; if (!this.reported) { this.reported = true; this.events.ready?.(); } }
-  private prepareChest(reset: boolean): void {
+  private prepareChest(): void {
     const chest = this.delivery.current!;
-    this.cave.showCargo(this.delivery.queue.pending.map(c => c.id), chest.id, reset);
+    this.cave.showCargo(this.delivery.queue.pending.map(c => c.id), chest.id, chest.area);
     this.cave.refresh(this.delivery.preview(), chest.area, chest.gold);
     this.cave.beginUnload(chest.area, chest.id);
   }
@@ -109,7 +116,7 @@ export class PirateWorld {
       if (this.mode === "unload" && this.delivery.current && this.cave.depositComplete) {
         const chest = this.delivery.current;
         if (!this.delivery.complete(this.delivery.token, chest.id)) return;
-        if (this.delivery.current) this.prepareChest(false);
+        if (this.delivery.current) this.prepareChest();
         else { this.cave.refresh(this.adapter.snapshot()); this.cave.showCargo([]); this.ready(); }
         this.events.changed?.();
       }

@@ -64,6 +64,7 @@ export class GoldCave {
   show(progress:MathProgress,unload:boolean):void {
     const world=this.use(progress);if(unload)world.beginUnload();else world.showCave();
   }
+  finishUnloadForWalk(): void { this.world?.finishUnloadForWalk(); }
   get unloading(){return this.world?.unloading??{total:0,delivered:0,done:true,active:null};}
   pause():void {this.active=false;this.world?.cancel();}
   dispose():void {this.pause();this.unbind?.();this.abort.abort();this.canvasSize.disconnect();this.world?.dispose();this.engine.stopRenderLoop();this.engine.dispose();}

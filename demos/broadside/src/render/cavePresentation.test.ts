@@ -29,6 +29,9 @@ vi.mock('../shared/pirate-world/render/chest',()=>({revealPose:()=>({rise:0,disc
   setCoinCount(){}open(){}fade(){}
 }}));
 import {TreasureCave} from '../shared/pirate-world/render/cave';
+import {bankCargoPosition} from '../shared/pirate-world/render/cargoChests';
+import {GOLD_AREAS} from '../shared/pirate-world/game/goldAreas';
+import {caveWalkable} from '../shared/pirate-world/input/caveLayout';
 afterEach(()=>{vi.unstubAllGlobals();pourState.spawned=0;pourState.empty=false;pourState.done=false;pourState.withdraw=0;pourState.chestY=3.8;});
 const fixture=()=>{
   vi.stubGlobal('matchMedia',()=>({matches:false}));vi.stubGlobal('innerWidth',1440);vi.stubGlobal('innerHeight',900);
@@ -72,34 +75,60 @@ describe('cave chest presentation',()=>{
     cave.render(2.3,true);expect(chest.position.y).toBeGreaterThan(3.76);
     cave.debugCoinBank(0);cave.render(.016,true);expect(chest.isEnabled()).toBe(false);close();
   });
-  it('frames the whole raised chest and waiting queue in a phone portrait viewport',()=>{
+  it.each([[390,844],[320,568],[844,390]])('frames the waiting queue and deposit at %i×%i', (width,height)=>{
     const {engine,cave,close}=fixture();
-    vi.stubGlobal('innerWidth',393);vi.stubGlobal('innerHeight',852);
-    vi.spyOn(engine,'getRenderWidth').mockReturnValue(393);vi.spyOn(engine,'getRenderHeight').mockReturnValue(852);
-    cave.showCargo([0,1,2,3,4,5],0,true);cave.beginUnload(0,0);cave.render(1.4,true);
-    const viewport=cave.camera.viewport.toGlobal(393,852);
-    const project=(point:Vector3)=>Vector3.Project(point,Matrix.Identity(),cave.camera.getViewMatrix(true).multiply(cave.camera.getProjectionMatrix(true)),viewport);
-    // Fully open active chest, including lid; queue extends across both entrance rows.
-    const bounds=[{x:-2.8,y:3.8,z:-8.8,width:3.7,height:3.3,depth:2.8},
-      {x:2.8,y:.2,z:-8.8,width:1.85,height:1.65,depth:1.4},
-      {x:-2.8,y:.2,z:-6.2,width:1.85,height:1.65,depth:1.4}];
-    for(const b of bounds)for(const dx of [-1,1])for(const dy of [0,1])for(const dz of [-1,1]){
-      const screen=project(new Vector3(b.x+dx*b.width/2,b.y+dy*b.height,b.z+dz*b.depth/2));
-      expect(screen.x).toBeGreaterThan(0);expect(screen.x).toBeLessThan(393);
-      expect(screen.y).toBeGreaterThan(0);expect(screen.y).toBeLessThan(852);
+    vi.stubGlobal('innerWidth',width);vi.stubGlobal('innerHeight',height);
+    vi.spyOn(engine,'getRenderWidth').mockReturnValue(width);vi.spyOn(engine,'getRenderHeight').mockReturnValue(height);
+    for(const area of GOLD_AREAS) {
+      const ids=[0,1,2,3,4,5],world=area.world;
+      cave.showCargo(ids,ids[0],world);cave.beginUnload(world,ids[0]);cave.render(0,true);
+      const camera=cave.camera.position.clone(),rotation=cave.camera.rotation.clone();
+      const viewport=cave.camera.viewport.toGlobal(width,height);
+      const project=(point:Vector3)=>Vector3.Project(point,Matrix.Identity(),cave.camera.getViewMatrix(true).multiply(cave.camera.getProjectionMatrix(true)),viewport);
+      for(const slot of ids){
+        const p=bankCargoPosition(slot,ids.length,area);
+        const screen=project(new Vector3(p.x,p.y+p.scale*1.5,p.z));
+        expect(screen.x).toBeGreaterThan(width*.055);expect(screen.x).toBeLessThan(width*.945);
+        expect(screen.y, JSON.stringify({world,screen})).toBeGreaterThan(height*.12);expect(screen.y, JSON.stringify({world,screen})).toBeLessThan(height*.84);
+      }
+      for(const point of [new Vector3(area.x,.2,area.z),new Vector3(area.x,6.95,area.z+.8)]){
+        const screen=project(point);
+        expect(screen.x).toBeGreaterThan(width*.055);expect(screen.x).toBeLessThan(width*.945);
+        expect(screen.y, JSON.stringify({world,screen})).toBeGreaterThan(height*.12);expect(screen.y, JSON.stringify({world,screen})).toBeLessThan(height*.84);
+      }
+      cave.render(3,true);
+      expect(cave.camera.position.equals(camera)).toBe(true);
+      expect(cave.camera.rotation.equalsWithEpsilon(rotation)).toBe(true);
     }
     close();
   });
-  it('takes each queued chest from its own stable entrance position',()=>{
+  it('lifts each chest in place before travelling to its bank and holds the same frame between chests',()=>{
     const {cave,close}=fixture(),chest=cave.scene.getTransformNodeByName("captain's treasure chest")!;
-    cave.showCargo([0,1],0,true);cave.beginUnload(0,0);cave.render(0,true);
-    expect(chest.position.x).toBe(-2.8);expect(chest.position.z).toBe(-8.8);
-    expect(chest.scaling.x).toBe(.5);
-    cave.render(1.2,true);
-    expect(chest.position.x).toBe(-2.8);expect(chest.position.z).toBe(-8.8);
-    expect(chest.position.y).toBeGreaterThan(3.7);
-    cave.showCargo([1],1);cave.beginUnload(0,1);cave.render(0,true);
-    expect(chest.position.x).toBe(2.8);expect(chest.position.z).toBe(-8.8);
+    const area=GOLD_AREAS[0],first=bankCargoPosition(0,2,area),second=bankCargoPosition(1,2,area);
+    cave.showCargo([0,1],0,0);cave.beginUnload(0,0);cave.render(0,true);
+    const camera=cave.camera.position.clone();
+    expect(chest.position.x).toBe(first.x);expect(chest.position.z).toBe(first.z);
+    expect(chest.scaling.x).toBe(first.scale);
+    cave.render(1.3,true);
+    expect(chest.position.x).toBe(first.x);expect(chest.position.z).toBe(first.z);
+    expect(chest.position.y).toBeCloseTo(pourState.chestY);
+    cave.render(1.8,true);
+    expect(chest.position.asArray()).toEqual([area.x,pourState.chestY,area.z]);
+    expect(chest.scaling.x).toBe(1);
+    cave.showCargo([1],1,0);cave.beginUnload(0,1);cave.render(0,true);
+    expect(chest.position.x).toBe(second.x);expect(chest.position.z).toBe(second.z);
+    expect(cave.camera.position.equals(camera)).toBe(true);
+    close();
+  });
+  it('starts walking on a safe path facing the bank after unloading',()=>{
+    const {cave,close}=fixture();
+    for(const area of GOLD_AREAS) {
+      cave.showCargo([7],7,area.world);cave.beginUnload(area.world,7);cave.render(.1,true);
+      cave.finishUnloadForWalk();cave.render(.1);
+      expect(caveWalkable(cave.walker.x,cave.walker.z)).toBe(true);
+      expect(Math.sin(cave.walker.yaw)*(area.x-cave.walker.x)+Math.cos(cave.walker.yaw)*(area.z-cave.walker.z)).toBeGreaterThan(5);
+      expect(cave.scene.getTransformNodeByName("captain's treasure chest")!.isEnabled()).toBe(false);
+    }
     close();
   });
   it('keeps the empty chest visible and moves it continuously out of view before completing',()=>{
