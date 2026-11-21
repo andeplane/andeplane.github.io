@@ -590,9 +590,17 @@
   display: grid;
   justify-items: center;
 }
-#reader[data-screen="cave"] .reader-cave-actions > .wood-button {
+#reader[data-screen="cave"] .reader-cave-actions > :is(.wood-button, .pirate-cave-inspect) {
   position: absolute;
   bottom: 52px;
   width: max-content;
   max-width: min(220px, 66vw);
+}
+
+
+#reader[data-screen="cave"][data-cave-view="inspect"] :is(.reader-move, .reader-jump, .reader-cave-actions .pirate-nav-link) {
+  display: none;
+}
+#reader[data-screen="cave"][data-cave-view="inspect"] .reader-cave-actions > .pirate-cave-inspect {
+  position: static;
 }

@@ -186,7 +186,7 @@ function worldView():string{
   const count=Math.min((status?.delivered??0)+1,total);
   return total?caveTally(createI18n(progress.ui,[]).t("unloadProgress",{count,total,gold:f(cargo)})):"";
  }
- const action=progress.cargo.length?button("unload",t("unload"),true):screen==="cave"?`<button class="wood-button" data-action="inspect" hidden>${esc(t("inspect"))}</button>`:button("cave",t("cave"),true);
+ const action=progress.cargo.length?button("unload",t("unload"),true):screen==="cave"?`<button class="pirate-cave-inspect" data-action="inspect" hidden>${esc(t("inspect"))}</button>`:button("cave",t("cave"),true);
  if(screen==="ship")return `<div class="world-footer"><p>${esc(t("ship"))}</p><strong>${f(banked(progress))} ${t("gold")} · ${f(cargo)} ${t("aboard")}</strong><div class="world-buttons">${action}</div></div>`;
  return `<span id="reader-room" class="pirate-cave-sr">${esc(t("room"))}</span><div class="reader-cave-actions">${action}<button class="pirate-nav-link" data-action="ship">${icon("ship")} ${esc(t("shipShort"))}</button></div><div id="reader-pad" class="reader-move" role="group" aria-label="${esc(t("move"))}"><span id="reader-thumb"></span></div><button id="reader-jump" class="reader-jump">${esc(t("jump"))}</button>`;
 }

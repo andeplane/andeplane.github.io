@@ -89,3 +89,17 @@
   .pirate-cave-balance { font-size: 13px; padding-inline: 8px; }
   .pirate-cave-balance small { display: none; }
 }
+
+
+.pirate-cave-inspect {
+  min-width: 44px;
+  min-height: 44px;
+  max-width: calc(100vw - var(--pirate-safe-left) - var(--pirate-safe-right) - 24px);
+  padding: 8px 14px;
+  border: 1px solid #ad8958;
+  border-radius: 8px;
+  background: #2c2015f0;
+  color: #fff1d2;
+  font-weight: 700;
+  line-height: 1.3;
+}

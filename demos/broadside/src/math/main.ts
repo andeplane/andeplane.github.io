@@ -91,7 +91,6 @@ let answer = "", feedback: "" | "firstWrong" | "retryWrong" = "", accepted = fal
 let clockStep: ClockStep = 60;
 let clockRound: ReturnType<typeof newClockRound> | undefined;
 let cave: GoldCave | null = null, sceneError = false, sceneLoading = false, revealReady = false, viewId = 0;
-const art = (file: string, cls = "", alt = "") => `<img class="${cls}" src="${import.meta.env.BASE_URL}assets/map/${file}.webp" alt="${alt}" draggable="false" />`;
 const format = (value: number) => i18n.format(value);
 const navNumber = (value: number) => value < 1000 ? format(value) : new Intl.NumberFormat(i18n.language, { notation: "compact", maximumFractionDigits: 1 }).format(value);
 const lock = `<svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><rect x="5" y="10" width="14" height="11" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/><path d="M12 14v3"/></svg>`;
@@ -234,12 +233,24 @@ function questionView(): string {
 const retryScene = () => `<button class="text-button retry-scene" data-action="retry-scene">${t("retryScene")}</button>`;
 function shipView(): string {
   const pending = pendingMathChests(progress);
-  return `<section class="cave-view ship-view">
-    <div class="scene-back">${gameBack(treasureParent())}</div>
-    <div class="cave-heading"><span class="eyebrow">${t("aboardPearl")}</span><h1>${t("hold")}</h1><p ${sceneError ? 'role="status"' : ''}>${sceneError ? t("shipError") : t("cargoSummary", { count: pending.length, gold: format(cargoGold(progress)) })}</p>${sceneError ? retryScene() : ""}</div>
-    <div class="cave-loading" role="status" ${!sceneLoading ? "hidden" : ""}>${icon("chest")} ${t("boarding")}</div>
-    ${sceneError ? `<div class="cave-fallback">${art("first-sails")}</div>` : ""}
-    <div class="cave-bottom"><div class="hoard-total"><span class="eyebrow">${t("savedCargo")}</span><strong>${format(cargoGold(progress))} <span>${t("goldAboard")}</span></strong><p>${t("alreadyCave", { gold: format(bankedGold(progress)) })}</p></div>${!pending.length ? `<p class="empty-cargo" role="status">${t("noCargo")}</p>` : ""}<button class="wood-button primary" data-action="${pending.length ? "unload" : "cave"}" ${sceneLoading ? "disabled" : ""}>${t(pending.length ? "returnCave" : "exploreCave")} ${icon("chest")}</button><button class="text-button" data-action="levels">${t("keepPractising")} ${icon("ship")}</button></div>
+  const caveAction = pending.length ? "unload" : "cave";
+  const caveLabel = t(pending.length ? "returnCave" : "exploreCave");
+  const back = `<div class="scene-back">${gameBack(treasureParent())}</div>`;
+  if (sceneLoading || sceneError) {
+    const status = sceneError ? t("shipError") : t("boarding");
+    return `<section class="cave-view ship-view ship-recovery">${back}${rewardLedger({
+      title: t("hold"),
+      details: `<p class="ledger-details ship-recovery-status" role="${sceneError ? "alert" : "status"}">${status}</p>`,
+      actions: [
+        { action: sceneError ? "retry-scene" : caveAction, label: sceneError ? t("retryScene") : caveLabel, primary: true, disabled: sceneLoading },
+        ...(sceneError ? [{ action: caveAction, label: caveLabel }] : []),
+        { action: "levels", label: t("keepPractising") },
+      ],
+    })}</section>`;
+  }
+  return `<section class="cave-view ship-view">${back}
+    <div class="cave-heading"><span class="eyebrow">${t("aboardPearl")}</span><h1>${t("hold")}</h1><p>${t("cargoSummary", { count: pending.length, gold: format(cargoGold(progress)) })}</p></div>
+    <div class="cave-bottom"><div class="hoard-total"><span class="eyebrow">${t("savedCargo")}</span><strong>${format(cargoGold(progress))} <span>${t("goldAboard")}</span></strong><p>${t("alreadyCave", { gold: format(bankedGold(progress)) })}</p></div>${!pending.length ? `<p class="empty-cargo" role="status">${t("noCargo")}</p>` : ""}<button class="wood-button primary" data-action="${caveAction}">${caveLabel} ${icon("chest")}</button><button class="text-button" data-action="levels">${t("keepPractising")} ${icon("ship")}</button></div>
   </section>`;
 }
 function rewardView(withChest: boolean): string {
@@ -271,7 +282,7 @@ function caveView(unloading: boolean): string {
     return `<section class="cave-view quiet-cave">${caveTally(t("unloadProgress", { count, total, gold: format(cargoGold(progress)) }))}</section>`;
   }
   return `<section class="cave-view walking-view quiet-cave">
-    <div class="cave-walk-controls"><span class="cave-crosshair" aria-hidden="true">+</span><button id="math-cave-pad" aria-label="${t("moveCave")}"><span id="math-cave-thumb"></span><small>${t("move")}</small></button><button id="math-cave-jump" aria-label="${t("jump")}">↑<small>${t("jump")}</small></button><button id="math-cave-inspect" class="text-button" data-action="cave-inspect" disabled>${t("inspectTreasure")}</button></div>
+    <div class="cave-walk-controls"><span class="cave-crosshair" aria-hidden="true">+</span><button id="math-cave-pad" aria-label="${t("moveCave")}"><span id="math-cave-thumb"></span><small>${t("move")}</small></button><button id="math-cave-jump" aria-label="${t("jump")}">↑<small>${t("jump")}</small></button><button id="math-cave-inspect" class="pirate-cave-inspect" data-action="cave-inspect" disabled>${t("inspectTreasure")}</button></div>
     <button class="quiet-ship" data-action="ship" aria-label="${t("ship")}: ${i18n.plural("aboard", pending.length)}">${icon("ship")} ${t("ship")}</button>
     <span id="math-cave-room" class="visually-hidden">${t("entrance")}</span>
   </section>`;

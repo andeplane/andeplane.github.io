@@ -12,7 +12,11 @@ export class ReadingPirateHost {
   this.unbind=bindWorldControls(this.world,canvas,{active:()=>this.world.mode==="walk",pad:"#reader-pad",thumb:"#reader-thumb",jump:"#reader-jump",inspect:()=>this.inspect()});
   const resize=()=>{this.engine.setHardwareScalingLevel(displayRenderScale(innerWidth,innerHeight,devicePixelRatio,this.engine.getCaps().maxRenderTextureSize,isPhoneRendering(this.engine)));this.engine.resize();this.world.caveScene?.resize();};
   window.addEventListener("resize",resize,{signal:this.abort.signal});window.visualViewport?.addEventListener("resize",resize,{signal:this.abort.signal});resize();
-  this.engine.runRenderLoop(()=>{if(document.hidden)return;this.world.render(this.engine.getDeltaTime()/1000,matchMedia("(prefers-reduced-motion: reduce)").matches);canvas.dataset.presentationStatus=this.world.status;canvas.dataset.cargoMode=this.world.mode;canvas.dataset.coinCounts=this.world.caveScene?.coinCounts.join(",")??"";const walker=this.world.caveScene?.walker;canvas.dataset.cavePosition=walker?[walker.x,walker.eyeY,walker.z].map(n=>n.toFixed(2)).join(","):"";canvas.dataset.caveYaw=walker?.yaw.toFixed(3)??"";const cave=this.world.caveScene;const inspect=document.querySelector<HTMLButtonElement>('[data-action="inspect"]');if(inspect&&cave){inspect.hidden = !cave.inspecting && cave.nearby === null;
+  this.engine.runRenderLoop(()=>{if(document.hidden)return;this.world.render(this.engine.getDeltaTime()/1000,matchMedia("(prefers-reduced-motion: reduce)").matches);canvas.dataset.presentationStatus=this.world.status;canvas.dataset.cargoMode=this.world.mode;canvas.dataset.coinCounts=this.world.caveScene?.coinCounts.join(",")??"";const walker=this.world.caveScene?.walker;canvas.dataset.cavePosition=walker?[walker.x,walker.eyeY,walker.z].map(n=>n.toFixed(2)).join(","):"";canvas.dataset.caveYaw=walker?.yaw.toFixed(3)??"";const cave=this.world.caveScene;
+  const reader = document.getElementById("reader");
+  const caveView = cave?.inspecting ? "inspect" : "walk";
+  if (reader && reader.dataset.caveView !== caveView) reader.dataset.caveView = caveView;
+  const inspect=document.querySelector<HTMLButtonElement>('[data-action="inspect"]');if(inspect&&cave){inspect.hidden = !cave.inspecting && cave.nearby === null;
    const label = cave.inspecting
     ? (p.ui === "nb" ? "Tilbake til utforsking" : "Back to exploring")
     : (p.ui === "nb" ? "Se nærmere på skatten" : "Inspect treasure");

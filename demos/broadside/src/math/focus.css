@@ -16,7 +16,15 @@
 .quiet-cave #math-cave-jump { right: calc(12px + var(--pirate-safe-right)); bottom: calc(20px + var(--safe-bottom)); width: 64px; height: 64px; background: #0b2635c9; font-size: 29px; }
 .quiet-cave #math-cave-jump small { font-size: 12px; }
 .quiet-cave .quiet-ship { position: absolute; left: 50%; transform: translateX(-50%); bottom: calc(20px + var(--safe-bottom)); pointer-events: auto; font-size: 14px; }
-.quiet-cave #math-cave-inspect { bottom: calc(124px + var(--safe-bottom)); min-height: 44px; font-size: 15px; }
+.quiet-cave #math-cave-inspect {
+  top: auto;
+  bottom: calc(80px + var(--safe-bottom) + var(--math-notice-space));
+  pointer-events: auto;
+}
+#academy[data-cave-view="inspect"] .quiet-ship { display: none; }
+#academy[data-cave-view="inspect"] #math-cave-inspect {
+  bottom: calc(20px + var(--safe-bottom) + var(--math-notice-space));
+}
 .quiet-cave #math-cave-inspect:disabled { display: none; }
 .quiet-cave .cave-crosshair { font-size: 16px; opacity: .7; }
 .visually-hidden { position: absolute; width: 1px; height: 1px; padding: 0; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }

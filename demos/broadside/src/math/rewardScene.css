@@ -32,3 +32,26 @@
 @media (orientation: landscape) and (max-height: 520px) {
   #academy .reward-ship { grid-column: 1; }
 }
+
+
+#academy[data-screen="ship"] .ship-view.ship-recovery {
+  display: grid;
+  place-items: center;
+  min-height: 100%;
+  height: auto;
+  padding: calc(60px + var(--pirate-safe-top)) 12px calc(12px + var(--pirate-safe-bottom));
+  background: linear-gradient(#2a1b10a0, #21150bd4), url("/assets/map/problem-table.webp") center / cover;
+}
+#academy .ship-recovery .scene-back {
+  position: absolute;
+  inset-block-start: 0;
+  inset-inline-start: 0;
+}
+#academy .ship-recovery .reward-ledger { pointer-events: auto; }
+#academy .ship-recovery-status { margin-bottom: 12px; }
+
+@media (orientation: landscape) and (max-height: 420px) {
+  #academy .reward-view .reward-ledger:has(.retry-scene) { padding-block: 7px 11px; }
+  #academy .reward-view .ledger-details:has(.retry-scene) { margin-bottom: 4px; }
+  #academy .reward-view .ledger-details .retry-scene { margin-top: 4px; }
+}
