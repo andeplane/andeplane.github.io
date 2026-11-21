@@ -432,11 +432,12 @@ export function buildBeacon(s: IslandScenery, night: boolean) {
   const { x, y, z } = tower(s),
     { rotor, position } = lantern(s, x, y, z, night);
   const beam = shaft(s, position, night);
+  // Fade to almost zero before the cone cutoff so the pool on terrain has a soft edge.
   const light = new SpotLight(
     "sweeping lighthouse beam",
     position.clone(),
     vec(0, -0.105, 1).normalize(),
-    0.61,
+    0.88,
     65,
     s.scene,
   );
