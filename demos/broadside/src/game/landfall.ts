@@ -1,4 +1,5 @@
 import { Rng } from "../sim/rng";
+import { coastField, planGrotto, type TidalGrotto } from "./landfallCoast";
 import { simplexField } from "./landfallNoise";
 import {
   planTown,
@@ -60,6 +61,7 @@ export interface LandfallSite {
   dig: Point;
   settings: IslandSettings;
   town: TownPlan;
+  grotto: TidalGrotto;
 }
 
 const clamp = (n: number) => Math.min(1, Math.max(0, n));
@@ -115,6 +117,8 @@ export function landfallReserved(
 ): boolean {
   return (
     townReserved(site.town, x, z) ||
+    segmentDistance(x, z, site.grotto.entry, site.grotto.exit) < 5.6 ||
+    segmentDistance(x, z, site.spawn, site.grotto.entry) < 1.8 ||
     segmentDistance(x, z, site.spawn, site.dig) < 2.2
   );
 }
@@ -142,6 +146,7 @@ export function generateIsland(
     spawn: { x: rng.range(-2.5, 2.5), z: rng.range(-22, -18) },
     landmark: { x: landmarkSide * rng.range(4.8, 7.3), z: rng.range(-1, 3) },
     dig: { x: -landmarkSide * rng.range(2.8, 6.2), z: rng.range(8, 13) },
+    grotto: planGrotto(-side, key),
     town: planTown(key ^ 0x873ab1, settings.settlement, side),
   };
   const angle = rng.range(-0.42, 0.42);
@@ -155,7 +160,10 @@ export function generateIsland(
   const saddleZ = peakZ + rng.range(-5, 4);
   const alpine = settings.biome === "alpine";
   const peakHeight = (alpine ? 5 : 1.4) + settings.relief * (alpine ? 19 : 12);
+  const family = ((seed >>> 0) + world) % 4;
   const beachBand = 0.07 + settings.beach * 0.29;
+  const grottoSin = Math.sin(site.grotto.yaw), grottoCos = Math.cos(site.grotto.yaw);
+  const grainOnShelf = (x: number, z: number) => .13 * detail(x * .14, z * .14);
   function heightAt(x: number, z: number): number {
     const u = (cs * x - sn * z) / width,
       v = (sn * x + cs * z) / depth;
@@ -163,8 +171,7 @@ export function generateIsland(
     const qx = u + 0.11 * coast(0.85 * u + 3.7, 0.85 * v);
     const qz = v + 0.11 * coast(0.9 * u, 0.9 * v - 5.1);
     const inland =
-      1 -
-      Math.hypot(qx, qz) +
+      coastField(family, -side * qx, qz) +
       0.123 * coast(2 * u, 2 * v) +
       0.048 * detail(4.7 * u, 4.7 * v);
     let h =
@@ -190,6 +197,23 @@ export function generateIsland(
           grain * 0.9 +
           peakHeight * massif * (0.68 + 0.32 * crest * crest));
       h += 0.22 * grain * smooth(0, 0.19, inland);
+    }
+    // Dry sand at the grotto follows the passage and its approach. The last
+    // beach beyond the sea door grades down into the shelf, outside the cave.
+    if (z < 2 && x * -side > -4) {
+      const grotto = site.grotto;
+      const approach = 1 - smooth(1.1, 3.2, segmentDistance(x, z, site.spawn, grotto.entry));
+      const shelf = 1 - smooth(4.3, 7.0, segmentDistance(x, z, grotto.entry, grotto.exit));
+      if (approach > 0 || shelf > 0) {
+        const dx = x - grotto.entry.x, dz = z - grotto.entry.z;
+        const along = dx * grottoSin + dz * grottoCos;
+        const across = dx * grottoCos - dz * grottoSin;
+        const poolAxis = -2.15 + .32 * Math.sin(along * .54);
+        const pool = (1 - smooth(.57, 1.36, Math.abs(across - poolAxis))) *
+          smooth(3.5, 6.3, along) * (1 - smooth(11.9, 15.8, along));
+        const sandyFloor = .92 + grainOnShelf(x, z) - 1.7 * pool;
+        h += (sandyFloor - h) * Math.max(approach, shelf);
+      }
     }
     // A gently graded trail leads inland, leaving the mountain shoulders wild.
     const trail =

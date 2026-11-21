@@ -56,6 +56,24 @@ describe("procedural landfalls", () => {
         expect(heightAt(44 * sign, 44 * sign)).toBeLessThan(0);
     }
   });
+  it("connects the approach and both cave doors on dry land beside the tidal pool", () => {
+    const biomes = ["winter", "alpine", "temperate", "tropical"] as const;
+    for (let n = 0; n < 128; n++) {
+      const { site, heightAt } = generateIsland(n % 4, n * 1973, {
+        biome: biomes[(n >> 2) % 4], relief: n % 2, beach: (n >> 1) % 2,
+      });
+      const { entry, exit, yaw } = site.grotto;
+      for (const [a, b] of [[site.spawn, entry], [entry, exit]] as const) {
+        for (let i = 0; i <= 32; i++) {
+          const t = i / 32;
+          expect(heightAt(a.x + t * (b.x - a.x), a.z + t * (b.z - a.z))).toBeGreaterThan(.35);
+        }
+      }
+      const along = 8, across = -2.15 + .32 * Math.sin(along * .54);
+      expect(heightAt(entry.x + along * Math.sin(yaw) + across * Math.cos(yaw),
+        entry.z + along * Math.cos(yaw) - across * Math.sin(yaw))).toBeLessThan(0);
+    }
+  });
   it("varies relief and beach width, and keeps simplex gradients continuous", () => {
     const grid = (relief: number, beach: number) => {
       const { heightAt } = generateIsland(0, 439, {
