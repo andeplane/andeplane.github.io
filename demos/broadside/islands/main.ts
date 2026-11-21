@@ -12,6 +12,8 @@ import {
 } from "../src/shared/pirate-world/input/caveWalk";
 import { resolveLight, type LightSetting } from "../src/render/landfallSky";
 import { LandfallView } from "../src/render/landfallView";
+import { buildHarbor, type HarborDeck } from "../src/render/landfallHarbor";
+import { buildGrotto } from "../src/render/landfallGrotto";
 import { buildSettlement } from "../src/render/landfallTown";
 import { LandfallHud } from "../src/ui/landfallHud";
 import { HuntChart } from "./huntChart";
@@ -59,6 +61,9 @@ function run() {
   const controls = new CaveWalkControls();
   const requestedLight = new URLSearchParams(location.search).get("light");
   let lightSetting: LightSetting = requestedLight === "day" || requestedLight === "sunset" || requestedLight === "night" ? requestedLight : "pack";
+  let muted = false;
+  try { muted = localStorage.getItem("atlas-muted") === "true"; } catch { /* Storage is optional. */ }
+  let ready = false;
   let current = initial;
   let island = generateIsland(current.world, current.seed, current.settings);
   let view: LandfallView | null = null,
@@ -71,6 +76,8 @@ function run() {
   const progress = new Map<string, number>();
   let recipe = "";
   let feedbackUntil = 0;
+  let feedbackText = "";
+  let harbor: HarborDeck | null = null;
   const landingQuery = new URLSearchParams(location.search);
   let enterOnLoad = landingQuery.get("mode") === "walk";
   let digs = 0,
@@ -78,6 +85,7 @@ function run() {
     buildTimer = 0;
   const pointers = new Map<number, { x: number; y: number }>();
   const stopMoving = () => {
+    view?.cancelSwing();
     controls.clear();
     for (const id of pointers.keys()) {
       if (canvas.hasPointerCapture(id)) canvas.releasePointerCapture(id);
@@ -90,11 +98,11 @@ function run() {
       2.8;
   const refreshClue = () => hud.update(
     island.site.clue, nearby(), digs, island.site.treasure,
-    performance.now() < feedbackUntil ? "Nothing buried here. Check the X on your map." : "",
+    performance.now() < feedbackUntil ? feedbackText : "",
   );
   const blocked = () => chart.open || hud.confirmingLeave;
   function showChart() {
-    if (!view || buildTimer || blocked()) return;
+    if (!ready || !view || buildTimer || blocked()) return;
     hud.releaseStick();
     stopMoving();
     chart.show(island, current.world, current.seed, mode === "walk" ? walker : null, digs >= 3);
@@ -109,39 +117,57 @@ function run() {
     const forward = 1.05;
     let x = walker.x + Math.sin(walker.yaw) * forward;
     let z = walker.z + Math.cos(walker.yaw) * forward;
-    if (island.heightAt(x, z) < .32) { x = walker.x; z = walker.z; }
-    if (hit) {
-      ({ x, z } = island.site.dig);
-      progress.set(recipe, ++digs);
+    if (harbor?.heightAt(x, z) !== undefined || harbor?.heightAt(walker.x, walker.z) !== undefined) {
+      feedbackText = "Dig in the sand beyond the jetty.";
+      feedbackUntil = now + 2600;
+      refreshClue();
+      return;
     }
-    feedbackUntil = hit ? 0 : now + 2600;
-    view.strikeGround(x, z, hit, reducedMotion.matches);
-    refreshClue();
+    if (island.heightAt(x, z) < .32) { x = walker.x; z = walker.z; }
+    if (hit) ({ x, z } = island.site.dig);
+    view.strikeGround(x, z, hit, reducedMotion.matches, () => {
+      if (hit) progress.set(recipe, ++digs);
+      feedbackText = "Nothing buried here. Check the X on your map.";
+      feedbackUntil = hit ? 0 : performance.now() + 2600;
+      refreshClue();
+    });
   };
   const hud = new LandfallHud(document.body, {
     move: (right, forward) => controls.move(right, forward),
     dig,
+    sound() {
+      muted = !muted;
+      view?.setMuted(muted);
+      hud.setMuted(muted);
+      try { localStorage.setItem("atlas-muted", String(muted)); } catch { /* Session-only audio settings. */ }
+    },
     leave: survey,
     chart: showChart,
     pauseInputs: stopMoving,
   });
 
-  function walk(startAtVillage = false) {
-    if (!view || !walker || buildTimer) return;
+  hud.setMuted(muted);
+
+  function walk(landing: string | null = null) {
+    if (!ready || !view || !walker || buildTimer) return;
     stopMoving();
     const { spawn, dig: target } = island.site;
-    const villageLane = startAtVillage ? island.site.town.paths[1] : undefined;
-    const start = villageLane?.a ?? spawn;
+    const villageLane = landing === "village" ? island.site.town.paths[1] : undefined;
+    const grotto = landing === "cave" ? island.site.grotto : null;
+    const pier = landing === "harbor" ? harbor?.center : null;
+    const start = pier ?? grotto?.entry ?? villageLane?.a ?? spawn;
     walker.reset();
     walker.x = start.x;
     walker.z = start.z;
-    walker.feet = island.heightAt(start.x, start.z);
+    walker.feet = Math.max(view.groundHeight(start.x, start.z), harbor?.heightAt(start.x, start.z) ?? -Infinity);
     const { landmark } = island.site;
     const bearing = (p: { x: number; z: number }) =>
       Math.atan2(p.x - spawn.x, p.z - spawn.z);
     walker.yaw = villageLane
       ? Math.atan2(villageLane.b.x - start.x, villageLane.b.z - start.z)
       : bearing(landmark) * 0.57 + bearing(target) * 0.43;
+    if (grotto) walker.yaw = grotto.yaw;
+    if (pier) walker.yaw = Math.atan2(landmark.x - pier.x, landmark.z - pier.z);
     walker.pitch = -0.06;
     feedbackUntil = 0;
     lastDig = -Infinity;
@@ -185,14 +211,19 @@ function run() {
       chart.reset();
       const light = resolveLight(lightSetting, current.world);
       view = new LandfallView(engine, current.world, island, current.seed, light);
+      const built = view;
+      built.setMuted(muted);
+      built.restoreTreasure(island.site.dig.x, island.site.dig.z, digs);
       const obstacles = [
         ...view.obstacles,
+        ...buildGrotto(view.scene, island, view.shadows, light === "night"),
         ...buildSettlement(view.scene, island.site, island.heightAt, view.shadows, light === "night"),
       ];
+      harbor = buildHarbor(built.scene, island, built.shadows);
       walker = new CaveWalker(
         obstacles,
-        island.heightAt,
-        (x, z) => island.heightAt(x, z) >= 0.32,
+        (x, z) => Math.max(built.groundHeight(x, z), harbor?.heightAt(x, z) ?? -Infinity),
+        (x, z) => island.heightAt(x, z) >= 0.32 || harbor?.heightAt(x, z) !== undefined,
       );
       const url = new URL(location.href);
       const q = url.searchParams;
@@ -203,12 +234,16 @@ function run() {
       for (const [k, v] of Object.entries(current.settings))
         q.set(k, String(v));
       history.replaceState(null, "", url);
-      status.hidden = true;
-      studio.setReady(true);
-      if (enterOnLoad) {
-        enterOnLoad = false;
-        walk(landingQuery.get("start") === "village");
-      }
+      built.scene.executeWhenReady(() => {
+        if (view !== built || buildTimer) return;
+        ready = true;
+        status.hidden = true;
+        studio.setReady(true);
+        if (enterOnLoad) {
+          enterOnLoad = false;
+          walk(landingQuery.get("start"));
+        }
+      });
     } catch (error) {
       console.error(error);
       status.textContent =
@@ -217,6 +252,9 @@ function run() {
     }
   }
   function rebuild() {
+    ready = false;
+    status.textContent = "Drawing the island…";
+    status.hidden = false;
     studio.setReady(false);
     clearTimeout(buildTimer);
     buildTimer = window.setTimeout(build, 110);
@@ -359,7 +397,7 @@ function run() {
         reducedMotion.matches,
       );
     }
-    canvas.dataset.state = mode;
+    canvas.dataset.state = ready ? mode : "loading";
     canvas.dataset.fps = String(Math.round(engine.getFps()));
     if (mode === "walk") {
       canvas.dataset.position = [walker.x, walker.z, walker.yaw, walker.pitch]

@@ -170,3 +170,8 @@
 @media (max-width: 360px) {
   .landfall-hud .landfall-map { padding-inline: 8px; }
 }
+
+.landfall-hud .landfall-audio { display: grid; place-items: center; padding: 8px; margin-left: auto; }
+.landfall-audio svg { width: 20px; height: 20px; }
+.landfall-audio + .landfall-dig { margin-left: 0; }
+@media (max-width: 370px) { .landfall-foot .landfall-help { display: none; } }

@@ -20,7 +20,7 @@ export class HuntChart {
       <div class="hunt-chart-body"><div class="hunt-chart-art"></div>
       <section class="hunt-chart-notes"><h3>Treasure map</h3><p class="hunt-chart-clue"></p>
       <ul><li>${icon("anchor")} Landing</li><li><b class="hunt-target" aria-hidden="true">×</b><span>Buried treasure</span></li>
-      <li class="hunt-you"><b aria-hidden="true">➤</b> You</li></ul>
+      <li><b aria-hidden="true">⛰</b> Tidal cave</li><li class="hunt-you"><b aria-hidden="true">➤</b> You</li></ul>
       <button class="hunt-chart-walk" type="button">Go ashore ${icon("arrow")}</button></section></div>`;
     document.body.append(d);
     d.querySelector<HTMLButtonElement>(".hunt-chart-close")!.onclick = () => this.close();

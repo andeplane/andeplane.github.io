@@ -4,6 +4,7 @@ import "./landfallHud.css";
 interface LandfallActions {
   move(right: number, forward: number): void;
   dig(): void;
+  sound(): void;
   chart(): void;
   leave(): void;
   pauseInputs(): void;
@@ -14,6 +15,7 @@ export class LandfallHud {
   private readonly lifetime = new AbortController();
   private readonly dialog: HTMLDialogElement;
   private readonly leaveButton: HTMLButtonElement;
+  private readonly audioButton: HTMLButtonElement;
   private readonly digButton: HTMLButtonElement;
   private readonly pack: HTMLElement;
   private readonly island: HTMLElement;
@@ -37,6 +39,7 @@ export class LandfallHud {
       <div class="landfall-foot">
         <div class="landfall-pad" role="group" aria-label="Walk with the thumbstick"><span></span></div>
         <p class="landfall-help"><span class="landfall-keys">WASD to walk · Arrows to look</span><span class="landfall-touch">Drag the view to look</span></p>
+        <button type="button" class="landfall-audio" aria-label="Mute digging sounds" title="Mute digging sounds"></button>
         <button type="button" class="landfall-dig" aria-keyshortcuts="E" hidden>Dig <kbd>E</kbd></button>
       </div>
       <dialog class="landfall-dialog" aria-labelledby="landfall-leave-title" aria-describedby="landfall-leave-detail">
@@ -47,6 +50,8 @@ export class LandfallHud {
     parent.append(root);
     this.dialog = root.querySelector("dialog")!;
     this.leaveButton = root.querySelector(".landfall-leave")!;
+    this.audioButton = root.querySelector(".landfall-audio")!;
+    this.audioButton.onclick = () => this.actions.sound();
     this.digButton = root.querySelector(".landfall-dig")!;
     this.pack = root.querySelector(".landfall-pack")!;
     this.island = root.querySelector("h1")!;
@@ -91,6 +96,12 @@ export class LandfallHud {
     document.addEventListener("visibilitychange", () => {
       if (document.hidden) this.releaseStick();
     }, options);
+  }
+
+  setMuted(muted: boolean): void {
+    this.audioButton.innerHTML = icon(muted ? "mute" : "sound");
+    this.audioButton.title = muted ? "Enable digging sounds" : "Mute digging sounds";
+    this.audioButton.setAttribute("aria-label", this.audioButton.title);
   }
 
   show(packName: string, islandName: string): void {

@@ -88,12 +88,14 @@ function buildDig(s: IslandScenery) {
       relic.setEnabled(digs >= 3);
       previous = digs;
     }
+    // The highest brass sits 22 cm below the original surface. It only becomes
+    // visible as the excavated ground around the fixed chest falls away.
     progress += (digs - progress) * (reduced ? 1 : 1 - Math.exp(-dt * 6));
-    base.position.set(x, ground - 0.97 + progress * 0.33, z);
+    base.position.set(x, ground - 1.26, z);
     if (digs >= 3) {
       relic.position.set(
         x,
-        ground + 1.2 + Math.max(0, progress - 2) * 0.64 + (reduced ? 0 : Math.sin(time * 2) * 0.06),
+        ground + 0.48 + Math.max(0, progress - 2) * 0.64 + (reduced ? 0 : Math.sin(time * 2) * 0.06),
         z,
       );
       relic.rotation.y = reduced ? 0.25 : time * 0.42;
@@ -180,14 +182,15 @@ export class LandfallView {
     this.shadows.bias = 0.00045;
     this.shadows.normalBias = 0.023;
     const scenery = new IslandScenery(scene, world, island.site, seed, this.shadows, island.heightAt),
-      style = { ...scenery.style, fog: illumination.fog };
+      style = { ...scenery.style, fog: illumination.fog, sun: illumination.sun };
     if (night) {
       style.deepWater = "#0b1e30";
       style.shallowWater = "#255052";
       style.foam = "#718a9d";
     } else if (light === "sunset") {
       style.deepWater = "#244756";
-      style.shallowWater = "#589b91";
+      style.shallowWater = "#57847b";
+      style.foam = "#d6bbac";
     }
     scene.clearColor = Color4.FromHexString(style.fog + "ff");
     scene.fogColor = Color3.FromHexString(style.fog);
@@ -210,9 +213,13 @@ export class LandfallView {
     this.digging = new IslandDigging(scene, island.heightAt, island.site.settings.biome, seed);
     this.shadows.getShadowMap()!.refreshRate = 0;
   }
-  strikeGround(x: number, z: number, successful: boolean, reducedMotion: boolean) {
-    this.digging.strike(x, z, successful, reducedMotion);
+  strikeGround(x: number, z: number, successful: boolean, reducedMotion: boolean, onContact: () => void) {
+    this.digging.strike(x, z, successful, reducedMotion, onContact);
   }
+  cancelSwing() { this.digging.cancelSwing(); }
+  setMuted(muted: boolean) { this.digging.setMuted(muted); }
+  groundHeight(x: number, z: number) { return this.digging.heightAt(x, z); }
+  restoreTreasure(x: number, z: number, strokes: number) { this.digging.restoreTreasure(x, z, strokes); }
   render(dt: number, walker: WalkingPose, digs: number, reducedMotion = false) {
     this.time += dt;
     this.camera.position.set(walker.x, walker.eyeY + (reducedMotion ? 0 : walker.bob), walker.z);

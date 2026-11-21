@@ -201,6 +201,9 @@ function drawChart(island: GeneratedIsland, world: number, seed: number): string
     <g fill="none">${roads}</g>${houses}
     <g transform="${translate(site.landmark)}" fill="${paper}" stroke="${ink}" stroke-width=".45">
       <title>${landmarkNames[world]}</title>${landmarkSymbols[world]}</g>
+    <g transform="${translate(site.grotto.entry)}" stroke="#524733" stroke-width=".35">
+      <title>Tidal cave</title><path fill="#d1bb8b" d="m-2.8 1.4.9-2.7 1.6-.8 1.6.5 1.5 3Z"/>
+      <path fill="#574a38" d="M-1.15 1.4q.1-2.65 1.18-2.65 1.04.25 1.3 2.65Z"/></g>
     <g data-mark="landing" transform="${translate(site.spawn)}" fill="#f6e8bf" stroke="#394c43" stroke-width=".55">
       <title>Landing</title>${anchorSymbol}</g>
     <g transform="${translate(site.dig)}" stroke="${sepia}" stroke-width=".42">

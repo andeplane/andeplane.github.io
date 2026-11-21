@@ -23,14 +23,14 @@ export function resolveLight(setting: LightSetting, world: number): IslandLight 
 const lighting = {
   day: {
     sky: daySky, azimuth: -1.05, elevation: .84, solarU: .60, fog: "#a1bcc6",
-    sun: "#ffe3bb", skyFill: "#c3d9f5", bounce: "#a28b72", key: 1.17, fill: .67,
+    sun: "#ffe3bb", skyFill: "#c3d9f5", bounce: "#a28b72", key: 1.13, fill: .81,
   },
   sunset: {
     sky: sunsetSky, azimuth: -.88, elevation: .145, solarU: .595, fog: "#d3a298",
-    sun: "#ffbd82", skyFill: "#c4c8e2", bounce: "#98745f", key: 1.06, fill: .56,
+    sun: "#ffbd82", skyFill: "#b8cdef", bounce: "#867486", key: 1.12, fill: .69,
   },
   night: {
-    sky: nightSky, azimuth: 2.71, elevation: .58, solarU: .94, fog: "#25344b",
+    sky: nightSky, azimuth: 2.71, elevation: .58, solarU: .573, fog: "#25344b",
     sun: "#98b6e2", skyFill: "#859bc1", bounce: "#776d88", key: .35, fill: .32,
   },
 };
@@ -57,7 +57,10 @@ void main() {
   vec3 d=normalize(direction);
   float az=atan(d.x,d.z)*.159154943+rotation;
   float elevation=asin(clamp(d.y,0.,1.))*.636619772;
-  vec3 sky=texture2D(panorama,vec2(az,1.-elevation)).rgb;
+  // Frame the diagonal dust lane above the shore and suppress the
+  // photographed light pollution below the useful night-sky field.
+  float latitude=mix(elevation,.19+.81*elevation,night);
+  vec3 sky=texture2D(panorama,vec2(az,1.-latitude)).rgb;
   if(night>.5) {
     // Remove the long exposure sky pedestal to reveal the photographed dust lanes.
     sky=vec3(.009,.018,.038)+pow(max(sky-vec3(.25,.245,.23),0.)*1.43,vec3(1.85))*vec3(.84,.91,1.);

@@ -72,7 +72,13 @@ void main() {
   vec3 h=normalize(v+sunDirection);
   float facing=max(0.,dot(h,n));
   float glitter=pow(facing,145.)*.65+pow(facing,15.)*.085;
-  water+=sunColor*glitter*near*(.38+.62*breeze)*(1.-night*.37);
+  float lowSun=1.-smoothstep(.18,.45,sunDirection.y);
+  // The reflection at grazing angles stretches over the long swell even
+  // beyond the fine ripples resolved near the camera.
+  float path=pow(max(0.,dot(normalize(v.xz),-normalize(sunDirection.xz))),28.);
+  float wavelets=.55+.45*sin(swell*.72+drift*2.);
+  water+=sunColor*(glitter*(.2+.8*near)*(.38+.62*breeze)
+         + lowSun*path*wavelets*(.07+.21*fresnel))*(1.-night*.37);
 
   float breakers=sin(clock*.92+.29*p.x+.17*p.y+drift*2.8);
   float edge=d-.104-.079*breakers-.057*(wind-.5);
