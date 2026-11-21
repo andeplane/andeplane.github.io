@@ -1,6 +1,6 @@
 import { atlasRenderer, levelPoint, worldAsset } from "./worldAtlas";
 import { settingsDesk } from "./homeMenu";
-import { adventureChart, chartShip } from "./adventureChart";
+import { adventureChart, chartShip, faceChartShip } from "./adventureChart";
 import { PACKS, RELICS, type VoyageSession, type VoyageDef } from "../game/voyage";
 import {
   goldTotal,
@@ -627,14 +627,20 @@ export class VoyageHud {
     const sx = chart.clientWidth ? parent.width / chart.clientWidth : 1;
     const sy = chart.clientHeight ? parent.height / chart.clientHeight : 1;
     const width = parent.width / sx, height = parent.height / sy;
-    return { x: Math.max(28, Math.min(width - 28, (element.right - parent.left) / sx + (regional ? 20 : -element.width / sx * .12))),
-      y: Math.max(28, Math.min(height - 28, (element.top - parent.top + element.height * .65) / sy)) };
+    const style = getComputedStyle(chart);
+    const inset = (edge: string) => parseFloat(style.getPropertyValue(`--pirate-safe-${edge}`)) || 0;
+    // Keep the moored ship out of the phone system areas when its island is offscreen.
+    return {
+      x: Math.max(28 + inset("left") / sx, Math.min(width - 28 - inset("right") / sx, (element.right - parent.left) / sx + (regional ? 20 : -element.width / sx * .12))),
+      y: Math.max(28 + inset("top") / sy, Math.min(height - 28 - inset("bottom") / sy, (element.top - parent.top + element.height * .65) / sy)),
+    };
   }
   private placeShip(from: ShipLocation, to: ShipLocation, fraction: number): void {
     const t = fraction * fraction * (3 - 2 * fraction);
     for (const regional of [false, true]) {
       const a = this.chartPoint(from, regional), b = this.chartPoint(to, regional);
       const ship = this.q(regional ? "#level-ship-marker" : "#map-ship-marker");
+      faceChartShip(ship, b.x - a.x);
       ship.style.left = `${a.x + (b.x - a.x) * t}px`;
       ship.style.top = `${a.y + (b.y - a.y) * t}px`;
     }

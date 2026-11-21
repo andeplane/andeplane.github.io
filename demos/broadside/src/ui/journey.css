@@ -10,7 +10,6 @@
   transform: translate(-50%, -50%);
   filter: drop-shadow(0 3px 3px #152e2c80);
 }
-.chart-ship > svg { filter: sepia(.65) saturate(.7); display: block; width: 100%; height: 68px; }
 .chart-ship > span {
   display: inline-block;
   padding: 2px 7px;
@@ -48,7 +47,7 @@
   background: #263b35f5; color: #ffe5aa; border: 1px solid #bfa46e;
   text-align: center; white-space: nowrap; font-size: 14px;
 }
-.chart-sailing .chart-ship > svg { animation: chart-bob .6s ease-in-out infinite alternate; }
+.chart-sailing .chart-ship > img { animation: chart-bob .6s ease-in-out infinite alternate; }
 .chart-sailing #menu-free, .chart-sailing .map-footnote { visibility: hidden; }
 @keyframes chart-bob { to { transform: translateY(-3px) rotate(2deg); } }
 
@@ -126,7 +125,6 @@
 @keyframes chart-zoom { from { opacity: 0; transform: scale(.82); } to { opacity: 1; transform: scale(1); } }
 @media (max-width: 650px) {
   .chart-ship { width: 58px; }
-  .chart-ship > svg { height: 48px; }
   .chart-ship > span { font-size: 10px; padding: 2px 5px; }
   #ship-panel { right: 18px; bottom: 84px; padding: 16px; }
   #voyage-ui[data-screen="levels"] .menu-heading h1 { font-size: 32px; }
@@ -151,7 +149,7 @@
   #ship-panel { bottom: 14px; padding: 12px; }
 }
 @media (prefers-reduced-motion: reduce) {
-  #level-menu .level-board, .chart-sailing .chart-ship > svg { animation: none; }
+  #level-menu .level-board, .chart-sailing .chart-ship > img { animation: none; }
 }
 
 #voyage-ui.chart-sailing :is(#world-menu,#level-menu) {overflow:hidden;}

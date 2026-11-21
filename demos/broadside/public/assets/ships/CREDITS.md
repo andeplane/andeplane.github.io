@@ -10,6 +10,8 @@
 - 72,638 imported triangles; approximately 1.6 MB GLB. No external textures or runtime dependencies.
 - Rebuild: `tools/blender/import_black_pearl.py`, passing the original Thingiverse ZIP after `--`.
 
+The transparent chart sprite `../map/chart-pearl.webp` is a lit, three-quarter render of this same CC BY 4.0 GLB, made with `tools/blender/render_chart_pearl.py` and mirrored for leftward travel.
+
 The Black Pearl is a fictional ship from Pirates of the Caribbean. The creator's model is fan art; this attribution does not imply endorsement by the franchise owner.
 
 Other ship models in this folder are original Broadside Blender assets built with `tools/blender/build_ships.py`.

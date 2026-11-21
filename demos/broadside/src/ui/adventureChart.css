@@ -2,6 +2,11 @@
 .overworld-geography::before { content:""; position:absolute; inset:0; background:url("../math/territories.svg") center / 100% 100%, url("/assets/map/calculus-overworld.webp") center / 100% 100%; }
 @media (min-aspect-ratio: 168/100) { .overworld-geography::before { mask-image:linear-gradient(90deg,transparent,#000 5%,#000 95%,transparent); } }
 @media (max-aspect-ratio: 100/175) { .overworld-geography::before { mask-image:linear-gradient(transparent,#000 5%,#000 95%,transparent); } }
+@media (max-width: 350px) and (orientation: portrait) {
+  #academy .calculus-overworld .overworld-chart {
+    padding-block: calc(50px + var(--pirate-safe-top)) var(--pirate-safe-bottom);
+  }
+}
 :is(#academy,#reader,#voyage-ui) .overworld-geography .overworld-place { position:absolute; left:var(--x); top:var(--y); transform:translate(-50%,-50%); display:grid; justify-items:center; width:clamp(118px,35vmin,185px); max-width:40%; min-height:44px; padding:0; background:none; border:0; box-shadow:none; color:#fff3ce; cursor:pointer; }
 .overworld-place[data-shore="0"] { --x:23%; --y:24%; }
 .overworld-place[data-shore="1"] { --x:75%; --y:21%; }
@@ -18,10 +23,12 @@
 .overworld-geography .world-art {width:80px;height:56px;object-fit:contain;}
 .overworld-geography button:disabled {filter:saturate(.65);}
 :is(.overworld-geography,.world-pack-stop,.expedition-stop) .chart-ship-marker {display:block;position:absolute;z-index:3;width:52px;left:-6px;top:0;pointer-events:none;filter:drop-shadow(0 2px 2px #2a2119);}
-:is(.overworld-geography,.world-pack-stop,.expedition-stop) .chart-ship-marker svg {display:block;width:100%;height:auto;animation:moored-bob 2.4s ease-in-out infinite alternate;}
+.chart-ship-marker > img {display:block;width:100%;height:auto;filter:drop-shadow(0 0 1px #fff1bc);}
+.chart-ship-marker[data-facing="left"] > img {scale:-1 1;}
+:is(.overworld-geography,.world-pack-stop,.expedition-stop) .chart-ship-marker > img {animation:moored-bob 2.4s ease-in-out infinite alternate;}
 .expedition-stop .chart-ship-marker {left:32px;top:18px;}
 @keyframes moored-bob {to {transform:translateY(-3px) rotate(3deg);}}
-@media(prefers-reduced-motion:reduce){:is(.overworld-geography,.world-pack-stop,.expedition-stop) .chart-ship-marker svg {animation:none;}}
+@media(prefers-reduced-motion:reduce){:is(.overworld-geography,.world-pack-stop,.expedition-stop) .chart-ship-marker > img {animation:none;}}
 .reading-overview,#voyage-ui #world-menu #world-packs {position:absolute;inset:0;display:grid;place-items:center;background:#176867 url("/assets/map/worlds/add-water.webp") center/360px;}
 #voyage-ui[data-screen="worlds"] #captain-menu #world-menu .world-map {position:absolute;inset:0;width:100%;height:100%;min-height:0;max-width:none;margin:0;background:none;border:0;}
 #voyage-ui[data-screen="worlds"] #captain-menu #world-menu :is(.menu-heading,.map-footnote,.map-route) {display:none;}

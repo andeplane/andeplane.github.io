@@ -209,6 +209,7 @@ describe("regional island journeys", () => {
     expect(chart.querySelectorAll("button[data-level]")).toHaveLength(10);
     expect(chart.querySelector("[data-map-center]")?.hasAttribute("hidden")).toBe(true);
     expect(marker.tagName).toBe("SPAN");
+    expect(marker.querySelector("img")?.getAttribute("src")).toMatch(/assets\/map\/chart-pearl\.webp$/);
     expect(marker.getAttribute("aria-hidden")).toBe("true");
     expect(marker.hasAttribute("inert")).toBe(true);
     marker.click();
@@ -267,6 +268,17 @@ describe("regional island journeys", () => {
     hud.location({ kind: "course", index: 0 });
     expect(parseFloat(button("#level-ship-marker").style.left)).toBeCloseTo(140);
     expect(parseFloat(button("#level-ship-marker").style.top)).toBeCloseTo(408.6);
+
+    const marker = button("#level-ship-marker");
+    vi.spyOn(button('[data-level="1"]'), "getBoundingClientRect").mockReturnValue({ right: 72, top: 285, height: 35.2 } as DOMRect);
+    const first = { kind: "course", index: 0 } as const;
+    const second = { kind: "course", index: 1 } as const;
+    hud.travelPose(first, second, 0.5);
+    expect(marker.dataset.facing).toBe("left");
+    hud.location(second);
+    expect(marker.dataset.facing).toBe("left");
+    hud.travelPose(second, first, 0.5);
+    expect(marker.dataset.facing).toBe("right");
   });
   it("moves the marker on the active chart and closes ship details on leaving", () => {
     const { hud, button } = setup(false);
