@@ -220,8 +220,19 @@ async function openWorld(next:"ship"|"cave"|"unload"):Promise<void>{
  if(!["ship","cave","unload"].includes(screen))worldReturn=screen==="reading"&&result?.levelComplete?"complete":screen;
  navigate(next);worldLoading=true;worldError=false;render();canvas.hidden=false;const current=epoch;
  try{const {ReadingPirateHost}=await import("./pirateHost");if(epoch!==current)return;
-  host=new ReadingPirateHost(canvas,progress,p=>saveProgress(p,storage),()=>{if(epoch===current){worldLoading=false;render();}},()=>{if(epoch===current){worldLoading=false;render();}},()=>{if(epoch===current){worldLoading=false;worldError=true;render();}},!qa);
-  host.show(next,area());if(next==="cave")worldLoading=false;render();
+   const changed=()=>{if(epoch===current&&screen==="unload")render();};
+  const ready=()=>{
+   if(epoch!==current)return;
+   worldLoading=false;
+   if(screen==="unload"&&host?.unloading.done){
+    host.finishUnloadForWalk();
+    screen="cave";
+   }
+   render();
+  };
+  const failed=()=>{if(epoch===current){worldLoading=false;worldError=true;render();}};
+  host=new ReadingPirateHost(canvas,progress,p=>saveProgress(p,storage),changed,ready,failed,!qa);
+  host.show(next,area());worldLoading=next==="ship";render();
  }catch{if(epoch!==current)return;worldLoading=false;worldError=true;host?.dispose();host=null;render();}
 }
 function back():void{

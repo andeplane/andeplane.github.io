@@ -140,6 +140,7 @@ async function main() {
   const pirate = new PirateWorld(engine, sailingAdapter(progress,storage,!qa), !qa, {
     error: message => {
       hud.root.inert=false; clearArrival();
+      if (pirate.mode === "unload") { hud.unloadingFailed(); return; }
       showWorldError(message,()=>menu());
     },
   });
@@ -813,11 +814,21 @@ async function main() {
       pirate.render(dt,reducedMotion.matches);
       if (holdShowingResult) {const p=hold.pose;hud.reveal(p.time,p.discovered,p.ready);}
     } else if (mode === "unloading") {
-      // DEV-only still frame for inspecting the hands and cabin-to-bank carry.
+      // DEV-only still frame for inspecting the lift beside the gold bank.
       if (carryPreview) getCave().revealTime = reducedMotion.matches ? 1.4 : 6.7;
       pirate.render(carryPreview ? 0 : dt,reducedMotion.matches);
-      unloadingIndex=pirate.unloading.active;
-      hud.unloading(pirate.unloading.done ? pirate.unloading.total : pirate.unloading.delivered+1,pirate.unloading.total,pirate.unloading.done);
+      const cargo = pirate.unloading;
+      unloadingIndex = cargo.active;
+      if (cargo.done && pirate.status === "ready") {
+        pirate.finishUnloadForWalk();
+        mode = "cave";
+        journey.location = { kind: "cave" };
+        saveJourney(journey.location, storage);
+        hud.location(journey.location);
+        hud.home();
+        if (import.meta.env.DEV) canvas.dataset.caveGeometry = JSON.stringify(getCave().walkingGeometry);
+        stepper.reset();
+      } else if (pirate.status !== "error") hud.unloading(cargo.delivered + 1, cargo.total);
     } else if (mode === "harbour" && harbour) {
       const look = walking.readLook();
       harbour.look(look.right * 500 * dt, look.down * 450 * dt);
