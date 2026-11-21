@@ -120,7 +120,7 @@ export class VoyageHud {
       <div class="menu-atmosphere" aria-hidden="true"><div class="moon"></div><div class="distant-rocks"></div><div class="hero-ship">${pirateShipArt()}</div><div class="ocean-mist"></div><div class="menu-embers"></div></div>
       <div id="main-menu" class="menu-page">${lanternHome()}</div>
       <dialog class="language-picker captain-language" aria-labelledby="language-picker-title"></dialog>
-      <div id="world-menu" class="menu-page" hidden>${chartHeader({ back: backButton({ id: "map-back", destination: "main menu" }), actions: shipAction("map-ship") })}<div class="world-map" role="group" aria-label="Pirate sea chart"><svg class="map-route" viewBox="0 0 1000 1000" preserveAspectRatio="none" aria-hidden="true"><path class="route-wide" d="M370 930 C280 885 90 720 170 520 S250 90 410 190 S440 650 650 480 S735 90 865 135"/><path class="route-tall" d="M170 930 C110 810 110 710 245 635 S815 810 755 545 S80 525 245 185 S570 290 755 150"/></svg><button id="map-cave" class="map-cave" aria-label="Visit treasure cave"><img class="cave-art" src="${import.meta.env.BASE_URL}assets/map/treasure-cave.webp" width="640" height="640" alt="" draggable="false" decoding="async" /><span>Your cave</span></button><div id="world-packs"></div></div><p class="map-footnote">Gold in every level. A special treasure in every world.</p></div>
+      <div id="world-menu" class="menu-page" hidden>${chartHeader({ back: backButton({ id: "map-back", destination: "main menu" }) })}<div class="world-map" role="group" aria-label="Pirate sea chart"><svg class="map-route" viewBox="0 0 1000 1000" preserveAspectRatio="none" aria-hidden="true"><path class="route-wide" d="M370 930 C280 885 90 720 170 520 S250 90 410 190 S440 650 650 480 S735 90 865 135"/><path class="route-tall" d="M170 930 C110 810 110 710 245 635 S815 810 755 545 S80 525 245 185 S570 290 755 150"/></svg><button id="map-cave" class="map-cave" aria-label="Visit treasure cave"><img class="cave-art" src="${import.meta.env.BASE_URL}assets/map/treasure-cave.webp" width="640" height="640" alt="" draggable="false" decoding="async" /><span>Your cave</span></button><div id="world-packs"></div></div><p class="map-footnote">Gold in every level. A special treasure in every world.</p></div>
       <div id="level-menu" class="menu-page" hidden>${chartHeader({ back: backButton({ id: "level-back", destination: "pirate seas chart" }), heading: `<h1 id="world-name"></h1>`, actions: shipAction("level-ship") })}<div class="level-board"><div class="regional-viewport" tabindex="0" aria-label="Island route" data-map-viewport><div id="voyage-levels" data-map-world></div>${chartCenterButton("Current island", "regional-center")}</div><p class="level-note">1,000 gold per level · Complete the world for its special treasure.</p></div></div>
       <div id="settings-menu" class="menu-page" hidden>${chartHeader({ back: backButton({ id: "menu-back", destination: "main menu" }) })}${settingsDesk("Settings",`<button id="settings-language" class="desk-action" aria-haspopup="dialog"></button><button type="button" class="privacy-action" data-open-privacy>Privacy & support</button><p class="art-credit"><span id="model-credit">Black Pearl model by</span> <a href="https://www.thingiverse.com/thing:4951578" target="_blank" rel="noopener">DeltaX_F</a> · <a href="https://creativecommons.org/licenses/by/4.0/" target="_blank" rel="noopener">CC BY 4.0</a><br><span id="adapted-credit">Adapted for Broadside.</span></p>`)}</div>
     </section>
@@ -199,7 +199,7 @@ export class VoyageHud {
     q("#level-menu").onscroll = () => {
       r.dataset.levelScrolled = String(q("#level-menu").scrollTop > 20);
     };
-    for (const id of ["#map-ship", "#level-ship"]) q(id).onclick = () => this.openShipPanel(q(id));
+    q("#level-ship").onclick = () => this.openShipPanel(q("#level-ship"));
     q("#ship-close").onclick = () => this.closeShipPanel(true);
     q("#ship-panel-backdrop").onclick = event => {
       if (event.target === q("#ship-panel-backdrop")) this.closeShipPanel(true);
@@ -683,7 +683,7 @@ export class VoyageHud {
     this.q("#ship-panel").hidden = true;
     this.q("#ship-panel-backdrop").hidden = true;
     for (const id of ["#world-menu", "#level-menu"]) this.q(id).inert = false;
-    for (const id of ["#map-ship", "#level-ship"]) this.q(id).setAttribute("aria-expanded", "false");
+    this.q("#level-ship").setAttribute("aria-expanded", "false");
     if (restoreFocus) this.shipPanelTrigger?.focus();
     this.shipPanelTrigger = null;
   }

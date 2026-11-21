@@ -154,25 +154,25 @@ it("releases an active steering drag when changing camera views", () => {
 describe("ship chart details dialog", () => {
   it("dismisses on an outside tap without activating the chart and restores focus to the ship", () => {
     const { hud, handlers, button } = setup(false);
-    hud.showMenu("worlds");
-    button("#map-ship").click();
+    hud.showMenu("levels");
+    button("#level-ship").click();
     expect(button("#ship-panel").getAttribute("role")).toBe("dialog");
-    expect(button("#world-menu").inert).toBe(true);
+    expect(button("#level-menu").inert).toBe(true);
     expect(document.activeElement).toBe(button("#ship-close"));
     button("#ship-place").click();
     expect(button("#ship-panel").hidden).toBe(false);
     button("#ship-panel-backdrop").click();
     expect(button("#ship-panel").hidden).toBe(true);
     expect(button("#ship-panel-backdrop").hidden).toBe(true);
-    expect(button("#world-menu").inert).toBe(false);
-    expect(document.activeElement).toBe(button("#map-ship"));
+    expect(button("#level-menu").inert).toBe(false);
+    expect(document.activeElement).toBe(button("#level-ship"));
     expect(handlers.travel).not.toHaveBeenCalled();
-    expect(hud.root.dataset.screen).toBe("worlds");
+    expect(hud.root.dataset.screen).toBe("levels");
   });
 
   it("keeps Tab inside the dialog and lets Escape close details before global menu shortcuts", () => {
     const { hud, button } = setup(false);
-    hud.showMenu("worlds"); button("#map-ship").click();
+    hud.showMenu("levels"); button("#level-ship").click();
     document.dispatchEvent(new KeyboardEvent("keydown", { key: "Tab", shiftKey: true, bubbles: true, cancelable: true }));
     expect(document.activeElement).toBe(button("#ship-cave"));
     document.dispatchEvent(new KeyboardEvent("keydown", { key: "Tab", bubbles: true, cancelable: true }));
@@ -185,7 +185,7 @@ describe("ship chart details dialog", () => {
     expect(escape.defaultPrevented).toBe(true);
     expect(shortcut).not.toHaveBeenCalled();
     expect(button("#ship-panel").hidden).toBe(true);
-    expect(hud.root.dataset.screen).toBe("worlds");
+    expect(hud.root.dataset.screen).toBe("levels");
   });
 });
 
@@ -207,9 +207,10 @@ describe.each([false, true])("treasure navigation with private ship %s", (privat
     expect(button("#map-cave").getAttribute("aria-label")).toBe("Visit treasure cave");
     button("#map-cave").click();
     expect(handlers.travel).toHaveBeenCalledTimes(2);
-    button("#map-ship").click();
+    button('[data-pack="0"]').click();
+    button("#level-ship").click();
     expect(button("#ship-panel").hidden).toBe(false);
-    expect(button("#map-ship").getAttribute("aria-expanded")).toBe("true");
+    expect(button("#level-ship").getAttribute("aria-expanded")).toBe("true");
     button("#menu-hold").click();
     expect(handlers.travel).toHaveBeenLastCalledWith("hold");
     button("#visit-ship").click();
@@ -217,7 +218,7 @@ describe.each([false, true])("treasure navigation with private ship %s", (privat
     button("#ship-cave").click();
     expect(handlers.travel).toHaveBeenLastCalledWith("cave");
     button("#ship-close").click();
-    expect(button("#map-ship").getAttribute("aria-expanded")).toBe("false");
+    expect(button("#level-ship").getAttribute("aria-expanded")).toBe("false");
     expect(handlers.home).not.toHaveBeenCalled();
     expect(handlers.harbour).not.toHaveBeenCalled();
   });
@@ -257,7 +258,7 @@ describe("regional island journeys", () => {
   it("keeps the ship details action outside level hit targets and makes the travelling boat decorative", () => {
     const { hud, button } = setup(false);
     hud.showMenu("worlds");
-    expect(button("#map-ship").closest(".world-map")).toBeNull();
+    expect(hud.root.querySelector("#world-menu [aria-controls=ship-panel]")).toBeNull();
     button('[data-pack="0"]').click();
     const chart = button(".level-board"), marker = button("#level-ship-marker");
     expect(button("#level-ship").closest(".level-board")).toBeNull();
@@ -341,7 +342,7 @@ describe("regional island journeys", () => {
   });
   it("moves the marker on the active chart and closes ship details on leaving", () => {
     const { hud, button } = setup(false);
-    hud.showMenu("worlds"); button("#map-ship").click();
+    hud.showMenu("levels"); button("#level-ship").click();
     hud.beginTravel({ kind: "port" }, { kind: "course", index: 0 }, "Setting sail…");
     expect(hud.root.dataset.screen).toBe("levels");
     expect(button("#ship-panel").hidden).toBe(true);
