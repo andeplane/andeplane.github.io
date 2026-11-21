@@ -5,50 +5,8 @@ import { Color3 } from "@babylonjs/core/Maths/math.color.js";
 import { IslandScenery, vec } from "./landfallScenery";
 import type { Vector3 } from "@babylonjs/core/Maths/math.vector.js";
 
-function beacon(s: IslandScenery) {
-  const { x, z } = s.site.landmark,
-    y = s.floor(x, z) - 0.22;
-  const at = (dy: number) => vec(x, y + dy, z);
-  s.pole("lighthouse foundation", at(-1), at(0.6), 4.9, 4.6, "#9f967a", 16, s.stone);
-  for (let i = 0; i < 6; i++) {
-    const band = 0.6 + i * 1.13,
-      diameter = 3.6 - i * 0.24;
-    s.pole(
-      "limewashed tower band",
-      at(band),
-      at(band + 1.135),
-      diameter,
-      diameter - 0.24,
-      i === 1 || i === 4 ? "#b94d37" : "#efdbaf",
-      20,
-      s.stone,
-    );
-  }
-  s.pole("lantern balcony", at(7.3), at(7.58), 3.7, 3.9, "#424e4c", 18);
-  for (let i = 0; i < 12; i++) {
-    const a = (i * Math.PI) / 6,
-      b = ((i + 1) * Math.PI) / 6;
-    const p = vec(x + 1.79 * Math.sin(a), y + 7.54, z + 1.79 * Math.cos(a));
-    const q = vec(x + 1.79 * Math.sin(b), y + 8.19, z + 1.79 * Math.cos(b));
-    s.pole("iron baluster", p, p.add(vec(0, 0.65, 0)), 0.075, 0.07, "#435158", 6);
-    s.pole("balcony handrail", p.add(vec(0, 0.65, 0)), q, 0.09, 0.09, "#49545a", 6);
-  }
-  s.pole("Fresnel lantern glass", at(7.65), at(8.95), 1.85, 1.85, "#ffd784", 12, s.glow);
-  for (let i = 0; i < 8; i++) {
-    const a = (i * Math.PI) / 4,
-      dx = Math.sin(a) * 0.99,
-      dz = Math.cos(a) * 0.99;
-    s.pole("lantern mullion", vec(x + dx, y + 7.6, z + dz), vec(x + dx, y + 9, z + dz), 0.1, 0.1, "#374548", 6);
-  }
-  s.pole("lantern roof", at(8.97), at(9.83), 3.0, 0.2, "#55736c", 12);
-  s.pole("weather vane", at(9.82), at(10.6), 0.13, 0.03, "#d7ac62", 8);
-  s.stoneBlock("painted doorway", x, y + 1.39, z - 1.64, 1.04, 1.75, 0.3, "#405c55");
-  for (let i = 0; i < 3; i++)
-    s.stoneBlock("worn steps", x, y + 0.47 - i * 0.18, z - 1.96 - i * 0.34, 1.66, 0.3, 0.58, "#c4b99d");
-  for (let i = 0; i < 3; i++)
-    s.stoneBlock("narrow tower window", x, y + 3.55 + i * 1.12, z - 1.44 + i * 0.13, 0.4, 0.62, 0.18, "#334e52");
-  s.solid(x, z, 1.85, 1.85, 9.9);
-}
+import { buildBeacon } from "./landfallBeacon";
+import { scallopShell } from "./landfallShells";
 
 function pennant(s: IslandScenery, x: number, y: number, z: number, height: number, scale: number): Mesh {
   const top = vec(x, y + height, z);
@@ -202,11 +160,12 @@ function sanctuary(s: IslandScenery) {
   s.solid(x, z, 2.45, 2.25, 5.8);
 }
 
-export function buildLandmark(s: IslandScenery) {
+export function buildLandmark(s: IslandScenery, night = false) {
+  let beacon: ((time: number) => void) | undefined;
   const flags: Mesh[] = [];
   switch (s.world) {
     case 0:
-      beacon(s);
+      beacon = buildBeacon(s, night);
       break;
     case 1:
       flags.push(corsairFort(s));
@@ -228,25 +187,13 @@ export function buildLandmark(s: IslandScenery) {
       zz = z + Math.cos(a) * r,
       y = s.floor(xx, zz);
     if (s.world === 0) {
-      // Fluted scallop shell, wider open lip and a small hinge.
-      const hinge = vec(xx, y + 0.035, zz),
-        radius = s.rng.range(0.2, 0.35);
-      for (let k = 0; k < 8; k++) {
-        const edge = (j: number) =>
-          hinge.add(
-            vec(
-              Math.sin(a + j * 0.26 - 0.97) * radius,
-              0.09 + 0.018 * (j % 2),
-              Math.cos(a + j * 0.26 - 0.97) * radius,
-            ),
-          );
-        s.triangle(hinge, edge(k), edge(k + 1), k % 2 ? "#e9a993" : "#f5c6ad");
-      }
+      scallopShell(s, xx, zz, a, s.rng.range(.31, .50));
     } else if (s.world === 2) s.boulder(xx, y + 0.03, zz, 0.19, 0.13, 0.21, i % 2 ? "#8dbcc8" : "#688f9f");
     else if (s.world === 3)
       crystal(s, vec(xx, y - 0.025, zz), s.rng.range(0.34, 0.61), 0.12, a, i % 2 ? "#bd96ee" : "#ab94e3");
   }
   return (t: number) => {
+    beacon?.(t);
     for (let i = 0; i < flags.length; i++) flags[i]!.rotation.y = Math.sin(t * 2.7 + i) * 0.095;
   };
 }
