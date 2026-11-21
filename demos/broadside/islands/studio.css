@@ -151,3 +151,10 @@ body { background: #213e42; }
   .atlas-scales { grid-column: 2; grid-row: 1/span 3; border-block: none; padding: 0; align-content: start; }
   .atlas-caption { top: calc(6px + var(--atlas-safe-top)); }
 }
+.atlas-caption { display: flex; align-items: center; gap: 12px; }
+#studio .atlas-map {
+  display: inline-flex; gap: 6px; align-items: center; justify-content: center;
+  min-height: 44px; padding: 0 10px; flex: none; pointer-events: auto;
+  color: #fff4d6; background: #264a43; border: 1px solid #b6b58e; border-radius: 4px; font-weight: 650;
+}
+.atlas-map svg { width: 20px; }

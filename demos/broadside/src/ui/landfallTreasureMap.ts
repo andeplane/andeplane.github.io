@@ -201,25 +201,27 @@ function drawChart(island: GeneratedIsland, world: number, seed: number): string
     <g fill="none">${roads}</g>${houses}
     <g transform="${translate(site.landmark)}" fill="${paper}" stroke="${ink}" stroke-width=".45">
       <title>${landmarkNames[world]}</title>${landmarkSymbols[world]}</g>
-    <g transform="${translate(site.spawn)}" fill="#f6e8bf" stroke="#394c43" stroke-width=".55">
+    <g data-mark="landing" transform="${translate(site.spawn)}" fill="#f6e8bf" stroke="#394c43" stroke-width=".55">
       <title>Landing</title>${anchorSymbol}</g>
     <g transform="${translate(site.dig)}" stroke="${sepia}" stroke-width=".42">
       <g data-mark="buried">${buriedSymbol}</g><g data-mark="found" display="none">${foundSymbol}</g></g>
     ${compassAndScale()}
     <g data-mark="player" display="none" stroke="#ffefca" stroke-width=".62">
       <circle r="2.2" fill="none" stroke-width=".95"/><circle r="2.2" fill="none" stroke="#176767" stroke-width=".50"/>
-      <path d="M0-5.1 1.55-2.3 0-2.7-1.55-2.3Z" fill="#155e60"/></g>`;
+      <path d="M0-6.25 2.25-2.25 0-3.05-2.25-2.25Z" fill="#085456"/><path data-mark="at-landing" d="M0-2.55 1.85 1.9 0 1.05-1.85 1.9Z" fill="#085456"/></g>`;
 }
 
 export class LandfallTreasureMap {
   readonly el = document.createElement("div");
   private readonly player: SVGGElement;
+  private readonly landing: SVGGElement;
+  private readonly landingArrow: SVGPathElement;
   private readonly buried: SVGGElement;
   private readonly found: SVGGElement;
   private readonly svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
   private treasureFound = false;
 
-  constructor(island: GeneratedIsland, world: number, seed: number) {
+  constructor(private readonly island: GeneratedIsland, world: number, seed: number) {
     this.el.className = "landfall-treasure-map";
     this.el.style.cssText = "display:grid;place-items:center;width:100%;min-width:0;min-height:0;max-height:100%";
     this.svg.setAttribute("viewBox", "-53 -44 106 88");
@@ -230,6 +232,8 @@ export class LandfallTreasureMap {
     this.svg.style.cssText = "display:block;width:100%;height:auto;max-height:100%;font-family:Georgia,serif;color:#535541";
     this.svg.innerHTML = drawChart(island, world, seed);
     this.player = this.svg.querySelector('[data-mark="player"]')!;
+    this.landing = this.svg.querySelector('[data-mark="landing"]')!;
+    this.landingArrow = this.svg.querySelector('[data-mark="at-landing"]')!;
     this.buried = this.svg.querySelector('[data-mark="buried"]')!;
     this.found = this.svg.querySelector('[data-mark="found"]')!;
     this.el.append(this.svg);
@@ -241,6 +245,9 @@ export class LandfallTreasureMap {
       this.buried.setAttribute("display", found ? "none" : "inline");
       this.found.setAttribute("display", found ? "inline" : "none");
     }
+    const atLanding = !!player && Math.hypot(player.x - this.island.site.spawn.x, player.z - this.island.site.spawn.z) < 3;
+    this.landing.setAttribute("display", atLanding ? "none" : "inline");
+    this.landingArrow.setAttribute("display", atLanding ? "inline" : "none");
     if (player) {
       this.player.setAttribute("display", "inline");
       this.player.setAttribute("transform", `${translate(player)} rotate(${position(player.yaw * 180 / Math.PI)})`);

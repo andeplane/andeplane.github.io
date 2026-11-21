@@ -4,6 +4,7 @@ import "./landfallHud.css";
 interface LandfallActions {
   move(right: number, forward: number): void;
   dig(): void;
+  chart(): void;
   leave(): void;
   pauseInputs(): void;
 }
@@ -30,6 +31,7 @@ export class LandfallHud {
       <div class="landfall-heading">
         <button type="button" class="landfall-leave" title="Leave island" aria-label="Leave island">${icon("arrow")}</button>
         <div class="landfall-place"><span class="landfall-pack"></span><h1></h1></div>
+        <button type="button" class="landfall-map" aria-label="Treasure map" aria-haspopup="dialog" aria-keyshortcuts="M">${icon("map")} Map</button>
       </div>
       <div class="landfall-clue">${icon("map")}<p role="status" aria-live="polite" aria-atomic="true"></p></div>
       <div class="landfall-foot">
@@ -39,7 +41,7 @@ export class LandfallHud {
       </div>
       <dialog class="landfall-dialog" aria-labelledby="landfall-leave-title" aria-describedby="landfall-leave-detail">
         <h2 id="landfall-leave-title">Leave this island?</h2>
-        <p id="landfall-leave-detail">Return to the island chart? You’ll start this treasure hunt from the shore next time.</p>
+        <p id="landfall-leave-detail">Return to the island chart? Your digging progress stays on this island during this visit.</p>
         <div><button type="button" class="landfall-stay" autofocus>Keep exploring</button><button type="button" class="landfall-confirm">Leave island</button></div>
       </dialog>`;
     parent.append(root);
@@ -53,6 +55,7 @@ export class LandfallHud {
     this.thumb = this.pad.querySelector("span")!;
 
     this.leaveButton.onclick = () => this.requestLeave();
+    root.querySelector<HTMLButtonElement>(".landfall-map")!.onclick = () => this.actions.chart();
     this.digButton.onclick = () => this.actions.dig();
     this.dialog.querySelector<HTMLButtonElement>(".landfall-stay")!.onclick = () => this.dismiss();
     this.dialog.querySelector<HTMLButtonElement>(".landfall-confirm")!.onclick = () => {
@@ -98,16 +101,17 @@ export class LandfallHud {
     this.root.hidden = false;
   }
 
-  update(clue: string, canDig: boolean, strokes: number, treasure: string): void {
+  update(clue: string, canDig: boolean, strokes: number, treasure: string, feedback: string): void {
     let hint = clue;
     if (strokes >= 3) hint = `You found ${treasure.replace(/^The /, "the ")}!`;
+    else if (feedback) hint = feedback;
     else if (canDig) hint = [
-      "X marks the spot. Dig here!",
-      "The sand is loose. Dig again!",
+      "The ground feels loose. Dig here!",
+      "The shovel struck wood. Dig again!",
       "There’s a chest! One more dig.",
     ][strokes] ?? clue;
     if (this.clue.textContent !== hint) this.clue.textContent = hint;
-    const hideDig = !canDig || strokes >= 3;
+    const hideDig = strokes >= 3;
     if (this.digButton.hidden !== hideDig) this.digButton.hidden = hideDig;
   }
 
@@ -148,7 +152,7 @@ export class LandfallHud {
     this.thumb.style.transform = `translate(${right * radius}px, ${-forward * radius}px)`;
   }
 
-  private releaseStick(): void {
+  releaseStick(): void {
     const id = this.pointer;
     if (id === null) return;
     this.pointer = null;

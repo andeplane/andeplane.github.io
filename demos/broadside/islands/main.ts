@@ -13,6 +13,7 @@ import {
 import { LandfallView } from "../src/render/landfallView";
 import { buildSettlement } from "../src/render/landfallTown";
 import { LandfallHud } from "../src/ui/landfallHud";
+import { HuntChart } from "./huntChart";
 import { createStudio } from "./studio";
 
 const canvas = document.querySelector<HTMLCanvasElement>("#game")!;
@@ -63,55 +64,86 @@ function run() {
   let yaw = -0.45,
     tilt = 0.6,
     distance = 75;
+  const chart = new HuntChart(walk);
+  const progress = new Map<string, number>();
+  let recipe = "";
+  let feedbackUntil = 0;
+  const landingQuery = new URLSearchParams(location.search);
+  let enterOnLoad = landingQuery.get("mode") === "walk";
   let digs = 0,
     lastDig = -Infinity,
     buildTimer = 0;
   const pointers = new Map<number, { x: number; y: number }>();
   const stopMoving = () => {
     controls.clear();
+    for (const id of pointers.keys()) {
+      if (canvas.hasPointerCapture(id)) canvas.releasePointerCapture(id);
+    }
     pointers.clear();
   };
   const nearby = () =>
     !!walker &&
     Math.hypot(walker.x - island.site.dig.x, walker.z - island.site.dig.z) <=
       2.8;
-  const refreshClue = () => hud.update(island.site.clue, nearby(), digs, island.site.treasure);
+  const refreshClue = () => hud.update(
+    island.site.clue, nearby(), digs, island.site.treasure,
+    performance.now() < feedbackUntil ? "Nothing buried here. Check the X on your map." : "",
+  );
+  const blocked = () => chart.open || hud.confirmingLeave;
+  function showChart() {
+    if (!view || buildTimer || blocked()) return;
+    hud.releaseStick();
+    stopMoving();
+    chart.show(island, current.world, current.seed, mode === "walk" ? walker : null, digs >= 3);
+  }
   const dig = () => {
-    if (
-      mode !== "walk" ||
-      hud.confirmingLeave ||
-      !nearby() ||
-      digs === 3 ||
-      performance.now() - lastDig < 300
-    )
-      return;
-    digs++;
-    lastDig = performance.now();
+    if (mode !== "walk" || blocked() || !walker || !view || digs >= 3) return;
+    const now = performance.now();
+    if (now - lastDig < 300) return;
+    lastDig = now;
+    const hit = nearby();
+    // Break the ground ahead of the player's feet so a missed strike can be inspected.
+    const forward = 1.05;
+    let x = walker.x + Math.sin(walker.yaw) * forward;
+    let z = walker.z + Math.cos(walker.yaw) * forward;
+    if (island.heightAt(x, z) < .32) { x = walker.x; z = walker.z; }
+    if (hit) {
+      ({ x, z } = island.site.dig);
+      progress.set(recipe, ++digs);
+    }
+    feedbackUntil = hit ? 0 : now + 2600;
+    view.strikeGround(x, z, hit, reducedMotion.matches);
     refreshClue();
   };
   const hud = new LandfallHud(document.body, {
     move: (right, forward) => controls.move(right, forward),
     dig,
     leave: survey,
+    chart: showChart,
     pauseInputs: stopMoving,
   });
 
-  function walk() {
+  function walk(startAtVillage = false) {
     if (!view || !walker || buildTimer) return;
     stopMoving();
     const { spawn, dig: target } = island.site;
+    const villageLane = startAtVillage ? island.site.town.paths[1] : undefined;
+    const start = villageLane?.a ?? spawn;
     walker.reset();
-    walker.x = spawn.x;
-    walker.z = spawn.z;
-    walker.feet = island.heightAt(spawn.x, spawn.z);
+    walker.x = start.x;
+    walker.z = start.z;
+    walker.feet = island.heightAt(start.x, start.z);
     const { landmark } = island.site;
     const bearing = (p: { x: number; z: number }) =>
       Math.atan2(p.x - spawn.x, p.z - spawn.z);
-    walker.yaw = bearing(landmark) * 0.57 + bearing(target) * 0.43;
+    walker.yaw = villageLane
+      ? Math.atan2(villageLane.b.x - start.x, villageLane.b.z - start.z)
+      : bearing(landmark) * 0.57 + bearing(target) * 0.43;
     walker.pitch = -0.06;
-    digs = 0;
+    feedbackUntil = 0;
     lastDig = -Infinity;
     mode = "walk";
+    setWalkUrl(true);
     studio.hide();
     hud.show(ISLAND_PACKS[current.world]!, island.site.name);
     refreshClue();
@@ -121,10 +153,20 @@ function run() {
   function survey() {
     stopMoving();
     mode = "survey";
-    digs = 0;
+    setWalkUrl(false);
     hud.hide();
     studio.show();
     canvas.focus({ preventScroll: true });
+  }
+
+  function setWalkUrl(active: boolean) {
+    const url = new URL(location.href);
+    if (active) url.searchParams.set("mode", "walk");
+    else {
+      url.searchParams.delete("mode");
+      url.searchParams.delete("start");
+    }
+    history.replaceState(null, "", url);
   }
 
   function build() {
@@ -134,6 +176,10 @@ function run() {
       view = null;
       walker = null;
       island = generateIsland(current.world, current.seed, current.settings);
+      recipe = JSON.stringify(current);
+      digs = progress.get(recipe) ?? 0;
+      feedbackUntil = 0;
+      chart.reset();
       view = new LandfallView(engine, current.world, island, current.seed);
       const obstacles = [
         ...view.obstacles,
@@ -153,6 +199,10 @@ function run() {
       history.replaceState(null, "", url);
       status.hidden = true;
       studio.setReady(true);
+      if (enterOnLoad) {
+        enterOnLoad = false;
+        walk(landingQuery.get("start") === "village");
+      }
     } catch (error) {
       console.error(error);
       status.textContent =
@@ -172,6 +222,7 @@ function run() {
       buildTimer = window.setTimeout(build, 110);
     },
     walk,
+    chart: showChart,
   });
   studio.show();
   studio.setReady(false);
@@ -184,7 +235,7 @@ function run() {
     return a && b ? Math.hypot(a.x - b.x, a.y - b.y) : 0;
   };
   canvas.addEventListener("pointerdown", (e) => {
-    if (hud.confirmingLeave || e.button !== 0) return;
+    if (blocked() || e.button !== 0) return;
     e.preventDefault();
     canvas.focus({ preventScroll: true });
     pointers.set(e.pointerId, { x: e.clientX, y: e.clientY });
@@ -192,7 +243,7 @@ function run() {
   });
   canvas.addEventListener("pointermove", (e) => {
     const p = pointers.get(e.pointerId);
-    if (!p || hud.confirmingLeave) return;
+    if (!p || blocked()) return;
     const before = pinchDistance(),
       dx = e.clientX - p.x,
       dy = e.clientY - p.y;
@@ -203,7 +254,7 @@ function run() {
       const after = pinchDistance();
       if (before > 1 && after > 1) orbitZoom(before / after);
     } else {
-      yaw -= dx * 0.007;
+      yaw += dx * 0.007;
       tilt = Math.max(0.15, Math.min(1.44, tilt + dy * 0.006));
     }
   });
@@ -216,7 +267,7 @@ function run() {
   canvas.addEventListener(
     "wheel",
     (e) => {
-      if (mode !== "survey") return;
+      if (mode !== "survey" || blocked()) return;
       e.preventDefault();
       orbitZoom(Math.exp(Math.max(-200, Math.min(200, e.deltaY)) * 0.0014));
     },
@@ -224,12 +275,18 @@ function run() {
   );
   window.addEventListener("keydown", (e) => {
     if (
-      hud.confirmingLeave ||
+      blocked() ||
       e.metaKey ||
       e.altKey ||
       (mode === "survey" && e.ctrlKey)
     )
       return;
+    if (e.code === "KeyM" && !e.repeat && !e.ctrlKey &&
+        !(e.target instanceof HTMLInputElement || e.target instanceof HTMLSelectElement)) {
+      e.preventDefault();
+      showChart();
+      return;
+    }
     if (mode === "walk") {
       if (e.code === "Escape" && !e.repeat) {
         e.preventDefault();
@@ -266,7 +323,7 @@ function run() {
     if (!view || !walker || document.hidden) return;
     const dt = Math.min(0.1, engine.getDeltaTime() / 1000);
     if (mode === "walk") {
-      if (!hud.confirmingLeave) {
+      if (!blocked()) {
         const look = controls.readLook();
         walker.look(look.right * 500 * dt, look.down * 450 * dt);
         walker.step(controls.read(), dt);
@@ -288,7 +345,7 @@ function run() {
           yaw,
           pitch: tilt,
         },
-        0,
+        digs,
         reducedMotion.matches,
       );
     }

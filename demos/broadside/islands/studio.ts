@@ -1,4 +1,5 @@
 import { ISLAND_DESTINATIONS, ISLAND_PACKS, type IslandSettings } from "../src/game/landfall";
+import { icon } from "../src/ui/icons";
 import "./studio.css";
 
 interface StudioState {
@@ -10,6 +11,7 @@ interface StudioState {
 interface StudioActions {
   change(world: number, seed: number, settings: IslandSettings): void;
   walk(): void;
+  chart(): void;
 }
 
 const ranges = [
@@ -50,12 +52,14 @@ export function createStudio(initial: StudioState, actions: StudioActions) {
       </div>
       <footer class="atlas-foot"><button type="button" class="atlas-walk" disabled>${boat}<span>Go ashore</span></button></footer>
     </aside>
-    <div class="atlas-caption"><h2></h2><p></p></div>
+    <div class="atlas-caption"><div><h2></h2><p></p></div><button class="atlas-map" type="button" aria-label="Treasure map" aria-haspopup="dialog" aria-keyshortcuts="M">${icon("map")} Map</button></div>
     <div class="atlas-camera-help"><span class="atlas-mouse-help">Drag to orbit · Scroll to zoom</span><span class="atlas-touch-help">Drag to orbit · Pinch to zoom</span></div>
   `;
   const el = <T extends Element>(selector: string) => root.querySelector<T>(selector)!;
   const foldButton = el<HTMLButtonElement>(".atlas-fold");
   const walkButton = el<HTMLButtonElement>(".atlas-walk");
+  const mapButton = el<HTMLButtonElement>(".atlas-map");
+  mapButton.onclick = actions.chart;
   const seedInput = el<HTMLInputElement>("#atlas-seed");
   const worldSelect = el<HTMLSelectElement>("select[name=world]");
   const biomeSelect = el<HTMLSelectElement>("select[name=biome]");
@@ -137,6 +141,6 @@ export function createStudio(initial: StudioState, actions: StudioActions) {
   return {
     hide() { root.hidden = true; document.body.classList.remove("atlas-overview"); fold(false); },
     show() { root.hidden = false; document.body.classList.add("atlas-overview"); },
-    setReady(ready: boolean) { walkButton.disabled = !ready; },
+    setReady(ready: boolean) { walkButton.disabled = mapButton.disabled = !ready; },
   };
 }

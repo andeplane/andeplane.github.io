@@ -164,3 +164,9 @@
 }
 
 .landfall-hud[hidden], .landfall-hud [hidden] { display: none !important; }
+.landfall-heading { width: 100%; max-width: 32rem; align-items: center; }
+.landfall-hud .landfall-map { margin-left: auto; display: inline-flex; flex: none; align-items: center; gap: 6px; }
+.landfall-map svg { width: 19px; height: 19px; color: var(--shore-brass); }
+@media (max-width: 360px) {
+  .landfall-hud .landfall-map { padding-inline: 8px; }
+}

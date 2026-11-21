@@ -2,7 +2,9 @@
 
 A standalone browser playtest for Broadside’s procedural treasure islands. Run `npm ci` and `npm run islands:dev` from `demos/broadside`. `npm run islands:build` type-checks the app and writes the distributable to `islands/dist`.
 
-Choose a pack for its treasure, landmark, light and sea. Choose the biome independently. The dice generates a new island. The address bar records the seed and settings after each generation so a playtester can send the same island back. Drag to orbit, scroll or pinch to zoom, and select **Go ashore** to explore. Walk with WASD or the thumbstick. Drag or use the arrow keys to look. At the clue marker, dig three times with E or the Dig button.
+Choose a pack for its treasure, landmark, light and sea. Choose the biome independently. The dice generates a new island. The address bar records the seed and settings after each generation so a playtester can send the same island back. Drag to orbit, scroll or pinch to zoom, and select **Go ashore** to explore. Walk with WASD or the thumbstick. Drag or use the arrow keys to look. Open **Map** (M) to see the shoreline, landing, village, landmark and buried treasure. Ashore, the teal arrow shows your position and heading. Dig with E or the **Dig** button. Three strikes at the marked site uncover the treasure. Returning to the overview keeps digging progress for this island until the page reloads.
+
+A link with `mode=walk` starts at the beach. Add `start=village` to start on the village lane when the island has a settlement.
 
 ## Generator
 
