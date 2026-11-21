@@ -541,16 +541,25 @@
   #reader .reading-prompt-view > .reading-actions { flex-wrap: nowrap; }
   #reader .reading-prompt-view > .reading-actions .wood-button { flex: 1 1 0; }
   #reader .comprehension-view:not(.hands-free) {
+    align-items: start;
     grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr);
-    padding-bottom: 10px;
+    grid-template-rows: auto auto auto;
+    row-gap: 4px;
+    padding-bottom: 8px;
   }
   #reader .comprehension-view:not(.hands-free) > .reading-paper {
-    max-height: calc(100dvh - 105px - var(--pirate-safe-top) - var(--pirate-safe-bottom));
+    max-height: calc(100dvh - 136px - var(--pirate-safe-top) - var(--pirate-safe-bottom));
   }
   #reader .comprehension-view .story-answers { margin-top: 0; }
-  #reader .comprehension-view:not(.hands-free) > .wood-button.primary { grid-column: 2; }
+  #reader .comprehension-view:not(.hands-free) > .story-status { margin: 0; }
+  #reader .comprehension-view:not(.hands-free) > .wood-button.primary {
+    grid-area: 4 / 2;
+    min-height: 44px;
+    padding: 6px 16px;
+    margin-inline: auto;
+  }
   #reader .world-footer { width: min(285px, 46%); }
-  #reader .reader-jump { right: calc(12px + var(--pirate-safe-right)); bottom: calc(130px + var(--pirate-safe-bottom)); }
+
 }
 
 .reader-language.captain-language [data-dismiss] {
@@ -564,4 +573,26 @@
   background: #f4db9f;
   color: #352414;
   box-shadow: none;
+}
+
+
+#reader[data-screen="cave"] :is(.reader-move, .reader-jump) {
+  bottom: calc(16px + var(--pirate-safe-bottom));
+}
+#reader[data-screen="cave"] .reader-move {
+  left: calc(12px + var(--pirate-safe-left));
+  width: clamp(76px, 22vw, 92px);
+  height: clamp(76px, 22vw, 92px);
+}
+#reader[data-screen="cave"] .reader-jump { right: calc(12px + var(--pirate-safe-right)); }
+#reader[data-screen="cave"] .reader-cave-actions {
+  bottom: calc(16px + var(--pirate-safe-bottom));
+  display: grid;
+  justify-items: center;
+}
+#reader[data-screen="cave"] .reader-cave-actions > .wood-button {
+  position: absolute;
+  bottom: 52px;
+  width: max-content;
+  max-width: min(220px, 66vw);
 }

@@ -94,11 +94,15 @@
 @media (orientation: landscape) and (max-height: 520px) {
   .reward-dock {
     display: grid;
-    grid-template-columns: minmax(0, 1fr) minmax(240px, 40%);
+    grid-template-columns: minmax(0, 1fr) minmax(245px, 46%);
     align-items: end;
   }
   .reward-dock .reward-ledger {
     grid-column: 2;
-    padding-inline: 13% 7%;
+    padding: 11px 7% 14px 13%;
   }
+  .reward-dock .reward-ledger h1 { font-size: 20px; }
+  .reward-dock .ledger-stars span { width: 27px; height: 27px; }
+  .reward-dock .ledger-stars .icon { width: 17px; height: 17px; }
+  .reward-dock .ledger-details { line-height: 1.2; }
 }

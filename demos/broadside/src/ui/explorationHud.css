@@ -206,9 +206,9 @@
   padding: 22px;
   border: 1px solid #d3b77d;
   border-radius: 16px;
-  background: #102633;
+  background: linear-gradient(#2c1c13e8, #24160ff2), #2c1c13 url("/assets/map/problem-table.webp") center / cover;
   color: #fff1d5;
-  box-shadow: 0 18px 65px #000a;
+  box-shadow: 0 8px 24px #000a;
   text-align: left;
   touch-action: pan-y;
 }
@@ -224,9 +224,9 @@
   min-height: 48px;
   margin: 0;
   padding: 12px 14px;
-  border: 1px solid #bdd4d457;
-  border-radius: 9px;
-  background: #1b3947;
+  border: 1px solid #b8905d;
+  border-radius: 7px;
+  background: #483023;
   color: #fff1d5;
   font-size: 14px;
   font-weight: 700;
@@ -241,9 +241,9 @@
   min-height: 44px;
   margin: -6px -6px 12px auto;
   padding: 8px 10px;
-  border: 1px solid #bfd4d449;
-  border-radius: 8px;
-  background: #1b3947;
+  border: 1px solid #b8905d;
+  border-radius: 7px;
+  background: #483023;
   color: #fff1d5;
   font-size: 13px;
 }
@@ -409,3 +409,14 @@
 #voyage-ui[data-walk-place="harbour"] #cave-ui :is(.pirate-cave-title, .pirate-cave-balance),
 #voyage-ui[data-cave-view="inspect"] #cave-ui .pirate-cave-balance { display: none; }
 #voyage-ui:has(#game-fullscreen:not([hidden])) { --pirate-cave-extra-right: 52px; }
+
+
+@media (orientation: landscape) and (max-height: 480px) {
+  #voyage-ui #ship-panel { width: min(440px, 100%); padding: 16px; }
+  #voyage-ui #ship-panel h2 { margin-block: 0 4px; padding-right: 98px; font-size: 30px; }
+  #voyage-ui #ship-panel p { margin-bottom: 10px; }
+  #voyage-ui #ship-panel #ship-close { position: absolute; top: 12px; right: 12px; margin: 0; }
+  #voyage-ui #ship-panel .ship-panel-actions { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 6px; }
+  #voyage-ui #ship-panel .ship-panel-actions button { min-height: 44px; padding: 6px 10px; }
+  #voyage-ui #ship-panel #visit-ship { grid-column: 1 / -1; }
+}
