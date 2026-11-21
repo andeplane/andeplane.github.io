@@ -139,7 +139,7 @@ body { background: #213e42; }
   .atlas-caption { top: calc(12px + var(--atlas-safe-top)); padding: 8px 11px; }
   .atlas-caption h2 { font-size: 19px; }
   .atlas-camera-help { bottom: calc(var(--atlas-dock) + 10px); }
-  .atlas-open .atlas-camera-help { visibility: hidden; }
+  .atlas-open .atlas-caption, .atlas-open .atlas-camera-help { visibility: hidden; }
 }
 @media (max-height: 520px) and (orientation: landscape) {
   :root { --atlas-dock: calc(57px + var(--atlas-safe-bottom)); }
