@@ -50,7 +50,6 @@
   height: max(360px, calc(100dvh - var(--pirate-safe-top) - var(--pirate-safe-bottom) - var(--pirate-menu-inset) - var(--pirate-touch-target) - 202px));
   margin: calc(var(--pirate-back-bottom) + 112px) auto calc(var(--pirate-safe-bottom) + 90px);
 }
-#voyage-ui[data-screen="settings"] #settings-menu { overflow-y: auto; }
 #voyage-ui[data-screen="settings"] #settings-menu .settings-board {
   margin-top: calc(var(--pirate-back-bottom) + 96px);
   margin-bottom: calc(var(--pirate-safe-bottom) + 30px);

@@ -17,7 +17,7 @@
   top: calc(80px + env(safe-area-inset-top, 0px));
   right: calc(20px + env(safe-area-inset-right, 0px));
 }
-#voyage-ui:not([data-screen="play"]):has(#menu-back:not([hidden])) .voyage-header,
+#voyage-ui[data-screen="settings"] .voyage-header,
 #voyage-ui:is([data-screen="hold"], [data-screen="unloading"], [data-screen="result"]) .voyage-header {
   left: calc(var(--pirate-back-left) + var(--pirate-back-width) + 16px);
 }
@@ -53,7 +53,7 @@
   #voyage-ui:has(#game-fullscreen:not([hidden])) .voyage-header {
     right: calc(60px + env(safe-area-inset-right, 0px));
   }
-  #voyage-ui:not([data-screen="play"]):has(#menu-back:not([hidden])) .voyage-header,
+  #voyage-ui[data-screen="settings"] .voyage-header,
   #voyage-ui:is([data-screen="hold"], [data-screen="unloading"], [data-screen="result"]) .voyage-header {
     left: calc(var(--pirate-back-left) + var(--pirate-back-width) + 16px);
   }

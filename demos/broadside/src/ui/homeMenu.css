@@ -36,8 +36,15 @@ dialog.captain-language { padding:24px clamp(22px,7vw,36px) 28px; }
 .captain-language .language-options [aria-pressed="true"] { background:#ae75282a; }
 .captain-language h2 { font:400 34px "Pirata One",Georgia,serif; }
 
-#voyage-ui #settings-menu,#reader[data-screen="settings"] #reader-content {background:#372219 url("/assets/map/problem-table.webp") center/cover;overflow:auto;}
-#voyage-ui #settings-menu .captain-desk {display:grid;grid-template-rows:1fr;padding-top:calc(55px + var(--pirate-safe-top));}
+#reader[data-screen="settings"] #reader-content {background:#372219 url("/assets/map/problem-table.webp") center/cover;overflow:auto;}
+#voyage-ui #settings-menu .captain-desk {
+  position: absolute;
+  inset: calc(var(--pirate-safe-top) + var(--pirate-touch-target) + 16px) 0 0;
+  min-height: 0;
+  grid-template-rows: 1fr;
+  overflow: auto;
+  padding-top: 0;
+}
 #voyage-ui #settings-menu .captain-paper {padding:40px 35px;}
 #voyage-ui #settings-menu .captain-paper :is(p,label,a),#reader .captain-paper {color:#322414;}
 #voyage-ui #settings-menu .captain-paper a {text-decoration:underline;}
@@ -49,6 +56,7 @@ dialog.captain-language { padding:24px clamp(22px,7vw,36px) 28px; }
 /* Settings sit at the same desk that opens each game. */
 #voyage-ui #settings-menu {
   inset: 0;
+  overflow: hidden;
   background: linear-gradient(#20140d69, #24150fc9), url("/assets/menu/lantern-grotto.webp") center / cover, #292017;
 }
 @media (orientation: landscape) {
