@@ -591,9 +591,14 @@ p {
   position: absolute;
   transform: translate(-50%, -100%);
   color: #a1fff0;
-  font-size: 18px;
-  text-shadow:
-    0 0 12px #62efd5,
-    0 2px 3px #124659;
   pointer-events: none;
 }
+
+.sea-gem-tag .icon {
+  width: 22px;
+  height: 22px;
+  filter: drop-shadow(0 1px 2px #124659) drop-shadow(0 0 3px #124659);
+}
+
+.result-gems { white-space: nowrap; }
+.result-gems .icon { width: 1em; height: 1em; }

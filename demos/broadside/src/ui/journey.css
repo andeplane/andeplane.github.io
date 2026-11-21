@@ -114,9 +114,11 @@
 #level-menu .tile-lock { position: absolute; top: -9px; right: -9px; width: 20px; height: 20px; color: #473e2a; }
 #level-menu .tile-treasure { display: none; }
 #level-menu .level-tile:last-child .tile-treasure {
-  display: block; position: absolute; right: -30px; top: 12px;
-  left: auto; bottom: auto; color: #9e5124; width: 24px; height: 24px;
+  display: grid; place-items: center; position: absolute; right: -30px; top: 12px;
+  left: auto; bottom: auto; width: 24px; height: 24px;
+  color: #352917; background: #efddb0; border: 1px solid #69502b; border-radius: 50%;
 }
+#level-menu .tile-treasure .icon { width: 16px; height: 16px; }
 #level-menu .level-note {
   position: absolute; left: 15%; right: 15%; bottom: -46px; margin: 0;
   text-align: center; font-size: 12px; color: #46391f;

@@ -1,3 +1,5 @@
+export const GEM_ICON_PATH = "m3 8 4-5h10l4 5-9 13zm0 0h18M7 3l5 18 5-18";
+
 const paths: Record<string, string> = {
   focus: '<path d="M8 3H3v5m13-5h5v5M3 16v5h5m13-5v5h-5"/><path d="m9 12 3-3 3 3m-3-3v7"/>',
   eye: '<path d="M2 12s4-7 10-7 10 7 10 7-4 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/>',
@@ -6,7 +8,7 @@ const paths: Record<string, string> = {
   skull:
     '<path d="M7 17v4h10v-4c7-4 6-14-5-14S0 13 7 17zM9 21v-4m6 4v-4"/><circle cx="8" cy="10" r="2"/><circle cx="16" cy="10" r="2"/><path d="m12 13-2 3h4z"/>',
   lock: '<rect x="5" y="10" width="14" height="11" rx="2"/><path d="M8 10V6a4 4 0 0 1 8 0v4M12 14v3"/>',
-  gem: '<path d="m3 8 4-5h10l4 5-9 13zm0 0h18M7 3l5 18 5-18"/>',
+  gem: `<path d="${GEM_ICON_PATH}"/>`,
   wheel:
     '<circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/><path d="M12 1v7m0 8v7M1 12h7m8 0h7M4 4l5 5m6 6 5 5M4 20l5-5m6-6 5-5"/>',
   chest:

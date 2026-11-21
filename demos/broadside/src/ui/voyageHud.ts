@@ -39,7 +39,7 @@ import { worldArt, pirateShipArt } from "./worldArt";
 import { Controls } from "../input/controls";
 import { headingTo, distance, seaDistance, wrapCoordinate } from "../sim/math";
 import { SEA_LANDMARKS } from "../game/freeSailing";
-import { drawLandmarkSymbol } from "./seaChartSymbols";
+import { drawGemSymbol, drawLandmarkSymbol } from "./seaChartSymbols";
 import { mountMapPan, type MapCamera, type MapPanController } from "./mapPan";
 import { islandArt } from "./islandChart";
 import { locationWorld, type ShipLocation } from "../game/journey";
@@ -930,9 +930,9 @@ export class VoyageHud {
     this.q("#result-title").focus({ preventScroll: true });
     for (const button of this.q(".ledger-actions").querySelectorAll<HTMLButtonElement>("button"))
       button.disabled = s.state === "won";
-    this.q("#result-detail").textContent =
+    this.q("#result-detail").innerHTML =
       s.state === "won"
-        ? `${s.gemsFound} / 3 hidden gems · ${Math.round((100 * s.damageTaken) / s.player.spec.maxHull)}% hull damage${s.rescues ? " · Crew repairs" : ""}`
+        ? `<span class="result-gems">${icon("gem")} ${s.gemsFound} / ${s.voyage.gems.length} hidden gems</span> · ${Math.round((100 * s.damageTaken) / s.player.spec.maxHull)}% hull damage${s.rescues ? " · Crew repairs" : ""}`
         : s.failureReason === "rocks"
           ? "You struck the rocks. Steer clear and try again!"
           : s.failureReason === "island"
@@ -1083,7 +1083,7 @@ export class VoyageHud {
           p.y < innerHeight - 160
         )
           targets.push(
-            `<span class="sea-gem-tag" style="left:${p.x}px;top:${p.y}px">◆</span>`,
+            `<span class="sea-gem-tag" style="left:${p.x}px;top:${p.y}px">${icon("gem")}</span>`,
           );
       }
     this.q("#v-targets").innerHTML = targets.join("");
@@ -1112,7 +1112,8 @@ export class VoyageHud {
       if (i.landmark) drawLandmarkSymbol(ctx, i.landmark, x!, y!);
     }
     for (const g of s.voyage.gems) if (!g.found) {
-      const [x, y] = plot(g.x, g.z); ctx.fillStyle = "#89e5ce"; ctx.fillRect(x! - 2, y! - 2, 4, 4);
+      const [x, y] = plot(g.x, g.z);
+      drawGemSymbol(ctx, x!, y!, 18, "#a1fff0");
     }
     ctx.translate(120, 120); ctx.rotate(s.player.heading - yaw);
     ctx.fillStyle = "#ffdb8b"; ctx.beginPath(); ctx.moveTo(0, -11); ctx.lineTo(6, 8); ctx.lineTo(0, 4); ctx.lineTo(-6, 8); ctx.closePath(); ctx.fill();
@@ -1148,9 +1149,9 @@ export class VoyageHud {
         ctx.fillStyle = "#597b52"; ctx.beginPath(); ctx.ellipse(x, y, radius * .72, radius * .52, .1, 0, Math.PI * 2); ctx.fill();
       }
     }
-    ctx.fillStyle = "#235948";
     for (const g of s.voyage.gems) if (!g.found) {
-      const [x, y] = plot(g.x, g.z); ctx.beginPath(); ctx.arc(x, y, 2.2, 0, Math.PI * 2); ctx.fill();
+      const [x, y] = plot(g.x, g.z);
+      drawGemSymbol(ctx, x, y, 30, "#123e32");
     }
     ctx.textAlign = "center";
     ctx.font = "700 42px 'DM Sans', sans-serif";
