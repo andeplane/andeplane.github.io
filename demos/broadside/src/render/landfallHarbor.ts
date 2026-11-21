@@ -129,6 +129,18 @@ export function buildHarbor(scene: Scene, island: GeneratedIsland, shadows: Shad
     }
     tube("bent oak gunwale",Array.from({length:19},(_,i)=>hullPoint(rail,i,4)),.055,"#cdac7c");
   }
+  // A raised plank sole covers the animated sea surface inside the hull.
+  // Each board narrows towards the stems along the same curved hull sections.
+  for(let board=0;board<5;board++) {
+    const pathArray=[board,board+1].map(edge => Array.from({length:19},(_,i)=>{
+      const left=hullPoint(-1,i,2),right=hullPoint(1,i,2);
+      const p=Vector3.Lerp(left,right,edge/5);
+      p.y+=.04;
+      return p;
+    }));
+    paint(MeshBuilder.CreateRibbon("shaped floorboards",{pathArray,sideOrientation:Mesh.DOUBLESIDE},scene),
+      board%2 ? "#956944" : "#a37a54");
+  }
   for(const i of [5,9,13]){
     const a=hullPoint(-1,i,3),b=hullPoint(1,i,3);
     timberBox(boat,.33,a.z,b.x-a.x,.085,.22,"#edcca4");
