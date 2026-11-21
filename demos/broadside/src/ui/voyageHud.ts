@@ -1148,20 +1148,21 @@ export class VoyageHud {
       const [x, y] = plot(g.x, g.z); ctx.beginPath(); ctx.arc(x, y, 2.2, 0, Math.PI * 2); ctx.fill();
     }
     ctx.textAlign = "center";
+    ctx.font = "700 42px 'DM Sans', sans-serif";
+    ctx.lineJoin = "round";
     for (const p of SEA_LANDMARKS) {
       const [x, y] = plot(p.x, p.z);
       drawLandmarkSymbol(ctx, p.landmark, x, y);
-      ctx.font = "26px 'Pirata One', Georgia, serif";
-      ctx.lineWidth = 6; ctx.strokeStyle = "#d5c49b"; ctx.strokeText(p.name, x, y - 35);
-      ctx.fillStyle = "#352f22"; ctx.fillText(p.name, x, y - 35);
+      ctx.lineWidth = 9; ctx.strokeStyle = "#e7d9b8"; ctx.strokeText(p.name, x, y - 39);
+      ctx.fillStyle = "#352f22"; ctx.fillText(p.name, x, y - 39);
     }
     const [px, py] = plot(s.player.pos.x, s.player.pos.z);
     ctx.save(); ctx.translate(px, py); ctx.rotate(s.player.heading);
     ctx.fillStyle = "#fce1a1"; ctx.strokeStyle = "#47331d"; ctx.lineWidth = 3;
     ctx.shadowColor = "#fff8cd"; ctx.shadowBlur = 12;
     ctx.beginPath(); ctx.moveTo(0, -17); ctx.lineTo(10, 12); ctx.lineTo(0, 7); ctx.lineTo(-10, 12); ctx.closePath(); ctx.fill(); ctx.stroke(); ctx.restore();
-    ctx.fillStyle = "#403a2b"; ctx.font = "bold 28px Georgia";
-    ctx.fillText("N", 512, 28); ctx.fillText("S", 512, 1016); ctx.fillText("W", 19, 523); ctx.fillText("E", 1003, 523);
+    ctx.fillStyle = "#403a2b"; ctx.font = "bold 36px Georgia";
+    ctx.fillText("N", 512, 30); ctx.fillText("S", 512, 1017); ctx.fillText("W", 20, 525); ctx.fillText("E", 1004, 525);
     ctx.strokeStyle = "#4c4935"; ctx.lineWidth = 2; ctx.strokeRect(margin, margin, 952, 952);
   }
 }
