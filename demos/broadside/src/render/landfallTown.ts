@@ -160,6 +160,26 @@ function windowBox(batch: TownGeometry, x: number, z: number, winter: boolean, c
   }
 }
 
+/** The painted fish projects beyond the awning, facing both approaches along the lane. */
+function fishSign(batch: TownGeometry, x: number, front: number) {
+  const center = front - 1.46;
+  batch.box(wood,x,2.81,front-.98,.11,.13,2.06);
+  for (const d of [-.30,.30]) batch.box(dark,x,2.63,center+d,.032,.30,.032);
+  batch.box("#6d513b",x,2.25,center,.12,.58,1.10);
+  for (const side of [-1,1]) {
+    const surface=x+side*.063;
+    const paintFace=(hex: string, offset: number, yz: [number,number][]) => {
+      const face: Point[] = yz.map(([z,y])=>[surface+side*offset,2.25+y,center+z]);
+      batch.face(hex,...(side>0 ? face.reverse() : face));
+    };
+    paintFace("#24545a",.002,[[-.50,-.24],[.50,-.24],[.50,.24],[-.50,.24]]);
+    paintFace("#efca82",.007,[[-.39,-.15],[-.14,-.025],[-.14,.025],[-.39,.16]]);
+    paintFace("#f0d798",.010,[[-.24,0],[-.04,-.13],[.18,-.12],[.39,0],[.23,.115],[.01,.17]]);
+    paintFace("#6f9b96",.013,[[-.14,.01],[.11,-.035],[.29,.04],[.12,-.09],[-.02,-.10]]);
+    paintFace("#2d4743",.016,[[.20,.038],[.236,.021],[.256,.054],[.222,.075]]);
+  }
+}
+
 function shopfront(batch: TownGeometry, h: TownHouse, front: number, accent: string, winter: boolean) {
   const halfW = h.frontage/2, depth = 1.02;
   for (let i=0; i<9; i++) {
@@ -179,6 +199,7 @@ function shopfront(batch: TownGeometry, h: TownHouse, front: number, accent: str
     batch.face("#618f97",[x+.15,.819,z],[x+.32,.819,z+.067],[x+.32,.819,z-.067]);
   }
   barrel(batch,-halfW*.66,front-.52,.89);
+  fishSign(batch,halfW-.18,front);
   if (winter) batch.box("#dce7e4",0,2.36,front-.075,h.frontage,.06,.12);
 }
 
@@ -244,7 +265,12 @@ function drawHouse(batch: TownGeometry, h: TownHouse, floor: number, biome: stri
   batch.box("#9d9580",0,.13,front-.28,1.27,.24,.56);
   for (const x of [-halfW*.65, halfW*.65]) {
     batch.box(wood,x,1.44,front-.055,.79,1.04,.15);
-    batch.box("#efc785",x,1.45,front-.14,.60,.83,.04);
+    const glass = h.color%2 === 0 && x>0 ? "#c5c6a4" : "#e7c18a";
+    batch.box(glass,x,1.45,front-.14,.60,.83,.04);
+    // Broken diagonal reflections in the old glass sit just behind the mullions.
+    const paneZ=front-.164, tint=glass === "#c5c6a4" ? "#dbe2c6" : "#f1d4a6";
+    batch.face(tint,[x-.29,1.50,paneZ],[x-.29,1.64,paneZ],[x+.08,1.85,paneZ],[x+.26,1.85,paneZ]);
+    batch.face(tint,[x+.27,1.48,paneZ],[x+.27,1.42,paneZ],[x-.19,1.11,paneZ],[x-.27,1.11,paneZ]);
     batch.box(dark,x,1.45,front-.18,.045,.85,.04);
     batch.box(dark,x,1.46,front-.18,.65,.045,.04);
     batch.box(cut,x,.91,front-.12,.96,.085,.27);
@@ -283,14 +309,42 @@ function drawHouse(batch: TownGeometry, h: TownHouse, floor: number, biome: stri
 
 function drawLane(batch: TownGeometry, path: TownPath, height: Height, winter: boolean): void {
   const dx = path.b.x-path.a.x, dz = path.b.z-path.a.z, len = Math.hypot(dx,dz);
-  const acrossX = -dz/len * path.width/2, acrossZ = dx/len * path.width/2;
-  const steps = Math.ceil(len/.65);
-  const point = (step: number, side: number): Point => {
-    const x = path.a.x + dx*step/steps + side*acrossX, z = path.a.z + dz*step/steps + side*acrossZ;
-    return [x,height(x,z)+.045,z];
+  const acrossX = -dz/len, acrossZ = dx/len;
+  const steps = Math.ceil(len/.35);
+  const sidePath = path.width < 2 && len < 4;
+  const phase = path.a.x*.93 + path.b.z*1.41 + path.b.x;
+  const point = (step: number, side: number, shoulder = false): Point => {
+    const t=step/steps, along=t*len;
+    const taper=sidePath ? 1-.52*t : 1;
+    const waviness=.09*Math.sin(phase+along*2.37+side)+.035*Math.sin(along*6.21+side*phase);
+    const radius=path.width*.5*taper + waviness + (shoulder ? .14 : -.06);
+    const x=path.a.x+dx*t+side*acrossX*radius, z=path.a.z+dz*t+side*acrossZ*radius;
+    return [x,height(x,z)+(shoulder ? -.035 : .048),z];
   };
   const color = winter ? "#c7beb0" : "#b59e77";
-  for (let i=0; i<steps; i++) batch.face(color,point(i,-1),point(i,1),point(i+1,1),point(i+1,-1));
+  const rim = winter ? "#d0cbbd" : "#a99b79";
+  for (let i=0; i<steps; i++) {
+    batch.face(color,point(i,-1),point(i,1),point(i+1,1),point(i+1,-1));
+    for (const side of [-1,1]) {
+      const strip = [point(i,side),point(i,side,true),point(i+1,side,true),point(i+1,side)];
+      batch.face(rim,...(side>0 ? strip : strip.reverse()));
+    }
+  }
+  if (sidePath) {
+    // Small worn flagstones emerge from the dirt ahead of the threshold.
+    for (let i=0; i<3; i++) {
+      const t=.48+i*.13, offset=.09*Math.sin(phase+i*4);
+      const cx=path.a.x+dx*t+acrossX*offset, cz=path.a.z+dz*t+acrossZ*offset;
+      const stones: Point[]=[];
+      for(let k=0;k<7;k++) {
+        const angle=-2*Math.PI*k/7+.28*i, spread=.86+.14*Math.sin(k*2.3+phase);
+        const lateral=.29*Math.cos(angle)*spread, longitudinal=.16*Math.sin(angle)*spread;
+        const x=cx+acrossX*lateral+dx/len*longitudinal, z=cz+acrossZ*lateral+dz/len*longitudinal;
+        stones.push([x,height(x,z)+.06,z]);
+      }
+      batch.face(winter ? "#aca99d" : ["#ac9e85","#a29986","#b5a98d"][i]!,...stones.reverse());
+    }
+  }
 }
 
 export function buildSettlement(
