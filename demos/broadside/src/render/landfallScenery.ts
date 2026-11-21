@@ -10,6 +10,7 @@ import type { ShadowGenerator } from "@babylonjs/core/Lights/Shadows/shadowGener
 import type { CaveObstacle } from "../shared/pirate-world/input/caveWalk";
 import { Rng } from "../sim/rng";
 import { landfallNoise, landfallReserved, type LandfallSite } from "../game/landfall";
+import { IslandFoliage } from "./landfallFoliage";
 import { islandSurface } from "./islandSurface";
 import { worldStyle, type WorldStyle } from "./worldStyle";
 
@@ -76,6 +77,7 @@ export class IslandScenery {
   readonly stone: StandardMaterial;
   readonly matte: StandardMaterial;
   readonly glow: StandardMaterial;
+  private readonly foliage: IslandFoliage;
   private parts = new Map<StandardMaterial, Mesh[]>();
   private leaves: number[] = [];
   private leafColors: number[] = [];
@@ -89,6 +91,7 @@ export class IslandScenery {
   ) {
     this.style = terrainStyle(world, site.settings.biome);
     this.rng = new Rng(seed ^ (8139 + world * 10979));
+    this.foliage = new IslandFoliage(scene, new Rng(seed ^ (world * 7013 + 4267)));
     this.stone = islandSurface(scene, true);
     this.matte = new StandardMaterial("paint, timber and leaves", scene);
     this.matte.backFaceCulling = false;
@@ -161,15 +164,52 @@ export class IslandScenery {
     return this.paint(block, color, m);
   }
   boulder(x: number, y: number, z: number, sx: number, sy: number, sz: number, color: string, m = this.stone) {
-    const rock = MeshBuilder.CreateIcoSphere(
-      "sea-worn boulder",
-      { radius: 1, subdivisions: 1, flat: true },
+    const geological = m === this.stone;
+    const rock = MeshBuilder.CreateSphere(
+      "weathered coastal boulder",
+      { diameter: 2, segments: sx > 0.5 ? 12 : 6 },
       this.scene,
     );
+    const pos = rock.getVerticesData("position")!,
+      normals: number[] = [];
+    const phase = this.rng.range(0, 100),
+      tone = Color3.FromHexString(color);
+    const tints: number[] = [],
+      moss = Color3.FromHexString(this.style.grassDark),
+      salt = Color3.FromHexString("#d2c5a9");
+    for (let i = 0; i < pos.length; i += 3) {
+      const xx = pos[i]!,
+        yy = pos[i + 1]!,
+        zz = pos[i + 2]!;
+      // Softly squared shoulders and weathered bedding, continuous through the UV seam.
+      const weather = landfallNoise(this.seed + 67, phase + xx * 1.29 + yy * 0.43, zz * 1.36 - yy * 0.82);
+      const fluting = landfallNoise(this.seed + 371, phase + xx * 2.2, yy * 2.6 + zz * 0.85);
+      const rounded = (value: number, power: number) => Math.sign(value) * Math.pow(Math.abs(value), power);
+      pos[i] = rounded(xx, 0.78) * (1 + weather * 0.13) + 0.055 * yy;
+      pos[i + 1] = rounded(yy, 0.8) * (1 + weather * 0.102 + fluting * 0.043) - 0.075 * xx;
+      pos[i + 2] = rounded(zz, 0.77) * (1 + weather * 0.14) + 0.05 * yy;
+      const band = 0.5 + 0.5 * Math.sin(yy * 10.7 + xx * 2.4 + weather * 2.2 + phase);
+      const c = geological ? Color3.Lerp(tone, salt, 0.09 + 0.13 * band + 0.07 * weather) : tone.clone();
+      if (geological && sx > 0.6 && this.site.settings.biome !== "winter") {
+        const patch = Math.max(0, Math.min(0.42, (yy - 0.13) * 0.38 + weather * 0.3));
+        Color3.LerpToRef(c, moss, patch, c);
+      }
+      if (geological && this.site.settings.biome === "winter") {
+        const cap = Math.max(0, Math.min(0.91, (yy - 0.46 + weather * 0.11) * 2.2));
+        Color3.LerpToRef(c, Color3.FromHexString("#e2eaf0"), cap, c);
+      }
+      const shade = geological ? 0.78 + 0.17 * (yy + 0.8) * 0.6 + 0.08 * weather + 0.055 * band : 1;
+      tints.push(c.r * shade, c.g * shade, c.b * shade, 1);
+    }
+    VertexData.ComputeNormals(pos, rock.getIndices()!, normals);
+    rock.setVerticesData("position", pos);
+    rock.setVerticesData("normal", normals);
     rock.position.set(x, y, z);
     rock.scaling.set(sx, sy, sz);
-    rock.rotation.y = this.rng.range(0, TAU);
-    return this.paint(rock, color, m);
+    rock.rotation.y = phase;
+    this.paint(rock, color, m);
+    rock.setVerticesData("color", tints);
+    return rock;
   }
   triangle(a: Vector3, b: Vector3, c: Vector3, hex: string) {
     const color = Color3.FromHexString(hex);
@@ -245,111 +285,6 @@ export class IslandScenery {
     ground.receiveShadows = true;
     ground.isPickable = false;
   }
-  /** Split palm leaflets expose slivers of sky; the folds catch alternating bands of sunlight. */
-  palm(x: number, z: number, height: number, lean: number, heading: number) {
-    const y = this.floor(x, z) - 0.2,
-      style = this.style,
-      rng = this.rng;
-    const axis = vec(Math.sin(heading), 0, Math.cos(heading));
-    const trunkAt = (t: number) => vec(x, y + height * t, z).add(axis.scale(lean * t * t));
-    for (let i = 0; i < 7; i++) {
-      const t = i / 7,
-        r = height * (0.06 - 0.032 * t);
-      this.pole(
-        "curved palm trunk",
-        trunkAt(t),
-        trunkAt((i + 1) / 7),
-        r,
-        r * 0.95,
-        i % 3 === 0 ? "#937151" : style.trunk,
-        7,
-      );
-      this.pole("palm growth scar", trunkAt(t + 0.04), trunkAt(t + 0.055), r * 1.04, r, "#b39168", 7);
-    }
-    const crown = trunkAt(1);
-    for (let i = 0; i < 11; i++) {
-      const a = i * 2.4 + rng.range(-0.13, 0.13),
-        dir = vec(Math.sin(a), 0, Math.cos(a)),
-        across = vec(dir.z, 0, -dir.x);
-      const len = height * rng.range(0.45, 0.69),
-        lift = height * (i % 3 === 0 ? 0.26 : 0.17);
-      const stem = (t: number) =>
-        crown.add(dir.scale(t * len)).add(vec(0, Math.sin(t * Math.PI) * lift - t * t * height * 0.15, 0));
-      for (let j = 0; j < 9; j++) {
-        const t = j / 10,
-          tip = (j + 1) / 10,
-          center = stem(t),
-          end = stem(tip);
-        for (const side of [-1, 1]) {
-          const spread = (0.18 + Math.sin((t + 0.08) * Math.PI) * 0.82) * height * 0.135;
-          const edge = center
-            .add(dir.scale(len * 0.23))
-            .add(across.scale(spread * side))
-            .add(vec(0, -0.17 * height * (1 - t * 0.5), 0));
-          const fold = Vector3.Lerp(edge, end, 0.46).add(vec(0, 0.09, 0));
-          this.triangle(center, end, fold, i % 3 === 0 ? style.leafLight : style.leaf);
-          this.triangle(center, fold, edge, side < 0 ? style.leaf : style.leafLight);
-        }
-      }
-    }
-    this.solid(x, z, 0.28, 0.28, height);
-  }
-  conifer(x: number, z: number, height: number, winter: boolean) {
-    const rng = this.rng,
-      y = this.floor(x, z) - 0.14,
-      style = this.style;
-    this.pole("fir bole", vec(x, y, z), vec(x, y + height, z), height * 0.062, height * 0.02, "#665747", 8);
-    for (let tier = 0; tier < 7; tier++) {
-      const t = tier / 7,
-        radius = (1 - t * 0.86) * height * 0.24,
-        top = vec(x, y + height * (0.59 + t * 0.48), z);
-      const count = 12;
-      for (let j = 0; j < count; j++) {
-        const a = (j * TAU) / count + t * 2.4,
-          b = ((j + 1) * TAU) / count + t * 2.4;
-        const leaf = (angle: number, r: number) =>
-          vec(x + r * Math.sin(angle), y + height * (0.18 + t * 0.83), z + r * Math.cos(angle));
-        const left = leaf(a, radius * rng.range(0.7, 1)),
-          right = leaf(b, radius * rng.range(0.73, 1));
-        const tip = leaf((a + b) / 2, radius * 1.09);
-        tip.y -= height * 0.045;
-        this.triangle(top, left, tip, style.leaf);
-        this.triangle(top, tip, right, winter && tier % 2 === 0 ? "#b7d3d5" : style.leafLight);
-        if (winter) {
-          const cap = Vector3.Lerp(tip, top, 0.16);
-          const raised = vec(0, 0.035, 0);
-          this.triangle(top.add(raised), Vector3.Lerp(left, top, 0.24).add(raised), cap.add(raised), "#dee8e6");
-          this.triangle(top.add(raised), cap.add(raised), Vector3.Lerp(right, top, 0.32).add(raised), "#cbdedc");
-        }
-      }
-    }
-    this.solid(x, z, 0.24, 0.24, height);
-  }
-  broadleaf(x: number, z: number, height: number, shrub = false) {
-    const y = this.floor(x, z) - 0.09,
-      style = this.style,
-      rng = this.rng;
-    const feet = vec(x, y, z),
-      fork = vec(x + 0.15, y + height * 0.58, z);
-    if (!shrub) this.pole("split broadleaf trunk", feet, fork, height * 0.077, height * 0.045, "#74604a", 8);
-    for (let j = 0; j < (shrub ? 4 : 6); j++) {
-      const a = j * 2.4;
-      const l = height * 0.24 * rng.range(0.75, 1.12),
-        end = vec(x + Math.sin(a) * l, y + height * (0.72 + j * 0.043), z + Math.cos(a) * l);
-      if (!shrub) this.pole("crown branch", fork, end, height * 0.036, height * 0.01, "#7b644c", 7);
-      this.boulder(
-        end.x,
-        end.y,
-        end.z,
-        height * 0.25,
-        height * 0.21,
-        height * 0.26,
-        j % 3 === 0 ? style.leafLight : style.leaf,
-        this.matte,
-      );
-    }
-    if (!shrub) this.solid(x, z, 0.27, 0.27, height);
-  }
   populate() {
     const style = this.style,
       rng = this.rng,
@@ -377,11 +312,18 @@ export class IslandScenery {
       ) {
         if (this.obstacles.some((o) => Math.hypot(o.x - x, o.z - z) < 2.6)) continue;
         const habitat = site.settings.biome;
-        if (i % 4 === 0 && habitat !== "winter") this.broadleaf(x, z, rng.range(0.56, 1.03), true);
-        else if (habitat === "tropical")
-          this.palm(x, z, rng.range(4.4, 8.4), rng.range(0.3, 2), rng.range(0, TAU));
-        else if (habitat === "temperate") this.broadleaf(x, z, rng.range(3.6, 6.2));
-        else this.conifer(x, z, rng.range(3.5, 7.6), habitat === "winter");
+        if (i % 4 === 0 && habitat !== "winter")
+          this.foliage.hardwood(x, y - 0.055, z, rng.range(0.7, 1.38), true);
+        else if (habitat === "tropical") {
+          const height = rng.range(4.8, 8.6);
+          this.foliage.palm(x, y - 0.18, z, height, rng.range(0.58, 2.3), rng.range(0, TAU));
+          this.solid(x, z, 0.29, 0.29, height);
+        } else {
+          const height = rng.range(3.8, 7.6);
+          if (habitat === "temperate") this.foliage.hardwood(x, y - 0.13, z, height, false);
+          else this.foliage.fir(x, y - 0.13, z, height, habitat === "winter");
+          this.solid(x, z, 0.27, 0.27, height);
+        }
       } else if (i % 3 === 0 && fertility < 0.5) {
         const size = rng.range(0.65, 2.3);
         this.boulder(
@@ -410,18 +352,7 @@ export class IslandScenery {
         Math.hypot(x - site.dig.x, z - site.dig.z) < 2.2
       )
         continue;
-      const base = vec(x, y - 0.06, z),
-        height = rng.range(0.22, 1.0);
-      for (let j = 0; j < 7; j++) {
-        const a = j * 2.399 + i,
-          dir = vec(Math.sin(a), 0, Math.cos(a)),
-          across = vec(dir.z, 0, -dir.x);
-        const tip = base.add(dir.scale(0.55 * height)).add(vec(0, height * rng.range(0.7, 1.3), 0));
-        const fold = Vector3.Lerp(base, tip, 0.51).add(vec(0, 0.085, 0)),
-          w = rng.range(0.03, 0.13);
-        this.triangle(base, fold.add(across.scale(w)), tip, style.leafLight);
-        this.triangle(base, tip, fold.subtract(across.scale(w)), style.leaf);
-      }
+      this.foliage.grass(x, y - 0.025, z, rng.range(0.18, 0.65), i * 2.39996);
     }
     // Broken headlands on one part of the horizon leave open water elsewhere.
     const horizonAngle = rng.range(0, TAU);
@@ -478,6 +409,7 @@ export class IslandScenery {
     mesh.freezeWorldMatrix();
   }
   finish() {
+    this.foliage.finish(this.shadows);
     if (this.leaves.length) {
       const mesh = new Mesh("island leaf folds", this.scene),
         data = new VertexData();
