@@ -72,9 +72,15 @@
   line-height: 1.45;
   text-align: center;
 }
-.pirate-cave-notice button {
+:is(#academy, #reader, #voyage-ui) .pirate-cave-notice button {
   min-height: var(--pirate-touch-target);
   margin: 8px auto 0;
+  padding: 8px 18px;
+  border: 1px solid #f4cc85;
+  border-radius: 7px;
+  background: linear-gradient(#ffe2a4, #d6ab62);
+  color: #2c190e;
+  font-weight: 700;
   pointer-events: auto;
 }
 .pirate-cave-sr {
