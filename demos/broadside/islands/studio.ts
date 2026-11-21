@@ -1,14 +1,17 @@
 import { ISLAND_DESTINATIONS, ISLAND_PACKS, type IslandSettings } from "../src/game/landfall";
+import type { LightSetting } from "../src/render/landfallSky";
 import { icon } from "../src/ui/icons";
 import "./studio.css";
 
 interface StudioState {
+  light: LightSetting;
   world: number;
   seed: number;
   settings: IslandSettings;
 }
 
 interface StudioActions {
+  light(value: LightSetting): void;
   change(world: number, seed: number, settings: IslandSettings): void;
   walk(): void;
   chart(): void;
@@ -47,6 +50,9 @@ export function createStudio(initial: StudioState, actions: StudioActions) {
         <label class="atlas-field"><span>Biome</span><select name="biome">
           <option value="tropical">Tropical</option><option value="temperate">Temperate</option>
           <option value="alpine">Alpine</option><option value="winter">Winter</option></select></label>
+        <label class="atlas-field"><span>Lighting</span><select name="light">
+          <option value="pack">Level pack lighting</option><option value="day">Daylight</option>
+          <option value="sunset">Sunset</option><option value="night">Starry night</option></select></label>
         <div class="atlas-scales">${ranges.map(([key, label]) => `<div class="atlas-scale"><label for="atlas-${key}">${label}</label><output for="atlas-${key}"></output><input id="atlas-${key}" type="range" min="0" max="100" step="1"></div>`).join("")}</div>
         <fieldset class="atlas-settlement"><legend>Settlement</legend><div>${(["none","hamlet","village"] as const).map(s => `<label><input name="settlement" type="radio" value="${s}"><span>${s[0]!.toUpperCase() + s.slice(1)}</span></label>`).join("")}</div></fieldset>
       </div>
@@ -63,6 +69,9 @@ export function createStudio(initial: StudioState, actions: StudioActions) {
   const seedInput = el<HTMLInputElement>("#atlas-seed");
   const worldSelect = el<HTMLSelectElement>("select[name=world]");
   const biomeSelect = el<HTMLSelectElement>("select[name=biome]");
+  const light = el<HTMLSelectElement>("select[name=light]");
+  light.value = initial.light;
+  light.onchange = () => actions.light(light.value as LightSetting);
   const caption = el<HTMLHeadingElement>(".atlas-caption h2");
   const details = el<HTMLParagraphElement>(".atlas-caption p");
   const compact = matchMedia("(max-width: 700px) and (orientation: portrait), (max-height: 520px)");

@@ -16,7 +16,8 @@ import type { CaveObstacle } from "../shared/pirate-world/input/caveWalk";
 import { WORLD_RELICS } from "../game/rewards";
 import type { GeneratedIsland } from "../game/landfall";
 import { IslandScenery, vec } from "./landfallScenery";
-import { buildCoastalSky, buildLandfallWater } from "./landfallWater";
+import { buildIslandSky, islandLighting, type IslandLight } from "./landfallSky";
+import { buildLandfallWater } from "./landfallWater";
 import { IslandDigging } from "./landfallDigging";
 import { buildLandmark } from "./landfallLandmarks";
 
@@ -158,7 +159,9 @@ export class LandfallView {
   private digging: IslandDigging;
   private time = 0;
   private direction = Vector3.Zero();
-  constructor(engine: Engine, world: number, island: GeneratedIsland, seed: number) {
+  constructor(engine: Engine, world: number, island: GeneratedIsland, seed: number, light: IslandLight) {
+    const illumination = islandLighting(light);
+    const night = light === "night";
     const scene = (this.scene = new Scene(engine));
     this.camera = new FreeCamera("island explorer", vec(0, 3, -18), scene);
     this.camera.inputs.clear();
@@ -166,31 +169,39 @@ export class LandfallView {
     this.camera.maxZ = 790;
     this.camera.fov = 1.12;
     const skyLight = new HemisphericLight("light off the sea", Vector3.Up(), scene);
-    const sun = new DirectionalLight("coastal sunlight", vec(0.65, -1, 0.46).normalize(), scene);
-    sun.position.set(-48, 76, -34);
-    sun.shadowFrustumSize = 95;
+    const sun = new DirectionalLight("coastal sunlight", illumination.direction.negate(), scene);
+    sun.position.copyFrom(illumination.direction.scale(78));
+    sun.shadowFrustumSize = 88;
     sun.shadowMinZ = 1;
     sun.shadowMaxZ = 190;
-    this.shadows = new ShadowGenerator(1024, sun);
+    this.shadows = new ShadowGenerator(Math.min(2048, engine.getCaps().maxTextureSize), sun);
     this.shadows.usePercentageCloserFiltering = true;
-    this.shadows.filteringQuality = ShadowGenerator.QUALITY_LOW;
-    this.shadows.bias = 0.002;
-    this.shadows.normalBias = 0.055;
+    this.shadows.filteringQuality = ShadowGenerator.QUALITY_MEDIUM;
+    this.shadows.bias = 0.00045;
+    this.shadows.normalBias = 0.023;
     const scenery = new IslandScenery(scene, world, island.site, seed, this.shadows, island.heightAt),
-      style = scenery.style;
+      style = { ...scenery.style, fog: illumination.fog };
+    if (night) {
+      style.deepWater = "#0b1e30";
+      style.shallowWater = "#255052";
+      style.foam = "#718a9d";
+    } else if (light === "sunset") {
+      style.deepWater = "#244756";
+      style.shallowWater = "#589b91";
+    }
     scene.clearColor = Color4.FromHexString(style.fog + "ff");
     scene.fogColor = Color3.FromHexString(style.fog);
     scene.fogMode = Scene.FOGMODE_EXP2;
     scene.fogDensity = 0.0065;
-    skyLight.diffuse = Color3.FromHexString("#e3edef");
-    skyLight.groundColor = Color3.FromHexString("#88948b");
-    skyLight.intensity = 0.84;
-    sun.diffuse = Color3.FromHexString(style.sun);
-    sun.intensity = world === 0 ? 0.98 : 0.84;
-    this.sky = buildCoastalSky(scene, world, style);
+    skyLight.diffuse = Color3.FromHexString(illumination.skyFill);
+    skyLight.groundColor = Color3.FromHexString(illumination.bounce);
+    skyLight.intensity = illumination.fill;
+    sun.diffuse = Color3.FromHexString(illumination.sun);
+    sun.intensity = illumination.key;
+    this.sky = buildIslandSky(scene, light, scene.fogColor);
     scenery.terrain();
-    this.water = buildLandfallWater(scene, (x, z) => scenery.floor(x, z), style);
-    this.landmark = buildLandmark(scenery);
+    this.water = buildLandfallWater(scene, island.heightAt, style, night, illumination.direction);
+    this.landmark = buildLandmark(scenery, night);
     scenery.populate();
     scenery.finish();
     this.obstacles = scenery.obstacles;

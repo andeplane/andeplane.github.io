@@ -10,6 +10,7 @@ import {
   CaveWalker,
   CaveWalkControls,
 } from "../src/shared/pirate-world/input/caveWalk";
+import { resolveLight, type LightSetting } from "../src/render/landfallSky";
 import { LandfallView } from "../src/render/landfallView";
 import { buildSettlement } from "../src/render/landfallTown";
 import { LandfallHud } from "../src/ui/landfallHud";
@@ -56,6 +57,8 @@ function run() {
   );
   const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
   const controls = new CaveWalkControls();
+  const requestedLight = new URLSearchParams(location.search).get("light");
+  let lightSetting: LightSetting = requestedLight === "day" || requestedLight === "sunset" || requestedLight === "night" ? requestedLight : "pack";
   let current = initial;
   let island = generateIsland(current.world, current.seed, current.settings);
   let view: LandfallView | null = null,
@@ -180,10 +183,11 @@ function run() {
       digs = progress.get(recipe) ?? 0;
       feedbackUntil = 0;
       chart.reset();
-      view = new LandfallView(engine, current.world, island, current.seed);
+      const light = resolveLight(lightSetting, current.world);
+      view = new LandfallView(engine, current.world, island, current.seed, light);
       const obstacles = [
         ...view.obstacles,
-        ...buildSettlement(view.scene, island.site, island.heightAt, view.shadows),
+        ...buildSettlement(view.scene, island.site, island.heightAt, view.shadows, light === "night"),
       ];
       walker = new CaveWalker(
         obstacles,
@@ -193,6 +197,8 @@ function run() {
       const url = new URL(location.href);
       const q = url.searchParams;
       q.set("seed", String(current.seed));
+      if (lightSetting === "pack") q.delete("light");
+      else q.set("light", lightSetting);
       q.set("pack", String(current.world + 1));
       for (const [k, v] of Object.entries(current.settings))
         q.set(k, String(v));
@@ -210,16 +216,20 @@ function run() {
       status.hidden = false;
     }
   }
-  const studio = createStudio(initial, {
+  function rebuild() {
+    studio.setReady(false);
+    clearTimeout(buildTimer);
+    buildTimer = window.setTimeout(build, 110);
+  }
+  const studio = createStudio({ ...initial, light: lightSetting }, {
+    light(value) { lightSetting = value; rebuild(); },
     change(world, seed, settings) {
       current = {
         world,
         seed: seed >>> 0,
         settings: normalizeIslandSettings(settings),
       };
-      studio.setReady(false);
-      clearTimeout(buildTimer);
-      buildTimer = window.setTimeout(build, 110);
+      rebuild();
     },
     walk,
     chart: showChart,
