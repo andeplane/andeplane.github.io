@@ -23,7 +23,7 @@ function sampleTerrain(island: GeneratedIsland): Float32Array {
 
 /** Join exact interpolated crossings on shared grid edges to get closed shorelines
  * and contour rings, including offshore stacks and hollows inside the island. */
-function contour(levels: Float32Array, level: number): string {
+function contour(levels: Float32Array, level: number, island: GeneratedIsland): string {
   const points = new Map<number, string>();
   const neighbours = new Map<number, number[]>();
   const join = (a: number, b: number) => {
@@ -48,9 +48,22 @@ function contour(levels: Float32Array, level: number): string {
         // Even IDs are eastbound edges, odd IDs southbound edges.
         const id = start * 2 + Number(vertical);
         if (!points.has(id)) {
-          const t = (level - startH) / (endH - startH);
-          const x = start % samples - extent + (vertical ? 0 : t);
-          const y = Math.floor(start / samples) - extent + (vertical ? t : 0);
+          const x0 = start % samples - extent, y0 = Math.floor(start / samples) - extent;
+          let t = (level - startH) / (endH - startH);
+          // The beach eases to a nearly flat surface at the waterline. Linear
+          // interpolation alone would pull the ink to the dry grid vertices.
+          if (level === 0) {
+            let lower = 0, upper = 1;
+            for (let step = 0; step < 5; step++) {
+              t = (lower + upper) / 2;
+              const above = island.heightAt(x0 + (vertical ? 0 : t), -(y0 + (vertical ? t : 0))) > 0;
+              if (above === (startH > 0)) lower = t;
+              else upper = t;
+            }
+            t = (lower + upper) / 2;
+          }
+          const x = x0 + (vertical ? 0 : t);
+          const y = y0 + (vertical ? t : 0);
           points.set(id, `${position(x)} ${position(y)}`);
         }
         hits.push(id);
@@ -101,7 +114,7 @@ const foundSymbol = '<path d="m-3-1.1-.35-1.9L2-4l.6 1.8Z" fill="#d8b16d"/><path
 
 function chartDetail(island: GeneratedIsland, seed: number) {
   const rng = new Rng(seed ^ 0x4d415021);
-  const stipple: string[] = [], ripples: string[] = [];
+  const stipple: string[] = [], ripples: string[] = [], hachures: string[] = [];
   // Dune stippling follows the actual dry beach; short wavelets stay at sea.
   for (let y = -39; y < 40; y += 2) {
     for (let x = -47; x < 48; x += 2.3) {
@@ -109,6 +122,20 @@ function chartDetail(island: GeneratedIsland, seed: number) {
       const height = island.heightAt(xx, -yy);
       if (height > .14 && height < 1.2 && rng.next() > .42) {
         stipple.push(`M${position(xx)} ${position(yy)}l.18-.06`);
+      } else if (height > 2.9 && rng.next() > .55) {
+        // Short adjoining strokes lie along the actual fall line, as on an
+        // engraved relief chart. Shady, steep faces carry the denser marks.
+        const dx = height - island.heightAt(xx + 1, -yy);
+        const dy = height - island.heightAt(xx, -yy - 1);
+        const slope = Math.hypot(dx, dy);
+        if (slope > .44 && dx + dy > .1) {
+          const alongX = dx / slope, alongY = dy / slope;
+          for (let n = 0; n < 3; n++) {
+            const length = Math.min(slope, 1.9) * rng.range(.7, 1.05);
+            const sx = xx - n * alongY * .32, sy = yy + n * alongX * .32;
+            hachures.push(`M${position(sx)} ${position(sy)}l${position(alongX*length)} ${position(alongY*length)}`);
+          }
+        }
       } else if (height < -3 && rng.next() > .972 &&
           !(xx > 34 && yy < -26) && !(xx < -27 && yy > 29)) {
         ripples.push(`M${position(xx)} ${position(yy)}q.65.35 1.25 0 .65.3 1.4-.05`);
@@ -116,6 +143,7 @@ function chartDetail(island: GeneratedIsland, seed: number) {
     }
   }
   return `<path d="${stipple.join("")}" stroke="#9f824d" stroke-width=".28" opacity=".65"/>
+    <path d="${hachures.join("")}" fill="none" stroke="#827752" stroke-width=".17" opacity=".7"/>
     <path d="${ripples.join("")}" fill="none" stroke="#708e83" stroke-width=".22" opacity=".7"/>`;
 }
 
@@ -128,11 +156,13 @@ function compassAndScale(): string {
     <text x="5" y="4.15" text-anchor="middle" font-size="2.7">10 m</text></g>`;
 }
 
+let chartId = 0;
 function drawChart(island: GeneratedIsland, world: number, seed: number): string {
+  const wash = `landfall-paper-${++chartId}`;
   const levels = sampleTerrain(island);
   const bands: string[] = [];
   const drawBand = (height: number, fill: string, stroke: string, weight: number) => {
-    const d = contour(levels, height);
+    const d = contour(levels, height, island);
     if (d) bands.push(`<path d="${d}" fill="${fill}" fill-rule="evenodd" stroke="${stroke}" stroke-width="${weight}"/>`);
   };
   // Two soundings seaward, a dark tideline, then a light mineral wash inland.
@@ -160,10 +190,14 @@ function drawChart(island: GeneratedIsland, world: number, seed: number): string
   }).join("");
   let grid = "";
   for (let i = -50; i <= 50; i += 10) grid += `M${i} -40V40 M-50 ${i}H50`;
-  return `<rect x="-53" y="-44" width="106" height="88" rx="1" fill="#e8dbaf"/>
+  return `<defs><radialGradient id="${wash}" cx="48%" cy="44%" r="75%">
+      <stop stop-color="#eee3bd" stop-opacity="0"/><stop offset="72%" stop-color="#c19c64" stop-opacity=".08"/>
+      <stop offset="100%" stop-color="#a07942" stop-opacity=".26"/></radialGradient></defs>
+    <rect x="-53" y="-44" width="106" height="88" rx="1" fill="#e8dbaf"/>
     <rect x="-51.5" y="-42.5" width="103" height="85" rx=".5" fill="#d1d8bd" stroke="#8d8969" stroke-width=".32"/>
     <path d="${grid}" fill="none" stroke="#899b88" stroke-width=".14" opacity=".45"/>
     ${bands.join("")}${chartDetail(island, seed)}
+    <rect x="-51.5" y="-42.5" width="103" height="85" rx=".5" fill="url(#${wash})"/>
     <g fill="none">${roads}</g>${houses}
     <g transform="${translate(site.landmark)}" fill="${paper}" stroke="${ink}" stroke-width=".45">
       <title>${landmarkNames[world]}</title>${landmarkSymbols[world]}</g>
