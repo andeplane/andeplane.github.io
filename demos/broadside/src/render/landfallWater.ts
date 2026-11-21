@@ -67,7 +67,7 @@ void main() {
   water=mix(water,bottom,sand*.62);
   float caustic=(1.-smoothstep(.055,.26,cells(p*2.2,clock)))*smoothstep(.04,.45,d)
                *exp(-max(d,0.)*.85)*near;
-  water+=shallow*caustic*.35*(1.-.91*night);
+  water+=shallow*caustic*.24*(1.-smoothstep(12.,80.,dist))*(1.-.91*night);
   water=mix(water,horizon,fresnel*.76);
   vec3 h=normalize(v+sunDirection);
   float facing=max(0.,dot(h,n));

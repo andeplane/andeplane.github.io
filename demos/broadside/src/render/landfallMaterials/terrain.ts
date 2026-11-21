@@ -52,6 +52,11 @@ class GroundScans extends MaterialPluginBase {
         vec2 bend = vec2(sin(p.z * .36 + p.x * .14), sin(p.x * .32 - p.z * .13)) * .11;
         vec2 ground = p.xz + bend;
         vec3 beach = texture2D(beachScan, ground * .46).rgb;
+        mat2 turn = mat2(.6,.8,-.8,.6);
+        vec3 secondBeach = texture2D(beachScan, turn * ground * .33 + 1.73).rgb;
+        secondBeach.rg = (secondBeach.rg - .5) * turn + .5;
+        float borrow = .38 + .21*sin(p.x*.31 + .7*sin(p.z*.36));
+        beach = mix(beach, secondBeach, borrow);
         vec3 turf = texture2D(turfScan, ground * .66).rgb;
         vec3 snow = texture2D(snowScan, ground * .27).rgb;
         // Three planes keep fractures legible even on vertical quarry faces.
@@ -63,7 +68,8 @@ class GroundScans extends MaterialPluginBase {
         vec3 rock = weights.x * rockX + weights.y * rockY + weights.z * rockZ;
         vec4 w = vGroundCover;
         float tone = dot(w, vec4(beach.b, turf.b, rock.b, snow.b) - .5);
-        baseColor.rgb *= 1. + tone * 1.65;
+        float closeDetail = 1. - smoothstep(8., 52., length(vEyePosition.xyz-p));
+        baseColor.rgb *= 1. + tone * (.74 + .82 * closeDetail);
         // Project normal-map slopes onto the mesh tangent plane; the macro
         // shape controls snow cover and shadows, the scans catch grazing light.
         vec2 grain = w.x * (beach.rg - .5) * .48 + w.y * (turf.rg - .5) * .82
