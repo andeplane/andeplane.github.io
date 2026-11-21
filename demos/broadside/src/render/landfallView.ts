@@ -17,6 +17,7 @@ import { WORLD_RELICS } from "../game/rewards";
 import type { GeneratedIsland } from "../game/landfall";
 import { IslandScenery, vec } from "./landfallScenery";
 import { buildCoastalSky, buildLandfallWater } from "./landfallWater";
+import { IslandDigging } from "./landfallDigging";
 import { buildLandmark } from "./landfallLandmarks";
 
 type WalkingPose = { x: number; z: number; eyeY: number; bob: number; yaw: number; pitch: number };
@@ -33,8 +34,6 @@ function buildDig(s: IslandScenery) {
   };
   const wood = material("buried teak", "#674335"),
     brass = material("worn brass bindings", "#d2a354");
-  const earth = material("fresh sand beneath the crust", "#8c7155");
-  const charcoal = material("red ochre on driftwood", "#9e4537");
   const box = (
     name: string,
     w: number,
@@ -76,45 +75,20 @@ function buildDig(s: IslandScenery) {
     for (const side of [-1, 1]) box("brass binding", 0.11, 0.51, 0.033, dx, 0.3, side * 0.413, brass);
   }
   box("chest escutcheon", 0.22, 0.21, 0.04, 0, 0.61, -0.43, brass);
-  const spoil = MeshBuilder.CreateIcoSphere("turned sand", { subdivisions: 2, radius: 1, flat: true }, s.scene);
-  spoil.material = earth;
-  spoil.position.set(x, ground + 0.012, z);
-  spoil.isPickable = false;
-  const cross: Mesh[] = [];
-  for (const sign of [-1, 1]) {
-    const path = Array.from({ length: 9 }, (_, i) => {
-      const t = (i / 8 - 0.5) * 1.5,
-        xx = x + t,
-        zz = z + t * sign;
-      return vec(xx, s.floor(xx, zz) + 0.045, zz);
-    });
-    const stick = MeshBuilder.CreateTube(
-      "crossed red driftwood",
-      { path, radius: 0.064, tessellation: 6 },
-      s.scene,
-    );
-    stick.material = charcoal;
-    stick.isPickable = false;
-    cross.push(stick);
-  }
   const relic = buildRelic(s.scene, WORLD_RELICS[s.world]!);
   relic.scaling.setAll(0.55);
   relic.setEnabled(false);
   base.setEnabled(false);
-  spoil.setEnabled(false);
   let progress = 0,
     previous = -1;
   return (digs: number, dt: number, time: number, reduced: boolean) => {
     if (digs !== previous) {
-      for (const mark of cross) mark.setEnabled(digs === 0);
       base.setEnabled(digs > 0);
-      spoil.setEnabled(digs > 0);
       relic.setEnabled(digs >= 3);
       previous = digs;
     }
     progress += (digs - progress) * (reduced ? 1 : 1 - Math.exp(-dt * 6));
     base.position.set(x, ground - 0.97 + progress * 0.33, z);
-    spoil.scaling.set(0.58 + progress * 0.29, 0.1 + progress * 0.018, 0.52 + progress * 0.15);
     if (digs >= 3) {
       relic.position.set(
         x,
@@ -181,6 +155,7 @@ export class LandfallView {
   private landmark: (time: number) => void;
   private birds: (time: number) => void;
   private treasure: ReturnType<typeof buildDig>;
+  private digging: IslandDigging;
   private time = 0;
   private direction = Vector3.Zero();
   constructor(engine: Engine, world: number, island: GeneratedIsland, seed: number) {
@@ -221,7 +196,11 @@ export class LandfallView {
     this.obstacles = scenery.obstacles;
     this.birds = buildBirds(scenery);
     this.treasure = buildDig(scenery);
+    this.digging = new IslandDigging(scene, island.heightAt, island.site.settings.biome, seed);
     this.shadows.getShadowMap()!.refreshRate = 0;
+  }
+  strikeGround(x: number, z: number, successful: boolean, reducedMotion: boolean) {
+    this.digging.strike(x, z, successful, reducedMotion);
   }
   render(dt: number, walker: WalkingPose, digs: number, reducedMotion = false) {
     this.time += dt;
@@ -235,6 +214,7 @@ export class LandfallView {
     this.landmark(t);
     this.birds(t);
     this.treasure(digs, dt, t, reducedMotion);
+    this.digging.update(dt, reducedMotion);
     this.scene.render();
   }
   dispose() {
