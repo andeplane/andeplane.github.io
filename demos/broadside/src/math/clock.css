@@ -1,11 +1,9 @@
 .clock-board {
   width: min(100%, 580px);
   margin-inline: auto;
-  padding: calc(4px + var(--safe-top)) 12px calc(12px + var(--safe-bottom));
+  padding: 4px 12px calc(12px + var(--safe-bottom));
   color: #0b2840;
 }
-
-.clock-status { margin-bottom: 8px; }
 
 .clock-sheet {
   display: grid;
@@ -108,7 +106,7 @@
 }
 
 @media (orientation: landscape) and (max-height: 520px) {
-  .clock-board { width: min(100%, 684px); padding-top: calc(4px + var(--safe-top)); }
+  .clock-board { width: min(100%, 684px); padding-top: 4px; }
   .clock-sheet { gap: 6px 18px; padding: 10px 14px; }
   .clock-sheet:not(.clock-complete) {
     grid-template-columns: minmax(0, 1fr) minmax(0, 1.25fr);
@@ -149,14 +147,6 @@
   .clock-choice[data-result="correct"], .clock-treasure { animation: minted .45s ease-out; }
   @keyframes minted { from { transform: translateY(2px); filter: brightness(1.18); } }
 }
-#academy[data-screen="clock"] .clock-status {
-  padding-right: 10px;
-  border-radius: 10px;
-  background: #292119;
-}
-
-.clock-status > span { color: #fff3d6; }
-
 @media (orientation: landscape) and (max-height: 520px) {
   .clock-sheet:not(.clock-complete) {
     grid-template-columns: minmax(124px, 0.75fr) minmax(0, 1.65fr);

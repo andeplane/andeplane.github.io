@@ -1,4 +1,5 @@
 import { chartCenterButton, chartShip } from "./adventureChart";
+import { chartHeader } from "./menuChrome";
 import { islandArt } from "./islandChart";
 import "./difficultyMap.css";
 
@@ -18,6 +19,7 @@ interface DifficultyMapOptions {
   centerLabel: string;
   firstArt: number;
   back?: string;
+  actions?: string;
   island?: (index: number) => string;
   backdrop?: string;
 }
@@ -32,7 +34,7 @@ export function difficultyMap(options: DifficultyMapOptions): string {
   const points = stops.map(p => `${p.x},${p.y}`).join(" ");
   const title = `<h1>${escape(options.name)}</h1><p>${escape(options.instructions)}</p>`;
   return `<section class="map-view operation-world">
-    <div class="world-map-heading">${options.back ? `${options.back}<div>${title}</div>` : title}</div>
+    ${options.back ? chartHeader({ back: options.back, heading: title, actions: options.actions }) : `<div class="world-map-heading">${title}</div>`}
     <div class="world-map-viewport" data-map-viewport data-focus-x="${focus.x}" data-focus-y="${focus.y}" tabindex="0" aria-label="${escape(options.accessibleName)}">
       <div class="world-map-plane chart-water" data-map-world style="width:960px;height:${height}px;${options.backdrop ? `background: url(${options.backdrop}) center / 100% 100%` : ""}">
         <svg class="world-pack-route" viewBox="0 0 960 ${height}" aria-hidden="true"><polyline points="${points}" fill="none" stroke="#685438" stroke-width="3" stroke-dasharray="5 8"/></svg>

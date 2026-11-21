@@ -4,7 +4,7 @@ import { answerHaptic, installButtonHaptics } from "../ui/buttonHaptics";
 import { installPrivacy } from "../ui/privacy";
 import { installMenuPreview } from "../ui/menuPreview";
 import { icon } from "../ui/icons";
-import { backButton } from "../ui/menuChrome";
+import { backButton, chartAction, chartHeader } from "../ui/menuChrome";
 import { caveHeader, caveNotice, caveTally } from "../ui/caveHud";
 import { pirateShipArt } from "../ui/worldArt";
 import { worldFor } from "./worlds";
@@ -131,6 +131,7 @@ const screenLabel = {
 } as const;
 const backLabel = (destination: Screen) => t("backTo", { destination: t(screenLabel[destination]) });
 const gameBack = (destination: Screen) => backButton({ action: "back", label: t("back"), accessibleLabel: backLabel(destination) });
+const gameChartShip = () => chartAction({ action: "ship", icon: "ship", label: t("yourShip") });
 
 function caveHud(): string {
   const gold = bankedGold(progress);
@@ -167,7 +168,7 @@ function operatorView(): string {
   places.push({ id: "clock", region: t("clockIsland"), lesson: t("clockAdventure"), cleared: progress.completedClockSteps.length });
   const title = t("chooseAdventure");
   return `<section class="calculus-overworld">
-    <header>${gameBack("home")}<h1 class="visually-hidden">${title}</h1></header>
+    ${chartHeader({ back: gameBack("home"), heading: `<h1 class="visually-hidden">${title}</h1>`, actions: gameChartShip() })}
     <nav aria-label="${title}" class="overworld-chart">${adventureChart("operator", places.map(({id,region,lesson,cleared})=>({
       id,label:lesson,detail:region,tally:completedLabel(cleared),accessible:[lesson,region,completedLabel(cleared)].join(", "),
       art:'<span class="map-symbol" aria-hidden="true"></span>',moored:id===lastShore
@@ -176,7 +177,7 @@ function operatorView(): string {
 }
 function clockMapView(): string {
   return difficultyMap({ name: t("clockIsland"), accessibleName: t("clockAdventure"),
-    instructions: t("dragDifficulty"), back: gameBack("operators"), selected: clockStep,
+    instructions: t("dragDifficulty"), back: gameBack("operators"), actions: gameChartShip(), selected: clockStep,
     centerLabel: t("currentIsland"), firstArt: 2, island: () => islandArt(2),
     stops: clockSteps.map((step, index) => ({ id: step, label: t(clockLevelKey(step)),
       description: t("level", { count: index + 1 }), progress: completedLabel(Number(progress.completedClockSteps.includes(step))), ariaLabel: t(clockLevelKey(step)) })) });
@@ -184,7 +185,7 @@ function clockMapView(): string {
 function mapView(): string {
   const world = worldFor(operator);
   return difficultyMap({ name: world.name, accessibleName: t("mapAccessible", { world: world.name }),
-    instructions: t("dragDifficulty"), back: gameBack("operators"), selected: packId, centerLabel: t("currentIsland"),
+    instructions: t("dragDifficulty"), back: gameBack("operators"), actions: gameChartShip(), selected: packId, centerLabel: t("currentIsland"),
     firstArt: 0, island: i => worldIsland(operator, i), backdrop: worldAsset(operator),
     stops: packsFor(operator).map((pack,i) => {
       const p = localizedPack(pack.id);
@@ -193,7 +194,7 @@ function mapView(): string {
 }
 function levelsView(): string {
   const p = selectedPack();
-  return atlasView(p.operator, p.label, gameBack("map"), packTrail().cleared + 1, i18n);
+  return atlasView(p.operator, p.label, gameBack("map"), packTrail().cleared + 1, i18n, { actions: gameChartShip() });
 }
 function mountMathMap(scroller: HTMLElement): void {
   scroller.scrollTop = scroller.scrollLeft = 0;
@@ -294,9 +295,9 @@ function render(preserveScroll = false): void {
   root.dataset.screen = screen;
   root.dataset.operator = operator;
   root.dataset.saveFailed = String(saveFailed);
-  root.innerHTML = `${screen === "cave" || screen === "unloading" ? caveHud() : ""}${screen === "question" ? `<div class="question-back">${gameBack(voyageReturn)}</div>` : ""}<main id="main-content">${{
+  root.innerHTML = `${screen === "cave" || screen === "unloading" ? caveHud() : ""}${screen === "question" || screen === "clock" ? chartHeader({ back: gameBack(screen === "clock" ? "clockMap" : voyageReturn), className: "question-back" }) : ""}<main id="main-content">${{
     home, operators: operatorView, map: mapView, levels: levelsView, question: questionView,
-    clockMap: clockMapView, clock: () => clockBoard(clockRound!, i18n, gameBack("clockMap")),
+    clockMap: clockMapView, clock: () => clockBoard(clockRound!, i18n),
     reward: () => rewardView(true), ship: shipView, unloading: () => caveView(true), cave: () => caveView(false), complete: () => rewardView(false), settings: settingsView,
   }[screen]()}</main>${saveFailed && screen !== "settings" ? `<div class="save-notice" role="status">${t("saveNotice")}</div>` : ""}`;
   const scroller = document.querySelector<HTMLElement>("#main-content")!;

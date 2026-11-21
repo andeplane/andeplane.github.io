@@ -60,3 +60,21 @@
 /* Map art can extend behind the glass; every control remains clear of side safe areas. */
 .map-view.operation-world {padding-left:max(16px,var(--pirate-safe-left));padding-right:max(16px,var(--pirate-safe-right));}
 @media(max-width:700px){.map-view.operation-world{padding-left:max(10px,var(--pirate-safe-left));padding-right:max(10px,var(--pirate-safe-right));}}
+
+/* Keep the first visible islands below the chart navigation on narrow phones. */
+.pirate-chart-header ~ .world-map-viewport {
+  position: absolute;
+  inset: 0;
+  border: 0;
+  border-radius: 0;
+}
+@media (max-width: 520px) {
+  .map-view.operation-world:has(> .pirate-chart-header) {
+    background: #176867 url("/assets/map/worlds/add-water.webp") center / 360px repeat;
+  }
+  .pirate-chart-header:has(.pirate-chart-title) ~ .world-map-viewport {
+    inset-block-start: calc(var(--pirate-back-bottom) + 36px);
+    box-shadow: none;
+    mask-image: linear-gradient(transparent, black 12px);
+  }
+}

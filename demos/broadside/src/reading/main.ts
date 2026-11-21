@@ -5,7 +5,7 @@ import { difficultyMap } from "../ui/difficultyMap";
 import { pirateMenu, settingsDesk } from "../ui/homeMenu";
 import { installButtonHaptics } from "../ui/buttonHaptics";
 import { adventureChart, sailToShore } from "../ui/adventureChart";
-import { backButton, menuHeader } from "../ui/menuChrome";
+import { backButton, chartAction, chartHeader, menuHeader } from "../ui/menuChrome";
 import { caveHeader, caveNotice, caveTally } from "../ui/caveHud";
 import { icon } from "../ui/icons";
 import { rewardLedger } from "../ui/rewardLedger";
@@ -55,8 +55,9 @@ const persist=()=>{saveFailed=!saveProgress(progress,storage);};
 const button=(action:string,label:string,primary=false)=>`<button class="wood-button${primary?" primary":""}" data-action="${action}">${esc(label)}</button>`;
 
 const heading=(h:string,sub:string)=>`<div class="page-heading"><h1>${esc(h)}</h1><p>${esc(sub)}</p></div>`;
+const readerMapActions=()=>chartAction({action:"ship",icon:"ship",label:t("shipShort")})+chartAction({action:"cave",icon:"chest",label:t("caveShort")});
 function header():string{
- if(screen==="home"||screen==="levels")return "";
+ if(screen==="home"||screen==="levels"||screen==="languages"||screen==="packs")return "";
  if(screen==="cave"||screen==="unload") {
   const amount=banked(progress);
   return caveHeader(backButton({action:"back",label:t("back")}),t("caveShort"),{
@@ -65,7 +66,7 @@ function header():string{
  }
  if(screen==="complete")return backButton({action:"back",label:t("back")});
  if((screen==="reading"||screen==="comprehension")&&run&&shown)return menuHeader({className:"reader-topbar",brand:"",back:backButton({action:"back",label:t("back")}),actions:`<span class="reading-location">${esc(packFor(run.pack).name[progress.ui])}<small>${t("level")} ${f(run.level)}</small></span>`});
- return menuHeader({className:"reader-topbar",brand:"",back:backButton({action:"back",label:t("back"),destination:screen==="languages"?t("home"):undefined}),actions:`<button class="pirate-nav-link" data-action="ship">${icon("ship")}<span>${esc(t("shipShort"))}<small>${f(aboard(progress))} ${t("gold")}</small></span></button><button class="pirate-nav-link" data-action="cave">${icon("chest")}<span>${esc(t("caveShort"))}<small>${f(banked(progress))} ${t("gold")}</small></span></button>`});
+ return menuHeader({className:"reader-topbar",brand:"",back:backButton({action:"back",label:t("back")}),actions:`<button class="pirate-nav-link" data-action="ship">${icon("ship")}<span>${esc(t("shipShort"))}<small>${f(aboard(progress))} ${t("gold")}</small></span></button><button class="pirate-nav-link" data-action="cave">${icon("chest")}<span>${esc(t("caveShort"))}<small>${f(banked(progress))} ${t("gold")}</small></span></button>`});
 }
 function home():string{
  const active=Object.values(progress.tracks).map(t=>t.run).filter((r):r is Run=>!!r).sort((a,b)=>b.id-a.id)[0];
@@ -82,18 +83,18 @@ function languages():string{
    return {id,label:language.name,art:`<span class="reading-flag" aria-hidden="true">${language.flag}</span>`,
      accessible:language.name,moored:progress.language===id};
  });
- return `<nav class="reading-overview" aria-label="${esc(t("languages"))}">${adventureChart("language",shores)}</nav>`;
+ return `${chartHeader({back:backButton({action:"back",label:t("back"),destination:t("home")}),actions:readerMapActions()})}<nav class="reading-overview" aria-label="${esc(t("languages"))}">${adventureChart("language",shores)}</nav>`;
 }
 function packs():string{
  const nb=progress.language==="nb",ui=progress.ui;
  const name=nb?(ui==="nb"?"Lesefjordene":"Reading Fjords"):(ui==="nb"?"Bokøyene":"Storybook Isles");
  return difficultyMap({name,accessibleName:name,instructions:ui==="nb"?"Velg en lesepakke.":"Choose a reading pack.",
-   selected:packId,backdrop:worldAsset(readerTheme()),island:i=>worldIsland(readerTheme(),i),centerLabel:ui==="nb"?"Nåværende øy":"Current island",firstArt:nb?4:9,
+   back:backButton({action:"back",label:t("back")}),actions:readerMapActions(),selected:packId,backdrop:worldAsset(readerTheme()),island:i=>worldIsland(readerTheme(),i),centerLabel:ui==="nb"?"Nåværende øy":"Current island",firstArt:nb?4:9,
    stops:PACKS.map(p=>({id:p.id,label:p.name[ui],ariaLabel:`${p.name[ui]}: ${p.description[ui]}`}))});
 }
 function levels():string{
  const p=packFor(packId),tr=track(),current=(tr?.cleared??0)+1;
- return atlasView(readerTheme(),progress.language==="nb"?"Norsk":"English",backButton({action:"back",label:t("back")}),current,createI18n(progress.ui,[]),p.name[progress.ui]);
+ return atlasView(readerTheme(),progress.language==="nb"?"Norsk":"English",backButton({action:"back",label:t("back")}),current,createI18n(progress.ui,[]),{title:p.name[progress.ui]});
 }
 function statusText():string{
  if(errorMessage)return errorMessage;

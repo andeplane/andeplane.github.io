@@ -2,7 +2,7 @@
 #academy:is([data-screen="operators"], :is([data-screen="map"], [data-screen="clockMap"]), [data-screen="levels"]) #main-content {
   inset-inline: 0;
 }
-#academy :is(.family-world-chart, .map-view.operation-world, .expedition-view) {
+#academy :is(.family-world-chart, .expedition-view) {
   background: #9ab6a8 url("/assets/map/chart-water.webp") center / 1120px repeat;
 }
 #academy .family-world-chart {
@@ -78,30 +78,25 @@
 #academy .home-utilities [data-action="language"] { min-width: 48px; }
 #academy .home-utilities [data-action="language"] strong { font-size: 24px; line-height: 1; }
 
-#academy button.pirate-menu-back,
-#academy .trail-heading button.pirate-menu-back {
+#academy {
+  --pirate-back-gap-top: 6px;
+  --pirate-back-gap-left: 8px;
+  --pirate-back-fill: #221b13;
+  --pirate-back-border: #82683d;
+  --pirate-back-ink: #fff0ce;
+}
+#academy button.pirate-menu-back {
   position: static;
   flex: none;
   width: auto;
   height: auto;
-  min-width: 44px;
-  min-height: 44px;
+  min-width: var(--pirate-touch-target);
   padding: 3px 10px;
   gap: 5px;
-  border-radius: 9px;
-  border: 1px solid #82683d;
-  background: #221b13;
-  color: #fff0ce;
 }
-@media (hover: hover) and (pointer: fine) {
-  #academy button.pirate-menu-back:hover,
-  #academy .trail-heading button.pirate-menu-back:hover { background: #3c2b18; }
-}
-#academy button.pirate-menu-back:active,
-#academy .trail-heading button.pirate-menu-back:active { background: #543923; }
 #academy .settings-heading { margin-bottom: 12px; }
 #academy .scene-back {
-  padding: calc(4px + var(--pirate-safe-top)) 12px 4px;
+  padding: var(--pirate-back-top) var(--pirate-back-gap-left) 4px;
 }
 #academy .scene-back { position: relative; z-index: 2; }
 

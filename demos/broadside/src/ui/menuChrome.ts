@@ -6,9 +6,22 @@ const escape = (text: string) => text.replace(/[&<>"']/g, (char) => ({ "&": "&am
 interface ButtonTarget { id?: string; action?: string; }
 const target = ({ id, action }: ButtonTarget) => `${id ? ` id="${escape(id)}"` : ""}${action ? ` data-action="${escape(action)}"` : ""}`;
 
-/** The same navigation control is used by both game entrypoints and every scene. */
+/** Navigation control shared across the pirate games. */
 export function backButton(options: ButtonTarget & { destination?: string; hidden?: boolean; label?: string; accessibleLabel?: string } = {}): string {
-  return `<button${target(options)} class="pirate-menu-back menu-back" aria-label="${escape(options.accessibleLabel ?? `${options.label ?? "Back"}${options.destination ? ` to ${options.destination}` : ""}`)}"${options.hidden ? " hidden" : ""}><span class="pirate-back-arrow" aria-hidden="true">‹</span><span>${escape(options.label ?? "Back")}</span></button>`;
+  return `<button type="button"${target(options)} class="pirate-menu-back menu-back" aria-label="${escape(options.accessibleLabel ?? `${options.label ?? "Back"}${options.destination ? ` to ${options.destination}` : ""}`)}"${options.hidden ? " hidden" : ""}><span class="pirate-back-arrow" aria-hidden="true">‹</span><span>${escape(options.label ?? "Back")}</span></button>`;
+}
+
+/** Keep map navigation outside the pan surface. The host supplies its destination and title. */
+export function chartHeader(options: { back: string; heading?: string; actions?: string; className?: string }): string {
+  const heading = options.heading ? `<div class="pirate-chart-title">${options.heading}</div>` : "";
+  const actions = options.actions ? `<div class="pirate-chart-actions">${options.actions}</div>` : "";
+  return `<header class="pirate-chart-header${options.className ? " " + escape(options.className) : ""}">${options.back}${heading}${actions}</header>`;
+}
+
+export function chartAction(options: ButtonTarget & { label: string; icon: Parameters<typeof icon>[0]; accessibleLabel?: string; controls?: string }): string {
+  const accessible = options.accessibleLabel ? ` aria-label="${escape(options.accessibleLabel)}"` : "";
+  const controls = options.controls ? ` aria-expanded="false" aria-controls="${escape(options.controls)}"` : "";
+  return `<button type="button"${target(options)} class="pirate-chart-action"${accessible}${controls}>${icon(options.icon)}<span>${escape(options.label)}</span></button>`;
 }
 
 export function menuBrand(options: ButtonTarget & { title: string; subtitle: string; className?: string }): string {

@@ -61,7 +61,6 @@
 #voyage-ui[data-screen="levels"] .menu-heading h1 { color: #332715; text-shadow: 0 1px #ecddb8; }
 #voyage-ui[data-screen="levels"] .voyage-brand { color: #342b20; }
 #voyage-ui[data-screen="levels"] .voyage-brand > .icon { color: #604325; }
-#voyage-ui[data-screen="levels"] #menu-back { background: #e4cda6e8; color: #382717; border-color: #725836; }
 #voyage-ui[data-screen="levels"] .menu-heading .eyebrow,
 #voyage-ui[data-screen="levels"] .menu-heading p { color: #57482d; }
 #level-menu .level-board {
@@ -159,7 +158,7 @@
 #voyage-ui .travel-viewport :is(.level-note,.regional-center) {display:none;}
 #voyage-ui .travel-follow {position:absolute;right:calc(8px + var(--pirate-safe-right));bottom:calc(65px + var(--pirate-safe-bottom));min-height:44px;padding:6px 14px;border-radius:22px;background:#fff0ce;color:#332714;}
 
-#voyage-ui.chart-sailing :is(#menu-back,.voyage-brand,.menu-heading,#menu-free,.chart-ship-action) {visibility:hidden;}
+#voyage-ui.chart-sailing :is(.pirate-chart-header,.voyage-brand,#menu-free) {visibility:hidden;}
 
 #voyage-ui.chart-sailing :is(#world-menu,#level-menu) .travel-viewport :is(.world-map,.level-board) {
   position:absolute;inset:8% 5%;width:auto;height:auto;min-height:0;margin:0;max-width:none;

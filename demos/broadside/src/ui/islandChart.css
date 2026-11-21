@@ -73,7 +73,7 @@
 }
 :is(#academy,#reader) .trail-heading h1 {margin:0;color:#172e2a;font:700 clamp(18px,5vw,25px)/1.08 Georgia,serif;text-shadow:none;}
 .trail-heading small {display:block;margin-top:3px;font:600 13px/1.1 system-ui,sans-serif;}
-:is(#academy,#reader) .trail-heading .menu-back {position:static;min-height:44px;color:#332714;background:#fff0ce;}
+#reader .trail-heading {--pirate-back-fill:#fff0ce;--pirate-back-ink:#332714;--pirate-back-border:#725836;--pirate-back-tint:#bca16f;}
 :is(#academy,#reader)[data-screen="levels"] .expedition-view .expedition-dock {
   background:none;padding:4px calc(12px + var(--pirate-safe-right)) calc(4px + var(--pirate-safe-bottom)) calc(12px + var(--pirate-safe-left));
 }

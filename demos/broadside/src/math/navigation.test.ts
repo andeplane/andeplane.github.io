@@ -46,7 +46,8 @@ describe("Captain Calculus navigation destinations",()=>{
     expect(root().querySelector('[data-action="resume"]')?.textContent).toContain("Level 1");
     click("play");
     expect(root().dataset.screen).toBe("operators");
-    expect(root().querySelector('[data-action="ship"], [data-action="cave"], [data-action="settings"]')).toBeNull();
+    expect(root().querySelector('.pirate-chart-header [data-action="ship"]')).not.toBeNull();
+    expect(root().querySelector('[data-action="cave"], [data-action="settings"]')).toBeNull();
     click("back");
     click("resume");
     expect(root().dataset.screen).toBe("question");
