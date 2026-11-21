@@ -19,34 +19,45 @@ const deckLevel = .70;
 function berthFor(island: GeneratedIsland) {
   const { town, settings } = island.site, floor = island.heightAt;
   if (!town.paths.length) return null;
-  const length = settings.settlement === "village" ? 8.8 : 6.7;
+  const preferredLength = settings.settlement === "village" ? 8.8 : 6.7;
   const width = settings.settlement === "village" ? 2.3 : 1.9;
-  const approaches = town.paths.filter(path => path.width >= 2).flatMap(path => [path.a, path.b]);
+  const approaches = new Set(town.paths.filter(path => path.width >= 2).flatMap(path => [path.a, path.b]));
   let best: { x: number; z: number; dx: number; dz: number; length: number; width: number; side: number } | null = null;
   let bestScore = Infinity;
   for (const entry of approaches) {
     for (let arc = 0; arc < 36; arc++) {
       const angle = arc * Math.PI / 18, vx = Math.sin(angle), vz = Math.cos(angle);
-      for (let r = .75; r < 38; r += .75) {
-        const x = entry.x + vx*r, z = entry.z + vz*r;
+      for (let r = .75; r < Math.min(38,bestScore); r += .75) {
+        let x = entry.x + vx*r, z = entry.z + vz*r;
         if (town.houses.some(h => Math.abs(x-h.x) < h.depth/2+.55 && Math.abs(z-h.z) < h.frontage/2+.55)) break;
         const elevation = floor(x,z);
         if (elevation > deckLevel) continue;
-        if (elevation < .27) break; // abrupt cliff above the water
+        // Bisect the bracket: on a headland a single marching step can jump
+        // from dry land to open water. The landward deck end must meet terrain.
+        let low = r-.75, high = r;
+        for(let n=0;n<5;n++) {
+          const mid = (low+high)/2;
+          if(floor(entry.x+vx*mid,entry.z+vz*mid)>deckLevel) low=mid; else high=mid;
+        }
+        x=entry.x+vx*high; z=entry.z+vz*high;
         const gx = floor(x-.6,z)-floor(x+.6,z), gz = floor(x,z-.6)-floor(x,z+.6);
         const slope = Math.hypot(gx,gz);
         const dx = slope > .02 ? gx/slope : vx, dz = slope > .02 ? gz/slope : vz;
         if (dx*vx + dz*vz < .42) break; // a glancing approach crosses the bank
         const at = (u: number, t: number) => floor(x + dz*u + dx*t, z - dx*u + dz*t);
-        for (const side of [-1,1]) {
-          const boat = side*(width/2 + 1.38);
-          if ([-.85,0,.85].some(offset => [length-4.5,length-2,length+.4]
-            .some(t => at(boat+offset,t) > -.30))) continue;
-          if (at(0,length/2) > .29 || at(0,length) > -.3 || at(0,-.6) < .32) continue;
-          // Prefer a short, open continuation of the street and a level join.
-          const score = r + Math.abs(elevation-deckLevel)*3 + (1-dx*vx-dz*vz)*2;
-          if (score < bestScore) {
+        for (let length=preferredLength;length<=preferredLength+7;length+=1.4) {
+          const score = r + (length-preferredLength)*1.6 + (1-dx*vx-dz*vz)*2;
+          if (score >= bestScore) break;
+          if (at(0,length/2) > .30 || at(0,length) > -.3 || at(0,-.6) < .32) continue;
+          if (Array.from({length:9},(_,i)=>(i+1)*length/9)
+            .some(t => [-width*.48,0,width*.48].some(u=>at(u,t)>deckLevel+.03))) continue;
+          for (const side of [-1,1]) {
+            const boat = side*(width/2 + 1.38);
+            if ([-.85,0,.85].some(offset => [length-4.5,length-2,length+.4]
+              .some(t => at(boat+offset,t) > -.30))) continue;
+            // A long shelf needs a longer pier to reach navigable water.
             best = {x,z,dx,dz,width,length,side}; bestScore=score;
+            break;
           }
         }
         break;
