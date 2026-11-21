@@ -8,7 +8,7 @@ import type { Scene } from "@babylonjs/core/scene.js";
 import type { ShadowGenerator } from "@babylonjs/core/Lights/Shadows/shadowGenerator.js";
 import type { CaveObstacle } from "../shared/pirate-world/input/caveWalk";
 import { Rng } from "../sim/rng";
-import { landfallHeight, landfallNoise, landfallReserved, type LandfallSite } from "../game/landfall";
+import { landfallNoise, landfallReserved, type LandfallSite } from "../game/landfall";
 import { islandSurface } from "./islandSurface";
 import { worldStyle, type WorldStyle } from "./worldStyle";
 
@@ -84,6 +84,7 @@ export class IslandScenery {
     readonly site: LandfallSite,
     readonly seed: number,
     private shadows: ShadowGenerator,
+    readonly floor: (x:number,z:number)=>number,
   ) {
     this.style = terrainStyle(world, site.settings.biome);
     this.rng = new Rng(seed ^ (8139 + world * 10979));
@@ -96,9 +97,6 @@ export class IslandScenery {
     this.glow.emissiveColor.set(0.75, 0.75, 0.75);
     this.glow.linkEmissiveWithDiffuse = true;
     this.glow.specularColor.setAll(0.15);
-  }
-  floor(x: number, z: number) {
-    return landfallHeight(this.world, x, z, this.seed, this.site.settings);
   }
   fertility(x: number, z: number) {
     return (

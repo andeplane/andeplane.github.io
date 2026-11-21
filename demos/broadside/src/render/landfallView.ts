@@ -15,7 +15,7 @@ import { buildRelic } from "../shared/pirate-world/render/relics";
 import type { CaveObstacle } from "../shared/pirate-world/input/caveWalk";
 import { WORLD_RELICS } from "../game/rewards";
 import { voyageWeather } from "../game/weather";
-import type { LandfallSite } from "../game/landfall";
+import type { GeneratedIsland } from "../game/landfall";
 import { VoyageSky } from "./voyageSky";
 import { IslandScenery, vec } from "./landfallScenery";
 import { buildLandfallWater } from "./landfallWater";
@@ -185,7 +185,7 @@ export class LandfallView {
   private treasure: ReturnType<typeof buildDig>;
   private time = 0;
   private direction = Vector3.Zero();
-  constructor(engine: Engine, world: number, site: LandfallSite, seed: number) {
+  constructor(engine: Engine, world: number, island: GeneratedIsland, seed: number) {
     const scene = (this.scene = new Scene(engine));
     this.camera = new FreeCamera("island explorer", vec(0, 3, -18), scene);
     this.camera.inputs.clear();
@@ -203,7 +203,7 @@ export class LandfallView {
     this.shadows.filteringQuality = ShadowGenerator.QUALITY_LOW;
     this.shadows.bias = 0.002;
     this.shadows.normalBias = 0.055;
-    const scenery = new IslandScenery(scene, world, site, seed, this.shadows),
+    const scenery = new IslandScenery(scene, world, island.site, seed, this.shadows, island.heightAt),
       style = scenery.style;
     scene.clearColor = Color4.FromHexString(style.fog + "ff");
     scene.fogColor = Color3.FromHexString(style.fog);
