@@ -570,10 +570,6 @@ async function main() {
       session.player.sail = session.player.sail ? 0 : 2;
     },
   });
-  const soundChoice=hud.root.querySelector<HTMLInputElement>('#coin-sounds')!;
-  soundChoice.checked=coinSounds.enabled;soundChoice.disabled=coinSounds.locked;
-  soundChoice.onchange=()=>{coinSounds.setEnabled(soundChoice.checked);if(soundChoice.checked)coinSounds.unlock();};
-  if(coinSounds.locked)hud.root.querySelector('#coin-sounds-note')!.textContent='Muted by this URL.';
   const stepper = new FixedStepper(() => {
     if (mode !== "play" || paused) return;
     let intent = controls.readIntent();

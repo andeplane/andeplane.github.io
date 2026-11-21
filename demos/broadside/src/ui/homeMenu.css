@@ -40,7 +40,6 @@ dialog.captain-language { padding:24px clamp(22px,7vw,36px) 28px; }
 #voyage-ui #settings-menu .captain-desk {display:grid;grid-template-rows:1fr;padding-top:calc(55px + var(--pirate-safe-top));}
 #voyage-ui #settings-menu .captain-paper {padding:40px 35px;}
 #voyage-ui #settings-menu .captain-paper :is(p,label,a),#reader .captain-paper {color:#322414;}
-#voyage-ui #settings-menu .captain-paper label {display:flex;align-items:center;justify-content:center;gap:8px;min-height:44px;}
 #voyage-ui #settings-menu .captain-paper a {text-decoration:underline;}
 #reader .captain-paper {margin:auto;padding:40px 30px;}
 #reader .captain-paper .desk-action {color:#372414;}
@@ -57,7 +56,7 @@ dialog.captain-language { padding:24px clamp(22px,7vw,36px) 28px; }
     background-image: linear-gradient(#20140d69, #24150fc9), url("/assets/menu/lantern-grotto-wide.webp");
   }
 }
-#voyage-ui #settings-menu .captain-paper :is(#coin-sounds-note, .art-credit) {
+#voyage-ui #settings-menu .captain-paper .art-credit {
   margin-block: 8px;
   line-height: 1.4;
 }
@@ -65,35 +64,4 @@ dialog.captain-language { padding:24px clamp(22px,7vw,36px) 28px; }
   background: #422a14;
   border-color: #6e4c30;
   color: #fff0d0;
-}
-#voyage-ui #settings-menu #coin-sounds {
-  appearance: none;
-  width: 44px;
-  height: 44px;
-  flex: none;
-  margin: 0;
-  position: relative;
-  cursor: pointer;
-}
-#voyage-ui #settings-menu #coin-sounds::before {
-  content: "";
-  position: absolute;
-  inset: 11px;
-  border: 1px solid #754c24;
-  border-radius: 4px;
-  background: #fff0ca;
-}
-#voyage-ui #settings-menu #coin-sounds:checked::before {
-  background: #654120;
-}
-#voyage-ui #settings-menu #coin-sounds:checked::after {
-  content: "";
-  position: absolute;
-  top: 13px;
-  left: 18px;
-  width: 6px;
-  height: 13px;
-  transform: rotate(42deg);
-  border: solid #fff1d0;
-  border-width: 0 3px 3px 0;
 }
