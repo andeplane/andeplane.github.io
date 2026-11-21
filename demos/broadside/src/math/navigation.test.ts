@@ -65,7 +65,8 @@ describe("Captain Calculus navigation destinations",()=>{
     const progress = freshProgress();
     startVoyage(progress, "add-10", 1, 100);
     const run = startVoyage(progress, "add-20", 1, 200)!;
-    answerQuestion(progress, "add-20", 1, questionsFor("add-20", run.seed, run.questionSet)[0]!.answer + 1);
+    const problem = questionsFor("add-20", run.seed, run.questionSet)[0]!;
+    answerQuestion(progress, "add-20", 1, problem.answer + 1);
     saveMathProgress(progress, localStorage);
     await import("./main");
     click("play");
@@ -76,7 +77,8 @@ describe("Captain Calculus navigation destinations",()=>{
     vi.resetModules();
     await import("./main");
     click("resume");
-    expect(root().querySelector(".voyage-status")?.textContent).toContain("Up to 20");
+    expect(root().querySelector(".left-term")?.textContent).toBe(String(problem.left));
+    expect(root().querySelector(".right-term")?.textContent).toBe(String(problem.right));
     click("back");
     expect(document.activeElement?.getAttribute("data-action")).toBe("resume");
   });

@@ -37,8 +37,6 @@
 .visually-hidden { position: absolute; width: 1px; height: 1px; padding: 0; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
 /* Keep the ship's sea and warm brass around the focused arithmetic task. */
 #academy[data-screen="question"]:not([data-screen="cave"]):not([data-screen="reward"]):not([data-screen="ship"]):not([data-screen="unloading"]) {
-  background: linear-gradient(#073b50b3, #062c3be8), url('/assets/map/calculus-harbour.webp') center/cover;
-  .voyage-status, .voyage-status b { color: #fff1d2; }
   .math-card { background: #fff1d2; border: 1px solid #d5b76d; border-radius: 16px; box-shadow: 0 8px 28px #001c3540; }
   .number-pad button { background: #fffbef; border-color: #b4955f; border-radius: 10px; }
   .hint-button { background: #f3dfaf; border-color: #b4955f; }

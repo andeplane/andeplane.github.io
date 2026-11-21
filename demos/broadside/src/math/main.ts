@@ -213,12 +213,14 @@ function mountMathMap(scroller: HTMLElement): void {
   });
 }
 function questionView(): string {
-  const p = selectedPack(), op = getOperator(p.operator), q = question!, solved = voyage!.solved;
+  const q = question!, op = getOperator(q.operator), solved = voyage!.solved;
   const earned = voyage!.earnedGold;
   const rewardAvailable = voyage!.problemMistakes === 0;
   const stake = accepted ? outcome?.goldEarned ? t("answerGold") : t("answerNoGold") : rewardAvailable ? t("atStake") : t("lostStake");
   const message = accepted ? outcome?.levelComplete ? t("levelGold", { gold: format(outcome.levelGold) }) : outcome?.goldEarned ? t("firstCorrect") : t("retryCorrect") : (feedback ? t(feedback) : "");
-  return `<section class="question-view"><h1 class="visually-hidden">${t("problem", { count: Math.min(solved + (accepted ? 0 : 1), 10) })}</h1><div class="voyage-status">${gameBack(voyageReturn)}<span>${op.symbol} ${operatorName(op.id)} <i>·</i> ${p.label}</span><b>${t("level", { count: format(level) })}</b></div><div class="math-card ${accepted ? "correct" : feedback ? "try-again" : ""}"><div class="question-heading"><span class="eyebrow">${accepted && outcome?.levelComplete ? t("voyageComplete") : t("problem", { count: Math.min(solved + (accepted ? 0 : 1), 10) })}</span></div><div class="equation" aria-label="${t("equation", { left: q.left, operator: i18n.spokenOperator(q.operator), right: q.right })}"><span class="term left-term">${q.left}</span><span class="equation-operator">${op.symbol}</span><span class="term right-term">${q.right}</span><span class="equals">=</span><output id="answer" class="answer-box ${answer ? "filled" : ""}" aria-label="${t("yourAnswer")}" aria-live="polite">${answer || "?"}</output></div><p id="answer-feedback" class="answer-feedback ${accepted ? "success" : feedback ? "retry" : ""}" role="status">${message}</p><div class="number-pad" aria-label="${t("numberPad")}">${[1, 2, 3, 4, 5, 6, 7, 8, 9].map((n) => `<button data-key="${n}" ${accepted ? "disabled" : ""}>${n}</button>`).join("")}<button class="key-clear" data-key="clear" aria-label="${t("clearAnswer")}" ${accepted ? "disabled" : ""} title="${t("clearAnswer")}">C</button><button data-key="0" ${accepted ? "disabled" : ""}>0</button><button class="key-delete" data-key="delete" aria-label="${t("deleteDigit")}" ${accepted ? "disabled" : ""}>⌫</button></div><button id="check-answer" ${accepted ? "" : "data-answer-haptic"} class="wood-button primary check-answer" data-action="${accepted ? "continue" : "check"}" ${!accepted && !answer ? "disabled" : ""}>${accepted ? outcome?.chestEarned ? `${t("openChest")} ${icon("chest")}` : outcome?.levelComplete ? `${t("seeStars")} ${icon("star")}` : `${t("nextProblem")} ${icon("arrow")}` : `${t("checkAnswer")} ${icon("arrow")}`}</button></div><div class="chest-distance">${icon("chest")}<span><b>${t("earnedLevel", { gold: format(earned), maximum: format(1000) })}</b><br />${stake}</span></div></section>`;
+  const problemTitle = accepted && outcome?.levelComplete ? t("voyageComplete") : t("problem", { count: Math.min(solved + (accepted ? 0 : 1), 10) });
+  const marks = Array.from({ length: 10 }, (_, index) => `<span class="${index < solved ? "solved" : ""}"></span>`).join("");
+  return `<section class="question-view"><div class="math-card ${accepted ? "correct" : feedback ? "try-again" : ""}"><div class="question-heading"><h1 class="eyebrow">${problemTitle}</h1><div class="problem-marks" aria-hidden="true">${marks}</div></div><div class="equation" aria-label="${t("equation", { left: q.left, operator: i18n.spokenOperator(q.operator), right: q.right })}"><span class="term left-term">${q.left}</span><span class="equation-operator">${op.symbol}</span><span class="term right-term">${q.right}</span><span class="equals">=</span><output id="answer" class="answer-box ${answer ? "filled" : ""}" aria-label="${t("yourAnswer")}" aria-live="polite">${answer || "?"}</output></div><p id="answer-feedback" class="answer-feedback ${accepted ? "success" : feedback ? "retry" : ""}" role="status">${message}</p><div class="number-pad" aria-label="${t("numberPad")}">${[1, 2, 3, 4, 5, 6, 7, 8, 9].map((n) => `<button data-key="${n}" ${accepted ? "disabled" : ""}>${n}</button>`).join("")}<button data-key="0" ${accepted ? "disabled" : ""}>0</button><button class="key-delete" data-key="delete" aria-label="${t("deleteDigit")}" ${accepted ? "disabled" : ""}>⌫</button></div><button id="check-answer" ${accepted ? "" : "data-answer-haptic"} class="wood-button primary check-answer" data-action="${accepted ? "continue" : "check"}" ${!accepted && !answer ? "disabled" : ""}>${accepted ? outcome?.chestEarned ? `${t("openChest")} ${icon("chest")}` : outcome?.levelComplete ? `${t("seeStars")} ${icon("star")}` : `${t("nextProblem")} ${icon("arrow")}` : `${t("checkAnswer")} ${icon("arrow")}`}</button></div><div class="chest-distance">${icon("chest")}<span><b>${t("earnedLevel", { gold: format(earned), maximum: format(1000) })}</b><br />${stake}</span></div></section>`;
 }
 const retryScene = () => `<button class="text-button retry-scene" data-action="retry-scene">${t("retryScene")}</button>`;
 function shipView(reward: boolean): string {
@@ -257,7 +259,8 @@ function settingsView(): string {
       <p class="desk-save">${icon("anchor")} ${saveFailed ? t("saveError") : t("saveOk")}</p>
   `,gameBack("home"));
 }
-function render(): void {
+function render(preserveScroll = false): void {
+  const scrollTop = preserveScroll ? root.querySelector("#main-content")?.scrollTop ?? 0 : 0;
   const focused = document.activeElement;
   const focusedButton = focused instanceof HTMLButtonElement && root.contains(focused) ? focused : null;
   const focusSelector = focusedButton?.id ? `#${focusedButton.id}` :
@@ -269,14 +272,14 @@ function render(): void {
   root.dataset.screen = screen;
   root.dataset.operator = operator;
   root.dataset.saveFailed = String(saveFailed);
-  root.innerHTML = `${screen === "cave" ? caveHud() : ""}<main id="main-content">${{
+  root.innerHTML = `${screen === "cave" ? caveHud() : ""}${screen === "question" ? `<div class="question-back">${gameBack(voyageReturn)}</div>` : ""}<main id="main-content">${{
     home, operators: operatorView, map: mapView, levels: levelsView, question: questionView,
     clockMap: clockMapView, clock: () => clockBoard(clockRound!, i18n, gameBack("clockMap")),
     reward: () => shipView(true), ship: () => shipView(false), unloading: () => caveView(true), cave: () => caveView(false), complete: completeView, settings: settingsView,
   }[screen]()}</main>${saveFailed && screen !== "settings" ? `<div class="save-notice" role="status">${t("saveNotice")}</div>` : ""}`;
   const scroller = document.querySelector<HTMLElement>("#main-content")!;
   if (screen === "levels" || screen === "map" || screen === "clockMap") mountMathMap(scroller);
-  else scroller.scrollTop = 0;
+  else scroller.scrollTop = scrollTop;
   if (focusSelector) root.querySelector<HTMLButtonElement>(focusSelector)?.focus({ preventScroll: true });
 }
 function show(next: Screen, focusSelector = "h1"): void {
@@ -350,7 +353,6 @@ function nextProblem(): void {
 function enterKey(key: string): void {
   if (screen !== "question" || accepted) return;
   if (key === "delete") answer = answer.slice(0, -1);
-  else if (key === "clear") answer = "";
   else if (/^\d$/.test(key) && answer.length < 3) answer = answer === "0" ? key : answer + key;
   feedback = "";
   const output = root.querySelector<HTMLOutputElement>("#answer")!;
@@ -369,7 +371,7 @@ function checkAnswer(): void {
   persist();
   if (result.correct) { accepted = true; outcome = result; }
   else { feedback = firstMistake ? "firstWrong" : "retryWrong"; answer = ""; }
-  render();
+  render(true);
 }
 function continueAfterAnswer(): void {
   if (!accepted || !outcome) return;

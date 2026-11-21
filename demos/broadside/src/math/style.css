@@ -83,9 +83,6 @@
 .set-sail { width: 100%; }
 .level-trail .small-note { margin-top: 17px; font-size: 10px; }
 .question-view { width: min(660px, 100%); margin: auto; padding: 10px 28px calc(22px + var(--safe-bottom)); }
-.voyage-status { display: flex; align-items: center; justify-content: space-between; gap: 10px; color: #becfc2; font-size: 11px; margin: 0 3px 15px; }
-.voyage-status i { color: var(--gold); margin-inline: 6px; font-style: normal; }
-.voyage-status b { color: #f0dbae; white-space: nowrap; }
 .question-progress { display: flex; align-items: center; gap: 8px; margin: 0 4px 20px; }
 .question-progress > span:not(.progress-chest) { display: grid; place-items: center; border-radius: 50%; border: 1px solid #87a39759; background: #183339; width: 31px; height: 31px; font-size: 11px; color: #8eaba4; flex: 1; max-width: 38px; }
 .question-progress > span.solved { background: #538773; color: #edebc9; border-color: #84bba1; }
@@ -110,7 +107,6 @@
 .number-pad button { display: grid; place-items: center; border: 1px solid #9b9a755c; background: linear-gradient(#fffae7b8, #d7d3b064); color: #2e4640; border-radius: 7px; height: 53px; box-shadow: inset 0 1px #fffae9, 0 2px #b4ae853d; font-size: 22px; font-weight: 700; }
 .number-pad button:hover:not(:disabled) { background: #fffbeb; }
 .number-pad button:active:not(:disabled) { transform: translateY(2px); box-shadow: none; }
-.number-pad .key-clear { font-size: 12px; font-weight: 400; }
 .number-pad .key-delete { font-size: 23px; font-weight: 400; }
 .check-answer { width: 100%; margin-top: 16px; justify-content: center; min-height: 53px; background: linear-gradient(#476d58, #305646) !important; color: #f7e9c8 !important; border-color: #618163 !important; box-shadow: inset 0 1px #fff2, 0 3px 0 #233f34, 0 4px 10px #3332 !important; font-size: 14px; }
 .check-answer .icon { width: 19px; height: 19px; }
@@ -260,8 +256,6 @@
   .trail-heading { font-size: 10px; }
   .trail-heading > span:last-child { font-size: 8px; }
   .question-view { padding: 8px 16px calc(22px + var(--safe-bottom)); }
-  .voyage-status { font-size: 9px; margin-bottom: 13px; }
-  .voyage-status i { margin-inline: 3px; }
   .question-progress { gap: 5px; margin-bottom: 17px; margin-inline: 0; }
   .question-progress > span:not(.progress-chest) { width: 25px; height: 25px; max-width: 28px; font-size: 9px; }
   .progress-chest .icon { width: 22px; height: 22px; }
@@ -335,7 +329,6 @@
 }
 @media (max-height: 600px) and (max-width: 600px) {
   .question-view { padding-bottom: calc(10px + var(--safe-bottom)); }
-  .voyage-status { margin-bottom: 8px; }
   .question-progress { margin-bottom: 10px; }
   .math-card { padding: 11px 13px 13px; }
   .question-heading .eyebrow { font-size: 7px; }
@@ -446,7 +439,6 @@
 .hint-button, .answer-feedback, .hint-panel p { font-size: 12px; }
 .question-heading .eyebrow { font-size: 10px; line-height: 1.4; }
 .hint-groups small { font-size: 10px; }
-.number-pad .key-clear { font-weight: 700; }
 .chest-distance { line-height: 1.5; }
 
 /* Fixed walking controls must stay inside the physical phone's safe area too. */
@@ -493,7 +485,6 @@
 /* Short screens keep the full calculator visible; opening a hint may deliberately expand it. */
 @media (max-width: 600px) and (max-height: 700px) {
   .question-view { padding-top: 0; padding-bottom: var(--pirate-safe-bottom); }
-  .voyage-status { margin-bottom: 4px; font-size: 9px; line-height: 1.35; }
   .question-progress { gap: 3px; margin-bottom: 7px; }
   .question-progress > span:not(.progress-chest) { width: 18px; height: 18px; max-width: 22px; font-size: 8px; }
   .progress-chest .icon { width: 18px; height: 18px; }
@@ -511,13 +502,11 @@
   .hint-panel { grid-column: 1 / -1; grid-row: 5; max-height: 160px; margin: 0; }
   .number-pad { grid-column: 2; grid-row: 2 / 5; gap: 4px; }
   .number-pad button { min-width: 44px; min-height: 44px; height: 44px; font-size: 22px; }
-  .number-pad .key-clear { font-size: 10px; }
   .check-answer { grid-column: 1 / -1; grid-row: 6; margin: 0; min-height: 44px; }
   .chest-distance { margin-top: 7px; font-size: 9px; line-height: 1.35; }
 }
 @media (max-height: 480px) and (min-width: 601px) {
   .question-view { display: grid; grid-template-columns: minmax(0, 1fr) 225px; gap: 6px 12px; padding-top: 0; padding-bottom: var(--pirate-safe-bottom); }
-  .voyage-status { grid-column: 1; grid-row: 1; min-height: 16px; margin: 0; font-size: 10px; }
   .question-progress { display: none; }
   .chest-distance { grid-column: 2; grid-row: 1; margin: 0; justify-content: flex-end; gap: 5px; }
   .chest-distance > span { font-size: 0; }
@@ -580,6 +569,5 @@
 .language-setting { margin-block: 12px 22px; }
 .operator-card h2 { overflow-wrap: anywhere; hyphens: auto; }
 .pirate-nav-link small { overflow-wrap: anywhere; }
-.number-pad .key-clear { font-size: 18px; }
 
 #academy .expedition-intro { background: #102a37; }

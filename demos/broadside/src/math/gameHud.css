@@ -93,11 +93,12 @@
   background: #221b13;
   color: #fff0ce;
 }
-#academy button.pirate-menu-back:hover,
-#academy .trail-heading button.pirate-menu-back:hover { background: #3c2b18; }
-#academy .question-view { padding-top: calc(4px + var(--pirate-safe-top)); }
-#academy .voyage-status { gap: 8px; min-height: 44px; font-size: 13px; }
-#academy .voyage-status > span { flex: 1; line-height: 1.2; }
+@media (hover: hover) and (pointer: fine) {
+  #academy button.pirate-menu-back:hover,
+  #academy .trail-heading button.pirate-menu-back:hover { background: #3c2b18; }
+}
+#academy button.pirate-menu-back:active,
+#academy .trail-heading button.pirate-menu-back:active { background: #543923; }
 #academy .settings-heading { margin-bottom: 12px; }
 #academy .scene-back, #academy .complete-back {
   padding: calc(4px + var(--pirate-safe-top)) 12px 4px;
@@ -113,7 +114,6 @@
 @media (orientation: landscape) and (max-height: 480px) {
   #academy .world-map-heading p { display: none; }
   #academy .question-view { display: grid; }
-  #academy .voyage-status { font-size: 12px; }
   #academy .complete-view .completion-ship { grid-row: 2 / 7; }
   #academy .unloading-view .cave-heading { padding-block: 5px; }
 }
