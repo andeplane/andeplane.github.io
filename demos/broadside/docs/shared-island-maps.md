@@ -11,6 +11,8 @@ The shared UI lives in `src/ui/islandChart.ts`, `difficultyMap.ts`, `expeditionT
 
 Broadside supplies world and voyage data through `voyageHud.ts` and keeps its ship travel anchors. Calculus supplies operations, number ranges and rewards from `math/main.ts`. Reader supplies languages, reading packs and read-aloud progress from `reading/main.ts`. Both learning games use bounded pack charts and windowed trails. Pack and level cameras are retained while navigating during a session. Choosing the compass returns to the current island.
 
+Camera rule for every map in the family: the camera never moves or zooms because a player tapped an island or level. It pans only when a followed element (the sailing ship, or an island reached by keyboard focus) enters the outer 10% of the viewport (`MAP_EDGE_BAND`), and then glides the smallest distance that clears the band. Recentering also glides. With reduced motion the same moves snap. `mountMapPan().follow(element)` is the only way charts should follow something.
+
 ## Review and packaging, 18 November 2026
 
 - Walked all three routes in the headless browser at 402 × 874, 320 × 568 and 844 × 390 with simulated safe insets. Captured worlds, packs where applicable, and levels. Exercised finite pan extremes, zoom and recenter in all three games, and extended both learning trails from 36 to 60 nodes.

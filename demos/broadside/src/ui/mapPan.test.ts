@@ -1,6 +1,17 @@
 // @vitest-environment happy-dom
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { clampMapCamera, mountMapPan, zoomMapAt } from "./mapPan";
+import { clampMapCamera, edgeFollowOffset, mapPanFor, mountMapPan, zoomMapAt } from "./mapPan";
+
+/** Drive animation frames by hand so glides are deterministic. */
+function manualFrames() {
+  let queue: FrameRequestCallback[] = [], now = 0;
+  vi.stubGlobal("requestAnimationFrame", (callback: FrameRequestCallback) => { queue.push(callback); return queue.length; });
+  vi.stubGlobal("cancelAnimationFrame", () => { queue = []; });
+  return {
+    pending: () => queue.length,
+    settle(frames = 120) { for (let i = 0; i < frames && queue.length; i++) { const run = queue; queue = []; now += 16; for (const callback of run) callback(now); } },
+  };
+}
 
 afterEach(() => { document.body.innerHTML = ""; vi.restoreAllMocks(); vi.unstubAllGlobals(); });
 
@@ -33,6 +44,7 @@ describe("shared touch map camera", () => {
   });
 
   it("supports wheel, keyboard and recenter, then removes gesture listeners on destruction", () => {
+    const frames = manualFrames();
     const { viewport, controller, pointer } = fixture(), initial = controller.getState();
     const wheel = new WheelEvent("wheel", { cancelable: true, deltaX: 30, deltaY: 100 });
     viewport.dispatchEvent(wheel);
@@ -41,6 +53,7 @@ describe("shared touch map camera", () => {
     viewport.dispatchEvent(new KeyboardEvent("keydown", { key: "ArrowRight", cancelable: true }));
     expect(controller.getState().x).toBe(initial.x - 105);
     viewport.dispatchEvent(new KeyboardEvent("keydown", { key: "Home", cancelable: true }));
+    frames.settle();
     expect(controller.getState()).toEqual(initial);
     controller.destroy();
     pointer("pointerdown", 150, 300); pointer("pointermove", 250, 350); pointer("pointerup", 250, 350);
@@ -108,5 +121,87 @@ describe("shared touch map camera", () => {
       expect(clampMapCamera({ x, y: 190, scale: .65 }, { width: 932, height: 700 }, { width: 1200, height: 1800 })).toEqual({ x: 76, y: 190, scale: .65 });
       expect(clampMapCamera({ x, y: 190, scale: 1 }, { width: 1400, height: 700 }, { width: 1200, height: 1800 })).toEqual({ x: 100, y: 190, scale: 1 });
     }
+  });
+
+  it("never treats a tap on an island or level as a zoom control", () => {
+    const { viewport, controller } = fixture();
+    const before = controller.getState();
+    expect(viewport.dataset.cameraZoom).toBe("1.00");
+    expect(viewport.hasAttribute("data-map-zoom")).toBe(false);
+    for (let i = 0; i < 3; i++) document.querySelector<HTMLButtonElement>("#level")!.click();
+    expect(controller.getState()).toEqual(before);
+    controller.destroy();
+  });
+
+  it("does not pan when a tapped island takes focus, even at the edge of the chart", () => {
+    manualFrames();
+    const { viewport, controller, pointer } = fixture();
+    const level = document.querySelector<HTMLButtonElement>("#level")!;
+    vi.spyOn(level, "getBoundingClientRect").mockReturnValue(new DOMRect(380, 680, 40, 40));
+    const before = controller.getState();
+    pointer("pointerdown", 390, 690);
+    level.dispatchEvent(new FocusEvent("focusin", { bubbles: true }));
+    pointer("pointerup", 390, 690);
+    expect(controller.getState()).toEqual(before);
+    viewport.dispatchEvent(new KeyboardEvent("keydown", { key: "Tab", bubbles: true }));
+    controller.destroy();
+  });
+
+  it("glides keyboard focus just clear of the 10% edge band and leaves central islands alone", () => {
+    const frames = manualFrames();
+    const { controller } = fixture();
+    const level = document.querySelector<HTMLButtonElement>("#level")!;
+    const box = vi.spyOn(level, "getBoundingClientRect").mockReturnValue(new DOMRect(150, 300, 40, 40));
+    window.dispatchEvent(new KeyboardEvent("keydown", { key: "Tab" }));
+    const before = controller.getState();
+    level.dispatchEvent(new FocusEvent("focusin", { bubbles: true }));
+    expect(frames.pending()).toBe(0);
+    expect(controller.getState()).toEqual(before);
+    box.mockReturnValue(new DOMRect(150, 640, 40, 40));
+    level.dispatchEvent(new FocusEvent("focusin", { bubbles: true }));
+    expect(controller.getState()).toEqual(before);
+    frames.settle(1);
+    const midway = controller.getState().y;
+    expect(midway).toBeLessThan(before.y);
+    expect(midway).toBeGreaterThan(before.y - 50);
+    frames.settle();
+    expect(controller.getState()).toEqual({ ...before, y: before.y - 50 });
+    controller.destroy();
+  });
+
+  it("follows a ship only once it reaches the edge band, without zooming", () => {
+    const frames = manualFrames();
+    const { viewport, controller } = fixture();
+    expect(mapPanFor(viewport)).toBe(controller);
+    const ship = document.createElement("span");
+    viewport.append(ship);
+    const before = controller.getState();
+    vi.spyOn(ship, "getBoundingClientRect").mockReturnValue(new DOMRect(200, 400, 20, 20));
+    controller.follow(ship);
+    frames.settle();
+    expect(controller.getState()).toEqual(before);
+    vi.spyOn(ship, "getBoundingClientRect").mockReturnValue(new DOMRect(370, 20, 20, 20));
+    controller.follow(ship);
+    frames.settle();
+    expect(controller.getState()).toEqual({ scale: before.scale, x: before.x - 30, y: before.y + 50 });
+    controller.destroy();
+    expect(mapPanFor(viewport)).toBeUndefined();
+  });
+
+  it("measures the edge band per axis and centers anything too large for it", () => {
+    const viewport = { width: 400, height: 700 };
+    expect(edgeFollowOffset({ left: 100, right: 120, top: 300, bottom: 320 }, viewport)).toEqual({ x: 0, y: 0 });
+    expect(edgeFollowOffset({ left: 10, right: 30, top: 640, bottom: 660 }, viewport)).toEqual({ x: 30, y: -30 });
+    expect(edgeFollowOffset({ left: 0, right: 400, top: 0, bottom: 20 }, viewport)).toEqual({ x: 0, y: 70 });
+  });
+
+  it("snaps instead of gliding when the player prefers reduced motion", () => {
+    manualFrames();
+    vi.stubGlobal("matchMedia", (query: string) => ({ matches: query.includes("reduce") }) as MediaQueryList);
+    const { controller } = fixture();
+    const before = controller.getState();
+    controller.center({ x: 480, y: 900 }, { smooth: true });
+    expect(controller.getState()).toEqual({ ...before, y: 700 * .46 - 900 });
+    controller.destroy();
   });
 });
