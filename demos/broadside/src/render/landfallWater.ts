@@ -1,6 +1,9 @@
+import { MultiMaterial } from "@babylonjs/core/Materials/multiMaterial.js";
+import { SubMesh } from "@babylonjs/core/Meshes/subMesh.js";
+import type { TidalGrotto } from "../game/landfallCoast";
 import { Mesh } from "@babylonjs/core/Meshes/mesh.js";
 import { VertexData } from "@babylonjs/core/Meshes/mesh.vertexData.js";
-import { Vector3 } from "@babylonjs/core/Maths/math.vector.js";
+import { Vector2, Vector3 } from "@babylonjs/core/Maths/math.vector.js";
 import { Color3 } from "@babylonjs/core/Maths/math.color.js";
 import { Effect } from "@babylonjs/core/Materials/effect.js";
 import { ShaderMaterial } from "@babylonjs/core/Materials/shaderMaterial.js";
@@ -23,6 +26,9 @@ void main() {
               + .046*sin(dot(position.xz,vec2(.12,-.46))+clock*.84);
   float wash = .028+.036*sin(position.x*.14+position.z*.07+clock*.81);
   float wave = mix(wash,swell,exposure);
+#ifdef SHELTERED_POOL
+  wave=.008*sin(position.x*2.4+position.z*.85+clock*.67);
+#endif
   vec3 p = position + vec3(0.,wave,0.);
   shore = vec3(p.xz,depth+wave);
   gl_Position = worldViewProjection*vec4(p,1.);
@@ -32,6 +38,7 @@ precision highp float;
 varying vec3 shore;
 uniform vec3 deep, shallow, foam, horizon, eye, sunDirection, sunColor;
 uniform float clock, night;
+uniform vec2 caveAxis;
 #ifdef NIGHT_WATER
 uniform vec4 windowLights[6], beacon;
 uniform vec3 beamDirection;
@@ -70,6 +77,25 @@ float lampGlint(vec4 lamp, vec3 surface, vec3 sight, vec3 reflected, float width
 void main() {
   vec2 p=shore.xy;
   float d=shore.z, dist=length(vec3(p.x,0.,p.y)-eye);
+#ifdef SHELTERED_POOL
+  // Through the water, the player can see the actual sand and submerged stones.
+  // At a grazing angle the surface catches light from the two sea doors.
+  vec3 v=normalize(eye-vec3(p.x,0.,p.y));
+  float ripple=sin(dot(p,vec2(3.7,.83))+clock*.77+noise(p*1.4)*3.);
+  float crossing=sin(dot(p,vec2(-1.15,4.2))-clock*.61+.59*ripple);
+  vec3 n=normalize(vec3(ripple*.027,1.,crossing*.021));
+  float fresnel=pow(1.-clamp(dot(n,v),0.,1.),3.);
+  vec3 sight=reflect(-v,n);
+  float door=smoothstep(.48,.98,abs(dot(sight.xz,caveAxis)));
+  float depth=smoothstep(.0,.85,d);
+  vec3 pigment=mix(vec3(.13,.255,.225),vec3(.036,.13,.14),depth);
+  float thread=1.-smoothstep(.025,.23,cells(p*8.,clock*.34));
+  pigment+=vec3(.135,.205,.17)*thread*.36*exp(-2.*max(0.,d));
+  pigment+=vec3(.16,.32,.38)*door*fresnel*(.66+.34*ripple);
+  pigment*=mix(vec3(1.),vec3(.31,.43,.54),night);
+  float opacity=.30+.35*depth+.24*fresnel;
+  gl_FragColor=vec4(pigment,opacity);
+#else
   float near=1.-smoothstep(32.,145.,dist);
   float wind=noise(p*.063+vec2(clock*.016,0.));
   float drift=noise(p*.18+vec2(1.8,-clock*.031));
@@ -130,6 +156,7 @@ void main() {
     + (1.-smoothstep(.07,.45,abs(edge-.19)))*fingers*.47)*(.54+.46*wind);
   water=mix(water,foam,clamp(froth,0.,.86)*near*(1.-.45*night));
   gl_FragColor=vec4(mix(water,horizon,smoothstep(96.,315.,dist)),1.);
+#endif
 }`;
 
 // A small polar horizon per source measures which generated headlands stand
@@ -159,7 +186,7 @@ function lampHorizon(position: Vector3, floor: (x: number, z: number) => number)
 export function buildLandfallWater(
   scene: Scene, floor: (x: number, z: number) => number, style: WorldStyle,
   night = false, sunDirection = new Vector3(-.48,.54,.69),
-  houses: readonly TownHouse[] = [], lighthouse: SpotLight | null = null,
+  houses: readonly TownHouse[] = [], lighthouse: SpotLight | null = null, grotto?: TidalGrotto,
 ) {
   const mesh = new Mesh("breaking waves over the island shelf", scene);
   const coordinates = [
@@ -179,7 +206,8 @@ export function buildLandfallWater(
   ];
   const positions: number[] = [],
     uvs: number[] = [],
-    indices: number[] = [];
+    indices: number[] = [], poolIndices: number[] = [];
+  const axisX = Math.sin(grotto?.yaw ?? 0), axisZ = Math.cos(grotto?.yaw ?? 0);
   const n = coordinates.length;
   for (let j = 0; j < n; j++)
     for (let i = 0; i < n; i++) {
@@ -189,13 +217,22 @@ export function buildLandfallWater(
       uvs.push(Math.max(-2, Math.min(12, -floor(x, z))), 0);
       if (i < n - 1 && j < n - 1) {
         const k = i + j * n;
-        indices.push(k, k + 1, k + n, k + 1, k + n + 1, k + n);
+        // The cave pool and ocean are separated by dry sand. Only the small
+        // patch beneath the vault uses alpha blending and its shelter from wind.
+        let faces = indices;
+        if (grotto) {
+          const dx = (x+coordinates[i+1]!)/2-grotto.entry.x;
+          const dz = (z+coordinates[j+1]!)/2-grotto.entry.z;
+          const along = dx*axisX+dz*axisZ, across = dx*axisZ-dz*axisX;
+          if (along>2 && along<16.4 && across>-4.7 && across<.25) faces = poolIndices;
+        }
+        faces.push(k, k + 1, k + n, k + 1, k + n + 1, k + n);
       }
     }
   const data = new VertexData();
   data.positions = positions;
   data.uvs = uvs;
-  data.indices = indices;
+  data.indices = indices.concat(poolIndices);
   data.applyToMesh(mesh);
   const m = new ShaderMaterial(
     "tidal bands and sunlight",
@@ -215,7 +252,24 @@ export function buildLandfallWater(
   m.setColor3("sunColor", Color3.FromHexString(night ? "#c7dcf9" : style.sun));
   m.setVector3("sunDirection", sunDirection.normalizeToNew());
   m.setFloat("night", night ? 1 : 0);
-  mesh.material = m;
+  let pool: ShaderMaterial | null = null;
+  if (poolIndices.length) {
+    pool = new ShaderMaterial("translucent water beneath the sea doors",scene,
+      {vertex:"landfallWater",fragment:"landfallWater"},{
+        attributes:["position","uv"], uniforms:["worldViewProjection","clock","eye","caveAxis","night"],
+        defines:["#define SHELTERED_POOL"], needAlphaBlending:true,
+      });
+    pool.backFaceCulling = false;
+    pool.disableDepthWrite = true;
+    pool.setVector2("caveAxis",new Vector2(axisX,axisZ));
+    pool.setFloat("night",night ? 1 : 0);
+    const waterMaterials = new MultiMaterial("open sea and sheltered tide pool",scene);
+    waterMaterials.subMaterials.push(m,pool);
+    mesh.material = waterMaterials;
+    mesh.releaseSubMeshes();
+    new SubMesh(0,0,mesh.getTotalVertices(),0,indices.length,mesh);
+    new SubMesh(1,0,mesh.getTotalVertices(),indices.length,poolIndices.length,mesh);
+  } else mesh.material = m;
   mesh.isPickable = false;
   mesh.freezeWorldMatrix();
   const townLights = night ? houses.slice(0,6).map(house => {
@@ -232,6 +286,10 @@ export function buildLandfallWater(
     m.setFloat("clock", time);
     const eye = scene.activeCamera!.position;
     m.setVector3("eye", eye);
+    if (pool) {
+      pool.setFloat("clock",time);
+      pool.setVector3("eye",eye);
+    }
     if (night) {
       for (const [i,lamp] of townLights.entries()) {
         lamp.position.toArray(windows,i*4);

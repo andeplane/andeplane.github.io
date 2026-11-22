@@ -207,7 +207,7 @@ export class LandfallView {
     scenery.terrain();
     this.landmark = buildLandmark(scenery, night);
     const beam = scene.getLightByName(LIGHTHOUSE_BEAM) as SpotLight | null;
-    this.water = buildLandfallWater(scene, island.heightAt, style, night, illumination.direction, island.site.town.houses, beam);
+    this.water = buildLandfallWater(scene, island.heightAt, style, night, illumination.direction, island.site.town.houses, beam, island.site.grotto);
     scenery.populate();
     scenery.finish();
     this.obstacles = scenery.obstacles;
