@@ -464,7 +464,6 @@ async function main() {
     hud.seaChart(open, session);
     controls.clear(); clearWalking(); gesture.clear(); helmTurn = 0;
     pendingFire = false;
-    if (!open) canvas.focus();
     stashSea();
   };
   const toggleCamera = () => {
@@ -497,7 +496,7 @@ async function main() {
       deckCamera=renderer.captainCamera.enabled;
       deck.leave(renderer.captainCamera.yaw,renderer.captainCamera.pitch);
       renderer.captainCamera.enabled=true;
-      hud.help("The ship keeps sailing. Walk back to the wheel to steer again.",session.elapsed+6);
+      hud.help("Return to the helm to steer.",session.elapsed+6);
     }
     controls.clear();clearWalking();gesture.clear();helmTurn=0;pendingFire=false;
     hud.camera(renderer.captainCamera.enabled);
