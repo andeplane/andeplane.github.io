@@ -22,6 +22,12 @@ An iPhone/iPad app embeds this same game with Capacitor and bundled offline asse
 
 Use the corner fullscreen button to enter or leave fullscreen on supported browsers. It includes the canvas and every game control, and preserves native rendering resolution when the screen size changes. On iPhone, use Safari’s **Share → Add to Home Screen** (leave **Open as Web App** enabled when offered), then launch Broadside from its Home Screen icon to hide Safari’s bars. Browser fullscreen support varies; an unsupported request shows instructions instead. Phone Home Screen launching still needs physical-device verification.
 
+## Island Atlas
+
+Island Atlas is the standalone playtest for procedural landfalls. Generate an island, go ashore, follow its treasure chart, and cross the gangway to the Black Pearl. Each of the four packs has a landmark, clue and treasure. A shared seed lets two playtesters explore the same coastline under different lighting.
+
+From `demos/broadside`, run `npm ci` and `npm run islands:dev`, then open the URL printed by Vite. The campaign still uses its existing voyage endings. The [Island Atlas README](islands/README.md) includes reproducible playtest routes, generator parameters, source locations and the remaining campaign integration work.
+
 ## Walking and fishing while sailing
 
 Tap **Walk deck** (or press V) to leave the helm. The same ship keeps sailing through the same live world. Use the left stick / WASD to walk, swipe / drag / arrows to look and Jump / Space to jump. Rails and masts block movement. Steering and sail controls are disabled while away: walk back to the wheel and tap **Take the helm** / E. Overhead sailing remains the default camera and is restored when taking the helm, unless you were already using captain view.

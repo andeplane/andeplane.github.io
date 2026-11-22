@@ -1,0 +1,48 @@
+.hunt-chart {
+  --space-x: max(10px, var(--atlas-safe-left), var(--atlas-safe-right));
+  --space-y: max(10px, var(--atlas-safe-top), var(--atlas-safe-bottom));
+  color: #323b2e; background: #f4e8c9; font: 500 15px/1.4 "DM Sans", sans-serif;
+  width: min(48rem, calc(100vw - 2 * var(--space-x)));
+  max-width: none; max-height: calc(100dvh - 2 * var(--space-y));
+  padding: 0; border: 1px solid #ad8852; border-radius: 9px;
+  box-shadow: 0 18px 80px #071d25a8; overflow: auto; overscroll-behavior: contain;
+}
+.hunt-chart::backdrop { background: #081d24b8; }
+.hunt-chart header {
+  display: flex; align-items: center; justify-content: space-between; gap: 12px;
+  padding: 11px 18px; background: #203e37; color: #fff3cf; border-bottom: 3px double #ba9b61;
+}
+.hunt-chart header small { color: #edce90; font-size: 12px; font-weight: 650; }
+.hunt-chart h2, .hunt-chart h3 { margin: 0; font: 700 clamp(20px,3vw,28px)/1.12 "Fraunces", Georgia, serif; }
+.hunt-chart button { cursor: pointer; min-height: 44px; min-width: 44px; border-radius: 5px; }
+.hunt-chart-close { flex: none; background: #2d5146; color: #fff4da; border: 1px solid #acb094; font: 26px/1 sans-serif; }
+.hunt-chart-body { display: grid; grid-template-columns: minmax(0, 2.45fr) minmax(10rem, 1fr); align-items: center; padding: 14px; gap: 15px; }
+.hunt-chart-art { min-width: 0; }
+.hunt-chart-notes { padding-right: 3px; }
+.hunt-chart-notes h3 { font-size: 22px; }
+.hunt-chart-notes p { margin: 8px 0 14px; }
+.hunt-chart-notes ul { margin: 0; padding: 0; list-style: none; display: flex; flex-wrap: wrap; gap: 7px 14px; }
+.hunt-chart-notes li { display: flex; align-items: center; gap: 6px; font-size: 13px; font-weight: 700; }
+.hunt-chart-notes li svg, .hunt-chart-notes li b { width: 19px; height: 19px; line-height: 18px; text-align: center; }
+.hunt-target { color: #822e28; font-size: 24px; }
+.hunt-you b { color: #146358; transform: rotate(-90deg); }
+.hunt-chart-walk { display: flex; align-items: center; gap: 8px; margin-top: 16px; padding: 8px 14px; background: #294c3e; color: #fff8dc; border: 1px solid #19392f; font: 700 15px "DM Sans", sans-serif; }
+.hunt-chart-walk svg { width: 18px; }
+.hunt-chart :focus-visible { outline: 3px solid #438781; outline-offset: 2px; }
+@media (orientation: landscape) {
+  .hunt-chart-art { width: min(100%, calc((100dvh - 2 * var(--space-y) - 110px) * 1.2)); margin: auto; }
+}
+@media (max-width: 580px) and (orientation: portrait) {
+  .hunt-chart-body { grid-template-columns: 1fr; padding: 10px 12px 14px; gap: 10px; }
+  .hunt-chart header { padding: 7px 12px; }
+  .hunt-chart-notes h3 { font-size: 19px; }
+  .hunt-chart-notes p { margin: 4px 0 8px; font-size: 14px; }
+  .hunt-chart-walk { margin-top: 10px; }
+}
+@media (max-height: 430px) and (orientation: landscape) {
+  .hunt-chart { width: min(46rem,calc(100vw - 2 * var(--space-x))); }
+  .hunt-chart header { padding: 3px 12px; }
+  .hunt-chart-body { grid-template-columns: minmax(0, 1fr) minmax(10rem, .85fr); padding: 5px 12px; gap: 12px; }
+  .hunt-chart-art { width: min(100%, calc((100dvh - 2 * var(--space-y) - 74px) * 1.18)); margin: auto; }
+  .hunt-chart-notes p, .hunt-chart-walk { margin-block: 5px; }
+}
