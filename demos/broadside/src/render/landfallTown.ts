@@ -401,9 +401,13 @@ function drawHouse(batch: TownGeometry, h: TownHouse, floor: number, biome: stri
   // Door panels, latch and a lamp under the rain hood.
   for (const y of [.53,1.16]) batch.box(wood,0,y,front-.174,.60,.035,.035);
   batch.box("#d1ab71",0,1.64,front-.165,.58,.17,.045);
-  batch.box(dark,.61,1.88,front-.15,.30,.08,.34);
-  batch.turned("#e7ae62",.61,1.55,front-.24,.11,.13,.27,6,"glass");
-  batch.turned("#414d47",.61,1.82,front-.24,.18,.075,.13,6);
+  // The loft's braces occupy the wall next to the doorway. Mount its light
+  // between the upper terrace and corner post, above the lower shutters.
+  const lampX = h.variant === "loft" ? halfW * .71 : .61;
+  const lampBase = h.variant === "loft" ? 2.22 : 1.55;
+  batch.box(dark,lampX,lampBase+.33,front-.15,.21,.073,.34);
+  batch.turned("#e7ae62",lampX,lampBase,front-.24,.11,.13,.27,16,"glass");
+  batch.turned("#414d47",lampX,lampBase+.27,front-.24,.18,.075,.13,20);
   batch.box("#aa9b83",0,.06,front-.55,1.4,.12,.47,"stone");
   if (h.variant === "store") {
     shopfront(batch,h,front,accent,winter);
