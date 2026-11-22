@@ -108,12 +108,12 @@ export class CaveWalker {
   ) {
     this.reset();
   }
-  reset(): void {
-    this.x = 0;
-    this.z = -10;
+  reset(spawn = { x: 0, z: -10, yaw: 0, pitch: -.06 }): void {
+    this.x = spawn.x;
+    this.z = spawn.z;
     this.feet = this.floor(this.x, this.z);
-    this.yaw = 0;
-    this.pitch = -0.06;
+    this.yaw = spawn.yaw;
+    this.pitch = spawn.pitch;
     this.verticalSpeed = 0;
     this.grounded = true;
     this.eyeHeight = 2.25;

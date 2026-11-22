@@ -509,34 +509,6 @@
   background: #121d2ad9;
   font-size: 12px;
 }
-.collection-confirmation {
-  color: #bdd5b4;
-  font-size: 12px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 9px;
-  margin: 0 0 12px;
-}
-.collection-confirmation .icon {
-  width: 20px;
-  height: 20px;
-}
-.result-bottom {
-  background: linear-gradient(transparent, #080f1cba);
-  padding: 18px 22px;
-  border-radius: 16px;
-}
-.result-bottom .primary {
-  background: linear-gradient(#d4b176, #aa7a41);
-  border-color: #f0d4a0;
-  color: #15202a;
-  box-shadow: 0 4px #231d19;
-}
-.result-bottom .text-button {
-  font-size: 11px;
-  color: #b6bdbd;
-}
 @keyframes ship-sway {
   0%,
   100% {
@@ -1157,6 +1129,3 @@
 
 .settings-board .art-credit { font-size: 11px; line-height: 1.7; opacity: .7; }
 .art-credit a { color: #edca8a; text-underline-offset: 3px; }
-
-.coin-sounds-choice { display:flex; align-items:center; justify-content:center; gap:12px; min-height:44px; cursor:pointer; }
-.coin-sounds-choice input { width:24px; height:24px; accent-color:#d3a75e; }

@@ -17,24 +17,14 @@
       rel="icon"
       href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⚓</text></svg>"
     />
+    <link rel="stylesheet" href="/src/ui/startup.css" />
   </head>
   <body>
-    <div
-      id="loading"
-      role="status"
-      style="
-        position: fixed;
-        inset: 0;
-        display: grid;
-        place-items: center;
-        background: #102e36;
-        color: #ffdf9b;
-        font: 18px Georgia;
-        z-index: 100;
-      "
-    >
-      Preparing your adventure…
-    </div>
+    <section id="loading" aria-labelledby="loading-title">
+      <h1 id="loading-title">Broadside</h1>
+      <p id="loading-message" role="status">Preparing your adventure…</p>
+      <button id="loading-retry" type="button" hidden>Try again</button>
+    </section>
     <canvas id="game" tabindex="0"></canvas>
     <script type="module" src="/src/main.ts"></script>
   </body>

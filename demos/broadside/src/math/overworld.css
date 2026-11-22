@@ -1,6 +1,5 @@
 .calculus-overworld, .overworld-chart { position:absolute; inset:0; }
 .overworld-chart { background:#136864 url("/assets/map/worlds/add-water.webp") center / 360px; overflow:hidden; display:grid; place-items:center; }
-.calculus-overworld header { position:absolute; top:calc(6px + var(--pirate-safe-top)); left:calc(8px + var(--pirate-safe-left)); z-index:2; }
 /* The same destination opens from the symbol on the chart and its caption. */
 #academy .overworld-place .map-symbol {
   display:block; width:clamp(52px,15vmin,76px); aspect-ratio:1;
@@ -13,10 +12,6 @@
 .overworld-place[data-operator="divide"] { --symbol-position:75%; }
 .overworld-place[data-operator="clock"] { --symbol-position:100%; }
 #academy .world-pack-stop:has(.chart-tally) .world-art { height:84px; }
-@media (orientation:portrait) and (max-height:650px) {
-  .overworld-place[data-operator="add"] { --y:31%; }
-  .overworld-place[data-operator="subtract"] { --y:28%; }
-}
 @media (orientation:landscape) and (max-height:480px) {
   #academy .overworld-place { width:clamp(110px,27vw,155px); grid-template-columns:1fr; }
   .overworld-place[data-operator="multiply"] { --x:17%; --y:63%; }

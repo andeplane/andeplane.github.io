@@ -10,11 +10,10 @@ export function newClockRound(seed: number, step: ClockStep) {
   return { step, questions: clockQuestions(seed, step), index: 0, firstTry: 0, rejected: new Set<number>(), correct: false };
 }
 
-export function clockBoard(round: ReturnType<typeof newClockRound>, { t, format, language }: ReturnType<typeof createI18n>, back: string): string {
+export function clockBoard(round: ReturnType<typeof newClockRound>, { t, format, language }: ReturnType<typeof createI18n>): string {
   const answerText = (time: number) => language === "nb" ? spokenTime(time) : clockTime(time);
-  const navigation = `<div class="voyage-status clock-status">${back}<span>${t("clockAdventure")} · ${t(clockLevelKey(round.step))}</span></div>`;
   const question = round.questions[round.index];
-  if (!question) return `<section class="clock-board">${navigation}<div class="clock-sheet clock-complete">
+  if (!question) return `<section class="clock-board"><div class="clock-sheet clock-complete">
     ${icon("chest", "clock-treasure")}<h1 tabindex="-1">${t("voyageComplete")}</h1>
     <p class="clock-score">${t("clockScore", { count: format(round.firstTry) })}</p>
     <button class="wood-button primary" data-action="clock-restart">${t("clockAgain")}</button>
@@ -27,7 +26,7 @@ export function clockBoard(round: ReturnType<typeof newClockRound>, { t, format,
   const feedback = round.correct ? t("clockCorrect", { time: answerText(question.time) }) :
     round.rejected.size ? t("clockTryAgain") : t("clockChoose");
   const feedbackClass = round.correct ? "success" : round.rejected.size ? "retry" : "";
-  return `<section class="clock-board">${navigation}<div class="clock-sheet">
+  return `<section class="clock-board"><div class="clock-sheet">
     <header>
       <h1 tabindex="-1" aria-describedby="clock-count">${t("clockPrompt")}</h1>
       <p class="clock-count" id="clock-count">${t("problem", { count: format(round.index + 1) })}</p>

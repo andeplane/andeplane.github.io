@@ -12,8 +12,7 @@
 [data-screen="worlds"] .voyage-brand > .icon {
   color: #604325;
 }
-[data-screen="worlds"] #v-sound,
-[data-screen="worlds"] #menu-back {
+[data-screen="worlds"] #v-sound {
   color: #382717;
   border-color: #725836;
   background: #e4cda6e8;

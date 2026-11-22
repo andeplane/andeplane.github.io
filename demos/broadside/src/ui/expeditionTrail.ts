@@ -1,5 +1,6 @@
+import { chartCenterButton } from "./adventureChart";
 import { shoreMarker } from "./islandChart";
-import { backButton } from "./menuChrome";
+import { backButton, chartHeader } from "./menuChrome";
 import { icon } from "./icons";
 import "./expeditionTrail.css";
 
@@ -102,7 +103,7 @@ export function expeditionTrail(options: ExpeditionOptions): string {
   }
   const height = (window.last - window.first + 1) / LEVELS_PER_REGION * REGION_HEIGHT;
   return `<section class="expedition-view" style="--shore-sea:${world.ocean};--shore-coast:${world.accent};--shore-glow:${world.accent}">
-      <header class="trail-heading">${backButton({ action: "back", label: text("back"), accessibleLabel: options.backLabel })}<h1>${escape(world.name)}${world.name === options.packLabel ? "" : `<small>${escape(options.packLabel)}</small>`}</h1></header>
+      ${chartHeader({ back: backButton({ action: "back", label: text("back"), accessibleLabel: options.backLabel }), heading: `<h1>${escape(world.name)}${world.name === options.packLabel ? "" : `<small>${escape(options.packLabel)}</small>`}</h1>` })}
     <div class="expedition-map-viewport" data-map-viewport data-focus-x="${focus.x}" data-focus-y="${focus.y}" tabindex="0" role="group" aria-label="${escape(text("worldLevelMap", { world: world.name }))}" aria-describedby="expedition-map-help">
       <div class="expedition-map" data-map-world style="width:${TRAIL_WORLD_WIDTH}px;height:${height + 140}px" aria-label="${text("endlessTrail")}">
         ${window.first > 1 ? `<button class="expedition-more earlier" style="top:4px" data-action="trail-earlier">↑ ${text("earlierShores")}<small>${text("islandsBefore", { count: format(window.first) })}</small></button>` : ""}
@@ -110,7 +111,7 @@ export function expeditionTrail(options: ExpeditionOptions): string {
         <button class="expedition-more further" style="top:${height + 20}px" data-action="trail-further">${text("exploreFurther")} ${icon("compass")}<small>${text("islandsAhead")}</small></button>
       </div>
 
-      <div class="expedition-map-tools" data-map-control><button data-map-center aria-label="${text("findIsland")}" title="${text("findIsland")}">${icon("compass")}</button><button data-map-zoom="in" aria-label="${text("zoomIn")}">+</button><button data-map-zoom="out" aria-label="${text("zoomOut")}">−</button></div>
+      <div class="expedition-map-tools" data-map-control>${chartCenterButton(text("findIsland"))}<button data-map-zoom="in" aria-label="${text("zoomIn")}">+</button><button data-map-zoom="out" aria-label="${text("zoomOut")}">−</button></div>
       <p class="expedition-drag-hint" data-map-control>${text("dragExplore")}</p>
       <span class="map-keyboard-help" id="expedition-map-help">${text("mapKeyboard")} ${escape(options.practiceRule)}</span>
 

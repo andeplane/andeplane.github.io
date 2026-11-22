@@ -1,6 +1,6 @@
 /* Exploration reserves one safe-area navigation row, then places the room below it. */
 #voyage-ui:not([data-screen="play"]) #game-fullscreen {
-  top: calc(var(--pirate-safe-top) + var(--pirate-menu-inset));
+  top: var(--pirate-back-top);
   right: calc(var(--pirate-safe-right) + var(--pirate-menu-inset));
   width: var(--pirate-touch-target);
   height: var(--pirate-touch-target);
@@ -15,32 +15,16 @@
 #voyage-ui .chart-ship-marker * { pointer-events: none; }
 #voyage-ui .chart-ship-marker { z-index: 1; }
 #voyage-ui #level-menu .level-tile { z-index: 2; }
-#voyage-ui .chart-ship-action {
-  position: fixed;
-  z-index: 65;
-  top: calc(var(--pirate-safe-top) + var(--pirate-menu-inset));
-  right: calc(var(--pirate-safe-right) + var(--pirate-menu-inset));
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  min-height: var(--pirate-touch-target);
-  margin: 0;
-  padding: 10px 14px;
-  border: 1px solid #8b693d;
-  border-radius: 9px;
-  background: #f0dfb8;
-  color: #302615;
-  font: 700 13px/1.25 var(--pirate-menu-font);
+#voyage-ui:is([data-screen="worlds"], [data-screen="levels"]) #game-fullscreen {
+  top: calc(var(--pirate-safe-top) + 8px);
+  right: calc(var(--pirate-safe-right) + 8px);
 }
-#voyage-ui .chart-ship-action .icon { width: 20px; height: 20px; }
-#voyage-ui.chart-sailing .chart-ship-action { visibility: hidden; }
-#voyage-ui:has(#game-fullscreen:not([hidden])) .chart-ship-action {
-  right: calc(var(--pirate-safe-right) + var(--pirate-menu-inset) + 52px);
+#voyage-ui:has(#game-fullscreen:not([hidden])) .pirate-chart-header {
+  --pirate-chart-header-reserve: calc(var(--pirate-touch-target) + 8px);
 }
 #voyage-ui:is([data-screen="worlds"], [data-screen="levels"], [data-screen="settings"]) #captain-menu .menu-heading {
   position: absolute;
-  top: calc(var(--pirate-safe-top) + var(--pirate-menu-inset) + var(--pirate-touch-target) + 12px);
+  top: calc(var(--pirate-back-bottom) + 12px);
   left: calc(var(--pirate-safe-left) + 16px);
   right: calc(var(--pirate-safe-right) + 16px);
   bottom: auto;
@@ -54,7 +38,7 @@
 }
 #voyage-ui:is([data-screen="worlds"], [data-screen="levels"], [data-screen="settings"]) #captain-menu .menu-heading p { margin: 4px 0; }
 #voyage-ui[data-screen="worlds"] #world-menu .world-map {
-  top: calc(var(--pirate-safe-top) + var(--pirate-menu-inset) + var(--pirate-touch-target) + 112px);
+  top: calc(var(--pirate-back-bottom) + 112px);
 }
 #voyage-ui[data-screen="levels"] #level-menu { overflow-y: auto; }
 #voyage-ui #level-menu .route-landscape { display: none; }
@@ -64,17 +48,16 @@
   width: calc(100% - var(--pirate-safe-left) - var(--pirate-safe-right) - 32px);
   min-height: 360px;
   height: max(360px, calc(100dvh - var(--pirate-safe-top) - var(--pirate-safe-bottom) - var(--pirate-menu-inset) - var(--pirate-touch-target) - 202px));
-  margin: calc(var(--pirate-safe-top) + var(--pirate-menu-inset) + var(--pirate-touch-target) + 112px) auto calc(var(--pirate-safe-bottom) + 90px);
+  margin: calc(var(--pirate-back-bottom) + 112px) auto calc(var(--pirate-safe-bottom) + 90px);
 }
-#voyage-ui[data-screen="settings"] #settings-menu { overflow-y: auto; }
 #voyage-ui[data-screen="settings"] #settings-menu .settings-board {
-  margin-top: calc(var(--pirate-safe-top) + var(--pirate-menu-inset) + var(--pirate-touch-target) + 96px);
+  margin-top: calc(var(--pirate-back-bottom) + 96px);
   margin-bottom: calc(var(--pirate-safe-bottom) + 30px);
 }
 #voyage-ui[data-screen="cave"] #cave-ui .cave-title {
   position: fixed;
-  top: calc(var(--pirate-safe-top) + var(--pirate-menu-inset) + var(--pirate-touch-target) + 16px);
-  left: calc(var(--pirate-menu-inset) + var(--pirate-safe-left));
+  top: calc(var(--pirate-back-bottom) + 16px);
+  left: var(--pirate-back-left);
   right: calc(var(--pirate-menu-inset) + var(--pirate-safe-right));
   width: auto;
   transform: none;
@@ -115,7 +98,7 @@
 #voyage-ui[data-screen="cave"] #cave-ui #harbour-chart,
 #voyage-ui[data-screen="cave"] #cave-ui #cave-overview {
   position: fixed;
-  top: calc(var(--pirate-safe-top) + var(--pirate-menu-inset));
+  top: var(--pirate-back-top);
   right: calc(var(--pirate-menu-inset) + var(--pirate-safe-right));
   bottom: auto;
   min-height: var(--pirate-touch-target);
@@ -199,17 +182,9 @@
 }
 #voyage-ui[data-screen="cave"][data-cave-view="inspect"] #cave-ui #relic-info h2 { margin: 6px 0; font-size: 28px; }
 #voyage-ui[data-screen="cave"][data-cave-view="inspect"] #cave-ui #relic-info p { color: #f2e4c7; font-size: 13px; }
-#voyage-ui :is(#hold-ui, #unload-ui) .hold-heading,
-#voyage-ui #v-result .result-top {
-  top: calc(var(--pirate-safe-top) + var(--pirate-menu-inset) + var(--pirate-touch-target) + 18px);
+#voyage-ui #hold-ui .hold-heading {
+  top: calc(var(--pirate-back-bottom) + 18px);
 }
-#voyage-ui #v-result .result-top {
-  padding: 14px;
-  border: 1px solid #c4d2c83b;
-  border-radius: 12px;
-  background: #102933ed;
-}
-#voyage-ui #v-result .result-top p { color: #f2e4c7; font-size: 12px; line-height: 1.45; }
 /* Your ship is a modal: outside taps dismiss it without triggering the chart below. */
 #voyage-ui #ship-panel-backdrop {
   position: fixed;
@@ -230,9 +205,9 @@
   padding: 22px;
   border: 1px solid #d3b77d;
   border-radius: 16px;
-  background: #102633;
+  background: linear-gradient(#2c1c13e8, #24160ff2), #2c1c13 url("/assets/map/problem-table.webp") center / cover;
   color: #fff1d5;
-  box-shadow: 0 18px 65px #000a;
+  box-shadow: 0 8px 24px #000a;
   text-align: left;
   touch-action: pan-y;
 }
@@ -248,9 +223,9 @@
   min-height: 48px;
   margin: 0;
   padding: 12px 14px;
-  border: 1px solid #bdd4d457;
-  border-radius: 9px;
-  background: #1b3947;
+  border: 1px solid #b8905d;
+  border-radius: 7px;
+  background: #483023;
   color: #fff1d5;
   font-size: 14px;
   font-weight: 700;
@@ -265,9 +240,9 @@
   min-height: 44px;
   margin: -6px -6px 12px auto;
   padding: 8px 10px;
-  border: 1px solid #bfd4d449;
-  border-radius: 8px;
-  background: #1b3947;
+  border: 1px solid #b8905d;
+  border-radius: 7px;
+  background: #483023;
   color: #fff1d5;
   font-size: 13px;
 }
@@ -283,10 +258,8 @@
   #voyage-ui[data-screen="cave"] #cave-ui #cave-jump { right: calc(var(--pirate-safe-right) + 16px); }
 }
 @media (max-height: 500px) and (min-aspect-ratio: 4/3) {
-  #voyage-ui #v-result .result-bottom,
-  #voyage-ui :is(#hold-ui, #unload-ui) .hold-actions { right: calc(var(--pirate-safe-right) + 16px); }
-  #voyage-ui #v-result .result-top,
-  #voyage-ui :is(#hold-ui, #unload-ui) .hold-heading { left: calc(var(--pirate-safe-left) + 16px); }
+  #voyage-ui #hold-ui .hold-actions { right: calc(var(--pirate-safe-right) + 16px); }
+  #voyage-ui #hold-ui .hold-heading { left: calc(var(--pirate-safe-left) + 16px); }
   #voyage-ui[data-screen="levels"] #level-menu .menu-heading p { display: none; }
   #voyage-ui[data-screen="levels"] #level-menu { overflow-y: hidden; }
   #voyage-ui[data-screen="levels"] #level-menu .level-board {
@@ -310,7 +283,7 @@
   #voyage-ui[data-screen="levels"] #level-menu .route-landscape { display: block; }
   #voyage-ui[data-screen="levels"] #level-ship-marker { display: none; }
   #voyage-ui[data-screen="cave"] #cave-ui .cave-title {
-    top: calc(var(--pirate-safe-top) + var(--pirate-menu-inset) + var(--pirate-touch-target) + 8px);
+    top: calc(var(--pirate-back-bottom) + 8px);
   }
   #voyage-ui[data-screen="cave"] #cave-ui .cave-title h1 { font-size: 21px; margin: 3px 0; }
   #voyage-ui[data-screen="cave"] #cave-ui .cave-title p { font-size: 10px; }
@@ -421,4 +394,62 @@
 #voyage-ui[data-screen="cave"][data-walk-place="harbour"] #cave-ui .gallery-hint { animation: cabin-walk-help 8s ease-out forwards; }
 @media (prefers-reduced-motion: reduce) {
   #voyage-ui[data-screen="cave"][data-walk-place="harbour"] #cave-ui .gallery-hint { animation: none; opacity: 0; visibility: hidden; }
+}
+
+/* The real cave keeps the shared HUD. The ship tour retains its room labels. */
+#voyage-ui[data-walk-place="cave"] #cave-ui .cave-title {
+  inset: 0 auto auto 0;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+}
+#voyage-ui[data-walk-place="cave"] #cave-ui::before { content: none; }
+#voyage-ui[data-walk-place="harbour"] #cave-ui :is(.pirate-cave-title, .pirate-cave-balance),
+#voyage-ui[data-cave-view="inspect"] #cave-ui .pirate-cave-balance { display: none; }
+#voyage-ui:has(#game-fullscreen:not([hidden])) { --pirate-cave-extra-right: 52px; }
+
+
+@media (orientation: landscape) and (max-height: 480px) {
+  #voyage-ui #ship-panel { width: min(440px, 100%); padding: 16px; }
+  #voyage-ui #ship-panel h2 { margin-block: 0 4px; padding-right: 98px; font-size: 30px; }
+  #voyage-ui #ship-panel p { margin-bottom: 10px; }
+  #voyage-ui #ship-panel #ship-close { position: absolute; top: 12px; right: 12px; margin: 0; }
+  #voyage-ui #ship-panel .ship-panel-actions { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 6px; }
+  #voyage-ui #ship-panel .ship-panel-actions button { min-height: 44px; padding: 6px 10px; }
+  #voyage-ui #ship-panel #visit-ship { grid-column: 1 / -1; }
+}
+
+#voyage-ui[data-cave-view="inspect"] #cave-ui #relic-stars {
+  margin-top: 10px;
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: normal;
+}
+#voyage-ui[data-cave-view="inspect"] #cave-ui #cave-sail {
+  min-height: 44px;
+  margin-top: 10px;
+  padding: 6px 12px;
+  border: 1px solid #d3ad70;
+  border-radius: 7px;
+  background: #edd29b;
+  color: #352515;
+  font-weight: 700;
+}
+
+@media (orientation: landscape) and (max-height: 480px) {
+  #voyage-ui[data-screen="cave"][data-cave-view="inspect"] #cave-ui #relic-info {
+    inset: calc(var(--pirate-back-bottom) + 10px) calc(var(--pirate-safe-right) + 12px)
+      calc(var(--pirate-safe-bottom) + 12px) auto;
+    width: min(280px, 38vw);
+    max-height: none;
+    align-self: end;
+    transform: none;
+    padding: 12px;
+  }
+  #voyage-ui[data-screen="cave"][data-cave-view="inspect"] #cave-ui .gallery-hint {
+    left: calc(var(--pirate-safe-left) + 8px);
+    max-width: calc(60vw - var(--pirate-safe-left));
+    transform: none;
+  }
 }

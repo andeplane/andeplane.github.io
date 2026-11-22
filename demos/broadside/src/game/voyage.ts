@@ -283,7 +283,7 @@ export function generateVoyage(
         pack === 1 && stage < 4
           ? "Island cannons are firing! Keep moving and steer away from their shots."
           : pack === 1
-            ? "Pirates ahead! Turn your broadside toward them and tap BOOM to fight back."
+            ? "Pirates ahead! Turn your broadside toward them and tap the cannon to fight back."
             : pack === 2
               ? "Whirlpools pull and spin your ship. Keep sailing and steer away from the dark center."
               : "The kraken is waking. Avoid the purple ripples and watch for swirling currents!",

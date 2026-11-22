@@ -2,6 +2,11 @@
 .overworld-geography::before { content:""; position:absolute; inset:0; background:url("../math/territories.svg") center / 100% 100%, url("/assets/map/calculus-overworld.webp") center / 100% 100%; }
 @media (min-aspect-ratio: 168/100) { .overworld-geography::before { mask-image:linear-gradient(90deg,transparent,#000 5%,#000 95%,transparent); } }
 @media (max-aspect-ratio: 100/175) { .overworld-geography::before { mask-image:linear-gradient(transparent,#000 5%,#000 95%,transparent); } }
+@media (max-width: 350px) and (orientation: portrait) {
+  .calculus-overworld .overworld-chart, .reading-overview {
+    padding-block: var(--pirate-back-bottom) var(--pirate-safe-bottom);
+  }
+}
 :is(#academy,#reader,#voyage-ui) .overworld-geography .overworld-place { position:absolute; left:var(--x); top:var(--y); transform:translate(-50%,-50%); display:grid; justify-items:center; width:clamp(118px,35vmin,185px); max-width:40%; min-height:44px; padding:0; background:none; border:0; box-shadow:none; color:#fff3ce; cursor:pointer; }
 .overworld-place[data-shore="0"] { --x:23%; --y:24%; }
 .overworld-place[data-shore="1"] { --x:75%; --y:21%; }
@@ -17,14 +22,16 @@
 
 .overworld-geography .world-art {width:80px;height:56px;object-fit:contain;}
 .overworld-geography button:disabled {filter:saturate(.65);}
-:is(.overworld-geography,.world-pack-stop,.expedition-stop) .chart-ship-marker {display:block;position:absolute;z-index:3;width:52px;left:-6px;top:0;pointer-events:none;filter:drop-shadow(0 2px 2px #2a2119);}
-:is(.overworld-geography,.world-pack-stop,.expedition-stop) .chart-ship-marker svg {display:block;width:100%;height:auto;animation:moored-bob 2.4s ease-in-out infinite alternate;}
+:is(.overworld-geography,.world-route-stop,.expedition-stop) .chart-ship-marker {display:block;position:absolute;z-index:3;width:52px;left:-6px;top:0;pointer-events:none;filter:drop-shadow(0 2px 2px #2a2119);}
+.chart-ship-marker > :is(img,svg) {display:block;width:100%;height:auto;filter:drop-shadow(0 0 1px #fff1bc);}
+.chart-ship-marker[data-facing="left"] > :is(img,svg) {scale:-1 1;}
+:is(.overworld-geography,.world-route-stop,.expedition-stop) .chart-ship-marker > :is(img,svg) {animation:moored-bob 2.4s ease-in-out infinite alternate;}
 .expedition-stop .chart-ship-marker {left:32px;top:18px;}
 @keyframes moored-bob {to {transform:translateY(-3px) rotate(3deg);}}
-@media(prefers-reduced-motion:reduce){:is(.overworld-geography,.world-pack-stop,.expedition-stop) .chart-ship-marker svg {animation:none;}}
+@media(prefers-reduced-motion:reduce){:is(.overworld-geography,.world-route-stop,.expedition-stop) .chart-ship-marker > :is(img,svg) {animation:none;}}
 .reading-overview,#voyage-ui #world-menu #world-packs {position:absolute;inset:0;display:grid;place-items:center;background:#176867 url("/assets/map/worlds/add-water.webp") center/360px;}
 #voyage-ui[data-screen="worlds"] #captain-menu #world-menu .world-map {position:absolute;inset:0;width:100%;height:100%;min-height:0;max-width:none;margin:0;background:none;border:0;}
-#voyage-ui[data-screen="worlds"] #captain-menu #world-menu :is(.menu-heading,.map-footnote,.map-route) {display:none;}
+#voyage-ui[data-screen="worlds"] #captain-menu #world-menu :is(.map-footnote,.map-route) {display:none;}
 #voyage-ui[data-screen="worlds"] #captain-menu #world-menu #map-cave {z-index:3;top:auto;bottom:calc(8px + var(--pirate-safe-bottom));left:8px;width:auto;height:44px;min-height:44px;transform:none;}
 #voyage-ui[data-screen="worlds"] #captain-menu #world-menu #map-cave img {display:none;}
 #voyage-ui[data-screen="worlds"] #captain-menu #world-menu #map-ship-marker:not([hidden]),#voyage-ui[data-screen="levels"] #level-menu #level-ship-marker:not([hidden]) {display:block;}
@@ -40,14 +47,10 @@
 #voyage-ui[data-screen="levels"] #captain-menu #level-menu {position:absolute;inset:0;padding:0;overflow:hidden;}
 #voyage-ui[data-screen="levels"] #captain-menu #level-menu .level-board {position:absolute;inset:0;width:100%;height:100%;max-width:none;min-height:0;margin:0;}
 #voyage-ui #captain-menu #level-menu .regional-viewport {inset:0;}
-#voyage-ui #level-menu #voyage-levels {width:1900px;height:1700px;transform-origin:0 0;background:var(--water) repeat;}
+#voyage-ui #level-menu #voyage-levels {transform-origin:0 0;background:var(--water) repeat;}
 .regional-terrain {position:absolute;inset:0;overflow:hidden;pointer-events:none;}
 #voyage-ui #level-menu .level-route polyline {display:block;stroke:#fff1c7;opacity:1;}
-#voyage-ui[data-screen="levels"] #level-menu .menu-heading {position:absolute;inset:calc(64px + var(--pirate-safe-top)) auto auto 14px;margin:0;z-index:3;pointer-events:none;}
-#voyage-ui[data-screen="levels"] #level-menu .menu-heading h1 {padding:2px 8px;background:#f6e5bd;color:#31281c;font:700 18px Georgia,serif;}
 #voyage-ui[data-screen="levels"] #level-menu :is(.level-note,.menu-heading p,.menu-heading .eyebrow) {display:none;}
-#reader[data-screen="levels"] .voyage-atlas .trail-heading {position:absolute;left:0;right:0;top:0;z-index:3;pointer-events:none;}
-#reader[data-screen="levels"] .voyage-atlas .trail-heading button {pointer-events:auto;}
 #reader[data-screen="levels"] .voyage-atlas .expedition-map-viewport {position:absolute;inset:0;width:100%;height:100%;}
 #reader .voyage-atlas .expedition-stop {z-index:3;}
 
@@ -56,3 +59,18 @@
 #voyage-ui[data-screen="worlds"] #captain-menu #world-menu {position:absolute;inset:0;width:100%;height:100%;margin:0;padding:0;}
 #voyage-ui #captain-menu #world-menu #world-packs {inset:0;width:100%;height:100%;margin:0;padding:0;}
 #voyage-ui[data-screen="worlds"] #captain-menu #world-menu #map-cave span {display:grid;place-items:center;position:static;transform:none;padding:6px 10px;min-height:44px;background:#f4e3b8;color:#362819;border-radius:4px;}
+
+.chart-center-button {
+  display: grid;
+  place-items: center;
+  min-inline-size: var(--pirate-touch-target, 44px);
+  min-block-size: var(--pirate-touch-target, 44px);
+  padding: 0;
+  border: 1px solid #806942;
+  border-radius: 50%;
+  background: #fff0cd;
+  color: #382b16;
+  pointer-events: auto;
+}
+.chart-center-button .icon { width: 20px; height: 20px; }
+.chart-center-button:active { background: #e6c78a; }

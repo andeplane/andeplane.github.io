@@ -1,9 +1,10 @@
-import { chartShip } from "../ui/adventureChart";
+import { chartCenterButton, chartShip } from "../ui/adventureChart";
 import type { OperatorId } from "../math/academy";
-import type { createI18n } from "../math/i18n";
+import type { CommonLocale } from "../i18n/locale";
 import { worldFor } from "../math/worlds";
 import type { ShipArtStyle } from "./worldArt";
 import { icon } from "../ui/icons";
+import { chartHeader } from "./menuChrome";
 import { regionForLevel } from "../ui/expeditionTrail";
 import type { MapCamera, MapPoint } from "../ui/mapPan";
 
@@ -18,14 +19,15 @@ export function levelPoint(id: OperatorId, level: number): MapPoint {
   return { x: Math.round(n * 24 + 310 * Math.sin(n * .37 + phase) + 180 * Math.sin(n * .16 + phase)), y: -n * STEP };
 }
 
-type Locale = ReturnType<typeof createI18n>;
-export function atlasView(id: OperatorId, pack: string, back: string, current: number, locale: Locale, title = worldFor(id).name) {
+type Locale = Pick<CommonLocale, "t" | "format">;
+export function atlasView(id: OperatorId, pack: string, back: string, current: number, locale: Locale, options: { title?: string; actions?: string } = {}) {
   const { t } = locale, focus = levelPoint(id, current);
+  const { title = worldFor(id).name, actions } = options;
   return `<section class="expedition-view voyage-atlas">
-    <header class="trail-heading">${back}<h1>${title}<small>${pack}</small></h1></header>
+    ${chartHeader({back, heading: `<h1>${title}<small>${pack}</small></h1>`, actions})}
     <div class="expedition-map-viewport" data-map-viewport tabindex="0" role="group" aria-label="${t("worldLevelMap", {world:title})}" aria-describedby="expedition-map-help" data-focus-x="${focus.x}" data-focus-y="${focus.y}">
       <div class="atlas-plane" data-map-world style="--water:url(${worldAsset(id, "-water")})"></div>
-      <div class="expedition-map-tools" data-map-control><button data-map-center aria-label="${t("findIsland")}">${icon("compass")}</button><button data-map-zoom="in" aria-label="${t("zoomIn")}">+</button><button data-map-zoom="out" aria-label="${t("zoomOut")}">−</button></div>
+      <div class="expedition-map-tools" data-map-control>${chartCenterButton(t("findIsland"))}<button data-map-zoom="in" aria-label="${t("zoomIn")}">+</button><button data-map-zoom="out" aria-label="${t("zoomOut")}">−</button></div>
       <span class="map-keyboard-help" id="expedition-map-help">${t("mapKeyboard")}</span>
     </div></section>`;
 }

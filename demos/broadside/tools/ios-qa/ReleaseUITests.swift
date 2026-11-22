@@ -65,6 +65,8 @@ final class ReleaseUITests: XCTestCase {
         capture("broadside-captain-view-portrait",app:app)
         XCUIDevice.shared.orientation = .landscapeLeft
         capture("broadside-05-voyage-landscape",app:app)
+        XCTAssertGreaterThan(button(app, "Walk deck").frame.minX, app.frame.midX,
+                             "The sailing toolbar belongs on the right after leaving the chart.")
         tap(app,"Pause voyage"); capture("broadside-pause-landscape",app:app)
         XCUIDevice.shared.press(.home); app.activate()
         XCTAssertTrue(button(app,"Keep sailing").waitForExistence(timeout:15))
@@ -112,8 +114,7 @@ final class ReleaseUITests: XCTestCase {
         tap(app, "Back to Home")
 
         tap(app, "Your cave")
-        tap(app, "Explore your cave")
-        XCTAssertTrue(button(app, "Jump").waitForExistence(timeout: 45))
+        XCTAssertTrue(button(app, "Jump").waitForExistence(timeout: 90))
         capture("calculus-cave-before-rotation", app: app)
         XCUIDevice.shared.orientation = .landscapeLeft
         capture("calculus-cave-landscape", app: app)
@@ -147,7 +148,7 @@ final class ReleaseUITests: XCTestCase {
         capture("calculus-900-gold-earned",app:app)
         tap(app,"Open your chest")
         XCTAssertTrue(button(app,"Return to cave").waitForExistence(timeout:45))
-        waitEnabled(button(app,"Explore next island"),seconds:30)
+        waitEnabled(button(app,"Next Island"),seconds:30)
         capture("calculus-06-earned-chests",app:app)
         tap(app,"Return to cave")
         app.terminate();app.launch()
@@ -155,10 +156,11 @@ final class ReleaseUITests: XCTestCase {
         XCTAssertTrue(button(app,"Your cave 10,000 gold saved").exists)
         capture("calculus-interrupted-unload-safe",app:app)
         tap(app,"Your ship 2 chests aboard");tap(app,"Return to cave")
-        XCTAssertTrue(button(app,"Explore your cave").waitForExistence(timeout:90),app.debugDescription)
-        XCTAssertTrue(button(app,"Cave, 11,900 gold banked").exists,app.debugDescription)
+        let walk = app.buttons.matching(NSPredicate(format:"label BEGINSWITH %@","Move")).firstMatch
+        XCTAssertTrue(walk.waitForExistence(timeout:90),app.debugDescription)
+        XCTAssertTrue(app.staticTexts["11,900 gold safely in your cave"].exists,app.debugDescription)
+        XCTAssertFalse(button(app,"Explore your cave").exists,app.debugDescription)
         capture("calculus-07-unloaded-gold",app:app)
-        tap(app,"Explore your cave")
         capture("calculus-08-cave-reserve-portrait",app:app)
         XCUIDevice.shared.orientation = .landscapeLeft
         capture("calculus-cave-reserve-landscape",app:app)

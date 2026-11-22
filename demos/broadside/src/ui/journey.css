@@ -10,7 +10,6 @@
   transform: translate(-50%, -50%);
   filter: drop-shadow(0 3px 3px #152e2c80);
 }
-.chart-ship > svg { filter: sepia(.65) saturate(.7); display: block; width: 100%; height: 68px; }
 .chart-ship > span {
   display: inline-block;
   padding: 2px 7px;
@@ -48,7 +47,7 @@
   background: #263b35f5; color: #ffe5aa; border: 1px solid #bfa46e;
   text-align: center; white-space: nowrap; font-size: 14px;
 }
-.chart-sailing .chart-ship > svg { animation: chart-bob .6s ease-in-out infinite alternate; }
+.chart-sailing .chart-ship > img { animation: chart-bob .6s ease-in-out infinite alternate; }
 .chart-sailing #menu-free, .chart-sailing .map-footnote { visibility: hidden; }
 @keyframes chart-bob { to { transform: translateY(-3px) rotate(2deg); } }
 
@@ -62,7 +61,6 @@
 #voyage-ui[data-screen="levels"] .menu-heading h1 { color: #332715; text-shadow: 0 1px #ecddb8; }
 #voyage-ui[data-screen="levels"] .voyage-brand { color: #342b20; }
 #voyage-ui[data-screen="levels"] .voyage-brand > .icon { color: #604325; }
-#voyage-ui[data-screen="levels"] #menu-back { background: #e4cda6e8; color: #382717; border-color: #725836; }
 #voyage-ui[data-screen="levels"] .menu-heading .eyebrow,
 #voyage-ui[data-screen="levels"] .menu-heading p { color: #57482d; }
 #level-menu .level-board {
@@ -116,9 +114,11 @@
 #level-menu .tile-lock { position: absolute; top: -9px; right: -9px; width: 20px; height: 20px; color: #473e2a; }
 #level-menu .tile-treasure { display: none; }
 #level-menu .level-tile:last-child .tile-treasure {
-  display: block; position: absolute; right: -30px; top: 12px;
-  left: auto; bottom: auto; color: #9e5124; width: 24px; height: 24px;
+  display: grid; place-items: center; position: absolute; right: -30px; top: 12px;
+  left: auto; bottom: auto; width: 24px; height: 24px;
+  color: #352917; background: #efddb0; border: 1px solid #69502b; border-radius: 50%;
 }
+#level-menu .tile-treasure .icon { width: 16px; height: 16px; }
 #level-menu .level-note {
   position: absolute; left: 15%; right: 15%; bottom: -46px; margin: 0;
   text-align: center; font-size: 12px; color: #46391f;
@@ -126,7 +126,6 @@
 @keyframes chart-zoom { from { opacity: 0; transform: scale(.82); } to { opacity: 1; transform: scale(1); } }
 @media (max-width: 650px) {
   .chart-ship { width: 58px; }
-  .chart-ship > svg { height: 48px; }
   .chart-ship > span { font-size: 10px; padding: 2px 5px; }
   #ship-panel { right: 18px; bottom: 84px; padding: 16px; }
   #voyage-ui[data-screen="levels"] .menu-heading h1 { font-size: 32px; }
@@ -151,7 +150,7 @@
   #ship-panel { bottom: 14px; padding: 12px; }
 }
 @media (prefers-reduced-motion: reduce) {
-  #level-menu .level-board, .chart-sailing .chart-ship > svg { animation: none; }
+  #level-menu .level-board, .chart-sailing .chart-ship > img { animation: none; }
 }
 
 #voyage-ui.chart-sailing :is(#world-menu,#level-menu) {overflow:hidden;}
@@ -161,7 +160,7 @@
 #voyage-ui .travel-viewport :is(.level-note,.regional-center) {display:none;}
 #voyage-ui .travel-follow {position:absolute;right:calc(8px + var(--pirate-safe-right));bottom:calc(65px + var(--pirate-safe-bottom));min-height:44px;padding:6px 14px;border-radius:22px;background:#fff0ce;color:#332714;}
 
-#voyage-ui.chart-sailing :is(#menu-back,.voyage-brand,.menu-heading,#menu-free,.chart-ship-action) {visibility:hidden;}
+#voyage-ui.chart-sailing :is(.pirate-chart-header,.voyage-brand,#menu-free) {visibility:hidden;}
 
 #voyage-ui.chart-sailing :is(#world-menu,#level-menu) .travel-viewport :is(.world-map,.level-board) {
   position:absolute;inset:8% 5%;width:auto;height:auto;min-height:0;margin:0;max-width:none;

@@ -192,85 +192,6 @@ p {
   height: 15px;
   margin-right: 5px;
 }
-.voyage-status {
-  position: absolute;
-  top: 90px;
-  left: 26px;
-  border: 1px solid #fff2;
-  background: #102f3bd6;
-  border-radius: 14px;
-  padding: 12px 14px;
-  display: flex;
-  gap: 22px;
-  align-items: center;
-  font-size: 12px;
-}
-.voyage-status > span {
-  display: flex;
-  gap: 8px;
-  align-items: center;
-}
-.voyage-status .icon {
-  width: 17px;
-  color: var(--mint);
-}
-.health-track {
-  width: 94px;
-  height: 7px;
-  background: #fff2;
-  border-radius: 5px;
-  overflow: hidden;
-}
-.health-track i {
-  display: block;
-  height: 100%;
-  width: 100%;
-  background: var(--mint);
-  transition: width 0.2s;
-}
-.gem-count {
-  color: #9de9ee;
-}
-.voyage-mission {
-  position: absolute;
-  top: 26px;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 290px;
-  text-align: center;
-}
-.voyage-mission > small {
-  font-size: 9px;
-  letter-spacing: 0.1em;
-  text-shadow: 0 2px 5px #164653;
-}
-.voyage-mission > strong {
-  display: block;
-  font-family: "Pirata One";
-  font-weight: 400;
-  font-size: 28px;
-  text-shadow: 0 2px 8px #174858;
-}
-.voyage-track {
-  position: relative;
-  background: #102c3e88;
-  border-radius: 8px;
-  height: 5px;
-  margin: 10px 20px 0;
-}
-.voyage-track i {
-  display: block;
-  background: var(--gold);
-  height: 100%;
-  border-radius: 8px;
-}
-.voyage-track span {
-  position: absolute;
-  right: -5px;
-  top: -8px;
-  color: var(--gold);
-  font-size: 20px;
-}
 #v-wheel {
   position: absolute;
   left: 25px;
@@ -306,13 +227,6 @@ p {
   width: 45px;
   height: 45px;
 }
-#v-wheel small {
-  position: absolute;
-  bottom: -20px;
-  letter-spacing: 0.16em;
-  font-size: 9px;
-  color: var(--cream);
-}
 #v-anchor {
   position: absolute;
   left: 172px;
@@ -343,13 +257,6 @@ p {
   width: 36px;
   height: 36px;
 }
-#v-fire b {
-  font-size: 21px;
-}
-#v-fire small {
-  font-size: 8px;
-  font-weight: 700;
-}
 #v-fire.pressed {
   transform: scale(0.94);
 }
@@ -358,54 +265,7 @@ p {
     0 0 0 5px #fff7,
     0 0 30px #ffe3989a;
 }
-#v-compass {
-  position: absolute;
-  bottom: calc(30px + var(--safe));
-  left: 50%;
-  transform: translateX(-50%);
-  text-align: center;
-  padding: 10px 20px;
-  border: 1px solid #ffe29b44;
-  background: #113749d9;
-  border-radius: 16px;
-}
-#v-arrow {
-  display: block;
-  color: var(--gold);
-  font-size: 30px;
-  line-height: 1.1;
-}
-#v-compass b {
-  display: block;
-  font-size: 9px;
-  letter-spacing: 0.13em;
-  margin-top: 5px;
-  color: var(--gold);
-}
-#v-distance {
-  font-size: 10px;
-  color: #c1dcdd;
-}
-#v-tip {
-  position: absolute;
-  top: 160px;
-  left: 50%;
-  transform: translateX(-50%);
-  padding: 12px 18px;
-  border: 1px solid #9ae4dc33;
-  border-radius: 14px;
-  background: #103346ec;
-  color: #edf1df;
-  font-size: 13px;
-  text-align: center;
-  width: min(450px, calc(100% - 30px));
-  transition: opacity 1s;
-}
-#v-tip.fade {
-  opacity: 0;
-}
-.pirate-tag,
-.treasure-tag {
+.pirate-tag {
   position: absolute;
   transform: translate(-50%, -100%);
   background: #233746d9;
@@ -429,10 +289,6 @@ p {
   border-radius: 5px;
   background: linear-gradient(to right, #ff9d78 var(--hp), #fff2 var(--hp));
 }
-.treasure-tag {
-  color: var(--gold);
-  border-color: #ffd89199;
-}
 .voyage-overlay {
   position: absolute;
   inset: 0;
@@ -445,34 +301,6 @@ p {
     #081c30c0
   );
   pointer-events: auto;
-}
-.result-top {
-  position: absolute;
-  top: 110px;
-  left: 15px;
-  right: 15px;
-}
-.result-top h1 {
-  font-size: 44px;
-}
-.result-top p {
-  color: #c2dedb;
-}
-#result-stars {
-  font-size: 34px;
-  letter-spacing: 10px;
-  color: var(--gold);
-  text-shadow: 0 0 20px #ffc1644d;
-}
-.result-bottom {
-  position: absolute;
-  bottom: calc(30px + var(--safe));
-  left: 50%;
-  transform: translateX(-50%);
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-  width: 290px;
 }
 .primary,
 .secondary {
@@ -592,36 +420,6 @@ p {
     bottom: 250px;
     font-size: 9px;
   }
-  .voyage-status {
-    top: 73px;
-    left: 15px;
-    right: 15px;
-    justify-content: space-between;
-    padding: 10px 12px;
-    font-size: 10px;
-  }
-  .health-track {
-    width: 105px;
-  }
-  .voyage-mission {
-    top: 123px;
-    width: 260px;
-  }
-  .voyage-mission > strong {
-    font-size: 26px;
-  }
-  .voyage-mission > small {
-    font-size: 8px;
-  }
-  .voyage-track {
-    margin-top: 7px;
-  }
-  #v-tip {
-    top: 186px;
-    font-size: 11px;
-    width: calc(100% - 36px);
-    padding: 10px 12px;
-  }
   #v-wheel {
     left: 14px;
     bottom: calc(30px + var(--safe));
@@ -642,48 +440,15 @@ p {
     width: 108px;
     height: 108px;
   }
-  #v-fire b {
-    font-size: 19px;
-  }
   #v-fire .icon {
     width: 30px;
     height: 30px;
-  }
-  #v-fire small {
-    font-size: 7px;
   }
   #v-anchor {
     left: 47px;
     bottom: calc(157px + var(--safe));
     width: 38px;
     height: 38px;
-  }
-  #v-compass {
-    padding: 8px 12px;
-    bottom: calc(37px + var(--safe));
-    border-radius: 12px;
-  }
-  #v-arrow {
-    font-size: 25px;
-  }
-  #v-compass b {
-    font-size: 7px;
-  }
-  .result-top {
-    top: 100px;
-  }
-  .result-top h1 {
-    font-size: 34px;
-  }
-  .result-top p {
-    font-size: 10px;
-  }
-  .result-top .eyebrow {
-    font-size: 8px;
-  }
-  .result-bottom {
-    bottom: calc(25px + var(--safe));
-    width: 270px;
   }
 }
 @media (max-height: 650px) and (max-width: 650px) {
@@ -710,12 +475,6 @@ p {
   }
   #relic-stars {
     font-size: 16px;
-  }
-  .result-top {
-    top: 78px;
-  }
-  .result-top h1 {
-    font-size: 28px;
   }
 }
 @media (max-height: 480px) and (min-width: 651px) {
@@ -770,23 +529,6 @@ p {
   #relic-stars {
     font-size: 18px;
   }
-  .voyage-mission {
-    top: 14px;
-  }
-  .voyage-mission > strong {
-    font-size: 23px;
-  }
-  .voyage-status {
-    top: 65px;
-    left: 18px;
-    padding: 8px 10px;
-    font-size: 10px;
-  }
-  #v-tip {
-    top: 90px;
-    width: 330px;
-    font-size: 10px;
-  }
   #v-wheel {
     width: 100px;
     height: 100px;
@@ -807,51 +549,13 @@ p {
     bottom: 22px;
     right: 18px;
   }
-  #v-fire b {
-    font-size: 18px;
-  }
   #v-fire .icon {
     width: 28px;
     height: 28px;
   }
-  #v-fire small {
-    font-size: 7px;
-  }
   #v-anchor {
     left: 130px;
     bottom: 35px;
-  }
-  #v-compass {
-    bottom: 20px;
-    padding: 6px 12px;
-  }
-  #v-arrow {
-    font-size: 22px;
-  }
-  .result-top {
-    top: 55px;
-    left: 30px;
-    right: auto;
-    width: 280px;
-  }
-  .result-top h1 {
-    font-size: 30px;
-  }
-  .result-top p {
-    font-size: 10px;
-  }
-  .result-top .eyebrow {
-    font-size: 8px;
-  }
-  #result-stars {
-    font-size: 24px;
-  }
-  .result-bottom {
-    left: auto;
-    right: 25px;
-    transform: none;
-    bottom: 35px;
-    width: 240px;
   }
   .primary,
   .secondary {
@@ -887,104 +591,14 @@ p {
   position: absolute;
   transform: translate(-50%, -100%);
   color: #a1fff0;
-  font-size: 18px;
-  text-shadow:
-    0 0 12px #62efd5,
-    0 2px 3px #124659;
   pointer-events: none;
 }
 
-/* The stars wait for the treasure to emerge from its chest. */
-.reward-star {
-  display: inline-block;
-  opacity: 0;
-  transform: translateY(15px) scale(0.35);
-  transition:
-    opacity 0.3s,
-    transform 0.55s cubic-bezier(0.2, 1.6, 0.4, 1);
-}
-.reward-star.arrived {
-  opacity: 1;
-  transform: translateY(0) scale(1);
-}
-.reward-star.empty {
-  color: #83949f;
-  text-shadow: none;
-}
-#v-result.unboxing .result-bottom {
-  opacity: 0.35;
-}
-#v-result .result-bottom {
-  transition: opacity 0.5s;
-}
-#v-result.unboxing #result-detail {
-  opacity: 0;
-}
-#result-detail {
-  transition: opacity 0.6s;
-}
-#result-title {
-  text-shadow: 0 3px 20px #071421;
-}
-@media (max-height: 650px) and (max-width: 650px) {
-  #result-stars {
-    font-size: 26px;
-  }
-  .result-bottom {
-    width: calc(100% - 36px);
-    gap: 7px;
-    bottom: 16px;
-  }
-  .result-bottom .primary,
-  .result-bottom .secondary {
-    padding: 12px 16px;
-  }
+.sea-gem-tag .icon {
+  width: 22px;
+  height: 22px;
+  filter: drop-shadow(0 1px 2px #124659) drop-shadow(0 0 3px #124659);
 }
 
-/* Keep the storm readable without covering the steering or cannon controls. */
-#v-weather {
-  position: absolute;
-  top: 136px;
-  left: max(22px, env(safe-area-inset-left));
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 9px 13px;
-  color: #c2d5dc;
-  background: #071621c9;
-  border: 1px solid #64818a55;
-  border-radius: 10px;
-  font-size: 12px;
-  pointer-events: none;
-}
-#v-weather[hidden] { display: none; }
-#v-wind-arrow { display: inline-block; color: #e9c481; font-size: 21px; }
-#v-gust { color: #8ea8b5; font-size: 9px; letter-spacing: .04em; }
-@media (max-width: 600px) {
-  #v-weather { top: 180px; left: 15px; padding: 5px 9px; font-size: 10px; gap: 6px; }
-  #v-wind-arrow { font-size: 17px; }
-}
-@media (max-height: 560px) and (min-width: 601px) {
-  #v-weather { top: 107px; padding: 5px 9px; }
-}
-
-@media (max-width: 600px) {
-  #voyage-ui[data-weather="overcast"] #v-tip,
-  #voyage-ui[data-weather="rain"] #v-tip,
-  #voyage-ui[data-weather="storm"] #v-tip { top: 217px; }
-}
-
-/* Let the chest and physically falling coins occupy the middle of the view. */
-#v-result.pouring .result-top { top: 75px; left: 25px; right: auto; width: 235px; transition: top .7s, left .7s; }
-#v-result.pouring .result-top h1 { font-size: 32px; }
-#v-result.pouring #result-stars { font-size: 26px; }
-#v-result.pouring #result-detail { font-size: 11px; }
-#v-result.pouring .result-bottom { left: auto; right: 24px; bottom: 24px; transform: none; width: 240px; }
-@media (max-width: 600px) {
-  #v-result.pouring .result-top { top: 75px; left: 12px; right: 12px; width: auto; }
-  #v-result.pouring .result-top .eyebrow { font-size: 9px; }
-  #v-result.pouring .result-top h1 { font-size: 28px; margin: 4px 0; }
-  #v-result.pouring #result-stars { font-size: 23px; }
-  #v-result.pouring #result-detail { display: none; }
-  #v-result.pouring .result-bottom { left: 18px; right: 18px; bottom: calc(14px + var(--safe)); width: auto; }
-}
+.result-gems { white-space: nowrap; }
+.result-gems .icon { width: 1em; height: 1em; }

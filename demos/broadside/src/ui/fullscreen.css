@@ -17,17 +17,17 @@
   top: calc(80px + env(safe-area-inset-top, 0px));
   right: calc(20px + env(safe-area-inset-right, 0px));
 }
-#voyage-ui:has(#menu-back:not([hidden])) .voyage-header,
+#voyage-ui[data-screen="settings"] .voyage-header,
 #voyage-ui:is([data-screen="hold"], [data-screen="unloading"], [data-screen="result"]) .voyage-header {
-  left: calc(var(--pirate-menu-inset) + var(--pirate-back-width) + 16px + env(safe-area-inset-left, 0px));
+  left: calc(var(--pirate-back-left) + var(--pirate-back-width) + 16px);
 }
 #voyage-ui #cave-ui .cave-title { top: calc(22px + env(safe-area-inset-top, 0px)); }
 #voyage-ui #cave-pad { left: calc(24px + env(safe-area-inset-left, 0px)); }
 #voyage-ui #cave-jump { right: calc(24px + env(safe-area-inset-right, 0px)); }
 #fullscreen-help {
   pointer-events: auto;
-  width: min(370px, calc(100vw - 40px));
-  max-height: calc(100dvh - 40px);
+  width: min(370px, calc(100vw - var(--pirate-safe-left, 0px) - var(--pirate-safe-right, 0px) - 32px));
+  max-height: calc(100dvh - var(--pirate-safe-top, 0px) - var(--pirate-safe-bottom, 0px) - 32px);
   overflow: auto;
   padding: 28px;
   border: 1px solid #b89a61;
@@ -42,23 +42,23 @@
 #fullscreen-help h2 { margin: 0; font: 30px/1.2 "Pirata One", Georgia, serif; }
 #fullscreen-help ol { padding-left: 22px; }
 #fullscreen-help li { margin: 10px 0; }
-#fullscreen-help button { width: 100%; margin-top: 8px; }
+#fullscreen-help button { width: 100%; min-height: 44px; margin-top: 8px; }
 @media (max-width: 650px), (max-height: 480px) {
   #game-fullscreen {
-    width: 40px;
-    height: 40px;
+    width: 44px;
+    height: 44px;
     top: calc(15px + env(safe-area-inset-top, 0px));
     right: calc(12px + env(safe-area-inset-right, 0px));
   }
   #voyage-ui:has(#game-fullscreen:not([hidden])) .voyage-header {
     right: calc(60px + env(safe-area-inset-right, 0px));
   }
-  #voyage-ui:has(#menu-back:not([hidden])) .voyage-header,
+  #voyage-ui[data-screen="settings"] .voyage-header,
   #voyage-ui:is([data-screen="hold"], [data-screen="unloading"], [data-screen="result"]) .voyage-header {
-    left: calc(var(--pirate-menu-inset) + var(--pirate-back-width) + 16px + env(safe-area-inset-left, 0px));
+    left: calc(var(--pirate-back-left) + var(--pirate-back-width) + 16px);
   }
   #voyage-ui #cave-ui .cave-title {
-    left: calc(var(--pirate-menu-inset) + var(--pirate-back-width) + 16px + env(safe-area-inset-left, 0px));
+    left: calc(var(--pirate-back-left) + var(--pirate-back-width) + 16px);
     right: calc(60px + env(safe-area-inset-right, 0px));
     width: auto;
     transform: none;

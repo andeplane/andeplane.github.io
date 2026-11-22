@@ -169,7 +169,7 @@ const COURSES: readonly NavigationCourse[] = [
   },
   {
     intro:
-      "The captain’s trial! Link wide turns around four headlands. Reach the far sea to earn your world treasure.",
+      "Link wide turns around four headlands. Reach the far sea to earn your world treasure.",
     start: point(40, -115),
     heading: 0,
     finish: point(0, 220),

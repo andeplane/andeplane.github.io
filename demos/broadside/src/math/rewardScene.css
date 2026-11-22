@@ -1,0 +1,50 @@
+#academy:is([data-screen="reward"], [data-screen="complete"]) #main-content {
+  inset-inline: 0;
+}
+
+#academy .reward-view {
+  position: relative;
+}
+#academy .reward-view:has(.reward-ship) {
+  background: #3c210f url("/assets/map/problem-table.webp") center / cover;
+}
+
+#academy .reward-back {
+  position: absolute;
+  top: var(--pirate-back-top, calc(6px + var(--pirate-safe-top)));
+  left: var(--pirate-back-left, calc(8px + var(--pirate-safe-left)));
+  z-index: 1;
+}
+
+#academy .reward-ship {
+  width: min(200px, 56%);
+  margin: auto;
+}
+
+#academy .reward-ship svg { display: block; width: 100%; max-height: 28vh; }
+
+#academy .ledger-details .retry-scene {
+  color: #42240e;
+  border-color: #90602f;
+  background: #fff1cf;
+}
+
+@media (orientation: landscape) and (max-height: 520px) {
+  #academy .reward-ship { grid-column: 1; }
+}
+
+
+#academy[data-screen="ship"] .ship-view.ship-recovery {
+  padding-top: calc(60px + var(--pirate-safe-top));
+}
+#academy .ship-recovery .scene-back {
+  position: absolute;
+  inset-block-start: 0;
+  inset-inline-start: 0;
+}
+
+@media (orientation: landscape) and (max-height: 420px) {
+  #academy .reward-view .reward-ledger:has(.retry-scene) { padding-block: 7px 11px; }
+  #academy .reward-view .ledger-details:has(.retry-scene) { margin-bottom: 4px; }
+  #academy .reward-view .ledger-details .retry-scene { margin-top: 4px; }
+}
