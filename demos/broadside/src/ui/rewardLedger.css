@@ -125,6 +125,36 @@
 }
 
 .ledger-details { margin: 0 auto 6px; font-size: 12px; line-height: 1.3; }
+
+/* The hold: the same ledger page in every game, docked under the open chest. */
+.pirate-hold { pointer-events: none; }
+.pirate-hold .reward-ledger { pointer-events: auto; }
+.pirate-hold-back {
+  position: absolute;
+  z-index: 2;
+  top: var(--pirate-back-top, calc(6px + var(--pirate-safe-top)));
+  left: var(--pirate-back-left, calc(8px + var(--pirate-safe-left)));
+  pointer-events: auto;
+}
+.reward-ledger .ledger-eyebrow {
+  margin: 0;
+  color: #6b4320;
+  font: 700 11px/1.3 "DM Sans", system-ui, sans-serif;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+  text-shadow: none;
+}
+.reward-ledger .ledger-eyebrow + h1 {
+  margin: 2px 0 4px;
+  font: 400 clamp(26px, 8vw, 34px)/1.05 "Pirata One", Georgia, serif;
+}
+.reward-ledger .ledger-cargo {
+  margin: 0 0 6px;
+  color: #3b2110;
+  font: 700 clamp(15px, 4.6vw, 19px)/1.25 Georgia, serif;
+  font-variant-numeric: tabular-nums;
+  text-shadow: none;
+}
 .reward-ledger .ledger-details p { color: inherit; text-shadow: none; }
 @media (min-width: 460px) {
   .reward-ledger { padding-inline: 57px 31px; }

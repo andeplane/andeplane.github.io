@@ -12,7 +12,7 @@ import { adventureChart, sailToShore } from "../ui/adventureChart";
 import { backButton, chartAction, chartHeader, menuHeader } from "../ui/menuChrome";
 import { caveHeader, caveNotice, caveTally } from "../ui/caveHud";
 import { icon } from "../ui/icons";
-import { rewardLedger, shipRecoveryLedger } from "../ui/rewardLedger";
+import { holdLedger, rewardLedger, shipRecoveryLedger } from "../ui/rewardLedger";
 import { atlasRenderer, atlasView, worldAsset, worldIsland } from "../ui/worldAtlas";
 import { mountMapPan, type MapCamera, type MapPanController } from "../ui/mapPan";
 import { PACKS, READING_LANGUAGES, isReadingLanguage, packFor, preferredLanguage, type ReadingItem } from "./content";
@@ -71,7 +71,7 @@ function header():string{
    amount, accessible:`${f(amount)} ${t("gold")} ${t("banked")}`, currency:t("gold"), locale:locale.language,
   });
  }
- if(screen==="complete")return backButton({action:"back",label:t("back")});
+ if(screen==="complete"||screen==="ship")return backButton({action:"back",label:t("back")});
  if((screen==="reading"||screen==="comprehension")&&run&&shown)return menuHeader({className:"reader-topbar",brand:"",back:backButton({action:"back",label:t("back")}),actions:`<span class="reading-location">${esc(t(`packName${packFor(run.pack).id}`))}<small>${esc(t("level",{count:f(run.level)}))}</small></span>`});
  return menuHeader({className:"reader-topbar",brand:"",back:backButton({action:"back",label:t("back")}),actions:`<button class="pirate-nav-link" data-action="ship" aria-label="${esc(t("yourShip"))}, ${f(aboard(progress))} ${esc(t("gold"))}">${icon("ship")}<span>${esc(t("shipShort"))}<small>${navGold(aboard(progress))} ${t("gold")}</small></span></button><button class="pirate-nav-link" data-action="cave" aria-label="${esc(t("yourCave"))}, ${f(banked(progress))} ${esc(t("gold"))}">${icon("chest")}<span>${esc(t("caveShort"))}<small>${navGold(banked(progress))} ${t("gold")}</small></span></button>`});
 }
@@ -234,8 +234,19 @@ function worldView():string{
   return total?caveTally(createI18n(locale.language,[]).t("unloadProgress",{count,total,gold:f(cargo)})):"";
  }
  const action=progress.cargo.length?button("unload",t("unload"),true):screen==="cave"?`<button class="pirate-cave-inspect" data-action="inspect" hidden>${esc(t("inspect"))}</button>`:button("cave",t("yourCave"),true);
- if(screen==="ship")return `<div class="world-footer"><p>${esc(t("yourShip"))}</p><strong>${f(banked(progress))} ${t("gold")} · ${f(cargo)} ${t("aboard")}</strong><div class="world-buttons">${action}</div></div>`;
- return `<span id="reader-room" class="pirate-cave-sr">${esc(t("room"))}</span><div class="reader-cave-actions">${action}<button class="pirate-nav-link" data-action="ship">${icon("ship")} ${esc(t("shipShort"))}</button></div><div id="reader-pad" class="reader-move" role="group" aria-label="${esc(t("move"))}"><span id="reader-thumb"></span></div><button id="reader-jump" class="reader-jump">${esc(t("jump"))}</button>`;
+ if(screen==="ship"){
+  const i18n=createI18n(locale.language,[]),loaded=progress.cargo.length>0;
+  return `<section class="reward-dock pirate-hold">${holdLedger({
+   eyebrow:i18n.t("aboardPearl"),title:i18n.t("hold"),
+   cargo:loaded?`${f(cargo)} ${i18n.t("goldAboard")}`:i18n.t("noCargo"),
+   note:i18n.t("alreadyCave",{gold:f(banked(progress))}),
+   actions:[
+    {action:loaded?"unload":"cave",label:i18n.t(loaded?"returnCave":"exploreCave"),icon:"chest",primary:true},
+    {action:"packs",label:i18n.t("keepPractising"),icon:"ship"},
+   ],
+  })}</section>`;
+ }
+ return `<span id="reader-room" class="pirate-cave-sr">${esc(t("room"))}</span><div class="reader-cave-actions">${action}<button class="pirate-nav-link" data-action="ship">${icon("ship")} ${esc(t("shipShort"))}</button></div><div id="reader-pad" class="reader-move pirate-walk-pad" role="group" aria-label="${esc(t("move"))}"><span id="reader-thumb" class="pirate-walk-thumb"></span></div><button id="reader-jump" class="reader-jump pirate-walk-jump" aria-label="${esc(t("jump"))}">↑<small>${esc(t("jump"))}</small></button>`;
 }
 function render():void{
  const previousAction=(document.activeElement as HTMLElement|null)?.dataset.action;

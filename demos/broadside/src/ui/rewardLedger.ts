@@ -45,6 +45,27 @@ export function rewardLedger({ title, titleId, marks, details, actions }: Reward
   </div>`;
 }
 
+interface HoldLedger {
+  eyebrow: string;
+  title: string;
+  /** The cargo line, e.g. "3,000 gold aboard". */
+  cargo: string;
+  cargoId?: string;
+  note?: string;
+  actions: LedgerAction[];
+}
+
+/** The ship's hold: every game shows its cargo and the ways out on the same ledger page. */
+export function holdLedger({ eyebrow, title, cargo, cargoId, note, actions }: HoldLedger): string {
+  return rewardLedger({
+    marks: `<p class="ledger-eyebrow">${escape(eyebrow)}</p>`,
+    title: escape(title),
+    details: `<p ${cargoId ? `id="${cargoId}"` : ""} class="ledger-cargo" role="status">${escape(cargo)}</p>${
+      note ? `<p class="ledger-details">${escape(note)}</p>` : ""}`,
+    actions,
+  });
+}
+
 export function shipRecoveryLedger(title: string, message: string, failed: boolean, actions: LedgerAction[]): string {
   return rewardLedger({
     title: escape(title),

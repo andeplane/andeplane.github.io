@@ -33,7 +33,7 @@ import { clockBoard, clockLevelKey, newClockRound } from "./clockBoard";
 import "./clock.css";
 import "./overworld.css";
 import "./treasureChart.css";
-import { ledgerStars, rewardLedger, shipRecoveryLedger } from "../ui/rewardLedger";
+import { holdLedger, ledgerStars, rewardLedger, shipRecoveryLedger } from "../ui/rewardLedger";
 import "./rewardScene.css";
 
 type Screen = "home" | "operators" | "map" | "levels" | "question" | "reward" | "ship" | "unloading" | "complete" | "cave" | "settings" | "clockMap" | "clock";
@@ -244,9 +244,16 @@ function shipView(): string {
         { action: "levels", label: t("keepPractising") },
     ])}</section>`;
   }
-  return `<section class="cave-view ship-view">${back}
-    <div class="cave-heading"><span class="eyebrow">${t("aboardPearl")}</span><h1>${t("hold")}</h1><p>${t("cargoSummary", { count: pending.length, gold: format(cargoGold(progress)) })}</p></div>
-    <div class="cave-bottom"><div class="hoard-total"><span class="eyebrow">${t("savedCargo")}</span><strong>${format(cargoGold(progress))} <span>${t("goldAboard")}</span></strong><p>${t("alreadyCave", { gold: format(bankedGold(progress)) })}</p></div>${!pending.length ? `<p class="empty-cargo" role="status">${t("noCargo")}</p>` : ""}<button class="wood-button primary" data-action="${caveAction}">${caveLabel} ${icon("chest")}</button><button class="text-button" data-action="levels">${t("keepPractising")} ${icon("ship")}</button></div>
+  return `<section class="cave-view ship-view reward-dock pirate-hold"><div class="pirate-hold-back">${gameBack(treasureParent())}</div>
+    ${holdLedger({
+      eyebrow: t("aboardPearl"), title: t("hold"),
+      cargo: pending.length ? `${format(cargoGold(progress))} ${t("goldAboard")}` : t("noCargo"),
+      note: t("alreadyCave", { gold: format(bankedGold(progress)) }),
+      actions: [
+        { action: caveAction, label: caveLabel, icon: "chest", primary: true },
+        { action: "levels", label: t("keepPractising"), icon: "ship" },
+      ],
+    })}
   </section>`;
 }
 function rewardView(withChest: boolean): string {
@@ -278,8 +285,8 @@ function caveView(unloading: boolean): string {
     return `<section class="cave-view quiet-cave">${caveTally(t("unloadProgress", { count, total, gold: format(cargoGold(progress)) }))}</section>`;
   }
   return `<section class="cave-view walking-view quiet-cave">
-    <div class="cave-walk-controls"><span class="cave-crosshair" aria-hidden="true">+</span><button id="math-cave-pad" aria-label="${t("moveCave")}"><span id="math-cave-thumb"></span><small>${t("move")}</small></button><button id="math-cave-jump" aria-label="${t("jump")}">↑<small>${t("jump")}</small></button><button id="math-cave-inspect" class="pirate-cave-inspect" data-action="cave-inspect" disabled>${t("inspectTreasure")}</button></div>
-    <button class="quiet-ship" data-action="ship" aria-label="${t("ship")}: ${i18n.plural("aboard", pending.length)}">${icon("ship")} ${t("ship")}</button>
+    <div class="cave-walk-controls"><span class="cave-crosshair" aria-hidden="true">+</span><button id="math-cave-pad" class="pirate-walk-pad" aria-label="${t("moveCave")}"><span id="math-cave-thumb" class="pirate-walk-thumb"></span><small>${t("move")}</small></button><button id="math-cave-jump" class="pirate-walk-jump" aria-label="${t("jump")}">↑<small>${t("jump")}</small></button><button id="math-cave-inspect" class="pirate-cave-inspect" data-action="cave-inspect" disabled>${t("inspectTreasure")}</button></div>
+    <button class="pirate-nav-link quiet-ship" data-action="ship" aria-label="${t("ship")}: ${i18n.plural("aboard", pending.length)}">${icon("ship")} ${t("ship")}</button>
     <span id="math-cave-room" class="visually-hidden">${t("entrance")}</span>
   </section>`;
 }
