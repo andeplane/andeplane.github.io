@@ -1,3 +1,4 @@
+import { planPearlDock } from "../game/landfallDock";
 import type { GeneratedIsland } from "../game/landfall";
 import { Rng } from "../sim/rng";
 
@@ -178,6 +179,7 @@ function drawChart(island: GeneratedIsland, world: number, seed: number): string
     drawBand(height, highColors[Math.min(Math.floor(i / 2), highColors.length - 1)]!, "#968e69", .19);
   }
   const { site } = island;
+  const dock = planPearlDock(island);
   const roads = site.town.paths.map(({a,b,width}) => {
     const d = `M${position(a.x)} ${position(-a.z)}L${position(b.x)} ${position(-b.z)}`;
     return `<path d="${d}" stroke="#ac8f63" stroke-width="${position(width)}"/><path d="${d}" stroke="#ebd6a6" stroke-width="${position(width * .62)}"/>`;
@@ -204,6 +206,11 @@ function drawChart(island: GeneratedIsland, world: number, seed: number): string
     <g transform="${translate(site.grotto.entry)}" stroke="#524733" stroke-width=".35">
       <title>Tidal cave</title><path fill="#d1bb8b" d="m-2.8 1.4.9-2.7 1.6-.8 1.6.5 1.5 3Z"/>
       <path fill="#574a38" d="M-1.15 1.4q.1-2.65 1.18-2.65 1.04.25 1.3 2.65Z"/></g>
+    <g stroke="#394c43" stroke-width=".65">
+      <title>Black Pearl dock</title>
+      <path d="M${position(dock.x)} ${position(-dock.shoreZ)}V${position(-dock.onDeck.z)}" stroke="#88694b" stroke-width="1.25"/>
+      <g transform="${translate(dock.onDeck)}"><path d="M-4.4 0-2.4-1.1H2.7L4.1 0 2.7 1H-2.4Z" fill="#394c43"/></g>
+    </g>
     <g data-mark="landing" transform="${translate(site.spawn)}" fill="#f6e8bf" stroke="#394c43" stroke-width=".55">
       <title>Landing</title>${anchorSymbol}</g>
     <g transform="${translate(site.dig)}" stroke="${sepia}" stroke-width=".42">

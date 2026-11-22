@@ -78,6 +78,7 @@ function run() {
   let feedbackUntil = 0;
   let feedbackText = "";
   let harbor: HarborDeck | null = null;
+  let harborTime = 0;
   const landingQuery = new URLSearchParams(location.search);
   let enterOnLoad = landingQuery.get("mode") === "walk";
   let digs = 0,
@@ -118,7 +119,7 @@ function run() {
     let x = walker.x + Math.sin(walker.yaw) * forward;
     let z = walker.z + Math.cos(walker.yaw) * forward;
     if (harbor?.heightAt(x, z) !== undefined || harbor?.heightAt(walker.x, walker.z) !== undefined) {
-      feedbackText = "Dig in the sand beyond the jetty.";
+      feedbackText = "Dig ashore, away from the dock.";
       feedbackUntil = now + 2600;
       refreshClue();
       return;
@@ -155,7 +156,8 @@ function run() {
     const villageLane = landing === "village" ? island.site.town.paths[1] : undefined;
     const grotto = landing === "cave" ? island.site.grotto : null;
     const pier = landing === "harbor" ? harbor?.center : null;
-    const start = pier ?? grotto?.entry ?? villageLane?.a ?? spawn;
+    const aboard = landing === "ship" ? harbor?.onDeck : null;
+    const start = aboard ?? pier ?? grotto?.entry ?? villageLane?.a ?? spawn;
     walker.reset();
     walker.x = start.x;
     walker.z = start.z;
@@ -167,7 +169,8 @@ function run() {
       ? Math.atan2(villageLane.b.x - start.x, villageLane.b.z - start.z)
       : bearing(landmark) * 0.57 + bearing(target) * 0.43;
     if (grotto) walker.yaw = grotto.yaw;
-    if (pier) walker.yaw = Math.atan2(landmark.x - pier.x, landmark.z - pier.z);
+    if (pier) walker.yaw = Math.PI;
+    if (aboard) walker.yaw = 0;
     walker.pitch = -0.06;
     feedbackUntil = 0;
     lastDig = -Infinity;
@@ -220,6 +223,8 @@ function run() {
         ...buildSettlement(view.scene, island.site, island.heightAt, view.shadows, light === "night"),
       ];
       harbor = buildHarbor(built.scene, island, built.shadows);
+      obstacles.push(...harbor.obstacles);
+      harborTime = 0;
       walker = new CaveWalker(
         obstacles,
         (x, z) => Math.max(built.groundHeight(x, z), harbor?.heightAt(x, z) ?? -Infinity),
@@ -370,6 +375,8 @@ function run() {
   engine.runRenderLoop(() => {
     if (!view || !walker || document.hidden) return;
     const dt = Math.min(0.1, engine.getDeltaTime() / 1000);
+    if (!reducedMotion.matches) harborTime += dt;
+    harbor?.animate(harborTime);
     if (mode === "walk") {
       if (!blocked()) {
         const look = controls.readLook();
