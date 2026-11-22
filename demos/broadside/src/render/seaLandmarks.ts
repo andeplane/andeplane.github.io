@@ -13,7 +13,7 @@ import { landmarkSites } from "../game/landmarkLayout";
 import { Rng } from "../sim/rng";
 
 /** Five permanent places, batched by material rather than one draw per plank. */
-export function buildSeaLandmarks(scene: Scene, shadows: ShadowGenerator, grain: StandardMaterial) {
+export function buildSeaLandmarks(scene: Scene, shadows: ShadowGenerator, grain: StandardMaterial, showWeapons = true) {
   const material = (name: string, shine = .06, glow = 0) => {
     const m = new StandardMaterial(`sea landmark ${name}`, scene);
     m.diffuseColor = Color3.White(); m.specularColor.setAll(shine);
@@ -287,7 +287,7 @@ export function buildSeaLandmarks(scene: Scene, shadows: ShadowGenerator, grain:
         const yy=surface(xx,zz);
         const m=box("sea fort broken wall",r*.29,3.5+(i%3)*.8,1.5,xx,yy+1.4,zz,masonry,"#79877c");
         m.rotation.y=a;
-        if(i%2===0) {
+        if (showWeapons && i % 2 === 0) {
           const gun=cylinder("old coastal cannon",.85,3.5,xx,yy+3.1,zz,metal,iron,.65);
           gun.rotation.set(Math.PI/2,a,0);
           box("fort cannon carriage",1.7,.6,2.2,xx,yy+2.35,zz);

@@ -6,9 +6,25 @@ import { Color3 } from '@babylonjs/core/Maths/math.color.js';
 import type { Scene } from '@babylonjs/core/scene.js';
 
 export interface CargoPosition { x: number; y: number; z: number; scale: number; }
-/** A fixed slot survives each preceding chest being unloaded. */
-export function entranceCargoPosition(slot: number): CargoPosition {
-  return { x: slot % 2 ? 2.8 : -2.8, y: .2 + Math.floor(slot / 8) * 1.05, z: -8.8 + Math.floor(slot % 8 / 2) * 1.3, scale: .5 };
+/** Each bank has a clear staging area and a viewpoint inside its chamber. */
+export const bankCargoStaging = [
+  { x: 6.7, z: .6, width: 4.9, cameraX: 2.7, cameraY: 6.5, cameraZ: -10 },
+  { x: -6.7, z: .6, width: 4.9, cameraX: -2.7, cameraY: 6.5, cameraZ: -10 },
+  { x: 6.7, z: .35, width: 4.9, cameraX: 2.7, cameraY: 6.5, cameraZ: -10 },
+  { x: 4.4, z: -5.3, width: 3, cameraX: 3.6, cameraY: 5.9, cameraZ: -11.5 },
+] as const;
+
+/** Fit the whole manifest in the clearing. Keep each slot fixed as the queue advances. */
+export function bankCargoPosition(slot: number, count: number, area: { world: number; x: number; z: number }): CargoPosition {
+  const stage = bankCargoStaging[area.world]!;
+  const columns = Math.ceil(Math.sqrt(count));
+  const rows = Math.ceil(count / columns);
+  const row = Math.floor(slot / columns);
+  const stagger = rows === 1 ? 0 : row % 2 ? .22 : -.22;
+  const scale = Math.min(.52, stage.width / ((columns + Math.abs(stagger) * 2) * 3.9), 4.8 / (rows * 3.75));
+  const x = area.x + stage.x + (slot % columns - (columns - 1) / 2 + stagger) * 3.9 * scale;
+  const z = area.z + stage.z + (row - (rows - 1) / 2) * 3.75 * scale;
+  return { x, y: 0, z, scale };
 }
 export function holdCargoPosition(slot: number): CargoPosition {
   return { x: slot % 2 ? -3.25 : 3.25, y: .78 + Math.floor(slot / 14) * 1.06, z: 4.4 - Math.floor(slot % 14 / 2) * 1.35, scale: .37 };

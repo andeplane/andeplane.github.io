@@ -140,6 +140,7 @@ async function main() {
   const pirate = new PirateWorld(engine, sailingAdapter(progress,storage,!qa), !qa, {
     error: message => {
       hud.root.inert=false; clearArrival();
+      if (pirate.mode === "unload") { hud.unloadingFailed(); return; }
       showWorldError(message,()=>menu());
     },
   });
@@ -498,6 +499,7 @@ async function main() {
       renderer.captainCamera.enabled=true;
       hud.help("Return to the helm to steer.",session.elapsed+6);
     }
+    hud.cancelSteering();
     controls.clear();clearWalking();gesture.clear();helmTurn=0;pendingFire=false;
     hud.camera(renderer.captainCamera.enabled);
   };
@@ -568,10 +570,6 @@ async function main() {
       session.player.sail = session.player.sail ? 0 : 2;
     },
   });
-  const soundChoice=hud.root.querySelector<HTMLInputElement>('#coin-sounds')!;
-  soundChoice.checked=coinSounds.enabled;soundChoice.disabled=coinSounds.locked;
-  soundChoice.onchange=()=>{coinSounds.setEnabled(soundChoice.checked);if(soundChoice.checked)coinSounds.unlock();};
-  if(coinSounds.locked)hud.root.querySelector('#coin-sounds-note')!.textContent='Muted by this URL.';
   const stepper = new FixedStepper(() => {
     if (mode !== "play" || paused) return;
     let intent = controls.readIntent();
@@ -680,6 +678,7 @@ async function main() {
     walking.keyUp(e.code);
   });
   window.addEventListener("blur", () => {
+    hud.cancelSteering();
     stashSea();
     gesture.clear();
     clearWalking();
@@ -812,11 +811,21 @@ async function main() {
       pirate.render(dt,reducedMotion.matches);
       if (holdShowingResult) {const p=hold.pose;hud.reveal(p.time,p.discovered,p.ready);}
     } else if (mode === "unloading") {
-      // DEV-only still frame for inspecting the hands and cabin-to-bank carry.
+      // DEV-only still frame for inspecting the lift beside the gold bank.
       if (carryPreview) getCave().revealTime = reducedMotion.matches ? 1.4 : 6.7;
       pirate.render(carryPreview ? 0 : dt,reducedMotion.matches);
-      unloadingIndex=pirate.unloading.active;
-      hud.unloading(pirate.unloading.done ? pirate.unloading.total : pirate.unloading.delivered+1,pirate.unloading.total,pirate.unloading.done);
+      const cargo = pirate.unloading;
+      unloadingIndex = cargo.active;
+      if (cargo.done && pirate.status === "ready") {
+        pirate.finishUnloadForWalk();
+        mode = "cave";
+        journey.location = { kind: "cave" };
+        saveJourney(journey.location, storage);
+        hud.location(journey.location);
+        hud.home();
+        if (import.meta.env.DEV) canvas.dataset.caveGeometry = JSON.stringify(getCave().walkingGeometry);
+        stepper.reset();
+      } else if (pirate.status !== "error") hud.unloading(cargo.delivered + 1, cargo.total);
     } else if (mode === "harbour" && harbour) {
       const look = walking.readLook();
       harbour.look(look.right * 500 * dt, look.down * 450 * dt);
@@ -915,7 +924,6 @@ async function main() {
       if (mode === "result" && session.state === "won") {
         const p = getCave().revealPose;
         hud.reveal(p.time, p.discovered, p.ready);
-        hud.depositing(!!reward?.gold && p.time > 5.3);
       }
     }
     if (import.meta.env.DEV) canvas.dataset.gemStatus = cave?.gemStatus ?? "";
@@ -956,9 +964,16 @@ async function main() {
 installMenuPreview();
 void main().catch((err) => {
   console.error(err);
-  const el = document.querySelector("#loading");
-  if (el)
-    el.textContent = "The sea could not load. Please reload to try again.";
+  const message = document.querySelector("#loading-message");
+  const retry = document.querySelector<HTMLButtonElement>("#loading-retry");
+  if (message) {
+    message.setAttribute("role", "alert");
+    message.textContent = "The sea could not load.";
+  }
+  if (retry) {
+    retry.hidden = false;
+    retry.onclick = () => location.reload();
+  }
 });
 
 installPrivacy();

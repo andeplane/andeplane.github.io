@@ -1,3 +1,4 @@
+import { caveRoomLabel } from "../i18n/caveRooms";
 import { currentI18n } from "./language";
 import { Engine } from "@babylonjs/core/Engines/engine.js";
 import { Capacitor } from "@capacitor/core";
@@ -64,10 +65,10 @@ export class GoldCave {
   show(progress:MathProgress,unload:boolean):void {
     const world=this.use(progress);if(unload)world.beginUnload();else world.showCave();
   }
+  finishUnloadForWalk(): void { this.world?.finishUnloadForWalk(); }
   get unloading(){return this.world?.unloading??{total:0,delivered:0,done:true,active:null};}
   pause():void {this.active=false;this.world?.cancel();}
   dispose():void {this.pause();this.unbind?.();this.abort.abort();this.canvasSize.disconnect();this.world?.dispose();this.engine.stopRenderLoop();this.engine.dispose();}
-  resetCamera():void {this.world?.cave.enter();}
   inspect():void {
     const cave=this.world?.cave;if(!cave)return;
     if(cave.inspecting)cave.overview();else if(cave.nearby!==null)cave.select(cave.nearby);
@@ -86,17 +87,13 @@ export class GoldCave {
   private updateHud():void {
     const cave=this.world!.cave,root=document.querySelector<HTMLElement>('#academy');
     if(root)root.dataset.caveView=cave.inspecting?'inspect':'walk';
-    const reserve=document.querySelector<HTMLElement>('#math-cave-reserve');
-    if(reserve){const amount=cave.reserveCounts.reduce((sum,n)=>sum+n,0);reserve.hidden=amount===0;reserve.textContent=currentI18n().t("reserveGold", { gold: currentI18n().format(amount) });}
     const footer=document.querySelector<HTMLElement>('.walking-view .cave-bottom');
     if(footer){const bounds=footer.getBoundingClientRect();for(const id of ['math-cave-pad','math-cave-jump']){
       const control=document.getElementById(id);if(!control)continue;const r=control.getBoundingClientRect();
       control.style.bottom=r.width>0&&r.right>bounds.left&&r.left<bounds.right?`${Math.ceil(innerHeight-bounds.top+12)}px`:'calc(32px + var(--safe-bottom) + var(--math-notice-space))';
     }}
-    const room=document.querySelector<HTMLElement>('#math-cave-room');if(room){
-      const keys = { "The treasure cave": "roomTreasure", "The glowing grotto": "roomGrotto", "Smuggler’s passage": "roomSmuggler", "The king’s vault": "roomKing", "The lantern passage": "roomLantern" } as const;
-      const key = keys[cave.room as keyof typeof keys]; room.textContent = key ? currentI18n().t(key) : cave.room;
-    }
+    const room=document.querySelector<HTMLElement>('#math-cave-room');
+    if(room)room.textContent=caveRoomLabel(cave.room,currentI18n().t);
     const button=document.querySelector<HTMLButtonElement>('#math-cave-inspect');
     if(button){button.disabled=!cave.inspecting&&cave.nearby===null;button.textContent=currentI18n().t(cave.inspecting ? "backExploring" : "inspectTreasure");}
   }

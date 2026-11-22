@@ -55,7 +55,6 @@
   .stars .earned { color: #805300; text-shadow: none; }
   .level-tile:disabled { opacity: 1; color: #526771; background: #e4e9e7; }
   .question-view { width: min(640px, 100%); padding: 16px 20px calc(20px + var(--safe-bottom)); }
-  .voyage-status { color: #174d60; font-size: 14px; margin-bottom: 12px; }
   .question-progress { gap: 6px; margin-bottom: 12px; }
   .question-progress > span:not(.progress-chest) { color: #415d6a; background: #fff6e3; border-color: #66808b; font-size: 12px; }
   .question-progress > span.active { color: #0b2840; background: #f5ba32; border-color: #805300; }
@@ -70,16 +69,14 @@
   .answer-feedback { font-size: 15px; min-height: 50px; }
   .number-pad { gap: 10px; }
   .number-pad button { height: 56px; font-size: 28px; background: #fff; color: #0b2840; border: 1px solid #66808b; box-shadow: none; border-radius: 12px; }
-  .number-pad .key-clear { font-size: 15px; }
   .check-answer { background: #f5ba32 !important; color: #0b2840 !important; border: 0 !important; box-shadow: none !important; font-size: 17px; }
   .check-answer:disabled { opacity: 1; background: #d5dedb !important; color: #4a6068 !important; }
   .chest-distance, .chest-distance small { color: #174d60; font-size: 14px; }
   .hint-panel p, .hint-groups small { font-size: 14px; color: #174d60; }
   .settings-card { background: #fff6e3; border: 0; }
-  .settings-card p, .settings-card small, .settings-card label span, .guide-footer, .complete-view p { color: #415d6a; font-size: 15px; }
+  .settings-card p, .settings-card small, .settings-card label span, .guide-footer { color: #415d6a; font-size: 15px; }
   .captains-guide h2 { color: #0b2840; }
   .language-setting select { background: #fff; color: #0b2840; }
-  .complete-view h1 { font-size: 36px; }
 }
 @media (max-width: 600px) {
   #academy:not([data-screen="cave"]):not([data-screen="reward"]):not([data-screen="ship"]):not([data-screen="unloading"]) {
@@ -111,7 +108,6 @@
 @media (max-height: 650px) and (max-width: 600px) {
   #academy[data-screen="question"] {
     .question-view { padding-top: 8px; }
-    .voyage-status { margin-bottom: 8px; }
     .question-progress { margin-bottom: 8px; }
     .equation { margin-block: 8px; }
     .answer-feedback { min-height: 42px; font-size: 14px; padding-bottom: 6px; }
@@ -124,7 +120,6 @@
 @media (max-height: 480px) and (min-width: 601px) {
   #academy:not([data-screen="cave"]):not([data-screen="reward"]):not([data-screen="ship"]):not([data-screen="unloading"]) {
     .question-view { width: 100%; max-width: 900px; display: grid; grid-template-columns: 1fr 1.2fr; gap: 0 20px; }
-    .voyage-status { grid-column: 1; }
     .question-progress { grid-column: 1; align-self: start; }
     .math-card { grid-column: 2; grid-row: 1 / 5; position: relative; }
     .equation { margin: 0; position: fixed; left: calc(24px + var(--safe-left)); top: 165px; width: 36%; font-size: 36px; }
@@ -138,7 +133,6 @@
   }
 }
 #academy:not([data-screen="cave"]):not([data-screen="reward"]):not([data-screen="ship"]):not([data-screen="unloading"]) {
-  .voyage-status b { color: #174d60; }
   .level-tile .stars > span:not(.earned) { visibility: hidden; }
   .level-illustration { overflow: visible; }
   .level-illustration img { height: 110px; object-fit: contain; transform: none; opacity: 1; }
@@ -146,7 +140,7 @@
 @media (max-height: 650px) and (max-width: 600px) {
   #academy:not([data-screen="cave"]):not([data-screen="reward"]):not([data-screen="ship"]):not([data-screen="unloading"]) {
     .question-view { padding-top: 6px; }
-    .voyage-status, .question-progress { margin-bottom: 8px; }
+    .question-progress { margin-bottom: 8px; }
     .math-card { padding: 10px; }
     .equation { font-size: 30px; margin-block: 8px; }
     .answer-box { min-height: 46px; }
@@ -160,7 +154,6 @@
 @media (max-height: 480px) and (min-width: 601px) {
   #academy:not([data-screen="cave"]):not([data-screen="reward"]):not([data-screen="ship"]):not([data-screen="unloading"]) {
     .question-view { display: block; padding-top: 10px; }
-    .voyage-status { margin-bottom: 6px; }
     .question-progress { max-width: 360px; margin-bottom: 10px; }
     .math-card { display: grid; grid-template-columns: 1fr 1fr; gap: 8px 24px; padding: 12px; }
     .question-heading { grid-column: 1; grid-row: 1; }
@@ -175,7 +168,6 @@
 @media (max-height: 480px) and (min-width: 601px) {
   #academy:not([data-screen="cave"]):not([data-screen="reward"]):not([data-screen="ship"]):not([data-screen="unloading"]) {
     .question-view { padding-block: 4px 12px; }
-    .voyage-status { margin-bottom: 2px; font-size: 13px; }
     .question-progress { margin-block: 0 6px; }
     .question-progress > span:not(.progress-chest) { height: 24px; max-width: 24px; }
     .math-card { padding: 8px; }

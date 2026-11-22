@@ -1,10 +1,11 @@
 // @vitest-environment happy-dom
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-const runtime=vi.hoisted(()=>({ created:0, ready:null as null|(()=>void) }));
+const runtime=vi.hoisted(()=>({ created:0, ready:null as null|(()=>void), unloadingDone:false, finishUnloadForWalk:vi.fn() }));
 vi.mock("./goldCave",()=>({ GoldCave: class {
-  unloading={total:0,delivered:0,done:true,active:null};
+  get unloading(){return {total:1,delivered:runtime.unloadingDone?1:0,done:runtime.unloadingDone};}
   constructor(_canvas:HTMLCanvasElement,ready:()=>void){runtime.created++;runtime.ready=ready;}
-  showShip(){}show(){}pause(){}dispose(){}resetCamera(){}inspect(){}
+  showShip(){}show(){}pause(){}dispose(){}inspect(){}
+  finishUnloadForWalk=runtime.finishUnloadForWalk;
 } }));
 const memoryStorage=()=>{ const data=new Map<string,string>();return {getItem:(key:string)=>data.get(key)??null,setItem:vi.fn((key:string,value:string)=>{data.set(key,value);}),clear:()=>data.clear()}; };
 const root=()=>document.querySelector<HTMLElement>("#academy")!;
@@ -13,7 +14,7 @@ const click=(action:string)=>{
   expect(button,action).not.toBeNull();button!.click();
 };
 beforeEach(()=>{
-  vi.resetModules();runtime.created=0;runtime.ready=null;
+  vi.resetModules();runtime.created=0;runtime.ready=null;runtime.unloadingDone=false;runtime.finishUnloadForWalk.mockClear();
   history.replaceState(null,"","/");vi.stubGlobal("localStorage",memoryStorage());vi.stubGlobal("sessionStorage",memoryStorage());
   document.body.innerHTML='<canvas id="treasure-scene" hidden></canvas><main id="academy"></main>';
 });
@@ -45,7 +46,8 @@ describe("Captain Calculus navigation destinations",()=>{
     expect(root().querySelector('[data-action="resume"]')?.textContent).toContain("Level 1");
     click("play");
     expect(root().dataset.screen).toBe("operators");
-    expect(root().querySelector('[data-action="ship"], [data-action="cave"], [data-action="settings"]')).toBeNull();
+    expect(root().querySelector('.pirate-chart-header [data-action="ship"]')).not.toBeNull();
+    expect(root().querySelector('[data-action="cave"], [data-action="settings"]')).toBeNull();
     click("back");
     click("resume");
     expect(root().dataset.screen).toBe("question");
@@ -60,12 +62,28 @@ describe("Captain Calculus navigation destinations",()=>{
     click("back");
     expect(root().dataset.screen).toBe("levels");
   });
+  it("returns from Your ship to the map and restores focus to the ship button", async () => {
+    await import("./main");
+    click("play");
+    root().querySelector<HTMLButtonElement>('[data-operator="add"]')!.click();
+    for (const screen of ["map", "levels"]) {
+      expect(root().dataset.screen).toBe(screen);
+      click("ship");
+      await vi.waitFor(() => expect(runtime.created).toBe(1));
+      expect(root().dataset.screen).toBe("ship");
+      click("back");
+      expect(root().dataset.screen).toBe(screen);
+      expect(document.activeElement).toBe(root().querySelector('.pirate-chart-header [data-action="ship"]'));
+      if (screen === "map") root().querySelector<HTMLButtonElement>('[data-pack="add-10"]')!.click();
+    }
+  });
   it("continues the most recently attempted voyage after browsing another pack and reloading", async () => {
     const { freshProgress, saveMathProgress, startVoyage, answerQuestion, questionsFor } = await import("./academy");
     const progress = freshProgress();
     startVoyage(progress, "add-10", 1, 100);
     const run = startVoyage(progress, "add-20", 1, 200)!;
-    answerQuestion(progress, "add-20", 1, questionsFor("add-20", run.seed, run.questionSet)[0]!.answer + 1);
+    const problem = questionsFor("add-20", run.seed, run.questionSet)[0]!;
+    answerQuestion(progress, "add-20", 1, problem.answer + 1);
     saveMathProgress(progress, localStorage);
     await import("./main");
     click("play");
@@ -76,7 +94,8 @@ describe("Captain Calculus navigation destinations",()=>{
     vi.resetModules();
     await import("./main");
     click("resume");
-    expect(root().querySelector(".voyage-status")?.textContent).toContain("Up to 20");
+    expect(root().querySelector(".left-term")?.textContent).toBe(String(problem.left));
+    expect(root().querySelector(".right-term")?.textContent).toBe(String(problem.right));
     click("back");
     expect(document.activeElement?.getAttribute("data-action")).toBe("resume");
   });
@@ -107,10 +126,29 @@ describe("Captain Calculus navigation destinations",()=>{
     history.replaceState(null,"","/?qa=true&fresh=1&cargo=1&view=unload&fail=scene");
     await import("./main");
     expect(root().textContent).toContain("The cave couldn't load");
-    expect(root().textContent).not.toContain("Welcome home, Captain");
-    expect(root().querySelector('[data-action="stay-cave"]')).toBeNull();
+    expect(root().querySelector("h1")?.textContent).toBe("Cave");
+    expect(root().querySelector("#math-cave-pad")).toBeNull();
     click("back");expect(root().dataset.screen).toBe("home");
     expect(root().querySelector('[data-action="ship"]')?.textContent).toContain("1 chest aboard");
+  });
+  it("automatically starts exploring when the last cave delivery finishes", async () => {
+    history.replaceState(null, "", "/?qa=true&fresh=1&cargo=1&view=unload");
+    await import("./main");
+    await vi.waitFor(() => expect(runtime.ready).not.toBeNull());
+    expect(root().dataset.screen).toBe("unloading");
+    expect(root().querySelector("h1")?.textContent).toBe("Cave");
+    expect(root().querySelector("#math-cave-pad")).toBeNull();
+    runtime.ready!();
+    expect(runtime.finishUnloadForWalk).not.toHaveBeenCalled();
+
+    runtime.unloadingDone = true;
+    runtime.ready!();
+    expect(runtime.finishUnloadForWalk).toHaveBeenCalledOnce();
+    expect(root().dataset.screen).toBe("cave");
+    expect(root().querySelector("#math-cave-pad")).not.toBeNull();
+    expect(root().querySelector(".cave-details, [data-action=stay-cave]")).toBeNull();
+    click("back");
+    expect(root().dataset.screen).toBe("home");
   });
   it("returns Home → Ship → Back to Home",async()=>{
     await import("./main");click("ship");await vi.waitFor(()=>expect(runtime.created).toBe(1));
@@ -130,6 +168,35 @@ describe("Captain Calculus navigation destinations",()=>{
     expect(next().disabled).toBe(true);next().click();expect(root().dataset.screen).toBe("reward");
     runtime.ready!();expect(next().disabled).toBe(false);
   });
+  it("starts a fresh replay without changing the awarded stars or pending chest", async () => {
+    const { freshProgress, pendingMathChests, questionsFor, readMathProgress, saveMathProgress, startVoyage } = await import("./academy");
+    const initial = freshProgress();
+    const run = startVoyage(initial, "add-10", 1, 100)!;
+    saveMathProgress(initial, localStorage);
+    await import("./main");
+    click("resume");
+
+    for (const { answer } of questionsFor("add-10", run.seed, run.questionSet)) {
+      for (const digit of String(answer)) root().querySelector<HTMLButtonElement>(`[data-key="${digit}"]`)!.click();
+      click("check");
+      click("continue");
+    }
+
+    await vi.waitFor(() => expect(runtime.created).toBe(1));
+    runtime.ready!();
+    expect(root().querySelector('.ledger-primary')?.textContent).toContain("Next Island");
+    expect(root().querySelectorAll('.ledger-star.earned')).toHaveLength(3);
+    const completed = readMathProgress(localStorage);
+    click("reward-replay");
+
+    const replay = readMathProgress(localStorage);
+    expect(root().dataset.screen).toBe("question");
+    expect(replay.tracks["add-10"]?.runs[1]).toMatchObject({ solved: 0, earnedGold: 0 });
+    expect(replay.tracks["add-10"]?.stars[1]).toBe(3);
+    expect(pendingMathChests(replay)).toEqual(pendingMathChests(completed));
+    expect(pendingMathChests(replay)).toEqual([{ id: 1, operator: "add", gold: 1000, delivered: false }]);
+  });
+
   it("reserves error-notice space when the browser cannot save progress",async()=>{
     await import("./main");
     vi.mocked(localStorage.setItem).mockImplementation(()=>{throw new Error("Storage unavailable");});

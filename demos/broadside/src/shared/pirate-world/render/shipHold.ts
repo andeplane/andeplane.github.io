@@ -42,7 +42,7 @@ export class ShipHold {
   private debugFinished: number | null = null;
   private debugExitAt:number|null=null;
   private debugPour = false;
-  constructor(engine: Engine, ship: ShipPresentation) {
+  constructor(engine: Engine, ship: ShipPresentation, showWeapons = true) {
     const s = this.scene = new Scene(engine);
     s.clearColor = Color4.FromHexString('#839aabff');
     s.fogMode = Scene.FOGMODE_EXP2; s.fogDensity = .0015; s.fogColor = Color3.FromHexString('#839aab');
@@ -60,7 +60,7 @@ export class ShipHold {
     // The cabin is above the waterline, even at the crest of a swell.
     this.ocean.mesh.position.y=-3;
     const island = ship.island;
-    this.islands=buildIslands(s,island?[{...island,pos:{x:0,z:island.radius+55}}]:[],shadows,ship.seed,ship.chapter);
+    this.islands=buildIslands(s,island?[{...island,pos:{x:0,z:island.radius+55}}]:[],shadows,ship.seed,ship.chapter,{showWeapons});
     this.chest=new RewardChest(s);
     for(const mesh of this.chest.root.getChildMeshes()) {
       mesh.receiveShadows=true;
@@ -119,7 +119,11 @@ export class ShipHold {
     this.time+=dt;if(this.revealing)this.revealTime+=dt;else this.revealTime=5;
     this.chest.animate(this.revealTime,0,reduced);this.chest.root.position.set(0,.79,0);
     this.chest.setCoinCount(this.coins);
-    const framing = shipHoldCamera(innerWidth < 600, this.time, reduced, this.coins >= 1000);
+    const portrait = innerWidth < innerHeight;
+    const ledgerLayout = !this.revealing ? null
+      : !portrait && innerHeight <= 520 ? "side"
+        : portrait && innerHeight <= 650 ? "compact" : null;
+    const framing = shipHoldCamera(this.revealing ? portrait : innerWidth < 600, this.time, reduced, this.coins >= 1000, ledgerLayout);
     this.camera.position.set(framing.position.x,framing.position.y,framing.position.z);
     this.camera.fov=framing.fov;
     this.camera.setTarget(new Vector3(framing.target.x,framing.target.y,framing.target.z));

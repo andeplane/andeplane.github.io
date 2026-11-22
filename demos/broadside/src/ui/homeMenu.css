@@ -13,7 +13,7 @@
     calc(8px + var(--pirate-safe-bottom)) calc(8px + var(--pirate-safe-left));
 }
 .captain-desk > button { justify-self:start; }
-.captain-paper, dialog.captain-language {
+.captain-paper {
   background:transparent url("/assets/map/problem-parchment.webp") center / 100% 100% no-repeat;
   color:#30200e; border:0; border-radius:0; filter:drop-shadow(0 5px 4px #21100480);
 }
@@ -22,7 +22,7 @@
   padding:clamp(28px,7vh,64px) clamp(25px,8vw,60px);
 }
 :is(#academy,#reader,#voyage-ui) .captain-paper h1 { margin:0 0 14px; font:400 clamp(34px,8vw,50px)/1 "Pirata One",Georgia,serif; color:#34200f; }
-:is(#academy,#reader,#voyage-ui) .desk-action, .captain-language .language-options button {
+:is(#academy,#reader,#voyage-ui) .desk-action {
   min-height:44px; background:transparent; color:#30200e; border:0; border-radius:0;
   border-bottom:1px solid #876132; box-shadow:none; font:700 17px/1.15 Georgia,serif;
 }
@@ -30,19 +30,41 @@
 .desk-action strong { margin-right:12px; }
 .desk-save { margin:18px 0 0; font:italic 15px/1.3 Georgia,serif; }
 .desk-save .icon { width:18px; height:18px; vertical-align:middle; }
-dialog.captain-language { padding:24px clamp(22px,7vw,36px) 28px; }
-.captain-language .language-options { gap:2px 8px; }
-.captain-language .language-options button { padding:4px; }
-.captain-language .language-options [aria-pressed="true"] { background:#ae75282a; }
-.captain-language h2 { font:400 34px "Pirata One",Georgia,serif; }
 
-#voyage-ui #settings-menu,#reader[data-screen="settings"] #reader-content {background:#372219 url("/assets/map/problem-table.webp") center/cover;overflow:auto;}
-#voyage-ui #settings-menu .captain-desk {display:grid;grid-template-rows:1fr;padding-top:calc(55px + var(--pirate-safe-top));}
+#reader[data-screen="settings"] #reader-content {background:#372219 url("/assets/map/problem-table.webp") center/cover;overflow:auto;}
+#voyage-ui #settings-menu .captain-desk {
+  position: absolute;
+  inset: calc(var(--pirate-safe-top) + var(--pirate-touch-target) + 16px) 0 0;
+  min-height: 0;
+  grid-template-rows: 1fr;
+  overflow: auto;
+  padding-top: 0;
+}
 #voyage-ui #settings-menu .captain-paper {padding:40px 35px;}
 #voyage-ui #settings-menu .captain-paper :is(p,label,a),#reader .captain-paper {color:#322414;}
-#voyage-ui #settings-menu .captain-paper label {display:flex;align-items:center;justify-content:center;gap:8px;min-height:44px;}
 #voyage-ui #settings-menu .captain-paper a {text-decoration:underline;}
 #reader .captain-paper {margin:auto;padding:40px 30px;}
 #reader .captain-paper .desk-action {color:#372414;}
 #reader .captain-paper button[data-action="reset"] {background:#422a14;color:#ffedc9;}
 #reader .voyage-atlas .trail-heading h1 {color:#fff4d5;text-shadow:0 1px 3px #201b13;-webkit-text-stroke:3px #332516;paint-order:stroke fill;}
+
+/* Settings sit at the same desk that opens each game. */
+#voyage-ui #settings-menu {
+  inset: 0;
+  overflow: hidden;
+  background: linear-gradient(#20140d69, #24150fc9), url("/assets/menu/lantern-grotto.webp") center / cover, #292017;
+}
+@media (orientation: landscape) {
+  #voyage-ui #settings-menu {
+    background-image: linear-gradient(#20140d69, #24150fc9), url("/assets/menu/lantern-grotto-wide.webp");
+  }
+}
+#voyage-ui #settings-menu .captain-paper .art-credit {
+  margin-block: 8px;
+  line-height: 1.4;
+}
+#voyage-ui #settings-menu .privacy-action {
+  background: #422a14;
+  border-color: #6e4c30;
+  color: #fff0d0;
+}

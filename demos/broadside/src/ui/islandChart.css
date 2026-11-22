@@ -47,8 +47,7 @@
 #voyage-ui #level-menu .tile-stars {bottom:-15px;font-size:11px;}
 
 #voyage-ui .regional-viewport {position:absolute;inset:-12px 0 -14px;overflow:hidden;}
-#voyage-ui .regional-center {position:absolute;bottom:0;right:0;min-width:44px;height:44px;background:#fff0cd;color:#382b16;border:1px solid #806942;border-radius:50%;}
-.regional-center .icon {width:20px;}
+#voyage-ui .regional-center {position:absolute;bottom:calc(10px + var(--pirate-safe-bottom));right:calc(10px + var(--pirate-safe-right));z-index:2;}
 #world-menu .world-label {display:grid;gap:2px;}
 #reader[data-screen="levels"] .expedition-view {display:flex;flex-direction:column;}
 #reader[data-screen="levels"] .expedition-intro,#reader[data-screen="levels"] .expedition-dock {position:static;flex:none;max-width:none;margin:0;width:auto;}
@@ -74,7 +73,7 @@
 }
 :is(#academy,#reader) .trail-heading h1 {margin:0;color:#172e2a;font:700 clamp(18px,5vw,25px)/1.08 Georgia,serif;text-shadow:none;}
 .trail-heading small {display:block;margin-top:3px;font:600 13px/1.1 system-ui,sans-serif;}
-:is(#academy,#reader) .trail-heading .menu-back {position:static;min-height:44px;color:#332714;background:#fff0ce;}
+#reader .trail-heading {--pirate-back-fill:#fff0ce;--pirate-back-ink:#332714;--pirate-back-border:#725836;--pirate-back-tint:#bca16f;}
 :is(#academy,#reader)[data-screen="levels"] .expedition-view .expedition-dock {
   background:none;padding:4px calc(12px + var(--pirate-safe-right)) calc(4px + var(--pirate-safe-bottom)) calc(12px + var(--pirate-safe-left));
 }

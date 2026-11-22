@@ -37,8 +37,8 @@
 .expedition-more > small { font-size: 11px; color: #c0d4ce; font-weight: 400; }
 .expedition-more .icon { width: 23px; height: 23px; }
 .expedition-map-tools { position: absolute; z-index: 12; right: 14px; bottom: calc(128px + var(--pirate-safe-bottom)); display: flex; flex-direction: column; gap: 7px; }
-.expedition-map-tools button { display: grid; place-items: center; min-width: 44px; width: 44px; height: 44px; border: 1px solid #c4d2c870; border-radius: 11px; background: #122e3ce8; color: #f3e5c7; box-shadow: 0 4px 12px #08233440; font-size: 23px; font-weight: 700; }
-.expedition-map-tools button:first-child { margin-bottom: 4px; color: #efcf8c; }
+.expedition-map-tools button:not(.chart-center-button) { display: grid; place-items: center; min-width: 44px; width: 44px; height: 44px; border: 1px solid #c4d2c870; border-radius: 11px; background: #122e3ce8; color: #f3e5c7; box-shadow: 0 4px 12px #08233440; font-size: 23px; font-weight: 700; }
+.expedition-map-tools .chart-center-button { margin-bottom: 4px; }
 .expedition-drag-hint { position: absolute; z-index: 10; left: 14px; bottom: calc(123px + var(--pirate-safe-bottom)); padding: 7px 11px; border: 1px solid #b3d3c929; border-radius: 20px; background: #173340cc; color: #cfdbcc; font-size: 10px; pointer-events: none; }
 .map-keyboard-help { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); }
 .expedition-dock { position: absolute; z-index: 15; bottom: 0; left: 0; right: 0; padding: 14px 18px calc(14px + var(--pirate-safe-bottom)); background: linear-gradient(transparent, #102a36ed 18%, #102a36); pointer-events: none; }

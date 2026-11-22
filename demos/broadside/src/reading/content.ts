@@ -1,21 +1,18 @@
-export type Language = "nb" | "en";
+import { detectLanguage, type Language as MenuLanguage } from "../i18n/languages";
+
+export const READING_LANGUAGES = ["nb", "en"] as const satisfies readonly MenuLanguage[];
+export type Language = typeof READING_LANGUAGES[number];
+export const isReadingLanguage = (value: unknown): value is Language => READING_LANGUAGES.some(id => id === value);
 export type PromptKind = "word" | "sentence" | "paragraph";
 export const CONTENT_VERSION = 1;
-export interface Pack { id:number; kind:PromptKind; count:number; gold:number; name:Record<Language,string>; description:Record<Language,string>; }
-const names = [
-  ["Første ord","First words"], ["Ord som vokser","Growing words"], ["På ordjakt","Word adventures"],
-  ["Lange ord","Long word lagoon"], ["Ordkaptein","Word captain"], ["Første setninger","First sentences"],
-  ["Setninger på seilas","Sentence voyages"], ["Kapteinens beskjeder","Captain’s messages"], ["Små fortellinger","Little stories"], ["Historiekaptein","Story captain"],
-];
-const descriptions = [
-  ["Korte, kjente ord","Short, familiar words"], ["Litt lengre ord og nye lyder","Longer words and new sounds"],
-  ["Flere stavelser og kjente ord","More syllables and familiar words"], ["Lange ord og sammensatte ord","Longer words and compounds"],
-  ["Ord med mer krevende lyder","More demanding word patterns"], ["Én kort setning om gangen","One short sentence at a time"],
-  ["Lengre setninger om livet på sjøen","Longer sentences about life at sea"], ["Les kapteinens lengre beskjeder","Read the captain’s longer messages"],
-  ["En liten fortelling, setning for setning","A little story, sentence by sentence"], ["Lengre fortellinger fra sjørøverskuta","Longer stories from the pirate ship"],
-];
-export const PACKS:readonly Pack[]=names.map(([nb,en],i)=>({id:i+1,kind:i<5?"word":i<8?"sentence":"paragraph",count:i<5?10:i<8?5:2,gold:(i+1)*100,name:{nb:nb!,en:en!},description:{nb:descriptions[i]![0]!,en:descriptions[i]![1]!}}));
-export const packFor=(id:number):Pack=>PACKS.find(p=>p.id===id)??PACKS[0]!;
+export interface Pack { id:number; kind:PromptKind; count:number; gold:number; }
+export type PackId = 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10;
+const packIds: readonly PackId[] = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
+export const PACKS = packIds.map(id => ({
+ id, kind: (id <= 5 ? "word" : id <= 8 ? "sentence" : "paragraph") as PromptKind,
+ count: id <= 5 ? 10 : id <= 8 ? 5 : 2, gold: id * 100,
+}));
+export const packFor=(id:number)=>PACKS.find(p=>p.id===id)??PACKS[0]!;
 export interface ReadingItem { id:string; text:string; chunks:readonly string[]; question?:{text:string; answers:readonly string[]; correct:number}; }
 const words=(text:string)=>text.trim().split(/\s+/u);
 const banks:Record<Language,readonly string[][]>={
@@ -104,8 +101,7 @@ export function itemsFor(language:Language,packId:number):readonly ReadingItem[]
  }));
 }
 export function preferredLanguage(languages:readonly string[]):Language {
- for(const raw of languages){const lang=raw.toLowerCase().split(/[-_]/u)[0];if(["nb","no","nn"].includes(lang!))return "nb";if(lang==="en")return "en";}
- return "en";
+ return detectLanguage(languages, READING_LANGUAGES);
 }
 export function normalize(text:string):string{return text.normalize("NFC").toLocaleLowerCase().replace(/[^\p{L}\p{N}\s]/gu," ").replace(/\s+/gu," ").trim();}
 // Recognizers can format spoken number words as digits or choose US spelling.

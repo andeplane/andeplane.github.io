@@ -8,6 +8,7 @@ import { DirectionalLight } from "@babylonjs/core/Lights/directionalLight.js";
 import { ShadowGenerator } from "@babylonjs/core/Lights/Shadows/shadowGenerator.js";
 import { StandardMaterial } from "@babylonjs/core/Materials/standardMaterial.js";
 import { Vector3 } from "@babylonjs/core/Maths/math.vector.js";
+import { MeshBuilder } from "@babylonjs/core/Meshes/meshBuilder.js";
 import { buildIslands } from "./islands";
 import type { IslandDef } from "../game/levels";
 import { inLandmarkClearing } from "../game/landmarkLayout";
@@ -28,12 +29,33 @@ function fixture() {
 }
 
 describe("rendering the permanent archipelago", () => {
+  it.each([true, false])("keeps fort scenery when weapons are %s", showWeapons => {
+    const { engine, scene, shadows } = fixture();
+    const cylinder = vi.spyOn(MeshBuilder, "CreateCylinder");
+    try {
+      const defs: IslandDef[] = [
+        { pos: { x: 0, z: 40 }, radius: 20, kind: "sand", props: ["fort"] },
+        { pos: { x: 65, z: 40 }, radius: 24, kind: "sand", props: [], landmark: "stormkeep" },
+      ];
+      buildIslands(scene, defs, shadows, 31, 0, { showWeapons });
+      const names = cylinder.mock.calls.map(([name]) => name);
+      expect(names).toContain("fort-tower-0");
+      expect(names).toContain("stormkeep battered sea tower");
+      expect(names.includes("fort-gun-0")).toBe(showWeapons);
+      expect(names.includes("old coastal cannon")).toBe(showWeapons);
+    } finally {
+      cylinder.mockRestore();
+      scene.dispose();
+      engine.dispose();
+    }
+  });
+
   it.each([undefined, "harbour"] as const)("rebuilds identical %s scenery on return without leaking resources", (landmark) => {
     const { engine, scene, shadows } = fixture();
     const defs: IslandDef[] = [0, 1000].map(x => ({ pos: { x, z: 50 }, radius: 20,
       kind: "sand", props: landmark ? ["palms", "rocks"] : ["palms", "rocks", "lighthouse"], landmark }));
     const original = structuredClone(defs);
-    const view = buildIslands(scene, defs, shadows, 81723, 0, { x: 0, z: 0 });
+    const view = buildIslands(scene, defs, shadows, 81723, 0, { streamFrom: { x: 0, z: 0 } });
     const geometry = () => Array.from(scene.getMeshByName("island-0-50")!.getVerticesData("position")!);
     const props = () => scene.meshes.filter(m => m.name.startsWith("palm-0-"))
       .map(m => [m.name, ...m.position.asArray(), ...m.scaling.asArray(), m.rotation.y]);
@@ -63,7 +85,7 @@ describe("rendering the permanent archipelago", () => {
     const { engine, scene, shadows } = fixture();
     const defs: IslandDef[] = [{ pos: { x: -1590, z: 0 }, radius: 20,
       kind: "sand", props: ["palms", "rocks"], landmark: "smugglers" }];
-    const view = buildIslands(scene, defs, shadows, 81723, 0, { x: 1580, z: 0 }, 1600);
+    const view = buildIslands(scene, defs, shadows, 81723, 0, { streamFrom: { x: 1580, z: 0 }, periodicBounds: 1600 });
     view.update(0, undefined, { x: 1580, z: 0 });
     const shore = scene.getMeshByName("island--1590-0")!;
     const props = scene.getTransformNodeByName("island-props--1590")!;

@@ -30,6 +30,17 @@ export function bindWorldControls(world: PirateWorld, canvas: HTMLCanvasElement,
     const right=(x-r.left-r.width/2)/radius,forward=(r.top+r.height/2-y)/radius,length=Math.max(1,Math.hypot(right,forward));
     world.controls.move(right,forward);draw(right/length,-forward/length);
   };
+  // Close inspection before a host can interpret Escape as leaving the cave.
+  document.addEventListener("keydown", event => {
+    if (event.code !== "Escape" || event.repeat || !active() || document.querySelector("dialog[open]")) return;
+    const cave = world.caveScene;
+    if (!cave?.inspecting) return;
+    event.preventDefault();
+    event.stopImmediatePropagation();
+    cave.overview();
+    options.overview?.();
+    canvas.focus({ preventScroll: true });
+  }, { capture: true, signal });
   document.addEventListener("keydown",e=>{
     if(!active()||e.metaKey||e.altKey||e.ctrlKey||(e.target instanceof Element && e.target.closest("input,textarea,select,[role=dialog]")))return;
     if(world.controls.keyDown(e.code,performance.now()))e.preventDefault();

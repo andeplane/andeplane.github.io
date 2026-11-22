@@ -237,8 +237,9 @@ export class GameRenderer {
       this.shadows,
       session.level.seed,
       session instanceof VoyageSession ? session.voyage.pack : session.chapter,
-      session.world.periodic ? session.player.pos : undefined,
-      session.world.periodic ? session.level.bounds : undefined,
+      session.world.periodic
+        ? { streamFrom: session.player.pos, periodicBounds: session.level.bounds }
+        : undefined,
     );
     this.effects = new Effects(scene);
     this.adventure = new AdventureView(scene, session, this.shadows);

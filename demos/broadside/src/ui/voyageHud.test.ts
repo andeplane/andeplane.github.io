@@ -3,7 +3,9 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 import { Controls } from "../input/controls";
 import { readProgress } from "../game/progress";
 import { awardVoyage, deliverChest } from "../game/rewards";
+import { LANGUAGE_KEY } from "../i18n/languages";
 import { VoyageHud } from "./voyageHud";
+import { generateVoyage, VoyageSession } from "../game/voyage";
 
 const ship = vi.hoisted(() => ({ private: false }));
 vi.mock("../privatePearl", () => ({ get PRIVATE_PEARL() { return ship.private; } }));
@@ -26,7 +28,7 @@ function setup(privateShip: boolean, cargo = false) {
 
 afterEach(() => {
   document.body.replaceChildren();
-  localStorage.removeItem("broadside.home.language.v1");
+  localStorage.removeItem(LANGUAGE_KEY);
   ship.private = false;
 });
 
@@ -40,6 +42,26 @@ it("changes Broadside's home language directly and restores it next launch", () 
   expect(hud.root.querySelector("dialog")?.open).toBe(false);
   expect(document.activeElement).toBe(button("#menu-language"));
   expect(setup(false).button("#menu-language").textContent).toBe("🇳🇴");
+});
+
+it("shares the cave balance between delivery and walking and keeps failed deliveries retryable", () => {
+  const { hud, handlers, button, progress } = setup(false, true);
+  hud.unloading(1, 1);
+  expect(button("#unload-ui .pirate-cave-title").textContent).toBe("Cave");
+  expect(button("#unload-count").textContent).toContain("1,000 gold coming home");
+  expect(button("#unload-ui .pirate-cave-balance-label").textContent).toBe("0 gold safely in your cave");
+
+  hud.unloadingFailed();
+  expect(button("#unload-count").hidden).toBe(true);
+  expect(button("#unload-failure").hidden).toBe(false);
+  button("#unload-retry").click();
+  expect(handlers.unload).toHaveBeenCalledOnce();
+
+  deliverChest(progress, 0);
+  hud.home();
+  expect(button("#unload-ui").hidden).toBe(true);
+  expect(button("#cave-ui .pirate-cave-title").textContent).toBe("Cave");
+  expect(button("#cave-ui .pirate-cave-balance-label").textContent).toBe("1,000 gold safely in your cave");
 });
 
 it("uses the singular keepsake count in the real private ship room", () => {
@@ -96,28 +118,61 @@ it("keeps live actions out of the pause dialog's interaction layer", () => {
   expect(document.activeElement).toBe(button('#v-pause'));
 });
 
+it("releases an active steering drag when changing camera views", () => {
+  const { hud, button, handlers } = setup(false);
+  const wheel = button("#v-wheel"), stick = button("#v-stick");
+  let capture: number | null = null;
+  wheel.setPointerCapture = id => { capture = id; };
+  wheel.hasPointerCapture = id => capture === id;
+  wheel.releasePointerCapture = id => {
+    capture = null;
+    wheel.dispatchEvent(new PointerEvent("lostpointercapture", { pointerId: id }));
+  };
+  hud.play(0);
+  hud.camera(false);
+  const pointer = (type: string, pointerId: number, clientX: number) =>
+    wheel.dispatchEvent(new PointerEvent(type, { pointerId, clientX }));
+  pointer("pointerdown", 11, 30);
+  pointer("pointermove", 11, 70);
+  expect(stick.style.transform).not.toBe("");
+  expect(handlers.steer.mock.lastCall?.[0]).toBeGreaterThan(0);
+
+  hud.camera(true);
+  expect(capture).toBeNull();
+  expect(stick.style.transform).toBe("");
+  expect(handlers.steer).toHaveBeenLastCalledWith(null);
+
+  pointer("pointermove", 11, 80);
+  expect(handlers.steer).toHaveBeenLastCalledWith(null);
+  pointer("pointerdown", 12, 50);
+  pointer("pointermove", 12, 10);
+  expect(handlers.steer.mock.lastCall?.[0]).toBeLessThan(0);
+  pointer("pointerup", 12, 10);
+  expect(handlers.steer).toHaveBeenLastCalledWith(null);
+});
+
 describe("ship chart details dialog", () => {
   it("dismisses on an outside tap without activating the chart and restores focus to the ship", () => {
     const { hud, handlers, button } = setup(false);
-    hud.showMenu("worlds");
-    button("#map-ship").click();
+    hud.showMenu("levels");
+    button("#level-ship").click();
     expect(button("#ship-panel").getAttribute("role")).toBe("dialog");
-    expect(button("#world-menu").inert).toBe(true);
+    expect(button("#level-menu").inert).toBe(true);
     expect(document.activeElement).toBe(button("#ship-close"));
     button("#ship-place").click();
     expect(button("#ship-panel").hidden).toBe(false);
     button("#ship-panel-backdrop").click();
     expect(button("#ship-panel").hidden).toBe(true);
     expect(button("#ship-panel-backdrop").hidden).toBe(true);
-    expect(button("#world-menu").inert).toBe(false);
-    expect(document.activeElement).toBe(button("#map-ship"));
+    expect(button("#level-menu").inert).toBe(false);
+    expect(document.activeElement).toBe(button("#level-ship"));
     expect(handlers.travel).not.toHaveBeenCalled();
-    expect(hud.root.dataset.screen).toBe("worlds");
+    expect(hud.root.dataset.screen).toBe("levels");
   });
 
   it("keeps Tab inside the dialog and lets Escape close details before global menu shortcuts", () => {
     const { hud, button } = setup(false);
-    hud.showMenu("worlds"); button("#map-ship").click();
+    hud.showMenu("levels"); button("#level-ship").click();
     document.dispatchEvent(new KeyboardEvent("keydown", { key: "Tab", shiftKey: true, bubbles: true, cancelable: true }));
     expect(document.activeElement).toBe(button("#ship-cave"));
     document.dispatchEvent(new KeyboardEvent("keydown", { key: "Tab", bubbles: true, cancelable: true }));
@@ -130,7 +185,7 @@ describe("ship chart details dialog", () => {
     expect(escape.defaultPrevented).toBe(true);
     expect(shortcut).not.toHaveBeenCalled();
     expect(button("#ship-panel").hidden).toBe(true);
-    expect(hud.root.dataset.screen).toBe("worlds");
+    expect(hud.root.dataset.screen).toBe("levels");
   });
 });
 
@@ -152,9 +207,10 @@ describe.each([false, true])("treasure navigation with private ship %s", (privat
     expect(button("#map-cave").getAttribute("aria-label")).toBe("Visit treasure cave");
     button("#map-cave").click();
     expect(handlers.travel).toHaveBeenCalledTimes(2);
-    button("#map-ship").click();
+    button('[data-pack="0"]').click();
+    button("#level-ship").click();
     expect(button("#ship-panel").hidden).toBe(false);
-    expect(button("#map-ship").getAttribute("aria-expanded")).toBe("true");
+    expect(button("#level-ship").getAttribute("aria-expanded")).toBe("true");
     button("#menu-hold").click();
     expect(handlers.travel).toHaveBeenLastCalledWith("hold");
     button("#visit-ship").click();
@@ -162,7 +218,7 @@ describe.each([false, true])("treasure navigation with private ship %s", (privat
     button("#ship-cave").click();
     expect(handlers.travel).toHaveBeenLastCalledWith("cave");
     button("#ship-close").click();
-    expect(button("#map-ship").getAttribute("aria-expanded")).toBe("false");
+    expect(button("#level-ship").getAttribute("aria-expanded")).toBe("false");
     expect(handlers.home).not.toHaveBeenCalled();
     expect(handlers.harbour).not.toHaveBeenCalled();
   });
@@ -202,13 +258,16 @@ describe("regional island journeys", () => {
   it("keeps the ship details action outside level hit targets and makes the travelling boat decorative", () => {
     const { hud, button } = setup(false);
     hud.showMenu("worlds");
-    expect(button("#map-ship").closest(".world-map")).toBeNull();
+    expect(hud.root.querySelector("#world-menu [aria-controls=ship-panel]")).toBeNull();
     button('[data-pack="0"]').click();
     const chart = button(".level-board"), marker = button("#level-ship-marker");
     expect(button("#level-ship").closest(".level-board")).toBeNull();
     expect(chart.querySelectorAll("button[data-level]")).toHaveLength(10);
-    expect(chart.querySelector("[data-map-center]")?.hasAttribute("hidden")).toBe(true);
+    const center = chart.querySelector("[data-map-center]");
+    expect(center?.getAttribute("aria-label")).toBe("Current island");
+    expect(center?.textContent?.trim()).toBe("");
     expect(marker.tagName).toBe("SPAN");
+    expect(marker.querySelector("img")?.getAttribute("src")).toMatch(/assets\/map\/chart-pearl\.webp$/);
     expect(marker.getAttribute("aria-hidden")).toBe("true");
     expect(marker.hasAttribute("inert")).toBe(true);
     marker.click();
@@ -241,7 +300,9 @@ describe("regional island journeys", () => {
     const stops = [...hud.root.querySelectorAll<HTMLButtonElement>("[data-level]")];
     expect(stops).toHaveLength(10);
     expect(new Set(stops.map(b => b.querySelector("img")?.getAttribute("src"))).size).toBe(10);
-    expect(stops[0]!.querySelectorAll(".earned")).toHaveLength(3);
+    expect(stops[0]!.textContent).toContain("3 / 3 stars");
+    expect(stops[1]!.getAttribute("aria-current")).toBe("step");
+    expect(stops[2]!.textContent).toContain("Locked");
     expect(stops[1]!.disabled).toBe(false);
     expect(stops[2]!.disabled).toBe(true);
     stops[1]!.click(); expect(handlers.travel).toHaveBeenLastCalledWith(1);
@@ -263,14 +324,25 @@ describe("regional island journeys", () => {
     Object.defineProperty(chart, "clientWidth", { value: 400 });
     Object.defineProperty(chart, "clientHeight", { value: 500 });
     vi.spyOn(chart, "getBoundingClientRect").mockReturnValue({ left: 10, top: 20, width: 320, height: 400 } as DOMRect);
-    vi.spyOn(button('[data-level="0"]'), "getBoundingClientRect").mockReturnValue({ right: 106, top: 324, height: 35.2 } as DOMRect);
+    vi.spyOn(button('[data-level="0"] .chart-island-art'), "getBoundingClientRect").mockReturnValue({ left: 64, right: 106, top: 324, height: 35.2 } as DOMRect);
     hud.location({ kind: "course", index: 0 });
     expect(parseFloat(button("#level-ship-marker").style.left)).toBeCloseTo(140);
-    expect(parseFloat(button("#level-ship-marker").style.top)).toBeCloseTo(408.6);
+    expect(parseFloat(button("#level-ship-marker").style.top)).toBeCloseTo(404.2);
+
+    const marker = button("#level-ship-marker");
+    vi.spyOn(button('[data-level="1"] .chart-island-art'), "getBoundingClientRect").mockReturnValue({ left: 40, right: 72, top: 285, height: 35.2 } as DOMRect);
+    const first = { kind: "course", index: 0 } as const;
+    const second = { kind: "course", index: 1 } as const;
+    hud.travelPose(first, second, 0.5);
+    expect(marker.dataset.facing).toBe("left");
+    hud.location(second);
+    expect(marker.dataset.facing).toBe("left");
+    hud.travelPose(second, first, 0.5);
+    expect(marker.dataset.facing).toBe("right");
   });
   it("moves the marker on the active chart and closes ship details on leaving", () => {
     const { hud, button } = setup(false);
-    hud.showMenu("worlds"); button("#map-ship").click();
+    hud.showMenu("levels"); button("#level-ship").click();
     hud.beginTravel({ kind: "port" }, { kind: "course", index: 0 }, "Setting sail…");
     expect(hud.root.dataset.screen).toBe("levels");
     expect(button("#ship-panel").hidden).toBe(true);
@@ -358,4 +430,30 @@ it.each(['#hold-back','#unload-menu','#sea-chart-back'])('passes no click-event 
   const {handlers,button}=setup(false);
   button(id).click();
   expect(handlers.menu.mock.calls).toEqual([[]]);
+});
+
+
+it("uses the ledger's Next Island action for a win and Retry for a loss", () => {
+  const { hud, progress, handlers, button } = setup(false);
+  const session = new VoyageSession(generateVoyage(0));
+  session.state = "won";
+  session.stars = 2;
+  hud.result(session, awardVoyage(progress, 0, session.stars, 0));
+  expect(button("#result-next").disabled).toBe(true);
+  expect(button("#result-menu").disabled).toBe(false);
+  hud.reveal(5, true, true);
+
+  expect(hud.root.querySelectorAll("#result-stars .earned")).toHaveLength(2);
+  expect(hud.root.querySelector("#result-stars")?.getAttribute("aria-label")).toBe("2 of 3 stars");
+  expect(button("#result-next").classList.contains("ledger-primary")).toBe(true);
+  button("#result-next").click();
+  expect(handlers.start).toHaveBeenLastCalledWith(1);
+
+  session.state = "lost";
+  hud.result(session);
+  expect(button("#result-next").hidden).toBe(true);
+  expect(button("#result-unload").hidden).toBe(true);
+  expect(button("#result-retry").classList.contains("ledger-primary")).toBe(true);
+  button("#result-retry").click();
+  expect(handlers.start).toHaveBeenLastCalledWith(0);
 });

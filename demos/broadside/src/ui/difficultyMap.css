@@ -20,10 +20,8 @@
 .world-pack-label em { display: flex; align-items: center; justify-content: center; gap: 6px; margin-top: 10px; padding-top: 8px; border-top: 1px solid #44675524; font: 400 10px/1.4 "DM Sans", sans-serif; }
 .world-pack-label em .icon { width: 14px; height: 14px; }
 .world-pack-stop:hover .world-pack-label { filter: brightness(1.06); }
-.world-map-tools { position: absolute; z-index: 4; bottom: 10px; left: 10px; right: 10px; display: flex; gap: 10px; align-items: center; justify-content: space-between; color: #edf2dc; pointer-events: none; }
+.world-map-tools { position: absolute; z-index: 4; bottom: calc(10px + var(--pirate-safe-bottom)); right: calc(10px + var(--pirate-safe-right)); display: flex; gap: 10px; align-items: center; justify-content: flex-end; color: #edf2dc; pointer-events: none; }
 .world-map-tools > span { padding: 8px 10px; border-radius: 7px; background: #0c1b27d9; font-size: 10px; }
-.world-map-tools button { display: flex; align-items: center; justify-content: center; gap: 6px; min-height: 44px; padding: 8px 12px; border: 1px solid #ecdcab59; border-radius: 8px; background: #0c1b27eb; color: #edf2dc; font-size: 11px; pointer-events: auto; }
-.world-map-tools button .icon { width: 17px; height: 17px; color: var(--world-accent); }
 @media (max-width: 700px) {
   .map-view.operation-world { padding: 0 10px calc(10px + var(--pirate-safe-bottom, env(safe-area-inset-bottom, 0px))); }
 }
@@ -37,13 +35,9 @@
   .world-map-heading p { font-size: 11px; }
 }
 @media (max-width: 700px) {
-  .world-map-tools { left: 8px; right: 8px; bottom: 8px; gap: 6px; }
-}
-@media (max-width: 700px) {
   .world-map-tools > span { font-size: 9px; padding-inline: 8px; }
 }
 @media (max-width: 700px) {
-  .world-map-tools button { font-size: 10px; padding-inline: 9px; }
 }
 @media (max-width: 350px), (max-height: 700px) and (max-width: 700px) {
   .world-map-heading h1 { font-size: 27px; }
@@ -63,3 +57,21 @@
 /* Map art can extend behind the glass; every control remains clear of side safe areas. */
 .map-view.operation-world {padding-left:max(16px,var(--pirate-safe-left));padding-right:max(16px,var(--pirate-safe-right));}
 @media(max-width:700px){.map-view.operation-world{padding-left:max(10px,var(--pirate-safe-left));padding-right:max(10px,var(--pirate-safe-right));}}
+
+/* Keep the first visible islands below the chart navigation on narrow phones. */
+.pirate-chart-header ~ .world-map-viewport {
+  position: absolute;
+  inset: 0;
+  border: 0;
+  border-radius: 0;
+}
+@media (max-width: 520px) {
+  .map-view.operation-world:has(> .pirate-chart-header) {
+    background: #176867 url("/assets/map/worlds/add-water.webp") center / 360px repeat;
+  }
+  .pirate-chart-header:has(.pirate-chart-title) ~ .world-map-viewport {
+    inset-block-start: calc(var(--pirate-back-bottom) + 36px);
+    box-shadow: none;
+    mask-image: linear-gradient(transparent, black 12px);
+  }
+}

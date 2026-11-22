@@ -1,9 +1,10 @@
 import { describe, expect, it } from "vitest";
 import { PACKS, SAVE_KEY, freshProgress } from "./academy";
 import {
-  LANGUAGES, LANGUAGE_KEY, createI18n, detectLanguage,
+  LANGUAGES, LANGUAGE_KEY, detectLanguage,
   readLanguagePreference, saveLanguagePreference,
-} from "./i18n";
+} from "../i18n/languages";
+import { createI18n } from "./i18n";
 import { catalogs, en } from "./messages";
 
 describe("Captain Calculus language selection", () => {
@@ -36,6 +37,17 @@ describe("Captain Calculus language selection", () => {
     expect(readLanguagePreference(storage)).toBe("auto");
     data.set(LANGUAGE_KEY, "invalid");
     expect(readLanguagePreference(storage)).toBe("auto");
+  });
+
+  it("uses each game's previous key until a shared choice is saved", () => {
+    const legacy = ["broadside.home.language.v1", "broadside.math.language.v1", "reader.menu.language"];
+    const data = new Map([[legacy[0]!, "fr"], [legacy[1]!, "sv"], [legacy[2]!, "nb"]]);
+    const storage = { getItem: (key: string) => data.get(key) ?? null, setItem: (key: string, value: string) => { data.set(key, value); } };
+    expect(legacy.map(key => readLanguagePreference(storage, key))).toEqual(["fr", "sv", "nb"]);
+    expect(saveLanguagePreference("de", storage)).toBe(true);
+    expect(legacy.map(key => readLanguagePreference(storage, key))).toEqual(["de", "de", "de"]);
+    expect(saveLanguagePreference("auto", storage)).toBe(true);
+    expect(legacy.map(key => readLanguagePreference(storage, key))).toEqual(["auto", "auto", "auto"]);
   });
 
   it("still plays when storage is missing or blocked", () => {

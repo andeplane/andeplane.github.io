@@ -1,4 +1,20 @@
 import type { SeaLandmarkKind } from "../game/levels";
+import { GEM_ICON_PATH } from "./icons";
+
+let gemPath: Path2D | undefined;
+
+export function drawGemSymbol(ctx: CanvasRenderingContext2D, x: number, y: number, size: number, color: string): void {
+  gemPath ??= new Path2D(GEM_ICON_PATH);
+  ctx.save();
+  ctx.translate(x - size / 2, y - size / 2);
+  ctx.scale(size / 24, size / 24);
+  ctx.strokeStyle = color;
+  ctx.lineWidth = 2.5;
+  ctx.lineCap = "round";
+  ctx.lineJoin = "round";
+  ctx.stroke(gemPath);
+  ctx.restore();
+}
 
 /** Ink silhouettes use the same landmarks as the permanent 3D islands. */
 export function drawLandmarkSymbol(ctx: CanvasRenderingContext2D, kind: SeaLandmarkKind, x: number, y: number) {

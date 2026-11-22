@@ -104,13 +104,14 @@ describe("math cargo uses the shared ship and cave", () => {
     view.show(progress,true);
     expect(runtime.holds[0].scene.dispose).toHaveBeenCalledOnce();
     const cave=runtime.caves[0], ids=pendingMathChests(progress).map(c=>c.id);
-    expect(cave.showCargo).toHaveBeenLastCalledWith(ids,ids[0],true);
     expect(cave.refresh).toHaveBeenLastCalledWith(expect.objectContaining({bankGold:[1000,0,0,0]}),0,1000);
     for(let i=0;i<3;i++) {
+      expect(cave.showCargo).toHaveBeenLastCalledWith(ids.slice(i), ids[i], 0);
       cave.depositComplete=true; runtime.engines[0].loop();
       expect(bankedGold(progress)).toBe((i+1)*1000);
       expect(pendingMathChests(progress)).toHaveLength(2-i);
     }
+    expect(cave.showCargo).toHaveBeenLastCalledWith([]);
     expect(cave.beginUnload.mock.calls.map((args:any[])=>args[1])).toEqual(ids);
     expect(changed).toHaveBeenCalledTimes(3); expect(ready).toHaveBeenCalledOnce();
     expect(view.unloading).toMatchObject({done:true,total:3,delivered:3});

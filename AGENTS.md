@@ -4,6 +4,12 @@ Before changing code, identify the owning GitHub repository and maintained sourc
 
 For Broadside and Captain Calculus, the maintained source is `demos/broadside/` in `andeplane/andeplane.github.io`. The standalone `/Users/anderhaf/projects/personal/games/broadside` checkout is an older prototype, not the release source. Port intended changes onto the latest maintained source before validation, commits, or PRs; do not replace current gameplay with prototype files. Verify the final PR diff and packaged build against that source.
 
+# Share pirate-game menus and controls
+
+Broadside, Captain Calculus, and Captain Reader share their menu layouts, navigation buttons, and visual states. Use shared components and styles in `demos/broadside/src/ui/` for the same menu role, including chart headers, Back, map controls, results, and treasure scene overlays. Fix common behavior once at the shared source. Game entry points supply their own content, translations, data, and action callbacks through the shared component.
+
+Review representative screens in all three games when changing shared menu code. Check action placement and safe areas as well as game-specific destinations and behavior.
+
 # Mandatory design review
 
 For every UI change, carefully review the complete affected experience before delivery. A passing build, test suite, or one attractive menu screenshot is not a completed design review.

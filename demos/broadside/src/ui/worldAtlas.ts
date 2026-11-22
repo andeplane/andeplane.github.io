@@ -1,8 +1,10 @@
-import { chartShip } from "../ui/adventureChart";
+import { chartCenterButton, chartShip } from "../ui/adventureChart";
 import type { OperatorId } from "../math/academy";
-import type { createI18n } from "../math/i18n";
+import type { CommonLocale } from "../i18n/locale";
 import { worldFor } from "../math/worlds";
+import type { ShipArtStyle } from "./worldArt";
 import { icon } from "../ui/icons";
+import { chartHeader } from "./menuChrome";
 import { regionForLevel } from "../ui/expeditionTrail";
 import type { MapCamera, MapPoint } from "../ui/mapPan";
 
@@ -17,14 +19,15 @@ export function levelPoint(id: OperatorId, level: number): MapPoint {
   return { x: Math.round(n * 24 + 310 * Math.sin(n * .37 + phase) + 180 * Math.sin(n * .16 + phase)), y: -n * STEP };
 }
 
-type Locale = ReturnType<typeof createI18n>;
-export function atlasView(id: OperatorId, pack: string, back: string, current: number, locale: Locale, title = worldFor(id).name) {
+type Locale = Pick<CommonLocale, "t" | "format">;
+export function atlasView(id: OperatorId, pack: string, back: string, current: number, locale: Locale, options: { title?: string; actions?: string } = {}) {
   const { t } = locale, focus = levelPoint(id, current);
+  const { title = worldFor(id).name, actions } = options;
   return `<section class="expedition-view voyage-atlas">
-    <header class="trail-heading">${back}<h1>${title}<small>${pack}</small></h1></header>
+    ${chartHeader({back, heading: `<h1>${title}<small>${pack}</small></h1>`, actions})}
     <div class="expedition-map-viewport" data-map-viewport tabindex="0" role="group" aria-label="${t("worldLevelMap", {world:title})}" aria-describedby="expedition-map-help" data-focus-x="${focus.x}" data-focus-y="${focus.y}">
       <div class="atlas-plane" data-map-world style="--water:url(${worldAsset(id, "-water")})"></div>
-      <div class="expedition-map-tools" data-map-control><button data-map-center aria-label="${t("findIsland")}">${icon("compass")}</button><button data-map-zoom="in" aria-label="${t("zoomIn")}">+</button><button data-map-zoom="out" aria-label="${t("zoomOut")}">−</button></div>
+      <div class="expedition-map-tools" data-map-control>${chartCenterButton(t("findIsland"))}<button data-map-zoom="in" aria-label="${t("zoomIn")}">+</button><button data-map-zoom="out" aria-label="${t("zoomOut")}">−</button></div>
       <span class="map-keyboard-help" id="expedition-map-help">${t("mapKeyboard")}</span>
     </div></section>`;
 }
@@ -50,6 +53,7 @@ function clearOfCourse(id: OperatorId, x: number, y: number, radius: number) {
 
 interface AtlasOptions {
   terrainOnly?:boolean;
+  shipStyle?: ShipArtStyle;
   caption?:(level:number, solved:number)=>string;
 }
 interface AtlasTrack { cleared:number; stars:Record<number,number>; runs:Record<number,{solved:number}>; }
@@ -86,7 +90,7 @@ function tileContents(id: OperatorId, col: number, row: number, track: AtlasTrac
     const state = options.caption && !locked ? options.caption(n,solved) : locked ? t("locked") : solved ? t("resumeCount",{count:solved}) : current ? t("start") : `${t("stars", {count:score})}, ${t("replay")}`;
     const chapter = options.caption ? options.caption(n,solved) : (n-1)%12 === 0 ? regionForLevel(n,worldFor(id)).name : "";
     parts.push(`<div class="expedition-stop ${current ? "is-current" : locked ? "is-locked" : "is-cleared"}" style="left:${left}px;top:${top}px">
-      ${current ? `${chartShip("moored-level")}<span class="expedition-here">${t("nextIslandMarker")}</span>` : ""}
+      ${current ? `${chartShip("moored-level", options.shipStyle)}<span class="expedition-here">${t("nextIslandMarker")}</span>` : ""}
       <button class="expedition-node" data-level="${n}" ${locked ? "disabled" : ""} ${current ? 'id="expedition-current" aria-current="step"' : ""} aria-label="${t("level",{count:format(n)})}, ${state}">
         <span class="route-island" aria-hidden="true">${worldIsland(id,n-1)}</span><span class="shore-number">${format(n)}</span>
         ${locked ? `<small class="expedition-node-lock">${icon("lock")}</small>` : ""}
