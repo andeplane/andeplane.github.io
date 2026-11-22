@@ -18,6 +18,10 @@ import timberNormalUrl from "./village-surfaces/boards-normal.webp";
 import reliefUrl from "./grotto/tidal-limestone-normal.webp";
 
 const clamp = (n: number) => Math.max(0, Math.min(1, n));
+function smoothstep(min: number, max: number, value: number) {
+  const t = clamp((value - min) / (max - min));
+  return t * t * (3 - 2 * t);
+}
 
 /** Two connected, eroded chambers. Walking and the tide pool use the island
  * heightfield. Overhangs need their own mesh and collision along the side walls. */
@@ -83,9 +87,11 @@ export function buildGrotto(
       lateral;
     const x =
       wall + midline(v) + envelope * (0.47 * Math.sin(v * 0.43) + seam * 0.36);
+    const fromMouth = Math.min(v - entrance, entrance + length - v);
+    const inside = smoothstep(0, 1.5, fromMouth);
     const hollows =
-      rockField(v * 0.72 + layer * 1.8, a * 5.3) * 0.23 +
-      0.07 * rockField(v * 1.94, a * 9.1);
+      rockField(v * 0.72 + layer * 1.8, a * 5.3) * (0.10 + 0.13 * inside) +
+      0.07 * inside * rockField(v * 1.94, a * 9.1);
     const y =
       sit +
       envelope *
@@ -96,9 +102,8 @@ export function buildGrotto(
       Math.exp(-Math.abs(v - entrance) * 0.6) -
       Math.exp(-Math.abs(v - entrance - length) * 0.6);
     const scallops =
-      0.65 * Math.sin(a * 3.3 + v * 0.07) +
-      0.31 * Math.sin(8.4 * a + v * 0.16) +
-      0.12 * rockField(a * 14.1, v * 0.38);
+      0.53 * Math.sin(a * 3.3 + v * 0.07) +
+      0.13 * Math.sin(6.8 * a + v * 0.16);
     const z =
       v +
       edge *
@@ -146,7 +151,8 @@ export function buildGrotto(
             rockField(p.x * 0.22, p.z * 0.22) * 2,
         ) +
       0.15 * rockField(p.x * 0.55, p.z * 0.64 + p.y * 0.63);
-    const tide = clamp((1.55 - p.y) * 1.45);
+    const tideLine = 0.98 + 0.43 * rockField(p.x * 0.75, p.z * 0.69);
+    const tide = clamp((tideLine - p.y) * 1.72);
     const cover = exposed
       ? clamp((p.y - 5.05) * 0.82 + rockField(p.x * 0.29, p.z * 0.24) * 0.95)
       : 0;
