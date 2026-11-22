@@ -221,7 +221,7 @@ export class IslandScenery {
   terrain() {
     const ground = MeshBuilder.CreateGround(
       "island-0-0",
-      { width: 96, height: 96, subdivisions: 128 },
+      { width: 96, height: 96, subdivisions: 184 },
       this.scene,
     );
     const pos = ground.getVerticesData("position")!,

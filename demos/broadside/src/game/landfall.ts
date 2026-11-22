@@ -117,6 +117,7 @@ export function landfallReserved(
 ): boolean {
   return (
     townReserved(site.town, x, z) ||
+    (z < site.spawn.z && Math.abs(x - site.spawn.x) < 2) ||
     segmentDistance(x, z, site.grotto.entry, site.grotto.exit) < 5.6 ||
     segmentDistance(x, z, site.spawn, site.grotto.entry) < 1.8 ||
     segmentDistance(x, z, site.spawn, site.dig) < 2.2
@@ -208,10 +209,12 @@ export function generateIsland(
         const dx = x - grotto.entry.x, dz = z - grotto.entry.z;
         const along = dx * grottoSin + dz * grottoCos;
         const across = dx * grottoCos - dz * grottoSin;
-        const poolAxis = -2.15 + .32 * Math.sin(along * .54);
-        const pool = (1 - smooth(.57, 1.36, Math.abs(across - poolAxis))) *
-          smooth(3.5, 6.3, along) * (1 - smooth(11.9, 15.8, along));
-        const sandyFloor = .92 + grainOnShelf(x, z) - 1.7 * pool;
+        // Wave-cut bowl: widen the belly then curl into two rounded coves.
+        // The dry path occupies the centre of the vault, beside the pool.
+        const poolAxis = -2.45 + .27 * Math.sin(along * .58);
+        const bulb = Math.hypot((along - 8.25) / 5.75, (across - poolAxis) / 2.18);
+        const pool = 1 - smooth(.19, 1.09, bulb + .042 * detail(x * .6, z * .6));
+        const sandyFloor = .83 + grainOnShelf(x, z) - 1.82 * pool;
         h += (sandyFloor - h) * Math.max(approach, shelf);
       }
     }
