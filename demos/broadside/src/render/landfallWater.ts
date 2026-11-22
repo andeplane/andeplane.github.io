@@ -88,10 +88,14 @@ void main() {
   vec3 sight=reflect(-v,n);
   float door=smoothstep(.48,.98,abs(dot(sight.xz,caveAxis)));
   float depth=smoothstep(.0,.85,d);
-  vec3 pigment=mix(vec3(.13,.255,.225),vec3(.036,.13,.14),depth);
-  float thread=1.-smoothstep(.025,.23,cells(p*8.,clock*.34));
-  pigment+=vec3(.135,.205,.17)*thread*.36*exp(-2.*max(0.,d));
-  pigment+=vec3(.16,.32,.38)*door*fresnel*(.66+.34*ripple);
+  vec3 pigment=mix(vec3(.20,.40,.36),vec3(.048,.19,.22),depth);
+  float thread=1.-smoothstep(.033,.23,cells(p*6.6,clock*.34));
+  pigment+=vec3(.38,.51,.31)*thread*exp(-1.18*max(0.,d));
+  float doorwayGlint=pow(max(0.,.64+.36*crossing),12.)
+                   * (.35+.65*door)*(.24+.76*fresnel);
+  pigment+=vec3(.32,.49,.50)*doorwayGlint;
+  float waterline=(1.-smoothstep(.018,.075,abs(d-.018)))*(.32+.68*thread);
+  pigment+=vec3(.20,.29,.23)*waterline;
   pigment*=mix(vec3(1.),vec3(.31,.43,.54),night);
   float opacity=.30+.35*depth+.24*fresnel;
   gl_FragColor=vec4(pigment,opacity);
