@@ -16,3 +16,27 @@ A link with `mode=walk` starts at the beach. Add `start=village` for the village
 - The browser draws the terrain and places the walker using the same height function. The treasure hunt and camera belong to this playtest app. It has its own entry point and does not read campaign saves.
 
 The regional shape fields and habitat filtering follow the approach in Cavecraft’s `src/gen/scenario/islands.js` and `src/gen/nature/flora.js`. The 2D simplex lattice follows the public-domain reference by Stefan Gustavson. The generation and visual review workflow used the [GameVibing skills](https://github.com/andeplane/gamevibing).
+
+## Reproduce a playtest
+
+Use the URL printed by Vite as the base and append one of these query strings. They all use seed 82417 in the first pack, Rose Beacon Cay. URL pack numbers start at 1, while the generator API starts at 0.
+
+| Start | Query string | What to try |
+| --- | --- | --- |
+| Village lane | `?pack=1&seed=82417&settlement=hamlet&mode=walk&start=village` | Inspect the loft balcony, shutters and porch lantern. Open the map, follow the clue to the pink shells and dig. |
+| Tidal grotto | `?pack=1&seed=82417&mode=walk&start=cave&light=day` | Walk through the eroded limestone passage, past the tide pool and the lantern beside the rope winch. |
+| Uninhabited shore | `?pack=1&seed=82417&settlement=none&mode=walk&start=harbor` | Walk the pier and gangway onto the Pearl, turn around and walk all the way back to the beach. Every island gets this dock, including islands without a town. |
+| Pearl after dark | `?pack=1&seed=82417&settlement=village&mode=walk&start=ship&light=night` | Look toward the lighthouse for its rotating beam and reflection. Walk ashore toward the lit windows under the Milky Way. |
+
+## Where to continue
+
+| Concern | Source |
+| --- | --- |
+| Seed, pack and terrain | [Island generator](../src/game/landfall.ts), [coastline and grotto plan](../src/game/landfallCoast.ts), [simplex noise](../src/game/landfallNoise.ts) |
+| Settlement layout and docking | [Town lots and streets](../src/game/landfallTown.ts), [dock placement and walkable heights](../src/game/landfallDock.ts), [pier and Pearl assembly](../src/render/landfallHarbor.ts) |
+| Lighting and close-up scenery | [Scene assembly](../src/render/landfallView.ts), [sky](../src/render/landfallSky.ts), [water](../src/render/landfallWater.ts), [beacon](../src/render/landfallBeacon.ts), [grotto](../src/render/landfallGrotto.ts), [village](../src/render/landfallTown.ts) |
+| Exploration and treasure | [Atlas entry point](main.ts), [chart](../src/ui/landfallTreasureMap.ts), [shovel strikes](../src/render/landfallDigging.ts), [ground deformation](../src/render/landfallExcavation.ts) |
+
+For campaign integration, start with `generateIsland` and the pack catalogue. The Atlas entry point currently owns the transition between survey and walking, the player's position and the in-memory dig counter. The next gameplay step is to enter a landfall from a pack's final voyage, persist the recovered treasure in that voyage's save, and return the player to the ship. The existing expedition can be replayed independently while those transitions are developed.
+
+Run `npm test` and `npm run islands:build` from `demos/broadside` after changing the generator or renderer. The dock regression test samples the complete route from the landing to the deck over 256 combinations. For a visual regression check, use the four starts above and open the chart at 390 × 844, 320 × 568 and 667 × 320. These sizes were checked in the browser during development. Physical phone handling and performance still need a device playtest.
