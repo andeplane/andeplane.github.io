@@ -44,12 +44,7 @@
 #academy[data-screen="settings"] #main-content {
   inset:0; padding:0; background:#382318 url("/assets/map/problem-table.webp") center / cover;
 }
-body:has(#academy) .game-privacy {
-  background:#edd29c; border:5px double #704623; border-radius:2px; color:#34200e;
-  font-family:Georgia,serif;
-}
 body:has(#academy) .game-privacy .privacy-copy { font:16px/1.5 Georgia,serif; }
-body:has(#academy) .game-privacy :is(h2,p) { color:#34200e; }
 
 /* Keep the captain's desk visible at the edges of each exercise. */
 #academy {

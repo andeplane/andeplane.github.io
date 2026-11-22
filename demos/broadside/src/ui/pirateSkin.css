@@ -1,0 +1,127 @@
+/* One skin for all three pirate games.
+   A game places and sizes these controls; it never recolours them. The look is locked
+   here with !important, and tools/checkPirateUi.mjs stops game stylesheets from growing
+   colours, fonts or !important rules of their own. */
+
+/* Back: dark wood and brass on every screen. */
+:is(#academy, #voyage-ui, #reader) button.pirate-menu-back {
+  border: 1px solid #82683d !important;
+  background: #221b13 !important;
+  color: #fff0ce !important;
+}
+@media (hover: hover) and (pointer: fine) {
+  :is(#academy, #voyage-ui, #reader) button.pirate-menu-back:enabled:hover { background: #33281b !important; }
+}
+:is(#academy, #voyage-ui, #reader) button.pirate-menu-back:enabled:active { background: #44351f !important; }
+
+/* Controls that float over a 3D scene: Ship, Cave, Inspect. */
+.pirate-nav-link,
+.pirate-cave-inspect {
+  border: 1px solid #ad8958 !important;
+  border-radius: 8px !important;
+  background: #2c2015f0 !important;
+  color: #fff1d2 !important;
+  box-shadow: 0 3px 10px #0006;
+}
+.pirate-nav-link .icon { color: #e9bf73 !important; }
+.pirate-nav-link small { color: #f5d6a0 !important; }
+
+/* Walk controls: the same brass-rimmed pad and jump button in every walkable scene. */
+.pirate-walk-pad,
+.pirate-walk-jump {
+  border: 2px solid #ad8958 !important;
+  border-radius: 50% !important;
+  background: radial-gradient(circle, #2c201599 35%, #1d150de0) !important;
+  color: #fff1d2 !important;
+  box-shadow: inset 0 0 0 4px #0000003d, 0 3px 10px #0007 !important;
+}
+.pirate-walk-thumb {
+  border: 1px solid #ffe2a4 !important;
+  border-radius: 50% !important;
+  background: radial-gradient(circle at 35% 30%, #ffe2a4, #d6ab62 58%, #9a6f30) !important;
+  box-shadow: 0 2px 6px #000a !important;
+}
+.pirate-walk-jump {
+  width: 64px !important;
+  height: 64px !important;
+  padding: 0 !important;
+  font: 400 26px/1 var(--pirate-menu-font) !important;
+}
+.pirate-walk-jump small {
+  display: block !important;
+  margin-top: 2px;
+  color: #f5d6a0 !important;
+  font: 700 10px/1 var(--pirate-menu-font) !important;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+}
+/* The gold thumb says "move" on its own; no game adds a caption to the pad. */
+.pirate-walk-pad small { display: none !important; }
+
+/* Sheets: every dialog and pop-up panel is the same parchment page. */
+dialog.game-privacy,
+dialog.language-picker,
+dialog.reader-dialog,
+#voyage-ui #ship-panel {
+  border: 5px double #704623 !important;
+  border-radius: 6px !important;
+  background: #edd29c !important;
+  color: #34200e !important;
+  box-shadow: 0 14px 44px #000b, inset 0 0 26px #9d784a55 !important;
+}
+:is(dialog.game-privacy, dialog.language-picker, dialog.reader-dialog, #voyage-ui #ship-panel) :is(h1, h2, h3, p, label, li) {
+  color: #34200e !important;
+}
+:is(dialog.game-privacy, dialog.language-picker, dialog.reader-dialog, #voyage-ui #ship-panel) .eyebrow {
+  color: #6b4320 !important;
+}
+:is(dialog.game-privacy, dialog.language-picker, dialog.reader-dialog, #voyage-ui #ship-panel) :is(h1, h2) {
+  font-family: "Pirata One", Georgia, serif !important;
+  font-weight: 400 !important;
+}
+:is(dialog.game-privacy, dialog.language-picker, dialog.reader-dialog, #voyage-ui #ship-panel) button {
+  border: 1px solid #90602f !important;
+  border-radius: 4px 6px 3px 5px !important;
+  background: linear-gradient(#fff8e1, #f3dca9) !important;
+  box-shadow: inset 0 1px #fffaf0 !important;
+  color: #42240e !important;
+}
+:is(dialog.game-privacy, dialog.language-picker, dialog.reader-dialog, #voyage-ui #ship-panel) button:is(.primary, #visit-ship, [aria-pressed="true"]) {
+  border: 3px double #805117 !important;
+  background: linear-gradient(#fff2bb, #f5cc67 52%, #e5aa46) !important;
+  box-shadow: inset 0 1px #fffae1, 0 2px 4px #6a381e65 !important;
+}
+:is(dialog.game-privacy, dialog.language-picker, dialog.reader-dialog, #voyage-ui #ship-panel) button:focus-visible {
+  outline: 2px solid #34200e !important;
+  outline-offset: 2px;
+}
+
+/* The settings sheet: every line on the parchment is the same ruled row, and every note
+   the same small print, whichever game wrote it. */
+:is(#academy, #reader, #voyage-ui) .captain-paper :is(.desk-action, .privacy-action, .wood-button) {
+  display: block !important;
+  width: 100% !important;
+  min-height: 44px !important;
+  margin: 0 auto !important;
+  padding: 10px 4px !important;
+  border: 0 !important;
+  border-bottom: 1px solid #876132 !important;
+  border-radius: 0 !important;
+  background: transparent !important;
+  box-shadow: none !important;
+  color: #30200e !important;
+  font: 700 17px/1.15 Georgia, serif !important;
+  text-align: center !important;
+}
+:is(#academy, #reader, #voyage-ui) .captain-paper p {
+  max-width: 34ch;
+  margin: 12px auto 0 !important;
+  color: #3b2816 !important;
+  font: 500 13px/1.45 "DM Sans", system-ui, sans-serif !important;
+  text-align: center !important;
+}
+:is(#academy, #reader, #voyage-ui) .captain-paper a { color: #3b2816 !important; text-decoration: underline; }
+/* Keep every line inside the drawn border of the parchment, clear of the ship and the dragon. */
+:is(#academy, #reader, #voyage-ui) .captain-paper {
+  padding: clamp(36px, 7vh, 64px) clamp(40px, 11vw, 64px) clamp(52px, 9vh, 80px) !important;
+}

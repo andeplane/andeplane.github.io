@@ -1,0 +1,187 @@
+{
+ "math/adventure.css": {
+  "colours": 92,
+  "fonts": 6,
+  "important": 8
+ },
+ "math/clock.css": {
+  "colours": 45,
+  "fonts": 5
+ },
+ "math/clockBoard.ts": {
+  "buttons": 3
+ },
+ "math/focus.css": {
+  "colours": 26,
+  "important": 4
+ },
+ "math/gameHud.css": {
+  "colours": 22,
+  "fonts": 3
+ },
+ "math/home.css": {
+  "colours": 12,
+  "fonts": 4,
+  "important": 1
+ },
+ "math/main.ts": {
+  "buttons": 11
+ },
+ "math/overworld.css": {
+  "colours": 2
+ },
+ "math/rewardScene.css": {
+  "colours": 4
+ },
+ "math/style.css": {
+  "colours": 198,
+  "fonts": 4,
+  "important": 8
+ },
+ "math/treasureChart.css": {
+  "colours": 39,
+  "fonts": 5,
+  "important": 7
+ },
+ "reading/main.ts": {
+  "buttons": 12
+ },
+ "reading/style.css": {
+  "colours": 185,
+  "fonts": 12,
+  "important": 8
+ },
+ "shared/pirate-world/feedback.css": {
+  "colours": 7,
+  "fonts": 1
+ },
+ "ui/adventureChart.css": {
+  "colours": 24,
+  "fonts": 4
+ },
+ "ui/adventureChart.ts": {
+  "buttons": 2
+ },
+ "ui/caveWalk.css": {
+  "colours": 23,
+  "fonts": 1,
+  "important": 1
+ },
+ "ui/chart.css": {
+  "colours": 27,
+  "fonts": 2
+ },
+ "ui/debugCoins.css": {
+  "colours": 11,
+  "fonts": 3
+ },
+ "ui/debugCoins.ts": {
+  "buttons": 4
+ },
+ "ui/deck.css": {
+  "colours": 23,
+  "fonts": 1
+ },
+ "ui/difficultyMap.css": {
+  "colours": 17,
+  "fonts": 3
+ },
+ "ui/expeditionTrail.css": {
+  "colours": 66
+ },
+ "ui/expeditionTrail.ts": {
+  "buttons": 5
+ },
+ "ui/explorationHud.css": {
+  "colours": 42,
+  "fonts": 3
+ },
+ "ui/fullscreen.css": {
+  "colours": 9,
+  "fonts": 2
+ },
+ "ui/fullscreen.ts": {
+  "buttons": 1
+ },
+ "ui/harbour.css": {
+  "colours": 5
+ },
+ "ui/hud.css": {
+  "colours": 117,
+  "fonts": 10,
+  "important": 7
+ },
+ "ui/hud.ts": {
+  "buttons": 21
+ },
+ "ui/islandChart.css": {
+  "colours": 31,
+  "fonts": 8
+ },
+ "ui/islandChart.ts": {
+  "buttons": 1
+ },
+ "ui/journey.css": {
+  "colours": 49,
+  "fonts": 2
+ },
+ "ui/landfallHud.css": {
+  "colours": 25,
+  "fonts": 7,
+  "important": 1
+ },
+ "ui/landfallHud.ts": {
+  "buttons": 6,
+  "dialogs": 1
+ },
+ "ui/lanternHome.css": {
+  "colours": 26,
+  "fonts": 5,
+  "important": 1
+ },
+ "ui/liveHud.css": {
+  "colours": 23,
+  "fonts": 2
+ },
+ "ui/mapPan.css": {
+  "colours": 1
+ },
+ "ui/menu.css": {
+  "colours": 91,
+  "fonts": 6
+ },
+ "ui/reward.css": {
+  "colours": 4
+ },
+ "ui/sailing.css": {
+  "colours": 33,
+  "fonts": 3
+ },
+ "ui/startup.css": {
+  "colours": 11,
+  "fonts": 4
+ },
+ "ui/uiBudget.ts": {
+  "buttons": 1,
+  "dialogs": 1
+ },
+ "ui/voyage.css": {
+  "colours": 48,
+  "fonts": 6,
+  "important": 2
+ },
+ "ui/voyageHud.ts": {
+  "buttons": 28,
+  "dialogs": 1
+ },
+ "ui/worldAtlas.ts": {
+  "buttons": 3
+ },
+ "ui/worldRoute.css": {
+  "colours": 10,
+  "fonts": 2
+ },
+ "ui/worldRoute.ts": {
+  "buttons": 1
+ }
+}
