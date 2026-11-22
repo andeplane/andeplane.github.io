@@ -53,7 +53,6 @@ export function buildGrotto(
     night ? 0.033 : 0.155,
   );
   material.linkEmissiveWithDiffuse = true;
-  new GrottoBounce(material, at(-2.48, 0, 8.1), night);
   material.diffuseTexture.anisotropicFilteringLevel =
     material.bumpTexture.anisotropicFilteringLevel = 4;
   material.specularColor.set(0.06, 0.065, 0.06);
@@ -211,6 +210,7 @@ export function buildGrotto(
     d: number,
     thickness: number,
     id: number,
+    segments = 32,
   ) => {
     const profile = [
       [0.03, 1],
@@ -223,7 +223,7 @@ export function buildGrotto(
       [0.03, -0.06],
     ] as const;
     surface(
-      32,
+      segments,
       profile.length - 1,
       (az, k) => {
         const angle = az * Math.PI * 2;
@@ -231,7 +231,8 @@ export function buildGrotto(
         const chip =
           0.92 +
           0.1 * rockField(id + Math.cos(angle) * 1.3, Math.sin(angle) * 1.3);
-        const tilt = 0.11 * Math.sin(angle + id) * r;
+        const tilt =
+          Math.min(0.11, thickness * 0.19) * Math.sin(angle + id) * r;
         return at(
           u + Math.cos(angle) * r * w * chip,
           top + (y - 1) * thickness + tilt,
@@ -251,6 +252,29 @@ export function buildGrotto(
   shoal(-0.91, 6.83, 0.3, 0.67, 1.13, 0.67, 16);
   shoal(-0.86, 8.4, 0.35, 0.73, 1.2, 0.77, 17);
   shoal(-1.13, 9.91, 0.26, 0.62, 0.92, 0.63, 18);
+  // Small shingle collects in loose pockets below the tide ledges.
+  for (const [centerU, centerV] of [
+    [-1.14, 5.63],
+    [1.38, 6.9],
+    [1.78, 11.67],
+  ] as const) {
+    for (let i = 0; i < 6; i++) {
+      const u = centerU + 0.52 * rockField(centerV, i * 3.83);
+      const v = centerV + 0.61 * rockField(i * 4.73, centerU);
+      const bed = at(u, 0, v);
+      const size = 0.075 + 0.054 * rockField(u * 14.3, v * 8.7);
+      shoal(
+        u,
+        v,
+        island.heightAt(bed.x, bed.z) + size * 0.42,
+        size * 1.34,
+        size,
+        size * 0.74,
+        i + centerV,
+        10,
+      );
+    }
+  }
   const shell = new Mesh("tidal grotto • wave-cut vault and sea door", scene);
   const vd = new VertexData();
   vd.positions = positions;
@@ -647,6 +671,7 @@ export function buildGrotto(
       6,
     );
   }
+  new GrottoBounce(material, at(-2.48, 0, 8.1), lampPos, night);
   const light = new PointLight("sheltered amber flame", lampPos, scene);
   light.diffuse.set(1, 0.5, 0.2);
   light.intensity = night ? 3.15 : 2.85;

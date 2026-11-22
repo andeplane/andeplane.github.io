@@ -13,6 +13,7 @@ export class GrottoBounce extends MaterialPluginBase {
   constructor(
     mat: StandardMaterial,
     private readonly pool: Vector3,
+    private readonly lamp: Vector3,
     private readonly night: boolean,
   ) {
     super(mat, "Tidal caustics", 182, {}, true, true);
@@ -22,11 +23,15 @@ export class GrottoBounce extends MaterialPluginBase {
   }
   override getUniforms() {
     return {
-      ubo: [{ name: "tideBounce", size: 4, type: "vec4" }],
-      fragment: "uniform vec4 tideBounce;",
+      ubo: [
+        { name: "tideBounce", size: 4, type: "vec4" },
+        { name: "lampBounce", size: 3, type: "vec3" },
+      ],
+      fragment: "uniform vec4 tideBounce; uniform vec3 lampBounce;",
     };
   }
   override bindForSubMesh(buffer: UniformBuffer) {
+    buffer.updateVector3("lampBounce", this.lamp);
     buffer.updateFloat4(
       "tideBounce",
       this.pool.x,
@@ -40,6 +45,13 @@ export class GrottoBounce extends MaterialPluginBase {
     return {
       CUSTOM_FRAGMENT_BEFORE_FOG: `
       vec3 reefP = vPositionW;
+      // Diffuse light bounced by the stone behind the oil lamp. Use the rock
+      // albedo and perturbed surface normal so ridges stay crisp in the glow.
+      vec3 lampRay = lampBounce - reefP;
+      float lampDist2 = dot(lampRay,lampRay);
+      float incidence = abs(dot(normalW,normalize(lampRay + vec3(.0001))));
+      float warmBounce = exp(-lampDist2*.38) * (.46 + .54*incidence);
+      color.rgb += baseColor.rgb * warmBounce * vec3(1.14,.46,.085);
       float tideFalloff = exp(-dot(reefP.xz-tideBounce.xy,reefP.xz-tideBounce.xy)*.068)
                         * smoothstep(.02,.73,reefP.y) * (1.-smoothstep(4.6,6.0,reefP.y)) * tideBounce.w;
       vec2 tideUV = vec2(reefP.x*.66 + reefP.z*.68, reefP.y*1.12 + reefP.z*.37);
