@@ -406,8 +406,16 @@ function drawHouse(batch: TownGeometry, h: TownHouse, floor: number, biome: stri
   const lampX = h.variant === "loft" ? halfW * .71 : .61;
   const lampBase = h.variant === "loft" ? 2.22 : 1.55;
   batch.box(dark,lampX,lampBase+.33,front-.15,.21,.073,.34);
-  batch.turned("#e7ae62",lampX,lampBase,front-.24,.11,.13,.27,16,"glass");
-  batch.turned("#414d47",lampX,lampBase+.27,front-.24,.18,.075,.13,20);
+  const lampZ = front-.255;
+  batch.turned("#e7ae62",lampX,lampBase+.027,lampZ,.085,.098,.227,24,"glass");
+  batch.turned("#343e3b",lampX,lampBase,lampZ,.113,.125,.041,24);
+  batch.turned("#4c5450",lampX,lampBase+.246,lampZ,.143,.10,.066,24);
+  batch.turned("#3c4642",lampX,lampBase+.312,lampZ,.10,.047,.029,24);
+  for (let bar=0;bar<6;bar++) {
+    const angle = bar*Math.PI/3;
+    batch.box("#414643",lampX+.102*Math.cos(angle),lampBase+.142,
+      lampZ+.102*Math.sin(angle),.018,.228,.018,"plain");
+  }
   batch.box("#aa9b83",0,.06,front-.55,1.4,.12,.47,"stone");
   if (h.variant === "store") {
     shopfront(batch,h,front,accent,winter);
