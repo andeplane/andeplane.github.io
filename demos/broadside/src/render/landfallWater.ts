@@ -132,19 +132,25 @@ void main() {
 
 #ifdef NIGHT_WATER
   vec3 surface=vec3(p.x,0.,p.y);
-  vec3 reflected=reflect(-v,n);
+  // Short capillary waves interrupt the reflection of a window in the gaps
+  // between slower swells. Suppress unresolved detail towards the horizon.
+  float smallWave=sin(dot(p,vec2(3.5,6.4))+clock*1.36+2.7*drift+.38*sin(crossWave));
+  float smallCross=sin(dot(p,vec2(-6.1,2.3))-clock*1.16+2.2*wind);
+  vec3 facets=normalize(n+vec3(.023*smallWave+.012*smallCross,0.,.034*smallWave)*near);
+  vec3 reflected=reflect(-v,facets);
+  float broken=mix(1.,.34+.74*smoothstep(-.62,.52,.68*smallWave+.32*smallCross),near);
   // The moon catches fine wave crests outside its main glitter path.
   water+=vec3(.021,.039,.057)*near*(.24+.76*wind)*(.5+.5*sin(crossWave+swell*.34));
   float litWindows=0.;
   for(int i=0;i<6;i++) {
     if(windowLights[i].w<1.) litWindows+=lampGlint(windowLights[i],surface,v,reflected,.94);
   }
-  water+=vec3(.83,.43,.155)*(1.-exp(-litWindows*1.05));
+  water+=vec3(.83,.43,.155)*(1.-exp(-litWindows*1.05))*broken;
   if(beacon.w<1.) {
     vec3 toSurface=normalize(surface-beacon.xyz);
     float sweep=smoothstep(.83,.99,dot(toSurface,beamDirection));
     float glint=lampGlint(beacon,surface,v,reflected,.64);
-    water+=vec3(1.,.68,.34)*glint*(.38+1.72*sweep);
+    water+=vec3(1.,.68,.34)*glint*(.38+1.72*sweep)*broken;
   }
 #endif
 
