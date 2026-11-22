@@ -16,14 +16,21 @@ export function loftGallery(batch: TownGeometry, front: number, accent: string) 
   batch.box("#dac08c",.29,floor+.80,front-.213,.09,.055,.045,"plain");
   batch.box(oak,0,floor+.02,front-.14,1.05,.065,.26);
   // Two knees transfer the joists back to the wall. The plank deck sits on top.
-  for(const x of [-.79,.79]) {
-    batch.box(darkOak,x,floor-.38,front-.065,.16,.70,.14);
-    batch.box(oak,x,floor-.11,front-.52,.14,.15,1.08);
-    const rotate=batch.transform;
-    const dy=.50,dz=-.73,len=Math.hypot(dy,dz),c=dy/len,s=dz/len;
-    batch.transform=([u,v,w])=>rotate([x+u,floor-.41+c*v-s*w,front-.43+s*v+c*w]);
-    batch.box(oak,0,0,0,.115,len,.12);
-    batch.transform=rotate;
+  for (const side of [-1, 1]) {
+    const joistX = side * .79, ledgerX = side * .52;
+    batch.box(darkOak,ledgerX,floor-.39,front-.063,.13,.62,.13);
+    batch.box(oak,joistX,floor-.11,front-.52,.14,.15,1.08);
+    const rotate = batch.transform;
+    const dy = .48, dz = -.67, length = Math.hypot(dy,dz);
+    const rise = dy/length, run = dz/length;
+    // The wall end sits between the doorway and the shutter swing.
+    batch.transform = ([u,v,w]) => rotate([
+      (joistX+ledgerX)/2+u+(joistX-ledgerX)*v/length,
+      floor-.39+rise*v-run*w,
+      front-.40+run*v+rise*w,
+    ]);
+    batch.box(oak,0,0,0,.115,length,.12);
+    batch.transform = rotate;
   }
   for(let i=0;i<8;i++) batch.box(i%3===0 ? "#ac8964" : "#9e7853",(i-3.5)*.245,floor-.032,front-.51,.238,.065,1.0);
   batch.box(darkOak,0,floor-.08,outer,1.99,.145,.085);
