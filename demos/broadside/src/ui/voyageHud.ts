@@ -738,16 +738,14 @@ export class VoyageHud {
     if (!camera) return;
     camera.pan.destroy();
     camera.chart.inert = false;
+    for (const key of ["inset", "left", "top", "width", "height"] as const) camera.chart.style[key] = "";
     camera.viewport.replaceWith(camera.chart);
     this.travelCamera = undefined;
   }
   private followTravelShip(): void {
     const camera = this.travelCamera;
     if (!camera?.follow) return;
-    const map = camera.plane.getBoundingClientRect();
-    const ship = camera.ship.getBoundingClientRect();
-    const { scale } = camera.pan.getState();
-    camera.pan.center({ x: (ship.left + ship.width / 2 - map.left) / scale, y: (ship.top + ship.height / 2 - map.top) / scale });
+    camera.pan.follow(camera.ship);
   }
   private openTravelCamera(regional: boolean): void {
     this.closeTravelCamera();
@@ -766,13 +764,16 @@ export class VoyageHud {
     resume.dataset.mapCenter = "";
     resume.textContent = "Follow ship";
     resume.hidden = true;
+    // Keep the chart exactly where the player saw it: no relayout and no zoom when sailing starts.
+    const before = chart.getBoundingClientRect();
     chart.replaceWith(viewport);
     viewport.append(plane, resume);
     plane.append(chart);
     chart.inert = true;
-    const reduced = window.matchMedia?.("(prefers-reduced-motion: reduce)").matches ?? false;
+    const frame = viewport.getBoundingClientRect();
+    Object.assign(chart.style, { inset: "auto", left: `${before.left - frame.left}px`, top: `${before.top - frame.top}px`, width: `${before.width}px`, height: `${before.height}px` });
     const pan = mountMapPan(viewport, plane, {
-      coverViewport: true, scale: reduced ? 1 : 1.5,
+      unbounded: true, state: { x: 0, y: 0, scale: 1 },
       onGesture: () => {
         if (this.travelCamera) this.travelCamera.follow = false;
         resume.hidden = false;
@@ -783,7 +784,7 @@ export class VoyageHud {
         this.followTravelShip();
       },
     });
-    this.travelCamera = { pan, viewport, plane, chart, ship, follow: !reduced };
+    this.travelCamera = { pan, viewport, plane, chart, ship, follow: true };
   }
   beginTravel(from: ShipLocation, to: ShipLocation, label: string): void {
     const previousPack = this.pack;

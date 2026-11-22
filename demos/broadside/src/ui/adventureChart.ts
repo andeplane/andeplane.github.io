@@ -2,6 +2,7 @@ import { icon } from "./icons";
 import { menuText } from "./homeMenu";
 import { pirateShipArt, type ShipArtStyle } from "./worldArt";
 import "./adventureChart.css";
+import { mapPanFor } from "./mapPan";
 
 interface Shore {
   id:string|number; label:string; detail?:string; tally?:string; accessible:string;
@@ -39,6 +40,9 @@ export function sailToShore(event:MouseEvent, root:HTMLElement):boolean {
   faceChartShip(ship, dx);
   chart.dataset.sailing="true";
   const animation=ship.animate([{translate:"0 0"},{translate:`${dx}px ${dy}px`}],{duration:540,easing:"ease-in-out",fill:"forwards"});
+  const pan=mapPanFor(chart);
+  const follow=()=>{if(!chart.dataset.sailing)return;pan?.follow(ship);requestAnimationFrame(follow);};
+  if(pan)requestAnimationFrame(follow);
   void animation.finished.then(()=>{delete chart.dataset.sailing;if(root.contains(target))target.click();animation.cancel();},()=>{delete chart.dataset.sailing;});
   return true;
 }

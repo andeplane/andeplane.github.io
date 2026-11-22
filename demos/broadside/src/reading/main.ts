@@ -358,7 +358,7 @@ root.addEventListener("click",e=>{
  switch(el.dataset.action){
   case "ui-language":chooseReaderLanguage(false);break;
   case "practice-language":chooseReaderLanguage(true);break;
-  case "center-pack":{const v=root.querySelector<HTMLElement>("[data-map-viewport]");if(v)pan?.center({x:Number(v.dataset.focusX),y:Number(v.dataset.focusY)});break;}
+  case "center-pack":{const v=root.querySelector<HTMLElement>("[data-map-viewport]");if(v)pan?.center({x:Number(v.dataset.focusX),y:Number(v.dataset.focusY)},{smooth:true});break;}
   case "back":back();break;case "play":play();break;case "interests":openInterests(false);break;case "packs":navigate("packs");break;case "settings":navigate("settings");break;
   case "resume":{run=Object.values(progress.tracks).map(t=>t.run).filter((r):r is Run=>!!r).sort((a,b)=>b.id-a.id)[0]??null;if(run){progress.language=run.language;packId=run.pack;viewCurrent();navigate("reading");void beginListening();}break;}
   case "listen":listenPaused=false;stopListening();errorMessage="";render();void speech.capabilities().then(value=>{cap=value;capLoaded=true;if(canListen())void beginListening();}).catch(()=>{errorMessage=t("unavailable");render();});break;case "cancel-reading":listenPaused=true;stopListening();render();break;
