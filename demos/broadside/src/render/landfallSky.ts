@@ -30,8 +30,8 @@ const lighting = {
     sun: "#ffbd82", skyFill: "#b8cdef", bounce: "#867486", key: 1.12, fill: .69,
   },
   night: {
-    sky: nightSky, azimuth: 2.71, elevation: .58, solarU: .573, fog: "#25344b",
-    sun: "#98b6e2", skyFill: "#859bc1", bounce: "#776d88", key: .35, fill: .32,
+    sky: nightSky, azimuth: 2.71, elevation: .58, solarU: .573, fog: "#192b40",
+    sun: "#a6c6ef", skyFill: "#8aa8d0", bounce: "#635d72", key: .42, fill: .29,
   },
 };
 
@@ -63,7 +63,10 @@ void main() {
   vec3 sky=texture2D(panorama,vec2(az,1.-latitude)).rgb;
   if(night>.5) {
     // Remove the long exposure sky pedestal to reveal the photographed dust lanes.
-    sky=vec3(.009,.018,.038)+pow(max(sky-vec3(.25,.245,.23),0.)*1.43,vec3(1.85))*vec3(.84,.91,1.);
+    vec3 exposure=max(sky-vec3(.278,.267,.241),0.);
+    float luma=dot(exposure,vec3(.2126,.7152,.0722));
+    vec3 stars=pow(mix(vec3(luma),exposure,.60)*1.60,vec3(2.10));
+    sky=vec3(.008,.017,.035)+stars*vec3(.84,.93,1.04);
   } else if(sunset>.5) {
     float warmth=exp(-max(d.y,0.)*3.8);
     sky*=mix(vec3(.9,.90,1.04),vec3(1.11,.82,.74),warmth);

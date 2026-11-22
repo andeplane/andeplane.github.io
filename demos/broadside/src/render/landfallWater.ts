@@ -4,6 +4,8 @@ import { Vector3 } from "@babylonjs/core/Maths/math.vector.js";
 import { Color3 } from "@babylonjs/core/Maths/math.color.js";
 import { Effect } from "@babylonjs/core/Materials/effect.js";
 import { ShaderMaterial } from "@babylonjs/core/Materials/shaderMaterial.js";
+import type { SpotLight } from "@babylonjs/core/Lights/spotLight.js";
+import type { TownHouse } from "../game/landfallTown";
 import type { Scene } from "@babylonjs/core/scene.js";
 import type { WorldStyle } from "./worldStyle";
 
@@ -30,6 +32,10 @@ precision highp float;
 varying vec3 shore;
 uniform vec3 deep, shallow, foam, horizon, eye, sunDirection, sunColor;
 uniform float clock, night;
+#ifdef NIGHT_WATER
+uniform vec4 windowLights[6], beacon;
+uniform vec3 beamDirection;
+#endif
 
 float hash(vec2 p) { return fract(sin(dot(p,vec2(41.3,117.7)))*43758.5); }
 float noise(vec2 p) {
@@ -43,6 +49,24 @@ float cells(vec2 p, float time) {
   vec2 a = p + .54*vec2(sin(p.y*1.41+time*.63),cos(p.x*1.16-time*.52));
   return abs(sin(a.x+.39*a.y+time*.24) + .77*cos(a.y-.26*a.x-time*.27));
 }
+#ifdef NIGHT_WATER
+// A rippled surface reflects each source toward the eye. A window has angular
+// size; its reflection stretches into dashes as the swell tips through that angle.
+float lampGlint(vec4 lamp, vec3 surface, vec3 sight, vec3 reflected, float width) {
+  vec3 delta=lamp.xyz-surface;
+  float distance=max(length(delta),.01);
+  vec3 incoming=delta/distance;
+  float aboveLand=smoothstep(lamp.w-.035,lamp.w+.035,-lamp.y/max(.1,length(delta.xz)));
+  float front=smoothstep(.02,.32,dot(incoming.xz,-sight.xz));
+  vec2 across=vec2(sight.z,-sight.x)/max(.08,length(sight.xz));
+  vec2 error=vec2(dot(incoming.xz-reflected.xz,across), incoming.y-reflected.y);
+  vec2 spread=vec2(.017,.060)+vec2(width,.55)/distance;
+  vec2 q=error/spread;
+  float silver=exp(-dot(q,q)*.78);
+  float skirt=exp(-dot(q,q)*.14);
+  return aboveLand*front*(silver+.11*skirt)/(1.+.020*distance+.00023*distance*distance);
+}
+#endif
 void main() {
   vec2 p=shore.xy;
   float d=shore.z, dist=length(vec3(p.x,0.,p.y)-eye);
@@ -80,6 +104,24 @@ void main() {
   water+=sunColor*(glitter*(.2+.8*near)*(.38+.62*breeze)
          + lowSun*path*wavelets*(.07+.21*fresnel))*(1.-night*.37);
 
+#ifdef NIGHT_WATER
+  vec3 surface=vec3(p.x,0.,p.y);
+  vec3 reflected=reflect(-v,n);
+  // The moon catches fine wave crests outside its main glitter path.
+  water+=vec3(.021,.039,.057)*near*(.24+.76*wind)*(.5+.5*sin(crossWave+swell*.34));
+  float litWindows=0.;
+  for(int i=0;i<6;i++) {
+    if(windowLights[i].w<1.) litWindows+=lampGlint(windowLights[i],surface,v,reflected,.94);
+  }
+  water+=vec3(.83,.43,.155)*(1.-exp(-litWindows*1.05));
+  if(beacon.w<1.) {
+    vec3 toSurface=normalize(surface-beacon.xyz);
+    float sweep=smoothstep(.83,.99,dot(toSurface,beamDirection));
+    float glint=lampGlint(beacon,surface,v,reflected,.64);
+    water+=vec3(1.,.68,.34)*glint*(.38+1.72*sweep);
+  }
+#endif
+
   float breakers=sin(clock*.92+.29*p.x+.17*p.y+drift*2.8);
   float edge=d-.104-.079*breakers-.057*(wind-.5);
   float tidepool=1.-smoothstep(.025,.14,abs(edge));
@@ -90,10 +132,34 @@ void main() {
   gl_FragColor=vec4(mix(water,horizon,smoothstep(96.,315.,dist)),1.);
 }`;
 
+// A small polar horizon per source measures which generated headlands stand
+// between it and the sea. The reflected path lies along the camera bearing.
+function lampHorizon(position: Vector3, floor: (x: number, z: number) => number) {
+  const slopes = new Float32Array(48);
+  for (let i = 0; i < slopes.length; i++) {
+    const angle = i * Math.PI * 2 / slopes.length;
+    const dx = Math.sin(angle), dz = Math.cos(angle);
+    let horizon = -8;
+    for (let d = 2; d <= 80; d += 1.75) {
+      const land = floor(position.x + dx * d, position.z + dz * d);
+      if (land < 0) break;
+      horizon = Math.max(horizon, (land - position.y) / d);
+    }
+    slopes[i] = horizon;
+  }
+  return (eye: Vector3) => {
+    const turns = Math.atan2(eye.x-position.x,eye.z-position.z)/(Math.PI*2);
+    const bearing = (turns - Math.floor(turns)) * slopes.length;
+    const i = Math.floor(bearing);
+    return slopes[i]! + (slopes[(i+1)%slopes.length]! - slopes[i]!) * (bearing-i);
+  };
+}
+
 /** Water carries the actual seabed depth, so the surf curls around each generated cove. */
 export function buildLandfallWater(
   scene: Scene, floor: (x: number, z: number) => number, style: WorldStyle,
   night = false, sunDirection = new Vector3(-.48,.54,.69),
+  houses: readonly TownHouse[] = [], lighthouse: SpotLight | null = null,
 ) {
   const mesh = new Mesh("breaking waves over the island shelf", scene);
   const coordinates = [
@@ -137,7 +203,8 @@ export function buildLandfallWater(
     { vertex: "landfallWater", fragment: "landfallWater" },
     {
       attributes: ["position", "uv"],
-      uniforms: ["worldViewProjection", "clock", "deep", "shallow", "foam", "horizon", "eye", "sunDirection", "sunColor", "night"],
+      defines: night ? ["#define NIGHT_WATER"] : [],
+      uniforms: ["worldViewProjection", "clock", "deep", "shallow", "foam", "horizon", "eye", "sunDirection", "sunColor", "night", "windowLights", "beacon", "beamDirection"],
     },
   );
   m.backFaceCulling = false;
@@ -151,8 +218,32 @@ export function buildLandfallWater(
   mesh.material = m;
   mesh.isPickable = false;
   mesh.freezeWorldMatrix();
+  const townLights = night ? houses.slice(0,6).map(house => {
+    // Average the pair of illuminated panes on the seaward façade of each house.
+    const seaward = Math.sign(house.x);
+    const position = new Vector3(house.x + seaward*(house.depth/2+.13),
+      floor(house.x,house.z)+1.45, house.z);
+    return { position, horizon: lampHorizon(position,floor) };
+  }) : [];
+  const windows: number[] = Array.from({length:24}, (_,i) => i%4===3 ? 2 : 0);
+  const beacon = [0,0,0,2];
+  const beaconHorizon = lighthouse && night ? lampHorizon(lighthouse.position.clone(),floor) : null;
   return (time: number) => {
     m.setFloat("clock", time);
-    m.setVector3("eye", scene.activeCamera!.position);
+    const eye = scene.activeCamera!.position;
+    m.setVector3("eye", eye);
+    if (night) {
+      for (const [i,lamp] of townLights.entries()) {
+        lamp.position.toArray(windows,i*4);
+        windows[i*4+3] = lamp.horizon(eye);
+      }
+      m.setArray4("windowLights",windows);
+      if (lighthouse && beaconHorizon) {
+        lighthouse.position.toArray(beacon);
+        beacon[3] = beaconHorizon(eye);
+        m.setVector3("beamDirection",lighthouse.direction);
+      }
+      m.setArray4("beacon",beacon);
+    }
   };
 }

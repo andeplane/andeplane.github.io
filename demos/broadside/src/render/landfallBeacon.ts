@@ -393,8 +393,10 @@ function shaft(s: IslandScenery, origin: Vector3, night: boolean) {
         float along=local.z;
         float fade=exp(-along*.021)*(1.-smoothstep(reach*.68,reach,along));
         float haze=.87+.13*sin(along*.48+local.x*.87)*sin(local.y*1.35-along*.27);
-        float a=strength*soft*fade*haze;
-        gl_FragColor=vec4(mix(vec3(1.,.48,.21),vec3(1.,.75,.42),soft),a);
+        // A concentrated Fresnel core feathers into dusty amber at the rim.
+        float core=pow(soft,3.);
+        float a=strength*soft*${night ? "(.64+.50*core)" : "1."}*fade*haze;
+        gl_FragColor=vec4(mix(${night ? "vec3(1.,.46,.19),vec3(1.,.80,.53)" : "vec3(1.,.48,.21),vec3(1.,.75,.42)"},soft),a);
       }`,
     },
     {
@@ -406,7 +408,7 @@ function shaft(s: IslandScenery, origin: Vector3, night: boolean) {
   m.alphaMode = Constants.ALPHA_ADD;
   m.backFaceCulling = false;
   m.disableDepthWrite = true;
-  m.setFloat("strength", night ? 0.24 : 0.033);
+  m.setFloat("strength", night ? 0.29 : 0.033);
   m.setFloat("reach", 76);
   mesh.material = m;
   // Terrain occlusion only depends on the seed, so sample bearings once.
@@ -428,13 +430,15 @@ function shaft(s: IslandScenery, origin: Vector3, night: boolean) {
   };
 }
 
+export const LIGHTHOUSE_BEAM = "sweeping lighthouse beam";
+
 export function buildBeacon(s: IslandScenery, night: boolean) {
   const { x, y, z } = tower(s),
     { rotor, position } = lantern(s, x, y, z, night);
   const beam = shaft(s, position, night);
   // Fade to almost zero before the cone cutoff so the pool on terrain has a soft edge.
   const light = new SpotLight(
-    "sweeping lighthouse beam",
+    LIGHTHOUSE_BEAM,
     position.clone(),
     vec(0, -0.105, 1).normalize(),
     0.88,

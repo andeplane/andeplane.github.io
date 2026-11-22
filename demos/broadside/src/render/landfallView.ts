@@ -2,6 +2,8 @@ import { Scene } from "@babylonjs/core/scene.js";
 import type { Engine } from "@babylonjs/core/Engines/engine.js";
 import { FreeCamera } from "@babylonjs/core/Cameras/freeCamera.js";
 import { HemisphericLight } from "@babylonjs/core/Lights/hemisphericLight.js";
+import type { SpotLight } from "@babylonjs/core/Lights/spotLight.js";
+import { LIGHTHOUSE_BEAM } from "./landfallBeacon";
 import { DirectionalLight } from "@babylonjs/core/Lights/directionalLight.js";
 import { ShadowGenerator } from "@babylonjs/core/Lights/Shadows/shadowGenerator.js";
 import "@babylonjs/core/Lights/Shadows/shadowGeneratorSceneComponent.js";
@@ -184,9 +186,9 @@ export class LandfallView {
     const scenery = new IslandScenery(scene, world, island.site, seed, this.shadows, island.heightAt),
       style = { ...scenery.style, fog: illumination.fog, sun: illumination.sun };
     if (night) {
-      style.deepWater = "#0b1e30";
-      style.shallowWater = "#255052";
-      style.foam = "#718a9d";
+      style.deepWater = "#091a28";
+      style.shallowWater = "#24545a";
+      style.foam = "#7896a7";
     } else if (light === "sunset") {
       style.deepWater = "#244756";
       style.shallowWater = "#57847b";
@@ -203,8 +205,9 @@ export class LandfallView {
     sun.intensity = illumination.key;
     this.sky = buildIslandSky(scene, light, scene.fogColor);
     scenery.terrain();
-    this.water = buildLandfallWater(scene, island.heightAt, style, night, illumination.direction);
     this.landmark = buildLandmark(scenery, night);
+    const beam = scene.getLightByName(LIGHTHOUSE_BEAM) as SpotLight | null;
+    this.water = buildLandfallWater(scene, island.heightAt, style, night, illumination.direction, island.site.town.houses, beam);
     scenery.populate();
     scenery.finish();
     this.obstacles = scenery.obstacles;
@@ -228,8 +231,8 @@ export class LandfallView {
     this.camera.setTarget(this.direction.addInPlace(this.camera.position));
     const t = reducedMotion ? 0 : this.time;
     this.sky(t);
-    this.water(t);
     this.landmark(t);
+    this.water(t);
     this.birds(t);
     this.treasure(digs, dt, t, reducedMotion);
     this.digging.update(dt, reducedMotion);
