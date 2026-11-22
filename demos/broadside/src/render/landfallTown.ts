@@ -2,6 +2,7 @@ import { Mesh } from "@babylonjs/core/Meshes/mesh.js";
 import { VertexData } from "@babylonjs/core/Meshes/mesh.vertexData.js";
 import { MultiMaterial } from "@babylonjs/core/Materials/multiMaterial.js";
 import { SubMesh } from "@babylonjs/core/Meshes/subMesh.js";
+import { blossom, crock, housePlinth, loftGallery, windowGarden } from "./landfallHouseDetails";
 import { modelFish } from "./landfallTownFish";
 import { villageMaterial, surfaceMetres, type VillageSurface } from "./landfallTownMaterials";
 import { Color3 } from "@babylonjs/core/Maths/math.color.js";
@@ -19,7 +20,7 @@ const tiles = ["#a34e38", "#ad6342", "#8e513b", "#ba7654", "#a85b41"];
 const slate = ["#556570", "#605f68", "#697983", "#6c7880", "#546769"];
 
 /** All lots share a mesh, with a single indexed batch for each visible surface. */
-class TownGeometry {
+export class TownGeometry {
   private positions: number[] = [];
   private normals: number[] = [];
   private colors: number[] = [];
@@ -61,6 +62,17 @@ class TownGeometry {
     let indices = this.bySurface.get(kind);
     if (!indices) { indices=[]; this.bySurface.set(kind,indices); }
     for (let i = 2; i < vertices.length; i++) indices.push(first, first + i, first + i - 1);
+  }
+
+  smoothQuad(hex: string, points: Point[], directions: Point[]): void {
+    this.face(hex,...points);
+    // Use the house's rigid frame to rotate the normals without its translation.
+    const zero=this.transform([0,0,0]);
+    const start=this.normals.length-points.length*3;
+    for(const [i,direction] of directions.entries()) {
+      const n=this.transform(direction);
+      for(let axis=0;axis<3;axis++) this.normals[start+i*3+axis]=n[axis]!-zero[axis]!;
+    }
   }
 
   box(hex: string, x: number, y: number, z: number, width: number, height: number, depth: number, kind: VillageSurface = "boards"): void {
@@ -203,18 +215,6 @@ function barrel(batch: TownGeometry, x: number, z: number, scale: number) {
   batch.turned("#76512e",x+.096*scale,top+.047,z+.038*scale,.033*scale,.029*scale,.014,8);
 }
 
-function windowBox(batch: TownGeometry, x: number, z: number, winter: boolean, color: number) {
-  batch.box("#92583f",x,.87,z,1.02,.20,.29);
-  batch.box("#ba7951",x,.95,z,1.08,.075,.34);
-  batch.box("#537450",x,1.01,z,.9,.12,.21);
-  const petals = ["#d54f60","#ecaa4c","#f2dad3","#db7d9a","#d5b3e5"];
-  for (let i=0; i<5; i++) {
-    const dx = x+(i-2)*.18, top = 1.10 + (i%2)*.075;
-    batch.turned("#498452",dx,1.02,z,.07,.035,top-1.02,5);
-    batch.turned(winter ? "#d6e6df" : petals[(color+i%2)%petals.length]!,dx,top,z,.09,.055,.075,6);
-  }
-}
-
 function doorstep(batch: TownGeometry, h: TownHouse, front: number, winter: boolean) {
   const x=h.frontage*.40;
   if (winter) {
@@ -231,10 +231,7 @@ function doorstep(batch: TownGeometry, h: TownHouse, front: number, winter: bool
     // Two glazed water jars outside the potter's cottage.
     for(const [offset,scale] of [[0,.85],[-.35,.56]] as const) {
       const cx=x+offset,cz=front-.37,glaze=offset ? "#638b83" : "#b57450";
-      batch.turned(glaze,cx,.025,cz,.12*scale,.24*scale,.31*scale,12);
-      batch.turned(glaze,cx,.025+.31*scale,cz,.24*scale,.114*scale,.24*scale,12);
-      batch.turned(glaze,cx,.025+.55*scale,cz,.114*scale,.14*scale,.055*scale,12);
-      batch.turned("#483d33",cx,.026+.605*scale,cz,.10*scale,.10*scale,.005,12);
+      crock(batch,cx,cz,scale,glaze);
     }
   } else if(h.color%3===1) {
     barrel(batch,x,front-.42,.78);
@@ -249,7 +246,7 @@ function doorstep(batch: TownGeometry, h: TownHouse, front: number, winter: bool
         batch.face(j%2?"#708243":"#4f7651",...leaf);
         batch.face(j%2?"#708243":"#4f7651",...leaf.reverse());
       }
-      if(j%3!==0) batch.turned(j%2?"#c86576":"#b55775",cx-.07,y+.14,cz-.065,.061,.085,.065,6);
+      if(j%3!==0) blossom(batch,cx-.07,y+.14,cz-.065,.077,j%2?"#c86576":"#b55775",j*.79);
     }
   }
 }
@@ -311,14 +308,14 @@ function shopfront(batch: TownGeometry, h: TownHouse, front: number, accent: str
 
 function drawHouse(batch: TownGeometry, h: TownHouse, floor: number, biome: string) {
   const winter = biome === "winter", highland = biome === "alpine";
-  const halfW = h.frontage / 2, halfD = h.depth / 2, eaves = h.eaves;
+  const halfW = h.frontage / 2, halfD = h.depth / 2, eaves = h.eaves + (h.variant === "loft" ? 1.38 : 0);
   const front = -halfD, accent = paint[h.color]!;
   const roof = (winter || highland ? slate : tiles)[h.color]!;
   const rise = h.rise * (winter || highland ? 1.34 : 1);
   const walls = winter ? ["#9d634a","#a77751","#b38a6d","#916448","#bb9873"][h.color]! : plaster[h.color]!;
   batch.transform = ([x, y, z]) => [h.x - h.facing * z, floor + y, h.z + h.facing * x];
-  batch.box("#c4b49d",0,-.05,0,h.frontage+.25,.94,h.depth+.25,"stone");
-  batch.box(walls,0,eaves/2+.21,0,h.frontage,eaves-.42,h.depth,winter ? "boards" : "lime");
+  housePlinth(batch,halfW,halfD);
+  batch.box(walls,0,eaves/2+.14,0,h.frontage,eaves-.28,h.depth,winter ? "boards" : "lime");
   for (const x of [-halfW, halfW]) for (const z of [-halfD, halfD])
     batch.box(wood,x,eaves/2,z,.14,eaves,.14);
   for (const y of [.30, eaves-.14])
@@ -390,7 +387,7 @@ function drawHouse(batch: TownGeometry, h: TownHouse, floor: number, biome: stri
       for (const y of [1.17,1.76]) batch.box("#494641",shutter-side*.047,y,front-.171,.16,.038,.028,"plain");
     }
   }
-  if (!winter && (h.variant === "store" || h.color%2 === 0)) {
+  if (!winter && h.variant !== "loft" && (h.variant === "store" || h.color%2 === 0)) {
     // A shallow half-round lintel of hand-set wedge stones frames the entrance.
     const stone=["#ccb997","#bbac8e","#dfc9a4","#c5aa89"];
     for(let k=0;k<9;k++) {
@@ -411,16 +408,9 @@ function drawHouse(batch: TownGeometry, h: TownHouse, floor: number, biome: stri
   if (h.variant === "store") {
     shopfront(batch,h,front,accent,winter);
   } else {
-    windowBox(batch,-halfW*.65,front-.26,winter,h.color);
+    windowGarden(batch,-halfW*.65,front-.26,winter,h.color);
     if (h.variant === "loft") {
-      // The balcony has a generous overhang with projecting joists below its floor.
-      const level = eaves-.99;
-      batch.box(wood,0,level,front-.43,1.75,.13,.85);
-      for (const x of [-.76, .76]) batch.box(cut,x,level-.10,front-.43,.12,.16,.98);
-      for (const x of [-.8,-.4,0,.4,.8]) batch.box(accent,x,level+.28,front-.8,.07,.54,.07);
-      batch.box(cut,0,level+.58,front-.8,1.77,.10,.12);
-      batch.box(wood,0,level+.43,front-.06,.78,.91,.15);
-      batch.box("#e9c683",0,level+.50,front-.15,.59,.66,.065,"glass");
+      loftGallery(batch,front,accent);
     } else {
       const canopyWidth=1.36;
       batch.face(roof,[-canopyWidth/2,2.10,front],[canopyWidth/2,2.10,front],
