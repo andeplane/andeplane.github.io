@@ -158,7 +158,7 @@ function compassAndScale(): string {
 }
 
 let chartId = 0;
-function drawChart(island: GeneratedIsland, world: number, seed: number): string {
+function drawChart(island: GeneratedIsland, world: number, seed: number, dock: ReturnType<typeof planPearlDock>, bottom: number): string {
   const wash = `landfall-paper-${++chartId}`;
   const levels = sampleTerrain(island);
   const bands: string[] = [];
@@ -179,7 +179,6 @@ function drawChart(island: GeneratedIsland, world: number, seed: number): string
     drawBand(height, highColors[Math.min(Math.floor(i / 2), highColors.length - 1)]!, "#968e69", .19);
   }
   const { site } = island;
-  const dock = planPearlDock(island);
   const roads = site.town.paths.map(({a,b,width}) => {
     const d = `M${position(a.x)} ${position(-a.z)}L${position(b.x)} ${position(-b.z)}`;
     return `<path d="${d}" stroke="#ac8f63" stroke-width="${position(width)}"/><path d="${d}" stroke="#ebd6a6" stroke-width="${position(width * .62)}"/>`;
@@ -191,15 +190,15 @@ function drawChart(island: GeneratedIsland, world: number, seed: number): string
       <path fill="#d9b27d" d="M0 -${dy}H${dx}V${dy}H0Z"/><path d="M0 -${dy}V${dy}" fill="none"/></g>`;
   }).join("");
   let grid = "";
-  for (let i = -50; i <= 50; i += 10) grid += `M${i} -40V40 M-50 ${i}H50`;
+  for (let i = -50; i <= 50; i += 10) grid += `M${i} -40V${bottom - 3} M-50 ${i}H50`;
   return `<defs><radialGradient id="${wash}" cx="48%" cy="44%" r="75%">
       <stop stop-color="#eee3bd" stop-opacity="0"/><stop offset="72%" stop-color="#c19c64" stop-opacity=".08"/>
       <stop offset="100%" stop-color="#a07942" stop-opacity=".26"/></radialGradient></defs>
-    <rect x="-53" y="-44" width="106" height="88" rx="1" fill="#e8dbaf"/>
-    <rect x="-51.5" y="-42.5" width="103" height="85" rx=".5" fill="#d1d8bd" stroke="#8d8969" stroke-width=".32"/>
+    <rect x="-53" y="-44" width="106" height="${bottom + 44}" rx="1" fill="#e8dbaf"/>
+    <rect x="-51.5" y="-42.5" width="103" height="${bottom + 41}" rx=".5" fill="#d1d8bd" stroke="#8d8969" stroke-width=".32"/>
     <path d="${grid}" fill="none" stroke="#899b88" stroke-width=".14" opacity=".45"/>
     ${bands.join("")}${chartDetail(island, seed)}
-    <rect x="-51.5" y="-42.5" width="103" height="85" rx=".5" fill="url(#${wash})"/>
+    <rect x="-51.5" y="-42.5" width="103" height="${bottom + 41}" rx=".5" fill="url(#${wash})"/>
     <g fill="none">${roads}</g>${houses}
     <g transform="${translate(site.landmark)}" fill="${paper}" stroke="${ink}" stroke-width=".45">
       <title>${landmarkNames[world]}</title>${landmarkSymbols[world]}</g>
@@ -234,13 +233,15 @@ export class LandfallTreasureMap {
   constructor(private readonly island: GeneratedIsland, world: number, seed: number) {
     this.el.className = "landfall-treasure-map";
     this.el.style.cssText = "display:grid;place-items:center;width:100%;min-width:0;min-height:0;max-height:100%";
-    this.svg.setAttribute("viewBox", "-53 -44 106 88");
+    const dock = planPearlDock(island);
+    const bottom = Math.max(44, Math.ceil(-dock.shipZ + 6));
+    this.svg.setAttribute("viewBox", `-53 -44 106 ${bottom + 44}`);
     this.svg.setAttribute("role", "img");
     this.svg.setAttribute("aria-label", `Treasure chart of ${island.site.name}. North is up. From the landing, pass the ${landmarkNames[world]} to reach the marked treasure.`);
     this.svg.setAttribute("stroke-linecap", "round");
     this.svg.setAttribute("stroke-linejoin", "round");
     this.svg.style.cssText = "display:block;width:100%;height:auto;max-height:100%;font-family:Georgia,serif;color:#535541";
-    this.svg.innerHTML = drawChart(island, world, seed);
+    this.svg.innerHTML = drawChart(island, world, seed, dock, bottom);
     this.player = this.svg.querySelector('[data-mark="player"]')!;
     this.landing = this.svg.querySelector('[data-mark="landing"]')!;
     this.landingArrow = this.svg.querySelector('[data-mark="at-landing"]')!;
